@@ -7,8 +7,7 @@ export default function useBackupErrors() {
   useEffect(() => {
     window.electron.getBackupFatalErrors().then(setErrors);
 
-    const removeListener =
-      window.electron.onBackupFatalErrorsChanged(setErrors);
+    const removeListener = window.electron.onBackupFatalErrorsChanged(setErrors);
 
     return removeListener;
   }, []);

@@ -17,20 +17,13 @@ export default function CleaningFinished({
 }: Props) {
   const { translate } = useTranslationContext();
   return (
-    <div
-      className="flex w-full flex-col items-center gap-4"
-      data-testid="clean-finished-container"
-    >
+    <div className="flex w-full flex-col items-center gap-4" data-testid="clean-finished-container">
       <div className="flex w-full max-w-[450px] flex-col text-center">
         <div className="mb-4 flex justify-center">
           <Sparkle color="#0066ff" weight="fill" size={64} />
         </div>
-        <h3 className="text-lg font-semibold">
-          {translate('settings.cleaner.cleaningView.cleaningFinished.title')}
-        </h3>
-        <p className="text-base text-gray-70">
-          {translate('settings.cleaner.cleaningView.cleaningFinished.subtitle')}
-        </p>
+        <h3 className="text-lg font-semibold">{translate('settings.cleaner.cleaningView.cleaningFinished.title')}</h3>
+        <p className="text-base text-gray-70">{translate('settings.cleaner.cleaningView.cleaningFinished.subtitle')}</p>
       </div>
       <CleanedFilesContainer
         deletedFiles={deletedFiles}

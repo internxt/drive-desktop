@@ -18,15 +18,9 @@ export class RemoteSyncError extends Error {
  */
 export class RemoteSyncInvalidResponseError extends RemoteSyncError {
   constructor(response: any) {
-    super(
-      `Expected an array of files, but received: ${JSON.stringify(
-        response,
-        null,
-        2
-      )}`,
-      'INVALID_RESPONSE',
-      { response }
-    );
+    super(`Expected an array of files, but received: ${JSON.stringify(response, null, 2)}`, 'INVALID_RESPONSE', {
+      response,
+    });
     this.name = 'RemoteSyncInvalidResponseError';
   }
 }
@@ -36,11 +30,7 @@ export class RemoteSyncInvalidResponseError extends RemoteSyncError {
  */
 export class RemoteSyncNetworkError extends RemoteSyncError {
   constructor(originalError: any) {
-    super(
-      `Network error occurred during sync: ${originalError.message}`,
-      'NETWORK_ERROR',
-      { originalError }
-    );
+    super(`Network error occurred during sync: ${originalError.message}`, 'NETWORK_ERROR', { originalError });
     this.name = 'RemoteSyncNetworkError';
   }
 }
@@ -50,11 +40,7 @@ export class RemoteSyncNetworkError extends RemoteSyncError {
  */
 export class RemoteSyncServerError extends RemoteSyncError {
   constructor(status: number, data: any) {
-    super(
-      `Server error: request failed with status code ${status} while sync`,
-      'SERVER_ERROR',
-      { status, data }
-    );
+    super(`Server error: request failed with status code ${status} while sync`, 'SERVER_ERROR', { status, data });
     this.name = 'RemoteSyncServerError';
   }
 }

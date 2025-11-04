@@ -11,6 +11,5 @@ export function ensureFolderExists(folder: PathLike) {
     } catch (err) {
       logger.error({ msg: `Error creating the folder <${folder}>, ${err}` });
     }
-
   }
 }

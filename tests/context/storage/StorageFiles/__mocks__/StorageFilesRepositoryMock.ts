@@ -47,14 +47,10 @@ export class StorageFilesRepositoryMock implements StorageFilesRepository {
     return this.deleteMock(id);
   }
 
-  assertDeleteHasBeenCalledWith(
-    calls: Array<Parameters<StorageFilesRepository['delete']>>
-  ) {
+  assertDeleteHasBeenCalledWith(calls: Array<Parameters<StorageFilesRepository['delete']>>) {
     expect(this.deleteMock).toBeCalledTimes(calls.length);
 
-    calls.forEach((parameters) =>
-      expect(this.deleteMock).toBeCalledWith(...parameters)
-    );
+    calls.forEach((parameters) => expect(this.deleteMock).toBeCalledWith(...parameters));
   }
 
   assertDeleteHasNotBeenCalled() {

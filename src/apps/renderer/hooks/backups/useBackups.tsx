@@ -24,10 +24,7 @@ export function useBackups(): BackupContextProps {
 
   async function fetchBackups(): Promise<void> {
     if (!selected) return;
-    const backups = await window.electron.getBackupsFromDevice(
-      selected,
-      selected === current
-    );
+    const backups = await window.electron.getBackupsFromDevice(selected, selected === current);
     setBackups(backups);
   }
 

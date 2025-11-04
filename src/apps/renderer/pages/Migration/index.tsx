@@ -8,9 +8,7 @@ import { reportError } from '../../utils/errors';
 const totalSlides = SLIDES.length - 3;
 
 export default function Migration() {
-  const [migrationProgress, setMigrationProgress] = useState<
-    MigrationSlideProps['progress']
-  >({
+  const [migrationProgress, setMigrationProgress] = useState<MigrationSlideProps['progress']>({
     status: 'MIGRATING',
     totalItemsToMigrate: 0,
     migratedItems: 0,

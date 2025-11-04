@@ -13,26 +13,20 @@ export interface BackupsFoldersSelectorProps {
   onCancel: () => void;
 }
 
-export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
-  props
-) => {
+export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (props) => {
   const { translate } = useTranslationContext();
   const [isLoading, setIsLoading] = useState(false);
   const [backupFolders, setBackupFolders] = useState<BackupFolder[]>([]);
-  const [selectedBackupFolders, setSelectedBackupFolders] = useState<
-    BackupFolder[]
-  >([]);
+  const [selectedBackupFolders, setSelectedBackupFolders] = useState<BackupFolder[]>([]);
 
   const selectFolder = (backupFolder: BackupFolder, toggle = false) => {
-    const match = selectedBackupFolders.find(
-      (selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path
-    );
+    const match = selectedBackupFolders.find((selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path);
 
     if (match && toggle) {
       setSelectedBackupFolders(
         selectedBackupFolders.filter((selectedBackupFolder) => {
           return selectedBackupFolder.path !== backupFolder.path;
-        })
+        }),
       );
       return;
     } else if (match) {
@@ -51,9 +45,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
         return console.warn('No folder selected by the user');
       }
 
-      const match = backupFolders.find(
-        (backupFolder) => backupFolder.path === folder.path
-      );
+      const match = backupFolders.find((backupFolder) => backupFolder.path === folder.path);
 
       if (match) {
         return selectFolder(folder);
@@ -73,12 +65,11 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
     setBackupFolders(
       backupFolders.filter((backupFolder) => {
         const match = selectedBackupFolders.find(
-          (selectedBackupFolder) =>
-            selectedBackupFolder.path === backupFolder.path
+          (selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path,
         );
 
         return match ? false : true;
-      })
+      }),
     );
   };
   const handleOnCancel = () => {
@@ -92,8 +83,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
   const renderBackupFolders = () => {
     return backupFolders.map((backupFolder, index) => {
       const isSelected = !!selectedBackupFolders.find(
-        (selectedBackupFolder) =>
-          selectedBackupFolder.path === backupFolder.path
+        (selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path,
       );
       return (
         <div
@@ -102,20 +92,17 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
             selectFolder(backupFolder, true);
           }}
           role="row"
-          onKeyDown={() =>
-            setSelectedBackupFolders(selectedBackupFolders.concat(backupFolder))
-          }
+          onKeyDown={() => setSelectedBackupFolders(selectedBackupFolders.concat(backupFolder))}
           tabIndex={0}
           key={backupFolder.path}
           className={`non-draggable flex h-9 w-full shrink-0 items-center px-2.5 transition-colors duration-75 ${
             isSelected
               ? 'bg-primary text-white'
               : index % 2 !== 0
-              ? 'bg-white text-gray-100'
-              : 'bg-gray-10 text-gray-100'
-          }`}
-        >
-          <FolderIcon className="mr-2 h-[19px] w-[22px] " />
+                ? 'bg-white text-gray-100'
+                : 'bg-gray-10 text-gray-100'
+          }`}>
+          <FolderIcon className="mr-2 h-[19px] w-[22px]" />
           <p className="select-none truncate text-lg" style={{ top: '1px' }}>
             {backupFolder.itemName}
           </p>
@@ -125,11 +112,9 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
   };
   return (
     <div className="backups-modal-shadow flex h-full rounded-lg bg-white px-5 py-5">
-      <div className="flex flex-1 flex-col items-center justify-between ">
+      <div className="flex flex-1 flex-col items-center justify-between">
         <div className="flex w-full flex-row justify-between">
-          <h1 className="font-medium text-gray-80">
-            {translate('settings.backups.title')}
-          </h1>
+          <h1 className="font-medium text-gray-80">{translate('settings.backups.title')}</h1>
           <h4 className="text-gray-50">
             {translate('settings.backups.selected-folders', {
               count: backupFolders.length,
@@ -146,8 +131,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
           ) : (
             <div
               className="non-draggable flex h-full w-full flex-1 flex-col overflow-y-auto pb-20"
-              onClick={() => setSelectedBackupFolders([])}
-            >
+              onClick={() => setSelectedBackupFolders([])}>
               {renderBackupFolders()}
             </div>
           )}
@@ -160,8 +144,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (
             <Button
               className="ml-1"
               disabled={selectedBackupFolders.length ? false : true}
-              onClick={handleRemoveSelectedBackupFolder}
-            >
+              onClick={handleRemoveSelectedBackupFolder}>
               <UilMinus size="17" />
             </Button>
           </div>

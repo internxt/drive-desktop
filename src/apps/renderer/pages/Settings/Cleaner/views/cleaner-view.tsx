@@ -23,15 +23,10 @@ export function CleanerView({
   getGlobalSelectionStats,
 }: CleanerViewProps) {
   const { diskSpace } = useCleaner();
-  const [sectionDetailMenu, setSectionDetailMenu] = useState<string | null>(
-    null
-  );
+  const [sectionDetailMenu, setSectionDetailMenu] = useState<string | null>(null);
 
   const totalSize = useMemo(() => {
-    return Object.values(report).reduce(
-      (sum, section) => sum + section.totalSizeInBytes,
-      0
-    );
+    return Object.values(report).reduce((sum, section) => sum + section.totalSizeInBytes, 0);
   }, [report]);
 
   const selectedSize = useMemo(() => {
@@ -55,12 +50,7 @@ export function CleanerView({
   };
 
   const segmentDetails = useMemo(() => {
-    return calculateChartSegments(
-      viewModel,
-      report,
-      totalSize,
-      getSectionSelectionStats
-    );
+    return calculateChartSegments(viewModel, report, totalSize, getSectionSelectionStats);
   }, [viewModel, report, totalSize, getSectionSelectionStats]);
 
   return (
@@ -78,11 +68,7 @@ export function CleanerView({
           onToggleSectionExpansion={toggleSectionExpansion}
         />
         {/* Right Panel */}
-        <CleanupSizeIndicator
-          selectedSize={selectedSize}
-          totalSize={diskSpace}
-          segmentDetails={segmentDetails}
-        />
+        <CleanupSizeIndicator selectedSize={selectedSize} totalSize={diskSpace} segmentDetails={segmentDetails} />
       </div>
       {/* Section Detail Menu */}
       {sectionDetailMenu && (

@@ -12,7 +12,7 @@ export class CacheStorageFile {
   constructor(
     private readonly virtualFileFinder: SingleFileMatchingFinder,
     private readonly cache: StorageFileCache,
-    private readonly downloader: StorageFileDownloader
+    private readonly downloader: StorageFileDownloader,
   ) {}
 
   async run(path: string) {

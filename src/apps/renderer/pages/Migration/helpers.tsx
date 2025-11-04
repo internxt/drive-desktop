@@ -34,118 +34,36 @@ export const UploadSuccessAnimation = () => {
       shapeRendering="geometricPrecision"
       textRendering="geometricPrecision"
       width="400"
-      height="224"
-    >
+      height="224">
       <defs>
-        <filter
-          id="e3D4vWITAh73-filter"
-          x="-150%"
-          width="400%"
-          y="-150%"
-          height="400%"
-        >
-          <feGaussianBlur
-            id="e3D4vWITAh73-filter-drop-shadow-0-blur"
-            in="SourceAlpha"
-            stdDeviation="16,10"
-          />
-          <feOffset
-            id="e3D4vWITAh73-filter-drop-shadow-0-offset"
-            dx="0"
-            dy="32"
-            result="tmp"
-          />
-          <feFlood
-            id="e3D4vWITAh73-filter-drop-shadow-0-flood"
-            flood-color="rgba(0,0,0,0.1)"
-          />
-          <feComposite
-            id="e3D4vWITAh73-filter-drop-shadow-0-composite"
-            operator="in"
-            in2="tmp"
-          />
+        <filter id="e3D4vWITAh73-filter" x="-150%" width="400%" y="-150%" height="400%">
+          <feGaussianBlur id="e3D4vWITAh73-filter-drop-shadow-0-blur" in="SourceAlpha" stdDeviation="16,10" />
+          <feOffset id="e3D4vWITAh73-filter-drop-shadow-0-offset" dx="0" dy="32" result="tmp" />
+          <feFlood id="e3D4vWITAh73-filter-drop-shadow-0-flood" flood-color="rgba(0,0,0,0.1)" />
+          <feComposite id="e3D4vWITAh73-filter-drop-shadow-0-composite" operator="in" in2="tmp" />
           <feMerge id="e3D4vWITAh73-filter-drop-shadow-0-merge" result="result">
             <feMergeNode id="e3D4vWITAh73-filter-drop-shadow-0-merge-node-1" />
-            <feMergeNode
-              id="e3D4vWITAh73-filter-drop-shadow-0-merge-node-2"
-              in="SourceGraphic"
-            />
+            <feMergeNode id="e3D4vWITAh73-filter-drop-shadow-0-merge-node-2" in="SourceGraphic" />
           </feMerge>
         </filter>
-        <filter
-          id="e3D4vWITAh737-filter"
-          x="-150%"
-          width="400%"
-          y="-150%"
-          height="400%"
-        >
-          <feGaussianBlur
-            id="e3D4vWITAh737-filter-drop-shadow-0-blur"
-            in="SourceAlpha"
-            stdDeviation="4,4"
-          />
-          <feOffset
-            id="e3D4vWITAh737-filter-drop-shadow-0-offset"
-            dx="0"
-            dy="4"
-            result="tmp"
-          />
-          <feFlood
-            id="e3D4vWITAh737-filter-drop-shadow-0-flood"
-            flood-color="rgba(0,0,0,0.16)"
-          />
-          <feComposite
-            id="e3D4vWITAh737-filter-drop-shadow-0-composite"
-            operator="in"
-            in2="tmp"
-          />
-          <feMerge
-            id="e3D4vWITAh737-filter-drop-shadow-0-merge"
-            result="result"
-          >
+        <filter id="e3D4vWITAh737-filter" x="-150%" width="400%" y="-150%" height="400%">
+          <feGaussianBlur id="e3D4vWITAh737-filter-drop-shadow-0-blur" in="SourceAlpha" stdDeviation="4,4" />
+          <feOffset id="e3D4vWITAh737-filter-drop-shadow-0-offset" dx="0" dy="4" result="tmp" />
+          <feFlood id="e3D4vWITAh737-filter-drop-shadow-0-flood" flood-color="rgba(0,0,0,0.16)" />
+          <feComposite id="e3D4vWITAh737-filter-drop-shadow-0-composite" operator="in" in2="tmp" />
+          <feMerge id="e3D4vWITAh737-filter-drop-shadow-0-merge" result="result">
             <feMergeNode id="e3D4vWITAh737-filter-drop-shadow-0-merge-node-1" />
-            <feMergeNode
-              id="e3D4vWITAh737-filter-drop-shadow-0-merge-node-2"
-              in="SourceGraphic"
-            />
+            <feMergeNode id="e3D4vWITAh737-filter-drop-shadow-0-merge-node-2" in="SourceGraphic" />
           </feMerge>
         </filter>
-        <filter
-          id="e3D4vWITAh750-filter"
-          x="-150%"
-          width="400%"
-          y="-150%"
-          height="400%"
-        >
-          <feGaussianBlur
-            id="e3D4vWITAh750-filter-drop-shadow-0-blur"
-            in="SourceAlpha"
-            stdDeviation="4,4"
-          />
-          <feOffset
-            id="e3D4vWITAh750-filter-drop-shadow-0-offset"
-            dx="0"
-            dy="4"
-            result="tmp"
-          />
-          <feFlood
-            id="e3D4vWITAh750-filter-drop-shadow-0-flood"
-            flood-color="rgba(0,0,0,0.16)"
-          />
-          <feComposite
-            id="e3D4vWITAh750-filter-drop-shadow-0-composite"
-            operator="in"
-            in2="tmp"
-          />
-          <feMerge
-            id="e3D4vWITAh750-filter-drop-shadow-0-merge"
-            result="result"
-          >
+        <filter id="e3D4vWITAh750-filter" x="-150%" width="400%" y="-150%" height="400%">
+          <feGaussianBlur id="e3D4vWITAh750-filter-drop-shadow-0-blur" in="SourceAlpha" stdDeviation="4,4" />
+          <feOffset id="e3D4vWITAh750-filter-drop-shadow-0-offset" dx="0" dy="4" result="tmp" />
+          <feFlood id="e3D4vWITAh750-filter-drop-shadow-0-flood" flood-color="rgba(0,0,0,0.16)" />
+          <feComposite id="e3D4vWITAh750-filter-drop-shadow-0-composite" operator="in" in2="tmp" />
+          <feMerge id="e3D4vWITAh750-filter-drop-shadow-0-merge" result="result">
             <feMergeNode id="e3D4vWITAh750-filter-drop-shadow-0-merge-node-1" />
-            <feMergeNode
-              id="e3D4vWITAh750-filter-drop-shadow-0-merge-node-2"
-              in="SourceGraphic"
-            />
+            <feMergeNode id="e3D4vWITAh750-filter-drop-shadow-0-merge-node-2" in="SourceGraphic" />
           </feMerge>
         </filter>
         <linearGradient
@@ -156,14 +74,9 @@ export const UploadSuccessAnimation = () => {
           y2="0.5"
           spreadMethod="pad"
           gradientUnits="objectBoundingBox"
-          gradientTransform="translate(0 0)"
-        >
+          gradientTransform="translate(0 0)">
           <stop id="e3D4vWITAh755-fill-0" offset="0%" stop-color="#f3f3f8" />
-          <stop
-            id="e3D4vWITAh755-fill-1"
-            offset="100%"
-            stop-color="rgba(243,243,248,0)"
-          />
+          <stop id="e3D4vWITAh755-fill-1" offset="100%" stop-color="rgba(243,243,248,0)" />
         </linearGradient>
         <linearGradient
           id="e3D4vWITAh756-fill"
@@ -173,13 +86,8 @@ export const UploadSuccessAnimation = () => {
           y2="0.5"
           spreadMethod="pad"
           gradientUnits="objectBoundingBox"
-          gradientTransform="translate(0 0)"
-        >
-          <stop
-            id="e3D4vWITAh756-fill-0"
-            offset="0%"
-            stop-color="rgba(243,243,248,0)"
-          />
+          gradientTransform="translate(0 0)">
+          <stop id="e3D4vWITAh756-fill-0" offset="0%" stop-color="rgba(243,243,248,0)" />
           <stop id="e3D4vWITAh756-fill-1" offset="100%" stop-color="#f3f3f8" />
         </linearGradient>
       </defs>
@@ -194,11 +102,7 @@ export const UploadSuccessAnimation = () => {
       />
       <g transform="translate(.457793 0)" filter="url(#e3D4vWITAh73-filter)">
         <g id="e3D4vWITAh74_to" transform="translate(-15.467793,112.5325)">
-          <g
-            id="e3D4vWITAh74"
-            transform="scale(0.71,0.71) translate(-197,-114.5)"
-            opacity="0"
-          >
+          <g id="e3D4vWITAh74" transform="scale(0.71,0.71) translate(-197,-114.5)" opacity="0">
             <path
               d="M157.5,61.25c0-2.8995,2.351-5.25,5.25-5.25h37.317c4.153,0,8.17,1.4767,11.334,4.1661l23.933,20.3427c3.912,3.325,6.166,8.2,6.166,13.3339v68.9073c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v-101.5Z"
               fill="#fcfcfd"
@@ -224,14 +128,7 @@ export const UploadSuccessAnimation = () => {
                 d="M236.25,164.5h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,162.75c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7ZM236.25,161h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,159.25c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7Zm-77,3.5v-3.5h-7v3.5h7Zm84,0v-3.5h-7v3.5h7Z"
                 fill="#e5e5eb"
               />
-              <mask
-                id="e3D4vWITAh711"
-                mask-type="luminance"
-                x="-150%"
-                y="-150%"
-                height="400%"
-                width="400%"
-              >
+              <mask id="e3D4vWITAh711" mask-type="luminance" x="-150%" y="-150%" height="400%" width="400%">
                 <path
                   d="M162.75,168h73.5c2.899,0,5.25-2.351,5.25-5.25v-3.5c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v3.5c0,2.899,2.351,5.25,5.25,5.25Z"
                   fill="#fff"
@@ -268,14 +165,7 @@ export const UploadSuccessAnimation = () => {
                   d="M236.25,164.5h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,162.75c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7ZM236.25,161h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,159.25c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7Zm-77,3.5v-3.5h-7v3.5h7Zm84,0v-3.5h-7v3.5h7Z"
                   fill="#e5e5eb"
                 />
-                <mask
-                  id="e3D4vWITAh720"
-                  mask-type="luminance"
-                  x="-150%"
-                  y="-150%"
-                  height="400%"
-                  width="400%"
-                >
+                <mask id="e3D4vWITAh720" mask-type="luminance" x="-150%" y="-150%" height="400%" width="400%">
                   <path
                     d="M162.75,168h73.5c2.899,0,5.25-2.351,5.25-5.25v-3.5c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v3.5c0,2.899,2.351,5.25,5.25,5.25Z"
                     fill="#fff"
@@ -313,29 +203,15 @@ export const UploadSuccessAnimation = () => {
                   d="M236.25,164.5h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,162.75c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7ZM236.25,161h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,159.25c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7Zm-77,3.5v-3.5h-7v3.5h7Zm84,0v-3.5h-7v3.5h7Z"
                   fill="#e5e5eb"
                 />
-                <mask
-                  id="e3D4vWITAh729"
-                  mask-type="luminance"
-                  x="-150%"
-                  y="-150%"
-                  height="400%"
-                  width="400%"
-                >
+                <mask id="e3D4vWITAh729" mask-type="luminance" x="-150%" y="-150%" height="400%" width="400%">
                   <path
                     d="M162.75,168h73.5c2.899,0,5.25-2.351,5.25-5.25v-3.5c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v3.5c0,2.899,2.351,5.25,5.25,5.25Z"
                     fill="#fff"
                   />
                 </mask>
               </g>
-              <g
-                id="e3D4vWITAh731_ts"
-                transform="translate(199.5,119.999985) scale(0.5,0.5)"
-              >
-                <g
-                  id="e3D4vWITAh731"
-                  transform="translate(-200,-119.999985)"
-                  opacity="0"
-                >
+              <g id="e3D4vWITAh731_ts" transform="translate(199.5,119.999985) scale(0.5,0.5)">
+                <g id="e3D4vWITAh731" transform="translate(-200,-119.999985)" opacity="0">
                   <ellipse
                     rx="20"
                     ry="20"
@@ -358,10 +234,7 @@ export const UploadSuccessAnimation = () => {
                     stroke-dashoffset="94.25"
                     stroke-dasharray="125.66"
                   />
-                  <g
-                    id="e3D4vWITAh734_tr"
-                    transform="translate(200.000002,119.999985) rotate(0)"
-                  >
+                  <g id="e3D4vWITAh734_tr" transform="translate(200.000002,119.999985) rotate(0)">
                     <ellipse
                       rx="20"
                       ry="20"
@@ -374,10 +247,7 @@ export const UploadSuccessAnimation = () => {
                       stroke-dasharray="125.66"
                     />
                   </g>
-                  <g
-                    id="e3D4vWITAh735_tr"
-                    transform="translate(200.000002,119.999985) rotate(0)"
-                  >
+                  <g id="e3D4vWITAh735_tr" transform="translate(200.000002,119.999985) rotate(0)">
                     <ellipse
                       rx="20"
                       ry="20"
@@ -390,10 +260,7 @@ export const UploadSuccessAnimation = () => {
                       stroke-dasharray="125.66"
                     />
                   </g>
-                  <g
-                    id="e3D4vWITAh736_tr"
-                    transform="translate(200.000002,119.999985) rotate(0)"
-                  >
+                  <g id="e3D4vWITAh736_tr" transform="translate(200.000002,119.999985) rotate(0)">
                     <ellipse
                       rx="20"
                       ry="20"
@@ -408,16 +275,12 @@ export const UploadSuccessAnimation = () => {
                   </g>
                 </g>
               </g>
-              <g
-                id="e3D4vWITAh737_ts"
-                transform="translate(199.499999,119.999985) scale(0.9,0.9)"
-              >
+              <g id="e3D4vWITAh737_ts" transform="translate(199.499999,119.999985) scale(0.9,0.9)">
                 <g
                   id="e3D4vWITAh737"
                   transform="translate(-311.500793,-117.715202)"
                   opacity="0"
-                  filter="url(#e3D4vWITAh737-filter)"
-                >
+                  filter="url(#e3D4vWITAh737-filter)">
                   <path
                     d="M323.379,125.652c1.569-2.349,2.407-5.111,2.407-7.937-.004-3.787-1.51-7.418-4.189-10.096-2.678-2.679-6.309-4.185-10.096-4.189-2.826,0-5.588.838-7.937,2.407-2.349,1.57-4.18,3.801-5.262,6.411-1.081,2.611-1.364,5.483-.813,8.254.552,2.772,1.912,5.317,3.91,7.315s4.543,3.358,7.315,3.91c2.771.551,5.643.268,8.253-.813c2.611-1.082,4.842-2.913,6.412-5.262Zm-5.119-11.719c-.08-.193-.197-.368-.345-.515-.148-.148-.322-.265-.515-.346-.193-.08-.399-.121-.608-.122-.208,0-.415.041-.608.12-.193.08-.368.196-.515.344l-6.285,6.286-2.051-2.049c-.148-.148-.323-.265-.516-.345s-.4-.121-.609-.121-.415.041-.608.121-.368.197-.516.345c-.148.147-.265.323-.345.515-.08.193-.121.4-.121.609s.041.415.121.608.197.369.345.516l3.174,3.175c.148.148.323.265.516.345s.4.122.609.122.416-.042.609-.122c.192-.08.368-.197.515-.345l7.408-7.408c.148-.147.265-.322.345-.515s.121-.4.121-.609-.041-.416-.121-.609Z"
                     clip-rule="evenodd"
@@ -440,10 +303,7 @@ export const UploadSuccessAnimation = () => {
           </g>
         </g>
         <g id="e3D4vWITAh741_to" transform="translate(310,112.5325)">
-          <g
-            id="e3D4vWITAh741"
-            transform="scale(0.71,0.71) translate(-197,-114.5)"
-          >
+          <g id="e3D4vWITAh741" transform="scale(0.71,0.71) translate(-197,-114.5)">
             <path
               d="M157.5,61.25c0-2.8995,2.351-5.25,5.25-5.25h37.317c4.153,0,8.17,1.4767,11.334,4.1661l23.933,20.3427c3.912,3.325,6.166,8.2,6.166,13.3339v68.9073c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v-101.5Z"
               fill="#fcfcfd"
@@ -469,24 +329,14 @@ export const UploadSuccessAnimation = () => {
                 d="M236.25,164.5h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,162.75c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7ZM236.25,161h-73.5v7h73.5v-7Zm-73.5,0c-.966,0-1.75-.784-1.75-1.75h-7c0,4.832,3.918,8.75,8.75,8.75v-7ZM238,159.25c0,.966-.784,1.75-1.75,1.75v7c4.832,0,8.75-3.918,8.75-8.75h-7Zm-77,3.5v-3.5h-7v3.5h7Zm84,0v-3.5h-7v3.5h7Z"
                 fill="#e5e5eb"
               />
-              <mask
-                id="e3D4vWITAh748"
-                mask-type="luminance"
-                x="-150%"
-                y="-150%"
-                height="400%"
-                width="400%"
-              >
+              <mask id="e3D4vWITAh748" mask-type="luminance" x="-150%" y="-150%" height="400%" width="400%">
                 <path
                   d="M162.75,168h73.5c2.899,0,5.25-2.351,5.25-5.25v-3.5c0,2.899-2.351,5.25-5.25,5.25h-73.5c-2.899,0-5.25-2.351-5.25-5.25v3.5c0,2.899,2.351,5.25,5.25,5.25Z"
                   fill="#fff"
                 />
               </mask>
             </g>
-            <g
-              transform="matrix(1.292307 0 0 1.292307-203.054656-32.124195)"
-              filter="url(#e3D4vWITAh750-filter)"
-            >
+            <g transform="matrix(1.292307 0 0 1.292307-203.054656-32.124195)" filter="url(#e3D4vWITAh750-filter)">
               <path
                 d="M323.379,125.652c1.569-2.349,2.407-5.111,2.407-7.937-.004-3.787-1.51-7.418-4.189-10.096-2.678-2.679-6.309-4.185-10.096-4.189-2.826,0-5.588.838-7.937,2.407-2.349,1.57-4.18,3.801-5.262,6.411-1.081,2.611-1.364,5.483-.813,8.254.552,2.772,1.912,5.317,3.91,7.315s4.543,3.358,7.315,3.91c2.771.551,5.643.268,8.253-.813c2.611-1.082,4.842-2.913,6.412-5.262Zm-5.119-11.719c-.08-.193-.197-.368-.345-.515-.148-.148-.322-.265-.515-.346-.193-.08-.399-.121-.608-.122-.208,0-.415.041-.608.12-.193.08-.368.196-.515.344l-6.285,6.286-2.051-2.049c-.148-.148-.323-.265-.516-.345s-.4-.121-.609-.121-.415.041-.608.121-.368.197-.516.345c-.148.147-.265.323-.345.515-.08.193-.121.4-.121.609s.041.415.121.608.197.369.345.516l3.174,3.175c.148.148.323.265.516.345s.4.122.609.122.416-.042.609-.122c.192-.08.368-.197.515-.345l7.408-7.408c.148-.147.265-.322.345-.515s.121-.4.121-.609-.041-.416-.121-.609Z"
                 clip-rule="evenodd"

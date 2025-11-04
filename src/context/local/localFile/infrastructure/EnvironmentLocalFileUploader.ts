@@ -16,14 +16,10 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
 
   constructor(
     private readonly environment: Environment,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
-  upload(
-    path: AbsolutePath,
-    size: number,
-    abortSignal: AbortSignal
-  ): Promise<Either<DriveDesktopError, string>> {
+  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =
       size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
@@ -40,6 +36,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
         source: readable,
         fileSize: size,
         finishedCallback: (err: Error | null, contentsId: string) => {
+          readable.close();
           stopwatch.finish();
 
           if (err) {

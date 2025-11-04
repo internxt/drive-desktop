@@ -27,10 +27,7 @@ export class DBScannerConnection {
     }
   };
 
-  updateItemToDatabase = async (
-    itemId: ScannedItem['id'],
-    item: ScannedItem
-  ) => {
+  updateItemToDatabase = async (itemId: ScannedItem['id'], item: ScannedItem) => {
     const currentTime = new Date().toISOString();
 
     const itemToUpdate: Partial<ScannedItem> = {

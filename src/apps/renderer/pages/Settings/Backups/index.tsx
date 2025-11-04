@@ -10,11 +10,7 @@ interface BackupsSectionProps {
   showIssues: () => void;
 }
 
-export default function BackupsSection({
-  active,
-  showBackedFolders,
-  showIssues,
-}: BackupsSectionProps) {
+export default function BackupsSection({ active, showBackedFolders, showIssues }: BackupsSectionProps) {
   const { hasExistingBackups } = useContext(BackupContext);
   const { products } = useUserAvailableProducts();
 
@@ -23,10 +19,7 @@ export default function BackupsSection({
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
       {userCanAccessBackups ? (
-        <BackupsPageContainer
-          showBackedFolders={showBackedFolders}
-          showIssues={showIssues}
-        />
+        <BackupsPageContainer showBackedFolders={showBackedFolders} showIssues={showIssues} />
       ) : (
         <LockedState />
       )}

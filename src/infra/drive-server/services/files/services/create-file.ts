@@ -7,7 +7,7 @@ import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
 export async function createFile(
-  body: components['schemas']['CreateFileDto']
+  body: components['schemas']['CreateFileDto'],
 ): Promise<Result<components['schemas']['FileDto'], FileError>> {
   try {
     const headers = await getNewApiHeadersIPC();

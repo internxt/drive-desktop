@@ -3,11 +3,10 @@ import { BackupService } from './services/backup/backup.service';
 import { UserService } from './services/user/user.service';
 
 export class DriveServerModule {
-
   constructor(
     public auth = new AuthService(),
     public backup = new BackupService(),
-    public user = new UserService()
+    public user = new UserService(),
   ) {}
 }
 

@@ -17,17 +17,14 @@ export async function renameFile({
 }): Promise<Result<components['schemas']['FileDto'], FileError>> {
   try {
     const headers = await getNewApiHeadersIPC();
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/files/${fileUuid}/meta`,
-      {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({
-          plainName,
-          type,
-        }),
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/files/${fileUuid}/meta`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        plainName,
+        type,
+      }),
+    });
     if (response.ok) {
       const data: components['schemas']['FileDto'] = await response.json();
       return { data };

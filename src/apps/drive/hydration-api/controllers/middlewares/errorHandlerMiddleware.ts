@@ -6,7 +6,7 @@ export function errorHandlerMiddleware(
   _req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _next: NextFunction
+  _next: NextFunction,
 ) {
   logger.error({ msg: '[HYDRATION API] Error:', error: err });
 

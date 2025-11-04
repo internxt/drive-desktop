@@ -15,9 +15,7 @@ export class StorageFileCacheMock implements StorageFileCache {
   }
 
   doesHave(id: StorageFileId) {
-    this.hasMock.mockImplementationOnce((askedId: StorageFileId) =>
-      askedId.equals(id)
-    );
+    this.hasMock.mockImplementationOnce((askedId: StorageFileId) => askedId.equals(id));
   }
 
   beingEmpty() {

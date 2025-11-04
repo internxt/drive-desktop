@@ -1,22 +1,12 @@
 import { authClient } from './auth.client';
-import {
-  getBaseApiHeaders,
-  getNewApiHeaders,
-} from '../../../../apps/main/auth/service';
+import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
 import { logger } from '../../../../core/LoggerService/LoggerService';
 import { Either, left, right } from '../../../../context/shared/domain/Either';
-import {
-  LoginAccessRequest,
-  LoginAccessResponse,
-  LoginResponse,
-  RefreshTokenResponse,
-} from './auth.types';
+import { LoginAccessRequest, LoginAccessResponse, LoginResponse, RefreshTokenResponse } from './auth.types';
 import { mapError } from '../utils/mapError';
 
 export class AuthService {
-  async access(
-    credentials: LoginAccessRequest
-  ): Promise<Either<Error, LoginAccessResponse>> {
+  async access(credentials: LoginAccessRequest): Promise<Either<Error, LoginAccessResponse>> {
     const { email, password, tfa } = credentials;
     try {
       const response = await authClient.POST('/auth/login/access', {
@@ -111,7 +101,7 @@ export class AuthService {
   async logout(headers: Record<string, string>): Promise<Either<Error, boolean>> {
     try {
       const response = await authClient.GET('/auth/logout', {
-        headers
+        headers,
       });
 
       if (!response.data) {

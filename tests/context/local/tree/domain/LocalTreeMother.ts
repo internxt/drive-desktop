@@ -23,16 +23,13 @@ export class LocalTreeMother {
         tree.root,
         LocalFileMother.fromPartial({
           path: path.join(tree.root.path, FileNameMother.any()) as AbsolutePath,
-        })
+        }),
       );
       tree.addFolder(
         tree.root,
         LocalFolderMother.fromPartial({
-          path: path.join(
-            tree.root.path,
-            FolderNameMother.any()
-          ) as AbsolutePath,
-        })
+          path: path.join(tree.root.path, FolderNameMother.any()) as AbsolutePath,
+        }),
       );
     }
 

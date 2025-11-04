@@ -32,19 +32,16 @@ const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
   getLastUpdated: jest.fn(),
 };
 
-const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> =
-  {
-    get: jest.fn(),
-    connect: jest.fn(),
-    update: jest.fn(),
-    create: jest.fn(),
-    remove: jest.fn(),
-    getLastUpdated: jest.fn(),
-  };
+const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> = {
+  get: jest.fn(),
+  connect: jest.fn(),
+  update: jest.fn(),
+  create: jest.fn(),
+  remove: jest.fn(),
+  getLastUpdated: jest.fn(),
+};
 
-const createRemoteSyncedFileFixture = (
-  payload: Partial<RemoteSyncedFile>
-): RemoteSyncedFile => {
+const createRemoteSyncedFileFixture = (payload: Partial<RemoteSyncedFile>): RemoteSyncedFile => {
   const result: RemoteSyncedFile = {
     status: 'EXISTS',
     name: `name_${uuid.v4()}`,
@@ -67,9 +64,7 @@ const createRemoteSyncedFileFixture = (
   return result;
 };
 
-const createRemoteSyncedFolderFixture = (
-  payload: Partial<RemoteSyncedFolder>
-): RemoteSyncedFolder => {
+const createRemoteSyncedFolderFixture = (payload: Partial<RemoteSyncedFolder>): RemoteSyncedFolder => {
   const result: RemoteSyncedFolder = {
     name: `name_${uuid.v4()}`,
     plainName: `folder_${Date.now()}`,
@@ -91,10 +86,8 @@ const createRemoteSyncedFolderFixture = (
 describe('RemoteSyncManager', () => {
   let errorHandler: RemoteSyncErrorHandler;
   let sut: RemoteSyncManager;
-  inMemorySyncedFilesCollection.getLastUpdated = () =>
-    Promise.resolve({ success: false, result: null });
-  inMemorySyncedFoldersCollection.getLastUpdated = () =>
-    Promise.resolve({ success: false, result: null });
+  inMemorySyncedFilesCollection.getLastUpdated = () => Promise.resolve({ success: false, result: null });
+  inMemorySyncedFoldersCollection.getLastUpdated = () => Promise.resolve({ success: false, result: null });
 
   beforeEach(() => {
     errorHandler = new RemoteSyncErrorHandler();
@@ -111,7 +104,7 @@ describe('RemoteSyncManager', () => {
         syncFiles: true,
         syncFolders: true,
       },
-      errorHandler
+      errorHandler,
     );
     mockedAxios.get.mockClear();
   });
@@ -130,7 +123,7 @@ describe('RemoteSyncManager', () => {
           syncFiles: true,
           syncFolders: false,
         },
-        errorHandler
+        errorHandler,
       );
 
       mockedAxios.get
@@ -170,7 +163,7 @@ describe('RemoteSyncManager', () => {
           syncFiles: false,
           syncFolders: true,
         },
-        errorHandler
+        errorHandler,
       );
 
       mockedAxios.get
@@ -221,7 +214,7 @@ describe('RemoteSyncManager', () => {
           syncFiles: true,
           syncFolders: false,
         },
-        errorHandler
+        errorHandler,
       );
       const file1 = createRemoteSyncedFileFixture({
         plainName: 'file_1',
@@ -246,9 +239,7 @@ describe('RemoteSyncManager', () => {
 
   describe('When something fails during the sync', () => {
     it('Should retry N times and then stop if sync does not succeed', async () => {
-      mockedAxios.get.mockImplementation(() =>
-        Promise.reject('Fail on purpose')
-      );
+      mockedAxios.get.mockImplementation(() => Promise.reject('Fail on purpose'));
 
       await sut.startRemoteSync();
 
@@ -278,14 +269,11 @@ describe('RemoteSyncManager', () => {
           syncFiles: true,
           syncFolders: false,
         },
-        errorHandler
+        errorHandler,
       );
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
       const errorHandlerInstance = sut['errorHandler'];
-      const errorHandlerSpy = jest.spyOn(
-        errorHandlerInstance,
-        'handleSyncError'
-      );
+      const errorHandlerSpy = jest.spyOn(errorHandlerInstance, 'handleSyncError');
 
       await sut.startRemoteSync();
 
@@ -306,15 +294,12 @@ describe('RemoteSyncManager', () => {
           syncFiles: false,
           syncFolders: true,
         },
-        errorHandler
+        errorHandler,
       );
 
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
       const errorHandlerInstance = sut['errorHandler'];
-      const errorHandlerSpy = jest.spyOn(
-        errorHandlerInstance,
-        'handleSyncError'
-      );
+      const errorHandlerSpy = jest.spyOn(errorHandlerInstance, 'handleSyncError');
 
       await sut.startRemoteSync();
 

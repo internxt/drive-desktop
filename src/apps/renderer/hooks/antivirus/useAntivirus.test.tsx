@@ -13,9 +13,7 @@ describe('useAntivirus', () => {
 
   const mockRemoveScanProgressListener = jest.fn();
   const mockIsAvailable = jest.fn().mockResolvedValue(true);
-  const mockAddItemsToScan = jest
-    .fn()
-    .mockResolvedValue(['file1.txt', 'file2.txt']);
+  const mockAddItemsToScan = jest.fn().mockResolvedValue(['file1.txt', 'file2.txt']);
   const mockScanItems = jest.fn().mockResolvedValue(undefined);
   const mockRemoveInfectedFiles = jest.fn().mockResolvedValue(undefined);
   const mockCancelScan = jest.fn().mockResolvedValue(undefined);
@@ -146,9 +144,7 @@ describe('useAntivirus', () => {
     it('should expose all required methods', () => {
       const { result } = renderHook(() => useAntivirus());
 
-      expect(typeof result.current.onScanUserSystemButtonClicked).toBe(
-        'function'
-      );
+      expect(typeof result.current.onScanUserSystemButtonClicked).toBe('function');
       expect(typeof result.current.onScanAgainButtonClicked).toBe('function');
       expect(typeof result.current.onCancelScan).toBe('function');
     });
@@ -195,10 +191,7 @@ describe('useAntivirus', () => {
         }
       });
 
-      expect(result.current.infectedFiles).toEqual([
-        'infected.exe',
-        'virus.dll',
-      ]);
+      expect(result.current.infectedFiles).toEqual(['infected.exe', 'virus.dll']);
       expect(result.current.progressRatio).toBe(100);
       expect(result.current.countScannedFiles).toBe(200);
       expect(result.current.isScanning).toBe(false);

@@ -1,10 +1,7 @@
 import { ServerFolder } from '../../../../shared/domain/ServerFolder';
 import { Folder } from '../../domain/Folder';
 
-export function createFolderFromServerFolder(
-  server: ServerFolder,
-  relativePath: string
-): Folder {
+export function createFolderFromServerFolder(server: ServerFolder, relativePath: string): Folder {
   const path = relativePath.replaceAll('//', '/');
 
   return Folder.from({

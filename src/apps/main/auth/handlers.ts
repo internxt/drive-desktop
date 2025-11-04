@@ -39,9 +39,7 @@ ipcMain.handle('is-user-logged-in', getIsLoggedIn);
 
 ipcMain.handle('get-user', getUser);
 
-ipcMain.handle('get-headers', (_, includeMnemonic) =>
-  getHeaders(includeMnemonic)
-);
+ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
 
 ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
 

@@ -20,20 +20,13 @@ function TabPill({
       onClick={setAsActive}
       className={`relative flex cursor-pointer items-center px-4 transition-colors duration-200 ease-out ${
         active ? 'text-gray-100' : 'text-gray-60'
-      }`}
-    >
+      }`}>
       {name}
     </li>
   );
 }
 
-export function IssuesTabs({
-  active,
-  onChangeTab,
-}: {
-  active: Section;
-  onChangeTab: (section: Section) => void;
-}) {
+export function IssuesTabs({ active, onChangeTab }: { active: Section; onChangeTab: (section: Section) => void }) {
   const { translate, language } = useTranslationContext();
   const [tabsWidth, setTabsWidth] = useState<[number, number]>([0, 0]);
 

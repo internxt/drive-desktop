@@ -8,7 +8,7 @@ export async function migrateBackupEntryIfNeeded(
     enabled: boolean;
     folderId: number;
     folderUuid: string;
-  }
+  },
 ): Promise<{
   enabled: boolean;
   folderId: number;

@@ -1,7 +1,4 @@
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../../../src/context/shared/domain/ServerFile';
+import { ServerFile, ServerFileStatus } from '../../../../../src/context/shared/domain/ServerFile';
 import { UuidMother } from '../../../shared/domain/UuidMother';
 import { BucketEntryIdMother } from '../../shared/domain/BucketEntryIdMother';
 

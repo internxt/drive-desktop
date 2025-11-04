@@ -3,7 +3,6 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { mockElectron, mockGetBackupsInterval, mockSetBackupsInterval } from '../../../../__mocks__/mockElectron';
 
-
 describe('useBackupsInterval', () => {
   beforeAll(() => {
     window.electron = mockElectron;
@@ -40,7 +39,6 @@ describe('useBackupsInterval', () => {
     await waitFor(() => {
       expect(result.current.backupsInterval).toBe(-1);
     });
-
 
     await act(async () => {
       await result.current.updateBackupsInterval(7200000);

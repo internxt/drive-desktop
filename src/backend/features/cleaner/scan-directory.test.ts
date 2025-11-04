@@ -19,11 +19,10 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
     warn: jest.fn(),
   },
 }));
-const createMockStats = (isDirectory = true, size = 0): Stats =>
-  ({ isDirectory: () => isDirectory, size } as Stats);
+const createMockStats = (isDirectory = true, size = 0): Stats => ({ isDirectory: () => isDirectory, size }) as Stats;
 
 const createMockDirent = (name: string, isFile = true): Dirent =>
-  ({ name, isFile: () => isFile, isDirectory: () => !isFile } as Dirent);
+  ({ name, isFile: () => isFile, isDirectory: () => !isFile }) as Dirent;
 
 describe('scanDirectory', () => {
   const mockedFs = jest.mocked(fs);
@@ -32,11 +31,7 @@ describe('scanDirectory', () => {
   const mockedIsInternxtRelated = jest.mocked(isInternxtRelated);
   const mockedProcessDirent = jest.mocked(processDirent);
 
-  const createCleanableItemMock = (
-    fileName: string,
-    size: number,
-    basePath = mockBasePath
-  ) => ({
+  const createCleanableItemMock = (fileName: string, size: number, basePath = mockBasePath) => ({
     fullPath: `${basePath}/${fileName}`,
     fileName,
     sizeInBytes: size,
@@ -80,7 +75,7 @@ describe('scanDirectory', () => {
         entry: expect.objectContaining({ name: 'file1.txt' }),
         fullPath: '/test/path/file1.txt',
         customFileFilter: undefined,
-      })
+      }),
     );
   });
 
@@ -90,9 +85,7 @@ describe('scanDirectory', () => {
       createMockDirent('regular-file.txt', true),
     ]);
 
-    mockedIsInternxtRelated
-      .mockReturnValueOnce(true)
-      .mockReturnValueOnce(false);
+    mockedIsInternxtRelated.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
     const expectedItem = createCleanableItemMock('regular-file.txt', 1024);
     mockedProcessDirent.mockResolvedValue([expectedItem]);
@@ -101,16 +94,14 @@ describe('scanDirectory', () => {
 
     expect(result).toStrictEqual([expectedItem]);
     expect(isInternxtRelated).toHaveBeenCalledWith('/test/path/internxt-app');
-    expect(isInternxtRelated).toHaveBeenCalledWith(
-      '/test/path/regular-file.txt'
-    );
+    expect(isInternxtRelated).toHaveBeenCalledWith('/test/path/regular-file.txt');
     expect(mockedProcessDirent).toHaveBeenCalledTimes(1);
     expect(mockedProcessDirent).toHaveBeenCalledWith(
       expect.objectContaining({
         entry: expect.objectContaining({ name: 'regular-file.txt' }),
         fullPath: '/test/path/regular-file.txt',
         customFileFilter: undefined,
-      })
+      }),
     );
   });
 
@@ -118,9 +109,7 @@ describe('scanDirectory', () => {
     const dirent = createMockDirent('subdir', false);
     mockedFs.readdir.mockResolvedValue([dirent]);
 
-    const expectedItem = [
-      createCleanableItemMock('nested-file.txt', 512, '/test/path/subdir'),
-    ];
+    const expectedItem = [createCleanableItemMock('nested-file.txt', 512, '/test/path/subdir')];
     mockedProcessDirent.mockResolvedValue(expectedItem);
 
     const result = await scanDirectory({ dirPath: mockBasePath });
@@ -134,7 +123,7 @@ describe('scanDirectory', () => {
         entry: dirent,
         fullPath: '/test/path/subdir',
         customFileFilter: undefined,
-      })
+      }),
     );
   });
 
@@ -147,11 +136,7 @@ describe('scanDirectory', () => {
 
     const file1Item = createCleanableItemMock('file1.txt', 100);
     const file2Item = createCleanableItemMock('file2.log', 300);
-    const subdirItem = createCleanableItemMock(
-      'nested.txt',
-      200,
-      '/test/path/subdir'
-    );
+    const subdirItem = createCleanableItemMock('nested.txt', 200, '/test/path/subdir');
     mockedProcessDirent
       .mockResolvedValueOnce([file1Item])
       .mockResolvedValueOnce([subdirItem])
@@ -169,12 +154,8 @@ describe('scanDirectory', () => {
       createMockDirent('restricted-file.txt', true),
     ]);
 
-    const accessibleItem = [
-      createCleanableItemMock('accessible-file.txt', 1024),
-    ];
-    mockedProcessDirent
-      .mockResolvedValueOnce(accessibleItem)
-      .mockResolvedValueOnce([]);
+    const accessibleItem = [createCleanableItemMock('accessible-file.txt', 1024)];
+    mockedProcessDirent.mockResolvedValueOnce(accessibleItem).mockResolvedValueOnce([]);
 
     const result = await scanDirectory({ dirPath: mockBasePath });
 

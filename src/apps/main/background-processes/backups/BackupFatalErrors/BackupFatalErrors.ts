@@ -17,11 +17,7 @@ export type BackupErrorsCollection = Array<BackupError>;
 export class BackupFatalErrors {
   private errors: BackupErrorsCollection = [];
 
-  constructor(
-    private readonly onBackupFatalErrorsChanged: (
-      errors: BackupErrorsCollection
-    ) => void
-  ) {}
+  constructor(private readonly onBackupFatalErrorsChanged: (errors: BackupErrorsCollection) => void) {}
 
   clear() {
     this.errors = [];

@@ -7,9 +7,7 @@ import { getDeviceIdentifier } from './getDeviceIdentifier';
 import configStore from './../../../apps/main/config';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 
-export async function migrateLegacyDeviceIdentifier(
-  device: Device
-): Promise<Either<Error, Device>> {
+export async function migrateLegacyDeviceIdentifier(device: Device): Promise<Either<Error, Device>> {
   const getDeviceIdentifierResult = getDeviceIdentifier();
   if (getDeviceIdentifierResult.isLeft()) {
     logger.warn({
@@ -20,14 +18,13 @@ export async function migrateLegacyDeviceIdentifier(
   }
   const deviceIdentifier = getDeviceIdentifierResult.getRight();
 
-  const addIdentifierResult =
-    await driveServerModule.backup.addDeviceIdentifier({
-      key: deviceIdentifier.key,
-      hostname: deviceIdentifier.hostname,
-      platform: deviceIdentifier.platform,
-      name: device.name,
-      folderUuid: device.uuid,
-    });
+  const addIdentifierResult = await driveServerModule.backup.addDeviceIdentifier({
+    key: deviceIdentifier.key,
+    hostname: deviceIdentifier.hostname,
+    platform: deviceIdentifier.platform,
+    name: device.name,
+    folderUuid: device.uuid,
+  });
 
   if (addIdentifierResult.isRight()) {
     configStore.set('deviceId', -1);

@@ -43,11 +43,7 @@ export const SLIDES: OnboardingSlide[] = [
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
-          <Button
-            onClick={props.onSkipOnboarding}
-            variant="secondary"
-            size="lg"
-          >
+          <Button onClick={props.onSkipOnboarding} variant="secondary" size="lg">
             {translate('onboarding.common.skip')}
           </Button>
         </div>
@@ -129,7 +125,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { language } = useTranslationContext();
       const Image = getOnlineImageSvg(language);
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <Image />
           </SideImageAnimation>
@@ -168,7 +164,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { language } = useTranslationContext();
       const Image = getOfflineImageSvg(language);
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <Image />
           </SideImageAnimation>
@@ -181,7 +177,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Context Menu Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <ContextMenuSlide {...props} />
           </SideTextAnimation>
@@ -206,7 +202,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative mt-8 flex h-full w-full items-center justify-center ">
+        <div className="relative mt-8 flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <ContextMenuSvg />
           </SideImageAnimation>
@@ -218,7 +214,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Antivirus Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <AntivirusSlide {...props} />
           </SideTextAnimation>
@@ -245,7 +241,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { language } = useTranslationContext();
       const Image = getAntivirusImageSvg(language);
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <Image />
           </SideImageAnimation>
@@ -257,7 +253,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Cleaner Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <CleanerSlide {...props} />
           </SideTextAnimation>
@@ -284,7 +280,7 @@ export const SLIDES: OnboardingSlide[] = [
       const { language } = useTranslationContext();
       const Image = getCleanerImageSvg(language);
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <Image />
           </SideImageAnimation>
@@ -296,7 +292,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Onboarding Completed',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <OnboardingCompletedSlide {...props} />
           </SideTextAnimation>
@@ -316,7 +312,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: (props) => {
       const Image = getFinderImage(props.platform);
       return (
-        <div className="relative ml-20 mt-20 ">
+        <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
             <Image />
           </SideImageAnimation>

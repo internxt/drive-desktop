@@ -37,11 +37,7 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
     })
     .private();
 
-  builder
-    .register(LocalFileMessenger)
-    .useClass(RendererIpcLocalFileMessenger)
-    .private()
-    .asSingleton();
+  builder.register(LocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();
 
   // Services
   builder.registerAndUse(FileBatchUpdater);

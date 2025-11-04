@@ -46,7 +46,7 @@ export function customSafeDownloader(env: Environment) {
         () => {
           /* onV2Confirmed (no-op) */
         },
-        abortController
+        abortController,
       );
 
       // Pipe SDK's stream into our custom passThroughStream

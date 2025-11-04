@@ -21,12 +21,8 @@ import { getFilesFromDirectory } from './getFilesFromDirectory';
 
 describe('getFilesFromDirectory', () => {
   const mockReaddir = readdir as jest.MockedFunction<typeof readdir>;
-  const mockPathTypeChecker = PathTypeChecker as jest.Mocked<
-    typeof PathTypeChecker
-  >;
-  const mockIsPermissionError = isPermissionError as jest.MockedFunction<
-    typeof isPermissionError
-  >;
+  const mockPathTypeChecker = PathTypeChecker as jest.Mocked<typeof PathTypeChecker>;
+  const mockIsPermissionError = isPermissionError as jest.MockedFunction<typeof isPermissionError>;
   const mockLogger = logger as jest.Mocked<typeof logger>;
 
   beforeEach(() => {
@@ -111,9 +107,7 @@ describe('getFilesFromDirectory', () => {
   it('should handle permission errors when reading directory', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = jest.fn().mockResolvedValue(undefined);
-    const permissionError = new Error(
-      'Permission denied'
-    ) as NodeJS.ErrnoException;
+    const permissionError = new Error('Permission denied') as NodeJS.ErrnoException;
     permissionError.code = 'EACCES';
 
     mockPathTypeChecker.isFile.mockResolvedValue(false);
@@ -127,7 +121,7 @@ describe('getFilesFromDirectory', () => {
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Skipping directory'),
-      })
+      }),
     );
     expect(result).toBeNull();
     expect(mockCallback).not.toHaveBeenCalled();
@@ -142,9 +136,7 @@ describe('getFilesFromDirectory', () => {
     mockReaddir.mockRejectedValue(nonPermissionError);
     mockIsPermissionError.mockReturnValue(false);
 
-    await expect(getFilesFromDirectory(testDir, mockCallback)).rejects.toThrow(
-      'Other error'
-    );
+    await expect(getFilesFromDirectory(testDir, mockCallback)).rejects.toThrow('Other error');
     expect(mockCallback).not.toHaveBeenCalled();
   });
 
@@ -155,9 +147,7 @@ describe('getFilesFromDirectory', () => {
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'subdir', isDirectory: () => true },
     ];
-    const permissionError = new Error(
-      'Permission denied'
-    ) as NodeJS.ErrnoException;
+    const permissionError = new Error('Permission denied') as NodeJS.ErrnoException;
     permissionError.code = 'EACCES';
 
     mockPathTypeChecker.isFile.mockResolvedValue(false);
@@ -172,7 +162,7 @@ describe('getFilesFromDirectory', () => {
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Skipping subdirectory'),
-      })
+      }),
     );
   });
 });

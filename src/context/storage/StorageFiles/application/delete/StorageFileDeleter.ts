@@ -10,7 +10,7 @@ export class StorageFileDeleter {
   constructor(
     private readonly repository: StorageFilesRepository,
     private readonly virtualFileFinder: SingleFileMatchingFinder,
-    private readonly cache: StorageFileCache
+    private readonly cache: StorageFileCache,
   ) {}
 
   async run(path: string) {

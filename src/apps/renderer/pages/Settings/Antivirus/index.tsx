@@ -10,10 +10,7 @@ interface AntivirusSectionProps {
   showItemsWithMalware: () => void;
 }
 
-export default function AntivirusSection({
-  active,
-  showItemsWithMalware,
-}: AntivirusSectionProps): JSX.Element {
+export default function AntivirusSection({ active, showItemsWithMalware }: AntivirusSectionProps): JSX.Element {
   const { view } = useAntivirusContext();
 
   const viewStates: Record<Views, JSX.Element> = {
@@ -24,9 +21,7 @@ export default function AntivirusSection({
   };
 
   return (
-    <section
-      className={`${active ? 'block' : 'hidden'} relative h-full w-full`}
-    >
+    <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       <div className="flex h-full w-full flex-col">{viewStates[view]}</div>
     </section>
   );

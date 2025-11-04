@@ -6,7 +6,7 @@ describe('DropdownItem', () => {
     render(
       <DropdownItem>
         <span>Test Item</span>
-      </DropdownItem>
+      </DropdownItem>,
     );
 
     expect(screen.getByText('Test Item')).toBeInTheDocument();
@@ -16,7 +16,7 @@ describe('DropdownItem', () => {
     render(
       <DropdownItem active>
         <span>Active Item</span>
-      </DropdownItem>
+      </DropdownItem>,
     );
 
     const button = screen.getByRole('button');
@@ -27,7 +27,7 @@ describe('DropdownItem', () => {
     render(
       <DropdownItem active={false}>
         <span>Inactive Item</span>
-      </DropdownItem>
+      </DropdownItem>,
     );
 
     const button = screen.getByRole('button');
@@ -39,7 +39,7 @@ describe('DropdownItem', () => {
     render(
       <DropdownItem onClick={handleClick}>
         <span>Clickable Item</span>
-      </DropdownItem>
+      </DropdownItem>,
     );
 
     const button = screen.getByRole('button');
@@ -53,7 +53,7 @@ describe('DropdownItem', () => {
     render(
       <DropdownItem onClick={handleClick}>
         <span>Keyboard Item</span>
-      </DropdownItem>
+      </DropdownItem>,
     );
 
     const button = screen.getByRole('button');

@@ -15,9 +15,7 @@ jest.mock('./ScanSuccessful', () => ({
 }));
 
 jest.mock('./CorruptedItemsFound', () => ({
-  CorruptedItemsFound: jest.fn(() => (
-    <div data-testid="corrupted-items-found" />
-  )),
+  CorruptedItemsFound: jest.fn(() => <div data-testid="corrupted-items-found" />),
 }));
 
 describe('ScanResult', () => {
@@ -40,14 +38,9 @@ describe('ScanResult', () => {
 
     expect(screen.getByTestId('scan-successful')).toBeInTheDocument();
 
-    expect(
-      screen.queryByTestId('corrupted-items-found')
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('corrupted-items-found')).not.toBeInTheDocument();
 
-    expect(ScanSuccessful).toHaveBeenCalledWith(
-      { translate: mockProps.translate },
-      expect.anything()
-    );
+    expect(ScanSuccessful).toHaveBeenCalledWith({ translate: mockProps.translate }, expect.anything());
   });
 
   it('renders CorruptedItemsFound when there are corrupted files', () => {
@@ -62,7 +55,7 @@ describe('ScanResult', () => {
         translate: mockProps.translate,
         onRemoveMalwareButtonClicked: mockProps.onRemoveMalwareButtonClicked,
       },
-      expect.anything()
+      expect.anything(),
     );
   });
 
@@ -72,9 +65,7 @@ describe('ScanResult', () => {
     const scanAgainButton = screen.getByTestId('scan-again-button');
     expect(scanAgainButton).toBeInTheDocument();
 
-    expect(mockProps.translate).toHaveBeenCalledWith(
-      'settings.antivirus.scanProcess.scanAgain'
-    );
+    expect(mockProps.translate).toHaveBeenCalledWith('settings.antivirus.scanProcess.scanAgain');
   });
 
   it('calls onScanAgainButtonClicked when scan again button is clicked', () => {

@@ -12,7 +12,7 @@ export class FolderRenamer {
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus,
-    private readonly syncFolderMessenger: SyncFolderMessenger
+    private readonly syncFolderMessenger: SyncFolderMessenger,
   ) {}
 
   async run(folder: Folder, destination: FolderPath) {

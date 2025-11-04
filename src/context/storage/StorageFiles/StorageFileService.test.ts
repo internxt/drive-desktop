@@ -103,9 +103,7 @@ describe('StorageFileService', () => {
       const result = await resultPromise;
 
       expect(result.isLeft()).toBeTruthy();
-      expect(result.getLeft()).toEqual(
-        new Error('Stream ended but no data received')
-      );
+      expect(result.getLeft()).toEqual(new Error('Stream ended but no data received'));
     });
 
     it('should handle exception inside the promise and return error', async () => {

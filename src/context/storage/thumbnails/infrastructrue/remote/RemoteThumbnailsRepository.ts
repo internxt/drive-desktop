@@ -7,6 +7,7 @@ import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { EnvironmentThumbnailDownloader } from './EnvironmentThumbnailDownloader';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import Bottleneck from 'bottleneck';
 
 type FileMetaDataResponse = {
   thumbnails: [
@@ -24,25 +25,28 @@ type FileMetaDataResponse = {
       updatedAt: string;
       maxWidth: number;
       maxHeight: number;
-    }
+    },
   ];
 };
+
+const limiter = new Bottleneck({
+  maxConcurrent: 4,
+  minTime: 100,
+});
 
 @Service()
 export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   constructor(
     private readonly axios: Axios,
-    private readonly downloader: EnvironmentThumbnailDownloader
+    private readonly downloader: EnvironmentThumbnailDownloader,
   ) {}
 
   private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
     try {
-      const response = await this.axios.get(
-        `${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`,
-        {
-          params: { name: file.name, type: file.type },
-        }
-      );
+      const response = await this.axios.get(`${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`, {
+        params: { name: file.name, type: file.type },
+        timeout: 30000,
+      });
 
       if (response.status !== 200) {
         return [];
@@ -62,7 +66,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
           type: raw.type,
           bucket: raw.bucketId,
           updatedAt: new Date(raw.updatedAt),
-        })
+        }),
       );
 
       return thumbnails;
@@ -73,13 +77,13 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   }
 
   async has(file: File): Promise<boolean> {
-    const thumbnails = await this.obtainThumbnails(file);
+    const thumbnails = await limiter.schedule(() => this.obtainThumbnails(file));
 
     return thumbnails.length > 0;
   }
 
   async retrieve(file: File): Promise<ThumbnailCollection | undefined> {
-    const thumbnails = await this.obtainThumbnails(file);
+    const thumbnails = await limiter.schedule(() => this.obtainThumbnails(file));
 
     if (thumbnails.length === 0) {
       return undefined;

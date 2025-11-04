@@ -9,10 +9,7 @@ import SyncFatalErrorMessages from '../../messages/fatal-error';
 
 type ErrorSeverity = 'FATAL' | 'WARN';
 
-const fatalErrorActionMap: Record<
-  FatalError,
-  { name: string; func: () => void } | undefined
-> = {
+const fatalErrorActionMap: Record<FatalError, { name: string; func: () => void } | undefined> = {
   BASE_DIRECTORY_DOES_NOT_EXIST: {
     name: 'Select folder',
     func: async () => {
@@ -70,10 +67,7 @@ export default function SyncErrorBanner() {
 
   return show ? (
     <div
-      className={`flex items-center px-3 py-2 text-xs ${
-        severity === 'WARN' ? 'bg-yellow/10 text-yellow' : 'bg-red/10 text-red'
-      }`}
-    >
+      className={`flex items-center px-3 py-2 text-xs ${severity === 'WARN' ? 'bg-yellow/10 text-yellow' : 'bg-red/10 text-red'}`}>
       <Icon className="h-5 w-5" />
       <p className="mb-0 ml-2">{translate(message)}</p>
       {action && (
@@ -82,8 +76,7 @@ export default function SyncErrorBanner() {
           role="button"
           tabIndex={0}
           onKeyDown={action.func}
-          className="ml-2 cursor-pointer text-sm text-primary underline"
-        >
+          className="ml-2 cursor-pointer text-sm text-primary underline">
           {action.name}
         </span>
       )}

@@ -5,8 +5,7 @@ import { BackupInfo } from '../../../../backups/BackupInfo';
 type OnIntervalChangedListener = (interval: number) => void;
 
 class BackupConfiguration {
-  public onBackupIntervalChanged: OnIntervalChangedListener | undefined =
-    undefined;
+  public onBackupIntervalChanged: OnIntervalChangedListener | undefined = undefined;
 
   get backupInterval(): number {
     return configStore.get('backupInterval');
@@ -41,10 +40,7 @@ class BackupConfiguration {
     const device = await DeviceModule.getOrCreateDevice();
     if (device instanceof Error) return [];
 
-    const enabledBackupEntries = await DeviceModule.getBackupsFromDevice(
-      device,
-      true
-    );
+    const enabledBackupEntries = await DeviceModule.getBackupsFromDevice(device, true);
 
     return this.map(enabledBackupEntries, device.bucket);
   }

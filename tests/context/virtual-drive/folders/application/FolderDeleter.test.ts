@@ -15,18 +15,11 @@ describe('Folder deleter', () => {
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
-    allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
-      repository
-    );
+    allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
     remote = new FolderRemoteFileSystemMock();
     local = new FolderLocalFileSystemMock();
 
-    SUT = new FolderDeleter(
-      repository,
-      remote,
-      local,
-      allParentFoldersStatusIsExists
-    );
+    SUT = new FolderDeleter(repository, remote, local, allParentFoldersStatusIsExists);
   });
 
   it('trashes an existing folder', async () => {
@@ -35,9 +28,7 @@ describe('Folder deleter', () => {
     remote.shouldTrash(folder);
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(true);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
 
     await SUT.run(folder.uuid);
     expect(repository.deleteMock).toBeCalledWith(folder.id);
@@ -47,9 +38,7 @@ describe('Folder deleter', () => {
     const folder = FolderMother.trashed();
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(true);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
 
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
@@ -63,9 +52,7 @@ describe('Folder deleter', () => {
     const folder = FolderMother.exists();
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(false);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(false);
 
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
@@ -78,9 +65,7 @@ describe('Folder deleter', () => {
     const folder = FolderMother.exists();
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(true);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
     remote.shouldTrash(folder, new Error('Error during the deletion'));
 
     await SUT.run(folder.uuid);

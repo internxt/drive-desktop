@@ -7,4 +7,3 @@ It serves as the **bridge between the application's core logic and the outside w
 ## 📁 Structure
 
 The `infra` folder is divided into submodules, each representing a specific infrastructure concern.
-

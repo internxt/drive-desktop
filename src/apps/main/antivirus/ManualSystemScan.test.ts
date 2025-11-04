@@ -1,8 +1,4 @@
-import {
-  ManualSystemScan,
-  getManualScanMonitorInstance,
-  ProgressData,
-} from './ManualSystemScan';
+import { ManualSystemScan, getManualScanMonitorInstance, ProgressData } from './ManualSystemScan';
 import { Antivirus } from './Antivirus';
 import { ScannedItem } from '../database/entities/ScannedItem';
 import fs from 'fs';
@@ -150,10 +146,7 @@ describe('ManualSystemScan', () => {
 
     (Antivirus.createInstance as jest.Mock).mockResolvedValue(mockAntivirus);
 
-    (fs.promises.readdir as jest.Mock).mockResolvedValue([
-      'file1.txt',
-      'file2.txt',
-    ]);
+    (fs.promises.readdir as jest.Mock).mockResolvedValue(['file1.txt', 'file2.txt']);
     (fs.promises.stat as jest.Mock).mockImplementation((path) => {
       return Promise.resolve({
         isDirectory: () => path.includes('dir'),
@@ -182,14 +175,10 @@ describe('ManualSystemScan', () => {
     jest.setTimeout(15000);
 
     it('should scan specified paths', async () => {
-      const getFilesFromDirectory = jest.requireMock(
-        './utils/getFilesFromDirectory'
-      ).getFilesFromDirectory;
+      const getFilesFromDirectory = jest.requireMock('./utils/getFilesFromDirectory').getFilesFromDirectory;
 
       const originalResetCounters = manualSystemScan['resetCounters'];
-      manualSystemScan['resetCounters'] = jest
-        .fn()
-        .mockResolvedValue(undefined);
+      manualSystemScan['resetCounters'] = jest.fn().mockResolvedValue(undefined);
 
       const mockQueue = {
         pushAsync: jest.fn().mockResolvedValue(undefined),
@@ -199,9 +188,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).manualQueue = mockQueue;
 
       const originalWaitForActiveScans = manualSystemScan['waitForActiveScans'];
-      manualSystemScan['waitForActiveScans'] = jest
-        .fn()
-        .mockResolvedValue(undefined);
+      manualSystemScan['waitForActiveScans'] = jest.fn().mockResolvedValue(undefined);
 
       await manualSystemScan.scanItems(['/path/to/file.txt']);
 
@@ -224,9 +211,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).antivirus = mockAntivirus;
 
       const originalResetCounters = manualSystemScan['resetCounters'];
-      manualSystemScan['resetCounters'] = jest
-        .fn()
-        .mockResolvedValue(undefined);
+      manualSystemScan['resetCounters'] = jest.fn().mockResolvedValue(undefined);
 
       await manualSystemScan.stopScan();
 
@@ -260,7 +245,7 @@ describe('ManualSystemScan', () => {
           totalScannedFiles: 5,
           scanId: 'scan-123',
           done: false,
-        })
+        }),
       );
 
       expect(result).toMatchObject({
@@ -277,10 +262,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).infectedFiles = ['/test/infected.txt'];
       (manualSystemScan as any).totalScannedFiles = 10;
 
-      const calculateProgressSpy = jest.spyOn(
-        manualSystemScan as any,
-        'calculateProgress'
-      );
+      const calculateProgressSpy = jest.spyOn(manualSystemScan as any, 'calculateProgress');
       calculateProgressSpy.mockReturnValue(75);
 
       const result = manualSystemScan['emitProgressEvent']({});
@@ -292,7 +274,7 @@ describe('ManualSystemScan', () => {
           progress: 75,
           infectedFiles: ['/test/infected.txt'],
           totalScannedFiles: 10,
-        })
+        }),
       );
 
       calculateProgressSpy.mockRestore();
@@ -309,9 +291,7 @@ describe('ManualSystemScan', () => {
 
       expect(eventBus.emit).not.toHaveBeenCalled();
 
-      expect((manualSystemScan as any).progressEvents.length).toBeGreaterThan(
-        0
-      );
+      expect((manualSystemScan as any).progressEvents.length).toBeGreaterThan(0);
       expect((manualSystemScan as any).progressEvents[0]).toMatchObject({
         currentScanPath: '/test/path',
       });
@@ -360,11 +340,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).infectedFiles = ['/infected.txt'];
       (manualSystemScan as any).totalScannedFiles = 100;
 
-      manualSystemScan['emitCompletionEvent'](
-        'Test Complete',
-        0,
-        'test-session'
-      );
+      manualSystemScan['emitCompletionEvent']('Test Complete', 0, 'test-session');
 
       expect(eventBus.emit).toHaveBeenCalledWith(
         'ANTIVIRUS_SCAN_PROGRESS',
@@ -375,7 +351,7 @@ describe('ManualSystemScan', () => {
           totalScannedFiles: 100,
           done: true,
           scanId: 'test-session',
-        })
+        }),
       );
     });
 
@@ -410,7 +386,7 @@ describe('ManualSystemScan', () => {
           totalScannedFiles: 50,
           done: true,
           scanId: 'error-session',
-        })
+        }),
       );
     });
   });
@@ -450,7 +426,7 @@ describe('ManualSystemScan', () => {
           scanId: 'scan-1',
         }),
         1,
-        false
+        false,
       );
     });
 
@@ -462,9 +438,7 @@ describe('ManualSystemScan', () => {
 
       expect((manualSystemScan as any).totalScannedFiles).toBe(1);
       expect((manualSystemScan as any).totalInfectedFiles).toBe(1);
-      expect((manualSystemScan as any).infectedFiles).toEqual([
-        '/test/infected.txt',
-      ]);
+      expect((manualSystemScan as any).infectedFiles).toEqual(['/test/infected.txt']);
 
       expect((manualSystemScan as any).emitProgressEvent).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -472,7 +446,7 @@ describe('ManualSystemScan', () => {
           scanId: 'scan-1',
         }),
         1,
-        true
+        true,
       );
     });
 
@@ -485,18 +459,14 @@ describe('ManualSystemScan', () => {
       expect((manualSystemScan as any).totalScannedFiles).toBe(0);
       expect((manualSystemScan as any).totalInfectedFiles).toBe(0);
       expect((manualSystemScan as any).infectedFiles).toEqual([]);
-      expect(
-        (manualSystemScan as any).emitProgressEvent
-      ).not.toHaveBeenCalled();
+      expect((manualSystemScan as any).emitProgressEvent).not.toHaveBeenCalled();
     });
 
     it('should handle completion when 100% is reached', () => {
       (manualSystemScan as any).totalScannedFiles = 9;
       (manualSystemScan as any).totalItemsToScan = 10;
 
-      jest
-        .spyOn(manualSystemScan as any, 'calculateProgress')
-        .mockReturnValue(100);
+      jest.spyOn(manualSystemScan as any, 'calculateProgress').mockReturnValue(100);
 
       (manualSystemScan as any).emitProgressEvent.mockReturnValue({
         done: false,
@@ -510,15 +480,10 @@ describe('ManualSystemScan', () => {
         isInfected: false,
       });
 
-      expect(
-        (manualSystemScan as any).emitProgressEvent.mock.results[0].value.done
-      ).toBe(true);
+      expect((manualSystemScan as any).emitProgressEvent.mock.results[0].value.done).toBe(true);
 
       jest.advanceTimersByTime(1000);
-      expect(eventBus.emit).toHaveBeenCalledWith(
-        'ANTIVIRUS_SCAN_PROGRESS',
-        expect.objectContaining({ done: true })
-      );
+      expect(eventBus.emit).toHaveBeenCalledWith('ANTIVIRUS_SCAN_PROGRESS', expect.objectContaining({ done: true }));
 
       jest.useRealTimers();
       (manualSystemScan as any).calculateProgress.mockRestore();
@@ -570,11 +535,9 @@ describe('ManualSystemScan', () => {
 
       (manualSystemScan as any).antivirus = mockAntivirus;
 
-      jest
-        .spyOn(manualSystemScan as any, 'clearAllIntervals')
-        .mockImplementation(() => {
-          /* mock implementation */
-        });
+      jest.spyOn(manualSystemScan as any, 'clearAllIntervals').mockImplementation(() => {
+        /* mock implementation */
+      });
 
       await manualSystemScan['resetCounters']();
 
@@ -596,9 +559,7 @@ describe('ManualSystemScan', () => {
 
   describe('emitEmptyDirProgressEvent', () => {
     it('should emit a progress event for an empty directory', () => {
-      jest
-        .spyOn(manualSystemScan as any, 'emitProgressEvent')
-        .mockImplementation(() => ({}));
+      jest.spyOn(manualSystemScan as any, 'emitProgressEvent').mockImplementation(() => ({}));
 
       manualSystemScan['emitEmptyDirProgressEvent']('/empty/dir', 123);
 
@@ -610,7 +571,7 @@ describe('ManualSystemScan', () => {
           done: true,
           scanId: 'scan-empty-123',
         },
-        123
+        123,
       );
 
       (manualSystemScan as any).emitProgressEvent.mockRestore();
@@ -661,14 +622,7 @@ describe('ManualSystemScan', () => {
     it('should increment stuck count when no progress', () => {
       (manualSystemScan as any).totalScannedFiles = 5;
 
-      const result = manualSystemScan['handleStalledScan'](
-        5,
-        1,
-        0,
-        false,
-        false,
-        true
-      );
+      const result = manualSystemScan['handleStalledScan'](5, 1, 0, false, false, true);
 
       expect(result).toEqual({
         stuckCount: 1,
@@ -683,26 +637,14 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalScannedFiles = 98;
       (manualSystemScan as any).errorCount = 1;
 
-      jest
-        .spyOn(manualSystemScan as any, 'isNearlyScanComplete')
-        .mockReturnValue(true);
+      jest.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(true);
 
-      const result = manualSystemScan['handleStalledScan'](
-        98,
-        1,
-        30,
-        false,
-        false,
-        false
-      );
+      const result = manualSystemScan['handleStalledScan'](98, 1, 30, false, false, false);
 
       expect(result.isComplete).toBe(true);
       expect(result.shouldContinue).toBe(false);
 
-      expect(eventBus.emit).toHaveBeenCalledWith(
-        'ANTIVIRUS_SCAN_PROGRESS',
-        expect.objectContaining({ done: true })
-      );
+      expect(eventBus.emit).toHaveBeenCalledWith('ANTIVIRUS_SCAN_PROGRESS', expect.objectContaining({ done: true }));
 
       (manualSystemScan as any).isNearlyScanComplete.mockRestore();
     });
@@ -711,18 +653,9 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalItemsToScan = 100;
       (manualSystemScan as any).totalScannedFiles = 50;
 
-      jest
-        .spyOn(manualSystemScan as any, 'isNearlyScanComplete')
-        .mockReturnValue(false);
+      jest.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(false);
 
-      const result = manualSystemScan['handleStalledScan'](
-        50,
-        1,
-        30,
-        false,
-        false,
-        true
-      );
+      const result = manualSystemScan['handleStalledScan'](50, 1, 30, false, false, true);
 
       expect(result.hasError).toBe(true);
       expect((manualSystemScan as any).cancelled).toBe(true);
@@ -732,21 +665,14 @@ describe('ManualSystemScan', () => {
         expect.objectContaining({
           currentScanPath: expect.stringContaining('Scan appears stuck'),
           done: true,
-        })
+        }),
       );
 
       (manualSystemScan as any).isNearlyScanComplete.mockRestore();
     });
 
     it('should reset stuck count if progress is made', () => {
-      const result = manualSystemScan['handleStalledScan'](
-        4,
-        1,
-        3,
-        false,
-        false,
-        true
-      );
+      const result = manualSystemScan['handleStalledScan'](4, 1, 3, false, false, true);
 
       expect(result.stuckCount).toBe(0);
       expect(result.shouldContinue).toBe(true);
@@ -770,16 +696,14 @@ describe('ManualSystemScan', () => {
         isInfected: false,
       };
 
-      const trackProgressSpy = jest
-        .spyOn(manualSystemScan, 'trackProgress')
-        .mockImplementation(() => {
-          /* mock implementation */
-        });
+      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+        /* mock implementation */
+      });
 
       await manualSystemScan['handlePreviousScannedItem'](
         currentSession,
         mockScannedItem as ScannedItem,
-        mockPreviousItem as ScannedItem
+        mockPreviousItem as ScannedItem,
       );
 
       expect(trackProgressSpy).toHaveBeenCalledWith(currentSession, {
@@ -794,11 +718,9 @@ describe('ManualSystemScan', () => {
       const currentSession = 1;
       const wrongSession = 2;
 
-      const trackProgressSpy = jest
-        .spyOn(manualSystemScan, 'trackProgress')
-        .mockImplementation(() => {
-          /* mock implementation */
-        });
+      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+        /* mock implementation */
+      });
 
       await manualSystemScan['handlePreviousScannedItem'](
         wrongSession,
@@ -813,7 +735,7 @@ describe('ManualSystemScan', () => {
           hash: '',
           updatedAtW: '',
           isInfected: false,
-        } as ScannedItem
+        } as ScannedItem,
       );
 
       expect(trackProgressSpy).not.toHaveBeenCalled();
@@ -837,16 +759,14 @@ describe('ManualSystemScan', () => {
         isInfected: false,
       };
 
-      const trackProgressSpy = jest
-        .spyOn(manualSystemScan, 'trackProgress')
-        .mockImplementation(() => {
-          /* mock implementation */
-        });
+      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+        /* mock implementation */
+      });
 
       await manualSystemScan['handlePreviousScannedItem'](
         currentSession,
         mockScannedItem as ScannedItem,
-        mockPreviousItem as ScannedItem
+        mockPreviousItem as ScannedItem,
       );
 
       expect(trackProgressSpy).not.toHaveBeenCalled();

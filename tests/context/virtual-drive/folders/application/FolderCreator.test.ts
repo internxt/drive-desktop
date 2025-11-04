@@ -60,9 +60,7 @@ describe('Folder Creator', () => {
   it('throws a FolderNotFounded error if the parent folder is not founded', async () => {
     const path = FolderPathMother.any().value;
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([]);
 
     try {
       await SUT.run(path);
@@ -82,9 +80,7 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
   });
@@ -99,15 +95,11 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
 
-    expect(repository.addMock).toBeCalledWith(
-      expect.objectContaining(createdFolder)
-    );
+    expect(repository.addMock).toBeCalledWith(expect.objectContaining(createdFolder));
   });
 
   it('publishes folder created event', async () => {
@@ -120,16 +112,12 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, WITH_NO_UUID);
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
 
     expect(eventBus.publishMock).toBeCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ aggregateId: createdFolder.uuid }),
-      ])
+      expect.arrayContaining([expect.objectContaining({ aggregateId: createdFolder.uuid })]),
     );
   });
 });

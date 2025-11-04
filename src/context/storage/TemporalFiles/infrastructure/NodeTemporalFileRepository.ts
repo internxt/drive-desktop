@@ -119,9 +119,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   async matchingDirectory(directory: string): Promise<TemporalFilePath[]> {
     const paths = Array.from(this.map.keys());
 
-    return paths
-      .filter((p) => path.dirname(p) === directory)
-      .map((p) => new TemporalFilePath(p));
+    return paths.filter((p) => path.dirname(p) === directory).map((p) => new TemporalFilePath(p));
   }
 
   read(documentPath: TemporalFilePath): Promise<Buffer> {
@@ -134,12 +132,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
     return readFile(id);
   }
 
-  async write(
-    documentPath: TemporalFilePath,
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void> {
+  async write(documentPath: TemporalFilePath, buffer: Buffer, length: number, position: number): Promise<void> {
     const pathToWrite = this.map.get(documentPath.value);
 
     if (!pathToWrite) {
@@ -199,7 +192,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
         return;
       }
 
-      logger.warn({ msg:`Filename: ${filename}, has been changed` });
+      logger.warn({ msg: `Filename: ${filename}, has been changed` });
 
       callback();
     });

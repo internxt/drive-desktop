@@ -27,9 +27,7 @@ function emitProgress(progressData: CleanupProgress) {
 /**
  * Delete a single file safely
  */
-async function deleteFileSafely(
-  filePath: string
-): Promise<{ success: boolean; size: number }> {
+async function deleteFileSafely(filePath: string): Promise<{ success: boolean; size: number }> {
   try {
     const stats = await fs.stat(filePath);
     const fileSize = stats.size;

@@ -33,11 +33,7 @@ describe('FileRepositorySynchronizer', () => {
       hardDelete: jest.fn(),
     } as unknown as RemoteFileSystem;
 
-    sut = new FileRepositorySynchronizer(
-      fileRepositoryMock,
-      storageFileServiceMock,
-      remoteFileSystemMock
-    );
+    sut = new FileRepositorySynchronizer(fileRepositoryMock, storageFileServiceMock, remoteFileSystemMock);
   });
 
   afterEach(() => {
@@ -50,18 +46,13 @@ describe('FileRepositorySynchronizer', () => {
 
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
-      expect(fileRepositoryMock.searchByArrayOfContentsId).toHaveBeenCalledWith(
-        ['file1', 'file2']
-      );
+      expect(fileRepositoryMock.searchByArrayOfContentsId).toHaveBeenCalledWith(['file1', 'file2']);
       expect(storageFileServiceMock.isFileDownloadable).not.toHaveBeenCalled();
       expect(remoteFileSystemMock.hardDelete).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
     it('should check every found file if is downloadable and call remoteFileSystem.hardDelete', async () => {
-      const files = [
-        { contentsId: 'file1' },
-        { contentsId: 'file2' },
-      ] as unknown as File[];
+      const files = [{ contentsId: 'file1' }, { contentsId: 'file2' }] as unknown as File[];
 
       fileRepositoryMock.searchByArrayOfContentsId.mockResolvedValue(files);
       storageFileServiceMock.isFileDownloadable
@@ -70,35 +61,26 @@ describe('FileRepositorySynchronizer', () => {
 
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
-      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(
-        2
-      );
+      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(2);
       expect(remoteFileSystemMock.hardDelete).toHaveBeenCalledTimes(1);
       expect(remoteFileSystemMock.hardDelete).toHaveBeenCalledWith('file1');
       expect(result).toBe(true);
     });
     it('should return false if there is an error trying to retrieve files', async () => {
-      fileRepositoryMock.searchByArrayOfContentsId.mockRejectedValue(
-        new Error('Test failure')
-      );
+      fileRepositoryMock.searchByArrayOfContentsId.mockRejectedValue(new Error('Test failure'));
 
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
       expect(result).toBe(false);
     });
     it('should return true if not a single error was found while checking all of the files', async () => {
-      const files = [
-        { contentsId: 'file1' },
-        { contentsId: 'file2' },
-      ] as unknown as File[];
+      const files = [{ contentsId: 'file1' }, { contentsId: 'file2' }] as unknown as File[];
 
       fileRepositoryMock.searchByArrayOfContentsId.mockResolvedValue(files);
       storageFileServiceMock.isFileDownloadable.mockResolvedValue(right(true)); // Both files are downloadable
 
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
-      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(
-        2
-      );
+      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(2);
       expect(remoteFileSystemMock.hardDelete).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });

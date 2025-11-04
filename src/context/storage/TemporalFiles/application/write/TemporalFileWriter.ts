@@ -7,12 +7,7 @@ import { TemporalFileIOError } from '../../domain/errors/TemporalFileIOError';
 export class TemporalFileWriter {
   constructor(private readonly repository: TemporalFileRepository) {}
 
-  async run(
-    path: string,
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void> {
+  async run(path: string, buffer: Buffer, length: number, position: number): Promise<void> {
     const documentPath = new TemporalFilePath(path);
 
     try {

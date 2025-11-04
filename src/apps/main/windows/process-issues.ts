@@ -5,8 +5,7 @@ import { setUpCommonWindowHandlers } from '.';
 import isDev from '../../../core/isDev/isDev';
 
 let processIssuesWindow: BrowserWindow | null = null;
-export const getProcessIssuesWindow = () =>
-  processIssuesWindow?.isDestroyed() ? null : processIssuesWindow;
+export const getProcessIssuesWindow = () => (processIssuesWindow?.isDestroyed() ? null : processIssuesWindow);
 
 ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
 ipcMain.handle('open-process-issues-window', async () => {

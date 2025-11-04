@@ -15,7 +15,7 @@ export class Thumbnail extends AggregateRoot {
     private _updatedAt: Date,
     private _bucket?: string,
     private _id?: number,
-    private _contentsId?: ThumbnailContentId
+    private _contentsId?: ThumbnailContentId,
   ) {
     super();
   }
@@ -45,9 +45,7 @@ export class Thumbnail extends AggregateRoot {
       attributes.updatedAt,
       attributes.bucket,
       attributes.id,
-      attributes.contentsId
-        ? new ThumbnailContentId(attributes.contentsId)
-        : undefined
+      attributes.contentsId ? new ThumbnailContentId(attributes.contentsId) : undefined,
     );
   }
 

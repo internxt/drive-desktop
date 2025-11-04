@@ -26,13 +26,9 @@ export function FatalErrorComponent({
       {showIcon && <ErrorIcon className="h-5 w-5" />}
 
       <div className="flex flex-1 flex-col truncate">
-        <h1 className="truncate text-base font-medium leading-5 text-gray-100">
-          {translate(messages[errorName])}
-        </h1>
+        <h1 className="truncate text-base font-medium leading-5 text-gray-100">{translate(messages[errorName])}</h1>
 
-        <p className="truncate text-sm leading-4 text-gray-50">
-          {window.electron.path.basename(path)}
-        </p>
+        <p className="truncate text-sm leading-4 text-gray-50">{window.electron.path.basename(path)}</p>
       </div>
 
       <div className="flex items-center self-stretch">

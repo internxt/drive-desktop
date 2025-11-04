@@ -34,7 +34,7 @@ export async function generateTrashFilesReport(): Promise<CleanerSection> {
        */
       scanDirectory({
         dirPath: paths.xdgDataTrash,
-      })
+      }),
     );
   }
 
@@ -46,10 +46,7 @@ export async function generateTrashFilesReport(): Promise<CleanerSection> {
     }
   });
 
-  const totalSizeInBytes = allItems.reduce(
-    (sum, item) => sum + item.sizeInBytes,
-    0
-  );
+  const totalSizeInBytes = allItems.reduce((sum, item) => sum + item.sizeInBytes, 0);
 
   return {
     totalSizeInBytes,

@@ -40,11 +40,7 @@ export type SyncConfig = {
 
 export const SYNC_OFFSET_MS = 0;
 
-export const lastSyncedAtIsNewer = (
-  itemUpdatedAt: Date,
-  lastItemsSyncAt: Date,
-  offset: number
-) => {
+export const lastSyncedAtIsNewer = (itemUpdatedAt: Date, lastItemsSyncAt: Date, offset: number) => {
   return itemUpdatedAt.getTime() - offset > lastItemsSyncAt.getTime();
 };
 

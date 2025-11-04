@@ -8,11 +8,8 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   if (deviceIdentifier.isLeft()) {
     throw new Error('Error in the request to rename a device');
   }
-  
-  const response = await driveServerModule.backup.updateDeviceByIdentifier(
-    deviceIdentifier.getRight().key,
-    deviceName
-  );
+
+  const response = await driveServerModule.backup.updateDeviceByIdentifier(deviceIdentifier.getRight().key, deviceName);
   if (response.isRight()) {
     const device = response.getRight();
     return decryptDeviceName(device);

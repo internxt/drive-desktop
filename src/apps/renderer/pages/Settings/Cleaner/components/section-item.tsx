@@ -1,10 +1,6 @@
 import { CaretRight } from '@phosphor-icons/react';
 import Checkbox from '../../../../components/Checkbox';
-import {
-  formatFileSize,
-  sectionConfig,
-  getSectionStats,
-} from '../cleaner.service';
+import { formatFileSize, sectionConfig, getSectionStats } from '../cleaner.service';
 import { CleanerSection } from '../../../../../../backend/features/cleaner/cleaner.types';
 import { CleanerViewModel } from '../types/cleaner-viewmodel';
 import { Separator } from './Separator';
@@ -52,12 +48,9 @@ export function SectionItem({
           onClick={(e) => {
             e.stopPropagation();
             onToggleSectionExpansion(sectionName);
-          }}
-        >
+          }}>
           <div className="flex items-center gap-1">
-            <span className="text-sm text-gray-50">
-              {formatFileSize(section.totalSizeInBytes)}
-            </span>
+            <span className="text-sm text-gray-50">{formatFileSize(section.totalSizeInBytes)}</span>
             <CaretRight color="#0066ff" weight="bold" />
           </div>
         </div>

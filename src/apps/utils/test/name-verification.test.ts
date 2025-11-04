@@ -9,19 +9,16 @@ describe('name verifiaction test', () => {
   const VALID = true;
 
   describe.skip('sensible files', () => {
-    it.each(sensibleFiles.unix)(
-      'sensible unix files are not valid',
-      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    it.each(sensibleFiles.unix)('sensible unix files are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
     );
 
-    it.each(sensibleFiles.windows)(
-      'sensible windows files are not valid',
-      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    it.each(sensibleFiles.windows)('sensible windows files are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
     );
 
-    it.each(sensibleFiles['logs-linux'])(
-      'linux logs are not valid',
-      (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID)
+    it.each(sensibleFiles['logs-linux'])('linux logs are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
     );
   });
 
@@ -113,8 +110,7 @@ describe('name verifiaction test', () => {
     });
 
     it('startup folder is not valid', () => {
-      const maliciousFileName =
-        '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup';
+      const maliciousFileName = '..App\\DataRoaming\\MicrosoftWindows\\Start Menu\\Programs\\Startup';
 
       const result = fileNameIsValid(maliciousFileName);
 
@@ -137,14 +133,11 @@ describe('name verifiaction test', () => {
         'folder_name\\my-image.jpg',
       ];
 
-      it.each(correctWindowsFiles)(
-        'valid paths are correctly validated',
-        (fileName: string) => {
-          const result = fileNameIsValid(fileName);
+      it.each(correctWindowsFiles)('valid paths are correctly validated', (fileName: string) => {
+        const result = fileNameIsValid(fileName);
 
-          expect(result).toBe(VALID);
-        }
-      );
+        expect(result).toBe(VALID);
+      });
     });
   });
 });

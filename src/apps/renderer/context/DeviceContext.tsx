@@ -1,17 +1,8 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { Device } from '../../main/device/service';
 import { useDevices } from '../hooks/devices/useDevices';
 
-export type DeviceState =
-  | { status: 'LOADING' | 'ERROR' }
-  | { status: 'SUCCESS'; device: Device };
+export type DeviceState = { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; device: Device };
 
 const defaultState = { status: 'LOADING' } as const;
 
@@ -26,9 +17,7 @@ interface DeviceContextProps {
   getDevices: () => Promise<void>;
 }
 
-export const DeviceContext = createContext<DeviceContextProps>(
-  {} as DeviceContextProps
-);
+export const DeviceContext = createContext<DeviceContextProps>({} as DeviceContextProps);
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
   const [deviceState, setDeviceState] = useState<DeviceState>(defaultState);
@@ -39,8 +28,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshDevice();
 
-    const removeDeviceCreatedListener =
-      window.electron.onDeviceCreated(setCurrentDevice);
+    const removeDeviceCreatedListener = window.electron.onDeviceCreated(setCurrentDevice);
     return () => {
       removeDeviceCreatedListener();
     };
@@ -93,8 +81,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         selected,
         setSelected,
         getDevices,
-      }}
-    >
+      }}>
       {children}
     </DeviceContext.Provider>
   );

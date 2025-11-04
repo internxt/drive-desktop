@@ -3,7 +3,5 @@ import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscri
 
 export abstract class EventBus {
   abstract publish(events: Array<DomainEvent>): Promise<void>;
-  abstract addSubscribers(
-    subscribers: Array<DomainEventSubscriber<DomainEvent>>
-  ): void;
+  abstract addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void;
 }

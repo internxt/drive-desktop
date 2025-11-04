@@ -50,10 +50,7 @@ export async function generateLogsFilesReport(): Promise<CleanerSection> {
     }
   });
 
-  const totalSizeInBytes = allItems.reduce(
-    (sum, item) => sum + item.sizeInBytes,
-    0
-  );
+  const totalSizeInBytes = allItems.reduce((sum, item) => sum + item.sizeInBytes, 0);
 
   return {
     totalSizeInBytes,

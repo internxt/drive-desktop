@@ -1,17 +1,12 @@
 import { TokenScheduler } from '../../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from '../handlers';
-import {
-  obtainTokens as obtainStoredTokens,
-  updateCredentials,
-} from '../service';
+import { obtainTokens as obtainStoredTokens, updateCredentials } from '../service';
 import { driveServerModule } from '../../../../infra/drive-server/drive-server.module';
 import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { RefreshTokenResponse } from '../../../../infra/drive-server/services/auth/auth.types';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-export async function obtainTokens(): Promise<
-  Either<Error, RefreshTokenResponse>
-> {
+export async function obtainTokens(): Promise<Either<Error, RefreshTokenResponse>> {
   try {
     const result = await driveServerModule.auth.refresh();
     if (result.isLeft()) {
@@ -42,9 +37,7 @@ export async function refreshToken(): Promise<Either<Error, Array<string>>> {
   return right([token, newToken]);
 }
 
-export async function createTokenSchedule(
-  refreshedTokens?: Array<string>
-): Promise<void> {
+export async function createTokenSchedule(refreshedTokens?: Array<string>): Promise<void> {
   const tokens = refreshedTokens || obtainStoredTokens();
 
   const tokenScheduler = new TokenScheduler(5, tokens, onUserUnauthorized);

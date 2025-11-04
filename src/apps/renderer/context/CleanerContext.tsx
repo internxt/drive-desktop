@@ -1,17 +1,6 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-  useMemo,
-} from 'react';
+import { createContext, ReactNode, useContext, useState, useEffect, useMemo } from 'react';
 import { useUserAvailableProducts } from '../hooks/useUserAvailableProducts/useUserAvailableProducts';
-import {
-  CleanerReport,
-  CleanerViewModel,
-  CleanupProgress,
-} from '../../../backend/features/cleaner/cleaner.types';
+import { CleanerReport, CleanerViewModel, CleanupProgress } from '../../../backend/features/cleaner/cleaner.types';
 type CleanerContextType = {
   report: CleanerReport | null;
   loading: boolean;
@@ -60,9 +49,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
-    );
+    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
   const generateReport = async (force = false) => {
@@ -70,8 +57,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     setReport(null);
     setLoading(true);
     try {
-      const report: CleanerReport =
-        await window.electron.cleaner.generateReport(force);
+      const report: CleanerReport = await window.electron.cleaner.generateReport(force);
       const diskSpace = await window.electron.cleaner.getDiskSpace();
       setReport(report);
       setDiskSpace(diskSpace);
@@ -111,9 +97,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     };
 
     // Add listener for cleanup progress updates
-    const removeListener = window.electron.cleaner.onCleanupProgress(
-      handleCleanupProgress
-    );
+    const removeListener = window.electron.cleaner.onCleanupProgress(handleCleanupProgress);
 
     // Cleanup listener on unmount
     return removeListener;
@@ -135,8 +119,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
         startCleanup,
         stopCleanup,
         setInitialCleaningState,
-      }}
-    >
+      }}>
       {children}
     </CleanerContext.Provider>
   );

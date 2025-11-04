@@ -3,8 +3,7 @@ import ElectronLog from 'electron-log';
 import { paths } from '../../infra/schemas';
 import isDev from '../isDev/isDev';
 
-
-type FeatureTag = 'AUTH' | 'BACKUP'
+type FeatureTag = 'AUTH' | 'BACKUP';
 type HttpMethods = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface LoggerBody {
@@ -14,7 +13,7 @@ export interface LoggerBody {
   context?: Record<string, unknown>;
   attributes?: {
     userId?: string;
-    method?: HttpMethods
+    method?: HttpMethods;
     endpoint?: keyof paths;
   };
 
@@ -60,13 +59,14 @@ export class LoggerService {
     }
 
     if (rawBody.error) {
-      extras.error = rawBody.error instanceof Error
-        ? {
-          name: rawBody.error.name,
-          message: rawBody.error.message,
-          stack: rawBody.error.stack
-        }
-        : rawBody.error;
+      extras.error =
+        rawBody.error instanceof Error
+          ? {
+              name: rawBody.error.name,
+              message: rawBody.error.message,
+              stack: rawBody.error.stack,
+            }
+          : rawBody.error;
     }
 
     if (rawBody.attributes) {
@@ -80,7 +80,7 @@ export class LoggerService {
     const inspected = inspect(extras, {
       colors: false,
       depth: Infinity,
-      breakLength: Infinity
+      breakLength: Infinity,
     });
 
     return `${message}\n${inspected}`;

@@ -7,11 +7,7 @@ import { ParentFolderFinder } from '../../../../../src/context/virtual-drive/fol
 
 export class FolderMoverMock extends FolderMover {
   constructor() {
-    super(
-      {} as FolderRepository,
-      {} as RemoteFileSystem,
-      {} as ParentFolderFinder
-    );
+    super({} as FolderRepository, {} as RemoteFileSystem, {} as ParentFolderFinder);
   }
 
   public readonly mock = jest.fn();

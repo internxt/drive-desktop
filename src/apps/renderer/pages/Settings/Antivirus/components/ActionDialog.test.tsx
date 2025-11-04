@@ -56,13 +56,7 @@ describe('ActionDialog', () => {
   });
 
   it('renders with custom button text', () => {
-    render(
-      <ActionDialog
-        {...defaultProps}
-        confirmText="Custom Confirm"
-        cancelText="Custom Cancel"
-      />
-    );
+    render(<ActionDialog {...defaultProps} confirmText="Custom Confirm" cancelText="Custom Cancel" />);
 
     expect(screen.getByText('Custom Confirm')).toBeInTheDocument();
     expect(screen.getByText('Custom Cancel')).toBeInTheDocument();

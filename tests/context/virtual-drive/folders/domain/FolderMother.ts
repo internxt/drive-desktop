@@ -1,9 +1,6 @@
 import Chance from 'chance';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import {
-  Folder,
-  FolderAttributes,
-} from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { Folder, FolderAttributes } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
 import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
@@ -100,9 +97,7 @@ export class FolderMother {
   }
 
   static array(partial?: Partial<FolderAttributes>): Array<Folder> {
-    return new Array(
-      chance.integer({ min: 1, max: FolderMother.MAX_ARRAY_GENERATION })
-    )
+    return new Array(chance.integer({ min: 1, max: FolderMother.MAX_ARRAY_GENERATION }))
       .fill(0)
       .map(() => FolderMother.fromPartial(partial ?? {}));
   }

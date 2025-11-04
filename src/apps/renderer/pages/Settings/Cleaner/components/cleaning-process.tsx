@@ -21,14 +21,9 @@ export default function CleaningProcess({
 }: Props) {
   const { translate } = useTranslationContext();
   return (
-    <div
-      className="flex w-full flex-col items-center gap-4"
-      data-testid="clean-process-container"
-    >
+    <div className="flex w-full flex-col items-center gap-4" data-testid="clean-process-container">
       <div className="flex h-20 w-full max-w-[450px] flex-col text-center">
-        <p>
-          {translate('settings.cleaner.cleaningView.cleaningProcess.title')}
-        </p>
+        <p>{translate('settings.cleaner.cleaningView.cleaningProcess.title')}</p>
         <p className="line-clamp-2">{currentCleaningPath}</p>
       </div>
       <ProgresBar progress={cleanedProgress} />

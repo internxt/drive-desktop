@@ -3,7 +3,7 @@ import { SyncStoppedPayload } from '../../../context/desktop/sync/domain/SyncSto
 
 export default function useSyncStopped(): [
   SyncStoppedPayload | null,
-  React.Dispatch<React.SetStateAction<SyncStoppedPayload | null>>
+  React.Dispatch<React.SetStateAction<SyncStoppedPayload | null>>,
 ] {
   const [stopReason, setStopReason] = useState<SyncStoppedPayload | null>(null);
 

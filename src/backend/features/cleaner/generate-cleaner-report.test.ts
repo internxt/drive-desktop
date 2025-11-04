@@ -1,7 +1,4 @@
-import {
-  generateCleanerReport,
-  clearCleanerReportCache,
-} from './generate-cleaner-report';
+import { generateCleanerReport, clearCleanerReportCache } from './generate-cleaner-report';
 import { generateAppCacheReport } from './app-cache/generate-app-cache-report';
 import { generateLogsFilesReport } from './log-files/generate-logs-files-report';
 import { generateTrashFilesReport } from './trash-files/generate-trash-files-report';
@@ -25,9 +22,7 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
 const mockedGenerateAppCacheReport = jest.mocked(generateAppCacheReport);
 const mockedGenerateLogsFilesReport = jest.mocked(generateLogsFilesReport);
 const mockedGenerateTrashFilesReport = jest.mocked(generateTrashFilesReport);
-const mockedGenerateWebStorageFilesReport = jest.mocked(
-  generateWebStorageFilesReport
-);
+const mockedGenerateWebStorageFilesReport = jest.mocked(generateWebStorageFilesReport);
 const mockedGenerateWebCacheReport = jest.mocked(generateWebCacheReport);
 const mockedLogger = jest.mocked(logger);
 
@@ -57,23 +52,17 @@ describe('generateCleanerReport', () => {
 
   const mockTrashSection: CleanerSection = {
     totalSizeInBytes: 512,
-    items: [
-      { fullPath: '/trash/file.txt', fileName: 'file.txt', sizeInBytes: 512 },
-    ],
+    items: [{ fullPath: '/trash/file.txt', fileName: 'file.txt', sizeInBytes: 512 }],
   };
 
   const mockWebStorageSection: CleanerSection = {
     totalSizeInBytes: 4096,
-    items: [
-      { fullPath: '/cookies.db', fileName: 'cookies.db', sizeInBytes: 4096 },
-    ],
+    items: [{ fullPath: '/cookies.db', fileName: 'cookies.db', sizeInBytes: 4096 }],
   };
 
   const mockWebCacheSection: CleanerSection = {
     totalSizeInBytes: 8192,
-    items: [
-      { fullPath: '/cache/web.db', fileName: 'web.db', sizeInBytes: 8192 },
-    ],
+    items: [{ fullPath: '/cache/web.db', fileName: 'web.db', sizeInBytes: 8192 }],
   };
 
   const expectedCompleteReport: CleanerReport = {
@@ -115,9 +104,7 @@ describe('generateCleanerReport', () => {
       mockedGenerateAppCacheReport.mockResolvedValue(mockAppCacheSection);
       mockedGenerateLogsFilesReport.mockResolvedValue(mockLogFilesSection);
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
-      mockedGenerateWebStorageFilesReport.mockResolvedValue(
-        mockWebStorageSection
-      );
+      mockedGenerateWebStorageFilesReport.mockResolvedValue(mockWebStorageSection);
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection);
     });
 
@@ -161,9 +148,7 @@ describe('generateCleanerReport', () => {
       // Update mock data for second call
       const updatedAppCacheSection: CleanerSection = {
         totalSizeInBytes: 2048,
-        items: [
-          { fullPath: '/tmp/cache2', fileName: 'cache2', sizeInBytes: 2048 },
-        ],
+        items: [{ fullPath: '/tmp/cache2', fileName: 'cache2', sizeInBytes: 2048 }],
       };
       mockedGenerateAppCacheReport.mockResolvedValue(updatedAppCacheSection);
 
@@ -177,14 +162,10 @@ describe('generateCleanerReport', () => {
 
   describe('error handling for individual sections', () => {
     it('should handle single section failure gracefully', async () => {
-      mockedGenerateAppCacheReport.mockRejectedValue(
-        new Error('App cache failed')
-      );
+      mockedGenerateAppCacheReport.mockRejectedValue(new Error('App cache failed'));
       mockedGenerateLogsFilesReport.mockResolvedValue(mockLogFilesSection);
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
-      mockedGenerateWebStorageFilesReport.mockResolvedValue(
-        mockWebStorageSection
-      );
+      mockedGenerateWebStorageFilesReport.mockResolvedValue(mockWebStorageSection);
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection);
 
       const result = await generateCleanerReport();
@@ -204,14 +185,10 @@ describe('generateCleanerReport', () => {
     });
 
     it('should handle multiple section failures gracefully', async () => {
-      mockedGenerateAppCacheReport.mockRejectedValue(
-        new Error('App cache failed')
-      );
+      mockedGenerateAppCacheReport.mockRejectedValue(new Error('App cache failed'));
       mockedGenerateLogsFilesReport.mockRejectedValue(new Error('Logs failed'));
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
-      mockedGenerateWebStorageFilesReport.mockRejectedValue(
-        new Error('Web storage failed')
-      );
+      mockedGenerateWebStorageFilesReport.mockRejectedValue(new Error('Web storage failed'));
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection);
 
       const result = await generateCleanerReport();
@@ -228,19 +205,11 @@ describe('generateCleanerReport', () => {
     });
 
     it('should handle all sections failing', async () => {
-      mockedGenerateAppCacheReport.mockRejectedValue(
-        new Error('App cache failed')
-      );
+      mockedGenerateAppCacheReport.mockRejectedValue(new Error('App cache failed'));
       mockedGenerateLogsFilesReport.mockRejectedValue(new Error('Logs failed'));
-      mockedGenerateTrashFilesReport.mockRejectedValue(
-        new Error('Trash failed')
-      );
-      mockedGenerateWebStorageFilesReport.mockRejectedValue(
-        new Error('Web storage failed')
-      );
-      mockedGenerateWebCacheReport.mockRejectedValue(
-        new Error('Web cache failed')
-      );
+      mockedGenerateTrashFilesReport.mockRejectedValue(new Error('Trash failed'));
+      mockedGenerateWebStorageFilesReport.mockRejectedValue(new Error('Web storage failed'));
+      mockedGenerateWebCacheReport.mockRejectedValue(new Error('Web cache failed'));
 
       const result = await generateCleanerReport();
 
@@ -253,9 +222,7 @@ describe('generateCleanerReport', () => {
     it('should handle Promise.allSettled throwing an error', async () => {
       // Mock Promise.allSettled to throw (though this is extremely unlikely)
       const originalAllSettled = Promise.allSettled;
-      jest
-        .spyOn(Promise, 'allSettled')
-        .mockRejectedValue(new Error('Promise.allSettled failed'));
+      jest.spyOn(Promise, 'allSettled').mockRejectedValue(new Error('Promise.allSettled failed'));
 
       const result = await generateCleanerReport();
 
@@ -272,14 +239,10 @@ describe('generateCleanerReport', () => {
 
   describe('caching behavior with failures', () => {
     it('should cache report even when some sections fail', async () => {
-      mockedGenerateAppCacheReport.mockRejectedValue(
-        new Error('App cache failed')
-      );
+      mockedGenerateAppCacheReport.mockRejectedValue(new Error('App cache failed'));
       mockedGenerateLogsFilesReport.mockResolvedValue(mockLogFilesSection);
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
-      mockedGenerateWebStorageFilesReport.mockResolvedValue(
-        mockWebStorageSection
-      );
+      mockedGenerateWebStorageFilesReport.mockResolvedValue(mockWebStorageSection);
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection);
 
       const expectedPartialReport: CleanerReport = {
@@ -314,9 +277,7 @@ describe('generateCleanerReport', () => {
 
     it('should not cache when catastrophic error occurs', async () => {
       // Mock Promise.allSettled to throw
-      jest
-        .spyOn(Promise, 'allSettled')
-        .mockRejectedValueOnce(new Error('Catastrophic failure'));
+      jest.spyOn(Promise, 'allSettled').mockRejectedValueOnce(new Error('Catastrophic failure'));
 
       // First call should fail and not cache
       const firstResult = await generateCleanerReport();
@@ -338,9 +299,7 @@ describe('generateCleanerReport', () => {
       mockedGenerateAppCacheReport.mockResolvedValue(mockAppCacheSection);
       mockedGenerateLogsFilesReport.mockResolvedValue(mockLogFilesSection);
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
-      mockedGenerateWebStorageFilesReport.mockResolvedValue(
-        mockWebStorageSection
-      );
+      mockedGenerateWebStorageFilesReport.mockResolvedValue(mockWebStorageSection);
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection);
 
       // Second call should work normally (not return cached empty result)
@@ -368,9 +327,7 @@ describe('generateCleanerReport', () => {
       mockedGenerateAppCacheReport.mockResolvedValue(mockAppCacheSection); // Success
       mockedGenerateLogsFilesReport.mockRejectedValue(new Error('Failed')); // Failure
       mockedGenerateTrashFilesReport.mockResolvedValue(emptySection); // Empty success
-      mockedGenerateWebStorageFilesReport.mockRejectedValue(
-        new Error('Failed')
-      ); // Failure
+      mockedGenerateWebStorageFilesReport.mockRejectedValue(new Error('Failed')); // Failure
       mockedGenerateWebCacheReport.mockResolvedValue(mockWebCacheSection); // Success
 
       const result = await generateCleanerReport();

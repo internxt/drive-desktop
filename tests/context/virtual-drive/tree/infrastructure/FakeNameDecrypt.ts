@@ -6,7 +6,7 @@ export class FakeNameDecrypt implements NameDecrypt {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _folderId: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _encryptVersion: string
+    _encryptVersion: string,
   ): string | null {
     return name;
   }

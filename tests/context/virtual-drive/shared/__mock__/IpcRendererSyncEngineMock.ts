@@ -35,10 +35,7 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
 
   handle<Event extends never>(
     event: Event,
-    listener: (
-      event: Electron.IpcMainEvent,
-      ...args: Parameters<BackgroundProcessVirtualDriveEvents[Event]>
-    ) => void
+    listener: (event: Electron.IpcMainEvent, ...args: Parameters<BackgroundProcessVirtualDriveEvents[Event]>) => void,
   ): Promise<ReturnType<MainProcessVirtualDriveEvents[Event]>> {
     return this.handleMock(event, listener);
   }
@@ -55,7 +52,7 @@ export class IpcRendererSyncEngineMock implements SyncEngineIpc {
           }>;
         }[Event]
       >
-    ) => void
+    ) => void,
   ): Promise<
     ReturnType<
       {

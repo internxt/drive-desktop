@@ -15,14 +15,7 @@ type Props = {
 };
 export function CleanerSection({ active }: Props) {
   const { translate } = useTranslationContext();
-  const {
-    loading,
-    report,
-    cleaningState,
-    isCleanerAvailable,
-    generateReport,
-    startCleanup,
-  } = useCleaner();
+  const { loading, report, cleaningState, isCleanerAvailable, generateReport, startCleanup } = useCleaner();
   const useCleanerViewModelHook = useCleanerViewModel();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
@@ -44,9 +37,7 @@ export function CleanerSection({ active }: Props) {
     generateReport();
   }
   return (
-    <section
-      className={`${active ? 'block' : 'hidden'} relative h-full w-full`}
-    >
+    <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       {!isCleanerAvailable ? (
         <LockedState />
       ) : cleaningState.cleaning || cleaningState.cleaningCompleted ? (
@@ -55,10 +46,7 @@ export function CleanerSection({ active }: Props) {
         <div className="flex h-full w-full flex-col gap-4">
           {!report && !loading && (
             <>
-              <GenerateReportView
-                onGenerateReport={handleGenerateReport}
-                {...useCleanerViewModelHook}
-              />
+              <GenerateReportView onGenerateReport={handleGenerateReport} {...useCleanerViewModelHook} />
             </>
           )}
           {loading && <LoadingView />}
@@ -68,12 +56,7 @@ export function CleanerSection({ active }: Props) {
                 <CleanerView report={report} {...useCleanerViewModelHook} />
               </div>
               <div className="flex justify-center">
-                <Button
-                  className={'hover:cursor-pointer'}
-                  variant={'primary'}
-                  size="md"
-                  onClick={handleCleanupClick}
-                >
+                <Button className={'hover:cursor-pointer'} variant={'primary'} size="md" onClick={handleCleanupClick}>
                   {translate('settings.cleaner.mainView.cleanup')}
                 </Button>
               </div>
@@ -81,11 +64,7 @@ export function CleanerSection({ active }: Props) {
           )}
         </div>
       )}
-      <CleanupConfirmDialog
-        isVisible={showConfirmDialog}
-        onConfirm={confirmCleanup}
-        onCancel={cancelCleanup}
-      />
+      <CleanupConfirmDialog isVisible={showConfirmDialog} onConfirm={confirmCleanup} onCancel={cancelCleanup} />
     </section>
   );
 }

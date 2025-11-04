@@ -16,11 +16,7 @@ export default function CleanedFilesContainer({
       <div className="flex w-full flex-row justify-center gap-5">
         <div className="flex w-full max-w-[248px] flex-col items-center justify-center gap-1 text-center">
           <p>{deletedFiles}</p>
-          <p>
-            {translate(
-              'settings.cleaner.cleaningView.cleaningProcess.deletedFiles'
-            )}
-          </p>
+          <p>{translate('settings.cleaner.cleaningView.cleaningProcess.deletedFiles')}</p>
         </div>
         <div className="flex flex-col border border-gray-10" />
         <div className="flex w-full max-w-[248px] flex-col items-center justify-center gap-1 text-center">
@@ -48,11 +44,7 @@ export default function CleanedFilesContainer({
         <div className="flex flex-col border border-gray-10" />
         <div className="flex w-full max-w-[248px] flex-col items-center justify-center gap-1 text-center">
           <p>{freeSpaceGained}</p>
-          <p>
-            {translate(
-              'settings.cleaner.cleaningView.cleaningProcess.freeSpaceGained'
-            )}
-          </p>
+          <p>{translate('settings.cleaner.cleaningView.cleaningProcess.freeSpaceGained')}</p>
         </div>
       </div>
     </div>

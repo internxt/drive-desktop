@@ -5,12 +5,8 @@ import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
-export class ScannedItemCollection
-  implements DatabaseCollectionAdapter<ScannedItem>
-{
-  private repository: Repository<ScannedItem> = AppDataSource.getRepository(
-    SCANNED_ITEMS_DB_ENTITY
-  );
+export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedItem> {
+  private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
 
   async connect(): Promise<{ success: boolean }> {
     return {
@@ -74,7 +70,7 @@ export class ScannedItemCollection
       {
         id,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {
@@ -124,9 +120,7 @@ export class ScannedItemCollection
     }
   }
 
-  async searchPartialBy(
-    partialData: Partial<ScannedItem>
-  ): Promise<{ success: boolean; result: ScannedItem[] }> {
+  async searchPartialBy(partialData: Partial<ScannedItem>): Promise<{ success: boolean; result: ScannedItem[] }> {
     try {
       const result = await this.repository.find({
         where: partialData,

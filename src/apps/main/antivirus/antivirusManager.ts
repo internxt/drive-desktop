@@ -15,10 +15,7 @@ export class AntivirusManager {
   private lastAntivirusState: boolean | null = null;
 
   private constructor() {
-    eventBus.on(
-      'USER_AVAILABLE_PRODUCTS_UPDATED',
-      this.handleProductsUpdate.bind(this)
-    );
+    eventBus.on('USER_AVAILABLE_PRODUCTS_UPDATED', this.handleProductsUpdate.bind(this));
   }
 
   /**
@@ -150,9 +147,7 @@ export class AntivirusManager {
   /**
    * Handle product updates by starting/stopping ClamAV based on availability
    */
-  private async handleProductsUpdate(
-    products: UserAvailableProducts
-  ): Promise<void> {
+  private async handleProductsUpdate(products: UserAvailableProducts): Promise<void> {
     try {
       const isAntivirusEnabled = !!(products && products.antivirus);
 

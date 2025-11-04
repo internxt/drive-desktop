@@ -22,7 +22,7 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
 
       const endPromises = performance.now();
       logger.debug({
-        msg: `[ReaddirCallback] Time taken on Promises: ${endPromises - start}ms`
+        msg: `[ReaddirCallback] Time taken on Promises: ${endPromises - start}ms`,
       });
 
       const auxiliaryFileName = temporalFiles.reduce((acc, file) => {
@@ -34,19 +34,13 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
 
       const endReduce = performance.now();
       logger.debug({
-        msg: `[ReaddirCallback] Time taken on Reduce: ${endReduce - endPromises}ms`
+        msg: `[ReaddirCallback] Time taken on Reduce: ${endReduce - endPromises}ms`,
       });
 
       const end = performance.now();
       logger.debug({ msg: `[ReaddirCallback] Time taken on Total: ${end - start}ms` });
 
-      return this.right([
-        '.',
-        '..',
-        ...filesNames,
-        ...foldersNames,
-        ...auxiliaryFileName,
-      ]);
+      return this.right(['.', '..', ...filesNames, ...foldersNames, ...auxiliaryFileName]);
     } catch (error) {
       logger.error({ msg: '[ReaddirCallback] Error reading directory:', error });
       return this.left(new FuseIOError());

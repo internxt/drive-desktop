@@ -6,10 +6,7 @@ import { VirtualDriveFileIssue } from '../../../../../shared/issues/VirtualDrive
 import { VirtualDriveFileError } from '../../../../../shared/issues/VirtualDriveError';
 import { FileErrorEvents } from '../../../../../apps/shared/IPC/events/virtualDrive/backgroundEvents/files';
 
-const virtualDriveFileErrorToFileErrorKeyMap: Record<
-  VirtualDriveFileError,
-  keyof FileErrorEvents
-> = {
+const virtualDriveFileErrorToFileErrorKeyMap: Record<VirtualDriveFileError, keyof FileErrorEvents> = {
   UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
   DOWNLOAD_ERROR: 'FILE_DOWNLOAD_ERROR',
   RENAME_ERROR: 'FILE_RENAME_ERROR',
@@ -18,10 +15,7 @@ const virtualDriveFileErrorToFileErrorKeyMap: Record<
   GENERATE_TREE: 'FILE_DOWNLOAD_ERROR',
 };
 
-export class BackgroundProcessSyncFileMessenger
-  extends SyncMessenger
-  implements SyncFileMessenger
-{
+export class BackgroundProcessSyncFileMessenger extends SyncMessenger implements SyncFileMessenger {
   constructor(private readonly ipc: SyncEngineIpc) {
     super();
   }

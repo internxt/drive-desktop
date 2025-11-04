@@ -15,7 +15,7 @@ export abstract class EnvironmentDownloader {
 
   constructor(
     private readonly fn: DownloadStrategyFunction<unknown>,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -51,14 +51,14 @@ export abstract class EnvironmentDownloader {
             useProxy: false,
             concurrency: 10,
           },
-        }
+        },
       );
     });
   }
 
   on(
     event: keyof EnvironmentDownloaderEvents,
-    handler: EnvironmentDownloaderEvents[keyof EnvironmentDownloaderEvents]
+    handler: EnvironmentDownloaderEvents[keyof EnvironmentDownloaderEvents],
   ): void {
     this.eventEmitter.on(event, handler);
   }

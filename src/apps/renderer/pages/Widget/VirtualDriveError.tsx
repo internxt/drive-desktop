@@ -11,9 +11,7 @@ export const VirtualDriveError: React.FC = () => {
         <h1 className="text-lg font-medium leading-tight text-gray-100">
           {translate('widget.virtual-drive-error.title')}
         </h1>
-        <h3 className="text-sm leading-base text-gray-60">
-          {translate('widget.virtual-drive-error.message')}
-        </h3>
+        <h3 className="text-sm leading-base text-gray-60">{translate('widget.virtual-drive-error.message')}</h3>
       </div>
     </div>
   );

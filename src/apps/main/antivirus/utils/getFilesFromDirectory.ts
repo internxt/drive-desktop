@@ -14,9 +14,7 @@ const isNonTempItem = (item: Dirent, dir: string): boolean => {
   const fullPath = resolve(dir, item.name);
   const isDirectory = item.isDirectory();
   return (
-    (isDirectory &&
-      !fullPath.toLowerCase().includes('temp') &&
-      !fullPath.toLowerCase().includes('tmp')) ||
+    (isDirectory && !fullPath.toLowerCase().includes('temp') && !fullPath.toLowerCase().includes('tmp')) ||
     (!isDirectory && !fullPath.toLowerCase().endsWith('.tmp'))
   );
 };
@@ -24,7 +22,7 @@ const isNonTempItem = (item: Dirent, dir: string): boolean => {
 export const getFilesFromDirectory = async (
   dir: string,
   cb: (file: string) => Promise<void>,
-  isCancelled?: () => boolean
+  isCancelled?: () => boolean,
 ): Promise<void | null> => {
   if (isCancelled && isCancelled()) {
     logger.debug({
@@ -57,9 +55,7 @@ export const getFilesFromDirectory = async (
     if (isPermissionError(error)) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: `Skipping directory "${dir}" due to permission error: ${getErrorMessage(
-          error
-        )}`,
+        msg: `Skipping directory "${dir}" due to permission error: ${getErrorMessage(error)}`,
       });
       return null;
     }
@@ -95,17 +91,13 @@ export const getFilesFromDirectory = async (
         if (isPermissionError(error)) {
           logger.debug({
             tag: 'ANTIVIRUS',
-            msg: `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(
-              error
-            )}`,
+            msg: `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(error)}`,
           });
         } else {
           // Log other errors but continue scanning
           logger.warn({
             tag: 'ANTIVIRUS',
-            msg: `Error accessing subdirectory "${fullPath}": ${getErrorMessage(
-              error
-            )}`,
+            msg: `Error accessing subdirectory "${fullPath}": ${getErrorMessage(error)}`,
             error,
           });
         }
@@ -164,7 +156,7 @@ export async function countSystemFiles(folder: string) {
       } else {
         return 1;
       }
-    })
+    }),
   );
   total += counts.reduce((sum, c) => sum + c, 0);
 

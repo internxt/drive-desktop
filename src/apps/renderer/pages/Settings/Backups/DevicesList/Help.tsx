@@ -7,7 +7,7 @@ const Help: FC = () => {
   const handleOpenURL = async () => {
     try {
       await window.electron.openUrl(
-        'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive'
+        'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive',
       );
     } catch (error) {
       reportError(error);
@@ -15,15 +15,9 @@ const Help: FC = () => {
   };
 
   return (
-    <div
-      className="mt-auto hover:cursor-pointer"
-      onClick={handleOpenURL}
-      data-testid="help-component"
-    >
+    <div className="mt-auto hover:cursor-pointer" onClick={handleOpenURL} data-testid="help-component">
       <Question className="mr-1 inline" />
-      <span className="text-gray-100">
-        {translate('settings.backups.backups-help')}
-      </span>
+      <span className="text-gray-100">{translate('settings.backups.backups-help')}</span>
     </div>
   );
 };

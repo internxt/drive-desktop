@@ -12,9 +12,7 @@ import {
 } from '../cleaner.service';
 
 export function useCleanerViewModel() {
-  const [viewModel, setViewModel] = useState<CleanerViewModel>(
-    createInitialViewModel
-  );
+  const [viewModel, setViewModel] = useState<CleanerViewModel>(createInitialViewModel);
 
   const toggleSection = useCallback((sectionKey: string) => {
     setViewModel((prev) => ({
@@ -23,15 +21,12 @@ export function useCleanerViewModel() {
     }));
   }, []);
 
-  const toggleItemSelection = useCallback(
-    (sectionKey: string, itemPath: string) => {
-      setViewModel((prev) => ({
-        ...prev,
-        [sectionKey]: toggleItem(prev[sectionKey], itemPath),
-      }));
-    },
-    []
-  );
+  const toggleItemSelection = useCallback((sectionKey: string, itemPath: string) => {
+    setViewModel((prev) => ({
+      ...prev,
+      [sectionKey]: toggleItem(prev[sectionKey], itemPath),
+    }));
+  }, []);
 
   const selectAllSections = useCallback(() => {
     setViewModel(createInitialViewModel());
@@ -54,17 +49,15 @@ export function useCleanerViewModel() {
     (sectionKey: string, itemPath: string) => {
       return isItemSelected(viewModel[sectionKey], itemPath);
     },
-    [viewModel]
+    [viewModel],
   );
 
   const getSelectedItemsForSection = useCallback(
     (sectionKey: string, report: CleanerReport) => {
       const section = report[sectionKey as keyof CleanerReport];
-      return section
-        ? getSelectedItems(viewModel[sectionKey], section.items)
-        : [];
+      return section ? getSelectedItems(viewModel[sectionKey], section.items) : [];
     },
-    [viewModel]
+    [viewModel],
   );
 
   const getSectionSelectionStats = useCallback(
@@ -80,25 +73,23 @@ export function useCleanerViewModel() {
             isNoneSelected: true,
           };
     },
-    [viewModel]
+    [viewModel],
   );
 
   const getTotalSelectedSize = useCallback(
     (report: CleanerReport) => {
       return calculateSelectedSize(viewModel, report);
     },
-    [viewModel]
+    [viewModel],
   );
 
   const getGlobalSelectionStats = useCallback(
     (report: CleanerReport) => {
-      const allSectionStats = Object.keys(viewModel).map((sectionKey) =>
-        getSectionSelectionStats(sectionKey, report)
-      );
+      const allSectionStats = Object.keys(viewModel).map((sectionKey) => getSectionSelectionStats(sectionKey, report));
 
       // Only consider non-empty sections for global selection logic
       const nonEmptySectionStats = allSectionStats.filter((stats) => stats.totalCount > 0);
-      
+
       // If all sections are empty, treat as none selected
       if (nonEmptySectionStats.length === 0) {
         return {
@@ -109,9 +100,7 @@ export function useCleanerViewModel() {
       }
 
       const allSelected = nonEmptySectionStats.every((stats) => stats.isAllSelected);
-      const noneSelected = nonEmptySectionStats.every(
-        (stats) => stats.isNoneSelected
-      );
+      const noneSelected = nonEmptySectionStats.every((stats) => stats.isNoneSelected);
       const partiallySelected = !allSelected && !noneSelected;
 
       return {
@@ -120,7 +109,7 @@ export function useCleanerViewModel() {
         isNoneSelected: noneSelected,
       };
     },
-    [viewModel, getSectionSelectionStats]
+    [viewModel, getSectionSelectionStats],
   );
 
   return {

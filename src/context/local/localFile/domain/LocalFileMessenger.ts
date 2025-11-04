@@ -2,8 +2,5 @@ import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopErr
 import { LocalFile } from './LocalFile';
 
 export abstract class LocalFileMessenger {
-  abstract creationFailed(
-    file: LocalFile,
-    error: DriveDesktopError
-  ): Promise<void>;
+  abstract creationFailed(file: LocalFile, error: DriveDesktopError): Promise<void>;
 }

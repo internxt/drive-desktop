@@ -3,9 +3,6 @@ import { BackgroundProcessVirtualDriveEvents } from '../shared/IPC/events/virtua
 import { MainProcessVirtualDriveEvents } from '../shared/IPC/events/virtualDrive/MainProcessVirtualDriveEvents';
 import { ipcRenderer } from 'electron';
 
-export type SyncEngineIpc = TypedIPC<
-  BackgroundProcessVirtualDriveEvents,
-  MainProcessVirtualDriveEvents
->;
+export type SyncEngineIpc = TypedIPC<BackgroundProcessVirtualDriveEvents, MainProcessVirtualDriveEvents>;
 
 export const SyncEngineIPC = ipcRenderer as unknown as SyncEngineIpc;

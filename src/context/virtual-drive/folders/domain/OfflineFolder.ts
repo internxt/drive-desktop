@@ -22,7 +22,7 @@ export class OfflineFolder extends AggregateRoot {
     private _parentId: FolderId,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FolderStatus
+    private _status: FolderStatus,
   ) {
     super();
   }
@@ -67,19 +67,12 @@ export class OfflineFolder extends AggregateRoot {
       new FolderId(attributes.parentId),
       new Date(attributes.updatedAt),
       new Date(attributes.createdAt),
-      FolderStatus.fromValue(attributes.status)
+      FolderStatus.fromValue(attributes.status),
     );
   }
 
   static create(path: FolderPath, parentId: FolderId): OfflineFolder {
-    return new OfflineFolder(
-      FolderUuid.random(),
-      path,
-      parentId,
-      new Date(),
-      new Date(),
-      FolderStatus.Exists
-    );
+    return new OfflineFolder(FolderUuid.random(), path, parentId, new Date(), new Date(), FolderStatus.Exists);
   }
 
   moveTo(destinationFolder: Folder) {

@@ -9,9 +9,7 @@ const statusesMap: Record<RemoteSyncStatus, SyncStatus> = {
   SYNC_FAILED: 'FAILED',
 };
 
-export default function useSyncStatus(
-  onChange?: (currentState: SyncStatus) => void
-) {
+export default function useSyncStatus(onChange?: (currentState: SyncStatus) => void) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('RUNNING');
 
   const setSyncStatusFromRemote = (remote: RemoteSyncStatus): void => {
@@ -21,9 +19,7 @@ export default function useSyncStatus(
   useEffect(() => {
     window.electron.getRemoteSyncStatus().then(setSyncStatusFromRemote);
 
-    const removeListener = window.electron.onRemoteSyncStatusChange(
-      setSyncStatusFromRemote
-    );
+    const removeListener = window.electron.onRemoteSyncStatusChange(setSyncStatusFromRemote);
 
     return removeListener;
   }, []);
