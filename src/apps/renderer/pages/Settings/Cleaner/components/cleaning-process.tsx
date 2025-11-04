@@ -32,15 +32,8 @@ export default function CleaningProcess({
         skippedFiles={skippedFiles}
         freeSpaceGained={freeSpaceGained}
       />
-      <Button
-        className={'hover:cursor-pointer'}
-        variant={'dangerLight'}
-        size="lg"
-        onClick={onStopCleaning}
-      >
-        {translate(
-          'settings.cleaner.cleaningView.cleaningProcess.stopCleanButton'
-        )}
+      <Button className={'hover:cursor-pointer'} variant={'dangerLight'} size="lg" onClick={onStopCleaning}>
+        {translate('settings.cleaner.cleaningView.cleaningProcess.stopCleanButton')}
       </Button>
     </div>
   );

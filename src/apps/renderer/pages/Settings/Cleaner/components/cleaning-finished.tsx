@@ -9,12 +9,7 @@ type Props = {
   freeSpaceGained: string;
   onFinish: () => void;
 };
-export default function CleaningFinished({
-  deletedFiles,
-  skippedFiles,
-  freeSpaceGained,
-  onFinish,
-}: Props) {
+export default function CleaningFinished({ deletedFiles, skippedFiles, freeSpaceGained, onFinish }: Props) {
   const { translate } = useTranslationContext();
   return (
     <div className="flex w-full flex-col items-center gap-4" data-testid="clean-finished-container">
@@ -30,12 +25,7 @@ export default function CleaningFinished({
         skippedFiles={skippedFiles}
         freeSpaceGained={freeSpaceGained}
       />
-      <Button
-        className={'hover:cursor-pointer'}
-        variant={'primary'}
-        size="lg"
-        onClick={onFinish}
-      >
+      <Button className={'hover:cursor-pointer'} variant={'primary'} size="lg" onClick={onFinish}>
         {translate('settings.cleaner.cleaningView.cleaningFinished.finish')}
       </Button>
     </div>
