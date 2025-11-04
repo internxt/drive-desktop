@@ -1,5 +1,4 @@
 import { User } from '@/apps/main/types';
-import { fieldsToSave } from './fields-to-save';
 import { ConfigTheme } from '@/apps/main/config/theme.types';
 import { Language } from '@/apps/main/config/language.types';
 
@@ -12,7 +11,7 @@ export interface AppStore {
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
-  savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
+  savedConfigs: Record<string, unknown>;
   lastOnboardingShown: string;
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
