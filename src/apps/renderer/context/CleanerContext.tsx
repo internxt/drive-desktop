@@ -11,6 +11,7 @@ type CleanerContextType = {
     currentCleaningPath: string;
     progress: number;
     deletedFiles: number;
+    skippedFiles: number;
     spaceGained: string;
   };
   diskSpace: number;
@@ -37,6 +38,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     currentCleaningPath: '',
     progress: 0,
     deletedFiles: 0,
+    skippedFiles: 0,
     spaceGained: '0 B',
   };
   const [cleaningState, setCleaningState] = useState(initialCleaningState);
@@ -89,6 +91,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
         currentCleaningPath: progressData.currentCleaningPath,
         progress: progressData.progress,
         deletedFiles: progressData.deletedFiles,
+        skippedFiles: progressData.skippedFiles,
         spaceGained: formatFileSize(progressData.spaceGained),
       });
     };

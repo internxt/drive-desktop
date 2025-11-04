@@ -21,6 +21,7 @@ export default function CleaningView() {
               currentCleaningPath={cleaningState.currentCleaningPath}
               cleanedProgress={cleaningState.progress}
               deletedFiles={cleaningState.deletedFiles}
+              skippedFiles={cleaningState.skippedFiles}
               freeSpaceGained={cleaningState.spaceGained}
               onStopCleaning={handleStopCleaning}
             />
@@ -28,6 +29,7 @@ export default function CleaningView() {
           {cleaningState.cleaningCompleted && !cleaningState.cleaning && (
             <CleaningFinished
               deletedFiles={cleaningState.deletedFiles}
+              skippedFiles={cleaningState.skippedFiles}
               freeSpaceGained={cleaningState.spaceGained}
               onFinish={handleFinishView}
             />

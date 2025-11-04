@@ -6,6 +6,7 @@ type Props = {
   currentCleaningPath: string;
   cleanedProgress: number;
   deletedFiles: number;
+  skippedFiles: number;
   freeSpaceGained: string;
   onStopCleaning: () => void;
 };
@@ -14,6 +15,7 @@ export default function CleaningProcess({
   currentCleaningPath,
   cleanedProgress,
   deletedFiles,
+  skippedFiles,
   freeSpaceGained,
   onStopCleaning,
 }: Props) {
@@ -25,7 +27,12 @@ export default function CleaningProcess({
         <p className="line-clamp-2">{currentCleaningPath}</p>
       </div>
       <ProgresBar progress={cleanedProgress} />
-      <CleanedFilesContainer deletedFiles={deletedFiles} freeSpaceGained={freeSpaceGained} />
+      <CleanedFilesContainer
+        deletedFiles={deletedFiles}
+        skippedFiles={skippedFiles}
+        freeSpaceGained={freeSpaceGained}
+        hideSkippedFiles={true}
+      />
       <Button className={'hover:cursor-pointer'} variant={'dangerLight'} size="lg" onClick={onStopCleaning}>
         {translate('settings.cleaner.cleaningView.cleaningProcess.stopCleanButton')}
       </Button>

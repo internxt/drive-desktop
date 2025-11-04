@@ -421,7 +421,8 @@
     "cleaner": {
       "selectAllCheckbox": "Select all",
       "mainView": {
-        "cleanup": "Clean Up"
+        "cleanup": "Clean Up",
+        "cleanupTooltip": "Some files in use or requiring permission may not be cleaned automatically. Try cleaning them after closing active apps and after giving the permissions."
       },
       "generateReportView": {
         "title": "No report found",
@@ -449,11 +450,13 @@
           "title": "Cleaning...",
           "stopCleanButton": "Stop clean",
           "deletedFiles": "Deleted files",
-          "freeSpaceGained": "Free space gained"
+          "freeSpaceGained": "Free space gained",
+          "skippedFiles": "Skipped files"
         },
         "cleaningFinished": {
           "title": "Your device is clean",
-          "subtitle": "No further actions are necessary",
+          "noActionsRequired": "No further actions are necessary",
+          "actionsRequired": "Some files couldn't be deleted. Close open apps or grant access to remove them.",
           "finish": "Finish"
         }
       }

@@ -32,7 +32,6 @@ import './tray/handlers';
 import './fordwardToWindows';
 import './analytics/handlers';
 import './platform/handlers';
-import './thumbnails/handlers';
 import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
