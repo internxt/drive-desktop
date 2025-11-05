@@ -5,7 +5,6 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('./spawn-sync-engine-worker'));
 vi.mock(import('@/apps/main/auth/service'));
@@ -24,7 +23,7 @@ describe('spawn-workspace.service', () => {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
       key: 'encryptedMnemonic',
-      rootPath: createAbsolutePath('C:/Users/user/InternxtDrive - provider_id'),
+      rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
     },
   });
 
@@ -75,7 +74,7 @@ describe('spawn-workspace.service', () => {
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        rootPath: 'C:/Users/user/InternxtDrive - provider_id',
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',
         workspaceToken: undefined,

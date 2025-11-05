@@ -17,7 +17,6 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 vi.mock(import('@/apps/main/auth/service'));
@@ -35,7 +34,7 @@ describe('create-placeholder', () => {
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
-  const rootPath = createAbsolutePath(testFolder, 'root');
+  const rootPath = join(testFolder, 'root');
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 

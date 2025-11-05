@@ -1,7 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { join } from 'node:path';
 
 export async function getWorkspaces() {
   logger.debug({
@@ -27,6 +27,6 @@ export async function getWorkspaces() {
      * v2.5.1 Daniel Jiménez
      * Do not write brackets { and } in the folder name, the watcher was not picking up the changes.
      */
-    rootPath: createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${workspaceUser.id}`),
+    rootPath: join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${workspaceUser.id}`),
   }));
 }
