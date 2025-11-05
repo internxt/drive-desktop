@@ -7,7 +7,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('node:fs'));
 
-describe('migrate-old-sync-root', () => {
+describe('migrate-sync-root', () => {
   const existsSyncMock = vi.mocked(existsSync);
   const renameSyncMock = vi.mocked(renameSync);
   const setMock = partialSpyOn(configStore, 'set');
@@ -33,7 +33,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate sync root' }, { msg: 'Migrate old sync root' }]);
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate sync root' }, { msg: 'Migrate sync root' }]);
     calls(renameSyncMock).toHaveLength(1);
   });
 
