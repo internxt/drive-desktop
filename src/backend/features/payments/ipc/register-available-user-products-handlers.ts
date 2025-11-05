@@ -24,7 +24,7 @@ export function registerAvailableUserProductsHandlers() {
       tag: 'PRODUCTS',
       msg: 'User Logged in, checkin product availability',
     });
-    void getUserAvailableProductsAndStore();
+    void getUserAvailableProductsAndStore({ forceStorage: true });
   });
 
   eventBus.on('GET_USER_AVAILABLE_PRODUCTS', () => {
