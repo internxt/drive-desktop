@@ -26,8 +26,13 @@ export class BindingsManager {
 
     this.stop({ ctx });
 
-    ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
-    ctx.virtualDrive.connectSyncRoot({ callbacks });
+    try {
+      ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
+      ctx.virtualDrive.connectSyncRoot({ callbacks });
+    } catch (error) {
+      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
+      throw error;
+    }
 
     /**
      * Jonathan Arce v2.5.1

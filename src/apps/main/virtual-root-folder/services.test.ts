@@ -25,7 +25,7 @@ describe('getRootVirtualDrive', () => {
     const res = getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
-    calls(migrateOldSyncRootMock).toHaveLength(0);
+    calls(migrateSyncRootMock).toHaveLength(0);
   });
 
   it('should migrate the syncRoot if it is the old one', () => {
@@ -36,7 +36,7 @@ describe('getRootVirtualDrive', () => {
     const res = getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
-    calls(migrateOldSyncRootMock).toHaveLength(1);
+    calls(migrateSyncRootMock).toHaveLength(1);
   });
 
   it('should return the current syncRoot', () => {
@@ -46,6 +46,6 @@ describe('getRootVirtualDrive', () => {
     const res = getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
-    calls(migrateOldSyncRootMock).toHaveLength(0);
+    calls(migrateSyncRootMock).toHaveLength(0);
   });
 });

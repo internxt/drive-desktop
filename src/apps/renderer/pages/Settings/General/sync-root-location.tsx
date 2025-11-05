@@ -3,13 +3,11 @@ import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { useEffect, useMemo, useState } from 'react';
 
 export function useSyncRootLocation() {
-  const [syncRoot, setSyncRoot] = useState(
-    'C:/Users/user/folder1/folder2/folder3/folder4/folder5/InternxtDrive - 658594fe-68bd-4905-8598-5adc73e930fb',
-  );
+  const [syncRoot, setSyncRoot] = useState('');
 
-  // useEffect(() => {
-  //   void window.electron.driveGetSyncRoot().then(setSyncRoot);
-  // }, []);
+  useEffect(() => {
+    void window.electron.driveGetSyncRoot().then(setSyncRoot);
+  }, []);
 
   const parsedSyncRoot = useMemo(() => {
     if (syncRoot === '') return '';
