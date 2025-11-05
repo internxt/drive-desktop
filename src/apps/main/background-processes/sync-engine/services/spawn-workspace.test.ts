@@ -75,7 +75,7 @@ describe('spawn-workspace.service', () => {
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
+        rootPath: 'C:/Users/user/InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',
         workspaceToken: undefined,
