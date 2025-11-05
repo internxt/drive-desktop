@@ -1,9 +1,9 @@
 import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
-import { SyncFolder } from './sync-folder';
 import { LanguagePicker } from './LanguagePicker';
 import { ThemePicker } from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
+import { SyncRootLocation } from './sync-root-location';
 
 export default function GeneralSection({ active }: { active: boolean }) {
   return (
@@ -18,7 +18,7 @@ export default function GeneralSection({ active }: { active: boolean }) {
           <ThemePicker />
         </div>
 
-        <SyncFolder />
+        <SyncRootLocation />
       </div>
       <div className="relative flex h-12 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
       <AppInfo />
