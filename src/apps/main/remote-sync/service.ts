@@ -4,7 +4,6 @@ import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import { reportError } from '../bug-report/service';
 import { broadcastToWindows } from '../windows';
 import { isInitialSyncReady, setInitialSyncState } from './InitialSyncReady';
 import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
@@ -53,9 +52,6 @@ export async function getUpdatedRemoteItems() {
       folders: allDriveFolders.result,
     };
   } catch (error) {
-    reportError(error as Error, {
-      description: 'Something failed when updating the local db pulling the new changes from remote',
-    });
     throw error;
   }
 }

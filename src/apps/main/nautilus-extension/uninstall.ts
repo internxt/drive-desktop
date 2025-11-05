@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { deleteNautilusExtensionFile } from './service';
 
@@ -16,6 +15,5 @@ export async function uninstallNautilusExtension() {
       msg: 'Error while uninstalling Nautilus extension: ',
       error,
     });
-    Sentry.captureException(error);
   }
 }

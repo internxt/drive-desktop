@@ -7,7 +7,6 @@ import {
   rewind,
   SIX_HOURS_IN_MILLISECONDS,
 } from './helpers';
-import { reportError } from '../bug-report/service';
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import axios, { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
@@ -110,7 +109,11 @@ export class RemoteSyncManager {
       ]);
     } catch (error) {
       this.changeStatus('SYNC_FAILED');
-      reportError(error as Error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Remote sync failed with uncontrolled error: ',
+        error,
+      });
     } finally {
       logger.debug({
         tag: 'SYNC-ENGINE',

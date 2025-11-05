@@ -1,8 +1,3 @@
-jest.mock('@sentry/electron/main', () => ({
-  init: () => jest.fn(),
-  captureException: () => jest.fn(),
-}));
-
 jest.mock('@internxt/drive-desktop-core/build/backend');
 jest.mock('electron');
 jest.mock('electron-store');

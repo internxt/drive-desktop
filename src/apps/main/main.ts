@@ -16,7 +16,6 @@ setupElectronLog({
 });
 import './virtual-root-folder/handlers';
 import './auto-launch/handlers';
-import './bug-report/handlers';
 import './auth/handlers';
 import '../../infra/ipc/files-ipc-handlers';
 import '../../infra/ipc/folders-ipc-handlers';
@@ -43,7 +42,6 @@ import { app, nativeTheme, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
-import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
@@ -51,7 +49,6 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
@@ -77,22 +74,6 @@ if (!gotTheLock) {
 registerAuthIPCHandlers();
 
 logger.debug({ msg: `Running ${packageJson.version}` });
-
-logger.debug({ msg: 'Initializing Sentry for main process' });
-if (process.env.SENTRY_DSN) {
-  Sentry.init({
-    // Enable Sentry only when app is packaged
-    enabled: app.isPackaged,
-    dsn: process.env.SENTRY_DSN,
-    release: packageJson.version,
-    debug: !app.isPackaged && process.env.SENTRY_DEBUG === 'true',
-    environment: process.env.NODE_ENV,
-  });
-  logger.debug({ msg: 'Sentry is ready for main process' });
-} else {
-  logger.error({ msg: 'Sentry DSN not found, cannot initialize Sentry' });
-}
-
 function checkForUpdates() {
   try {
     autoUpdater.logger = {

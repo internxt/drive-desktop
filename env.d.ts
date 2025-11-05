@@ -16,7 +16,6 @@ declare global {
       RUDDERSTACK_KEY: string;
       RUDDERSTACK_DATA_PLANE_URL: string;
       DRIVE_API_URL: string;
-      SENTRY_DSN: string;
     }
   }
 }

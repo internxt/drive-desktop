@@ -107,9 +107,6 @@ contextBridge.exposeInMainWorld('electron', {
   openLogs() {
     return ipcRenderer.send('open-logs');
   },
-  sendReport(report) {
-    return ipcRenderer.invoke('send-report', report);
-  },
   openSettingsWindow(section) {
     return ipcRenderer.send('open-settings-window', section);
   },

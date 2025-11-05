@@ -2,7 +2,6 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
@@ -103,7 +102,6 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       logger.error({ msg: 'Error fetching newest drive file:', error });
       return {
         success: false,

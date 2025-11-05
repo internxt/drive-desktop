@@ -9,7 +9,6 @@ import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
-import { reportError } from '../../utils/errors';
 
 export default function Header() {
   const { translate } = useTranslationContext();

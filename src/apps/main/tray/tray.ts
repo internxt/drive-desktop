@@ -7,7 +7,6 @@ import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import * as Sentry from '@sentry/electron/main';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -134,7 +133,6 @@ export function setupTrayIcon() {
       toggleWidgetVisibility();
     } else {
       logger.warn({ msg: '[ON TRAY ICON CLICK] window is undefined' });
-      Sentry.captureMessage('[ON TRAY ICON CLICK] window is undefined');
     }
   }
 
