@@ -1,6 +1,4 @@
 import { In } from 'typeorm';
-/* eslint-disable no-use-before-define */
-import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
 import { updateSyncEngine } from '../background-processes/sync-engine';
@@ -124,10 +122,6 @@ ipcMain.handle('get-remote-sync-status', () => {
 ipcMain.handle('SYNC_MANUALLY', async () => {
   logger.debug({ msg: '[Manual Sync] Received manual sync event' });
   await updateAllRemoteSync();
-});
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  remoteSyncManagers.clear();
 });
 
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {

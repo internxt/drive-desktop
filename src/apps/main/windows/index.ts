@@ -8,10 +8,11 @@ import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
 
-function closeAuxWindows() {
-  getProcessIssuesWindow()?.close();
-  getSettingsWindow()?.close();
-  getOnboardingWindow()?.close();
+export function closeAuxWindows() {
+  getWidget()?.destroy();
+  getProcessIssuesWindow()?.destroy();
+  getSettingsWindow()?.destroy();
+  getOnboardingWindow()?.destroy();
 }
 
 export function broadcastToWidget({ name, data }: BroadcastToWidget) {
@@ -24,7 +25,6 @@ export function broadcastToWindows({ name, data }: BroadcastToWindows) {
   renderers.forEach((r) => r?.webContents.send(name, data));
 }
 
-eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
 eventBus.on('BROADCAST_TO_WINDOWS', broadcastToWindows);
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {

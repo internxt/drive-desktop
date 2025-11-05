@@ -11,17 +11,15 @@ type Props = { ctx: ProcessSyncContext } & (
 
 export async function deleteItemPlaceholders({ ctx, remotes, type }: Props) {
   for (const remote of remotes) {
-    const localUuid =
-      type === 'folder'
-        ? NodeWin.getFolderUuid({ path: remote.path, ctx }).data
-        : NodeWin.getFileUuid({ path: remote.path, drive: ctx.virtualDrive }).data;
+    const { data: info } =
+      type === 'folder' ? NodeWin.getFolderInfo({ path: remote.path, ctx }) : NodeWin.getFileInfo({ path: remote.path, ctx });
 
     /**
      * v2.5.6 Daniel Jiménez
      * Since we retrieve all deleted items that have been in that path
      * we need to be sure that the one that we are checking is the same
      */
-    if (localUuid === remote.uuid) {
+    if (info?.uuid === remote.uuid) {
       await rm(remote.absolutePath, { recursive: true, force: true });
     }
   }

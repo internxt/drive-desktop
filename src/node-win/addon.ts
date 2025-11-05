@@ -29,7 +29,6 @@ type TAddon = {
   dehydrateFile(path: string): z.infer<typeof addonZod.dehydrateFile>;
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
-  getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;
   disconnectSyncRoot(path: string): z.infer<typeof addonZod.disconnectSyncRoot>;
   getPlaceholderState(path: string): z.infer<typeof addonZod.getPlaceholderState>;
   registerSyncRoot(
@@ -40,7 +39,7 @@ type TAddon = {
     logoPath: string,
   ): z.infer<typeof addonZod.registerSyncRoot>;
   unregisterSyncRoot(path: string): z.infer<typeof addonZod.unregisterSyncRoot>;
-  updateSyncStatus(path: string, isDirectory: boolean): z.infer<typeof addonZod.updateSyncStatus>;
+  updateSyncStatus(path: string): z.infer<typeof addonZod.updateSyncStatus>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
 

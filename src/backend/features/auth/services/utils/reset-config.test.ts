@@ -1,18 +1,24 @@
+import configStore from '@/apps/main/config';
 import { resetConfig } from './reset-config';
-import * as configModule from '@/apps/main/config';
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('resetConfig', () => {
-  const configSetMock = partialSpyOn(configModule.default, 'set');
+  const configSetMock = partialSpyOn(configStore, 'set');
 
-  it('should reset all fields in fieldsToSave to their default values', () => {
+  it('should reset all fields to their default values', () => {
     resetConfig();
 
-    expect(configSetMock).toBeCalledWith('backupsEnabled', false);
-    expect(configSetMock).toBeCalledWith('backupInterval', 86_400_000);
-    expect(configSetMock).toBeCalledWith('lastBackup', -1);
-    expect(configSetMock).toBeCalledWith('syncRoot', '');
-    expect(configSetMock).toBeCalledWith('backupList', {});
-    expect(configSetMock).toBeCalledTimes(6);
+    calls(configSetMock).toStrictEqual([
+      ['backupsEnabled', false],
+      ['backupInterval', 86400000],
+      ['lastBackup', -1],
+      ['syncRoot', ''],
+      ['deviceUuid', ''],
+      ['backupList', {}],
+      ['newToken', ''],
+      ['newTokenEncrypted', false],
+      ['userData', {}],
+      ['mnemonic', ''],
+    ]);
   });
 });

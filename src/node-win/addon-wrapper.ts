@@ -67,11 +67,6 @@ export class Addon {
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
-  getFileIdentity({ path }: { path: string }) {
-    const result = addon.getFileIdentity(path);
-    return this.parseAddonZod('getFileIdentity', result);
-  }
-
   createFilePlaceholder({
     name,
     placeholderId,
@@ -112,8 +107,8 @@ export class Addon {
     return this.parseAddonZod('createFolderPlaceholder', result);
   }
 
-  updateSyncStatus({ path, isDirectory }: { path: string; isDirectory: boolean }) {
-    const result = addon.updateSyncStatus(path, isDirectory);
+  updateSyncStatus({ path }: { path: string }) {
+    const result = addon.updateSyncStatus(path);
     return this.parseAddonZod('updateSyncStatus', result);
   }
 

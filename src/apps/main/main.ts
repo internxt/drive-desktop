@@ -38,27 +38,23 @@ import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
+import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
 import { setupQuitHandlers } from './quit';
-import { clearConfig, setDefaultConfig } from '../sync-engine/config';
+import { setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
-import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
-import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
-import { LocalSync } from '@/backend/features';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -156,21 +152,4 @@ eventBus.on('USER_LOGGED_IN', async () => {
     logger.error({ msg: 'Error logging in', exc });
     reportError(exc as Error);
   }
-});
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  setTrayStatus('IDLE');
-
-  clearConfig();
-
-  const widget = getWidget();
-  if (widget) {
-    widget.hide();
-    widget.destroy();
-  }
-
-  LocalSync.SyncState.onLogout();
-  clearAntivirus();
-  unregisterVirtualDrives({});
-  void AuthModule.logout();
 });

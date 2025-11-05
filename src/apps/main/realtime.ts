@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client';
 import { obtainToken } from './auth/service';
-import eventBus from './event-bus';
 import { logger } from '../shared/logger/logger';
 import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import { RemoteNotificationsModule } from '@/backend/features/remote-notifications/remote-notifications.module';
@@ -73,11 +72,9 @@ export function cleanAndStartRemoteNotifications() {
   });
 }
 
-function stopRemoteNotifications() {
+export function stopRemoteNotifications() {
   if (socket) {
     socket.close();
     socket = undefined;
   }
 }
-
-eventBus.on('USER_LOGGED_OUT', stopRemoteNotifications);

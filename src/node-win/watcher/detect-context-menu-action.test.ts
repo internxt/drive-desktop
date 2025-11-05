@@ -12,7 +12,7 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { detectContextMenuAction } from './detect-context-menu-action.service';
 
 describe('detect-context-menu-action', () => {
-  const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
@@ -21,32 +21,24 @@ describe('detect-context-menu-action', () => {
   let props: Parameters<typeof detectContextMenuAction>[0];
 
   beforeEach(() => {
-    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof detectContextMenuAction>({
       ctx: { virtualDrive },
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
-      self: {
-        fileInDevice: new Set(),
-        logger: loggerMock,
-      },
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
         curr: { ctimeMs: 2, mtimeMs: 1 },
       },
     });
-
-    props.self.fileInDevice.clear();
   });
 
   it('should update contents id when file modification time changes', async () => {
     // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     props.details.curr.mtimeMs = 2;
     // When
     await detectContextMenuAction(props);
     // Then
-    expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
     expect(updateContentsIdMock).toBeCalledWith(
       expect.objectContaining({
         stats: props.details.curr,
@@ -59,19 +51,17 @@ describe('detect-context-menu-action', () => {
 
   it('should dehydrate when pin state is online only', async () => {
     // Given
-    props.self.fileInDevice.add(props.absolutePath);
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     // When
     await detectContextMenuAction(props);
     // Then
-    expect(props.self.fileInDevice.has(props.absolutePath)).toBe(false);
     expect(throttleHydrateMock).toBeCalledTimes(0);
     expect(handleDehydrateMock).toBeCalledWith({ drive: virtualDrive, path: props.path });
   });
 
   describe('what happens when hydrate event', () => {
     beforeEach(() => {
-      virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
     it('should enqueue file for hydrate', async () => {
@@ -80,7 +70,6 @@ describe('detect-context-menu-action', () => {
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(throttleHydrateMock).toBeCalledWith(expect.objectContaining({ path: props.path }));
     });
 
@@ -90,19 +79,8 @@ describe('detect-context-menu-action', () => {
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(throttleHydrateMock).toBeCalledTimes(0);
       expect(loggerMock.debug).toBeCalledWith({ msg: 'Double click on file', path: props.path });
-    });
-
-    it('should not enqueue file for hydrate if file is the device', async () => {
-      // Given
-      props.self.fileInDevice.add(props.absolutePath);
-      // When
-      await detectContextMenuAction(props);
-      // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(throttleHydrateMock).toBeCalledTimes(0);
     });
   });
 });

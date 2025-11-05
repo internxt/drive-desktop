@@ -11,12 +11,15 @@ import { workers } from '../remote-sync/store';
 import { stopSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { sleep } from '../util';
 import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
+import { join } from 'node:path/posix';
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
 export function getRootVirtualDrive() {
   const user = getUserOrThrow();
-  const syncRoot = createAbsolutePath(configStore.get('syncRoot'));
+
+  const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+  const syncRoot = createAbsolutePath(configStore.get('syncRoot') || defaultSyncRoot);
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 

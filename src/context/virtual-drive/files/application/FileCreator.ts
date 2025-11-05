@@ -23,15 +23,15 @@ export class FileCreator {
   static async run({ ctx, path, absolutePath, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
-      const { data: folderUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
+      const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
-      if (!folderUuid) {
+      if (!parentInfo) {
         throw new FolderNotFoundError(parentPath);
       }
 
       const fileDto = await HttpRemoteFileSystem.persist(ctx, {
         contentsId: contents.id,
-        folderUuid,
+        folderUuid: parentInfo.uuid,
         path,
         size: contents.size,
       });

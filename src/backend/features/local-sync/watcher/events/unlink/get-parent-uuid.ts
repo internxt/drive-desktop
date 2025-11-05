@@ -11,7 +11,7 @@ type Props = {
 
 export async function getParentUuid({ ctx, absolutePath }: Props) {
   const parentPath = dirname(absolutePath);
-  const { data: parentUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
+  const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 
   /**
@@ -25,6 +25,6 @@ export async function getParentUuid({ ctx, absolutePath }: Props) {
    * Warning: Using just folderUuid is not going to work. There are some times in which we are
    * getting the parentUuid even when the parent folder is deleted.
    */
-  if (parentUuid && stats) return parentUuid;
+  if (parentInfo && stats) return parentInfo.uuid;
   return null;
 }

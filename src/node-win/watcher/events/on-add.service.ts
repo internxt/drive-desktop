@@ -1,6 +1,5 @@
 import { Stats } from 'node:fs';
 
-import { Watcher } from '../watcher';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
@@ -10,22 +9,20 @@ import { AddController } from '@/apps/sync-engine/callbacks-controllers/controll
 
 type TProps = {
   ctx: ProcessSyncContext;
-  self: Watcher;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
-export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
+export async function onAdd({ ctx, absolutePath, stats }: TProps) {
   const path = pathUtils.absoluteToRelative({
     base: ctx.virtualDrive.syncRootPath,
     path: absolutePath,
   });
 
   try {
-    const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
+    const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
 
-    if (!uuid) {
-      self.fileInDevice.add(absolutePath);
+    if (!fileInfo) {
       await AddController.createFile({
         ctx,
         absolutePath,
@@ -35,8 +32,8 @@ export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
       return;
     }
 
-    trackAddFileEvent({ uuid });
-    await moveFile({ ctx, path, uuid });
+    trackAddFileEvent({ uuid: fileInfo.uuid });
+    await moveFile({ ctx, path, uuid: fileInfo.uuid });
   } catch (error) {
     ctx.logger.error({ msg: 'Error on event "add"', path, error });
   }
