@@ -49,10 +49,10 @@ export async function chooseSyncRootWithDialog() {
 
   const chosenPath = result.filePaths[0];
 
-  logger.debug({ msg: 'Choose sync root with dialog', chosenPath });
-
   const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
   const oldSyncRoot = createAbsolutePath(configStore.get('syncRoot'));
+
+  logger.debug({ msg: 'Choose sync root with dialog', oldSyncRoot, newSyncRoot });
 
   if (newSyncRoot === oldSyncRoot) return;
 
@@ -64,7 +64,12 @@ export async function chooseSyncRootWithDialog() {
 
       stopSyncEngineWorker({ worker });
       await sleep(2000);
-      VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
+
+      try {
+        VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
+      } catch (error) {
+        ctx.logger.error({ msg: 'Error unregistering sync root', error });
+      }
 
       ctx.rootPath = newSyncRoot;
 
