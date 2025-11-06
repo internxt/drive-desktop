@@ -14,7 +14,7 @@ describe('get-file-info', () => {
   const testPath = join(TEST_FILES, v4());
   const rootPath = createAbsolutePath(testPath, v4());
 
-  const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
+  const virtualDrive = new VirtualDrive({ rootPath, providerId });
 
   let props: Parameters<typeof getFileInfo>[0];
 

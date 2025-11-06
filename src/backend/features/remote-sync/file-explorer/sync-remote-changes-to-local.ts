@@ -13,15 +13,16 @@ type Props = {
 
 export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: Props) {
   const remoteDate = new Date(remote.updatedAt);
-  if (remote.size !== local.stats.size && remoteDate > local.stats.mtime) {
+
+  if (remote.size !== local.stats.size && remoteDate >= local.stats.mtime) {
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Syncing remote changes to local',
       path: remote.path,
       remoteSize: remote.size,
       localSize: local.stats.size,
-      remoteDate: remoteDate.toISOString(),
-      localDate: local.stats.mtime.toISOString(),
+      remoteDate,
+      localDate: local.stats.mtime,
     });
 
     try {

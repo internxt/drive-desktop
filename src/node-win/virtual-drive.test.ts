@@ -9,21 +9,13 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { call } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('node:fs'));
-vi.mock(import('@/node-win/addon'));
 
 describe('VirtualDrive', () => {
-  const addonMock = vi.mocked(addon);
-
   const rootPath = 'C:/Users/user/InternxtDrive';
-  const loggerPath = 'C:/Users/user/InternxtDrive/logs';
   const providerId = v4();
 
-  const props = { rootPath, loggerPath, providerId };
+  const props = { rootPath, providerId };
   const drive = new VirtualDrive(props);
-
-  beforeEach(() => {
-    addonMock.addLoggerPath.mockReturnValue(true);
-  });
 
   describe('When convertToWindowsPath is called', () => {
     it('When unix path, then convert to windows path', () => {
@@ -63,15 +55,6 @@ describe('VirtualDrive', () => {
     it('When relative unix path, then convert to absolute windows path', () => {
       // Then
       expect(drive.fixPath('/test.txt')).toBe('C:\\Users\\user\\InternxtDrive\\test.txt');
-    });
-  });
-
-  describe('When VirtualDrive is created', () => {
-    it('Then it calls addon.addLoggerPath with logPath provided', () => {
-      // When
-      new VirtualDrive(props);
-      // Then
-      call(addon.addLoggerPath).toBe('C:\\Users\\user\\InternxtDrive\\logs');
     });
   });
 
