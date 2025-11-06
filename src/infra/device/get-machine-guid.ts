@@ -1,6 +1,6 @@
 import { execAsync } from '@/core/utils/exec-async';
 
-export class MachineGuidError extends Error {
+class MachineGuidError extends Error {
   constructor(
     public readonly code: 'NON_EXISTS' | 'NO_ACCESS' | 'UNKNOWN',
     cause?: unknown,
