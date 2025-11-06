@@ -1,4 +1,3 @@
-import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { logger } from '@/apps/shared/logger/logger';

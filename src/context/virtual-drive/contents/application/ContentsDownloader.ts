@@ -23,11 +23,7 @@ export class ContentsDownloader {
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress: 0,
-      });
+      // ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
     });
 
     downloader.on('progress', async () => {
