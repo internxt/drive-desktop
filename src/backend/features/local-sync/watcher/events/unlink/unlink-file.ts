@@ -46,7 +46,7 @@ export async function unlinkFile({ ctx, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
       uuid: file.uuid,
       workspaceToken: ctx.workspaceToken,
-      nameWithExtension,
+      path: absolutePath,
     });
 
     if (error) throw error;

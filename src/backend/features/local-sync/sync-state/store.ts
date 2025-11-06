@@ -1,7 +1,7 @@
 import { ExtendedSyncStateItem, SyncStateItem } from './defs';
 
 type Store = {
-  items: Record<SyncStateItem['key'], ExtendedSyncStateItem>;
+  items: Record<SyncStateItem['path'], ExtendedSyncStateItem>;
   notifyInterval: NodeJS.Timeout | undefined;
 };
 

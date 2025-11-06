@@ -18,7 +18,7 @@ export class HttpRemoteFileSystem {
     size: number;
     workspaceId: string | undefined;
   }) {
-    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+    const { name, extension } = getNameAndExtension({ path: offline.path });
 
     const body = {
       bucket: offline.bucket,
@@ -36,7 +36,7 @@ export class HttpRemoteFileSystem {
   }
 
   static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
-    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+    const { name, extension } = getNameAndExtension({ path: offline.path });
 
     const props = {
       ...offline,
