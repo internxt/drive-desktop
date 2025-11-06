@@ -9,7 +9,6 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { call } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('node:fs'));
-vi.mock(import('@/node-win/addon'));
 
 describe('VirtualDrive', () => {
   const rootPath = 'C:/Users/user/InternxtDrive';

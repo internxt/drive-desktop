@@ -51,11 +51,11 @@ export class VirtualDrive {
   }
 
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
-    this.addon.connectSyncRoot({ callbacks });
+    return this.addon.connectSyncRoot({ callbacks });
   }
 
   disconnectSyncRoot() {
-    this.addon.disconnectSyncRoot({ syncRootPath: this.syncRootPath });
+    return this.addon.disconnectSyncRoot({ syncRootPath: this.syncRootPath });
   }
 
   registerSyncRoot({ providerName }: { providerName: string }) {

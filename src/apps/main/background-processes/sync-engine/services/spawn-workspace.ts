@@ -4,8 +4,6 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { PATHS } from '@/core/electron/paths';
-import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
