@@ -22,34 +22,6 @@ export class ContentsDownloader {
 
     const filePath = path.join(location, file.nameWithExtension);
 
-    downloader.on('start', () => {
-      // ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
-    });
-
-    downloader.on('progress', async () => {
-      const { finished, progress } = await callback(true, filePath);
-
-      if (progress > 1 || progress < 0) {
-        throw new Error('Result progress is not between 0 and 1');
-      } else if (finished && progress === 0) {
-        throw new Error('Result progress is 0');
-      }
-
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress,
-      });
-    });
-
-    downloader.on('error', (error: Error) => {
-      logger.error({ msg: '[Server] Error downloading file', error });
-      ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-      });
-    });
-
     downloader.on('finish', () => {
       // cb(true, filePath);
       // The file download being finished does not mean it has been hidratated
