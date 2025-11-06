@@ -45,7 +45,6 @@ jobs:
           echo "LOCK_REFRESH_INTERVAL=20000" >> .env
           echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
-          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
 
       - name: Build app
         run: yarn run build

@@ -3,7 +3,6 @@ import { SLIDES } from './config';
 import { MigrationSlideProps } from './helpers';
 import { useTranslationContext } from '../../context/LocalContext';
 import useClientPlatform from '../../hooks/ClientPlatform';
-import { reportError } from '../../utils/errors';
 
 const totalSlides = SLIDES.length - 3;
 
@@ -26,10 +25,7 @@ export default function Migration() {
     try {
       await window.electron.openMigrationFailedFolder();
     } catch (error) {
-      console.error('Error opening migration failed folder: ', error);
-      reportError(error, {
-        description: 'Open folder with items that we failed to move',
-      });
+      reportError(error);
     }
   };
   const handleCancelMigration = () => {
@@ -101,9 +97,7 @@ export default function Migration() {
       finishMigrationSuccess()
         .catch((error) => {
           console.error('Error moving sync folder to desktop: ', error);
-          reportError(error, {
-            description: 'Failed to move sync folder to desktop location',
-          });
+          reportError(error);
         })
         .finally(() => {
           goToSlideIndex(2);

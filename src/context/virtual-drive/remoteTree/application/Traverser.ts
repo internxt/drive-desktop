@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/electron/renderer';
 import { Service } from 'diod';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
@@ -70,7 +69,6 @@ export class Traverser {
       }).fold(
         (error): void => {
           logger.warn({ tag: 'SYNC-ENGINE', msg: '[Traverser] Error adding file:', error });
-          Sentry.captureException(error);
         },
         () => {
           //  no-op
@@ -99,7 +97,6 @@ export class Traverser {
       }).fold(
         (error) => {
           logger.warn({ msg: `[Traverser] Error adding folder:  ${error} ` });
-          Sentry.captureException(error);
         },
         (folder) => {
           if (folder.hasStatus(FolderStatuses.EXISTS)) {

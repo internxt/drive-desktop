@@ -2,7 +2,6 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
 import { Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
@@ -82,7 +81,6 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       logger.error({ msg: 'Error fetching newest drive folder:', error });
       return {
         success: false,

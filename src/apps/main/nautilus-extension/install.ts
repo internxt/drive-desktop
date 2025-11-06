@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { copyNautilusExtensionFile, deleteNautilusExtensionFile, isInstalled, reloadNautilus } from './service';
 
@@ -37,7 +36,6 @@ export async function installNautilusExtension() {
           msg: 'catched error while reloading nautilus extension',
           error: reloadError,
         });
-        Sentry.captureException(reloadError);
       });
       return;
     }
@@ -60,6 +58,5 @@ export async function installNautilusExtension() {
       msg: '[NAUTILUS EXTENSION] Error while installing Nautilus extension: ',
       error,
     });
-    Sentry.captureException(error);
   }
 }

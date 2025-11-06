@@ -1,7 +1,6 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
@@ -56,7 +55,6 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
         result: result,
       };
     } catch (error) {
-      Sentry.captureException(error);
       logger.error({ msg: 'Error getting all DB items:', error });
       return {
         success: false,
@@ -111,7 +109,6 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       logger.error({ msg: 'Error fetching newest drive file:', error });
       return {
         success: false,
@@ -130,7 +127,6 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
         result,
       };
     } catch (error) {
-      Sentry.captureException(error);
       logger.error({ msg: 'Error fetching drive folders:', error });
       return {
         success: false,

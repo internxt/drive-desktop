@@ -1,7 +1,6 @@
 // TODO: Move this whole component to a more generic location beceause its used in more places
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
-import { reportError } from '../../../../utils/errors';
 
 export const LockedState = () => {
   const { translate } = useTranslationContext();

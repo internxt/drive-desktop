@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { reportError } from '../bug-report/service';
 import eventBus from '../event-bus';
 import { setInitialSyncState } from './InitialSyncReady';
 import { getUpdatedRemoteItems, remoteSyncManager, resyncRemoteSync, startRemoteSync } from './service';
@@ -38,7 +37,6 @@ eventBus.on('APP_DATA_SOURCE_INITIALIZED', async () => {
       msg: 'Error starting remote sync manager',
       error,
     });
-    reportError(error);
   });
 });
 

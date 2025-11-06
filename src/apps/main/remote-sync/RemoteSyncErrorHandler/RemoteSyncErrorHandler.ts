@@ -7,7 +7,6 @@ import {
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
-import { reportError } from '../../bug-report/service';
 
 export type syncItemType = 'files' | 'folders';
 
@@ -36,7 +35,6 @@ export class RemoteSyncErrorHandler {
       default:
         this.handleRemoteSyncError(error, syncItemType, itemName);
     }
-    this.reportErrorToSentry(error, syncItemType, itemCheckpoint);
   }
 
   handleSyncErrorWithIssue(
@@ -111,20 +109,5 @@ export class RemoteSyncErrorHandler {
       errorLabel: 'remote',
       issue: issues[syncItemType],
     });
-  }
-
-  reportErrorToSentry(error: RemoteSyncError, syncItemType: syncItemType, itemCheckpoint?: Date): void {
-    switch (syncItemType) {
-      case 'files':
-        reportError(error, {
-          lastFilesSyncAt: itemCheckpoint?.toISOString() ?? 'INITIAL_FILES_SYNC',
-        });
-        break;
-      case 'folders':
-        reportError(error, {
-          lastFoldersSyncAt: itemCheckpoint?.toISOString() ?? 'INITIAL_FOLDERS_SYNC',
-        });
-        break;
-    }
   }
 }
