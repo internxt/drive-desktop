@@ -1,10 +1,9 @@
-import { Readable } from 'node:stream';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
-type Resolve = (_: { data: Readable; error?: undefined } | { data?: undefined; error: Error | null }) => void;
+type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
 export class EnvironmentContentFileDownloader {
   private state: ActionState | null;

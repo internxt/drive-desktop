@@ -40,11 +40,9 @@ export class ContentsDownloader {
       let offset = 0;
 
       for await (const chunk of readable) {
-        const buffer = Buffer.from(chunk);
+        callback(chunk, offset);
 
-        callback(buffer, offset);
-
-        offset += buffer.length;
+        offset += chunk.length;
       }
 
       ctx.logger.debug({ msg: 'File downloaded', path });
