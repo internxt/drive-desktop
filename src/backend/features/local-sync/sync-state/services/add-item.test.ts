@@ -2,12 +2,11 @@ import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test
 import { clearStore, store } from '../store';
 import { addItem } from './add-item';
 import * as broadcastToFrontendModule from './broadcast-to-frontend';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('add-item', () => {
   const broadcastToFrontendMock = partialSpyOn(broadcastToFrontendModule, 'broadcastToFrontend');
 
-  const props = mockProps<typeof addItem>({ key: 'uuid' as FileUuid });
+  const props = mockProps<typeof addItem>({ path: 'path' });
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -26,8 +25,8 @@ describe('add-item', () => {
     // Then
     calls(broadcastToFrontendMock).toHaveLength(1);
     expect(store.items).toMatchObject({
-      uuid: {
-        key: 'uuid',
+      path: {
+        path: 'path',
         time: expect.any(Number),
         timeout: expect.anything(),
       },
@@ -58,7 +57,7 @@ describe('add-item', () => {
     addItem(props);
     vi.advanceTimersByTime(5000);
     // Then
-    expect(store.items).toMatchObject({ uuid: { key: 'uuid' } });
+    expect(store.items).toMatchObject({ path: { path: 'path' } });
     // When
     vi.advanceTimersByTime(5000);
     // Then
