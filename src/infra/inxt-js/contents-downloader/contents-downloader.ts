@@ -5,14 +5,12 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
 export class ContentsDownloader {
-  private state: ActionState | null;
+  private state: ActionState | null = null;
 
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-  ) {
-    this.state = null;
-  }
+  ) {}
 
   forceStop() {
     if (this.state) {
