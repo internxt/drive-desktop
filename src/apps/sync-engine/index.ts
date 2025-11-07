@@ -22,11 +22,12 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   const container = buildProcessContainer({ ctx });
 
+  await BindingsManager.start({ ctx, container });
+
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await BindingsManager.updateAndCheckPlaceholders({ ctx });
   });
 
-  await BindingsManager.start({ ctx, container });
   BindingsManager.watch({ ctx });
   void runDangledFiles({ ctx, container });
 
