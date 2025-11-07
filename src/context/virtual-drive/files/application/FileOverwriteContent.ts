@@ -83,6 +83,8 @@ export class FileOverwriteContent {
 
         if (error?.message.includes('Object not found')) {
           this.enqueueError({ file, callback: asynchronousFixingOfDangledFiles });
+        } else {
+          logger.error({ msg: 'Error downloading file', error });
         }
 
         logger.debug({ msg: 'Possible dangled file hydrated', path: file.path });
