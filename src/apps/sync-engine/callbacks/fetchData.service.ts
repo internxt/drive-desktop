@@ -3,7 +3,7 @@ import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { ProcessSyncContext } from '../config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { DownloadContents } from '../download-contents/download-contents';
+import { downloadContents } from '../download-contents/download-contents';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -23,7 +23,7 @@ export async function fetchData({ ctx, path, callback }: TProps) {
 
     if (error2) throw error2;
 
-    await DownloadContents.run({ ctx, file, path, callback });
+    await downloadContents({ ctx, file, path, callback });
   } catch (error) {
     ctx.logger.error({ msg: 'Error downloading file', path, error });
   }

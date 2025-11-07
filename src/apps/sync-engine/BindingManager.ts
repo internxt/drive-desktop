@@ -7,7 +7,6 @@ import { addPendingItems } from './in/add-pending-items';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { DownloadContents } from './download-contents/download-contents';
 
 export class BindingsManager {
   static async start({ ctx }: { ctx: ProcessSyncContext }) {
@@ -20,7 +19,15 @@ export class BindingsManager {
         });
       },
       cancelFetchDataCallback: (path) => {
-        DownloadContents.stop({ ctx, path: createAbsolutePath(path) });
+        try {
+          ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
+
+          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
+
+          ctx.contentsDownloader.forceStop();
+        } catch (error) {
+          ctx.logger.error({ msg: 'Error stopping file download', path, error });
+        }
       },
     };
 

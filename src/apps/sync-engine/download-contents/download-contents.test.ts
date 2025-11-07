@@ -4,7 +4,7 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
-import { DownloadContents } from './download-contents';
+import { downloadContents } from './download-contents';
 
 describe('download-contents', () => {
   const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');
@@ -13,7 +13,7 @@ describe('download-contents', () => {
 
   const chunks = [Buffer.from('first'), Buffer.from('second')];
 
-  const props = mockProps<typeof DownloadContents.run>({
+  const props = mockProps<typeof downloadContents>({
     ctx: { contentsDownloader },
     path: 'file.txt' as AbsolutePath,
     callback: vi.fn(),
@@ -24,7 +24,7 @@ describe('download-contents', () => {
     // Given
     contentsDownloader.download.mockResolvedValue({ data: Readable.from(chunks) });
     // When
-    await DownloadContents.run(props);
+    await downloadContents(props);
     // Then
     calls(sendMock).toStrictEqual([
       ['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }],
@@ -46,7 +46,7 @@ describe('download-contents', () => {
     // Given
     contentsDownloader.download.mockResolvedValue({ error: new Error('UNKNOWN') });
     // When
-    await DownloadContents.run(props);
+    await downloadContents(props);
     // Then
     call(props.ctx.logger.error).toMatchObject({ msg: 'Error downloading file', path: 'file.txt' });
     calls(contentsDownloader.forceStop).toHaveLength(1);
@@ -60,7 +60,7 @@ describe('download-contents', () => {
     // Given
     contentsDownloader.download.mockRejectedValue({ error: new Error('The operation was aborted') });
     // When
-    await DownloadContents.run(props);
+    await downloadContents(props);
     // Then
     call(sendMock).toStrictEqual(['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }]);
   });
