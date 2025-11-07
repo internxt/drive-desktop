@@ -54,7 +54,7 @@ describe('move-item', () => {
     await moveItem(props);
     // Then
     expect(invokeMock).toBeCalledWith('moveFileByUuid', {
-      nameWithExtension: 'newName',
+      path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',
       workspaceToken: '',
@@ -69,7 +69,7 @@ describe('move-item', () => {
     await moveItem(props);
     // Then
     expect(invokeMock).toBeCalledWith('moveFolderByUuid', {
-      name: 'newName',
+      path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',
       workspaceToken: '',
