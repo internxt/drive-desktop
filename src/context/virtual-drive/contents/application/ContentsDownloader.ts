@@ -28,14 +28,14 @@ export class ContentsDownloader {
 
     ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
 
-    const { data: readable, error } = await downloader.download({
-      file,
-      onProgress: (progress) => {
-        ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
-      },
-    });
-
     try {
+      const { data: readable, error } = await downloader.download({
+        file,
+        onProgress: (progress) => {
+          ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
+        },
+      });
+
       if (!readable) throw error;
 
       let offset = 0;
