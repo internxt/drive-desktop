@@ -24,7 +24,7 @@ export async function fetchData({ ctx, container, path, callback }: TProps) {
 
     const tmpPath = await container.downloadFile.execute(fileInfo.placeholderId, callback);
 
-    const file = await container.downloadFile.fileFinderByUuid({ uuid: fileInfo.uuid });
+    // const file = await container.downloadFile.fileFinderByUuid({ uuid: fileInfo.uuid });
 
     logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
 
