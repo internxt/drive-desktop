@@ -113,7 +113,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <Globe size={22} />
       </HeaderItemWrapper>
 
-      <HeaderItemWrapper onClick={window.electron.openVirtualDriveFolder} data-automation-id="openVirtualDriveFolder">
+      <HeaderItemWrapper onClick={window.electron.driveOpenSyncRootFolder} data-automation-id="openVirtualDriveFolder">
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
