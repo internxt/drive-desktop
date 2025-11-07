@@ -47,7 +47,7 @@ export class DownloadFileController {
     throw new Error('Unexpected end of retry loop');
   }
 
-  cancel() {
-    this.downloader.stop();
+  cancel({ path }: { path: string }) {
+    this.downloader.stop({ path });
   }
 }

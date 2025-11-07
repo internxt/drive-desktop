@@ -3,5 +3,5 @@ type TFetchDataCallback = (id: string, callback: CallbackDownload) => Promise<vo
 
 export type Callbacks = {
   fetchDataCallback: TFetchDataCallback;
-  cancelFetchDataCallback: () => void;
+  cancelFetchDataCallback: (path: string) => void;
 };

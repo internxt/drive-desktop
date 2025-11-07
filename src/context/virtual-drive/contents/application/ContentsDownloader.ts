@@ -44,7 +44,7 @@ export class ContentsDownloader {
     return write;
   }
 
-  stop() {
+  stop({ path }: { path: string }) {
     logger.debug({ msg: '[Server] Stopping download 1' });
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
@@ -52,10 +52,7 @@ export class ContentsDownloader {
     this.downloaderIntance.forceStop();
     void this.downloaderIntanceCB(false, '');
 
-    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      key: this.downloaderFile.uuid,
-      nameWithExtension: this.downloaderFile.nameWithExtension,
-    });
+    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
 
     this.downloaderIntanceCB = null;
     this.downloaderIntance = null;
