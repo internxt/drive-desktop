@@ -58,7 +58,7 @@ export class FileCreator {
         exc: error,
       });
 
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path: absolutePath });
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
 
       throw error;
     }

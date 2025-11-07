@@ -29,9 +29,9 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   const workspaceToken = ctx.workspaceToken;
 
   if (type === 'file') {
-    await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, workspaceToken, path });
+    await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, path, workspaceToken });
   } else {
-    await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, workspaceToken, path });
+    await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, path, workspaceToken });
   }
 
   ctx.virtualDrive.updateSyncStatus({ itemPath: path });
