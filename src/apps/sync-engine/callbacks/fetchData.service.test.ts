@@ -25,6 +25,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: 2 });
 
       // Act
+      // @ts-ignore
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
@@ -36,6 +37,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: -1 });
 
       // Act
+      // @ts-ignore
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
@@ -47,6 +49,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: true, progress: 0 });
 
       // Act
+      // @ts-ignore
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange

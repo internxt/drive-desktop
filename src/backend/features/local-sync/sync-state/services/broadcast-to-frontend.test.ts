@@ -2,20 +2,19 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import * as storeModule from '../store';
 import { broadcastToFrontend, getSortedItems } from './broadcast-to-frontend';
 import * as broadcastToWidgetModule from '@/apps/main/windows';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('broadcast-to-frontend', () => {
   const clearStoreMock = partialSpyOn(storeModule, 'clearStore');
   const broadcastToWidgetMock = partialSpyOn(broadcastToWidgetModule, 'broadcastToWidget');
 
   const props = mockProps<typeof getSortedItems>([
-    { key: 'uuid1' as FileUuid, action: 'DELETE_ERROR' },
-    { key: 'uuid2' as FileUuid, action: 'UPLOAD_ERROR' },
-    { key: 'uuid3' as FileUuid, action: 'DELETED' },
-    { key: 'uuid4' as FileUuid, action: 'DOWNLOAD_CANCEL' },
-    { key: 'uuid5' as FileUuid, action: 'UPLOADED' },
-    { key: 'uuid6' as FileUuid, action: 'DOWNLOADING' },
-    { key: 'uuid7' as FileUuid, action: 'MOVED' },
+    { path: 'path1', action: 'DELETE_ERROR' },
+    { path: 'path2', action: 'UPLOAD_ERROR' },
+    { path: 'path3', action: 'DELETED' },
+    { path: 'path4', action: 'DOWNLOAD_CANCEL' },
+    { path: 'path5', action: 'UPLOADED' },
+    { path: 'path6', action: 'DOWNLOADING' },
+    { path: 'path7', action: 'MOVED' },
   ]);
 
   it('should clear store when no items', () => {
@@ -31,11 +30,11 @@ describe('broadcast-to-frontend', () => {
     const res = getSortedItems(props);
     // Then
     expect(res).toMatchObject([
-      { action: 'DELETE_ERROR', key: 'uuid1' },
-      { action: 'UPLOAD_ERROR', key: 'uuid2' },
-      { action: 'DELETED', key: 'uuid3' },
-      { action: 'MOVED', key: 'uuid7' },
-      { action: 'DOWNLOAD_CANCEL', key: 'uuid4' },
+      { action: 'DELETE_ERROR', path: 'path1' },
+      { action: 'UPLOAD_ERROR', path: 'path2' },
+      { action: 'DELETED', path: 'path3' },
+      { action: 'MOVED', path: 'path7' },
+      { action: 'DOWNLOAD_CANCEL', path: 'path4' },
     ]);
   });
 });
