@@ -26,9 +26,10 @@ export class ContentsDownloader {
 
     this.downloader = downloader;
 
+    ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
+
     const { data: readable, error } = await downloader.download({
       file,
-      path,
       onProgress: (progress) => {
         ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
       },

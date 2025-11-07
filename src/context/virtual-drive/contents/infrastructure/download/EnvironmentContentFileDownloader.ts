@@ -1,7 +1,6 @@
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
@@ -21,9 +20,7 @@ export class EnvironmentContentFileDownloader {
     }
   }
 
-  download({ file, path, onProgress }: { file: SimpleDriveFile; path: string; onProgress: (progress: number) => void }) {
-    ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
-
+  download({ file, onProgress }: { file: SimpleDriveFile; onProgress: (progress: number) => void }) {
     return new Promise((resolve: Resolve) => {
       this.state = this.environment.download(
         this.bucket,
