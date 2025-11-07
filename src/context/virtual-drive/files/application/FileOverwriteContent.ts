@@ -1,4 +1,3 @@
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
@@ -6,7 +5,6 @@ import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { InxtJs } from '@/infra';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
