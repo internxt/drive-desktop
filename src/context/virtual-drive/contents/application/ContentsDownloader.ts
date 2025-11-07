@@ -42,17 +42,9 @@ export class ContentsDownloader {
       for await (const chunk of readable) {
         const completed = offset + chunk.length;
 
-        if (completed === file.size) {
+        if (completed >= file.size) {
           ctx.logger.debug({
             msg: 'Last chunk received',
-            path,
-            offset,
-            chunk: chunk.length,
-            size: file.size,
-          });
-        } else if (completed > file.size) {
-          ctx.logger.error({
-            msg: 'Last chunk is bigger than file size',
             path,
             offset,
             chunk: chunk.length,
