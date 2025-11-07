@@ -8,6 +8,7 @@ import { buildFileUploader } from '../main/background-processes/backups/build-fi
 import VirtualDrive from '@/node-win/virtual-drive';
 import { runDangledFiles } from './run-dangled-files';
 import { buildProcessContainer } from './build-process-container';
+import { InxtJs } from '@/infra';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -46,7 +47,8 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
 
-    const { fileUploader, contentsDownloader } = buildFileUploader({ bucket: config.bucket });
+    const { fileUploader, environment } = buildFileUploader({ bucket: config.bucket });
+    const contentsDownloader = new InxtJs.ContentsDownloader(environment, config.bucket);
 
     const ctx: ProcessSyncContext = {
       ...config,
