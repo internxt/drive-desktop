@@ -1,17 +1,11 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
-import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 
-export class ContentsDownloader {
-  constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
-
-  private downloader: EnvironmentContentFileDownloader | null = null;
-
-  async run({
+export class DownloadContents {
+  static async run({
     ctx,
     file,
     path,
@@ -22,15 +16,11 @@ export class ContentsDownloader {
     path: AbsolutePath;
     callback: CallbackDownload;
   }) {
-    const downloader = this.managerFactory.downloader();
-
-    this.downloader = downloader;
-
     ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
 
     try {
-      const { data: readable, error } = await downloader.download({
-        file,
+      const { data: readable, error } = await ctx.contentsDownloader.download({
+        contentsId: file.contentsId,
         onProgress: (progress) => {
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
         },
@@ -63,26 +53,24 @@ export class ContentsDownloader {
       ipcRendererSyncEngine.send('FILE_DOWNLOADED', { path });
     } catch (error) {
       if (error instanceof Error && error.message !== 'The operation was aborted') {
-        ctx.logger.error({ msg: 'Error downloading file', error });
+        ctx.logger.error({ msg: 'Error downloading file', path, error });
 
         ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', { path });
 
-        downloader.forceStop();
+        ctx.contentsDownloader.forceStop();
       }
     }
   }
 
-  stop({ path }: { path: AbsolutePath }) {
-    if (!this.downloader) return;
-
+  static stop({ ctx, path }: { ctx: ProcessSyncContext; path: AbsolutePath }) {
     try {
+      ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
+
       ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
 
-      this.downloader.forceStop();
+      ctx.contentsDownloader.forceStop();
     } catch (error) {
-      logger.error({ msg: 'Error stopping file download', path, error });
+      ctx.logger.error({ msg: 'Error stopping file download', path, error });
     }
-
-    this.downloader = null;
   }
 }

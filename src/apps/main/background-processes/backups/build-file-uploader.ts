@@ -1,5 +1,6 @@
 import { getConfig } from '@/apps/sync-engine/config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
+import { InxtJs } from '@/infra';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { Environment } from '@internxt/inxt-js';
 
@@ -21,6 +22,7 @@ export function buildFileUploader({ bucket }: Props) {
   });
 
   const fileUploader = new EnvironmentFileUploader(environment, bucket);
+  const contentsDownloader = new InxtJs.ContentsDownloader(environment, bucket);
 
-  return { environment, fileUploader };
+  return { environment, fileUploader, contentsDownloader };
 }

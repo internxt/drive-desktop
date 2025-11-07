@@ -18,6 +18,7 @@ import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { Environment } from '@internxt/inxt-js';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -30,6 +31,7 @@ describe('create-placeholder', () => {
   const createFileMock = vi.mocked(driveServerWip.files.createFile);
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
+  const environment = mockDeep<Environment>();
   const environmentFileUploader = mockDeep<EnvironmentFileUploader>();
 
   const rootFolderUuid = v4();
@@ -51,6 +53,7 @@ describe('create-placeholder', () => {
     logger: loggerMock,
     virtualDrive: new VirtualDrive(config),
     fileUploader: environmentFileUploader,
+    environment,
     abortController: new AbortController(),
   };
 
@@ -105,15 +108,6 @@ describe('create-placeholder', () => {
         type: 'png',
       },
     });
-
-    const config = getConfig();
-    const ctx: ProcessSyncContext = {
-      ...config,
-      logger: loggerMock,
-      virtualDrive: new VirtualDrive(config),
-      fileUploader: environmentFileUploader,
-      abortController: new AbortController(),
-    };
 
     const container = buildProcessContainer({ ctx });
 

@@ -20,18 +20,16 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await ctx.virtualDrive.createSyncRootFolder();
 
-  const container = buildProcessContainer({ ctx });
-
-  await BindingsManager.start({ ctx, container });
+  await BindingsManager.start({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await BindingsManager.updateAndCheckPlaceholders({ ctx });
   });
 
   BindingsManager.watch({ ctx });
-  void runDangledFiles({ ctx, container });
 
-  logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
+  const container = buildProcessContainer({ ctx });
+  void runDangledFiles({ ctx, container });
 }
 
 async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
@@ -48,13 +46,15 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
 
-    const { fileUploader } = buildFileUploader({ bucket: config.bucket });
+    const { fileUploader, contentsDownloader } = buildFileUploader({ bucket: config.bucket });
+
     const ctx: ProcessSyncContext = {
       ...config,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
       abortController: new AbortController(),
       virtualDrive: new VirtualDrive(config),
       fileUploader,
+      contentsDownloader,
     };
 
     if (config.workspaceToken) {

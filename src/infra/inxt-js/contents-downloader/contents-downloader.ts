@@ -1,10 +1,10 @@
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
-import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
-export class EnvironmentContentFileDownloader {
+export class ContentsDownloader {
   private state: ActionState | null;
 
   constructor(
@@ -20,11 +20,11 @@ export class EnvironmentContentFileDownloader {
     }
   }
 
-  download({ file, onProgress }: { file: SimpleDriveFile; onProgress: (progress: number) => void }) {
+  download({ contentsId, onProgress }: { contentsId: ContentsId; onProgress: (progress: number) => void }) {
     return new Promise((resolve: Resolve) => {
       this.state = this.environment.download(
         this.bucket,
-        file.contentsId,
+        contentsId,
         {
           progressCallback: (progress) => onProgress(progress),
           finishedCallback: (error, stream) => {

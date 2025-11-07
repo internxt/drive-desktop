@@ -1,4 +1,3 @@
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
@@ -8,10 +7,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileDangledManager {
-  constructor(
-    private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly fileOverwriteContent: FileOverwriteContent,
-  ) {}
+  constructor(private readonly fileOverwriteContent: FileOverwriteContent) {}
 
   async run({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     await DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
@@ -52,7 +48,6 @@ export class FileDangledManager {
       logger.debug({ msg: `Dangled files: ${dangledFilesIds}` });
       await this.fileOverwriteContent.run(ctx, {
         contentsIds: dangledFilesIds,
-        downloaderManger: this.contentsManagerFactory,
       });
     }
   }

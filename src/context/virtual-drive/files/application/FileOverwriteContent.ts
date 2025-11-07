@@ -6,6 +6,7 @@ import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { InxtJs } from '@/infra';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
@@ -39,8 +40,8 @@ export class FileOverwriteContent {
     void this.processErrorQueue();
   }
 
-  async run(ctx: ProcessSyncContext, input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
-    const { contentsIds, downloaderManger } = input;
+  async run(ctx: ProcessSyncContext, input: { contentsIds: string[] }) {
+    const { contentsIds } = input;
     logger.debug({ msg: 'Inside overrideDangledFiles' });
     const files = this.repository.searchByContentsIds(contentsIds);
 
@@ -73,12 +74,11 @@ export class FileOverwriteContent {
 
     for (const file of files) {
       if (filesWithContentLocally[file.path]) {
-        const downloader = downloaderManger.downloader();
-
         logger.debug({ msg: 'Trying to download file ', uuid: file.uuid, name: file.name });
-        const { error } = await downloader.download({
-          onProgress: () => downloader.forceStop(),
-          file,
+
+        const { error } = await ctx.contentsDownloader.download({
+          onProgress: () => ctx.contentsDownloader.forceStop(),
+          contentsId: file.contentsId,
         });
 
         if (error?.message.includes('Object not found')) {

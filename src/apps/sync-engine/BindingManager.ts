@@ -6,22 +6,21 @@ import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
-import { ProcessContainer } from './build-process-container';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { DownloadContents } from './download-contents/download-contents';
 
 export class BindingsManager {
-  static async start({ ctx, container }: { ctx: ProcessSyncContext; container: ProcessContainer }) {
+  static async start({ ctx }: { ctx: ProcessSyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (path, callback) => {
         await fetchData({
           ctx,
-          container,
           path: createAbsolutePath(path),
           callback,
         });
       },
       cancelFetchDataCallback: (path) => {
-        container.downloadFile.cancel({ ctx, path: createAbsolutePath(path) });
+        DownloadContents.stop({ ctx, path: createAbsolutePath(path) });
       },
     };
 

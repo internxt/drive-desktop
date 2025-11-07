@@ -1,4 +1,3 @@
-import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '../../config';
