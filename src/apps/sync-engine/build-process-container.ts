@@ -3,13 +3,11 @@ import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastruc
 import { FileContentsHardUpdater } from '@/context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileOverwriteContent } from '@/context/virtual-drive/files/application/FileOverwriteContent';
 import { FileDangledManager } from '@/context/virtual-drive/boundaryBridge/application/FileDangledManager';
-import { DownloadFileController } from './callbacks-controllers/controllers/DownloadFileController';
 import { ProcessSyncContext } from './config';
 
 export type ProcessContainer = {
   fileRepository: InMemoryFileRepository;
   fileDangledManager: FileDangledManager;
-  downloadFile: DownloadFileController;
 };
 
 export function buildProcessContainer({ ctx }: { ctx: ProcessSyncContext }): ProcessContainer {
@@ -23,11 +21,8 @@ export function buildProcessContainer({ ctx }: { ctx: ProcessSyncContext }): Pro
 
   const fileDangledManager = new FileDangledManager(fileOverwriteContent);
 
-  const downloadFile = new DownloadFileController(ctx.contentsDownloader);
-
   return {
     fileRepository,
     fileDangledManager,
-    downloadFile,
   };
 }
