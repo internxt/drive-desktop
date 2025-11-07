@@ -9,6 +9,7 @@ import { getTheme } from '../config/theme';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { setConfigKey } from '../config/service';
 import { getLanguage } from '../config/language';
+import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 
 type AsyncMirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => ReturnType<T> : (props: Parameters<T>[0]) => ReturnType<T>;
@@ -30,6 +31,9 @@ export type FromProcess = {
   openLogs: AsyncMirror<typeof LoggerModule.openLogs>;
   getLanguage: Mirror<typeof getLanguage>;
   setConfigKey: Mirror<typeof setConfigKey>;
+  driveGetSyncRoot: Mirror<typeof getRootVirtualDrive>;
+  driveChooseSyncRootWithDialog: AsyncMirror<typeof chooseSyncRootWithDialog>;
+  driveOpenSyncRootFolder: AsyncMirror<typeof openVirtualDriveRootFolder>;
 };
 
 export type FromMain = {};

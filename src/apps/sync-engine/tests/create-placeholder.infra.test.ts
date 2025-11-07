@@ -60,7 +60,7 @@ describe('create-placeholder', () => {
   });
 
   afterAll(() => {
-    BindingsManager.stop({ ctx });
+    ctx.virtualDrive.disconnectSyncRoot();
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
