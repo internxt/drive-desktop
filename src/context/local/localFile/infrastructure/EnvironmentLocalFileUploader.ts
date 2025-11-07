@@ -5,10 +5,10 @@ import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
 import { LocalFileHandler } from '../domain/LocalFileUploader';
 import { Environment } from '@internxt/inxt-js';
-import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { deleteFileContentIPC } from '../../../../infra/ipc/files-ipc';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class EnvironmentLocalFileUploader implements LocalFileHandler {
@@ -40,7 +40,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           stopwatch.finish();
 
           if (err) {
-            Logger.error('[ENVLFU UPLOAD ERROR]', err);
+            logger.error({ tag: 'SYNC-ENGINE', msg: '[ENVLFU UPLOAD ERROR]', err });
             if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
             }
@@ -50,7 +50,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
-          Logger.debug('[UPLOAD PROGRESS]', progress);
+          logger.debug({ tag: 'SYNC-ENGINE', msg: '[UPLOAD PROGRESS]', progress });
         },
       });
 
@@ -68,8 +68,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
         fileId: contentsId,
       });
     } catch (error) {
-      // Not being able to delete from the bucket is not critical
-      Logger.error(`Could not delete the file ${contentsId} from the bucket`);
+      logger.error({ tag: 'SYNC-ENGINE', msg: 'Could not delete the file from the bucket', contentsId });
     }
   }
 }

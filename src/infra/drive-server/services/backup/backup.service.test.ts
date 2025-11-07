@@ -1,6 +1,15 @@
 import { BackupService } from './backup.service';
 import { driveServerClient } from '../../client/drive-server.client.instance';
-import { logger } from '../../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    error: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
 
 jest.mock('../../client/drive-server.client.instance', () => ({
   driveServerClient: {
@@ -12,12 +21,6 @@ jest.mock('../../client/drive-server.client.instance', () => ({
 
 jest.mock('../../../../apps/main/auth/service', () => ({
   getNewApiHeaders: jest.fn(() => ({})),
-}));
-
-jest.mock('../../../../core/LoggerService/LoggerService', () => ({
-  logger: {
-    error: jest.fn(),
-  },
 }));
 
 describe('BackupService', () => {

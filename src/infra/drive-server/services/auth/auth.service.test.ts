@@ -1,8 +1,17 @@
 import { AuthService } from './auth.service';
 import { authClient } from './auth.client';
 import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
-import { logger } from '../../../../core/LoggerService/LoggerService';
 import { LoginAccessRequest, LoginAccessResponse, LoginResponse } from './auth.types';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    error: jest.fn(),
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
 
 jest.mock('../../../../apps/main/auth/service', () => ({
   getNewApiHeaders: jest.fn(),
@@ -13,12 +22,6 @@ jest.mock('./auth.client', () => ({
   authClient: {
     GET: jest.fn(),
     POST: jest.fn(),
-  },
-}));
-
-jest.mock('../../../../core/LoggerService/LoggerService', () => ({
-  logger: {
-    error: jest.fn(),
   },
 }));
 

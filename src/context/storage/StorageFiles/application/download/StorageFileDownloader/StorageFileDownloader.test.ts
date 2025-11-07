@@ -5,13 +5,6 @@ import { DownloaderHandlerMock } from '../../../domain/download/__mocks__/Downlo
 import { StorageFile } from '../../../domain/StorageFile';
 import { Readable } from 'stream';
 
-jest.mock('electron-log', () => ({
-  info: jest.fn(),
-  error: jest.fn(),
-  warn: jest.fn(),
-  debug: jest.fn(),
-}));
-
 describe('StorageFileDownloader', () => {
   let managerFactory: DownloaderHandlerFactoryMock;
   let tracker: DownloadProgressTrackerMock;

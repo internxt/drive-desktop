@@ -1,9 +1,9 @@
-import Logger from 'electron-log';
+import { logger } from "@internxt/drive-desktop-core/build/backend";
 
 const httpRequest: typeof fetch = (...args) => {
   return fetch(...args).then((res) => {
     if (res.status === 401) {
-      Logger.warn('[AUTH] Request unauthorized');
+      logger.warn({ tag: 'AUTH', msg: 'Request unauthorized' });
       window.electron.userIsUnauthorized();
     }
 

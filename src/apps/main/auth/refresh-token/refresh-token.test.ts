@@ -202,7 +202,6 @@ describe('refresh-token', () => {
       scheduleMock.mockReturnValue(false);
 
       const { createTokenSchedule } = await import('./refresh-token');
-      const { logger } = await import('../../../../core/LoggerService/LoggerService');
 
       await createTokenSchedule();
 

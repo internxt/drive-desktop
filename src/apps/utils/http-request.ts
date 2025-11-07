@@ -1,11 +1,11 @@
 /**TODO: DELETE DEAD CODE*/
 import { ipcRenderer } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 import configStore from '../../apps/main/config';
 
 const userIsUnauthorized = () => {
-  Logger.warn('[AUTH] Request unauthorized');
+  logger.warn({ tag: 'AUTH', msg: 'Request unauthorized' });
   ipcRenderer.send('user-is-unauthorized');
 };
 

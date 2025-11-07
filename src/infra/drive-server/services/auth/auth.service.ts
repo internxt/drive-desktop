@@ -1,9 +1,9 @@
 import { authClient } from './auth.client';
 import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
-import { logger } from '../../../../core/LoggerService/LoggerService';
 import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { LoginAccessRequest, LoginAccessResponse, LoginResponse, RefreshTokenResponse } from './auth.types';
 import { mapError } from '../utils/mapError';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class AuthService {
   async access(credentials: LoginAccessRequest): Promise<Either<Error, LoginAccessResponse>> {
