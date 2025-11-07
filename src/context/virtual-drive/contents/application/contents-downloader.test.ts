@@ -37,6 +37,7 @@ describe('Contents Downloader', () => {
   const SUT = new ContentsDownloader(factory);
 
   const props = mockProps<typeof SUT.run>({
+    // @ts-ignore
     callback: callbackFunction,
     file: {
       nameWithExtension: 'file.txt',

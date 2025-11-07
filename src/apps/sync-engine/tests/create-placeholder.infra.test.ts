@@ -16,9 +16,8 @@ import { ipcRenderer } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
-import { buildProcessContainer } from '../build-process-container';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { Environment } from '@internxt/inxt-js';
+import { InxtJs } from '@/infra';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -31,8 +30,8 @@ describe('create-placeholder', () => {
   const createFileMock = vi.mocked(driveServerWip.files.createFile);
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
-  const environment = mockDeep<Environment>();
   const environmentFileUploader = mockDeep<EnvironmentFileUploader>();
+  const contentsDownloader = mockDeep<InxtJs.ContentsDownloader>();
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
@@ -53,7 +52,7 @@ describe('create-placeholder', () => {
     logger: loggerMock,
     virtualDrive: new VirtualDrive(config),
     fileUploader: environmentFileUploader,
-    environment,
+    contentsDownloader,
     abortController: new AbortController(),
   };
 
@@ -109,11 +108,9 @@ describe('create-placeholder', () => {
       },
     });
 
-    const container = buildProcessContainer({ ctx });
-
     // When
     await ctx.virtualDrive.createSyncRootFolder();
-    await BindingsManager.start({ ctx, container });
+    await BindingsManager.start({ ctx });
     BindingsManager.watch({ ctx });
 
     await sleep(100);

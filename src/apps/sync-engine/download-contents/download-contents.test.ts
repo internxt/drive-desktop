@@ -1,6 +1,5 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { Readable } from 'node:stream';
-import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -10,29 +9,22 @@ import { DownloadContents } from './download-contents';
 describe('download-contents', () => {
   const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');
 
-  const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
-  const downloader = mockDeep<InxtJs.ContentsDownloader>();
-  const SUT = new DownloadContents(factory);
+  const contentsDownloader = mockDeep<InxtJs.ContentsDownloader>();
 
   const chunks = [Buffer.from('first'), Buffer.from('second')];
 
-  const props = mockProps<typeof SUT.run>({
+  const props = mockProps<typeof DownloadContents.run>({
+    ctx: { contentsDownloader },
     path: 'file.txt' as AbsolutePath,
     callback: vi.fn(),
-    file: {
-      size: 10,
-    },
-  });
-
-  beforeEach(() => {
-    factory.downloader.mockReturnValue(downloader);
+    file: { size: 10 },
   });
 
   it('should send chunks to C++ using callback', async () => {
     // Given
-    downloader.download.mockResolvedValue({ data: Readable.from(chunks) });
+    contentsDownloader.download.mockResolvedValue({ data: Readable.from(chunks) });
     // When
-    await SUT.run(props);
+    await DownloadContents.run(props);
     // Then
     calls(sendMock).toStrictEqual([
       ['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }],
@@ -52,12 +44,12 @@ describe('download-contents', () => {
 
   it('should send error if cannot obtain readable', async () => {
     // Given
-    downloader.download.mockResolvedValue({ error: new Error('UNKNOWN') });
+    contentsDownloader.download.mockResolvedValue({ error: new Error('UNKNOWN') });
     // When
-    await SUT.run(props);
+    await DownloadContents.run(props);
     // Then
     call(props.ctx.logger.error).toMatchObject({ msg: 'Error downloading file', path: 'file.txt' });
-    calls(downloader.forceStop).toHaveLength(1);
+    calls(contentsDownloader.forceStop).toHaveLength(1);
     calls(sendMock).toStrictEqual([
       ['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }],
       ['FILE_DOWNLOAD_ERROR', { path: 'file.txt' }],
@@ -66,9 +58,9 @@ describe('download-contents', () => {
 
   it('should ignore error if readable is aborted', async () => {
     // Given
-    downloader.download.mockRejectedValue({ error: new Error('The operation was aborted') });
+    contentsDownloader.download.mockRejectedValue({ error: new Error('The operation was aborted') });
     // When
-    await SUT.run(props);
+    await DownloadContents.run(props);
     // Then
     call(sendMock).toStrictEqual(['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }]);
   });
