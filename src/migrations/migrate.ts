@@ -9,9 +9,8 @@ const migrations = [AddUserUuidToDatabase, MoveCheckpointToLokijs, RemoveAntivir
 export async function migrate() {
   for (const migration of migrations) {
     const key = `migrations.${migration.KEY}` as const;
-    const applied = electronStore.get(key);
 
-    if (applied) continue;
+    if (electronStore.get(key)) continue;
 
     logger.debug({ msg: 'Start migration', key: migration.KEY });
 

@@ -1,9 +1,9 @@
 import { broadcastToWindows } from '../windows';
-import { getConfigKey } from '../config/service';
 import { DEFAULT_LANGUAGE } from './language.types';
+import { electronStore } from '../config';
 
 export function getLanguage() {
-  return getConfigKey('preferedLanguage') || DEFAULT_LANGUAGE;
+  return electronStore.get('preferedLanguage') || DEFAULT_LANGUAGE;
 }
 
 export function broadcastLanguage() {
