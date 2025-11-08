@@ -1,13 +1,10 @@
-import Store from 'electron-store';
-
-const store = new Store();
-const PATCH_2_5_1 = 'patch-executed-2-5-1';
+import { electronStore } from '@/apps/main/config';
 
 export function isDangledApplied() {
-  const isApplied = store.get(PATCH_2_5_1, false);
+  const isApplied = electronStore.get('patch-executed-2-5-1');
   return { isApplied };
 }
 
 export function applyDangled() {
-  store.set(PATCH_2_5_1, true);
+  electronStore.set('patch-executed-2-5-1', true);
 }

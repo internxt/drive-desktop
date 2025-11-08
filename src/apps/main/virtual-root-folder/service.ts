@@ -1,6 +1,6 @@
 import { dialog, shell } from 'electron';
 
-import { configStore } from '../config';
+import { electronStore } from '../config';
 import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -19,7 +19,7 @@ export function getRootVirtualDrive() {
   const user = getUserOrThrow();
 
   const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
-  const syncRoot = createAbsolutePath(configStore.get('syncRoot') || defaultSyncRoot);
+  const syncRoot = createAbsolutePath(electronStore.get('syncRoot') || defaultSyncRoot);
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
@@ -50,7 +50,7 @@ export async function chooseSyncRootWithDialog() {
   const chosenPath = result.filePaths[0];
 
   const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
-  const oldSyncRoot = createAbsolutePath(configStore.get('syncRoot'));
+  const oldSyncRoot = createAbsolutePath(electronStore.get('syncRoot'));
 
   logger.debug({ msg: 'Choose sync root with dialog', oldSyncRoot, newSyncRoot });
 

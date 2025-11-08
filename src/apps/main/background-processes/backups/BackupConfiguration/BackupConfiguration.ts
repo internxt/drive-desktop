@@ -63,14 +63,13 @@ class BackupConfiguration {
   }
 
   hasDiscoveredBackups(): boolean {
-    const discoveredBackup = configStore.get('discoveredBackup') as number;
-
+    const discoveredBackup = configStore.get('discoveredBackup');
     logger.debug({ msg: 'Discovered backup', discoveredBackup });
-    return discoveredBackup > 0;
+    return discoveredBackup;
   }
 
   backupsDiscovered(): void {
-    configStore.set('discoveredBackup', Date.now());
+    configStore.set('discoveredBackup', true);
   }
 }
 

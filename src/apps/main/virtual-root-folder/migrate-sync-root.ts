@@ -1,6 +1,6 @@
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { existsSync, renameSync } from 'node:fs';
-import { configStore } from '../config';
+import { electronStore } from '../config';
 
 type Props = { oldSyncRoot: AbsolutePath; newSyncRoot: AbsolutePath };
 
@@ -20,6 +20,6 @@ export function migrateSyncRoot({ oldSyncRoot, newSyncRoot }: Props) {
     logger.error({ tag: 'SYNC-ENGINE', msg: 'Error migrating sync root', error });
   }
 
-  configStore.set('syncRoot', newSyncRoot);
+  electronStore.set('syncRoot', newSyncRoot);
   return newSyncRoot;
 }

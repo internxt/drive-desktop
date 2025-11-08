@@ -82,7 +82,7 @@ export function restoreSavedConfig({ uuid }: { uuid: string }) {
 
   if (!savedConfig) return;
 
-  for (const [key, value] of Object.entries(savedConfig)) {
-    ConfigStore.set(key, value);
+  for (const key of Object.keys(savedConfig) as Array<keyof typeof savedConfig>) {
+    ConfigStore.set(key, savedConfig[key]);
   }
 }

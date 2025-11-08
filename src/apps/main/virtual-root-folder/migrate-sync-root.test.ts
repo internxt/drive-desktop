@@ -2,7 +2,7 @@ import { existsSync, renameSync } from 'node:fs';
 import { migrateSyncRoot } from './migrate-sync-root';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { configStore } from '../config';
+import { electronStore } from '../config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('node:fs'));
@@ -10,7 +10,7 @@ vi.mock(import('node:fs'));
 describe('migrate-sync-root', () => {
   const existsSyncMock = vi.mocked(existsSync);
   const renameSyncMock = vi.mocked(renameSync);
-  const setMock = partialSpyOn(configStore, 'set');
+  const setMock = partialSpyOn(electronStore, 'set');
 
   const props = mockProps<typeof migrateSyncRoot>({ newSyncRoot: 'newSyncRoot' as AbsolutePath });
 

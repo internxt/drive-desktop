@@ -2,7 +2,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import configStore from '../config';
 import { logger } from '@/apps/shared/logger/logger';
 
-type TBackup = { enabled: boolean; folderId: number; folderUuid?: string };
+type TBackup = { enabled: boolean; folderId: number; folderUuid: string };
 type TBackupList = Record<string, TBackup>;
 
 export class BackupFolderUuid {
@@ -25,6 +25,7 @@ export class BackupFolderUuid {
       msg: `Ensuring backup UUIDs exist for backups`,
       length: entries.length,
     });
+
     const promises = entries.map(async ([pathname, backup]) => {
       if (!backup.folderUuid && backup.enabled) {
         backup.folderUuid = await this.getBackupFolderUuid({ backup });

@@ -1,5 +1,5 @@
 import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { configStore } from '../config';
+import { electronStore } from '../config';
 import { getRootVirtualDrive, OLD_SYNC_ROOT } from './service';
 import * as getUserOrThrowModule from '../auth/service';
 import * as migrateSyncRootModule from './migrate-sync-root';
@@ -8,7 +8,7 @@ import { PATHS } from '@/core/electron/paths';
 
 describe('getRootVirtualDrive', () => {
   const getUserOrThrowMock = partialSpyOn(getUserOrThrowModule, 'getUserOrThrow');
-  const getMock = partialSpyOn(configStore, 'get');
+  const getMock = partialSpyOn(electronStore, 'get');
   const migrateSyncRootMock = partialSpyOn(migrateSyncRootModule, 'migrateSyncRoot');
 
   const absolutePath = createAbsolutePath('C:/Users/user/InternxtDrive - uuid');
