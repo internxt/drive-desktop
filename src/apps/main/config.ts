@@ -17,7 +17,7 @@ const schema: Schema<AppStore> = {
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },
-  discoveredBackup: { type: 'boolean' },
+  discoveredBackup: { type: 'number' },
   preferedLanguage: { type: 'string' },
   preferedTheme: { type: 'string' },
   'patch-executed-2-5-1': { type: 'boolean' },

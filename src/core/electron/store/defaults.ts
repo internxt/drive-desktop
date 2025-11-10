@@ -16,7 +16,7 @@ export const defaults: AppStore = {
 
   savedConfigs: {},
   lastOnboardingShown: '',
-  discoveredBackup: false,
+  discoveredBackup: 0,
   preferedLanguage: 'en',
   preferedTheme: 'system',
   'patch-executed-2-5-1': false,

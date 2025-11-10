@@ -27,7 +27,7 @@ export type AppStore = {
 
   savedConfigs: Record<string, SavedConfig>;
   lastOnboardingShown: string;
-  discoveredBackup: boolean;
+  discoveredBackup: number;
   preferedLanguage: Language;
   preferedTheme: ConfigTheme;
   'patch-executed-2-5-1': boolean;
