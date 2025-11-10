@@ -1,4 +1,4 @@
-import { app, Notification, shell } from 'electron';
+import { app } from 'electron';
 
 import 'reflect-metadata';
 import 'core-js/stable';
@@ -121,7 +121,6 @@ app
       setTrayStatus('IDLE');
     }
 
-    void Marketing.showNotifications();
     await checkForUpdates();
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
@@ -147,6 +146,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
+
+    void Marketing.showNotifications();
   } catch (exc) {
     logger.error({ msg: 'Error logging in', exc });
     reportError(exc as Error);
