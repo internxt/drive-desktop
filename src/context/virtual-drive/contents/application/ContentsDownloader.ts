@@ -33,7 +33,8 @@ export class ContentsDownloader {
 
     logger.debug({ msg: '[Server] Stopping download 2' });
     this.downloaderIntance.forceStop();
-    void this.downloaderIntanceCB(false, '');
+    // @ts-ignore
+    this.downloaderIntanceCB(false, '');
 
     ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
 

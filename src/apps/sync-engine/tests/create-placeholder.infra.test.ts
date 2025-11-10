@@ -16,8 +16,8 @@ import { ipcRenderer } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
-import { buildProcessContainer } from '../build-process-container';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { InxtJs } from '@/infra';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -31,6 +31,7 @@ describe('create-placeholder', () => {
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const environmentFileUploader = mockDeep<EnvironmentFileUploader>();
+  const contentsDownloader = mockDeep<InxtJs.ContentsDownloader>();
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
@@ -51,6 +52,7 @@ describe('create-placeholder', () => {
     logger: loggerMock,
     virtualDrive: new VirtualDrive(config),
     fileUploader: environmentFileUploader,
+    contentsDownloader,
     abortController: new AbortController(),
   };
 
@@ -106,20 +108,9 @@ describe('create-placeholder', () => {
       },
     });
 
-    const config = getConfig();
-    const ctx: ProcessSyncContext = {
-      ...config,
-      logger: loggerMock,
-      virtualDrive: new VirtualDrive(config),
-      fileUploader: environmentFileUploader,
-      abortController: new AbortController(),
-    };
-
-    const container = buildProcessContainer({ ctx });
-
     // When
     await ctx.virtualDrive.createSyncRootFolder();
-    await BindingsManager.start({ ctx, container });
+    await BindingsManager.start({ ctx });
     BindingsManager.watch({ ctx });
 
     await sleep(100);
@@ -131,7 +122,6 @@ describe('create-placeholder', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
-      { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { tag: 'SYNC-ENGINE', msg: 'Tree built', workspaceId: '', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
       { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
       { msg: 'onReady' },

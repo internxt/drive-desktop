@@ -1,6 +1,6 @@
-export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
+export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 
 export type Callbacks = {
-  fetchDataCallback: (path: string, callback: CallbackDownload) => void;
+  fetchDataCallback: (path: string, callback: CallbackDownload) => Promise<void>;
   cancelFetchDataCallback: (path: string) => void;
 };
