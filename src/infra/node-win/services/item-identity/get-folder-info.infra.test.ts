@@ -16,7 +16,7 @@ describe('get-folder-info', () => {
   const rootUuid = v4() as FolderUuid;
   const rootPath = createAbsolutePath(testPath, rootUuid);
 
-  const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
+  const virtualDrive = new VirtualDrive({ rootPath, providerId });
 
   let props: Parameters<typeof getFolderInfo>[0];
 

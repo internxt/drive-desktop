@@ -1,10 +1,7 @@
-import path from 'node:path';
-import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { temporalFolderProvider } from './temporalFolderProvider';
 import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
@@ -16,58 +13,12 @@ export class ContentsDownloader {
   private downloaderIntanceCB: CallbackDownload | null = null;
   private downloaderFile: SimpleDriveFile | null = null;
 
-  private async registerEvents(downloader: EnvironmentContentFileDownloader, file: SimpleDriveFile, callback: CallbackDownload) {
-    const location = await temporalFolderProvider();
-    ensureFolderExists(location);
-
-    const filePath = path.join(location, file.nameWithExtension);
-
-    downloader.on('start', () => {
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress: 0,
-      });
-    });
-
-    downloader.on('progress', async () => {
-      const { finished, progress } = await callback(true, filePath);
-
-      if (progress > 1 || progress < 0) {
-        throw new Error('Result progress is not between 0 and 1');
-      } else if (finished && progress === 0) {
-        throw new Error('Result progress is 0');
-      }
-
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress,
-      });
-    });
-
-    downloader.on('error', (error: Error) => {
-      logger.error({ msg: '[Server] Error downloading file', error });
-      ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-      });
-    });
-
-    downloader.on('finish', () => {
-      // cb(true, filePath);
-      // The file download being finished does not mean it has been hidratated
-      // TODO: We might want to track this time instead of the whole completion time
-    });
-  }
-
   async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }): Promise<string> {
     const downloader = this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
     this.downloaderFile = file;
-    await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download({ contentsId: file.contentsId });
 
@@ -76,7 +27,7 @@ export class ContentsDownloader {
     return write;
   }
 
-  stop() {
+  stop({ path }: { path: string }) {
     logger.debug({ msg: '[Server] Stopping download 1' });
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
@@ -84,10 +35,7 @@ export class ContentsDownloader {
     this.downloaderIntance.forceStop();
     void this.downloaderIntanceCB(false, '');
 
-    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      key: this.downloaderFile.uuid,
-      nameWithExtension: this.downloaderFile.nameWithExtension,
-    });
+    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
 
     this.downloaderIntanceCB = null;
     this.downloaderIntance = null;

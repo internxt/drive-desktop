@@ -81,7 +81,11 @@ describe('unlink-folder', () => {
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveFolderEventMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(2);
-    expect(invokeMock).toBeCalledWith('storageDeleteFolderByUuid', { name: 'folder', uuid: 'uuid', workspaceToken: 'token' });
+    expect(invokeMock).toBeCalledWith('storageDeleteFolderByUuid', {
+      path: String.raw`C:\Users\user\InternxtDrive\folder\folder`,
+      uuid: 'uuid',
+      workspaceToken: 'token',
+    });
   });
 
   it('should catch error in case unlink returns error', async () => {

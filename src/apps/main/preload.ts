@@ -197,9 +197,6 @@ const api = {
   openUrl: (url: string): Promise<void> => {
     return ipcRenderer.invoke('open-url', url);
   },
-  getPreferredAppLanguage(): Promise<string[]> {
-    return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
-  },
   syncManually(): Promise<void> {
     return ipcRenderer.invoke('SYNC_MANUALLY');
   },

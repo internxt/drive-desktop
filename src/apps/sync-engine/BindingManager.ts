@@ -7,19 +7,21 @@ import { addPendingItems } from './in/add-pending-items';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
 import { ProcessContainer } from './build-process-container';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class BindingsManager {
   static async start({ ctx, container }: { ctx: ProcessSyncContext; container: ProcessContainer }) {
     const callbacks: Callbacks = {
-      fetchDataCallback: async (filePlaceholderId, callback) => {
+      fetchDataCallback: async (path, callback) => {
         await fetchData({
+          ctx,
           container,
-          filePlaceholderId,
+          path: createAbsolutePath(path),
           callback,
         });
       },
-      cancelFetchDataCallback: () => {
-        container.downloadFile.cancel();
+      cancelFetchDataCallback: (path) => {
+        container.downloadFile.cancel({ path });
         logger.debug({ msg: 'cancelFetchDataCallback' });
       },
     };

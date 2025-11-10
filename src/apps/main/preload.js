@@ -211,9 +211,6 @@ var api = {
   openUrl: (url) => {
     return import_electron2.ipcRenderer.invoke("open-url", url);
   },
-  getPreferredAppLanguage() {
-    return import_electron2.ipcRenderer.invoke("APP:PREFERRED_LANGUAGE");
-  },
   syncManually() {
     return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
   },
