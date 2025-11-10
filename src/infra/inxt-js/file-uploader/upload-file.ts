@@ -21,13 +21,13 @@ type Props = {
 };
 
 export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSignal, path, callbacks }: Props) {
+  function stopUpload(state: ActionState) {
+    state.stop();
+    readable.destroy();
+  }
   return new Promise((resolve: TResolve) => {
     let interval: NodeJS.Timeout | undefined;
 
-    function stopUpload(state: ActionState) {
-      state.stop();
-      readable.destroy();
-    }
     try {
       const state = fn(bucket, {
         source: readable,
