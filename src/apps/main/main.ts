@@ -1,8 +1,4 @@
-import { app } from 'electron';
-
-void app.whenReady().then(() => {
-  app.setAppUserModelId('com.internxt.app');
-});
+import { app, Notification, shell } from 'electron';
 
 import 'reflect-metadata';
 import 'core-js/stable';
@@ -54,6 +50,7 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
+import { Marketing } from '@/backend/features';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -102,6 +99,8 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    app.setAppUserModelId('com.internxt.drive');
+
     setDefaultConfig({});
 
     if (!AppDataSource.isInitialized) {
@@ -122,6 +121,7 @@ app
       setTrayStatus('IDLE');
     }
 
+    void Marketing.showNotifications();
     await checkForUpdates();
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
