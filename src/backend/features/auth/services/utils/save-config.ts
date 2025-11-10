@@ -1,6 +1,6 @@
 import { getUser } from '@/apps/main/auth/service';
-import { configStore } from '@/apps/main/config';
-import { fieldsToSave } from '@/core/electron/store/defaults';
+import { electronStore } from '@/apps/main/config';
+import { SavedConfig } from '@/core/electron/store/app-store.interface';
 
 export function saveConfig() {
   const userUUID = getUser()?.uuid;
@@ -9,15 +9,18 @@ export function saveConfig() {
     return;
   }
 
-  const savedConfigs = configStore.get('savedConfigs');
+  const savedConfigs = electronStore.get('savedConfigs');
 
-  const configToSave: Record<string, unknown> = {};
+  const configToSave: SavedConfig = {
+    backupInterval: electronStore.get('backupInterval'),
+    backupList: electronStore.get('backupList'),
+    backupsEnabled: electronStore.get('backupsEnabled'),
+    deviceUuid: electronStore.get('deviceUuid'),
+    lastBackup: electronStore.get('lastBackup'),
+    syncRoot: electronStore.get('syncRoot'),
+  };
 
-  for (const field of fieldsToSave) {
-    configToSave[field] = configStore.get(field);
-  }
-
-  configStore.set('savedConfigs', {
+  electronStore.set('savedConfigs', {
     ...savedConfigs,
     [userUUID]: configToSave,
   });

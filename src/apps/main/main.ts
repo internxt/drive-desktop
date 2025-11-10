@@ -39,7 +39,7 @@ import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
-import configStore from './config';
+import { electronStore } from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { setupQuitHandlers } from './quit';
@@ -140,7 +140,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.destroy();
 
-    const lastOnboardingShown = configStore.get('lastOnboardingShown');
+    const lastOnboardingShown = electronStore.get('lastOnboardingShown');
 
     if (!lastOnboardingShown) {
       openOnboardingWindow();

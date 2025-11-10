@@ -2,19 +2,36 @@ import { User } from '@/apps/main/types';
 import { ConfigTheme } from '@/apps/main/config/theme.types';
 import { Language } from '@/apps/main/config/language.types';
 
-export interface AppStore {
-  newToken: string;
-  newTokenEncrypted: boolean;
-  userData: User;
-  mnemonic: string;
+type BackupList = Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
+export type SavedConfig = {
   backupsEnabled: boolean;
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
-  savedConfigs: Record<string, unknown>;
-  lastOnboardingShown: string;
   deviceUuid: string;
-  backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
-  preferedLanguage?: Language;
-  preferedTheme?: ConfigTheme;
-}
+  backupList: BackupList;
+};
+
+export type AppStore = {
+  backupsEnabled: boolean;
+  backupInterval: number;
+  lastBackup: number;
+  syncRoot: string;
+  deviceUuid: string;
+  backupList: BackupList;
+
+  newToken: string;
+  newTokenEncrypted: boolean;
+  userData: User;
+  mnemonic: string;
+
+  savedConfigs: Record<string, SavedConfig>;
+  lastOnboardingShown: string;
+  discoveredBackup: number;
+  preferedLanguage: Language;
+  preferedTheme: ConfigTheme;
+  'patch-executed-2-5-1': boolean;
+  'migrations.v2-5-1-add-user-uuid-to-database': boolean;
+  'migrations.v2-5-6-move-checkpoint-to-lokijs': boolean;
+  'migrations.v2-5-7-remove-antivirus-table': boolean;
+};

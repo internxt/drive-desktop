@@ -1,13 +1,13 @@
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as authServiceModule from '@/apps/main/auth/service';
-import * as configModule from '@/apps/main/config';
 import { saveConfig } from './save-config';
 import { fieldsToSave } from '@/core/electron/store/defaults';
+import electronStore from '@/apps/main/config';
 
 describe('saveConfig', () => {
   const getUserMock = partialSpyOn(authServiceModule, 'getUser');
-  const configGetMock = vi.spyOn(configModule.default, 'get');
-  const configSetMock = vi.spyOn(configModule.default, 'set');
+  const configGetMock = partialSpyOn(electronStore, 'get');
+  const configSetMock = partialSpyOn(electronStore, 'set');
 
   it('should return early when user is not available', () => {
     getUserMock.mockReturnValue(null);
@@ -45,7 +45,7 @@ describe('saveConfig', () => {
       'previous-user-uuid': { backupsEnabled: false },
     };
 
-    configGetMock.mockImplementation((key: string) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return existingConfigs;
       return currentUserConfigs[key as keyof typeof currentUserConfigs];
     });
@@ -75,7 +75,7 @@ describe('saveConfig', () => {
       backupList: [],
     };
 
-    configGetMock.mockImplementation((key) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return undefined;
       return firstTimeUserConfigs[key as keyof typeof firstTimeUserConfigs];
     });
@@ -107,7 +107,7 @@ describe('saveConfig', () => {
       backupList: ['Work Files'],
     };
 
-    configGetMock.mockImplementation((key) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return outdatedConfigs;
       return updatedUserConfigs[key as keyof typeof updatedUserConfigs];
     });
