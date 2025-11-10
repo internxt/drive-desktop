@@ -76,7 +76,6 @@ logger.debug({
   isPackaged: app.isPackaged,
   osVersion: version(),
   osRelease: release(),
-  path: app.getPath('userData'),
 });
 
 async function checkForUpdates() {
