@@ -12,8 +12,7 @@ export function getSortedItems(items: ExtendedSyncStateItem[]): SyncStateItem[] 
     .slice(0, 5)
     .map((item) => ({
       action: item.action,
-      key: item.key,
-      name: item.name,
+      path: item.path,
       progress: item.progress,
     }));
 }

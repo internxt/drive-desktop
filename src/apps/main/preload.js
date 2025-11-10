@@ -25,7 +25,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // src/apps/main/preload.ts
 var import_backend = require("@internxt/drive-desktop-core/build/backend");
 var import_electron2 = require("electron");
-var import_node_path = __toESM(require("node:path"));
+var import_posix = __toESM(require("node:path/posix"));
 
 // src/apps/main/preload/ipc-renderer.ts
 var import_electron = require("electron");
@@ -64,9 +64,6 @@ var api = {
   },
   minimizeWindow() {
     import_electron2.ipcRenderer.send("user-minimized-window");
-  },
-  openVirtualDriveFolder() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive-folder");
   },
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
@@ -136,9 +133,6 @@ var api = {
     const callback = (_, v) => func(v);
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog() {
-    return import_electron2.ipcRenderer.invoke("choose-sync-root-with-dialog");
   },
   getOrCreateDevice() {
     return import_electron2.ipcRenderer.invoke("get-or-create-device");
@@ -217,17 +211,11 @@ var api = {
   openUrl: (url) => {
     return import_electron2.ipcRenderer.invoke("open-url", url);
   },
-  getPreferredAppLanguage() {
-    return import_electron2.ipcRenderer.invoke("APP:PREFERRED_LANGUAGE");
-  },
   syncManually() {
     return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
   },
   getUnsycFileInSyncEngine() {
     return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
-  },
-  getRecentlywasSyncing() {
-    return import_electron2.ipcRenderer.invoke("CHECK_SYNC_IN_PROGRESS");
   },
   user: {
     hasDiscoveredBackups() {
@@ -260,7 +248,7 @@ var api = {
       return import_electron2.ipcRenderer.invoke("antivirus:cancel-scan");
     }
   },
-  path: import_node_path.default,
+  path: import_posix.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
@@ -281,6 +269,9 @@ var api = {
   },
   openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
   getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
-  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props)
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

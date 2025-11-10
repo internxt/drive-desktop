@@ -6,7 +6,7 @@ import eventBus from '../event-bus';
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE' | 'FILE_SIZE_TOO_BIG' | 'ABORTED';
+  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
 };
 
 export type BackupsIssue = {

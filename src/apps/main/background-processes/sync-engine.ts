@@ -6,8 +6,6 @@ import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
-import { PATHS } from '@/core/electron/paths';
-import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
@@ -30,7 +28,6 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: join(PATHS.LOGS, 'node-win.log'),
     rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,

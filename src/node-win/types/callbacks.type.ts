@@ -1,9 +1,6 @@
-import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
-
-export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
-type TFetchDataCallback = (id: FilePlaceholderId, callback: CallbackDownload) => Promise<void>;
+export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 
 export type Callbacks = {
-  fetchDataCallback: TFetchDataCallback;
-  cancelFetchDataCallback: () => void;
+  fetchDataCallback: (path: string, callback: CallbackDownload) => Promise<void>;
+  cancelFetchDataCallback: (path: string) => void;
 };

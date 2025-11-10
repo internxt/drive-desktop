@@ -82,7 +82,11 @@ describe('unlink-file', () => {
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveFileEventMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(2);
-    expect(invokeMock).toBeCalledWith('storageDeleteFileByUuid', { nameWithExtension: 'file.txt', uuid: 'uuid', workspaceToken: 'token' });
+    expect(invokeMock).toBeCalledWith('storageDeleteFileByUuid', {
+      path: String.raw`C:\Users\user\InternxtDrive\folder\file.txt`,
+      uuid: 'uuid',
+      workspaceToken: 'token',
+    });
   });
 
   it('should catch error in case unlink returns error', async () => {

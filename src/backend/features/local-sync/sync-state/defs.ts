@@ -1,7 +1,3 @@
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-
 export type SyncStateItem = {
   action:
     | 'DELETE_ERROR'
@@ -15,8 +11,7 @@ export type SyncStateItem = {
     | 'UPLOAD_ERROR'
     | 'UPLOADED'
     | 'UPLOADING';
-  name: string;
-  key: FolderUuid | FileUuid | AbsolutePath;
+  path: string;
   progress?: number;
 };
 

@@ -57,11 +57,6 @@ export class Addon {
     return addon.disconnectSyncRoot(syncRootPath);
   }
 
-  addLogger({ path }: { path: string }) {
-    const result = addon.addLoggerPath(path);
-    return this.parseAddonZod('addLoggerPath', result);
-  }
-
   getPlaceholderState({ path }: { path: string }) {
     const result = addon.getPlaceholderState(path);
     return this.parseAddonZod('getPlaceholderState', result);
