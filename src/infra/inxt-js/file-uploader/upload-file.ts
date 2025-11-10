@@ -3,7 +3,7 @@ import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { ReadStream } from 'node:fs';
 import { abortOnChangeSize } from './abort-on-change-size';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { processError } from './process-error';
+import { EnvironmentFileUploaderError, processError } from './process-error';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { FileUploaderCallbacks } from './file-uploader';
 import type { TResolve } from './environment-file-uploader';
@@ -51,11 +51,10 @@ export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSign
         logger.debug({ msg: 'Aborting upload', path });
         stopUpload(state);
       });
-    } catch (err: unknown) {
+    } catch (err) {
       clearInterval(interval);
       readable.close();
-      const error = err instanceof Error ? err : new Error(String(err));
-      resolve({ error: processError({ path, err: error, callbacks }) });
+      return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
     }
   });
 }
