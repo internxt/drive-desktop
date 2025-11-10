@@ -1,7 +1,7 @@
 import { Notification } from 'electron';
 
-import path from 'node:path';
 import { logger } from '@/apps/shared/logger/logger';
+import { iconPath } from '@/apps/utils/icon';
 
 let lastDialogTime = 0;
 
@@ -17,7 +17,7 @@ export function showNotEnoughSpaceNotification() {
   const notification = new Notification({
     title: 'Internxt',
     body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
-    icon: path.join(process.cwd(), 'assets', 'icon.ico'),
+    icon: iconPath,
   });
 
   notification.on('click', () => {
