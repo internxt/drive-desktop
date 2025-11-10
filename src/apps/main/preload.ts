@@ -1,6 +1,6 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { contextBridge, ipcRenderer } from 'electron';
-import path from 'node:path';
+import path from 'node:path/posix';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
@@ -9,7 +9,6 @@ import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
-import { chooseSyncRootWithDialog } from './virtual-root-folder/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
@@ -51,9 +50,6 @@ const api = {
   },
   minimizeWindow() {
     ipcRenderer.send('user-minimized-window');
-  },
-  openVirtualDriveFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive-folder');
   },
   quit() {
     ipcRenderer.send('user-quit');
@@ -123,9 +119,6 @@ const api = {
     const callback = (_: unknown, v: BackupsStatus) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog(): ReturnType<typeof chooseSyncRootWithDialog> {
-    return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
   getOrCreateDevice(): ReturnType<typeof getOrCreateDevice> {
     return ipcRenderer.invoke('get-or-create-device');
@@ -204,17 +197,11 @@ const api = {
   openUrl: (url: string): Promise<void> => {
     return ipcRenderer.invoke('open-url', url);
   },
-  getPreferredAppLanguage(): Promise<string[]> {
-    return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
-  },
   syncManually(): Promise<void> {
     return ipcRenderer.invoke('SYNC_MANUALLY');
   },
   getUnsycFileInSyncEngine(): Promise<string[]> {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
-  },
-  getRecentlywasSyncing(): Promise<boolean> {
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
   },
   user: {
     hasDiscoveredBackups(): Promise<boolean> {
@@ -288,6 +275,9 @@ const api = {
   openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
   getLanguage: async () => await ipcPreloadRenderer.invoke('getLanguage'),
   setConfigKey: async (props) => await ipcPreloadRenderer.invoke('setConfigKey', props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

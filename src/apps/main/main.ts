@@ -19,7 +19,6 @@ import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
 setupElectronLog({ logsPath: PATHS.LOGS });
 
-import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
@@ -32,7 +31,6 @@ import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
-import './app-info/handlers';
 import './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';
@@ -67,7 +65,6 @@ setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
 setupThemeListener();
-setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();

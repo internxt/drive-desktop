@@ -7,7 +7,6 @@ import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/Placehol
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 type TAddon = {
-  addLoggerPath(path: string): z.infer<typeof addonZod.addLoggerPath>;
   createFilePlaceholder(
     name: string,
     placeholderId: FilePlaceholderId,

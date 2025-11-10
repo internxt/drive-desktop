@@ -7,7 +7,6 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { basename } from 'node:path';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -59,10 +58,7 @@ export class FileCreator {
         exc: error,
       });
 
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        key: absolutePath,
-        nameWithExtension: basename(path),
-      });
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
 
       throw error;
     }

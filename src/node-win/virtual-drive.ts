@@ -16,13 +16,12 @@ export class VirtualDrive {
   syncRootPath: AbsolutePath;
   providerId: string;
 
-  constructor({ rootPath, providerId, loggerPath }: { rootPath: string; providerId: string; loggerPath: string }) {
+  constructor({ rootPath, providerId }: { rootPath: string; providerId: string }) {
     this.syncRootPath = this.convertToWindowsPath({ path: rootPath }) as AbsolutePath;
     this.providerId = providerId;
 
     this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
-    this.addon.addLogger({ path: this.convertToWindowsPath({ path: loggerPath }) });
   }
 
   convertToWindowsPath({ path }: { path: string }) {
@@ -52,14 +51,11 @@ export class VirtualDrive {
   }
 
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
-    const connectionKey = this.addon.connectSyncRoot({ callbacks });
-
-    logger.debug({ msg: 'connectSyncRoot', connectionKey });
-    return connectionKey;
+    return this.addon.connectSyncRoot({ callbacks });
   }
 
   disconnectSyncRoot() {
-    this.addon.disconnectSyncRoot({ syncRootPath: this.syncRootPath });
+    return this.addon.disconnectSyncRoot({ syncRootPath: this.syncRootPath });
   }
 
   registerSyncRoot({ providerName }: { providerName: string }) {

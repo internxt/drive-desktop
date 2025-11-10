@@ -2,7 +2,6 @@ import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { OfflineFileAttributes } from '../domain/OfflineFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { basename } from 'node:path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 import { restoreParentFolder } from './restore-parent-folder';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -18,7 +17,7 @@ export class HttpRemoteFileSystem {
     size: number;
     workspaceId: string | undefined;
   }) {
-    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+    const { name, extension } = getNameAndExtension({ path: offline.path });
 
     const body = {
       bucket: offline.bucket,
@@ -36,7 +35,7 @@ export class HttpRemoteFileSystem {
   }
 
   static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
-    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+    const { name, extension } = getNameAndExtension({ path: offline.path });
 
     const props = {
       ...offline,
