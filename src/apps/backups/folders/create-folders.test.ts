@@ -1,17 +1,13 @@
-import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolders } from './create-folders';
 import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as newParseFolderDto from '@/infra/drive-server-wip/out/dto';
-
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+import * as createFolder from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('create-folders', () => {
-  const createFolderMock = deepMocked(driveServerWip.folders.createFolder);
-  partialSpyOn(newParseFolderDto, 'newParseFolderDto');
+  const createFolderMock = partialSpyOn(createFolder, 'createFolder');
 
   const rootFolderUuid = v4() as FolderUuid;
   const baseProps = mockProps<typeof createFolders>({
@@ -130,8 +126,9 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    call(createFolderMock).toStrictEqual({
-      body: { parentFolderUuid: rootFolderUuid, plainName: 'folder1' },
+    call(createFolderMock).toMatchObject({
+      parentUuid: rootFolderUuid,
+      plainName: 'folder1',
       path: '/folder1',
     });
     expect(props.self.backed).toBe(1);
@@ -161,11 +158,11 @@ describe('create-folders', () => {
     // Then
     expect(props.self.backed).toBe(6);
     calls(createFolderMock).toMatchObject([
-      { body: { plainName: 'folder1' }, path: '/folder1' },
-      { body: { plainName: 'folder2' }, path: '/folder1/folder2' },
-      { body: { plainName: 'folder3' }, path: '/folder3' },
-      { body: { plainName: 'folder4' }, path: '/folder3/folder4' },
-      { body: { plainName: 'folder5' }, path: '/folder5' },
+      { plainName: 'folder1', path: '/folder1' },
+      { plainName: 'folder2', path: '/folder1/folder2' },
+      { plainName: 'folder3', path: '/folder3' },
+      { plainName: 'folder4', path: '/folder3/folder4' },
+      { plainName: 'folder5', path: '/folder5' },
     ]);
   });
 });
