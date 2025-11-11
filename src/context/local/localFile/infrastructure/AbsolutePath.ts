@@ -1,11 +1,10 @@
-import { posix, win32 } from 'path';
-import { Brand } from '../../../shared/domain/Brand';
+import { posix, win32 } from 'node:path';
+import { AbsolutePath as CoreAbsolutePath, RelativePath as CoreRelativePath } from '@internxt/drive-desktop-core/build/backend';
 
-export type AbsolutePath = Brand<string, 'AbsolutePath'>;
-export type RelativePath = Brand<string, 'RelativePath'>;
+export type AbsolutePath = CoreAbsolutePath;
+export type RelativePath = CoreRelativePath;
 
-export function createRelativePath(...parts: string[]): RelativePath {
-  let path = posix.join(posix.sep, ...parts);
+function parsePath({ path }: { path: string }) {
   path = path.replaceAll(win32.sep, posix.sep);
   path = posix.normalize(path);
   /**
@@ -13,10 +12,20 @@ export function createRelativePath(...parts: string[]): RelativePath {
    * If the path is not the root path "/" remote the last slash "/a/b/" -> "/a/b"
    */
   path = path !== '/' ? path.replace(/\/+$/, '') : path;
-  return path as RelativePath;
+  return path;
 }
 
-function dirname(path: RelativePath): RelativePath {
+export function createAbsolutePath(...parts: string[]) {
+  const path = posix.join(...parts);
+  return parsePath({ path }) as AbsolutePath;
+}
+
+export function createRelativePath(...parts: string[]) {
+  const path = posix.join(posix.sep, ...parts);
+  return parsePath({ path }) as RelativePath;
+}
+
+function dirname(path: RelativePath) {
   return posix.dirname(path) as RelativePath;
 }
 
@@ -27,6 +36,8 @@ function absoluteToRelative({ base, path }: { base: AbsolutePath; path: Absolute
 
 export const pathUtils = {
   dirname,
+  parsePath,
   createRelativePath,
+  createAbsolutePath,
   absoluteToRelative,
 };

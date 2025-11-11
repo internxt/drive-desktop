@@ -1,13 +1,13 @@
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as authServiceModule from '@/apps/main/auth/service';
-import * as configModule from '@/apps/main/config';
-import { fieldsToSave } from '@/core/electron/store/fields-to-save';
 import { saveConfig } from './save-config';
+import { fieldsToSave } from '@/core/electron/store/defaults';
+import electronStore from '@/apps/main/config';
 
 describe('saveConfig', () => {
   const getUserMock = partialSpyOn(authServiceModule, 'getUser');
-  const configGetMock = vi.spyOn(configModule.default, 'get');
-  const configSetMock = vi.spyOn(configModule.default, 'set');
+  const configGetMock = partialSpyOn(electronStore, 'get');
+  const configSetMock = partialSpyOn(electronStore, 'set');
 
   it('should return early when user is not available', () => {
     getUserMock.mockReturnValue(null);
@@ -37,8 +37,6 @@ describe('saveConfig', () => {
       backupInterval: 3600,
       lastBackup: '2024-01-15',
       syncRoot: '/Users/john/Internxt',
-      lastSync: '2024-01-16',
-      deviceId: 'laptop-001',
       deviceUuid: 'uuid-laptop-001',
       backupList: ['Documents', 'Pictures'],
     };
@@ -47,7 +45,7 @@ describe('saveConfig', () => {
       'previous-user-uuid': { backupsEnabled: false },
     };
 
-    configGetMock.mockImplementation((key: string) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return existingConfigs;
       return currentUserConfigs[key as keyof typeof currentUserConfigs];
     });
@@ -73,13 +71,11 @@ describe('saveConfig', () => {
       backupInterval: 1800,
       lastBackup: null,
       syncRoot: undefined,
-      lastSync: '2024-01-01',
-      deviceId: 'mobile-001',
       deviceUuid: 'uuid-mobile-001',
       backupList: [],
     };
 
-    configGetMock.mockImplementation((key) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return undefined;
       return firstTimeUserConfigs[key as keyof typeof firstTimeUserConfigs];
     });
@@ -107,13 +103,11 @@ describe('saveConfig', () => {
       backupInterval: 7200,
       lastBackup: '2024-01-20',
       syncRoot: '/Users/jane/Internxt',
-      lastSync: '2024-01-21',
-      deviceId: 'desktop-002',
       deviceUuid: 'uuid-desktop-002',
       backupList: ['Work Files'],
     };
 
-    configGetMock.mockImplementation((key) => {
+    configGetMock.mockImplementation((key): any => {
       if (key === 'savedConfigs') return outdatedConfigs;
       return updatedUserConfigs[key as keyof typeof updatedUserConfigs];
     });
@@ -128,16 +122,6 @@ describe('saveConfig', () => {
 
   it('should retrieve all fields specified in fieldsToSave constant', () => {
     getUserMock.mockReturnValue({ uuid: 'validation-user-uuid' });
-    const allRequiredFields = [
-      'backupsEnabled',
-      'backupInterval',
-      'lastBackup',
-      'syncRoot',
-      'lastSync',
-      'deviceId',
-      'deviceUuid',
-      'backupList',
-    ];
 
     configGetMock.mockImplementation((key: string) => {
       if (key === 'savedConfigs') return {};
@@ -146,9 +130,9 @@ describe('saveConfig', () => {
 
     saveConfig();
 
-    allRequiredFields.forEach((field) => {
+    fieldsToSave.forEach((field) => {
       expect(configGetMock).toHaveBeenCalledWith(field);
     });
-    expect(configGetMock).toHaveBeenCalledTimes(allRequiredFields.length + 1);
+    expect(configGetMock).toHaveBeenCalledTimes(fieldsToSave.length + 1);
   });
 });

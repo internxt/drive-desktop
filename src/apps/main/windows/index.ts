@@ -2,27 +2,29 @@ import { BrowserWindow } from 'electron';
 
 import eventBus from '../event-bus';
 import { getOnboardingWindow } from './onboarding';
-import { getMigrationWindow } from './migration';
 import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
-import { BroadcastToWindows } from './broadcast-to-windows';
+import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
 
-function closeAuxWindows() {
-  getProcessIssuesWindow()?.close();
-  getSettingsWindow()?.close();
-  getOnboardingWindow()?.close();
-  getMigrationWindow()?.close();
+export function closeAuxWindows() {
+  getWidget()?.destroy();
+  getProcessIssuesWindow()?.destroy();
+  getSettingsWindow()?.destroy();
+  getOnboardingWindow()?.destroy();
+}
+
+export function broadcastToWidget({ name, data }: BroadcastToWidget) {
+  getWidget()?.webContents.send(name, data);
 }
 
 export function broadcastToWindows({ name, data }: BroadcastToWindows) {
-  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow(), getMigrationWindow()];
+  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow()];
 
   renderers.forEach((r) => r?.webContents.send(name, data));
 }
 
-eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
 eventBus.on('BROADCAST_TO_WINDOWS', broadcastToWindows);
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {
@@ -37,10 +39,6 @@ export function setUpCommonWindowHandlers(window: BrowserWindow) {
     if (channel === 'user-finished-onboarding') {
       window?.close();
       openVirtualDriveRootFolder();
-    }
-
-    if (channel === 'user-finished-migration') {
-      window?.close();
     }
   });
 }

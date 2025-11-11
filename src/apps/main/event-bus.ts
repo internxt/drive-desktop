@@ -1,25 +1,15 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { ProgressData } from './antivirus/ManualSystemScan';
 import { BroadcastToWindows } from './windows/broadcast-to-windows';
 
 class EventBus extends EventEmitter {}
 
-interface Events {
-  // Fired when the user either
-  // logs in or is already logged
-  // in on app start and the tokens are correct
+type Events = {
   USER_LOGGED_IN: () => void;
-
-  SYNC_ROOT_CHANGED: (newPath: string) => void;
-
   USER_LOGGED_OUT: () => void;
-
-  WIDGET_IS_READY: () => void;
-
-  // Get the scan progress
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
   BROADCAST_TO_WINDOWS: (_: BroadcastToWindows) => void;
-}
+};
 
 declare interface EventBus {
   on<U extends keyof Events>(event: U, listener: Events[U]): this;

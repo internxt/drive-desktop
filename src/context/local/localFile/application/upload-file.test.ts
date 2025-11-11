@@ -7,7 +7,7 @@ import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/proc
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
-vi.mock(import('fs'));
+vi.mock(import('node:fs'));
 
 describe('upload-file', () => {
   const uploader = mockDeep<EnvironmentFileUploader>();

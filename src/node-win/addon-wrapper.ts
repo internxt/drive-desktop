@@ -57,91 +57,53 @@ export class Addon {
     return addon.disconnectSyncRoot(syncRootPath);
   }
 
-  addLogger({ path }: { path: string }) {
-    const result = addon.addLoggerPath(path);
-    return this.parseAddonZod('addLoggerPath', result);
-  }
-
   getPlaceholderState({ path }: { path: string }) {
     const result = addon.getPlaceholderState(path);
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
-  getFileIdentity({ path }: { path: string }) {
-    const result = addon.getFileIdentity(path);
-    return this.parseAddonZod('getFileIdentity', result);
-  }
-
-  createPlaceholderFile({
-    fileName,
-    fileId,
-    fileSize,
+  createFilePlaceholder({
+    name,
+    placeholderId,
+    size,
     creationTime,
     lastWriteTime,
     lastAccessTime,
-    basePath,
+    parentPath,
   }: {
-    fileName: string;
-    fileId: string;
-    fileSize: number;
+    name: string;
+    placeholderId: FilePlaceholderId;
+    size: number;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    basePath: string;
+    parentPath: string;
   }) {
-    const result = addon.createPlaceholderFile(fileName, fileId, fileSize, creationTime, lastWriteTime, lastAccessTime, basePath);
-
-    this.parseAddonZod('createPlaceholderFile', result);
-
-    if (!result.success) {
-      logger.error({
-        msg: 'Failed to create placeholder file',
-        fileName,
-        fileId,
-        basePath,
-        error: result.errorMessage,
-        tag: 'NODE-WIN',
-      });
-    }
-
-    return result.success;
+    const result = addon.createFilePlaceholder(name, placeholderId, size, creationTime, lastWriteTime, lastAccessTime, parentPath);
+    return this.parseAddonZod('createFilePlaceholder', result);
   }
 
-  createPlaceholderDirectory({
-    itemName,
-    itemId,
+  createFolderPlaceholder({
+    name,
+    placeholderId,
     creationTime,
     lastWriteTime,
     lastAccessTime,
-    path,
+    parentPath,
   }: {
-    itemName: string;
-    itemId: string;
+    name: string;
+    placeholderId: FolderPlaceholderId;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    path: string;
+    parentPath: string;
   }) {
-    const result = addon.createEntry(itemName, itemId, creationTime, lastWriteTime, lastAccessTime, path);
-
-    this.parseAddonZod('createEntry', result);
-
-    if (!result.success) {
-      logger.error({
-        msg: 'Failed to create placeholder directory',
-        itemName,
-        itemId,
-        path,
-        error: result.errorMessage,
-        tag: 'NODE-WIN',
-      });
-    }
-
-    return result.success;
+    const result = addon.createFolderPlaceholder(name, placeholderId, creationTime, lastWriteTime, lastAccessTime, parentPath);
+    return this.parseAddonZod('createFolderPlaceholder', result);
   }
 
-  updateSyncStatus({ path, isDirectory, sync }: { path: string; isDirectory: boolean; sync: boolean }) {
-    const result = addon.updateSyncStatus(path, sync, isDirectory);
+  updateSyncStatus({ path }: { path: string }) {
+    const result = addon.updateSyncStatus(path);
     return this.parseAddonZod('updateSyncStatus', result);
   }
 

@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { v4 } from 'uuid';
 
 import { setupWatcher, getEvents } from '../watcher.helper.test';
@@ -22,7 +22,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
+    getEvents().toStrictEqual(
       expect.arrayContaining([
         { event: 'addDir', path: syncRootPath },
         { event: 'addDir', path: folder },
@@ -42,7 +42,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
+    getEvents().toStrictEqual(
       expect.arrayContaining([
         { event: 'addDir', path: syncRootPath },
         { event: 'add', path: file },
@@ -69,7 +69,7 @@ describe('[Watcher] When add items', () => {
       }),
     );
 
-    expect(getEvents()).toStrictEqual(
+    getEvents().toStrictEqual(
       expect.arrayContaining([
         { event: 'addDir', path: syncRootPath },
         { event: 'add', path: file },
@@ -91,7 +91,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
+    getEvents().toStrictEqual(
       expect.arrayContaining([
         { event: 'addDir', path: syncRootPath },
         { event: 'addDir', path: folder },

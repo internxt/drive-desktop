@@ -1,9 +1,8 @@
-import ConfigStore from '@/apps/main/config';
-import { defaults } from '@/core/electron/store/defaults';
-import { fieldsToSave } from '@/core/electron/store/fields-to-save';
+import { electronStore } from '@/apps/main/config';
+import { defaults, fieldsToReset, fieldsToSave } from '@/core/electron/store/defaults';
 
 export function resetConfig() {
-  for (const field of fieldsToSave) {
-    ConfigStore.set(field, defaults[field]);
+  for (const field of [...fieldsToSave, ...fieldsToReset]) {
+    electronStore.set(field, defaults[field]);
   }
 }

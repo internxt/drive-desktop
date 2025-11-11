@@ -1,17 +1,6 @@
-import { useEffect, useState } from 'react';
+import { configStore } from '../features/config/config.store';
 
-import { StoredValues } from '../../main/config/service';
-
-export default function useConfig(key: StoredValues) {
-  const [value, setValue] = useState<StoredValues | undefined>(undefined);
-
-  const retriveValue = async (key: StoredValues) => {
-    return window.electron.getConfigKey(key);
-  };
-
-  useEffect(() => {
-    retriveValue(key).then(setValue);
-  }, []);
-
-  return value;
+export function useTheme() {
+  const theme = configStore((s) => s.theme);
+  return { theme };
 }

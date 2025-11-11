@@ -3,17 +3,17 @@
 import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
 import fetch from 'electron-fetch';
-import os from 'os';
-import path from 'path';
+import os from 'node:os';
+import path from 'node:path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { getUser } from '../auth/service';
-import configStore from '../config';
+import electronStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
-import fs, { PathLike } from 'fs';
+import fs, { PathLike } from 'node:fs';
 import { downloadFolder } from '../network/download';
 import { broadcastToWindows } from '../windows';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
@@ -87,9 +87,8 @@ export async function fetchDevice(deviceUuid: string) {
 }
 
 export function saveDeviceToConfig(device: Device) {
-  configStore.set('deviceId', device.id);
-  configStore.set('deviceUuid', device.uuid);
-  configStore.set('backupList', {});
+  electronStore.set('deviceUuid', device.uuid);
+  electronStore.set('backupList', {});
 }
 
 async function tryCreateDevice(deviceName: string) {
@@ -142,7 +141,7 @@ async function createNewDevice() {
 }
 
 export async function getOrCreateDevice() {
-  const savedDeviceUuid = configStore.get('deviceUuid');
+  const savedDeviceUuid = electronStore.get('deviceUuid');
   const deviceIsStored = savedDeviceUuid !== '';
   logger.debug({ tag: 'BACKUPS', msg: 'Saved device', savedDeviceUuid });
 
@@ -230,13 +229,13 @@ async function createBackup(pathname: string): Promise<void> {
 
   logger.debug({ msg: '[BACKUPS] Created backup', base, uuid: newBackup.uuid });
 
-  const backupList = configStore.get('backupList');
+  const backupList = electronStore.get('backupList');
 
   backupList[pathname] = { enabled: true, folderId: newBackup.id, folderUuid: newBackup.uuid };
 
   logger.debug({ msg: '[BACKUPS] Backup list', backupList });
 
-  configStore.set('backupList', backupList);
+  electronStore.set('backupList', backupList);
 }
 
 export async function addBackup(): Promise<void> {
@@ -249,7 +248,7 @@ export async function addBackup(): Promise<void> {
     const chosenPath = chosenItem.path;
     logger.debug({ msg: '[BACKUPS] Chosen item', chosenPath });
 
-    const backupList = configStore.get('backupList');
+    const backupList = electronStore.get('backupList');
 
     logger.debug({ msg: '[BACKUPS] Backup list', backupList });
     const existingBackup = backupList[chosenPath];
@@ -271,7 +270,7 @@ export async function addBackup(): Promise<void> {
 
     if (folderStillExists) {
       backupList[chosenPath].enabled = true;
-      configStore.set('backupList', backupList);
+      electronStore.set('backupList', backupList);
     } else {
       return createBackup(chosenPath);
     }
@@ -391,13 +390,13 @@ export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Pro
   }
 
   if (isCurrent) {
-    const backupsList = configStore.get('backupList');
+    const backupsList = electronStore.get('backupList');
 
     const entriesFiltered = Object.entries(backupsList).filter(([, b]) => b.folderId !== backup.folderId);
 
     const backupListFiltered = Object.fromEntries(entriesFiltered);
 
-    configStore.set('backupList', backupListFiltered);
+    electronStore.set('backupList', backupListFiltered);
   }
 }
 
@@ -409,16 +408,16 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
 }
 
 export async function disableBackup(backup: BackupInfo): Promise<void> {
-  const backupsList = configStore.get('backupList');
+  const backupsList = electronStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
 
   backupsList[pathname].enabled = false;
 
-  configStore.set('backupList', backupsList);
+  electronStore.set('backupList', backupsList);
 }
 
 export async function changeBackupPath(currentPath: string): Promise<string | null> {
-  const backupsList = configStore.get('backupList');
+  const backupsList = electronStore.get('backupList');
   const existingBackup = backupsList[currentPath];
 
   if (!existingBackup) {
@@ -463,13 +462,13 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
 
   backupsList[chosenPath] = existingBackup;
 
-  configStore.set('backupList', backupsList);
+  electronStore.set('backupList', backupsList);
 
   return chosen.itemName;
 }
 
 export function findBackupPathnameFromId(id: number): string | undefined {
-  const backupsList = configStore.get('backupList');
+  const backupsList = electronStore.get('backupList');
   const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
 
   return entryfound?.[0];
@@ -591,24 +590,13 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
 }
 
 function getDeviceUuid(): string {
-  const deviceUuid = configStore.get('deviceUuid');
+  const deviceUuid = electronStore.get('deviceUuid');
 
   if (deviceUuid === '') {
     throw new Error('deviceUuid is not defined');
   }
 
   return deviceUuid;
-}
-
-export async function createBackupsFromLocalPaths(folderPaths: string[]) {
-  configStore.set('backupsEnabled', true);
-
-  const { error } = await getOrCreateDevice();
-  if (error) throw error;
-
-  const operations = folderPaths.map((folderPath) => createBackup(folderPath));
-
-  await Promise.all(operations);
 }
 
 export async function getUserSystemPath() {

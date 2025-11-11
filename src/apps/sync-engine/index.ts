@@ -1,13 +1,14 @@
 import { ipcRenderer } from 'electron';
 import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
-import { logger } from '../shared/logger/logger';
+import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { runDangledFiles } from './run-dangled-files';
 import { buildProcessContainer } from './build-process-container';
+import { InxtJs } from '@/infra';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -20,32 +21,16 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await ctx.virtualDrive.createSyncRootFolder();
 
-  const container = buildProcessContainer({ ctx });
+  await BindingsManager.start({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await BindingsManager.updateAndCheckPlaceholders({ ctx });
   });
 
-  ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
-    logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
-
-    try {
-      BindingsManager.stop({ ctx });
-
-      logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
-
-      event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
-    } catch (error: unknown) {
-      logger.error({ msg: '[SYNC ENGINE] Error stopping and cleaning: ', error });
-      event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
-    }
-  });
-
-  await BindingsManager.start({ ctx, container });
   BindingsManager.watch({ ctx });
-  void runDangledFiles({ ctx, container });
 
-  logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
+  const container = buildProcessContainer({ ctx });
+  void runDangledFiles({ ctx, container });
 }
 
 async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
@@ -62,12 +47,16 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
 
-    const { fileUploader } = buildFileUploader({ bucket: config.bucket });
+    const { fileUploader, environment } = buildFileUploader({ bucket: config.bucket });
+    const contentsDownloader = new InxtJs.ContentsDownloader(environment, config.bucket);
+
     const ctx: ProcessSyncContext = {
       ...config,
+      logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
       abortController: new AbortController(),
       virtualDrive: new VirtualDrive(config),
       fileUploader,
+      contentsDownloader,
     };
 
     if (config.workspaceToken) {
@@ -77,9 +66,7 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
     await setUp({ ctx });
 
     logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
   } catch (exc) {
     logger.error({ msg: '[SYNC ENGINE] Error setting up', exc });
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
   }
 });

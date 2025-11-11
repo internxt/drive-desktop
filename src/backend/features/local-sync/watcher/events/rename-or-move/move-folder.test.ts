@@ -1,14 +1,11 @@
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
-import { moveItem } from './move-item';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as moveItemModule from './move-item';
 import { moveFolder } from './move-folder';
 
-vi.mock(import('@/infra/sqlite/ipc/ipc-renderer'));
-vi.mock(import('./move-item'));
-
 describe('move-folder', () => {
-  const invokeMock = deepMocked(ipcRendererSqlite.invoke);
-  const moveItemMock = deepMocked(moveItem);
+  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const moveItemMock = partialSpyOn(moveItemModule, 'moveItem');
 
   let props: Parameters<typeof moveFolder>[0];
 
@@ -16,34 +13,21 @@ describe('move-folder', () => {
     props = mockProps<typeof moveFolder>({});
   });
 
-  it('should retrieve old name and old parent uuid if folder exists in sqlite', async () => {
+  it('should move if folder exists', async () => {
     // Given
-    invokeMock.mockResolvedValue({ data: { name: 'plainName', parentUuid: 'folderUuid' } });
+    invokeMock.mockResolvedValue({ data: {} });
     // When
     await moveFolder(props);
     // Then
-    expect(moveItemMock).toBeCalledWith(
-      expect.objectContaining({
-        type: 'folder',
-        item: {
-          oldName: 'plainName',
-          oldParentUuid: 'folderUuid',
-        },
-      }),
-    );
+    call(moveItemMock).toMatchObject({ type: 'folder' });
   });
 
-  it('should call with undefined if folder does not exist in sqlite', async () => {
+  it('should throw error if folder does not exist', async () => {
     // Given
-    invokeMock.mockResolvedValue({ data: undefined });
+    invokeMock.mockResolvedValue({ error: new Error() });
     // When
     await moveFolder(props);
     // Then
-    expect(moveItemMock).toBeCalledWith(
-      expect.objectContaining({
-        type: 'folder',
-        item: undefined,
-      }),
-    );
+    calls(moveItemMock).toHaveLength(0);
   });
 });

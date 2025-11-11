@@ -1,7 +1,7 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { dirname } from 'path';
+import { dirname } from 'node:path';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -18,11 +18,11 @@ export function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
   const isRenamed = remoteParentPath === localParentPath;
   if (isRenamed) return true;
 
-  const { data: remoteParentUuid } = NodeWin.getFolderUuid({ ctx, path: remoteParentPath });
-  const { data: localParentUuid } = NodeWin.getFolderUuid({ ctx, path: localParentPath });
+  const { data: remoteParentInfo } = NodeWin.getFolderInfo({ ctx, path: remoteParentPath });
+  const { data: localParentInfo } = NodeWin.getFolderInfo({ ctx, path: localParentPath });
 
-  if (!remoteParentUuid || !localParentUuid) return false;
+  if (!remoteParentInfo || !localParentInfo) return false;
 
-  const isMoved = remoteParentUuid !== localParentUuid;
+  const isMoved = remoteParentInfo.uuid !== localParentInfo.uuid;
   return isMoved;
 }

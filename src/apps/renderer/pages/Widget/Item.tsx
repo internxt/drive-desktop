@@ -1,18 +1,12 @@
 import { Check, WarningCircle } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName, getExtension } from '../../utils/path';
-import { ProcessInfoUpdatePayload } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
+import { useI18n } from '../../localize/use-i18n';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
-export function Item({
-  name,
-  action,
-  progress,
-}: ProcessInfoUpdatePayload & {
-  progress?: number;
-}) {
-  const { translate } = useTranslationContext();
+export function Item({ path, action, progress }: Readonly<SyncStateItem>) {
+  const { translate } = useI18n();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
   let description = '';
@@ -29,29 +23,27 @@ export function Item({
     description = translate('widget.body.activity.operation.uploaded');
   } else if (action === 'DELETED') {
     description = translate('widget.body.activity.operation.deleted');
-  } else if (action === 'RENAMING') {
-    description = translate('widget.body.activity.operation.renaming');
-  } else if (action === 'RENAMED') {
-    description = translate('widget.body.activity.operation.renamed');
+  } else if (action === 'MOVED') {
+    description = translate('widget.body.activity.operation.moved');
   }
 
   return (
     <div className="flex h-14 w-full px-3">
       <div className="flex h-full flex-1 items-center space-x-3 truncate border-b border-gray-5">
-        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(name))}</div>
+        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(path))}</div>
 
         <div className="flex flex-1 flex-col justify-center space-y-px truncate pr-[14px]">
-          <p className="truncate text-sm text-gray-100" title={getBaseName(name)}>
-            {getBaseName(name)}
+          <p className="truncate text-sm text-gray-100" title={getBaseName(path)}>
+            {getBaseName(path)}
           </p>
           <p
             className={`truncate text-xs text-gray-50 ${
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
                 ? 'text-red'
                 : undefined
             }`}
             title={
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
                 ? description
                 : undefined
             }>
@@ -61,7 +53,7 @@ export function Item({
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
-          {action && (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING') && (
+          {action && (action === 'UPLOADING' || action === 'DOWNLOADING') && (
             <CircularProgressbar
               value={progress ?? 0}
               minValue={0}
@@ -82,13 +74,12 @@ export function Item({
               action === 'DOWNLOADED' ||
               action === 'DOWNLOAD_CANCEL' ||
               action === 'UPLOADED' ||
-              action === 'RENAMED') && <Check size={24} className="text-green" weight="bold" />}
+              action === 'MOVED') && <Check size={24} className="text-green" weight="bold" />}
 
           {/* ERROR */}
-          {action &&
-            (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR') && (
-              <WarningCircle size={24} className="text-red" weight="regular" />
-            )}
+          {action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR') && (
+            <WarningCircle size={24} className="text-red" weight="regular" />
+          )}
         </div>
       </div>
     </div>

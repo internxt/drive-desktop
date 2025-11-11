@@ -1,7 +1,6 @@
 import { onAdd } from './on-add.service';
-import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
@@ -12,7 +11,7 @@ vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
 
 describe('on-add', () => {
-  const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const moveFileMock = vi.mocked(moveFile);
   const createFileMock = partialSpyOn(AddController, 'createFile');
   const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
@@ -22,24 +21,19 @@ describe('on-add', () => {
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
-    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
     props = mockProps<typeof onAdd>({
       ctx: { virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath } },
       absolutePath,
-      self: {
-        fileInDevice: new Set(),
-        logger: loggerMock,
-      },
     });
   });
 
   it('should call add controller if the file is new', async () => {
     // Given
-    getFileUuidMock.mockReturnValue({ data: undefined });
+    getFileInfoMock.mockReturnValue({ data: undefined });
     // When
     await onAdd(props);
     // Then
-    expect(props.self.fileInDevice.has(absolutePath)).toBe(true);
     expect(createFileMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',

@@ -1,6 +1,6 @@
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { FETCH_LIMIT } from '../store';
+import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
@@ -22,30 +22,28 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
      * In that situation, fetch only EXISTS files.
      */
     const query = {
-      limit: FETCH_LIMIT,
+      limit: FETCH_LIMIT_1000,
       offset,
       status: from ? ('ALL' as const) : ('EXISTS' as const),
       updatedAt: from?.toISOString(),
+      sort: 'updatedAt',
+      order: 'ASC',
     };
 
     const promise = self.workspaceId
       ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
       : driveServerWip.files.getFiles({ query });
 
-    const { data, error } = await promise;
+    const { data: fileDtos, error } = await promise;
 
-    if (!data) throw error;
+    if (error) throw error;
 
-    hasMore = data.length === FETCH_LIMIT;
-    offset += FETCH_LIMIT;
+    hasMore = fileDtos.length === FETCH_LIMIT_1000;
+    offset += FETCH_LIMIT_1000;
 
-    await Promise.all(
-      data.map(async (fileDto) => {
-        await createOrUpdateFile({ context: self.context, fileDto });
-      }),
-    );
+    await createOrUpdateFiles({ context: self.context, fileDtos });
 
-    const lastFile = data.at(-1);
+    const lastFile = fileDtos.at(-1);
     if (lastFile) {
       await LokijsModule.CheckpointsModule.updateCheckpoint({
         userUuid: self.context.userUuid,

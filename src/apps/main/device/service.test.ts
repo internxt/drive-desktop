@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -97,8 +97,7 @@ describe('Device Service', () => {
     it('should save device ID, UUID and create empty backup list in the config store', () => {
       saveDeviceToConfig(deviceMock);
 
-      expect(configStoreMock).toHaveBeenCalledTimes(3);
-      expect(configStoreMock).toHaveBeenCalledWith('deviceId', 1);
+      expect(configStoreMock).toHaveBeenCalledTimes(2);
       expect(configStoreMock).toHaveBeenCalledWith('deviceUuid', 'test-uuid');
       expect(configStoreMock).toHaveBeenCalledWith('backupList', {});
     });

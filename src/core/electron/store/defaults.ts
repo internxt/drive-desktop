@@ -1,25 +1,37 @@
 import { User } from '@/apps/main/types';
 import { AppStore } from './app-store.interface';
-import * as uuid from 'uuid';
 
 export const defaults: AppStore = {
-  newToken: '',
-  newTokenEncrypted: false,
-  userData: {} as User,
-  mnemonic: '',
   backupsEnabled: false,
   backupInterval: 86_400_000, // 24h
   lastBackup: -1,
   syncRoot: '',
-  lastSync: -1,
-  savedConfigs: {},
-  lastOnboardingShown: '',
-  deviceId: -1,
   deviceUuid: '',
   backupList: {},
-  clientId: uuid.v4(),
-  preferedLanguage: '',
+
+  newToken: '',
+  newTokenEncrypted: false,
+  userData: {} as User,
+  mnemonic: '',
+
+  savedConfigs: {},
+  lastOnboardingShown: '',
+  discoveredBackup: 0,
+  preferedLanguage: 'en',
   preferedTheme: 'system',
-  virtualdriveWindowsLetter: 'I',
-  dataIntegrityMaintenance: false,
+  'patch-executed-2-5-1': false,
+  'migrations.v2-5-1-add-user-uuid-to-database': false,
+  'migrations.v2-5-6-move-checkpoint-to-lokijs': false,
+  'migrations.v2-5-7-remove-antivirus-table': false,
 };
+
+export const fieldsToSave: Array<keyof AppStore> = [
+  'backupsEnabled',
+  'backupInterval',
+  'lastBackup',
+  'syncRoot',
+  'deviceUuid',
+  'backupList',
+];
+
+export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'newTokenEncrypted', 'userData', 'mnemonic'];

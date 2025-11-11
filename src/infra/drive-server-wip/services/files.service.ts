@@ -1,101 +1,52 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 import { checkExistence } from './files/check-existance';
+import { parseFileDto } from '../out/dto';
+import { move } from './files/move';
 
 export const files = {
   getFiles,
   getByUuid,
   getByPath,
   createFile,
-  moveFile,
-  renameFile,
+  move,
   replaceFile,
   createThumbnail,
   checkExistence,
 };
+export const FileModule = files;
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
-async function getFiles(context: { query: TGetFilesQuery }) {
+async function getFiles(context: { query: TGetFilesQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
+      signal: extra?.abortSignal,
       params: { query: context.query },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get files request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get files request', context },
   });
-}
 
-async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
-  const method = 'PATCH';
-  const endpoint = '/files/{uuid}';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.PATCH(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-      body: { destinationFolder: context.parentUuid },
-      params: { path: { uuid: context.uuid } },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Move file request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function renameFile(context: { uuid: string; name: string; extension: string; workspaceToken: string }) {
-  const method = 'PUT';
-  const endpoint = '/files/{uuid}/meta';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.PUT(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-      body: { plainName: context.name, type: context.extension },
-      params: { path: { uuid: context.uuid } },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Rename file request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
+  if (data) {
+    return { data: data.map((fileDto) => parseFileDto({ fileDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function replaceFile(

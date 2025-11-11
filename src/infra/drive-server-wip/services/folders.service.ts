@@ -1,12 +1,12 @@
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { getByUuid } from './folders/get-by-uuid';
-import { renameFolder } from './folders/rename-folder';
 import { checkExistence } from './folders/check-existence';
+import { move } from './folders/move';
 
 export const folders = {
   getByUuid,
@@ -15,10 +15,10 @@ export const folders = {
   getFolders,
   getFoldersByFolder,
   getFilesByFolder,
-  moveFolder,
-  renameFolder,
+  move,
   checkExistence,
 };
+export const FolderModule = folders;
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
@@ -48,25 +48,29 @@ async function getMetadata(context: { folderId: number }) {
   });
 }
 
-async function getFolders(context: { query: TGetFoldersQuery }) {
+async function getFolders(context: { query: TGetFoldersQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });
 
-  const promiseFn = () => client.GET(endpoint, { params: { query: context.query } });
+  const promiseFn = () =>
+    client.GET(endpoint, {
+      signal: extra?.abortSignal,
+      params: { query: context.query },
+    });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get folders request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get folders request', context },
   });
+
+  if (data) {
+    return { data: data.map((folderDto) => parseFolderDto({ folderDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function getFoldersByFolder(
@@ -137,30 +141,4 @@ async function getFilesByFolder(
   } else {
     return { error: res.error };
   }
-}
-
-async function moveFolder(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
-  const method = 'PATCH';
-  const endpoint = '/folders/{uuid}';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.PATCH(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-      params: { path: { uuid: context.uuid } },
-      body: { destinationFolder: context.parentUuid },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Move folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
 }

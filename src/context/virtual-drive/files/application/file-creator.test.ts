@@ -5,13 +5,13 @@ import { v4 } from 'uuid';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
-import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
@@ -19,7 +19,7 @@ vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 describe('File Creator', () => {
   const persistMock = partialSpyOn(HttpRemoteFileSystem, 'persist');
   const virtualDrive = mockDeep<VirtualDrive>();
-  const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
@@ -30,13 +30,13 @@ describe('File Creator', () => {
   const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, path, contents, absolutePath });
 
   beforeEach(() => {
-    getFolderUuid.mockReturnValue({ data: 'parentUuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     invokeMock.mockResolvedValue({});
   });
 
   it('should throw an error if placeholderId is not found', async () => {
     // Given
-    getFolderUuid.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
+    getFolderInfoMock.mockReturnValue({ error: new GetFolderInfoError('NON_EXISTS') });
 
     // When
     const promise = FileCreator.run(props);
@@ -45,8 +45,7 @@ describe('File Creator', () => {
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
-      key: 'C:\\Users\\user\\InternxtDrive\\cat.png',
-      nameWithExtension: 'cat.png',
+      path: '/folder/cat.png',
     });
   });
 

@@ -12,6 +12,12 @@ const ENV_SCHEMA = z.object({
   NOTIFICATIONS_URL: z.string(),
   PAYMENTS_URL: z.string(),
   PORT: z.coerce.number(),
+  /* Cleaner */
+  APPDATA: z.string(),
+  LOCALAPPDATA: z.string(),
+  ProgramData: z.string(),
+  TEMP: z.string(),
+  WINDIR: z.string(),
 });
 
 export type TEnv = z.infer<typeof ENV_SCHEMA>;

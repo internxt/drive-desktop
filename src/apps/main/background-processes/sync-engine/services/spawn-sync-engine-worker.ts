@@ -1,56 +1,27 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { BrowserWindow } from 'electron';
-import path from 'path';
-import { cwd } from 'process';
-import { workers } from '../store';
-import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker';
+import path from 'node:path';
+import { cwd } from 'node:process';
+import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { monitorHealth } from './monitor-health';
-import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import { stopSyncEngineWorker } from './stop-sync-engine-worker';
 
 type TProps = {
-  context: SyncContext;
+  ctx: SyncContext;
 };
 
-let hasPrinted = false;
-
-export async function spawnSyncEngineWorker({ context }: TProps) {
-  const workspaceId = context.workspaceId;
-
-  if (!workers[workspaceId]) {
-    workers[workspaceId] = {
-      worker: null,
-      workerIsRunning: false,
-      startingWorker: false,
-      syncSchedule: null,
-    };
-  }
-
-  const worker = workers[workspaceId];
-
-  if (worker.startingWorker) {
-    logger.debug({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
-    return;
-  }
-
-  if (worker.workerIsRunning) {
-    logger.debug({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
-    return;
-  }
-
-  logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
+export async function spawnSyncEngineWorker({ ctx }: TProps) {
+  ctx.logger.debug({ msg: 'Spawn sync engine worker' });
 
   /**
    * v2.5.6 Daniel Jiménez
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  void RemoteSyncModule.syncItemsByFolder({
-    rootFolderUuid: context.rootUuid,
-    context,
-  });
+  void RecoverySyncModule.recoverySync({ ctx });
 
   try {
     const browserWindow = new BrowserWindow({
@@ -70,12 +41,12 @@ export async function spawnSyncEngineWorker({ context }: TProps) {
      * not have any way of knowing what went wrong. Usually the error is printed in the
      * first message.
      */
+    let hasPrinted = false;
+
     browserWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
       if (!hasPrinted) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
+        ctx.logger.debug({
           msg: 'Sync engine worker console message',
-          workspaceId,
           level,
           message,
           line,
@@ -86,8 +57,23 @@ export async function spawnSyncEngineWorker({ context }: TProps) {
       }
     });
 
-    worker.startingWorker = true;
-    worker.worker = browserWindow;
+    addRemoteSyncManager({ context: ctx });
+
+    const worker: WorkerConfig = {
+      ctx,
+      browserWindow,
+      syncSchedule: scheduleSync({ ctx }),
+    };
+
+    workers.set(ctx.workspaceId, worker);
+
+    monitorHealth({
+      browserWindow,
+      stopAndSpawn: async () => {
+        stopSyncEngineWorker({ worker });
+        await spawnSyncEngineWorker({ ctx });
+      },
+    });
 
     await browserWindow.loadFile(
       process.env.NODE_ENV === 'development'
@@ -95,26 +81,12 @@ export async function spawnSyncEngineWorker({ context }: TProps) {
         : path.join(__dirname, '..', 'sync-engine', 'index.html'),
     );
 
-    logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
+    ctx.logger.debug({ msg: 'Browser window loaded' });
 
-    browserWindow.webContents.send('SET_CONFIG', context);
-
-    monitorHealth({
-      browserWindow,
-      stopAndSpawn: async () => {
-        await stopAndClearSyncEngineWorker({ workspaceId });
-        await spawnSyncEngineWorker({ context });
-      },
-    });
-
-    scheduleSync({ worker });
-
-    addRemoteSyncManager({ context, worker });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { logger, ...config } = ctx;
+    browserWindow.webContents.send('SET_CONFIG', config);
   } catch (exc) {
-    logger.error({
-      msg: '[MAIN] Error loading sync engine worker for workspace',
-      workspaceId,
-      exc,
-    });
+    ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }
 }

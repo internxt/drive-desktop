@@ -25,7 +25,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // src/apps/main/preload.ts
 var import_backend = require("@internxt/drive-desktop-core/build/backend");
 var import_electron2 = require("electron");
-var import_path = __toESM(require("path"));
+var import_posix = __toESM(require("node:path/posix"));
 
 // src/apps/main/preload/ipc-renderer.ts
 var import_electron = require("electron");
@@ -33,12 +33,6 @@ var ipcPreloadRenderer = import_electron.ipcRenderer;
 
 // src/apps/main/preload.ts
 var api = {
-  getConfigKey(key) {
-    return import_electron2.ipcRenderer.invoke("get-config-key", key);
-  },
-  setConfigKey(props) {
-    import_electron2.ipcRenderer.send("set-config-key", props);
-  },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
@@ -49,9 +43,6 @@ var api = {
     debug: (rawBody) => import_backend.logger.debug(rawBody),
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
-  },
-  pathChanged(pathname) {
-    import_electron2.ipcRenderer.send("path-changed", pathname);
   },
   userLoggedIn(data) {
     import_electron2.ipcRenderer.send("user-logged-in", data);
@@ -73,9 +64,6 @@ var api = {
   },
   minimizeWindow() {
     import_electron2.ipcRenderer.send("user-minimized-window");
-  },
-  openVirtualDriveFolder() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive-folder");
   },
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
@@ -110,9 +98,6 @@ var api = {
   openProcessIssuesWindow() {
     import_electron2.ipcRenderer.send("open-process-issues-window");
   },
-  openLogs() {
-    import_electron2.ipcRenderer.send("open-logs");
-  },
   openSettingsWindow(section) {
     import_electron2.ipcRenderer.send("open-settings-window", section);
   },
@@ -122,19 +107,11 @@ var api = {
   finishOnboarding() {
     import_electron2.ipcRenderer.send("user-finished-onboarding");
   },
-  finishMigration() {
-    import_electron2.ipcRenderer.send("user-finished-migration");
-  },
   isAutoLaunchEnabled() {
     return import_electron2.ipcRenderer.invoke("is-auto-launch-enabled");
   },
   toggleAutoLaunch() {
     return import_electron2.ipcRenderer.invoke("toggle-auto-launch");
-  },
-  toggleDarkMode(mode) {
-    if (mode === "light") return import_electron2.ipcRenderer.invoke("dark-mode:light");
-    if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
-    return import_electron2.ipcRenderer.invoke("dark-mode:system");
   },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
@@ -151,25 +128,11 @@ var api = {
   getBackupsStatus() {
     return import_electron2.ipcRenderer.invoke("get-backups-status");
   },
-  openVirtualDrive() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive");
-  },
-  moveSyncFolderToDesktop() {
-    return import_electron2.ipcRenderer.invoke("move-sync-folder-to-desktop");
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder() {
-    return import_electron2.ipcRenderer.invoke("open-migration-failed-folder");
-  },
   onBackupsStatusChanged(func) {
     const eventName = "backups-status-changed";
     const callback = (_, v) => func(v);
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog() {
-    return import_electron2.ipcRenderer.invoke("choose-sync-root-with-dialog");
   },
   getOrCreateDevice() {
     return import_electron2.ipcRenderer.invoke("get-or-create-device");
@@ -190,9 +153,6 @@ var api = {
   },
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
-  },
-  addBackupsFromLocalPaths(localPaths) {
-    return import_electron2.ipcRenderer.invoke("add-multiple-backups", localPaths);
   },
   deleteBackup(backup) {
     return import_electron2.ipcRenderer.invoke("delete-backup", backup);
@@ -230,9 +190,6 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  deleteBackupError(folderId) {
-    return import_electron2.ipcRenderer.invoke("delete-backup-error", folderId);
-  },
   downloadBackup(backup, folderUuids) {
     return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
@@ -241,9 +198,6 @@ var api = {
   },
   getFolderPath() {
     return import_electron2.ipcRenderer.invoke("get-folder-path");
-  },
-  startMigration() {
-    return import_electron2.ipcRenderer.invoke("open-migration-window");
   },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
@@ -254,14 +208,8 @@ var api = {
   getRemoteSyncStatus() {
     return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
   },
-  retryVirtualDriveMount() {
-    return import_electron2.ipcRenderer.invoke("retry-virtual-drive-mount");
-  },
   openUrl: (url) => {
     return import_electron2.ipcRenderer.invoke("open-url", url);
-  },
-  getPreferredAppLanguage() {
-    return import_electron2.ipcRenderer.invoke("APP:PREFERRED_LANGUAGE");
   },
   syncManually() {
     return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
@@ -269,20 +217,12 @@ var api = {
   getUnsycFileInSyncEngine() {
     return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
   },
-  getRecentlywasSyncing() {
-    return import_electron2.ipcRenderer.invoke("CHECK_SYNC_IN_PROGRESS");
-  },
   user: {
     hasDiscoveredBackups() {
       return import_electron2.ipcRenderer.invoke("user.get-has-discovered-backups");
     },
     discoveredBackups() {
       import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
-    }
-  },
-  backups: {
-    isAvailable() {
-      return import_electron2.ipcRenderer.invoke("backups:is-available");
     }
   },
   antivirus: {
@@ -308,10 +248,30 @@ var api = {
       return import_electron2.ipcRenderer.invoke("antivirus:cancel-scan");
     }
   },
-  path: import_path.default,
+  path: import_posix.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
-  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage")
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
+  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke("cleanerStopCleanup"),
+  getTheme: async () => await ipcPreloadRenderer.invoke("getTheme"),
+  cleanerOnProgress: (callback) => {
+    const eventName = "cleaner:cleanup-progress";
+    const callbackWrapper = (_, progressData) => callback(progressData);
+    import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  },
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
+  getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

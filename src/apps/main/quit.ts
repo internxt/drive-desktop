@@ -1,10 +1,8 @@
 import { app, ipcMain } from 'electron';
-import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
-import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
+import { stopSyncEngineWorkers } from './background-processes/sync-engine/services/stop-sync-engine-worker';
 
 export async function quitApp() {
-  await stopAndClearAllSyncEngineWatcher();
-  unregisterVirtualDrives({});
+  await stopSyncEngineWorkers();
   app.quit();
 }
 

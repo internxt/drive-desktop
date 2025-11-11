@@ -2,13 +2,29 @@
 
 import { DeepPartial } from 'ts-essentials';
 import { MockedFunction, MockInstance } from 'vitest';
+import { loggerMock } from './mocks.helper.test';
 
-export function getMockCalls(object: { mock: { calls: any[] } }) {
-  return object.mock.calls.map((call) => call[0]);
+function getCalls(object: any) {
+  return object.mock.calls.map((call: any) => {
+    if (call.length === 1) return call[0];
+    return call;
+  });
+}
+
+export function calls(object: any) {
+  return expect(getCalls(object));
+}
+
+export function call(object: any) {
+  const calls = getCalls(object);
+  if (calls.length !== 1) throw new Error(`Invalid length: ${calls.length} calls`);
+  return expect(calls[0]);
 }
 
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
-  return props as Parameters<T>[0];
+  const result = props as Parameters<T>[0];
+  result.ctx = { ...result.ctx, logger: loggerMock };
+  return result;
 }
 
 export function deepMocked<T extends (...args: any[]) => unknown>(fn: T) {

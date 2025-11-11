@@ -1,5 +1,5 @@
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';
 import { getParentUuid } from './get-parent-uuid';
@@ -46,7 +46,7 @@ export async function unlinkFile({ ctx, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
       uuid: file.uuid,
       workspaceToken: ctx.workspaceToken,
-      nameWithExtension,
+      path: absolutePath,
     });
 
     if (error) throw error;

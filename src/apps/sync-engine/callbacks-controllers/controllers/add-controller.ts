@@ -1,10 +1,10 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 export class AddController {
   // Gets called when:
@@ -26,7 +26,7 @@ export class AddController {
     logger.debug({ msg: 'Create file', path });
 
     try {
-      if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
+      if (stats.size === 0 || stats.size > SyncModule.MAX_FILE_SIZE) {
         /**
          * v2.5.6 Daniel Jiménez
          * TODO: add sync issue

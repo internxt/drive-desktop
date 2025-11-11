@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { isImageThumbnailable } from '../domain/ThumbnableExtension';
 import { nativeImage } from 'electron';
 

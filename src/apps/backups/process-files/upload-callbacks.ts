@@ -1,33 +1,21 @@
-import { broadcastToWindows } from '@/apps/main/windows';
+import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUploaderCallbacks } from '@/infra/inxt-js/file-uploader/file-uploader';
-import { basename } from 'path';
 
 type TProps = {
   path: AbsolutePath;
 };
 
 export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
-  const nameWithExtension = basename(path);
-
   return {
     onProgress({ progress }: { progress: number }) {
-      broadcastToWindows({
-        name: 'sync-info-update',
-        data: { action: 'UPLOADING', name: nameWithExtension, progress, key: path },
-      });
+      LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
     },
     onFinish() {
-      broadcastToWindows({
-        name: 'sync-info-update',
-        data: { action: 'UPLOADED', name: nameWithExtension, key: path },
-      });
+      LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
     },
     onError() {
-      broadcastToWindows({
-        name: 'sync-info-update',
-        data: { action: 'UPLOAD_ERROR', name: nameWithExtension, key: path },
-      });
+      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
     },
   };
 }

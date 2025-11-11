@@ -3,12 +3,12 @@ import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { buildFileUploader } from './build-file-uploader';
 import { getUserOrThrow } from '../../auth/service';
+import { getAvailableProducts } from '../../payments/get-available-products';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -24,9 +24,10 @@ export async function launchBackupProcesses(
     return;
   }
 
-  const isAvailable = await isAvailableBackups();
+  const availableProducts = await getAvailableProducts();
+  const isBackupsEnabled = Boolean(availableProducts?.backups);
 
-  if (!isAvailable) {
+  if (!isBackupsEnabled) {
     logger.debug({ msg: 'Backups not available' });
     return;
   }

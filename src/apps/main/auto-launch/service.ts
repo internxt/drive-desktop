@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import Path from 'path';
+import Path from 'node:path';
 
 const appFolder = Path.dirname(process.execPath);
 const appExe = Path.resolve(appFolder, 'Internxt.exe');

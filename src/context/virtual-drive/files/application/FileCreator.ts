@@ -7,7 +7,6 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { basename } from 'path';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -23,15 +22,15 @@ export class FileCreator {
   static async run({ ctx, path, absolutePath, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
-      const { data: folderUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
+      const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
-      if (!folderUuid) {
+      if (!parentInfo) {
         throw new FolderNotFoundError(parentPath);
       }
 
       const fileDto = await HttpRemoteFileSystem.persist(ctx, {
         contentsId: contents.id,
-        folderUuid,
+        folderUuid: parentInfo.uuid,
         path,
         size: contents.size,
       });
@@ -59,10 +58,7 @@ export class FileCreator {
         exc: error,
       });
 
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        key: absolutePath,
-        nameWithExtension: basename(path),
-      });
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
 
       throw error;
     }

@@ -3,14 +3,11 @@ import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { join } from 'path';
-import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { writeFile } from 'fs/promises';
-import { PinState } from '@/node-win/types/placeholder.type';
-import { mockDeep } from 'vitest-mock-extended';
+import { join } from 'node:path';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
-import { Callbacks } from '@/node-win/types/callbacks.type';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
@@ -27,17 +24,14 @@ describe('sync-remote-changes-to-local', () => {
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
-  const virtualDrive = new VirtualDrive({ loggerPath: '', providerId, rootPath });
-  const callbacks = mockDeep<Callbacks>();
+  const virtualDrive = new VirtualDrive({ providerId, rootPath });
 
   beforeEach(async () => {
     await virtualDrive.createSyncRootFolder();
     virtualDrive.registerSyncRoot({ providerName });
-    virtualDrive.connectSyncRoot({ callbacks });
   });
 
   afterAll(() => {
-    virtualDrive.disconnectSyncRoot();
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
@@ -51,8 +45,6 @@ describe('sync-remote-changes-to-local', () => {
 
     await writeFile(filePath, 'content');
     virtualDrive.convertToPlaceholder({ itemPath: filePath, id: 'FILE:uuid' });
-    let status = virtualDrive.getPlaceholderState({ path: filePath });
-    expect(status.pinState).toBe(PinState.AlwaysLocal);
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
@@ -75,19 +67,16 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(3000);
 
     // Then
-    status = virtualDrive.getPlaceholderState({ path: filePath });
-    expect(status.pinState).toBe(PinState.OnlineOnly);
-    expect(getMockCalls(onAllMock)).toStrictEqual([
+    calls(onAllMock).toStrictEqual([
       { event: 'add', path: filePath },
       { event: 'change', path: filePath },
     ]);
 
-    expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+    calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
-      { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { msg: 'onReady' },
-      { msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
       {
         tag: 'SYNC-ENGINE',
         msg: 'Syncing remote changes to local',

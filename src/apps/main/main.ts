@@ -1,8 +1,4 @@
-import { app, nativeTheme } from 'electron';
-
-void app.whenReady().then(() => {
-  app.setAppUserModelId('com.internxt.app');
-});
+import { app } from 'electron';
 
 import 'reflect-metadata';
 import 'core-js/stable';
@@ -19,7 +15,6 @@ import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
 setupElectronLog({ logsPath: PATHS.LOGS });
 
-import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
@@ -32,34 +27,30 @@ import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
-import './migration/handlers';
-import './config/handlers';
-import './app-info/handlers';
 import './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
+import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
-import configStore from './config';
+import { electronStore } from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { Theme } from '../shared/types/Theme';
-import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
 import { setupQuitHandlers } from './quit';
-import { clearConfig, setDefaultConfig } from '../sync-engine/config';
+import { setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
-import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
-import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
+import { setupThemeListener } from './config/theme';
+import { release, version } from 'node:os';
+import { Marketing } from '@/backend/features';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -70,13 +61,19 @@ if (!gotTheLock) {
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
-setupVirtualDriveHandlers();
+setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
 
-logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
+logger.debug({
+  msg: 'Starting app',
+  version: INTERNXT_VERSION,
+  isPackaged: app.isPackaged,
+  osVersion: version(),
+  osRelease: release(),
+});
 
 async function checkForUpdates() {
   autoUpdater.logger = {
@@ -102,6 +99,8 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    app.setAppUserModelId('com.internxt.drive');
+
     setDefaultConfig({});
 
     if (!AppDataSource.isInitialized) {
@@ -132,8 +131,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
-
     const widget = await getOrCreateWidged();
     const tray = getTray();
     if (widget && tray) {
@@ -142,31 +139,17 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.destroy();
 
-    const lastOnboardingShown = configStore.get('lastOnboardingShown');
+    const lastOnboardingShown = electronStore.get('lastOnboardingShown');
 
     if (!lastOnboardingShown) {
       openOnboardingWindow();
     } else if (widget) {
       widget.show();
     }
+
+    void Marketing.showNotifications();
   } catch (exc) {
     logger.error({ msg: 'Error logging in', exc });
     reportError(exc as Error);
   }
-});
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  setTrayStatus('IDLE');
-
-  clearConfig();
-
-  const widget = getWidget();
-  if (widget) {
-    widget.hide();
-    widget.destroy();
-  }
-
-  clearAntivirus();
-  unregisterVirtualDrives({});
-  void AuthModule.logout();
 });

@@ -1,116 +1,86 @@
 import { dialog, shell } from 'electron';
-import fs from 'fs';
-import path from 'path';
 
-import configStore from '../config';
-import eventBus from '../event-bus';
-import { getUser } from '../auth/service';
+import { electronStore } from '../config';
+import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
-import { User } from '../types';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
-import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { workers } from '../remote-sync/store';
+import { stopSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { sleep } from '../util';
+import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
+import { join } from 'node:path/posix';
 
-const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
+export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
-function setSyncRoot(pathname: string): void {
-  const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
+export function getRootVirtualDrive() {
+  const user = getUserOrThrow();
 
-  configStore.set('syncRoot', pathNameWithSepInTheEnd);
-}
+  const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+  const syncRoot = createAbsolutePath(electronStore.get('syncRoot') || defaultSyncRoot);
 
-export function getRootVirtualDrive(): string {
-  const current = configStore.get('syncRoot');
-  const user = getUser();
-  if (!user) {
-    throw logger.error({
-      msg: 'User not found when getting root virtual drive',
-    });
-  }
-
-  logger.debug({
-    msg: 'Current root virtual drive',
-    current,
-  });
-
-  if (!current.includes(user.uuid)) {
-    logger.debug({
-      msg: 'Root virtual drive not found for user',
-    });
-    setupRootFolder(user);
-    const newRoot = configStore.get('syncRoot');
-
-    logger.debug({
-      msg: 'New root virtual drive',
-      newRoot,
-    });
-    return newRoot;
-  }
-
-  return current;
-}
-
-export function setupRootFolder(user: User): void {
-  const current = configStore.get('syncRoot');
-
-  const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
-  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.uuid}`;
-
-  logger.debug({
-    msg: 'Virtual drive folder',
-    pathNameWithSepInTheEnd,
-    current,
-    syncFolderPath,
-  });
+  logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
   /**
    * v2.5.1 Jonathan Arce
-   * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
+   * Previously, the drive name in Explorer was "InternxtDrive" and when you logged out and logged in,
    * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
    * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
    * login called "InternxtDrive - {user.uuid}."
    * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
    */
-  // If the current path doesn't match the default path format, we'll still update the sync root
-  if (current === pathNameWithSepInTheEnd) {
-    // Check if we need to migrate to the new format with UUID
-    const oldFormatExists = fs.existsSync(current);
-    const newFormatExists = fs.existsSync(syncFolderPath);
-
-    if (newFormatExists) {
-      logger.debug({
-        msg: 'Root virtual drive with new name format already exists',
-        path: syncFolderPath,
-      });
-    } else if (oldFormatExists) {
-      logger.debug({
-        msg: 'Migrating root virtual drive to new format with UUID',
-        from: current,
-        to: syncFolderPath,
-      });
-      fs.renameSync(current, syncFolderPath);
-    } else {
-      logger.debug({
-        msg: 'Neither old nor new format of virtual drive exists yet',
-        path: syncFolderPath,
-      });
-    }
+  if (OLD_SYNC_ROOT === syncRoot) {
+    const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+    migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
+    return newSyncRoot;
   }
 
-  setSyncRoot(syncFolderPath);
+  return syncRoot;
 }
 
-export async function chooseSyncRootWithDialog(): Promise<string | null> {
+export async function chooseSyncRootWithDialog() {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-  if (!result.canceled) {
-    const chosenPath = result.filePaths[0];
 
-    setSyncRoot(chosenPath);
-    eventBus.emit('SYNC_ROOT_CHANGED', chosenPath);
+  if (result.canceled) return;
 
-    return chosenPath;
+  const user = getUserOrThrow();
+
+  const chosenPath = result.filePaths[0];
+
+  const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
+  const oldSyncRoot = createAbsolutePath(electronStore.get('syncRoot'));
+
+  logger.debug({ msg: 'Choose sync root with dialog', oldSyncRoot, newSyncRoot });
+
+  if (newSyncRoot === oldSyncRoot) return;
+
+  try {
+    const worker = workers.get('');
+
+    if (worker) {
+      const { ctx } = worker;
+
+      stopSyncEngineWorker({ worker });
+      await sleep(2000);
+
+      try {
+        VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
+      } catch (error) {
+        ctx.logger.error({ msg: 'Error unregistering sync root', error });
+      }
+
+      ctx.rootPath = newSyncRoot;
+
+      migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+      await spawnSyncEngineWorker({ ctx });
+    }
+  } catch (error) {
+    logger.error({ msg: 'Error migrating sync root', error });
   }
 
-  return null;
+  return newSyncRoot;
 }
 
 export async function openVirtualDriveRootFolder() {

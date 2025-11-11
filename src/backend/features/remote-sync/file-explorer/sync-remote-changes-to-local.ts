@@ -2,8 +2,8 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { existsSync, Stats } from 'fs';
-import { unlink } from 'fs/promises';
+import { existsSync, Stats } from 'node:fs';
+import { unlink } from 'node:fs/promises';
 
 type Props = {
   virtualDrive: VirtualDrive;
@@ -36,7 +36,7 @@ export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: 
 
       virtualDrive.createFileByPath({
         itemPath: remote.path,
-        itemId: `FILE:${remote.uuid}`,
+        placeholderId: `FILE:${remote.uuid}`,
         size: remote.size,
         creationTime: new Date(remote.createdAt).getTime(),
         lastWriteTime: new Date(remote.updatedAt).getTime(),

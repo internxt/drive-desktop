@@ -6,35 +6,25 @@ export type FromProcess = {
   storageDeleteFileByUuid: (props: {
     uuid: FileUuid;
     workspaceToken: string;
-    nameWithExtension: string;
+    path: string;
   }) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFileByUuid>>;
   storageDeleteFolderByUuid: (props: {
     uuid: FolderUuid;
     workspaceToken: string;
-    name: string;
+    path: string;
   }) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFolderByUuid>>;
-  renameFileByUuid: (props: {
-    uuid: FileUuid;
-    workspaceToken: string;
-    nameWithExtension: string;
-  }) => Awaited<ReturnType<typeof driveServerWip.files.renameFile>>;
-  renameFolderByUuid: (props: {
-    uuid: FolderUuid;
-    workspaceToken: string;
-    name: string;
-  }) => Awaited<ReturnType<typeof driveServerWip.folders.renameFolder>>;
   moveFileByUuid: (props: {
     uuid: FileUuid;
     workspaceToken: string;
     parentUuid: FolderUuid;
-    nameWithExtension: string;
-  }) => Awaited<ReturnType<typeof driveServerWip.files.moveFile>>;
+    path: string;
+  }) => Awaited<ReturnType<typeof driveServerWip.files.move>>;
   moveFolderByUuid: (props: {
     uuid: FolderUuid;
     workspaceToken: string;
     parentUuid: FolderUuid;
-    name: string;
-  }) => Awaited<ReturnType<typeof driveServerWip.folders.moveFolder>>;
+    path: string;
+  }) => Awaited<ReturnType<typeof driveServerWip.folders.move>>;
 };
 
 export type FromMain = {};

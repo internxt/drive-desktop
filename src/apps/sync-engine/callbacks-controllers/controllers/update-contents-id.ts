@@ -1,12 +1,11 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -18,7 +17,7 @@ type TProps = {
 
 export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }: TProps) {
   try {
-    if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
+    if (stats.size === 0 || stats.size > SyncModule.MAX_FILE_SIZE) {
       logger.warn({
         tag: 'SYNC-ENGINE',
         msg: 'Invalid file size',
@@ -54,7 +53,7 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
       absolutePath,
     });
 
-    updateFileStatus({ ctx, path });
+    ctx.virtualDrive.updateSyncStatus({ itemPath: path });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

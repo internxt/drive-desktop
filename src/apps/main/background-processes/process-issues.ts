@@ -1,9 +1,7 @@
 import { Notification } from 'electron';
 
-import eventBus from '../event-bus';
-import path from 'path';
-import { clearIssues } from './issues';
 import { logger } from '@/apps/shared/logger/logger';
+import { iconPath } from '@/apps/utils/icon';
 
 let lastDialogTime = 0;
 
@@ -19,7 +17,7 @@ export function showNotEnoughSpaceNotification() {
   const notification = new Notification({
     title: 'Internxt',
     body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
-    icon: path.join(process.cwd(), 'assets', 'icon.ico'),
+    icon: iconPath,
   });
 
   notification.on('click', () => {
@@ -32,7 +30,3 @@ export function showNotEnoughSpaceNotification() {
    */
   notification.show();
 }
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  clearIssues();
-});

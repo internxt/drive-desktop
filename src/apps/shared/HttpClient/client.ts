@@ -3,8 +3,8 @@ import { paths } from './schema';
 import { getConfig } from '../../sync-engine/config';
 import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
 import eventBus from '@/apps/main/event-bus';
-import Bottleneck from 'bottleneck';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
+import { scheduleFetch } from './schedule-fetch';
 
 export const getHeaders = async () => {
   if (process.type === 'renderer') return await ipcRendererSyncEngine.invoke('GET_HEADERS');
@@ -45,14 +45,9 @@ const middleware: Middleware = {
   },
 };
 
-const limiter = new Bottleneck({
-  maxConcurrent: 2,
-  minTime: 500,
-});
-
 export const client = createClient<paths>({
   baseUrl: process.env.DRIVE_URL,
-  fetch: limiter.wrap(fetch),
+  fetch: scheduleFetch,
 });
 
 client.use(middleware);

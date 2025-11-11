@@ -1,7 +1,7 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { rename } from 'fs/promises';
+import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
@@ -21,7 +21,7 @@ export class FilePlaceholderUpdater {
       if (!localPath) {
         ctx.virtualDrive.createFileByPath({
           itemPath: path,
-          itemId: `FILE:${remote.uuid}`,
+          placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),

@@ -5,7 +5,7 @@ import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 import { FileUploaderCallbacks } from './file-uploader';
 import * as processError from './process-error';
 import * as abortOnChangeSize from './abort-on-change-size';
-import { ReadStream } from 'fs';
+import { ReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
 
 describe('upload-file', () => {

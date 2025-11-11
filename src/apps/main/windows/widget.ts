@@ -1,6 +1,5 @@
 import { BrowserWindow, screen } from 'electron';
 
-import eventBus from '../event-bus';
 import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
@@ -56,15 +55,7 @@ const createWidget = async () => {
     widget = null;
   });
 
-  widget.webContents.on('ipc-message', (_, channel, payload) => {
-    // Current widget pathname
-    if (channel === 'path-changed') {
-      console.log('Renderer navigated to ', payload);
-    }
-  });
-
   await widgetLoaded;
-  eventBus.emit('WIDGET_IS_READY');
 };
 
 export async function getOrCreateWidged(): Promise<BrowserWindow | null> {

@@ -1,4 +1,4 @@
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 
 type Props = {
   prev: Stats;

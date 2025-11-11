@@ -7,7 +7,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-vi.mock(import('fs'));
+vi.mock(import('node:fs'));
 
 describe('contents-uploader', () => {
   const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');

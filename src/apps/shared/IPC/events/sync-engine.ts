@@ -1,32 +1,33 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
-import { DriveFile, FileUuid, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
+import { DriveFile, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
 import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-type BaseFile = { nameWithExtension: string };
-type FileDownload = BaseFile & { key: FileUuid };
-type FileUpload = BaseFile & { key: AbsolutePath };
-type FileProgress = BaseFile & { progress: number };
-type FileDownloading = FileProgress & FileDownload;
-type FileUploading = FileProgress & FileUpload;
+type FileAction = { path: string };
+type FileProgress = FileAction & { progress: number };
 
 type FilesEvents = {
-  FILE_UPLOADING: (payload: FileUploading) => void;
-  FILE_UPLOADED: (payload: FileUpload) => void;
-  FILE_UPLOAD_ERROR: (payload: FileUpload) => void;
+  FILE_UPLOADING: (payload: FileProgress) => void;
+  FILE_UPLOADED: (payload: FileAction) => void;
+  FILE_UPLOAD_ERROR: (payload: FileAction) => void;
 
-  FILE_DOWNLOADING: (payload: FileDownloading) => void;
-  FILE_DOWNLOADED: (payload: FileDownload) => void;
-  FILE_DOWNLOAD_CANCEL: (payload: FileDownload) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileDownload) => void;
+  FILE_DOWNLOADING: (payload: FileProgress) => void;
+  FILE_DOWNLOADED: (payload: FileAction) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: FileAction) => void;
+  FILE_DOWNLOAD_ERROR: (payload: FileAction) => void;
 };
 
 type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
+  GET_UPDATED_REMOTE_ITEMS: ({
+    userUuid,
+    workspaceId,
+  }: {
+    userUuid: string;
+    workspaceId: string;
+  }) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_LOGGED_OUT: () => void;
-  FIND_EXISTING_FILES: (workspaceId: string) => Promise<SimpleDriveFile[]>;
+  FIND_EXISTING_FILES: ({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) => Promise<SimpleDriveFile[]>;
 };
 
 type ProcessInfoUpdate = {
@@ -40,5 +41,4 @@ type ProcessInfoUpdate = {
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
 export type FromMain = {
   UPDATE_SYNC_ENGINE_PROCESS: () => void;
-  STOP_AND_CLEAR_SYNC_ENGINE_PROCESS: () => void;
 };

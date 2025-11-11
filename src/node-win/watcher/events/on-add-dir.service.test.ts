@@ -1,18 +1,17 @@
-import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import * as createFolder from '@/features/sync/add-item/create-folder';
 import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));
 
 describe('on-add-dir', () => {
-  const getFolderUuidMock = deepMocked(NodeWin.getFolderUuid);
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveFolderMock = vi.mocked(moveFolder);
   const createFolderMock = partialSpyOn(createFolder, 'createFolder');
   const trackAddFolderEventMock = partialSpyOn(trackAddFolderEvent, 'trackAddFolderEvent');
@@ -23,15 +22,12 @@ describe('on-add-dir', () => {
     props = mockProps<typeof onAddDir>({
       ctx: { virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath } },
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
-      self: {
-        logger: loggerMock,
-      },
     });
   });
 
   it('should call add controller if the folder is new', async () => {
     // Given
-    getFolderUuidMock.mockReturnValueOnce({ data: undefined });
+    getFolderInfoMock.mockReturnValueOnce({ data: undefined });
 
     // When
     await onAddDir(props);
@@ -46,7 +42,7 @@ describe('on-add-dir', () => {
 
   it('should call moveFolder if the folder is moved', async () => {
     // Given
-    getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
 
     // When
     await onAddDir(props);

@@ -1,30 +1,24 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { contextBridge, ipcRenderer } from 'electron';
-import path from 'path';
+import path from 'node:path/posix';
 import { RemoteSyncStatus } from './remote-sync/helpers';
-import { setConfigKey, StoredValues } from './config/service';
+import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { AccessResponse } from '../renderer/pages/Login/types';
 import { getUser } from './auth/service';
-import { ProcessInfoUpdatePayload } from '../shared/types';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
-import { chooseSyncRootWithDialog } from './virtual-root-folder/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
+import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
 const api = {
-  getConfigKey(key: StoredValues) {
-    return ipcRenderer.invoke('get-config-key', key);
-  },
-  setConfigKey(props: Parameters<typeof setConfigKey>[0]) {
-    ipcRenderer.send('set-config-key', props);
-  },
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {
     const eventName = `${key}-updated`;
     const callback = (_: unknown, v: T) => fn(v);
@@ -35,9 +29,6 @@ const api = {
     debug: (rawBody: TLoggerBody) => logger.debug(rawBody),
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
-  },
-  pathChanged(pathname: string) {
-    ipcRenderer.send('path-changed', pathname);
   },
   userLoggedIn(data: AccessResponse) {
     ipcRenderer.send('user-logged-in', data);
@@ -60,9 +51,6 @@ const api = {
   minimizeWindow() {
     ipcRenderer.send('user-minimized-window');
   },
-  openVirtualDriveFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive-folder');
-  },
   quit() {
     ipcRenderer.send('user-quit');
   },
@@ -78,9 +66,9 @@ const api = {
   getSyncStatus() {
     return ipcRenderer.invoke('get-sync-status');
   },
-  onSyncInfoUpdate(func: (_: ProcessInfoUpdatePayload) => void): () => void {
+  onSyncInfoUpdate(func: (_: SyncStateItem[]) => void): () => void {
     const eventName = 'sync-info-update';
-    const callback = (_: unknown, v: ProcessInfoUpdatePayload) => func(v);
+    const callback = (_: unknown, v: SyncStateItem[]) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
@@ -96,10 +84,7 @@ const api = {
   openProcessIssuesWindow() {
     ipcRenderer.send('open-process-issues-window');
   },
-  openLogs() {
-    ipcRenderer.send('open-logs');
-  },
-  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS') {
+  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
     ipcRenderer.send('open-settings-window', section);
   },
   settingsWindowResized(payload: { width: number; height: number }) {
@@ -108,19 +93,11 @@ const api = {
   finishOnboarding() {
     ipcRenderer.send('user-finished-onboarding');
   },
-  finishMigration() {
-    ipcRenderer.send('user-finished-migration');
-  },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
   },
   toggleAutoLaunch() {
     return ipcRenderer.invoke('toggle-auto-launch');
-  },
-  toggleDarkMode(mode: 'system' | 'light' | 'dark') {
-    if (mode === 'light') return ipcRenderer.invoke('dark-mode:light');
-    if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
-    return ipcRenderer.invoke('dark-mode:system');
   },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
@@ -137,25 +114,11 @@ const api = {
   getBackupsStatus(): Promise<BackupsStatus> {
     return ipcRenderer.invoke('get-backups-status');
   },
-  openVirtualDrive(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive');
-  },
-  moveSyncFolderToDesktop() {
-    return ipcRenderer.invoke('move-sync-folder-to-desktop');
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-failed-folder');
-  },
   onBackupsStatusChanged(func: (_: BackupsStatus) => void): () => void {
     const eventName = 'backups-status-changed';
     const callback = (_: unknown, v: BackupsStatus) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog(): ReturnType<typeof chooseSyncRootWithDialog> {
-    return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
   getOrCreateDevice(): ReturnType<typeof getOrCreateDevice> {
     return ipcRenderer.invoke('get-or-create-device');
@@ -176,9 +139,6 @@ const api = {
   },
   addBackup(): Promise<void> {
     return ipcRenderer.invoke('add-backup');
-  },
-  addBackupsFromLocalPaths(localPaths: string[]): Promise<void> {
-    return ipcRenderer.invoke('add-multiple-backups', localPaths);
   },
   deleteBackup(backup: BackupInfo): Promise<void> {
     return ipcRenderer.invoke('delete-backup', backup);
@@ -216,9 +176,6 @@ const api = {
   getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
-  deleteBackupError(folderId: number): Promise<void> {
-    return ipcRenderer.invoke('delete-backup-error', folderId);
-  },
   downloadBackup(backup: Device, folderUuids?: string[]): Promise<void> {
     return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
@@ -227,9 +184,6 @@ const api = {
   },
   getFolderPath(): ReturnType<typeof getPathFromDialog> {
     return ipcRenderer.invoke('get-folder-path');
-  },
-  startMigration(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-window');
   },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
@@ -240,14 +194,8 @@ const api = {
   getRemoteSyncStatus(): Promise<RemoteSyncStatus> {
     return ipcRenderer.invoke('get-remote-sync-status');
   },
-  retryVirtualDriveMount(): Promise<void> {
-    return ipcRenderer.invoke('retry-virtual-drive-mount');
-  },
   openUrl: (url: string): Promise<void> => {
     return ipcRenderer.invoke('open-url', url);
-  },
-  getPreferredAppLanguage(): Promise<string[]> {
-    return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
   },
   syncManually(): Promise<void> {
     return ipcRenderer.invoke('SYNC_MANUALLY');
@@ -255,20 +203,12 @@ const api = {
   getUnsycFileInSyncEngine(): Promise<string[]> {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
   },
-  getRecentlywasSyncing(): Promise<boolean> {
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
-  },
   user: {
     hasDiscoveredBackups(): Promise<boolean> {
       return ipcRenderer.invoke('user.get-has-discovered-backups');
     },
     discoveredBackups() {
       ipcRenderer.send('user.set-has-discovered-backups');
-    },
-  },
-  backups: {
-    isAvailable(): Promise<boolean> {
-      return ipcRenderer.invoke('backups:is-available');
     },
   },
   antivirus: {
@@ -316,8 +256,28 @@ const api = {
   path,
   authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke('cleanerGenerateReport', props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke('cleanerGetDiskSpace'),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke('cleanerStopCleanup'),
+  getTheme: async () => await ipcPreloadRenderer.invoke('getTheme'),
+  cleanerOnProgress: (callback: (progressData: CleanupProgress) => void) => {
+    const eventName = 'cleaner:cleanup-progress';
+    const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);
+    ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  },
+  openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
+  getLanguage: async () => await ipcPreloadRenderer.invoke('getLanguage'),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke('setConfigKey', props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

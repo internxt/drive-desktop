@@ -76,19 +76,13 @@ export function getUserOrThrow(): User {
   return user;
 }
 
-export function canHisConfigBeRestored(uuid: string) {
+export function restoreSavedConfig({ uuid }: { uuid: string }) {
   const savedConfigs = ConfigStore.get('savedConfigs');
-
-  if (!savedConfigs) return;
   const savedConfig = savedConfigs[uuid];
 
-  if (!savedConfig) {
-    return false;
-  }
+  if (!savedConfig) return;
 
-  for (const [key, value] of Object.entries(savedConfig)) {
-    ConfigStore.set(key, value);
+  for (const key of Object.keys(savedConfig) as Array<keyof typeof savedConfig>) {
+    ConfigStore.set(key, savedConfig[key]);
   }
-
-  return true;
 }

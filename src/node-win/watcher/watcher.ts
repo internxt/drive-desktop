@@ -11,7 +11,6 @@ import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class Watcher {
-  fileInDevice = new Set<AbsolutePath>();
   chokidar?: FSWatcher;
 
   constructor(
@@ -39,8 +38,8 @@ export class Watcher {
          * - we create an item locally.
          * - we move an item locally or when we move it using sync by checkpoint.
          */
-        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ ctx, self: this, absolutePath, stats: stats! }))
-        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ ctx, self: this, absolutePath }))
+        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ ctx, absolutePath, stats: stats! }))
+        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ ctx, absolutePath }))
         /**
          * v2.5.6 Daniel Jiménez
          * unlink events are triggered when:
@@ -49,7 +48,7 @@ export class Watcher {
          */
         .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ ctx, absolutePath }))
         .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ ctx, absolutePath }))
-        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ ctx, self: this, event, absolutePath, details }))
+        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ ctx, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {

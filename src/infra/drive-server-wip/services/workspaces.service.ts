@@ -5,6 +5,7 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { getFilesByFolder } from './workspaces/get-files-by-folder';
 import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
 import { createFile } from './workspaces/create-file';
+import { parseFileDto, parseFolderDto } from '../out/dto';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -20,6 +21,7 @@ export const workspaces = {
   getFilesByFolder,
   getFoldersByFolder,
 };
+export const WorkspaceModule = workspaces;
 
 async function getWorkspaces() {
   const method = 'GET';
@@ -65,58 +67,66 @@ async function getCredentials(context: { workspaceId: string }) {
   });
 }
 
-async function getFilesInWorkspace(context: { workspaceId: string; query: QueryFilesInWorkspace }) {
+async function getFilesInWorkspace(
+  context: { workspaceId: string; query: QueryFilesInWorkspace },
+  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
+) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
+      signal: extra?.abortSignal,
       params: {
         path: { workspaceId: context.workspaceId },
         query: context.query,
       },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get workspace files request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get workspace files request', context },
   });
+
+  if (data) {
+    return { data: data.map((fileDto) => parseFileDto({ fileDto })) };
+  } else {
+    return { error };
+  }
 }
 
-async function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
+async function getFoldersInWorkspace(
+  context: { workspaceId: string; query: QueryFoldersInWorkspace },
+  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
+) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/folders';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
+      signal: extra?.abortSignal,
       params: {
         path: { workspaceId: context.workspaceId },
         query: context.query,
       },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get workspace folders request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get workspace folders request', context },
   });
+
+  if (data) {
+    return { data: data.map((folderDto) => parseFolderDto({ folderDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function createFolderInWorkspace(context: { path: string; workspaceId: string; body: CreateFolderInWorkspaceBody }) {

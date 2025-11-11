@@ -1,10 +1,10 @@
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { getFilesFromDirectory } from './get-files-from-directory';
 import { PathTypeChecker } from '@/apps/shared/fs/PathTypeChecker';
-import { readdir } from 'fs/promises';
-import { win32 } from 'path';
+import { readdir } from 'node:fs/promises';
+import { win32 } from 'node:path';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 vi.mock(import('@/apps/shared/fs/PathTypeChecker'));
 
 describe('get-files-from-directory', () => {

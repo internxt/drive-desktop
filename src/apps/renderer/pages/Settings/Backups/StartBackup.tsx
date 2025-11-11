@@ -1,17 +1,17 @@
 import { useContext, useState } from 'react';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
 import { ConfirmationModal } from '../../../components/Backups/Delete/ConfirmationModal';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 type StartBackupProps = {
   className: string;
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backups, backupStatus, thereIsDownloadProgress, isBackupAvailable } = useContext(BackupContext);
+  const { translate } = useI18n();
+  const { backups, backupStatus, thereIsDownloadProgress } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
-  const [avalaibleAlert, setAvalaibleAlert] = useState(false);
 
   function toggleConfirmation() {
     setAskConfirmation(!askConfirmation);
@@ -26,8 +26,6 @@ export function StartBackup({ className }: StartBackupProps) {
     window.electron.startBackupsProcess();
   }
 
-  const { translate } = useTranslationContext();
-
   return (
     <>
       <Button
@@ -35,11 +33,6 @@ export function StartBackup({ className }: StartBackupProps) {
         variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
         size="md"
         onClick={() => {
-          if (!isBackupAvailable) {
-            setAvalaibleAlert(true);
-            return;
-          }
-
           if (backupStatus === 'STANDBY') {
             startBackupsProcess();
           } else {
@@ -58,19 +51,6 @@ export function StartBackup({ className }: StartBackupProps) {
         explanation2={translate('settings.backups.stop.modal.explanation-2')}
         cancelText={translate('settings.backups.stop.modal.cancel')}
         confirmText={translate('settings.backups.stop.modal.confirm')}
-        variantButton="primary"
-      />
-      <ConfirmationModal
-        show={avalaibleAlert}
-        onCanceled={() => setAvalaibleAlert(false)}
-        onConfirmed={async () => {
-          await window.electron.openUrl('https://internxt.com/pricing');
-          setAvalaibleAlert(false);
-        }}
-        title={translate('settings.antivirus.featureLocked.title')}
-        explanation={translate('settings.antivirus.featureLocked.subtitle')}
-        cancelText={translate('settings.backups.stop.modal.cancel')}
-        confirmText={translate('settings.antivirus.featureLocked.action')}
         variantButton="primary"
       />
     </>

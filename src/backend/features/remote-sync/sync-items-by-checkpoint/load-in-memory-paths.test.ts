@@ -1,20 +1,20 @@
 import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
-import { readdir } from 'fs/promises';
+import { readdir } from 'node:fs/promises';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Dirent } from 'fs';
+import { Dirent } from 'node:fs';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('load-in-memory-paths', () => {
   const readdirMock = deepMocked(readdir);
   const statMock = partialSpyOn(fileSystem, 'stat');
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
-  const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
   const props = mockProps<typeof loadInMemoryPaths>({
     ctx: { virtualDrive: { syncRootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath } },
@@ -31,8 +31,8 @@ describe('load-in-memory-paths', () => {
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
 
-    getFolderUuidMock.mockReturnValueOnce({ data: 'folderUuid' as FolderUuid });
-    getFileUuidMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
+    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'folderUuid' as FolderUuid } });
+    getFileInfoMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } });
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then

@@ -6,10 +6,10 @@ import * as validateWindowsName from '@/context/virtual-drive/items/validate-win
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as hasToBeMoved from './has-to-be-moved';
-import { rename } from 'fs/promises';
+import { rename } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('update-folder-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
@@ -66,7 +66,7 @@ describe('update-folder-placeholder', () => {
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(1);
     expect(virtualDrive.createFolderByPath).toBeCalledWith({
       itemPath: '/folder1/folder2',
-      itemId: 'FOLDER:uuid',
+      placeholderId: 'FOLDER:uuid',
       creationTime: time,
       lastWriteTime: time,
     });

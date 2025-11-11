@@ -1,16 +1,15 @@
-import { logger } from '@/apps/shared/logger/logger';
-import { TWorkerConfig } from '../store';
-import nodeSchedule from 'node-schedule';
-import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
+import { updateRemoteSync } from '@/apps/main/remote-sync/handlers';
+import { SyncContext } from '@/apps/sync-engine/config';
 
-type TProps = {
-  worker: TWorkerConfig;
-};
+const TEN_MINUTES = 10 * 60 * 1000;
 
-export function scheduleSync({ worker }: TProps) {
-  worker.syncSchedule?.cancel(false);
-  worker.syncSchedule = nodeSchedule.scheduleJob('*/10 * * * *', async () => {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Start scheduled sync' });
-    await debouncedSynchronization();
-  });
+type Props = { ctx: SyncContext };
+
+export function scheduleSync({ ctx }: Props) {
+  void updateRemoteSync({ workspaceId: ctx.workspaceId });
+
+  return setInterval(async () => {
+    ctx.logger.debug({ msg: 'Start scheduled sync' });
+    await updateRemoteSync({ workspaceId: ctx.workspaceId });
+  }, TEN_MINUTES);
 }

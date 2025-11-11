@@ -21,9 +21,6 @@ export class DriveFolder {
   @PrimaryColumn({ nullable: false, type: 'varchar' })
   uuid!: string;
 
-  @Column({ nullable: false, type: 'varchar' })
-  type!: string;
-
   @Column({ nullable: false, unique: true, type: 'int' })
   id!: number;
 

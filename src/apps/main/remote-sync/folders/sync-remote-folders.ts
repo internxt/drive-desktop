@@ -1,6 +1,6 @@
-import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
+import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { FETCH_LIMIT } from '../store';
+import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
@@ -22,30 +22,28 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
      * In that situation, fetch only EXISTS folders.
      */
     const query = {
-      limit: FETCH_LIMIT,
+      limit: FETCH_LIMIT_1000,
       offset,
       status: from ? ('ALL' as const) : ('EXISTS' as const),
       updatedAt: from?.toISOString(),
+      sort: 'updatedAt',
+      order: 'ASC',
     };
 
     const promise = self.workspaceId
       ? driveServerWip.workspaces.getFoldersInWorkspace({ workspaceId: self.workspaceId, query })
       : driveServerWip.folders.getFolders({ query });
 
-    const { data, error } = await promise;
+    const { data: folderDtos, error } = await promise;
 
-    if (!data) throw error;
+    if (error) throw error;
 
-    hasMore = data.length === FETCH_LIMIT;
-    offset += FETCH_LIMIT;
+    hasMore = folderDtos.length === FETCH_LIMIT_1000;
+    offset += FETCH_LIMIT_1000;
 
-    await Promise.all(
-      data.map(async (folderDto) => {
-        await createOrUpdateFolder({ context: self.context, folderDto });
-      }),
-    );
+    await createOrUpdateFolders({ context: self.context, folderDtos });
 
-    const lastFolder = data.at(-1);
+    const lastFolder = folderDtos.at(-1);
     if (lastFolder) {
       await LokijsModule.CheckpointsModule.updateCheckpoint({
         userUuid: self.context.userUuid,
