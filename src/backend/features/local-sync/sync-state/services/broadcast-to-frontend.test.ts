@@ -2,19 +2,20 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import * as storeModule from '../store';
 import { broadcastToFrontend, getSortedItems } from './broadcast-to-frontend';
 import * as broadcastToWidgetModule from '@/apps/main/windows';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('broadcast-to-frontend', () => {
   const clearStoreMock = partialSpyOn(storeModule, 'clearStore');
   const broadcastToWidgetMock = partialSpyOn(broadcastToWidgetModule, 'broadcastToWidget');
 
   const props = mockProps<typeof getSortedItems>([
-    { path: 'path1', action: 'DELETE_ERROR' },
-    { path: 'path2', action: 'UPLOAD_ERROR' },
-    { path: 'path3', action: 'DELETED' },
-    { path: 'path4', action: 'DOWNLOAD_CANCEL' },
-    { path: 'path5', action: 'UPLOADED' },
-    { path: 'path6', action: 'DOWNLOADING' },
-    { path: 'path7', action: 'MOVED' },
+    { path: 'path1' as AbsolutePath, action: 'DELETE_ERROR' },
+    { path: 'path2' as AbsolutePath, action: 'UPLOAD_ERROR' },
+    { path: 'path3' as AbsolutePath, action: 'DELETED' },
+    { path: 'path4' as AbsolutePath, action: 'DOWNLOAD_CANCEL' },
+    { path: 'path5' as AbsolutePath, action: 'UPLOADED' },
+    { path: 'path6' as AbsolutePath, action: 'DOWNLOADING' },
+    { path: 'path7' as AbsolutePath, action: 'MOVED' },
   ]);
 
   it('should clear store when no items', () => {

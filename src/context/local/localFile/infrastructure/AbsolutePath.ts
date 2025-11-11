@@ -25,8 +25,8 @@ export function createRelativePath(...parts: string[]) {
   return parsePath({ path }) as RelativePath;
 }
 
-function dirname(path: RelativePath) {
-  return posix.dirname(path) as RelativePath;
+function dirname<T extends RelativePath | AbsolutePath>(path: T) {
+  return posix.dirname(path) as T;
 }
 
 function absoluteToRelative({ base, path }: { base: AbsolutePath; path: AbsolutePath }) {

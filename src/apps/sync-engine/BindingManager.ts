@@ -22,7 +22,7 @@ export class BindingsManager {
         try {
           ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
 
-          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
+          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path: createAbsolutePath(path) });
 
           ctx.contentsDownloader.forceStop();
         } catch (error) {

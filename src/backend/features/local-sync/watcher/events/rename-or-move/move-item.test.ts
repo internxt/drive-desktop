@@ -1,10 +1,10 @@
 import { moveItem } from './move-item';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('move-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
@@ -20,7 +20,7 @@ describe('move-item', () => {
       uuid: 'uuid' as FileUuid,
       item: { parentUuid: 'parentUuid' },
       itemName: 'name',
-      path: createRelativePath('folder', 'newName'),
+      path: '/folder/newName' as AbsolutePath,
       ctx: {
         workspaceToken: '',
         virtualDrive: { updateSyncStatus: vi.fn() },
@@ -40,7 +40,7 @@ describe('move-item', () => {
   it('should not do anything if neither move nor renamed', async () => {
     // Given
     getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
-    props.path = createRelativePath('folder', 'name');
+    props.path = '/folder/name' as AbsolutePath;
     // When
     await moveItem(props);
     // Then

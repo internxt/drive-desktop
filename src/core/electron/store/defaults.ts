@@ -1,5 +1,6 @@
 import { User } from '@/apps/main/types';
 import { AppStore } from './app-store.interface';
+import { DEFAULT_LANGUAGE } from '@/apps/main/config/language.types';
 
 export const defaults: AppStore = {
   backupsEnabled: false,
@@ -17,7 +18,7 @@ export const defaults: AppStore = {
   savedConfigs: {},
   lastOnboardingShown: '',
   discoveredBackup: 0,
-  preferedLanguage: 'en',
+  preferedLanguage: DEFAULT_LANGUAGE,
   preferedTheme: 'system',
   'patch-executed-2-5-1': false,
   'migrations.v2-5-1-add-user-uuid-to-database': false,
