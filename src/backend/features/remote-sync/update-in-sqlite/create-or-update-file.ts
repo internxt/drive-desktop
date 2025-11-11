@@ -1,8 +1,9 @@
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { Config } from '@/apps/sync-engine/config';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export async function createOrUpdateFile({ context, fileDto }: { context: Config; fileDto: FileDto }) {
+export async function createOrUpdateFile({ context, fileDto }: { context: Config | BackupsContext; fileDto: FileDto }) {
   return await SqliteModule.FileModule.createOrUpdate({
     file: {
       ...fileDto,

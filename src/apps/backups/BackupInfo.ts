@@ -12,6 +12,7 @@ export type BackupInfo = {
 
 export type BackupsContext = BackupInfo & {
   userUuid: string;
+  workspaceId: '';
   abortController: AbortController;
   fileUploader: EnvironmentFileUploader;
   addIssue: (issue: Omit<BackupsIssue, 'tab' | 'folderUuid'>) => void;

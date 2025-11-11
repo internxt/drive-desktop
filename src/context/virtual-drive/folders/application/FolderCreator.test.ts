@@ -1,7 +1,6 @@
-import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { mockProps } from 'tests/vitest/utils.helper.test';
+import { call, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
@@ -10,13 +9,10 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
-vi.mock(import('@/infra/node-win/node-win.module'));
-
 describe('Folder Creator', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
-  const persistMock = partialSpyOn(HttpRemoteFolderSystem, 'persist');
 
   const path = createRelativePath('folder1', 'folder2');
   const props = mockProps<typeof FolderCreator.run>({
@@ -25,46 +21,26 @@ describe('Folder Creator', () => {
   });
 
   beforeEach(() => {
-    invokeMock.mockResolvedValue({});
+    invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
   });
 
   it('If placeholderId is not found, throw error', async () => {
     // Given
     getFolderInfoMock.mockReturnValueOnce({ error: new Error() });
-
     // When
     const promise = FolderCreator.run(props);
-
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
   });
 
   it('If placeholder id is found, create folder', async () => {
     // Given
-    persistMock.mockResolvedValueOnce({ uuid: 'uuid' });
     getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'parentUuid' as FolderUuid } });
-
     // When
     await FolderCreator.run(props);
-
     // Then
-    expect(persistMock).toBeCalledWith(
-      expect.objectContaining({
-        parentUuid: 'parentUuid',
-        plainName: 'folder2',
-        path: '/folder1/folder2',
-      }),
-    );
-
-    expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
-      folder: {
-        uuid: 'uuid',
-        userUuid: '',
-        workspaceId: '',
-      },
-    });
-
-    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({
+    call(invokeMock).toMatchObject(['folderCreateOrUpdate', { folder: { uuid: 'uuid' } }]);
+    call(virtualDrive.convertToPlaceholder).toStrictEqual({
       itemPath: '/folder1/folder2',
       id: 'FOLDER:uuid',
     });

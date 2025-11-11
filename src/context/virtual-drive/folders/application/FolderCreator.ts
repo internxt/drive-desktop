@@ -12,11 +12,11 @@ type TProps = {
 
 export class FolderCreator {
   static async run({ ctx, path }: TProps) {
-    const posixDir = pathUtils.dirname(path);
-    const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: posixDir });
+    const parentPath = pathUtils.dirname(path);
+    const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
     if (!parentInfo) {
-      throw new FolderNotFoundError(posixDir);
+      throw new FolderNotFoundError(parentPath);
     }
 
     const { data: folder, error } = await ipcRendererDriveServerWip.invoke('createFolder', {
