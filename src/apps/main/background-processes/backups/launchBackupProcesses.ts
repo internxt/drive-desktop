@@ -8,6 +8,7 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { buildFileUploader } from './build-file-uploader';
 import { getAvailableProducts } from '../../payments/get-available-products';
+import { getUser } from '../../auth/service';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -18,6 +19,10 @@ export async function launchBackupProcesses(
   tracker: BackupsProcessTracker,
   status: BackupsProcessStatus,
 ): Promise<void> {
+  const user = getUser();
+
+  if (!user) return;
+
   if (!backupsCanRun(status)) {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
     return;
@@ -64,6 +69,7 @@ export async function launchBackupProcesses(
     const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
     const context: BackupsContext = {
       ...backupInfo,
+      userUuid: user.uuid,
       fileUploader,
       abortController,
       addIssue: (issue) => {
