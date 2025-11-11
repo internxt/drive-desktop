@@ -1,3 +1,5 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+
 export type SyncStateItem = {
   action:
     | 'DELETE_ERROR'
@@ -11,7 +13,7 @@ export type SyncStateItem = {
     | 'UPLOAD_ERROR'
     | 'UPLOADED'
     | 'UPLOADING';
-  path: string;
+  path: AbsolutePath;
   progress?: number;
 };
 

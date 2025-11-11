@@ -1,4 +1,4 @@
-import { posix, win32 } from 'node:path';
+import { posix, win32, dirname as rawDirname } from 'node:path';
 import { AbsolutePath as CoreAbsolutePath, RelativePath as CoreRelativePath } from '@internxt/drive-desktop-core/build/backend';
 
 export type AbsolutePath = CoreAbsolutePath;
@@ -25,8 +25,8 @@ export function createRelativePath(...parts: string[]) {
   return parsePath({ path }) as RelativePath;
 }
 
-function dirname(path: RelativePath) {
-  return posix.dirname(path) as RelativePath;
+function dirname<T extends RelativePath | AbsolutePath>(path: T) {
+  return rawDirname(path) as T;
 }
 
 function absoluteToRelative({ base, path }: { base: AbsolutePath; path: AbsolutePath }) {

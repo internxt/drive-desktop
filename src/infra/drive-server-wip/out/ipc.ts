@@ -15,13 +15,13 @@ export type FromProcess = {
     uuid: FileUuid;
     workspaceToken: string;
     parentUuid: FolderUuid;
-    path: string;
+    path: AbsolutePath;
   }) => Awaited<ReturnType<typeof driveServerWip.files.move>>;
   moveFolderByUuid: (props: {
     uuid: FolderUuid;
     workspaceToken: string;
     parentUuid: FolderUuid;
-    path: string;
+    path: AbsolutePath;
   }) => Awaited<ReturnType<typeof driveServerWip.folders.move>>;
   createFolder: (props: CreateFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
 };

@@ -25,7 +25,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // src/apps/main/preload.ts
 var import_backend = require("@internxt/drive-desktop-core/build/backend");
 var import_electron2 = require("electron");
-var import_posix = __toESM(require("node:path/posix"));
+var import_node_path = __toESM(require("node:path"));
 
 // src/apps/main/preload/ipc-renderer.ts
 var import_electron = require("electron");
@@ -248,7 +248,7 @@ var api = {
       return import_electron2.ipcRenderer.invoke("antivirus:cancel-scan");
     }
   },
-  path: import_posix.default,
+  path: import_node_path.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
