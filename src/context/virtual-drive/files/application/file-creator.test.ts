@@ -41,7 +41,7 @@ describe('File Creator', () => {
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
-      path: 'C:/Users/user/drive/folder/cat.png',
+      path: 'C:/Users/user/drive/cat.png',
     });
   });
 
