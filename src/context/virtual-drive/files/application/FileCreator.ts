@@ -21,7 +21,7 @@ type Props = {
 export class FileCreator {
   static async run({ ctx, path, absolutePath, contents }: Props) {
     try {
-      const parentPath = pathUtils.dirname(path);
+      const parentPath = pathUtils.dirname(absolutePath);
       const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
       if (!parentInfo) {
