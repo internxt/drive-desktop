@@ -19,18 +19,18 @@ describe('traverser', () => {
   beforeEach(() => {
     getFilesMock.mockResolvedValue({
       data: [
-        { nameWithExtension: 'file1', parentUuid: folder },
-        { nameWithExtension: 'file2', parentUuid: folder },
-        { nameWithExtension: 'file3', parentUuid: folder1 },
-        { nameWithExtension: 'file4', parentUuid: folder3 },
+        { nameWithExtension: 'file1', parentUuid: folder, status: 'EXISTS' },
+        { nameWithExtension: 'file2', parentUuid: folder, status: 'EXISTS' },
+        { nameWithExtension: 'file3', parentUuid: folder1, status: 'EXISTS' },
+        { nameWithExtension: 'file4', parentUuid: folder3, status: 'EXISTS' },
       ],
     });
 
     getFoldersMock.mockResolvedValue({
       data: [
-        { uuid: folder1, name: 'folder1', parentUuid: folder },
-        { uuid: folder2, name: 'folder2', parentUuid: folder },
-        { uuid: folder3, name: 'folder3', parentUuid: folder1 },
+        { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
+        { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
+        { uuid: folder3, name: 'folder3', parentUuid: folder1, status: 'EXISTS' },
       ],
     });
   });
