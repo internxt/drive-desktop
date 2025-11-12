@@ -2,8 +2,9 @@ import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
 import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-type FileAction = { path: string };
+type FileAction = { path: AbsolutePath };
 type FileProgress = FileAction & { progress: number };
 
 type FilesEvents = {

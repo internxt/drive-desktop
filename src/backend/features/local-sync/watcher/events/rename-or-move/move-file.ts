@@ -1,12 +1,12 @@
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { moveItem } from './move-item';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
+  path: AbsolutePath;
   uuid: FileUuid;
 };
 

@@ -2,11 +2,12 @@ import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test
 import { clearStore, store } from '../store';
 import { addItem } from './add-item';
 import * as broadcastToFrontendModule from './broadcast-to-frontend';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('add-item', () => {
   const broadcastToFrontendMock = partialSpyOn(broadcastToFrontendModule, 'broadcastToFrontend');
 
-  const props = mockProps<typeof addItem>({ path: 'path' });
+  const props = mockProps<typeof addItem>({ path: 'path' as AbsolutePath });
 
   beforeEach(() => {
     vi.useFakeTimers();

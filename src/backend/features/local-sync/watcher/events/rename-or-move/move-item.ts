@@ -1,14 +1,15 @@
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
 import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
+  path: AbsolutePath;
   itemName: string;
   item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
