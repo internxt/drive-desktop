@@ -7,7 +7,7 @@ import VirtualDrive from '@/node-win/virtual-drive';
 
 describe('handle-dehydrate', () => {
   const drive = mockDeep<VirtualDrive>();
-  const path = createAbsolutePath('folder', 'file.txt');
+  const path = createAbsolutePath('C:/Drive/folder/file.txt');
   const props = mockProps<typeof handleDehydrate>({ drive, path });
 
   it('should call dehydrateFile', () => {

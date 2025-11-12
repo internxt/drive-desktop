@@ -4,7 +4,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 import { restoreParentFolder } from './restore-parent-folder';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { sleep } from '@/apps/main/util';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -66,7 +65,7 @@ export class HttpRemoteFileSystem {
     });
   }
 
-  static async getFileByPath({ path }: { path: RelativePath }) {
+  static async getFileByPath({ path }: { path: AbsolutePath }) {
     const { data, error } = await driveServerWip.files.getByPath({ path });
 
     if (error) return null;

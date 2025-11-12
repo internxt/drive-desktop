@@ -49,7 +49,7 @@ describe('debounce-on-raw', () => {
   it('should call just twice if key is different', () => {
     // When
     debounceOnRaw(props);
-    props.absolutePath = 'anotherPath' as AbsolutePath;
+    props.path = 'anotherPath' as AbsolutePath;
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(2000);

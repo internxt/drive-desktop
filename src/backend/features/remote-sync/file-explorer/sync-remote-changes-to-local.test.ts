@@ -2,7 +2,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createAbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -26,7 +26,7 @@ describe('sync-remote-to-local', () => {
     props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
       local: {
-        path: 'C:/localPath' as AbsolutePath,
+        path: createAbsolutePath('C:/Drive/localPath'),
         stats: {
           size: 512,
           mtime: new Date('1999-01-01T00:00:00.000Z'),

@@ -9,14 +9,14 @@ describe('handle-hydrate', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const props = mockProps<typeof handleHydrate>({
     ctx: { virtualDrive },
-    path: createAbsolutePath('folder1', 'folder2', 'file.txt'),
+    path: createAbsolutePath('C:/Drive/folder/file.txt'),
   });
 
   it('should call handle hydrate successfully', async () => {
     // When
     await handleHydrate(props);
     // Then
-    expect(virtualDrive.hydrateFile).toBeCalledWith({ itemPath: '/folder1/folder2/file.txt' });
+    expect(virtualDrive.hydrateFile).toBeCalledWith({ itemPath: 'C:/Drive/folder/file.txt' });
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

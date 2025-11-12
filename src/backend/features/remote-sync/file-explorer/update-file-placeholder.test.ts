@@ -27,7 +27,7 @@ describe('update-file-placeholder', () => {
 
     props = mockProps<typeof FilePlaceholderUpdater.update>({
       ctx: { virtualDrive },
-      files: { ['uuid' as FileUuid]: { absolutePath: 'localPath.absolutePath' as AbsolutePath } },
+      files: { ['uuid' as FileUuid]: { path: 'localPath.absolutePath' as AbsolutePath } },
       remote: {
         path: createRelativePath('file1', 'file2'),
         absolutePath: 'remotePath' as AbsolutePath,

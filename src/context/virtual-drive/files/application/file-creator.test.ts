@@ -23,9 +23,9 @@ describe('File Creator', () => {
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const contents = { id: 'contentsId' as ContentsId, size: 1024 };
-  const absolutePath = 'C:/Users/user/drive/cat.png' as AbsolutePath;
+  const path = 'C:/Users/user/drive/cat.png' as AbsolutePath;
 
-  const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, contents, absolutePath });
+  const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, contents, path });
 
   beforeEach(() => {
     getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
