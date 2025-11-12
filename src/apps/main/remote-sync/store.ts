@@ -16,7 +16,6 @@ export const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const driveFilesCollection = new DriveFileCollection();
 export const driveFoldersCollection = new DriveFolderCollection();
 
-export const FETCH_LIMIT_50 = 50;
 export const FETCH_LIMIT_1000 = 1000;
 
 export function getRemoteSyncManager({ workspaceId }: { workspaceId: string }) {

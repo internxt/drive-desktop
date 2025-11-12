@@ -7,7 +7,7 @@ import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, FETCH_LIMIT_50, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { driveFilesCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -127,17 +127,11 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
 
-  const { data: folders = [] } = await driveServerWip.folders.getFoldersByFolder({
-    folderUuid,
-    query: {
-      limit: FETCH_LIMIT_50,
-      offset: 0,
-      sort: 'updatedAt',
-      order: 'DESC',
-    },
-  });
+  const { data: folder } = await driveServerWip.backup.fetchFolder({ folderUuid });
 
-  return folders.map((folder) => ({
+  if (!folder) return [];
+
+  return folder.children.map((folder) => ({
     id: folder.id,
     uuid: folder.uuid,
     plainName: folder.plainName,
