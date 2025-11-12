@@ -16,7 +16,7 @@ describe('on-add', () => {
   const createFileMock = partialSpyOn(AddController, 'createFile');
   const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
 
-  const absolutePath = 'C:/Users/user/drive/file.txt' as AbsolutePath;
+  const path = 'C:/Users/user/drive/file.txt' as AbsolutePath;
 
   let props: Parameters<typeof onAdd>[0];
 
@@ -24,7 +24,7 @@ describe('on-add', () => {
     getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
     props = mockProps<typeof onAdd>({
       ctx: { virtualDrive: { syncRootPath: 'C:/Users/user' as AbsolutePath } },
-      absolutePath,
+      path,
     });
   });
 

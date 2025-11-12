@@ -10,7 +10,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 export type InMemoryFiles = Record<
   FileUuid,
   {
-    absolutePath: AbsolutePath;
+    path: AbsolutePath;
     stats: Stats;
   }
 >;
@@ -27,21 +27,21 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
   const items = await fileSystem.syncWalk({ rootFolder: rootPath });
 
   for (const item of items) {
-    const { absolutePath, stats } = item;
+    const { path, stats } = item;
 
     if (!stats) continue;
 
     if (stats.isDirectory()) {
-      const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path: absolutePath });
+      const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path });
       if (folderInfo) {
-        folders[folderInfo.uuid] = absolutePath;
+        folders[folderInfo.uuid] = path;
       }
     }
 
     if (stats.isFile()) {
-      const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path: absolutePath });
+      const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
       if (fileInfo) {
-        files[fileInfo.uuid] = { stats, absolutePath };
+        files[fileInfo.uuid] = { stats, path };
       }
     }
   }

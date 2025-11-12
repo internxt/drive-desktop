@@ -2,7 +2,6 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ProcessSyncContext } from '../config';
 import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 import { isHydrationPending } from './is-hydration-pending';
-import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { isModified } from './is-modified';
 import { FileExplorerState, RemoteFilesMap } from './file-explorer-state.types';
 
@@ -14,12 +13,11 @@ type Props = {
 };
 
 export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
-  const { absolutePath, stats } = localItem;
+  const { path, stats } = localItem;
 
   if (!stats) return;
 
-  const path = pathUtils.absoluteToRelative({ base: ctx.virtualDrive.syncRootPath, path: absolutePath });
-  const pendingFileExplorerItem = { path, absolutePath, stats };
+  const pendingFileExplorerItem = { path, stats };
 
   if (stats.isDirectory()) {
     const { error } = NodeWin.getFolderInfo({ ctx, path });

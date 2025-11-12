@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { Stats } from 'node:fs';
@@ -12,17 +12,7 @@ export class AddController {
   // - a folder has been added
   // - a file has been saved
 
-  static async createFile({
-    ctx,
-    absolutePath,
-    path,
-    stats,
-  }: {
-    ctx: ProcessSyncContext;
-    absolutePath: AbsolutePath;
-    path: RelativePath;
-    stats: Stats;
-  }) {
+  static async createFile({ ctx, path, stats }: { ctx: ProcessSyncContext; path: AbsolutePath; stats: Stats }) {
     logger.debug({ msg: 'Create file', path });
 
     try {
@@ -42,12 +32,7 @@ export class AddController {
         return;
       }
 
-      await createFile({
-        ctx,
-        absolutePath,
-        path,
-        stats,
-      });
+      await createFile({ ctx, path, stats });
     } catch (error) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error in file creation', path, error });
     }

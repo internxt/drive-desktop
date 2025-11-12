@@ -30,15 +30,15 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ ctx, remotePath, localPath: localPath.absolutePath })) {
+      if (hasToBeMoved({ ctx, remotePath, localPath: localPath.path })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
           remotePath,
-          localPath: localPath.absolutePath,
+          localPath: localPath.path,
         });
 
-        await rename(localPath.absolutePath, remotePath);
+        await rename(localPath.path, remotePath);
       }
 
       await syncRemoteChangesToLocal({

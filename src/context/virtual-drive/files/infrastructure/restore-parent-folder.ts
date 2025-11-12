@@ -3,11 +3,12 @@ import path from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@/apps/shared/logger/logger';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  offline: { contentsId: string; path: RelativePath; size: number; folderUuid: string };
+  offline: { contentsId: string; path: AbsolutePath; size: number; folderUuid: string };
 };
 
 export async function restoreParentFolder({ ctx, offline }: TProps) {

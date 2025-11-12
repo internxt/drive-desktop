@@ -14,13 +14,12 @@ type Props = {
   bucket: string;
   readable: ReadStream;
   size: number;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
   abortSignal: AbortSignal;
-  path: string;
   callbacks: FileUploaderCallbacks;
 };
 
-export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSignal, path, callbacks }: Props) {
+export function uploadFile({ fn, bucket, readable, size, abortSignal, path, callbacks }: Props) {
   function stopUpload(state: ActionState) {
     state.stop();
     readable.destroy();
@@ -46,7 +45,7 @@ export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSign
         },
       });
 
-      interval = setInterval(() => abortOnChangeSize({ path, absolutePath, size, resolve, stopUpload, state }), 5000);
+      interval = setInterval(() => abortOnChangeSize({ path, size, resolve, stopUpload, state }), 5000);
       abortSignal.addEventListener('abort', () => {
         logger.debug({ msg: 'Aborting upload', path });
         stopUpload(state);

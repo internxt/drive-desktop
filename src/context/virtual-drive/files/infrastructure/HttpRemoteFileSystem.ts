@@ -7,6 +7,7 @@ import { restoreParentFolder } from './restore-parent-folder';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { sleep } from '@/apps/main/util';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class HttpRemoteFileSystem {
   static async create(offline: {
@@ -40,7 +41,7 @@ export class HttpRemoteFileSystem {
     return res;
   }
 
-  static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
+  static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: AbsolutePath; size: number }) {
     const props = {
       ...offline,
       bucket: ctx.bucket,

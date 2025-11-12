@@ -8,7 +8,7 @@ import { unlink } from 'node:fs/promises';
 type Props = {
   virtualDrive: VirtualDrive;
   remote: ExtendedDriveFile;
-  local: { absolutePath: AbsolutePath; stats: Stats };
+  local: { path: AbsolutePath; stats: Stats };
 };
 
 export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: Props) {
@@ -25,8 +25,8 @@ export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: 
     });
 
     try {
-      if (existsSync(local.absolutePath)) {
-        await unlink(local.absolutePath);
+      if (existsSync(local.path)) {
+        await unlink(local.path);
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Deleted old local file to prepare for remote sync',

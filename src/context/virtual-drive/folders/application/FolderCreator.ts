@@ -2,12 +2,13 @@ import { posix } from 'node:path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
+  path: AbsolutePath;
 };
 
 export class FolderCreator {

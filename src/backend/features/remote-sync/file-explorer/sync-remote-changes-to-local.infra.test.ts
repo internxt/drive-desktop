@@ -8,7 +8,7 @@ import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createAbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
 import * as debounceOnRaw from '@/node-win/watcher/events/debounce-on-raw';
@@ -20,8 +20,8 @@ describe('sync-remote-changes-to-local', () => {
 
   const providerName = 'Internxt Drive';
   const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, 'root') as AbsolutePath;
-  const filePath = join(rootPath, 'file.txt');
+  const rootPath = createAbsolutePath(testPath, 'root');
+  const filePath = createAbsolutePath(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
   const virtualDrive = new VirtualDrive({ providerId, rootPath });
@@ -56,7 +56,7 @@ describe('sync-remote-changes-to-local', () => {
         size: 1000,
       },
       local: {
-        absolutePath: filePath as AbsolutePath,
+        path: filePath,
         stats: { mtime: new Date('2000-01-01'), size: 2000 },
       },
     });
