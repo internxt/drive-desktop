@@ -1,11 +1,5 @@
-import { getRemoteSyncManager } from './remote-sync/store';
 import { ipcMainSyncEngine } from '../sync-engine/ipcMainSyncEngine';
 import { LocalSync } from '@/backend/features';
-
-ipcMainSyncEngine.on('CHANGE_SYNC_STATUS', (_, workspaceId, status) => {
-  const manager = getRemoteSyncManager({ workspaceId });
-  manager?.changeStatus(status);
-});
 
 ipcMainSyncEngine.on('FILE_DOWNLOADING', (_, payload) => {
   LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path: payload.path, progress: payload.progress });

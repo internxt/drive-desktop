@@ -5,7 +5,7 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 import { LocalSync } from '@/backend/features';
-import { basename } from 'node:path/posix';
+import { basename } from 'node:path';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
