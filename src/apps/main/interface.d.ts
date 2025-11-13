@@ -28,6 +28,14 @@ export interface IElectronAPI {
 
   addBackup: () => Promise<BackupInfo | undefined>;
 
+  deleteBackupsFromDevice: (device: Device, isCurrent?: boolean) => Promise<void>;
+
+  disableBackup: (backup: BackupInfo) => Promise<void>;
+
+  downloadBackup: (device: Device) => Promise<void>;
+
+  abortDownloadBackups: (deviceId: string) => void;
+
   renameDevice: (deviceName: string) => Promise<Device>;
   devices: {
     getDevices: () => Promise<Array<Device>>;

@@ -76,7 +76,9 @@ export function useBackups(): BackupContextProps {
 
   async function disableBackup(backup: BackupInfo) {
     await window.electron.disableBackup(backup);
-    await loadBackups();
+    setBackups(prevBackups =>
+      prevBackups.filter(b => b.folderUuid !== backup.folderUuid)
+    );
   }
 
   async function deleteBackups(device: Device, isCurrent?: boolean): Promise<boolean> {
