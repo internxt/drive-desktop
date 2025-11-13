@@ -12,7 +12,7 @@ import { spawnSyncEngineWorker } from '../background-processes/sync-engine/servi
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
-export function getRootVirtualDrive() {
+export async function getRootVirtualDrive() {
   const user = getUserOrThrow();
 
   const defaultSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
@@ -29,9 +29,8 @@ export function getRootVirtualDrive() {
    * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
    */
   if (OLD_SYNC_ROOT === syncRoot) {
-    const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
-    migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
-    return newSyncRoot;
+    await migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot: defaultSyncRoot });
+    return defaultSyncRoot;
   }
 
   return syncRoot;
@@ -63,18 +62,16 @@ export async function chooseSyncRootWithDialog() {
 
       ctx.rootPath = newSyncRoot;
 
-      migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+      await migrateSyncRoot({ oldSyncRoot, newSyncRoot });
       await spawnSyncEngineWorker({ ctx });
     }
   } catch (error) {
     logger.error({ msg: 'Error migrating sync root', error });
   }
-
-  return newSyncRoot;
 }
 
 export async function openVirtualDriveRootFolder() {
-  const syncFolderPath = getRootVirtualDrive();
+  const syncFolderPath = await getRootVirtualDrive();
 
   const errorMessage = await shell.openPath(syncFolderPath);
 

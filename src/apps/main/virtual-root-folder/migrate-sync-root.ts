@@ -1,18 +1,19 @@
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
-import { existsSync, renameSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { electronStore } from '../config';
+import { rename } from 'node:fs/promises';
 
 type Props = { oldSyncRoot: AbsolutePath; newSyncRoot: AbsolutePath };
 
-export function migrateSyncRoot({ oldSyncRoot, newSyncRoot }: Props) {
-  logger.debug({ msg: 'Check migrate sync root', oldSyncRoot, newSyncRoot });
+export async function migrateSyncRoot({ oldSyncRoot, newSyncRoot }: Props) {
+  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Check migrate sync root', oldSyncRoot, newSyncRoot });
 
   try {
     if (existsSync(newSyncRoot)) {
-      logger.debug({ msg: 'New sync root already exists, skiping' });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'New sync root already exists, skiping' });
     } else if (existsSync(oldSyncRoot)) {
-      logger.debug({ msg: 'Migrate sync root' });
-      renameSync(oldSyncRoot, newSyncRoot);
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Migrate sync root' });
+      await rename(oldSyncRoot, newSyncRoot);
     } else {
       logger.debug({ tag: 'SYNC-ENGINE', msg: 'Old sync root does not exist, skiping' });
     }
@@ -21,5 +22,4 @@ export function migrateSyncRoot({ oldSyncRoot, newSyncRoot }: Props) {
   }
 
   electronStore.set('syncRoot', newSyncRoot);
-  return newSyncRoot;
 }
