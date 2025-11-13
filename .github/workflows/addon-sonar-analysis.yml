@@ -1,16 +1,20 @@
-name: Sonar analysis
+name: Addon sonar analysis
 
 on:
   pull_request:
+    paths: ['packages/addon/**']
     types: [opened, synchronize, reopened]
   push:
-    branches:
-      - master
+    paths: ['packages/addon/**']
+    branches: ['main']
 
 jobs:
   sonar_analysis:
     runs-on: windows-2022
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/addon
 
     env:
       BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
@@ -42,3 +46,4 @@ jobs:
         with:
           args: >
             --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
+
