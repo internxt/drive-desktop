@@ -12,9 +12,9 @@
 
 ## Windows
 
-- **NVM** [🔗](https://github.com/coreybutler/nvm-windows)
+- [**NVM**](https://github.com/coreybutler/nvm-windows)
 
-- **Python 3.10** [🔗](<(https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)>)
+- [**Python 3.10**](https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)
 
 - **Node.js 20**
 
