@@ -10,7 +10,7 @@
     "build": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "nodemon",
     "init:dev": "npm install && node node_modules/electron/install.js",
-    "pack:local": "npm pack --pack-destination=../dist-packages",
+    "pack:local": "node scripts/pack-local",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
