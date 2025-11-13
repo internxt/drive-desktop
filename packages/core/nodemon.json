@@ -1,0 +1,7 @@
+{
+  "exec": "npm run build",
+  "ext": "ts,tsx",
+  "ignore": ["**/*.test.ts"],
+  "verbose": true,
+  "watch": ["src"]
+}

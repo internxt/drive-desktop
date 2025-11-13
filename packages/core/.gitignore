@@ -1,0 +1,5 @@
+.npmrc
+/build
+/coverage
+/node_modules
+/test-files
