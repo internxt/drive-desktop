@@ -12,7 +12,6 @@ import { downloadFolderAsZip } from '../network/download';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
-import { BackupError } from '../../backups/BackupError';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
 import { DeviceModule } from '../../../backend/features/device/device.module';
@@ -21,7 +20,7 @@ import { deleteFolder } from '../../../infra/drive-server/services/backup/servic
 import { getBackupFolderUuid } from '../../../infra/drive-server/services/backup/services/fetch-backup-folder-uuid';
 import { updateBackupFolderName } from '../../../infra/drive-server/services/backup/services/update-backup-folder-metadata';
 import { migrateBackupEntryIfNeeded } from './migrate-backup-entry-if-needed';
-import { createBackupFolder } from '../../../infra/drive-server/services/backup/services/create-backup-folder';
+import { createBackup } from '../backups/create-backup';
 
 export type Device = {
   id: number;
@@ -59,86 +58,6 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
     name: nameDevice,
     ...rest,
   };
-}
-
-export type Backup = { id: number; name: string; uuid: string };
-
-/**
- * Posts a Backup to desktop server API
- *
- * @param name Name of the backup folder
- * @returns
- */
-async function postBackup(name: string): Promise<Backup> {
-  const getOrCreateDeviceResult = await DeviceModule.getOrCreateDevice();
-  if (getOrCreateDeviceResult instanceof Error) {
-    throw getOrCreateDeviceResult;
-  }
-  const deviceUuid = getOrCreateDeviceResult.uuid;
-  const createBackupResponse = await createBackupFolder(deviceUuid, name);
-  if (createBackupResponse.data) {
-    const backup: Backup = {
-      id: createBackupResponse.data.id,
-      name: createBackupResponse.data.plainName,
-      uuid: createBackupResponse.data.uuid,
-    };
-    return backup;
-  }
-  if (createBackupResponse.error) {
-    throw createBackupResponse.error;
-  }
-  throw new BackupError('UNKNOWN');
-}
-
-/**
- * Creates a backup given a local folder path
- * @param pathname Path to the local folder for the backup
- */
-async function createBackup(pathname: string): Promise<void> {
-  const { base } = path.parse(pathname);
-  const newBackup = await postBackup(base);
-  const backupList = configStore.get('backupList');
-
-  backupList[pathname] = {
-    enabled: true,
-    folderId: newBackup.id,
-    folderUuid: newBackup.uuid,
-  };
-
-  configStore.set('backupList', backupList);
-}
-
-export async function addBackup(): Promise<void> {
-  const chosenItem = await getPathFromDialog();
-  if (!chosenItem || !chosenItem.path) {
-    return;
-  }
-
-  const chosenPath = chosenItem.path;
-  const backupList = configStore.get('backupList');
-
-  const existingBackup = backupList[chosenPath];
-
-  if (!existingBackup) {
-    return createBackup(chosenPath);
-  }
-  const migratedBackup = await migrateBackupEntryIfNeeded(chosenPath, existingBackup);
-
-  let folderStillExists;
-  try {
-    await fetchFolder(migratedBackup.folderUuid);
-    folderStillExists = true;
-  } catch {
-    folderStillExists = false;
-  }
-
-  if (folderStillExists) {
-    const updatedBackupList = configStore.get('backupList');
-    updatedBackupList[chosenPath].enabled = true;
-    configStore.set('backupList', updatedBackupList);
-  } else {
-    return createBackup(chosenPath);
-  }
 }
 
 export async function fetchFolderTree(folderUuid: string): Promise<{
@@ -364,7 +283,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   const oldFolderName = path.basename(currentPath);
   const newFolderName = path.basename(chosenPath);
   if (oldFolderName !== newFolderName) {
-    logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
+    logger.debug({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
     const getFolderUuidResponse = await getBackupFolderUuid(existingBackup);
     if (getFolderUuidResponse.error) {
       throw getFolderUuidResponse.error;
@@ -403,7 +322,7 @@ export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   if (result instanceof Error) {
     throw result;
   }
-  const operations = folderPaths.map((folderPath) => createBackup(folderPath));
+  const operations = folderPaths.map((folderPath) => createBackup({ pathname: folderPath, device: result }));
 
   await Promise.all(operations);
 }

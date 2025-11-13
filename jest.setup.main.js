@@ -19,3 +19,40 @@ jest.mock('electron-store', () => {
     clear: jest.fn(),
   }));
 });
+
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+    debug: jest.fn(),
+  },
+}));
+
+jest.mock('axios', () => {
+  const mockAxiosInstance = {
+    interceptors: {
+      request: {
+        use: jest.fn(),
+      },
+      response: {
+        use: jest.fn(),
+      },
+    },
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+  };
+  
+  return {
+    default: {
+      create: jest.fn(() => mockAxiosInstance),
+    },
+    create: jest.fn(() => mockAxiosInstance),
+  };
+});
+
+jest.mock('@internxt/inxt-js', () => ({
+  default: jest.fn(),
+}));

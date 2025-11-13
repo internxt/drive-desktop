@@ -122,7 +122,7 @@ declare interface Window {
 
     getBackupsFromDevice: typeof import('../../backend/features/device/device.module').DeviceModule.getBackupsFromDevice;
 
-    addBackup: typeof import('../main/device/service').addBackup;
+    addBackup: typeof import('../main/backups/add-backup').addBackup;
 
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 

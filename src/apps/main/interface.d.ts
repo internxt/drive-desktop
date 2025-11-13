@@ -26,6 +26,8 @@ export interface IElectronAPI {
 
   getBackupsFromDevice: (device: Device, isCurrent?: boolean) => Promise<Array<BackupInfo>>;
 
+  addBackup: () => Promise<BackupInfo | undefined>;
+
   renameDevice: (deviceName: string) => Promise<Device>;
   devices: {
     getDevices: () => Promise<Array<Device>>;
