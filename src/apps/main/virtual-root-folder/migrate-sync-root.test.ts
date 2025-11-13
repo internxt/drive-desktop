@@ -18,30 +18,30 @@ describe('migrate-sync-root', () => {
     call(setMock).toStrictEqual(['syncRoot', 'newSyncRoot']);
   });
 
-  it('should skip if new sync root folder already exists', () => {
+  it('should skip if new sync root folder already exists', async () => {
     // Given
     existsSyncMock.mockReturnValueOnce(true);
     // When
-    migrateSyncRoot(props);
+    await migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toContainEqual({ msg: 'New sync root already exists, skiping' });
   });
 
-  it('should set a new syncRoot when the user changes the root', () => {
+  it('should set a new syncRoot when the user changes the root', async () => {
     // Given
     existsSyncMock.mockReturnValueOnce(false).mockReturnValueOnce(true);
     // When
-    migrateSyncRoot(props);
+    await migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate sync root' }, { msg: 'Migrate sync root' }]);
     calls(renameSyncMock).toHaveLength(1);
   });
 
-  it('should set a new syncRoot when the user changes the root', () => {
+  it('should set a new syncRoot when the user changes the root', async () => {
     // Given
     existsSyncMock.mockReturnValue(false);
     // When
-    migrateSyncRoot(props);
+    await migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate sync root' }, { msg: 'Old sync root does not exist, skiping' }]);
   });

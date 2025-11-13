@@ -1,16 +1,14 @@
+import { useChooseSyncRootWithDialog } from '@/apps/renderer/api/use-choose-sync-root-with-dialog';
+import { useGetSyncRootLocation } from '@/apps/renderer/api/use-get-sync-root-location';
 import Button from '@/apps/renderer/components/Button';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 export function useSyncRootLocation() {
-  const [syncRoot, setSyncRoot] = useState('');
-
-  useEffect(() => {
-    void window.electron.driveGetSyncRoot().then(setSyncRoot);
-  }, []);
+  const { data: syncRoot } = useGetSyncRootLocation();
 
   const parsedSyncRoot = useMemo(() => {
-    if (syncRoot === '') return '';
+    if (!syncRoot) return '';
 
     const parentPath = window.electron.path.dirname(syncRoot);
     const path = window.electron.path.dirname(parentPath);
@@ -21,28 +19,22 @@ export function useSyncRootLocation() {
     return `${truncated}/${parent}`;
   }, [syncRoot]);
 
-  return { parsedSyncRoot, setSyncRoot };
+  return parsedSyncRoot;
 }
 
 export function SyncRootLocation() {
   const { t } = useI18n();
-  const { parsedSyncRoot, setSyncRoot } = useSyncRootLocation();
-
-  async function handleChangeFolder() {
-    const newPath = await window.electron.driveChooseSyncRootWithDialog();
-    if (newPath) {
-      setSyncRoot(newPath);
-    }
-  }
+  const syncRootLocation = useSyncRootLocation();
+  const { mutate: chooseSyncRootWithDialog, isPending } = useChooseSyncRootWithDialog();
 
   return (
     <section className="flex items-center space-x-5">
       <div className="flex flex-1 flex-col space-y-2">
         <p className="text-sm font-medium leading-4 text-gray-80">{t('settings.general.sync.folder')}</p>
-        <p className="text-base">{parsedSyncRoot}</p>
+        <p className="text-base">{syncRootLocation}</p>
       </div>
       <div className="flex-1">
-        <Button variant="secondary" size="md" onClick={handleChangeFolder}>
+        <Button variant="secondary" size="md" disabled={isPending} onClick={() => chooseSyncRootWithDialog()}>
           {t('settings.general.sync.changeLocation')}
         </Button>
       </div>

@@ -31,7 +31,6 @@ describe('getRootVirtualDrive', () => {
   it('should migrate the syncRoot if it is the old one', () => {
     // Given
     getMock.mockReturnValue(OLD_SYNC_ROOT);
-    migrateSyncRootMock.mockReturnValue(absolutePath);
     // When
     const res = getRootVirtualDrive();
     // Then
