@@ -28,7 +28,7 @@ nvm install 20
 npm install -g node-gyp
 ```
 
-- **Visual Studio** (not VS Code) for building native dependencies.
+- [**Visual Studio**](https://visualstudio.microsoft.com/es/downloads) (not VS Code)
 
 ![alt text](public/image-1.png) ![alt text](public/image.png)
 
