@@ -17,32 +17,32 @@ describe('getRootVirtualDrive', () => {
     getUserOrThrowMock.mockReturnValue({ uuid: 'uuid' });
   });
 
-  it('should use default sync root in case of empty', () => {
+  it('should use default sync root in case of empty', async () => {
     // Given
     PATHS.HOME_FOLDER_PATH = 'C:/Users/user/';
     getMock.mockReturnValue('');
     // When
-    const res = getRootVirtualDrive();
+    const res = await getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
     calls(migrateSyncRootMock).toHaveLength(0);
   });
 
-  it('should migrate the syncRoot if it is the old one', () => {
+  it('should migrate the syncRoot if it is the old one', async () => {
     // Given
     getMock.mockReturnValue(OLD_SYNC_ROOT);
     // When
-    const res = getRootVirtualDrive();
+    const res = await getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
     calls(migrateSyncRootMock).toHaveLength(1);
   });
 
-  it('should return the current syncRoot', () => {
+  it('should return the current syncRoot', async () => {
     // Given
     getMock.mockReturnValue(absolutePath);
     // When
-    const res = getRootVirtualDrive();
+    const res = await getRootVirtualDrive();
     // Then
     expect(res).toBe(absolutePath);
     calls(migrateSyncRootMock).toHaveLength(0);
