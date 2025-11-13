@@ -32,11 +32,11 @@
       "@/tests/*": ["./tests/*"]
       /**
        * v2.6.0 Daniel Jiménez
-       * When developing locally with `drive-desktop-core` there is an issue because there are
+       * When developing locally with `core` there is an issue because there are
        * two react versions installed.
        * https://github.com/facebook/react/issues/13991#issuecomment-435587809
        */
-      // "react": ["../drive-desktop-core/node_modules/react"]
+      // "react": ["packages/core/node_modules/react"]
     }
   },
   "include": ["src", "tests", ".erb/configs", ".erb/scripts"]

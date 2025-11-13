@@ -1,4 +1,4 @@
-name: Sonar analysis
+name: Windows sonar analysis
 
 on:
   pull_request:

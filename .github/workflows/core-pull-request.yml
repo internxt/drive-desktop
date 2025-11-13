@@ -1,12 +1,14 @@
-name: Pull request
+name: Core pull request
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/core/**'
 
 jobs:
   pull_request:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
@@ -21,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm run init:ci
+        run: npm ci
 
       - name: Run TypeScript compiler
         run: npm run type-check
