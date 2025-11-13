@@ -1,13 +1,18 @@
-name: Pull request
+name: Find deadcode
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'packages/core/**'
 
 jobs:
-  pull_request:
+  find_deadcode:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: packages/core
 
     steps:
       - name: Checkout code
@@ -23,11 +28,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run TypeScript compiler
-        run: npm run type-check
-
-      - name: Run Prettier
-        run: npm run format
-
-      - name: Run Eslint
-        run: npm run lint
+      - name: Find deadcode
+        run: npm run find-deadcode

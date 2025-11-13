@@ -1,13 +1,15 @@
-name: Publish
+name: Core publish
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    defaults:
+      run:
+        working-directory: packages/core
 
     steps:
       - name: Checkout code
