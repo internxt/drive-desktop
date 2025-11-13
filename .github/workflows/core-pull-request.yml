@@ -10,6 +10,9 @@ jobs:
   pull_request:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: packages/core
 
     steps:
       - name: Checkout code

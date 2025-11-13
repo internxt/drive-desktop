@@ -10,6 +10,9 @@ jobs:
   sonar_analysis:
     runs-on: windows-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/core
 
     steps:
       - name: Checkout code
