@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   plugins: ['@typescript-eslint', 'import', 'unicorn', '@tanstack/query', 'sonarjs'],
   extends: [
     'plugin:prettier/recommended',
