@@ -60,7 +60,7 @@ export function SectionDetailMenu({
   return (
     <div
       className={
-        'border-gray-10 bg-surface dark:bg-gray-5 absolute top-0 right-0 z-10 h-full transform border-l shadow-sm transition-transform duration-300 ease-in-out'
+        'absolute right-0 top-0 z-10 h-full transform border-l border-gray-10 bg-surface shadow-sm transition-transform duration-300 ease-in-out dark:bg-gray-5'
       }
       style={{ width: '75%' }}>
       <SectionDetailHeader
@@ -77,7 +77,7 @@ export function SectionDetailMenu({
       <div className="flex h-full flex-1 flex-col p-4">
         <div
           ref={parentRef}
-          className="bg-space dark:bg-gray-5 flex-1 overflow-auto rounded-lg"
+          className="bg-space flex-1 overflow-auto rounded-lg dark:bg-gray-5"
           style={{ height: '100%', paddingBottom: '32px' }}>
           <div
             style={{
