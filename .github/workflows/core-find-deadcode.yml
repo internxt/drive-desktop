@@ -1,4 +1,4 @@
-name: Find deadcode
+name: Core find deadcode
 
 on:
   pull_request:

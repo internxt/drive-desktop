@@ -1,4 +1,4 @@
-name: Find deadcode
+name: Windows find deadcode
 
 on:
   pull_request:
