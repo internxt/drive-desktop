@@ -31,11 +31,11 @@ function showNotification(notification: MarketingNotification) {
 }
 
 export async function showNotifications() {
-  const { data: notifications } = await DriveServerWipModule.NotificationModule.getAll();
+  const { data: notifications = [] } = await DriveServerWipModule.NotificationModule.getAll();
 
-  if (notifications) {
-    for (const notification of notifications) {
-      showNotification(notification);
-    }
+  logger.debug({ msg: 'Show marketing notifications', notifications: notifications.length });
+
+  for (const notification of notifications) {
+    showNotification(notification);
   }
 }
