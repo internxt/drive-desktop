@@ -1,7 +1,7 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderPlaceholderUpdater } from './update-folder-placeholder';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -81,6 +81,7 @@ describe('update-folder-placeholder', () => {
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
     expect(renameMock).toBeCalledWith('localPath', 'remotePath');
+    call(virtualDrive.updateSyncStatus).toStrictEqual({ itemPath: 'remotePath' });
   });
 
   it('should do nothing if not moved', async () => {
