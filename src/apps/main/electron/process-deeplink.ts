@@ -11,11 +11,13 @@ export function processDeeplink({ argv }: Props) {
 
   if (!url) return;
 
-  const query = url.slice(INTERNXT_PROTOCOL.length + 1);
-  const params = new URLSearchParams(query);
+  const regex = /action=([^&]+)&contentId=(.+)$/;
+  const match = regex.exec(url);
 
-  const action = params.get('action');
-  const contentId = params.get('contentId');
+  if (!match) return;
+
+  const action = match[1];
+  const contentId = match[2];
 
   logger.debug({ msg: 'Deeplink', action, contentId });
 

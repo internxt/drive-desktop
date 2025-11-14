@@ -5,10 +5,12 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Notification } from 'electron';
 
 function showNotification(notification: MarketingNotification) {
-  logger.debug({ msg: 'Show notification', message: notification.message });
+  logger.debug({ msg: 'Show notification', notification });
+
+  const escapedLink = notification.link.replace(/&/g, '&amp;');
 
   const toastXml = `
-<toast launch="com.internxt.drive:action=navigate&amp;contentId=${notification.link}" activationType="protocol">
+<toast launch="com.internxt.drive:action=navigate&amp;contentId=${escapedLink}" activationType="protocol">
   <visual>
     <binding template="ToastGeneric">
       <text>${notification.message}</text>

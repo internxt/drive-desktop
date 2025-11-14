@@ -12,17 +12,20 @@ describe('show-notifications', () => {
 
   beforeEach(() => {
     NotificationMock.mockReturnValue({ show: mockShow, on: mockOn } as Partial<Notification> as Notification);
-    getAllMock.mockResolvedValue({ data: [{ message: 'message', link: 'https://internxt.com/deals/black-friday-internxt' }] });
   });
 
   it('should show notification and prepare failed callback', async () => {
+    // Given
+    getAllMock.mockResolvedValue({ data: [{ link: 'https://internxt.com/deals/black-friday-internxt?next=another-url&prop=value' }] });
     // When
     await showNotifications();
     // Then
     calls(mockShow).toHaveLength(1);
     calls(mockOn).toHaveLength(1);
     call(Notification).toStrictEqual({
-      toastXml: expect.stringContaining('action=navigate&amp;contentId=https://internxt.com/deals/black-friday-internxt'),
+      toastXml: expect.stringContaining(
+        'com.internxt.drive:action=navigate&amp;contentId=https://internxt.com/deals/black-friday-internxt?next=another-url&amp;prop=value',
+      ),
     });
   });
 });
