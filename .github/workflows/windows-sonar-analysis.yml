@@ -1,11 +1,10 @@
-name: Sonar analysis
+name: Windows sonar analysis
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches:
-      - main
+    branches: ['main']
 
 jobs:
   sonar_analysis:
