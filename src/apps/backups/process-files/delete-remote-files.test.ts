@@ -1,12 +1,10 @@
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { deleteRemoteFiles } from './delete-remote-files';
-import { mockProps } from 'tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+import * as deleteFileByUuidModule from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('delete-remote-files', () => {
-  const deleteFileByUuidMock = vi.mocked(driveServerWip.storage.deleteFileByUuid);
+  const deleteFileByUuidMock = partialSpyOn(deleteFileByUuidModule, 'deleteFileByUuid');
 
   const deleted = [{ uuid: 'uuid1' as FileUuid }, { uuid: 'uuid2' as FileUuid }];
 

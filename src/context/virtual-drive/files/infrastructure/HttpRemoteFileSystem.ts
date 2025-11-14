@@ -9,13 +9,13 @@ import { sleep } from '@/apps/main/util';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class HttpRemoteFileSystem {
-  static create(offline: {
+  static async create(offline: {
     bucket: string;
     contentsId: string;
     folderUuid: string;
     path: string;
     size: number;
-    workspaceId: string | undefined;
+    workspaceId: string;
   }) {
     const { name, extension } = getNameAndExtension({ path: offline.path });
 
@@ -29,14 +29,18 @@ export class HttpRemoteFileSystem {
       type: extension,
     };
 
-    return offline.workspaceId
-      ? driveServerWip.workspaces.createFile({ body, workspaceId: offline.workspaceId, path: offline.path })
-      : driveServerWip.files.createFile({ body, path: offline.path });
+    const res = offline.workspaceId
+      ? await driveServerWip.workspaces.createFile({ body, workspaceId: offline.workspaceId, path: offline.path })
+      : await driveServerWip.files.createFile({ body, path: offline.path });
+
+    if (res.error?.code === 'FILE_ALREADY_EXISTS') {
+      return await driveServerWip.files.checkExistence({ parentUuid: offline.folderUuid, name, extension });
+    }
+
+    return res;
   }
 
   static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
-    const { name, extension } = getNameAndExtension({ path: offline.path });
-
     const props = {
       ...offline,
       bucket: ctx.bucket,
@@ -53,15 +57,11 @@ export class HttpRemoteFileSystem {
       if (data) return data;
     }
 
-    if (error.code === 'FILE_ALREADY_EXISTS') {
-      const { data } = await driveServerWip.files.checkExistence({ parentUuid: props.folderUuid, name, extension });
-      if (data) return data;
-    }
-
     throw logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Failed to persist file',
       path: offline.path,
+      error,
     });
   }
 

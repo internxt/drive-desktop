@@ -4,12 +4,12 @@ import LocalTreeBuilder from '../../context/local/localTree/application/LocalTre
 import { BackupsContext } from './BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { calculateFilesDiff, FilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
 import { deleteRemoteFiles } from './process-files/delete-remote-files';
+import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 
 type Props = {
   tracker: BackupsProcessTracker;
@@ -90,10 +90,7 @@ export class Backup {
         return;
       }
 
-      await driveServerWip.storage.deleteFolderByUuid({
-        uuid: folder.uuid,
-        workspaceToken: '',
-      });
+      await deleteFolderByUuid({ uuid: folder.uuid, path: folder.absolutePath, workspaceToken: '' });
     }
   }
 }

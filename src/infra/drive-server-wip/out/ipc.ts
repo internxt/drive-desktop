@@ -2,18 +2,16 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { driveServerWip } from '../drive-server-wip.module';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+
+export type DeleteFileByUuidProps = { uuid: FileUuid; path: AbsolutePath; workspaceToken: string };
+export type DeleteFolderByUuidProps = { uuid: FolderUuid; path: AbsolutePath; workspaceToken: string };
+export type CreateFolderProps = { plainName: string; parentUuid: FolderUuid; path: string; userUuid: string; workspaceId: string };
 
 export type FromProcess = {
-  storageDeleteFileByUuid: (props: {
-    uuid: FileUuid;
-    workspaceToken: string;
-    path: AbsolutePath;
-  }) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFileByUuid>>;
-  storageDeleteFolderByUuid: (props: {
-    uuid: FolderUuid;
-    workspaceToken: string;
-    path: AbsolutePath;
-  }) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFolderByUuid>>;
+  storageDeleteFileByUuid: (props: DeleteFileByUuidProps) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFileByUuid>>;
+  storageDeleteFolderByUuid: (props: DeleteFolderByUuidProps) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFolderByUuid>>;
+  createFolder: (props: CreateFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
   moveFileByUuid: (props: {
     uuid: FileUuid;
     workspaceToken: string;

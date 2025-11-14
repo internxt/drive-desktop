@@ -36,8 +36,4 @@ export function setupIpcSqlite() {
 
     return res;
   });
-
-  ipcMainSqlite.handle('folderCreateOrUpdate', async (_, props) => {
-    return await SqliteModule.FolderModule.createOrUpdate(props);
-  });
 }
