@@ -259,16 +259,9 @@ export async function addBackup(): Promise<void> {
       return createBackup(chosenPath);
     }
 
-    let folderStillExists;
     const { data } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
 
-    if (data) {
-      folderStillExists = !data.removed;
-    } else {
-      folderStillExists = false;
-    }
-
-    if (folderStillExists) {
+    if (data && data.status === 'EXISTS') {
       backupList[chosenPath].enabled = true;
       electronStore.set('backupList', backupList);
     } else {

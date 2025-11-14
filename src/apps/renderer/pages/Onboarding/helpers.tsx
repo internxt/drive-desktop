@@ -32,7 +32,6 @@ export type OnboardingSlideProps = {
   onFinish: () => void;
   currentSlide: number;
   totalSlides: number;
-  platform: string;
 };
 
 export const getCleanerImageSvg = (language: string, theme: 'light' | 'dark') => {

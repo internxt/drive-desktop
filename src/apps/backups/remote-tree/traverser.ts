@@ -1,10 +1,10 @@
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
-import { fetchItems } from '../fetch-items/fetch-items';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { join } from 'node:path';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 export type RemoteTree = {
   files: Record<RelativePath, ExtendedDriveFile>;
@@ -56,11 +56,15 @@ export class Traverser {
   }
 
   async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
-    const items = await fetchItems({
-      folderUuid: context.folderUuid,
-      skipFiles: false,
-      abortSignal: context.abortController.signal,
-    });
+    const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+      SqliteModule.FileModule.getByWorkspaceId({ userUuid: context.userUuid, workspaceId: '' }),
+      SqliteModule.FolderModule.getByWorkspaceId({ userUuid: context.userUuid, workspaceId: '' }),
+    ]);
+
+    const items = {
+      files: files.filter((file) => file.status === 'EXISTS'),
+      folders: folders.filter((folder) => folder.status === 'EXISTS'),
+    };
 
     const rootFolder = this.createRootFolder({
       rootPath: context.pathname as AbsolutePath,
