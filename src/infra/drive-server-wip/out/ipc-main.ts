@@ -73,9 +73,7 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
 export async function createFolder({ plainName, parentUuid, path, userUuid, workspaceId }: CreateFolderProps) {
   const res = await HttpRemoteFolderSystem.persist({ plainName, parentUuid, path, workspaceId });
 
-  if (res.error) {
-    return res;
-  }
+  if (res.error) return res;
 
   return await SqliteModule.FolderModule.createOrUpdate({
     folder: { ...res.data, userUuid, workspaceId },
