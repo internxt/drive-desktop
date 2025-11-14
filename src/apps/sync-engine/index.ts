@@ -9,6 +9,7 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { runDangledFiles } from './run-dangled-files';
 import { buildProcessContainer } from './build-process-container';
 import { InxtJs } from '@/infra';
+import { refreshItemPlaceholders } from './refresh-item-placeholders';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -24,7 +25,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   await BindingsManager.start({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await BindingsManager.updateAndCheckPlaceholders({ ctx });
+    await refreshItemPlaceholders({ ctx });
   });
 
   BindingsManager.watch({ ctx });

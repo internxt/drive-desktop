@@ -7,7 +7,7 @@ import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { stopSyncEngineWorker } from './stop-sync-engine-worker';
+import { cleanSyncEngineWorker } from './stop-sync-engine-worker';
 
 type TProps = {
   ctx: SyncContext;
@@ -70,7 +70,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     monitorHealth({
       browserWindow,
       stopAndSpawn: async () => {
-        stopSyncEngineWorker({ worker });
+        await cleanSyncEngineWorker({ worker });
         await spawnSyncEngineWorker({ ctx });
       },
     });

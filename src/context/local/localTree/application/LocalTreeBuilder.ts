@@ -4,7 +4,7 @@ import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'node:path';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { logger, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 export type LocalTree = {
   root: LocalFolder;
@@ -16,27 +16,25 @@ export default class LocalTreeBuilder {
   static async traverse({ context, tree, currentFolder }: { context: BackupsContext; tree: LocalTree; currentFolder: LocalFolder }) {
     const { files, folders } = await CLSFsLocalItemsGenerator.getAll({ context, dir: currentFolder.absolutePath });
 
-    for (const fileAttributes of files) {
-      if (fileAttributes.size === 0) {
+    for (const file of files) {
+      if (file.size === 0) {
+        logger.warn({ tag: 'BACKUPS', msg: 'File is empty', path: file.path });
         continue;
       }
 
-      if (fileAttributes.size >= SyncModule.MAX_FILE_SIZE) {
-        context.addIssue({
-          error: 'FILE_SIZE_TOO_BIG',
-          name: fileAttributes.path,
-        });
-
+      if (file.size > SyncModule.MAX_FILE_SIZE) {
+        logger.warn({ tag: 'BACKUPS', msg: 'File size is too big', path: file.path, size: file.size });
+        context.addIssue({ error: 'FILE_SIZE_TOO_BIG', name: file.path });
         continue;
       }
 
-      const relativePath = createRelativePath(relative(tree.root.absolutePath, fileAttributes.path));
+      const relativePath = createRelativePath(relative(tree.root.absolutePath, file.path));
 
       tree.files[relativePath] = {
-        absolutePath: fileAttributes.path,
+        absolutePath: file.path,
         relativePath,
-        modificationTime: fileAttributes.modificationTime,
-        size: fileAttributes.size,
+        modificationTime: file.modificationTime,
+        size: file.size,
       };
     }
 

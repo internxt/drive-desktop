@@ -5,7 +5,7 @@ import { remoteSyncManagers } from '../remote-sync/store';
 import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
 import { clearIssues } from '../background-processes/issues';
 import { closeAuxWindows } from '../windows';
-import { stopSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/backend/features/auth/utils/context';
@@ -32,7 +32,7 @@ export async function logout({ ctx }: Props) {
     clearAntivirus();
     clearIssues();
 
-    void stopSyncEngineWorkers();
+    void cleanSyncEngineWorkers();
     void AuthModule.logout();
   } catch (error) {
     logger.error({

@@ -57,6 +57,12 @@
       "node_modules",
       "package.json"
     ],
+    "protocols": {
+      "name": "Internxt",
+      "schemes": [
+        "com.internxt.drive"
+      ]
+    },
     "win": {
       "target": "nsis",
       "verifyUpdateCodeSignature": false,
