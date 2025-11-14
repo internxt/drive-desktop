@@ -39,12 +39,9 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         parentPath,
       });
 
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: add issue
-       */
+      context.addIssue({ error: 'CREATE_FOLDER_FAILED', name: localFolder.absolutePath });
     } else {
-      const { data: folder } = await createFolder({
+      const { data: folder, error } = await createFolder({
         path: localFolder.relativePath,
         plainName: basename(localFolder.relativePath),
         parentUuid: parent.uuid,
@@ -58,11 +55,8 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
           path: localFolder.relativePath,
           absolutePath: localFolder.absolutePath,
         };
-      } else {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: add issue
-         */
+      } else if (error.code !== 'ABORTED') {
+        context.addIssue({ error: 'CREATE_FOLDER_FAILED', name: localFolder.absolutePath });
       }
     }
 
