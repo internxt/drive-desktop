@@ -21,7 +21,7 @@ export class ContentsUploader {
 
     if (contentsId) return { id: contentsId, size: stats.size };
 
-    if (error && error.code !== 'UNKNOWN' && error.code !== 'FILE_MODIFIED') {
+    if (error && error.code === 'NOT_ENOUGH_SPACE') {
       ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
         error: error.code,
         name: path,

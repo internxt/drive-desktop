@@ -16,6 +16,7 @@ describe('create-folders', () => {
       currentProcessed: vi.fn(),
     },
     context: {
+      addIssue: vi.fn(),
       abortController: {
         signal: {
           aborted: false,
@@ -79,10 +80,7 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    /**
-     * v2.5.3 Daniel Jiménez
-     * TODO: check issue
-     */
+    call(props.context.addIssue).toMatchObject({ error: 'CREATE_FOLDER_FAILED' });
     calls(createFolderMock).toHaveLength(0);
     call(loggerMock.error).toMatchObject({
       msg: 'Parent folder does not exist',
@@ -107,10 +105,7 @@ describe('create-folders', () => {
     calls(createFolderMock).toHaveLength(1);
     expect(props.self.backed).toBe(1);
     calls(props.tracker.currentProcessed).toHaveLength(1);
-    /**
-     * v2.5.3 Daniel Jiménez
-     * TODO: check issue
-     */
+    call(props.context.addIssue).toMatchObject({ error: 'CREATE_FOLDER_FAILED' });
   });
 
   it('If create folder success then add to the remote tree', async () => {

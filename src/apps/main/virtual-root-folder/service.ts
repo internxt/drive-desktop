@@ -6,19 +6,16 @@ import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { workers } from '../remote-sync/store';
-import { stopSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
-import { sleep } from '../util';
+import { cleanSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
-import { join } from 'node:path/posix';
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
-export function getRootVirtualDrive() {
+export async function getRootVirtualDrive() {
   const user = getUserOrThrow();
 
-  const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+  const defaultSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
   const syncRoot = createAbsolutePath(electronStore.get('syncRoot') || defaultSyncRoot);
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
@@ -32,9 +29,8 @@ export function getRootVirtualDrive() {
    * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
    */
   if (OLD_SYNC_ROOT === syncRoot) {
-    const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
-    migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
-    return newSyncRoot;
+    await migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot: defaultSyncRoot });
+    return defaultSyncRoot;
   }
 
   return syncRoot;
@@ -62,29 +58,20 @@ export async function chooseSyncRootWithDialog() {
     if (worker) {
       const { ctx } = worker;
 
-      stopSyncEngineWorker({ worker });
-      await sleep(2000);
-
-      try {
-        VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
-      } catch (error) {
-        ctx.logger.error({ msg: 'Error unregistering sync root', error });
-      }
+      await cleanSyncEngineWorker({ worker });
 
       ctx.rootPath = newSyncRoot;
 
-      migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+      await migrateSyncRoot({ oldSyncRoot, newSyncRoot });
       await spawnSyncEngineWorker({ ctx });
     }
   } catch (error) {
     logger.error({ msg: 'Error migrating sync root', error });
   }
-
-  return newSyncRoot;
 }
 
 export async function openVirtualDriveRootFolder() {
-  const syncFolderPath = getRootVirtualDrive();
+  const syncFolderPath = await getRootVirtualDrive();
 
   const errorMessage = await shell.openPath(syncFolderPath);
 

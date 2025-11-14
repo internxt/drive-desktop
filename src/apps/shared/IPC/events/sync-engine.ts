@@ -1,4 +1,3 @@
-import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
 import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
@@ -34,7 +33,6 @@ type SyncEngineInvocableFunctions = {
 type ProcessInfoUpdate = {
   ADD_SYNC_ISSUE: (payload: Omit<SyncIssue, 'tab'>) => void;
   ADD_GENERAL_ISSUE: (payload: Omit<GeneralIssue, 'tab'>) => void;
-  CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
   FIND_DANGLED_FILES: () => Promise<DriveFile[]>;
   SET_HEALTHY_FILES: (ids: string[]) => Promise<void>;
 };

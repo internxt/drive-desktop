@@ -39,6 +39,7 @@ export class FilePlaceholderUpdater {
         });
 
         await rename(localPath.path, remotePath);
+        ctx.virtualDrive.updateSyncStatus({ itemPath: remotePath });
       }
 
       await syncRemoteChangesToLocal({

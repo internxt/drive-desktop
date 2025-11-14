@@ -6,6 +6,7 @@ import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -16,13 +17,14 @@ type TProps = {
 
 export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
   try {
-    if (stats.size === 0 || stats.size > SyncModule.MAX_FILE_SIZE) {
-      logger.warn({
-        tag: 'SYNC-ENGINE',
-        msg: 'Invalid file size',
-        path,
-        size: stats.size,
-      });
+    if (stats.size === 0) {
+      ctx.logger.warn({ msg: 'File is empty', path });
+      return;
+    }
+
+    if (stats.size > SyncModule.MAX_FILE_SIZE) {
+      ctx.logger.warn({ msg: 'File size is too big', path, size: stats.size });
+      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'FILE_SIZE_TOO_BIG', name: path });
       return;
     }
 

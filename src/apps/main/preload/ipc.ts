@@ -31,7 +31,7 @@ export type FromProcess = {
   openLogs: AsyncMirror<typeof LoggerModule.openLogs>;
   getLanguage: Mirror<typeof getLanguage>;
   setConfigKey: Mirror<typeof setConfigKey>;
-  driveGetSyncRoot: Mirror<typeof getRootVirtualDrive>;
+  driveGetSyncRoot: AsyncMirror<typeof getRootVirtualDrive>;
   driveChooseSyncRootWithDialog: AsyncMirror<typeof chooseSyncRootWithDialog>;
   driveOpenSyncRootFolder: AsyncMirror<typeof openVirtualDriveRootFolder>;
 };

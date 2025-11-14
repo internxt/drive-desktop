@@ -11,6 +11,7 @@ export type CreateFolderProps = { plainName: string; parentUuid: FolderUuid; pat
 export type FromProcess = {
   storageDeleteFileByUuid: (props: DeleteFileByUuidProps) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFileByUuid>>;
   storageDeleteFolderByUuid: (props: DeleteFolderByUuidProps) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFolderByUuid>>;
+  createFolder: (props: CreateFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
   moveFileByUuid: (props: {
     uuid: FileUuid;
     workspaceToken: string;
@@ -23,7 +24,6 @@ export type FromProcess = {
     parentUuid: FolderUuid;
     path: AbsolutePath;
   }) => Awaited<ReturnType<typeof driveServerWip.folders.move>>;
-  createFolder: (props: CreateFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
 };
 
 export type FromMain = {};

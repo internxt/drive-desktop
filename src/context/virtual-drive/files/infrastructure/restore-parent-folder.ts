@@ -1,5 +1,5 @@
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import path from 'node:path';
+import { basename } from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@/apps/shared/logger/logger';
@@ -13,7 +13,7 @@ type TProps = {
 
 export async function restoreParentFolder({ ctx, offline }: TProps) {
   const posixDir = pathUtils.dirname(offline.path);
-  const targetFolderName = path.posix.basename(posixDir);
+  const targetFolderName = basename(posixDir);
   const grandParentFolder = pathUtils.dirname(posixDir);
 
   const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: grandParentFolder });

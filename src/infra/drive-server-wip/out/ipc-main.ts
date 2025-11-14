@@ -5,7 +5,7 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 import { LocalSync } from '@/backend/features';
-import { basename } from 'node:path/posix';
+import { basename } from 'node:path';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
@@ -73,9 +73,7 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
 export async function createFolder({ plainName, parentUuid, path, userUuid, workspaceId }: CreateFolderProps) {
   const res = await HttpRemoteFolderSystem.persist({ plainName, parentUuid, path, workspaceId });
 
-  if (res.error) {
-    return res;
-  }
+  if (res.error) return res;
 
   return await SqliteModule.FolderModule.createOrUpdate({
     folder: { ...res.data, userUuid, workspaceId },
