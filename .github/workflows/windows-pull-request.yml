@@ -1,11 +1,11 @@
-name: Find deadcode
+name: Windows pull request
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  find_deadcode:
+  pull_request:
     runs-on: windows-latest
     timeout-minutes: 5
 
@@ -23,5 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
-      - name: Find deadcode
-        run: npm run find-deadcode
+      - name: Run TypeScript compiler
+        run: npm run type-check
+
+      - name: Run Prettier
+        run: npm run format
+
+      - name: Run Eslint
+        run: npm run lint

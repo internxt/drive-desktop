@@ -17,27 +17,17 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowJs": true,
     "noEmit": true,
     "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
       "@/tests/*": ["./tests/*"]
-      /**
-       * v2.6.0 Daniel Jiménez
-       * When developing locally with `core` there is an issue because there are
-       * two react versions installed.
-       * https://github.com/facebook/react/issues/13991#issuecomment-435587809
-       */
-      // "react": ["packages/core/node_modules/react"]
     }
   },
-  "include": ["src", "tests", ".erb/configs", ".erb/scripts"]
+  "include": ["src", "tests"]
 }

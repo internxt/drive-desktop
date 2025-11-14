@@ -3,5 +3,5 @@
   "ext": "ts,tsx",
   "ignore": ["src/apps/renderer", "**/*.test.ts"],
   "verbose": true,
-  "watch": ["src", "../drive-desktop-core/src"]
+  "watch": ["src", "packages/core/src"]
 }
