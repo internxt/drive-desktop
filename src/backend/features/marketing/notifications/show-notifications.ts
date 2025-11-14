@@ -12,9 +12,8 @@ function showNotification(notification: MarketingNotification) {
     icon: iconPath,
     body: notification.message,
     urgency: 'normal',
+    timeoutType: 'never',
   });
-
-  popup.show();
 
   popup.on('click', () => {
     void shell.openExternal(notification.link);
@@ -28,14 +27,16 @@ function showNotification(notification: MarketingNotification) {
   popup.on('failed', (error) => {
     logger.error({ msg: 'Notification failed', message: notification.message, error });
   });
+
+  popup.show();
 }
 
 export async function showNotifications() {
-  const { data: notifications } = await DriveServerWipModule.NotificationModule.getAll();
+  const { data: notifications = [] } = await DriveServerWipModule.NotificationModule.getAll();
 
-  if (notifications) {
-    for (const notification of notifications) {
-      showNotification(notification);
-    }
+  logger.debug({ msg: 'Show marketing notifications', notifications: notifications.length });
+
+  for (const notification of notifications) {
+    showNotification(notification);
   }
 }

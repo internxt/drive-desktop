@@ -50,7 +50,6 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
-import { Marketing } from '@/backend/features';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -146,8 +145,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-
-    void Marketing.showNotifications();
   } catch (exc) {
     logger.error({ msg: 'Error logging in', exc });
     reportError(exc as Error);
