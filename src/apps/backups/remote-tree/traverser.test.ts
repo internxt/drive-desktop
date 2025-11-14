@@ -23,6 +23,7 @@ describe('traverser', () => {
         { nameWithExtension: 'file2', parentUuid: folder, status: 'EXISTS' },
         { nameWithExtension: 'file3', parentUuid: folder1, status: 'EXISTS' },
         { nameWithExtension: 'file4', parentUuid: folder3, status: 'EXISTS' },
+        { status: 'DELETED' },
       ],
     });
 
@@ -31,6 +32,7 @@ describe('traverser', () => {
         { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
         { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
         { uuid: folder3, name: 'folder3', parentUuid: folder1, status: 'EXISTS' },
+        { status: 'DELETED' },
       ],
     });
   });
