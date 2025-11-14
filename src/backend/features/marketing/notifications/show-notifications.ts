@@ -2,27 +2,24 @@ import { iconPath } from '@/apps/utils/icon';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { MarketingNotification } from '@/infra/drive-server-wip/services/notifications/get-notifications';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { Notification, shell } from 'electron';
+import { Notification } from 'electron';
 
 function showNotification(notification: MarketingNotification) {
-  logger.debug({ msg: 'Show notification', message: notification.message });
+  logger.debug({ msg: 'Show notification', notification });
 
-  const popup = new Notification({
-    title: 'Internxt',
-    icon: iconPath,
-    body: notification.message,
-    urgency: 'normal',
-    timeoutType: 'never',
-  });
+  const escapedLink = notification.link.replace(/&/g, '&amp;');
 
-  popup.on('click', () => {
-    void shell.openExternal(notification.link);
-    logger.debug({ msg: 'Notification clicked', message: notification.message, link: notification.link });
-  });
+  const toastXml = `
+<toast launch="com.internxt.drive:action=navigate&amp;contentId=${escapedLink}" activationType="protocol">
+  <visual>
+    <binding template="ToastGeneric">
+      <text>${notification.message}</text>
+      <image placement="appLogoOverride" src="${iconPath}"/>
+    </binding>
+  </visual>
+</toast>`;
 
-  popup.on('close', () => {
-    logger.debug({ msg: 'Notification closed', message: notification.message });
-  });
+  const popup = new Notification({ toastXml });
 
   popup.on('failed', (error) => {
     logger.error({ msg: 'Notification failed', message: notification.message, error });
