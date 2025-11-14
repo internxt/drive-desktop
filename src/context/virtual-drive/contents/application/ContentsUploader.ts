@@ -1,4 +1,4 @@
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
 import { Stats } from 'node:fs';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
@@ -6,19 +6,17 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type Props = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
   stats: Stats;
 };
 
 export class ContentsUploader {
-  static async run({ ctx, path, absolutePath, stats }: Props) {
+  static async run({ ctx, path, stats }: Props) {
     const { data: contentsId, error } = await ctx.fileUploader.run({
-      absolutePath,
       size: stats.size,
       path,
       abortSignal: new AbortController().signal,
-      callbacks: getUploadCallbacks({ path: absolutePath }),
+      callbacks: getUploadCallbacks({ path }),
     });
 
     if (contentsId) return { id: contentsId, size: stats.size };

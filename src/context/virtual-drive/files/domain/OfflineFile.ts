@@ -1,8 +1,8 @@
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export type OfflineFileAttributes = {
   contentsId: string;
-  path: RelativePath;
+  path: AbsolutePath;
   size: number;
   folderUuid: string;
 };

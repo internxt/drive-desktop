@@ -2,23 +2,21 @@ import { describe, it, expect } from 'vitest';
 import { restoreParentFolder } from './restore-parent-folder';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { partialSpyOn, mockProps, call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('restoreParentFolder', () => {
-  const dirnameSpy = partialSpyOn(pathUtils, 'dirname');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveSpy = partialSpyOn(driveServerWip.folders, 'move');
 
   const props = mockProps<typeof restoreParentFolder>({
-    offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
+    offline: { path: '/gp/child/file.txt' as AbsolutePath, folderUuid: 'offline-folder-uuid' },
     ctx: { workspaceToken: 'WT' },
   });
 
   beforeEach(() => {
-    dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderInfoMock.mockReturnValue({ data: { uuid: 'parent-uuid' as FolderUuid } });
     moveSpy.mockResolvedValue({ error: undefined });
   });

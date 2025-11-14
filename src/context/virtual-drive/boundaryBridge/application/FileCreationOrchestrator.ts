@@ -1,6 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { FileCreator } from '../../files/application/FileCreator';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Stats } from 'node:fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -8,14 +8,13 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
   stats: Stats;
 };
 
 export class FileCreationOrchestrator {
-  static async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
-    const fileContents = await ContentsUploader.run({ ctx, absolutePath, path, stats });
+  static async run({ ctx, path, stats }: TProps): Promise<FileUuid> {
+    const fileContents = await ContentsUploader.run({ ctx, path, stats });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
@@ -29,7 +28,6 @@ export class FileCreationOrchestrator {
       ctx,
       path,
       contents: fileContents,
-      absolutePath,
     });
 
     return createdFile.uuid;

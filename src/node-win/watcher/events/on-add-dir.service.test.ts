@@ -21,7 +21,7 @@ describe('on-add-dir', () => {
   beforeEach(() => {
     props = mockProps<typeof onAddDir>({
       ctx: { virtualDrive: { syncRootPath: 'C:/Users/user' as AbsolutePath } },
-      absolutePath: 'C:/Users/user/drive/folder' as AbsolutePath,
+      path: 'C:/Users/user/drive/folder' as AbsolutePath,
     });
   });
 

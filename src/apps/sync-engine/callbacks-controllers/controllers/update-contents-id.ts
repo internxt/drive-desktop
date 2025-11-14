@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
@@ -11,12 +11,11 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 type TProps = {
   ctx: ProcessSyncContext;
   stats: Stats;
-  path: RelativePath;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
   uuid: string;
 };
 
-export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }: TProps) {
+export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
   try {
     if (stats.size === 0) {
       ctx.logger.warn({ msg: 'File is empty', path });
@@ -29,7 +28,7 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
       return;
     }
 
-    const contents = await ContentsUploader.run({ ctx, path, absolutePath, stats });
+    const contents = await ContentsUploader.run({ ctx, path, stats });
 
     const { data: fileDto, error } = await driveServerWip.files.replaceFile({
       uuid,
@@ -49,7 +48,7 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
         workspaceId: ctx.workspaceId,
       },
       bucket: ctx.bucket,
-      absolutePath,
+      path,
     });
 
     ctx.virtualDrive.updateSyncStatus({ itemPath: path });

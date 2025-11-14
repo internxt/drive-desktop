@@ -1,4 +1,3 @@
-import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '../config';
 import { createFolder } from '@/features/sync/add-item/create-folder';
 import { PendingFileExplorerItem } from '../file-explorer-state/file-explorer-state.types';
@@ -10,12 +9,7 @@ type TProps = {
 
 export async function addPendingFolders({ ctx, createFolders }: TProps) {
   await Promise.all(
-    createFolders.map(async ({ absolutePath }) => {
-      const path = pathUtils.absoluteToRelative({
-        base: ctx.virtualDrive.syncRootPath,
-        path: absolutePath,
-      });
-
+    createFolders.map(async ({ path }) => {
       await createFolder({ ctx, path });
     }),
   );

@@ -30,7 +30,7 @@ export function setupIpcSqlite() {
       await createAndUploadThumbnail({
         bucket: props.bucket,
         fileUuid: res.data.uuid,
-        absolutePath: props.absolutePath,
+        absolutePath: props.path,
       });
     }
 

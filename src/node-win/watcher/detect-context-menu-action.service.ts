@@ -2,7 +2,7 @@ import { Stats } from 'node:fs';
 
 import { PinState } from '@/node-win/types/placeholder.type';
 
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
@@ -13,11 +13,10 @@ import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 type TProps = {
   ctx: ProcessSyncContext;
   details: { prev: Stats; curr: Stats };
-  absolutePath: AbsolutePath;
-  path: RelativePath;
+  path: AbsolutePath;
 };
 
-export async function detectContextMenuAction({ ctx, details, absolutePath, path }: TProps) {
+export async function detectContextMenuAction({ ctx, details, path }: TProps) {
   const { prev, curr } = details;
 
   const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
@@ -29,7 +28,7 @@ export async function detectContextMenuAction({ ctx, details, absolutePath, path
   if (!fileInfo) return;
 
   if (prev.mtimeMs !== curr.mtimeMs && fileInfo.pinState === PinState.AlwaysLocal) {
-    await updateContentsId({ ctx, stats: curr, path, absolutePath, uuid: fileInfo.uuid });
+    await updateContentsId({ ctx, stats: curr, path, uuid: fileInfo.uuid });
     return;
   }
 

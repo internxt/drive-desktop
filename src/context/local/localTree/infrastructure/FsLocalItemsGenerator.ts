@@ -65,12 +65,12 @@ export class CLSFsLocalItemsGenerator {
     const items = await fileSystem.syncWalk({ rootFolder: dir });
 
     for (const item of items) {
-      const { absolutePath, stats, error } = item;
+      const { path, stats, error } = item;
 
       if (error) {
         if (error.code !== 'UNKNOWN') {
           context.addIssue({
-            name: absolutePath,
+            name: path,
             error: parseItemStatError({ code: error.code }),
           });
         }
@@ -80,14 +80,12 @@ export class CLSFsLocalItemsGenerator {
 
       if (stats.isFile()) {
         res.files.push({
-          path: absolutePath,
+          path,
           modificationTime: stats.mtime,
           size: stats.size,
         });
       } else if (stats.isDirectory()) {
-        res.folders.push({
-          path: absolutePath,
-        });
+        res.folders.push({ path });
       }
     }
 
