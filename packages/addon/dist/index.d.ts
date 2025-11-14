@@ -1,1 +1,1 @@
-export declare const addon: any;
+export declare const addon: unknown;
