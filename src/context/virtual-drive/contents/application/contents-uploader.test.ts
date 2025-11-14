@@ -22,12 +22,12 @@ describe('contents-uploader', () => {
 
   it('should throw error if upload fails', async () => {
     // Given
-    uploader.run.mockResolvedValue({ error: new EnvironmentFileUploaderError('ABORTED') });
+    uploader.run.mockResolvedValue({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE') });
     // When
     const promise = ContentsUploader.run(props);
     // Then
     await expect(promise).rejects.toThrow();
-    expect(sendMock).toBeCalledWith('ADD_SYNC_ISSUE', { error: 'ABORTED', name: '/file.txt' });
+    expect(sendMock).toBeCalledWith('ADD_SYNC_ISSUE', { error: 'NOT_ENOUGH_SPACE', name: '/file.txt' });
   });
 
   it('should return contents id if upload is successful', async () => {

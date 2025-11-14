@@ -95,6 +95,8 @@ export async function updateRemoteSync({ workspaceId }: { workspaceId: string })
 
     manager.changeStatus('SYNCING');
     await manager.startRemoteSync();
+    manager.changeStatus('SYNCED');
+
     updateSyncEngine(workspaceId);
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');

@@ -17,28 +17,23 @@ export class RemoteSyncManager {
   async startRemoteSync() {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
 
-    try {
-      const syncFilesPromise = syncRemoteFiles({
-        self: this,
-        from: await RemoteSyncModule.getCheckpoint({
-          ctx: this.context,
-          type: 'file',
-        }),
-      });
+    const syncFilesPromise = syncRemoteFiles({
+      self: this,
+      from: await RemoteSyncModule.getCheckpoint({
+        ctx: this.context,
+        type: 'file',
+      }),
+    });
 
-      const syncFoldersPromise = syncRemoteFolders({
-        self: this,
-        from: await RemoteSyncModule.getCheckpoint({
-          ctx: this.context,
-          type: 'folder',
-        }),
-      });
+    const syncFoldersPromise = syncRemoteFolders({
+      self: this,
+      from: await RemoteSyncModule.getCheckpoint({
+        ctx: this.context,
+        type: 'folder',
+      }),
+    });
 
-      await Promise.all([syncFilesPromise, syncFoldersPromise]);
-    } catch (error) {
-      logger.error({ msg: 'Remote sync failed with error', error });
-      this.changeStatus('SYNC_FAILED');
-    }
+    await Promise.all([syncFilesPromise, syncFoldersPromise]);
   }
 
   changeStatus(newStatus: RemoteSyncStatus) {

@@ -28,7 +28,7 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('getTheme', () => Promise.resolve(getTheme()));
   ipcPreloadMain.handle('getLanguage', () => Promise.resolve(getLanguage()));
   ipcPreloadMain.handle('setConfigKey', (_, props) => Promise.resolve(setConfigKey(props)));
-  ipcPreloadMain.handle('driveGetSyncRoot', () => Promise.resolve(getRootVirtualDrive()));
+  ipcPreloadMain.handle('driveGetSyncRoot', () => getRootVirtualDrive());
   ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog());
   ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
 }
