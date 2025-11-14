@@ -46,15 +46,23 @@ import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 import { logger } from '../shared/logger/logger';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
+import { Marketing } from '@/backend/features';
+import { processDeeplink } from './electron/process-deeplink';
+
+app.setAsDefaultProtocolClient(INTERNXT_PROTOCOL);
 
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   app.quit();
+} else {
+  app.on('second-instance', (event, argv) => {
+    processDeeplink({ argv });
+  });
 }
 
 setupAutoLaunchHandlers();
@@ -98,7 +106,7 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
-    app.setAppUserModelId('com.internxt.drive');
+    app.setAppUserModelId(INTERNXT_APP_ID);
 
     setDefaultConfig({});
 
@@ -145,6 +153,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
+
+    void Marketing.showNotifications();
   } catch (exc) {
     logger.error({ msg: 'Error logging in', exc });
     reportError(exc as Error);

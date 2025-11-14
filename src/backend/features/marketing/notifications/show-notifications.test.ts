@@ -1,11 +1,10 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { showNotifications } from './show-notifications';
-import { Notification, shell } from 'electron';
+import { Notification } from 'electron';
 
 describe('show-notifications', () => {
   const NotificationMock = vi.mocked(Notification);
-  const openExternalMock = vi.mocked(shell.openExternal);
   const getAllMock = partialSpyOn(DriveServerWipModule.NotificationModule, 'getAll');
 
   const mockShow = vi.fn();
@@ -13,23 +12,17 @@ describe('show-notifications', () => {
 
   beforeEach(() => {
     NotificationMock.mockReturnValue({ show: mockShow, on: mockOn } as Partial<Notification> as Notification);
-    getAllMock.mockResolvedValue({ data: [{ message: 'Message', link: 'link' }] });
+    getAllMock.mockResolvedValue({ data: [{ message: 'message', link: 'https://internxt.com/deals/black-friday-internxt' }] });
   });
 
-  it('should show notification and prepare callbacks', async () => {
+  it('should show notification and prepare failed callback', async () => {
     // When
     await showNotifications();
     // Then
     calls(mockShow).toHaveLength(1);
-    calls(mockOn).toHaveLength(3);
-  });
-
-  it('should open link when notification is clicked', async () => {
-    // When
-    await showNotifications();
-    const clickFn = mockOn.mock.calls[0][1];
-    clickFn();
-    // Then
-    call(openExternalMock).toStrictEqual('link');
+    calls(mockOn).toHaveLength(1);
+    call(Notification).toStrictEqual({
+      toastXml: expect.stringContaining('action=navigate&amp;contentId=https://internxt.com/deals/black-friday-internxt'),
+    });
   });
 });
