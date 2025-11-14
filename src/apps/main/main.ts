@@ -52,8 +52,21 @@ import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
 import { Marketing } from '@/backend/features';
 import { processDeeplink } from './electron/process-deeplink';
+import { resolve } from 'node:path';
 
-app.setAsDefaultProtocolClient(INTERNXT_PROTOCOL);
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    /**
+     * v2.6.2 Daniel Jiménez
+     * To be able to use main.js we must first build it using `npm run build:main`.
+     */
+    logger.debug({ msg: 'Registering protocol in dev mode' });
+    app.setAsDefaultProtocolClient(INTERNXT_PROTOCOL, process.execPath, [resolve('./dist/main/main.js')]);
+  }
+} else {
+  logger.debug({ msg: 'Registering protocol' });
+  app.setAsDefaultProtocolClient(INTERNXT_PROTOCOL);
+}
 
 const gotTheLock = app.requestSingleInstanceLock();
 
