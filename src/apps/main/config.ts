@@ -26,7 +26,7 @@ const schema: Schema<AppStore> = {
   'migrations.v2-5-7-remove-antivirus-table': { type: 'boolean' },
 } as const;
 
-const configStore = new Store({ schema, defaults });
+const configStore = new Store({ schema, defaults, accessPropertiesByDotNotation: false });
 
 function get<T extends keyof AppStore>(key: T) {
   return configStore.get(key);

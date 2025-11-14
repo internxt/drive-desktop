@@ -1,6 +1,5 @@
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessSyncContext } from './config';
-import { logger } from '../shared/logger/logger';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
@@ -22,7 +21,7 @@ export class BindingsManager {
         try {
           ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
 
-          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
+          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path: createAbsolutePath(path) });
 
           ctx.contentsDownloader.forceStop();
         } catch (error) {
@@ -61,17 +60,5 @@ export class BindingsManager {
     const { watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
-  }
-
-  static async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
-    const workspaceId = ctx.workspaceId;
-
-    try {
-      await refreshItemPlaceholders({ ctx });
-      ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
-    } catch (exc) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });
-      ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNC_FAILED');
-    }
   }
 }

@@ -38,12 +38,12 @@ export function Item({ path, action, progress }: Readonly<SyncStateItem>) {
           </p>
           <p
             className={`truncate text-xs text-gray-50 ${
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
+              action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR'
                 ? 'text-red'
                 : undefined
             }`}
             title={
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
+              action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR'
                 ? description
                 : undefined
             }>
@@ -53,7 +53,7 @@ export function Item({ path, action, progress }: Readonly<SyncStateItem>) {
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
-          {action && (action === 'UPLOADING' || action === 'DOWNLOADING') && (
+          {(action === 'UPLOADING' || action === 'DOWNLOADING') && (
             <CircularProgressbar
               value={progress ?? 0}
               minValue={0}
@@ -69,15 +69,14 @@ export function Item({ path, action, progress }: Readonly<SyncStateItem>) {
           )}
 
           {/* DONE */}
-          {action &&
-            (action === 'DELETED' ||
-              action === 'DOWNLOADED' ||
-              action === 'DOWNLOAD_CANCEL' ||
-              action === 'UPLOADED' ||
-              action === 'MOVED') && <Check size={24} className="text-green" weight="bold" />}
+          {(action === 'DELETED' ||
+            action === 'DOWNLOADED' ||
+            action === 'DOWNLOAD_CANCEL' ||
+            action === 'UPLOADED' ||
+            action === 'MOVED') && <Check size={24} className="text-green" weight="bold" />}
 
           {/* ERROR */}
-          {action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR') && (
+          {(action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR') && (
             <WarningCircle size={24} className="text-red" weight="regular" />
           )}
         </div>

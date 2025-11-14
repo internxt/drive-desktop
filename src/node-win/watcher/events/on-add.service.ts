@@ -33,7 +33,7 @@ export async function onAdd({ ctx, absolutePath, stats }: TProps) {
     }
 
     trackAddFileEvent({ uuid: fileInfo.uuid });
-    await moveFile({ ctx, path, uuid: fileInfo.uuid });
+    await moveFile({ ctx, path: absolutePath, uuid: fileInfo.uuid });
   } catch (error) {
     ctx.logger.error({ msg: 'Error on event "add"', path, error });
   }

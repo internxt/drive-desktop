@@ -37,6 +37,7 @@ export class FolderPlaceholderUpdater {
         });
 
         await rename(localPath, remotePath);
+        ctx.virtualDrive.updateSyncStatus({ itemPath: remotePath });
       }
     } catch (exc) {
       logger.error({

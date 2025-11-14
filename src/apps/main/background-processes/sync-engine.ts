@@ -25,7 +25,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     ...context,
     userUuid: user.uuid,
     providerId,
-    rootPath: getRootVirtualDrive(),
+    rootPath: await getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
     rootUuid: user.rootFolderId as FolderUuid,

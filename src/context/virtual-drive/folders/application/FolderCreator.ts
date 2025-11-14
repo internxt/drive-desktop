@@ -1,5 +1,5 @@
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
-import { posix } from 'node:path';
+import { basename } from 'node:path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -23,7 +23,7 @@ export class FolderCreator {
     const folderDto = await HttpRemoteFolderSystem.persist({
       ctx,
       parentUuid: parentInfo.uuid,
-      plainName: posix.basename(path),
+      plainName: basename(path),
       path,
     });
 
