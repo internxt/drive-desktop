@@ -152,7 +152,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.8.3",
-    "uuid": "^13.0.0",
+    "uuid": "^8.3.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "3.0.8",
     "vitest-mock-extended": "^2.0.2",

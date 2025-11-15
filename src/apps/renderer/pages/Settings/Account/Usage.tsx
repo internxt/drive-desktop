@@ -21,7 +21,7 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
 
   const handleOpenUpgrade = async () => {
     try {
-      await window.electron.openUrl('https://drive.internxt.com/preferences?tab=plans');
+      await window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans');
     } catch (error) {
       reportError(error);
     }
