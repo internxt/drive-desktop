@@ -34,18 +34,4 @@ describe('crypt', () => {
       ).toThrowError();
     });
   });
-
-  describe('encryptName', () => {
-    it('When encrypt successfully it gives the name without the extension', () => {
-      // When
-      const name = crypt.encryptName({ name: 'latest', parentId });
-      // Then
-      expect(name).toHaveLength(136);
-    });
-
-    it('When no parentId is provided it throws an error', () => {
-      // When and Then
-      expect(() => crypt.encryptName({ name: 'latest' })).toThrowError();
-    });
-  });
 });

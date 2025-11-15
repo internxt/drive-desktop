@@ -100,7 +100,7 @@ export default function Settings() {
                       data-automation-id="itemSettingsCleaner"
                       useCleaner={useCleaner}
                       useTranslationContext={useI18n}
-                      openUrl={window.electron.openUrl}
+                      openUrl={window.electron.shellOpenExternal}
                       sectionConfig={sectionConfig}
                     />
                   </div>

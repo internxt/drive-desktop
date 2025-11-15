@@ -23,11 +23,6 @@ type UpdateFileInBatchInput = {
   file: Partial<DriveFile>;
 };
 
-export async function getLocalDangledFiles() {
-  const allExisting = await driveFilesCollection.getAll({ status: 'EXISTS', isDangledStatus: true });
-  return allExisting;
-}
-
 export async function setAsNotDangledFiles(filesIds: string[]) {
   await driveFilesCollection.updateInBatch({
     where: { isDangledStatus: true, fileId: In(filesIds) },

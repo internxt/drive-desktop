@@ -6,7 +6,7 @@ export default function AppInfo() {
 
   const handleOpenURL = async (URL: string) => {
     try {
-      await window.electron.openUrl(URL);
+      await window.electron.shellOpenExternal(URL);
     } catch (error) {
       reportError(error);
     }

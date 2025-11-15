@@ -1,5 +1,5 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { StoredValues } from './config/service';
@@ -8,7 +8,7 @@ import { AccessResponse } from '../renderer/pages/Login/types';
 import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
-import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
+import { Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
@@ -179,9 +179,6 @@ const api = {
   downloadBackup(backup: Device, folderUuids?: string[]): Promise<void> {
     return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
-  changeBackupPath(currentPath: string): ReturnType<typeof changeBackupPath> {
-    return ipcRenderer.invoke('change-backup-path', currentPath);
-  },
   getFolderPath(): ReturnType<typeof getPathFromDialog> {
     return ipcRenderer.invoke('get-folder-path');
   },
@@ -193,9 +190,6 @@ const api = {
   },
   getRemoteSyncStatus(): Promise<RemoteSyncStatus> {
     return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  openUrl: (url: string): Promise<void> => {
-    return ipcRenderer.invoke('open-url', url);
   },
   syncManually(): Promise<void> {
     return ipcRenderer.invoke('SYNC_MANUALLY');
@@ -254,6 +248,8 @@ const api = {
     },
   },
   path,
+  shellOpenExternal: shell.openExternal,
+  shellOpenPath: shell.openPath,
   authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),

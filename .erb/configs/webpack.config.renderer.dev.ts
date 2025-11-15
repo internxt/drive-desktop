@@ -67,7 +67,6 @@ const configuration: Configuration = {
               importLoaders: 1,
             },
           },
-          'sass-loader',
         ],
         include: /\.module\.s?(c|a)ss$/,
       },
@@ -76,7 +75,6 @@ const configuration: Configuration = {
         use: [
           'style-loader',
           'css-loader',
-          'sass-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -178,5 +176,4 @@ const configuration: Configuration = {
   },
 };
 
-// ts-prune-ignore-next
 export default merge(baseConfig, configuration);

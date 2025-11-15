@@ -26,7 +26,6 @@ import './device/handlers';
 import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
-import './platform/handlers';
 import './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';

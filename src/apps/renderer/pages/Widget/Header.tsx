@@ -30,7 +30,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const handleOpenURL = async (URL: string) => {
     try {
-      await window.electron.openUrl(URL);
+      await window.electron.shellOpenExternal(URL);
     } catch (error) {
       window.electron.logger.error({
         msg: 'Error opening URL',

@@ -6,7 +6,7 @@ export const LockedState = () => {
 
   const handleOpenPricingPage = async () => {
     try {
-      await window.electron.openUrl('https://internxt.com/pricing');
+      await window.electron.shellOpenExternal('https://internxt.com/pricing');
     } catch (error) {
       reportError(error);
     }

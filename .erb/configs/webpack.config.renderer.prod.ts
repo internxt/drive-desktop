@@ -42,7 +42,6 @@ const configuration: webpack.Configuration = {
               importLoaders: 1,
             },
           },
-          'sass-loader',
         ],
         include: /\.module\.s?(c|a)ss$/,
       },
@@ -51,7 +50,6 @@ const configuration: webpack.Configuration = {
         use: [
           MiniCssExtractPlugin.loader,
           'css-loader',
-          'sass-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -118,5 +116,4 @@ const configuration: webpack.Configuration = {
   ],
 };
 
-// ts-prune-ignore-next
 export default merge(baseConfig, configuration);
