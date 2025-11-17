@@ -1,14 +1,14 @@
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { Traverser } from './traverser';
-import * as fetchItems from '../fetch-items/fetch-items';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-vi.mock(import('../fetch-items/fetch-items'));
 vi.mock(import('@/apps/main/util'));
 
 describe('traverser', () => {
-  const fetchItemsMock = partialSpyOn(fetchItems, 'fetchItems');
+  const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
+  const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
 
   const folder = v4() as FolderUuid;
 
@@ -17,17 +17,22 @@ describe('traverser', () => {
   const folder3 = v4() as FolderUuid;
 
   beforeEach(() => {
-    fetchItemsMock.mockResolvedValue({
-      files: [
-        { nameWithExtension: 'file1', parentUuid: folder },
-        { nameWithExtension: 'file2', parentUuid: folder },
-        { nameWithExtension: 'file3', parentUuid: folder1 },
-        { nameWithExtension: 'file4', parentUuid: folder3 },
+    getFilesMock.mockResolvedValue({
+      data: [
+        { nameWithExtension: 'file1', parentUuid: folder, status: 'EXISTS' },
+        { nameWithExtension: 'file2', parentUuid: folder, status: 'EXISTS' },
+        { nameWithExtension: 'file3', parentUuid: folder1, status: 'EXISTS' },
+        { nameWithExtension: 'file4', parentUuid: folder3, status: 'EXISTS' },
+        { status: 'DELETED' },
       ],
-      folders: [
-        { uuid: folder1, name: 'folder1', parentUuid: folder },
-        { uuid: folder2, name: 'folder2', parentUuid: folder },
-        { uuid: folder3, name: 'folder3', parentUuid: folder1 },
+    });
+
+    getFoldersMock.mockResolvedValue({
+      data: [
+        { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
+        { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
+        { uuid: folder3, name: 'folder3', parentUuid: folder1, status: 'EXISTS' },
+        { status: 'DELETED' },
       ],
     });
   });

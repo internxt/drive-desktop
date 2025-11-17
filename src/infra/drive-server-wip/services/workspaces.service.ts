@@ -2,8 +2,6 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
-import { getFilesByFolder } from './workspaces/get-files-by-folder';
-import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
 import { createFile } from './workspaces/create-file';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 
@@ -18,8 +16,6 @@ export const workspaces = {
   getFoldersInWorkspace,
   createFile,
   createFolderInWorkspace,
-  getFilesByFolder,
-  getFoldersByFolder,
 };
 export const WorkspaceModule = workspaces;
 
