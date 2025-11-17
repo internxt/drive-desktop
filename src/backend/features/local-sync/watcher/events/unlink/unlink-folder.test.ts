@@ -13,13 +13,8 @@ describe('unlink-folder', () => {
   const isMoveFolderEventMock = partialSpyOn(isMoveFolderEvent, 'isMoveFolderEvent');
 
   const props = mockProps<typeof unlinkFolder>({
-    absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\folder' as AbsolutePath,
-    ctx: {
-      workspaceToken: 'token',
-      virtualDrive: {
-        syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
-      },
-    },
+    path: '/folder/folder' as AbsolutePath,
+    ctx: { workspaceToken: 'token' },
   });
 
   beforeEach(() => {
@@ -46,7 +41,7 @@ describe('unlink-folder', () => {
     await unlinkFolder(props);
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
-    expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\folder' }));
+    expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder/folder' }));
     expect(invokeMock).toBeCalledTimes(0);
   });
 
@@ -82,7 +77,7 @@ describe('unlink-folder', () => {
     expect(isMoveFolderEventMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(2);
     expect(invokeMock).toBeCalledWith('storageDeleteFolderByUuid', {
-      path: String.raw`C:\Users\user\InternxtDrive\folder\folder`,
+      path: '/folder/folder',
       uuid: 'uuid',
       workspaceToken: 'token',
     });
