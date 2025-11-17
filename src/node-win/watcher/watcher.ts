@@ -31,7 +31,7 @@ export class Watcher {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
-        .on('all', (event, path) => onAll({ event, path }))
+        .on('all', (event, path) => onAll({ event, path: createAbsolutePath(path) }))
         /**
          * v2.5.7 Daniel Jiménez
          * add events are triggered when:
