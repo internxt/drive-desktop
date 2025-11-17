@@ -6,6 +6,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   context: AuthContext;
@@ -14,7 +15,7 @@ type TProps = {
     key: string;
     providerId: string;
     rootFolderId: string;
-    rootPath: string;
+    rootPath: AbsolutePath;
   };
 };
 

@@ -3,13 +3,13 @@ import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
 
 export type Config = {
   userUuid: string;
   providerId: string;
-  rootPath: string;
+  rootPath: AbsolutePath;
   rootUuid: FolderUuid;
   providerName: string;
   workspaceId: string;
@@ -32,7 +32,7 @@ const emptyValues = (): Config => {
   return {
     userUuid: '',
     providerId: '',
-    rootPath: '',
+    rootPath: '' as AbsolutePath,
     providerName: '',
     workspaceId: '',
     rootUuid: '' as FolderUuid,

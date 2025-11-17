@@ -19,7 +19,7 @@ type TProps = {
 };
 
 export function getFolderInfo({ ctx, path }: TProps) {
-  if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath) {
+  if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath || path === ctx.rootPath) {
     return {
       data: {
         placeholderId: `FOLDER:${ctx.rootUuid}` as FolderPlaceholderId,
