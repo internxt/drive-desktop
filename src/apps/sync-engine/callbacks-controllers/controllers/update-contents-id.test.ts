@@ -3,17 +3,16 @@ import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test'
 import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 describe('update-contents-id', () => {
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
   const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
 
-  const path = createRelativePath('folder', 'file.txt');
+  const path = '/folder/file.txt' as AbsolutePath;
   const uuid = 'uuid';
 
   let props: Parameters<typeof updateContentsId>[0];

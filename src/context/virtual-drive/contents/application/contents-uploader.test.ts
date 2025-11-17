@@ -5,7 +5,7 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('node:fs'));
 
@@ -15,8 +15,7 @@ describe('contents-uploader', () => {
 
   const props = mockProps<typeof ContentsUploader.run>({
     ctx: { fileUploader: uploader },
-    path: createRelativePath('file.txt'),
-    absolutePath: 'C:/Users/user/InternxtDrive/file.txt' as AbsolutePath,
+    path: '/file.txt' as AbsolutePath,
     stats: { size: 1024 },
   });
 

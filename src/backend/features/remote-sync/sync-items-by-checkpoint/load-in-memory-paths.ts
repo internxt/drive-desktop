@@ -20,7 +20,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
   const files: InMemoryFiles = {};
   const folders: InMemoryFolders = {};
 
-  const rootPath = ctx.virtualDrive.syncRootPath;
+  const { rootPath } = ctx;
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 

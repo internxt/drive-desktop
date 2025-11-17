@@ -15,8 +15,7 @@ const limiter = new Bottleneck({ maxConcurrent: 4 });
 export type TResolve = (_: { data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }) => void;
 
 type TProps = {
-  absolutePath: AbsolutePath;
-  path: string;
+  path: AbsolutePath;
   size: number;
   abortSignal: AbortSignal;
   callbacks: FileUploaderCallbacks;
@@ -28,7 +27,7 @@ export class EnvironmentFileUploader {
     private readonly bucket: string,
   ) {}
 
-  upload({ absolutePath, path, size, abortSignal, callbacks }: TProps) {
+  upload({ path, size, abortSignal, callbacks }: TProps) {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -39,7 +38,7 @@ export class EnvironmentFileUploader {
       useMultipartUpload,
     });
 
-    const readable = createReadStream(absolutePath);
+    const readable = createReadStream(path);
     const fn = useMultipartUpload ? this.environment.uploadMultipartFile.bind(this.environment) : this.environment.upload;
 
     callbacks.onProgress({ progress: 0 });
@@ -49,7 +48,6 @@ export class EnvironmentFileUploader {
       bucket: this.bucket,
       readable,
       size,
-      absolutePath,
       path,
       callbacks,
       abortSignal,

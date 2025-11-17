@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { appendFile, mkdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { v4 } from 'uuid';
 
 import { Watcher } from './watcher';

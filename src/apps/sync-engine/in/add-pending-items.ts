@@ -19,8 +19,8 @@ export async function addPendingItems({ ctx }: Props) {
     await Promise.all([
       addPendingFiles({ ctx, createFiles }),
       addPendingFolders({ ctx, createFolders }),
-      hydrateFiles.map((file) => throttleHydrate({ ctx, ...file })),
-      modifiedFiles.map((file) => updateContentsId({ ctx, ...file })),
+      hydrateFiles.map((file) => throttleHydrate({ ctx, path: file.absolutePath })),
+      modifiedFiles.map((file) => updateContentsId({ ctx, ...file, path: file.absolutePath })),
     ]);
 
     const endTime = performance.now();

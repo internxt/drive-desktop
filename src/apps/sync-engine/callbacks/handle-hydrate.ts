@@ -1,13 +1,13 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import Bottleneck from 'bottleneck';
 import { ProcessSyncContext } from '../config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 const limiter = new Bottleneck({ maxConcurrent: 1 });
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
+  path: AbsolutePath;
 };
 
 export async function handleHydrate({ ctx, path }: TProps) {
@@ -18,7 +18,7 @@ export async function handleHydrate({ ctx, path }: TProps) {
       path,
     });
 
-    await ctx.virtualDrive.hydrateFile({ itemPath: path });
+    await ctx.virtualDrive.hydrateFile({ path });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
