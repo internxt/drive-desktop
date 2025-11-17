@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 import { setupWatcher, getEvents } from '../watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { onAdd } from './on-add.service';
 
 vi.mock(import('./on-add.service'));
 
@@ -61,6 +62,12 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
+    expect(onAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        absolutePath: file,
+        stats: expect.objectContaining({ size: 0 }),
+      }),
+    );
 
     getEvents().toStrictEqual(
       expect.arrayContaining([
