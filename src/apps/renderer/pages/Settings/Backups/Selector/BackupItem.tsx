@@ -20,7 +20,7 @@ export function BackupListItem({ backup, selected }: BackupListItemProps) {
   const numberOfIssues = backupIssues.filter((issue) => issue.folderUuid === backup.uuid).length;
 
   async function findBackupFolder() {
-    await window.electron.changeBackupPath(backup.pathname);
+    await window.electron.shellOpenPath(backup.pathname);
   }
 
   return (

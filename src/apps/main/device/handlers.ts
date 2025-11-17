@@ -2,7 +2,6 @@ import { ipcMain } from 'electron';
 
 import {
   addBackup,
-  changeBackupPath,
   deleteBackup,
   disableBackup,
   deleteBackupsFromDevice,
@@ -31,7 +30,5 @@ ipcMain.handle('delete-backups-from-device', (_, v, c?) => deleteBackupsFromDevi
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
 
 ipcMain.handle('download-backup', (_, v, fd) => downloadBackup(v, fd));
-
-ipcMain.handle('change-backup-path', (_, v) => changeBackupPath(v));
 
 ipcMain.handle('get-folder-path', () => getPathFromDialog());

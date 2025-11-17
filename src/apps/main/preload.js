@@ -193,9 +193,6 @@ var api = {
   downloadBackup(backup, folderUuids) {
     return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
-  changeBackupPath(currentPath) {
-    return import_electron2.ipcRenderer.invoke("change-backup-path", currentPath);
-  },
   getFolderPath() {
     return import_electron2.ipcRenderer.invoke("get-folder-path");
   },
@@ -207,9 +204,6 @@ var api = {
   },
   getRemoteSyncStatus() {
     return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
-  },
-  openUrl: (url) => {
-    return import_electron2.ipcRenderer.invoke("open-url", url);
   },
   syncManually() {
     return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
@@ -249,6 +243,8 @@ var api = {
     }
   },
   path: import_node_path.default,
+  shellOpenExternal: import_electron2.shell.openExternal,
+  shellOpenPath: import_electron2.shell.openPath,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),

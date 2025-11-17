@@ -24,7 +24,6 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "allowJs": true,
     "noEmit": true,
     "types": ["vitest/globals"],
     "paths": {
