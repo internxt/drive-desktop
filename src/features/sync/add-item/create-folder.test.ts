@@ -1,7 +1,6 @@
 import { createFolder, createParentFolder } from './create-folder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
