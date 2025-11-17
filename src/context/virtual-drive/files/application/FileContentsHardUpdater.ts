@@ -27,7 +27,7 @@ export class FileContentsHardUpdater {
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
-      const content = await ContentsUploader.run({ ctx, path, absolutePath, stats });
+      const content = await ContentsUploader.run({ ctx, path: absolutePath, stats });
 
       logger.debug({ msg: 'Running hard update after upload, Content id generated', content });
 

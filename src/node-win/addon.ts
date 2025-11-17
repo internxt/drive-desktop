@@ -5,6 +5,7 @@ import { Callbacks } from './types/callbacks.type';
 import { addon as rawAddon } from '@internxt/node-win/dist';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TAddon = {
   createFilePlaceholder(
@@ -24,8 +25,8 @@ type TAddon = {
     lastAccessTime: number,
     parentPath: string,
   ): z.infer<typeof addonZod.createFolderPlaceholder>;
-  hydrateFile(path: string): Promise<z.infer<typeof addonZod.hydrateFile>>;
-  dehydrateFile(path: string): z.infer<typeof addonZod.dehydrateFile>;
+  hydrateFile(path: AbsolutePath): Promise<z.infer<typeof addonZod.hydrateFile>>;
+  dehydrateFile(path: AbsolutePath): z.infer<typeof addonZod.dehydrateFile>;
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
   disconnectSyncRoot(path: string): z.infer<typeof addonZod.disconnectSyncRoot>;

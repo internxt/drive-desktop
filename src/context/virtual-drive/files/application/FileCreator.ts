@@ -44,7 +44,7 @@ export class FileCreator {
           workspaceId: ctx.workspaceId,
         },
         bucket: ctx.bucket,
-        absolutePath,
+        path: absolutePath,
       });
 
       if (error) throw error;
