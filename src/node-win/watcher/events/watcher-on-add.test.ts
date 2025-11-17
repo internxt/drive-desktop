@@ -49,6 +49,27 @@ describe('[Watcher] When add items', () => {
     );
   });
 
+  it('When add a file of zero size, then emit one add event', async () => {
+    // Arrange
+    const syncRootPath = join(TEST_FILES, v4());
+    const file = join(syncRootPath, v4());
+    await setupWatcher(syncRootPath);
+
+    // Act
+    await sleep(50);
+    await writeFile(file, '');
+    await sleep(50);
+
+    // Assert
+
+    getEvents().toStrictEqual(
+      expect.arrayContaining([
+        { event: 'addDir', path: syncRootPath },
+        { event: 'add', path: file },
+      ]),
+    );
+  });
+
   it('When add a folder and a file inside, then emit one addDir and one add event', async () => {
     // Arrange
     const syncRootPath = join(TEST_FILES, v4());
