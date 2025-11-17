@@ -6,8 +6,7 @@ import { basename } from 'node:path';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 import type { Backup } from '../Backups';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { newParseFolderDto } from '@/infra/drive-server-wip/out/dto';
+import { createFolder } from '@/infra/drive-server-wip/out/ipc-main';
 
 type TProps = {
   self: Backup;
@@ -40,30 +39,24 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         parentPath,
       });
 
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: add issue
-       */
+      context.addIssue({ error: 'CREATE_FOLDER_FAILED', name: localFolder.absolutePath });
     } else {
-      const { data: folderDto } = await driveServerWip.folders.createFolder({
+      const { data: folder, error } = await createFolder({
         path: localFolder.relativePath,
-        body: {
-          plainName: basename(localFolder.relativePath),
-          parentFolderUuid: parent.uuid,
-        },
+        plainName: basename(localFolder.relativePath),
+        parentUuid: parent.uuid,
+        userUuid: context.userUuid,
+        workspaceId: '',
       });
 
-      if (folderDto) {
+      if (folder) {
         tree.folders[localFolder.relativePath] = {
-          ...newParseFolderDto({ folderDto }),
+          ...folder,
           path: localFolder.relativePath,
           absolutePath: localFolder.absolutePath,
         };
-      } else {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: add issue
-         */
+      } else if (error.code !== 'ABORTED') {
+        context.addIssue({ error: 'CREATE_FOLDER_FAILED', name: localFolder.absolutePath });
       }
     }
 

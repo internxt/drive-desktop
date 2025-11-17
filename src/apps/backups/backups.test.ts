@@ -1,4 +1,4 @@
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { Backup } from './Backups';
 import { beforeAll } from 'vitest';
 import { join } from 'node:path';
@@ -10,15 +10,19 @@ import { mockDeep } from 'vitest-mock-extended';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { ContentsId, FileUuid } from '../main/database/entities/DriveFile';
+import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
+import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 describe('backups', () => {
   const getFilesByFolderMock = partialSpyOn(driveServerWip.folders, 'getFilesByFolder');
   const getFoldersByFolderMock = partialSpyOn(driveServerWip.folders, 'getFoldersByFolder');
-  const createFolderMock = partialSpyOn(driveServerWip.folders, 'createFolder');
+  const createFolderMock = partialSpyOn(ipcMain, 'createFolder');
   const createFileMock = partialSpyOn(driveServerWip.files, 'createFile');
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
-  const deleteFileByUuidMock = partialSpyOn(driveServerWip.storage, 'deleteFileByUuid');
-  const deleteFolderByUuidMock = partialSpyOn(driveServerWip.storage, 'deleteFolderByUuid');
+  const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
+  const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
+  const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
   const testPath = join(TEST_FILES, v4());
   const unmodifiedFolder = join(testPath, 'unmodifiedFolder');
@@ -89,48 +93,33 @@ describe('backups', () => {
     });
 
     fileUploader.run.mockResolvedValue({ data: 'newContentsId' as ContentsId });
-    createFolderMock.mockResolvedValue({ data: { id: 1, uuid: v4(), status: 'EXISTS', plainName: 'folder' } });
-    createFileMock.mockResolvedValue({ data: { id: 1, uuid: v4() as FileUuid, status: 'EXISTS', plainName: 'file' } });
+    createFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
+    createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
+    replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' } });
 
     // When
     await service.run(props);
 
     // Then
     expect(fileUploader.run).toBeCalledTimes(2);
-    expect(deleteFileByUuidMock).toBeCalledTimes(1).toBeCalledWith({ uuid: 'deletedFile', workspaceToken: '' });
-    expect(deleteFolderByUuidMock).toBeCalledTimes(1).toBeCalledWith({ uuid: deletedFolderUuid, workspaceToken: '' });
+    call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile', workspaceToken: '' });
+    call(deleteFolderByUuidMock).toMatchObject({ uuid: deletedFolderUuid, workspaceToken: '' });
+    call(createFolderMock).toMatchObject({ path: '/addedFolder', parentUuid: rootUuid, plainName: 'addedFolder' });
+    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', newContentId: 'newContentsId', newSize: 7 });
+    calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
 
-    expect(createFolderMock)
-      .toBeCalledTimes(1)
-      .toBeCalledWith({
-        path: '/addedFolder',
-        body: { parentFolderUuid: rootUuid, plainName: 'addedFolder' },
-      });
-
-    expect(createFileMock)
-      .toBeCalledTimes(1)
-      .toBeCalledWith({
-        path: '/unmodifiedFolder/addedFile.txt',
-        body: {
-          bucket: undefined,
-          encryptVersion: '03-aes',
-          fileId: 'newContentsId',
-          folderUuid: unmodifiedFolderUuid,
-          plainName: 'addedFile',
-          size: 7,
-          type: 'txt',
-        },
-      });
-
-    expect(replaceFileMock)
-      .toBeCalledTimes(1)
-      .toBeCalledWith(
-        expect.objectContaining({
-          uuid: 'modifiedFile',
-          newContentId: 'newContentsId',
-          newSize: 7,
-        }),
-      );
+    call(createFileMock).toStrictEqual({
+      path: '/unmodifiedFolder/addedFile.txt',
+      body: {
+        bucket: undefined,
+        encryptVersion: '03-aes',
+        fileId: 'newContentsId',
+        folderUuid: unmodifiedFolderUuid,
+        plainName: 'addedFile',
+        size: 7,
+        type: 'txt',
+      },
+    });
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);

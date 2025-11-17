@@ -1,6 +1,6 @@
 import { BackupsContext } from '../BackupInfo';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { deleteFileByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 
 type TProps = {
   context: BackupsContext;
@@ -13,9 +13,6 @@ export async function deleteRemoteFiles({ context, deleted }: TProps) {
       return;
     }
 
-    await driveServerWip.storage.deleteFileByUuid({
-      uuid: file.uuid,
-      workspaceToken: '',
-    });
+    await deleteFileByUuid({ uuid: file.uuid, workspaceToken: '', path: file.absolutePath });
   }
 }

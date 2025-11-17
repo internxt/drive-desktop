@@ -7,6 +7,7 @@ import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 type Props = {
   self: Backup;
@@ -48,12 +49,16 @@ export class FileBatchUpdater {
 
       if (!contentsId) return;
 
-      await driveServerWip.files.replaceFile({
+      const { data: fileDto } = await driveServerWip.files.replaceFile({
         uuid: file.uuid,
         newContentId: contentsId,
         newSize: localFile.size,
         modificationTime: localFile.modificationTime.toISOString(),
       });
+
+      if (fileDto) {
+        await createOrUpdateFile({ context, fileDto });
+      }
     } catch (exc) {
       logger.error({
         tag: 'BACKUPS',
