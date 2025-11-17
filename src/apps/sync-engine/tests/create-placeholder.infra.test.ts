@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { BindingsManager } from '../BindingManager';
 import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
@@ -18,7 +18,7 @@ import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -36,8 +36,8 @@ describe('create-placeholder', () => {
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
-  const rootPath = createAbsolutePath(testFolder, 'root');
-  const file = createAbsolutePath(rootPath, 'file.txt');
+  const rootPath = join(testFolder, 'root') as AbsolutePath;
+  const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
   setDefaultConfig({
