@@ -37,7 +37,7 @@ describe('create-placeholder', () => {
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
   const rootPath = createAbsolutePath(testFolder, 'root');
-  const file = join(rootPath, 'file.txt');
+  const file = createAbsolutePath(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
   setDefaultConfig({
@@ -122,13 +122,13 @@ describe('create-placeholder', () => {
     call(onAllMock).toStrictEqual({ event: 'add', path: file });
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Registering sync root', syncRootPath: rootPath },
+      { msg: 'Registering sync root', syncRootPath: rootPath.replaceAll('/', '\\') },
       { tag: 'SYNC-ENGINE', msg: 'Tree built', workspaceId: '', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
       { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
       { msg: 'onReady' },
       { msg: 'Create file', path: '/file.txt' },
       { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: '/file.txt', contentsId: '012345678901234567890123', size: 7 },
-      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: '/file.txt', id: `FILE:${fileUuid}` },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: file, id: `FILE:${fileUuid}` },
       {
         msg: 'Change event triggered',
         path: '/file.txt',

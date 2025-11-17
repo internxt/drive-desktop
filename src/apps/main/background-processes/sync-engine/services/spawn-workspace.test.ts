@@ -5,6 +5,7 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('./spawn-sync-engine-worker'));
 vi.mock(import('@/apps/main/auth/service'));
@@ -23,7 +24,7 @@ describe('spawn-workspace.service', () => {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
       key: 'encryptedMnemonic',
-      rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
+      rootPath: 'C:/Users/user/InternxtDrive - provider_id' as AbsolutePath,
     },
   });
 
