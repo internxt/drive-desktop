@@ -9,8 +9,8 @@ describe('get-parent-uuid', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const statMock = partialSpyOn(fileSystem, 'stat');
 
-  const absolutePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2\\file' as AbsolutePath;
-  const props = mockProps<typeof getParentUuid>({ absolutePath });
+  const path = '/folder1/folder2/file.txt' as AbsolutePath;
+  const props = mockProps<typeof getParentUuid>({ path });
 
   beforeEach(() => {
     getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
@@ -23,7 +23,7 @@ describe('get-parent-uuid', () => {
     // When
     const res = await getParentUuid(props);
     // Then
-    expect(getFolderInfoMock).toBeCalledWith(expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
+    expect(getFolderInfoMock).toBeCalledWith(expect.objectContaining({ path: '/folder1/folder2' }));
     expect(res).toBeNull();
   });
 
@@ -33,7 +33,7 @@ describe('get-parent-uuid', () => {
     // When
     const res = await getParentUuid(props);
     // Then
-    expect(statMock).toBeCalledWith(expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
+    expect(statMock).toBeCalledWith(expect.objectContaining({ absolutePath: '/folder1/folder2' }));
     expect(res).toBeNull();
   });
 
