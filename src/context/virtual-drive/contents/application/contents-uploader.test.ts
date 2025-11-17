@@ -5,7 +5,6 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('node:fs'));

@@ -3,7 +3,6 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processItem } from './process-item';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { PinState } from '@/node-win/types/placeholder.type';
