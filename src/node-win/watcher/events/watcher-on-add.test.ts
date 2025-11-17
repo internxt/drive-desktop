@@ -6,6 +6,7 @@ import { setupWatcher, getEvents } from '../watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { onAdd } from './on-add.service';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('./on-add.service'));
 
@@ -64,7 +65,7 @@ describe('[Watcher] When add items', () => {
     // Assert
     expect(onAdd).toHaveBeenCalledWith(
       expect.objectContaining({
-        absolutePath: file,
+        path: createAbsolutePath(file),
         stats: expect.objectContaining({ size: 0 }),
       }),
     );

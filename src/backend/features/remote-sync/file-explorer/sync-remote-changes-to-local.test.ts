@@ -2,11 +2,12 @@ import { mockDeep } from 'vitest-mock-extended';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
-import { AbsolutePath, createAbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { existsSync } from 'node:fs';
+import { RelativePath } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
@@ -26,15 +27,14 @@ describe('sync-remote-to-local', () => {
     props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
       local: {
-        path: createAbsolutePath('C:/Drive/localPath'),
+        path: '/file.txt' as AbsolutePath,
         stats: {
           size: 512,
           mtime: new Date('1999-01-01T00:00:00.000Z'),
         },
       },
       remote: {
-        path: createRelativePath('file1', 'file2'),
-        absolutePath: 'remotePath' as AbsolutePath,
+        path: '/file.txt' as RelativePath,
         uuid: 'uuid' as FileUuid,
         name: 'file2',
         size: 1024,
@@ -48,9 +48,9 @@ describe('sync-remote-to-local', () => {
     // Given/When
     await syncRemoteChangesToLocal(props);
     // Then
-    expect(unlinkMock).toBeCalledWith('C:/localPath');
+    expect(unlinkMock).toBeCalledWith('/file.txt');
     expect(virtualDrive.createFileByPath).toBeCalledWith({
-      itemPath: '/file1/file2',
+      itemPath: '/file.txt',
       placeholderId: 'FILE:uuid',
       size: 1024,
       creationTime: time,

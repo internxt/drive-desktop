@@ -10,6 +10,7 @@ import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate'
 import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { detectContextMenuAction } from './detect-context-menu-action.service';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('detect-context-menu-action', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
@@ -23,7 +24,7 @@ describe('detect-context-menu-action', () => {
   beforeEach(() => {
     props = mockProps<typeof detectContextMenuAction>({
       ctx: { virtualDrive },
-      path: createAbsolutePath('C:/Drive/file.txt'),
+      path: '/file.txt' as AbsolutePath,
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
         curr: { ctimeMs: 2, mtimeMs: 1 },
@@ -42,7 +43,6 @@ describe('detect-context-menu-action', () => {
       expect.objectContaining({
         stats: props.details.curr,
         path: '/file.txt',
-        absolutePath: 'absolutePath',
         uuid: 'uuid',
       }),
     );

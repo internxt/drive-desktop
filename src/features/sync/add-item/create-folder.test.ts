@@ -3,11 +3,12 @@ import { FolderCreator } from '@/context/virtual-drive/folders/application/Folde
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('create-folder', () => {
   const folderCreatorMock = partialSpyOn(FolderCreator, 'run');
 
-  const path = createAbsolutePath('folder1', 'folder2');
+  const path = '/folder1/folder2' as AbsolutePath;
   const parentPath = '/folder1';
   const props = mockProps<typeof createFolder>({ path });
 

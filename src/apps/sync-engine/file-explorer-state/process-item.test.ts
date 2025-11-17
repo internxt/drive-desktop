@@ -11,22 +11,23 @@ import * as isModified from './is-modified';
 import * as isHydrationPending from './is-hydration-pending';
 import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('process-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
-  const absoluteToRelativeMock = partialSpyOn(pathUtils, 'absoluteToRelative');
   const isModifiedMock = partialSpyOn(isModified, 'isModified');
   const isHydrationPendingMock = partialSpyOn(isHydrationPending, 'isHydrationPending');
 
   let props: Parameters<typeof processItem>[0];
 
   beforeEach(() => {
-    absoluteToRelativeMock.mockReturnValue('/item' as RelativePath);
-
     props = mockProps<typeof processItem>({
       ctx: { virtualDrive: {} },
-      localItem: { stats: { isDirectory: () => false, isFile: () => false } },
+      localItem: {
+        path: '/item' as AbsolutePath,
+        stats: { isDirectory: () => false, isFile: () => false },
+      },
       state: { createFolders: [], createFiles: [], modifiedFiles: [], hydrateFiles: [] },
     });
   });

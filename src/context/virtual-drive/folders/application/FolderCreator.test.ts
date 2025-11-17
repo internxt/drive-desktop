@@ -4,17 +4,17 @@ import { call, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('Folder Creator', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
-  const path = createAbsolutePath('folder1', 'folder2');
+  const path = '/folder1/folder2' as AbsolutePath;
   const props = mockProps<typeof FolderCreator.run>({
     ctx: { virtualDrive, workspaceId: '', userUuid: '' },
     path,

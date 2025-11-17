@@ -1,6 +1,6 @@
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { CLSFsLocalItemsGenerator } from './FsLocalItemsGenerator';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { mockProps } from 'tests/vitest/utils.helper.test';

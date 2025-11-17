@@ -86,8 +86,8 @@ describe('backups', () => {
 
     // Then
     calls(fileUploader.run).toMatchObject([
-      { absolutePath: expect.stringContaining('addedFile'), size: 7 },
-      { absolutePath: expect.stringContaining('modifiedFile'), size: 7 },
+      { path: expect.stringContaining('addedFile'), size: 7 },
+      { path: expect.stringContaining('modifiedFile'), size: 7 },
     ]);
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
