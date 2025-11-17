@@ -18,7 +18,6 @@ import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { getConfig } from '@/apps/sync-engine/config';
-import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getAuthHeaders } from '../auth/headers';
@@ -407,57 +406,6 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
   backupsList[pathname].enabled = false;
 
   electronStore.set('backupList', backupsList);
-}
-
-export async function changeBackupPath(currentPath: string): Promise<string | null> {
-  const backupsList = electronStore.get('backupList');
-  const existingBackup = backupsList[currentPath];
-
-  if (!existingBackup) {
-    throw new Error('Backup no longer exists');
-  }
-
-  const chosen = await getPathFromDialog();
-
-  if (!chosen || !chosen.path) {
-    return null;
-  }
-
-  logger.debug({ tag: 'BACKUPS', msg: 'Changing backup path from', currentPath, chosenPath: chosen.path });
-  const chosenPath = chosen.path;
-  if (backupsList[chosenPath]) {
-    throw new Error('A backup with this path already exists');
-  }
-
-  const oldFolderName = path.basename(currentPath);
-  const newFolderName = path.basename(chosenPath);
-
-  if (oldFolderName !== newFolderName) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
-
-    const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
-
-    const res = await client.PUT('/folders/{uuid}/meta', {
-      params: { path: { uuid: folderUuid } },
-      body: { plainName: newFolderName },
-    });
-
-    if (!res.data) {
-      throw logger.error({
-        tag: 'BACKUPS',
-        msg: 'Error in the request to rename a backup',
-        exc: res.error,
-      });
-    }
-  }
-
-  delete backupsList[currentPath];
-
-  backupsList[chosenPath] = existingBackup;
-
-  electronStore.set('backupList', backupsList);
-
-  return chosen.itemName;
 }
 
 export function findBackupPathnameFromId(id: number): string | undefined {

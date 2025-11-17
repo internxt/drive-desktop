@@ -28,7 +28,7 @@ function DevicePill({ device, current, selected, setSelected }: DevicePillProps)
 function Help() {
   const handleOpenURL = async () => {
     try {
-      await window.electron.openUrl('https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive');
+      await window.electron.shellOpenExternal('https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive');
     } catch (error) {
       reportError(error);
     }
