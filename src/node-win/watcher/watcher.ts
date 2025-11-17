@@ -38,8 +38,8 @@ export class Watcher {
          * - we create an item locally.
          * - we move an item locally or when we move it using sync by checkpoint.
          */
-        .on('add', (path, stats) => onAdd({ ctx, absolutePath: createAbsolutePath(path), stats: stats! }))
-        .on('addDir', (path) => onAddDir({ ctx, absolutePath: createAbsolutePath(path) }))
+        .on('add', (path, stats) => onAdd({ ctx, path: createAbsolutePath(path), stats: stats! }))
+        .on('addDir', (path) => onAddDir({ ctx, path: createAbsolutePath(path) }))
         /**
          * v2.5.6 Daniel Jiménez
          * unlink events are triggered when:

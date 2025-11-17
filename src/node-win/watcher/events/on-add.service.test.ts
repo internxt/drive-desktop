@@ -16,16 +16,13 @@ describe('on-add', () => {
   const createFileMock = partialSpyOn(AddController, 'createFile');
   const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
 
-  const absolutePath = 'C:/Users/user/drive/file.txt' as AbsolutePath;
+  const path = '/file.txt' as AbsolutePath;
 
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
     getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
-    props = mockProps<typeof onAdd>({
-      ctx: { virtualDrive: { syncRootPath: 'C:/Users/user' as AbsolutePath } },
-      absolutePath,
-    });
+    props = mockProps<typeof onAdd>({ path });
   });
 
   it('should call add controller if the file is new', async () => {
@@ -34,11 +31,7 @@ describe('on-add', () => {
     // When
     await onAdd(props);
     // Then
-    expect(createFileMock).toBeCalledWith(
-      expect.objectContaining({
-        path: '/drive/file.txt',
-      }),
-    );
+    expect(createFileMock).toBeCalledWith(expect.objectContaining({ path }));
   });
 
   it('should call moveFile if the file is moved', async () => {
@@ -46,11 +39,6 @@ describe('on-add', () => {
     await onAdd(props);
     // Then
     expect(trackAddFileEventMock).toBeCalledWith({ uuid: 'uuid' });
-    expect(moveFileMock).toBeCalledWith(
-      expect.objectContaining({
-        path: 'C:/Users/user/drive/file.txt',
-        uuid: 'uuid',
-      }),
-    );
+    expect(moveFileMock).toBeCalledWith(expect.objectContaining({ path, uuid: 'uuid' }));
   });
 });

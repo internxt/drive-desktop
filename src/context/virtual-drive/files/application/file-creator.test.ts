@@ -1,7 +1,7 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
 import { mockDeep } from 'vitest-mock-extended';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
@@ -23,9 +23,9 @@ describe('File Creator', () => {
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const contents = { id: 'contentsId' as ContentsId, size: 1024 };
-  const absolutePath = 'C:/Users/user/drive/cat.png' as AbsolutePath;
+  const path = '/file.txt' as AbsolutePath;
 
-  const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, contents, absolutePath });
+  const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, contents, path });
 
   beforeEach(() => {
     getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
@@ -40,9 +40,7 @@ describe('File Creator', () => {
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
-    expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
-      path: 'C:/Users/user/drive/cat.png',
-    });
+    expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', { path });
   });
 
   it('creates the file on the drive server', async () => {

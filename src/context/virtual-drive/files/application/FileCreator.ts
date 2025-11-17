@@ -5,13 +5,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
   contents: {
     id: ContentsId;
     size: number;
@@ -19,9 +18,9 @@ type Props = {
 };
 
 export class FileCreator {
-  static async run({ ctx, path, absolutePath, contents }: Props) {
+  static async run({ ctx, path, contents }: Props) {
     try {
-      const parentPath = pathUtils.dirname(absolutePath);
+      const parentPath = pathUtils.dirname(path);
       const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
       if (!parentInfo) {
@@ -44,7 +43,7 @@ export class FileCreator {
           workspaceId: ctx.workspaceId,
         },
         bucket: ctx.bucket,
-        path: absolutePath,
+        path,
       });
 
       if (error) throw error;
@@ -58,7 +57,7 @@ export class FileCreator {
         exc: error,
       });
 
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path: absolutePath });
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
 
       throw error;
     }

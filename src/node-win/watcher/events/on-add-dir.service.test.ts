@@ -19,10 +19,7 @@ describe('on-add-dir', () => {
   let props: Parameters<typeof onAddDir>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof onAddDir>({
-      ctx: { virtualDrive: { syncRootPath: 'C:/Users/user' as AbsolutePath } },
-      absolutePath: 'C:/Users/user/drive/folder' as AbsolutePath,
-    });
+    props = mockProps<typeof onAddDir>({ path: '/folder' as AbsolutePath });
   });
 
   it('should call add controller if the folder is new', async () => {
@@ -33,7 +30,7 @@ describe('on-add-dir', () => {
     // Then
     expect(createFolderMock).toBeCalledWith(
       expect.objectContaining({
-        path: '/drive/folder',
+        path: '/folder',
       }),
     );
   });
@@ -47,7 +44,7 @@ describe('on-add-dir', () => {
     expect(trackAddFolderEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFolderMock).toBeCalledWith(
       expect.objectContaining({
-        path: 'C:/Users/user/drive/folder',
+        path: '/folder',
         uuid: 'uuid',
       }),
     );
