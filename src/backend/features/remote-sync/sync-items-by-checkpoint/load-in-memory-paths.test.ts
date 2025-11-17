@@ -17,7 +17,7 @@ describe('load-in-memory-paths', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
   const props = mockProps<typeof loadInMemoryPaths>({
-    ctx: { virtualDrive: { syncRootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath } },
+    ctx: { rootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath },
   });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
