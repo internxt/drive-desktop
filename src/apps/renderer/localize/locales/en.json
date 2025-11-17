@@ -13,7 +13,7 @@
     "action": {
       "login": "Log in",
       "is-logging-in": "Logging you in...",
-      "sign-in-browser": "Sign in with browser"
+      "login-in-browser": "Log in with browser"
     },
     "create-account": "Create account",
     "welcome": "Welcome to Internxt",

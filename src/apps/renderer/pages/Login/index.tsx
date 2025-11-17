@@ -44,7 +44,7 @@ export default function Login() {
             onClick={handleSignInWithBrowser}
             className="bg-blue-500 hover:bg-blue-600 flex w-full items-center justify-center rounded-lg px-6 py-4 text-center text-lg font-medium text-white"
             data-automation-id="buttonSignInBrowser">
-            {translate('login.action.sign-in-browser') || 'Inicia sesión con el navegador'}
+            {translate('login.action.login-in-browser') || 'Inicia sesión con el navegador'}
           </Button>
 
           <div className="border-gray-300 my-4 w-full border-t" />

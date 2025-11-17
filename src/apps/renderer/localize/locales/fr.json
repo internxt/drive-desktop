@@ -13,7 +13,7 @@
     "action": {
       "login": "S'identifier",
       "is-logging-in": "Se connecter...",
-      "sign-in-browser": "Se connecter avec le navigateur"
+      "login-in-browser": "Se connecter avec le navigateur"
     },
     "create-account": "Créer un compte",
     "welcome": "Bienvenue chez Internxt",
