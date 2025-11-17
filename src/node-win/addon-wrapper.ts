@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { addon } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
@@ -112,12 +113,12 @@ export class Addon {
     return this.parseAddonZod('convertToPlaceholder', result);
   }
 
-  dehydrateFile({ path }: { path: string }) {
+  dehydrateFile({ path }: { path: AbsolutePath }) {
     const result = addon.dehydrateFile(path);
     return this.parseAddonZod('dehydrateFile', result);
   }
 
-  async hydrateFile({ path }: { path: string }) {
+  async hydrateFile({ path }: { path: AbsolutePath }) {
     const result = await addon.hydrateFile(path);
     return this.parseAddonZod('hydrateFile', result);
   }

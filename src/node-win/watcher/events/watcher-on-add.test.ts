@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { v4 } from 'uuid';
 
 import { setupWatcher, getEvents } from '../watcher.helper.test';

@@ -5,7 +5,7 @@ import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
@@ -23,8 +23,7 @@ describe('detect-context-menu-action', () => {
   beforeEach(() => {
     props = mockProps<typeof detectContextMenuAction>({
       ctx: { virtualDrive },
-      absolutePath: 'absolutePath' as AbsolutePath,
-      path: createRelativePath('file.txt'),
+      path: '/file.txt' as AbsolutePath,
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
         curr: { ctimeMs: 2, mtimeMs: 1 },
@@ -43,7 +42,6 @@ describe('detect-context-menu-action', () => {
       expect.objectContaining({
         stats: props.details.curr,
         path: '/file.txt',
-        absolutePath: 'absolutePath',
         uuid: 'uuid',
       }),
     );

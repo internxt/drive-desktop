@@ -1,6 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+
 type Props = {
   event: string;
-  path: string;
+  path: AbsolutePath;
 };
 
 // eslint-disable-next-line no-empty-pattern

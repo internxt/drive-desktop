@@ -151,12 +151,12 @@ export class VirtualDrive {
     }
   }
 
-  dehydrateFile({ itemPath }: { itemPath: string }) {
-    return this.addon.dehydrateFile({ path: this.fixPath(itemPath) });
+  dehydrateFile({ path }: { path: AbsolutePath }) {
+    return this.addon.dehydrateFile({ path });
   }
 
-  hydrateFile({ itemPath }: { itemPath: string }) {
-    return this.addon.hydrateFile({ path: this.fixPath(itemPath) });
+  hydrateFile({ path }: { path: AbsolutePath }) {
+    return this.addon.hydrateFile({ path });
   }
 }
 

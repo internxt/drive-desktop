@@ -15,7 +15,7 @@ type TProps = {
 
 export class FileCreationOrchestrator {
   static async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
-    const fileContents = await ContentsUploader.run({ ctx, absolutePath, path, stats });
+    const fileContents = await ContentsUploader.run({ ctx, path: absolutePath, stats });
 
     logger.debug({
       tag: 'SYNC-ENGINE',

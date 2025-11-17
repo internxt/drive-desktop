@@ -1,9 +1,9 @@
 import { createWatcher } from '@/apps/sync-engine/create-watcher';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
@@ -74,7 +74,7 @@ describe('sync-remote-changes-to-local', () => {
 
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Registering sync root', syncRootPath: rootPath },
+      { msg: 'Registering sync root', syncRootPath: rootPath.replaceAll('/', '\\') },
       { msg: 'onReady' },
       { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
       {

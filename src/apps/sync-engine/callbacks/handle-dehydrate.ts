@@ -1,10 +1,10 @@
 import VirtualDrive from '@/node-win/virtual-drive';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   drive: VirtualDrive;
-  path: RelativePath;
+  path: AbsolutePath;
 };
 
 export function handleDehydrate({ drive, path }: TProps) {
@@ -15,7 +15,7 @@ export function handleDehydrate({ drive, path }: TProps) {
       path,
     });
 
-    drive.dehydrateFile({ itemPath: path });
+    drive.dehydrateFile({ path });
   } catch (error) {
     logger.error({
       tag: 'SYNC-ENGINE',

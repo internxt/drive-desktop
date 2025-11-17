@@ -51,7 +51,7 @@ describe('get-workspaces', () => {
         providerId: '{PROVIDER_ID}',
         key: 'mnemonic',
         rootFolderId: 'rootFolderId',
-        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
+        rootPath: 'C:/Users/user/InternxtDrive - provider_id',
       },
     ]);
   });
