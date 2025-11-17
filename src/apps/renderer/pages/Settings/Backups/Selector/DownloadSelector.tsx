@@ -8,7 +8,7 @@ import { DeviceContext } from '../../../../context/DeviceContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -38,7 +38,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     id: selected?.id || 0,
     uuid: selected?.uuid || '',
     plainName: selected?.name || '',
-    pathname: abs(''),
+    pathname: '' as AbsolutePath,
     backupsBucket: '',
     tmpPath: '',
   });

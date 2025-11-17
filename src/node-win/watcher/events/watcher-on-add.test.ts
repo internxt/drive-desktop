@@ -64,7 +64,7 @@ describe('[Watcher] When add items', () => {
     // Assert
     expect(onAdd).toHaveBeenCalledWith(
       expect.objectContaining({
-        absolutePath: file,
+        path: file,
         stats: expect.objectContaining({ size: 0 }),
       }),
     );
