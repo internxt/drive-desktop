@@ -30,29 +30,3 @@ export function decryptName({ encryptedName, parentId }: { encryptedName: string
     });
   }
 }
-
-export function encryptName({ name, parentId }: { name: string; parentId?: number | null }) {
-  /**
-   * v2.5.2 Daniel Jiménez
-   * parentId can only be null for the root folder, so it should never reach here
-   */
-  if (!parentId) {
-    throw logger.error({
-      msg: 'AES Encrypt failed because parentId is null',
-      name,
-    });
-  }
-
-  try {
-    const salt = parentId.toString();
-    const password = `${CRYPTO_KEY}-${salt}`;
-    return aes.encrypt(name, password);
-  } catch (exc) {
-    throw logger.error({
-      msg: 'AES Encrypt failed',
-      name,
-      parentId,
-      exc,
-    });
-  }
-}
