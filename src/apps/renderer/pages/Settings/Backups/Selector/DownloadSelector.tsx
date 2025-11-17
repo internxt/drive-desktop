@@ -8,6 +8,7 @@ import { DeviceContext } from '../../../../context/DeviceContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -37,7 +38,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     id: selected?.id || 0,
     uuid: selected?.uuid || '',
     plainName: selected?.name || '',
-    pathname: '',
+    pathname: abs(''),
     backupsBucket: '',
     tmpPath: '',
   });

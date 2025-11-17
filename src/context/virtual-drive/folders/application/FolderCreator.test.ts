@@ -4,7 +4,7 @@ import { call, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
@@ -14,7 +14,7 @@ describe('Folder Creator', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
-  const path = createRelativePath('folder1', 'folder2');
+  const path = abs('/parent/folder');
   const props = mockProps<typeof FolderCreator.run>({
     ctx: { virtualDrive, workspaceId: '', userUuid: '' },
     path,
@@ -39,10 +39,7 @@ describe('Folder Creator', () => {
     // When
     await FolderCreator.run(props);
     // Then
-    call(invokeMock).toMatchObject(['createFolder', { path: '/folder1/folder2' }]);
-    call(virtualDrive.convertToPlaceholder).toStrictEqual({
-      itemPath: '/folder1/folder2',
-      id: 'FOLDER:uuid',
-    });
+    call(invokeMock).toMatchObject(['createFolder', { path }]);
+    call(virtualDrive.convertToPlaceholder).toStrictEqual({ itemPath: path, id: 'FOLDER:uuid' });
   });
 });

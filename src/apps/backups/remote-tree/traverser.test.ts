@@ -3,6 +3,7 @@ import { Traverser } from './traverser';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/apps/main/util'));
 
@@ -43,7 +44,7 @@ describe('traverser', () => {
       abortController: { signal: { aborted: false } },
       folderId: 1,
       folderUuid: folder,
-      pathname: 'C:/Users/user/Backup',
+      pathname: abs('/backup'),
     },
   });
 

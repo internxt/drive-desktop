@@ -1,7 +1,7 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import * as createFolder from '@/features/sync/add-item/create-folder';
 import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
@@ -19,10 +19,7 @@ describe('on-add-dir', () => {
   let props: Parameters<typeof onAddDir>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof onAddDir>({
-      ctx: { virtualDrive: { syncRootPath: 'C:/Users/user' as AbsolutePath } },
-      absolutePath: 'C:/Users/user/drive/folder' as AbsolutePath,
-    });
+    props = mockProps<typeof onAddDir>({ path: abs('/folder') });
   });
 
   it('should call add controller if the folder is new', async () => {
@@ -31,11 +28,7 @@ describe('on-add-dir', () => {
     // When
     await onAddDir(props);
     // Then
-    expect(createFolderMock).toBeCalledWith(
-      expect.objectContaining({
-        path: '/drive/folder',
-      }),
-    );
+    expect(createFolderMock).toBeCalledWith(expect.objectContaining({ path: '/folder' }));
   });
 
   it('should call moveFolder if the folder is moved', async () => {
@@ -45,11 +38,6 @@ describe('on-add-dir', () => {
     await onAddDir(props);
     // Then
     expect(trackAddFolderEventMock).toBeCalledWith({ uuid: 'uuid' });
-    expect(moveFolderMock).toBeCalledWith(
-      expect.objectContaining({
-        path: 'C:/Users/user/drive/folder',
-        uuid: 'uuid',
-      }),
-    );
+    expect(moveFolderMock).toBeCalledWith(expect.objectContaining({ path: '/folder', uuid: 'uuid' }));
   });
 });
