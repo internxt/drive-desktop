@@ -3,7 +3,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
-import { parseFileDto, parseFolderDto } from '../out/dto';
+import { parseFolderDto } from '../out/dto';
 import { getByUuid } from './folders/get-by-uuid';
 import { checkExistence } from './folders/check-existence';
 import { move } from './folders/move';
@@ -13,16 +13,12 @@ export const folders = {
   createFolder,
   getMetadata,
   getFolders,
-  getFoldersByFolder,
-  getFilesByFolder,
   move,
   checkExistence,
 };
 export const FolderModule = folders;
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
-type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
-type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
 async function getMetadata(context: { folderId: number }) {
   const method = 'GET';
@@ -70,75 +66,5 @@ async function getFolders(context: { query: TGetFoldersQuery }, extra?: { abortS
     return { data: data.map((folderDto) => parseFolderDto({ folderDto })) };
   } else {
     return { error };
-  }
-}
-
-async function getFoldersByFolder(
-  context: { folderUuid: string; query: TGetFoldersByFolderQuery },
-  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
-) {
-  const method = 'GET';
-  const endpoint = '/folders/content/{uuid}/folders';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.GET(endpoint, {
-      params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra?.abortSignal,
-    });
-
-  const res = await clientWrapper({
-    promiseFn,
-    key,
-    skipLog: extra?.skipLog,
-    loggerBody: {
-      msg: 'Get folders by folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-
-  if (res.data) {
-    return { data: res.data.folders.map((folderDto) => parseFolderDto({ folderDto })) };
-  } else {
-    return { error: res.error };
-  }
-}
-
-async function getFilesByFolder(
-  context: { folderUuid: string; query: TGetFilesByFolderQuery },
-  extra: { abortSignal: AbortSignal; skipLog?: boolean },
-) {
-  const method = 'GET';
-  const endpoint = '/folders/content/{uuid}/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.GET(endpoint, {
-      params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra.abortSignal,
-    });
-
-  const res = await clientWrapper({
-    promiseFn,
-    key,
-    skipLog: extra.skipLog,
-    loggerBody: {
-      msg: 'Get files by folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-
-  if (res.data) {
-    return { data: res.data.files.map((fileDto) => parseFileDto({ fileDto })) };
-  } else {
-    return { error: res.error };
   }
 }
