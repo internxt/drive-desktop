@@ -126,9 +126,9 @@ describe('create-placeholder', () => {
       { tag: 'SYNC-ENGINE', msg: 'Tree built', workspaceId: '', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
       { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
       { msg: 'onReady' },
-      { msg: 'Create file', path: '/file.txt' },
-      { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: '/file.txt', contentsId: '012345678901234567890123', size: 7 },
-      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: '/file.txt', id: `FILE:${fileUuid}` },
+      { msg: 'Create file', path: file },
+      { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: file, contentsId: '012345678901234567890123', size: 7 },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: file, id: `FILE:${fileUuid}` },
       {
         msg: 'Change event triggered',
         path: file,

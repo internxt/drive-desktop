@@ -3,7 +3,7 @@ import { electronStore } from '../config';
 import { getRootVirtualDrive, OLD_SYNC_ROOT } from './service';
 import * as getUserOrThrowModule from '../auth/service';
 import * as migrateSyncRootModule from './migrate-sync-root';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs, createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 
 describe('getRootVirtualDrive', () => {
@@ -19,7 +19,7 @@ describe('getRootVirtualDrive', () => {
 
   it('should use default sync root in case of empty', async () => {
     // Given
-    PATHS.HOME_FOLDER_PATH = 'C:/Users/user/';
+    PATHS.HOME_FOLDER_PATH = abs('C:/Users/user/');
     getMock.mockReturnValue('');
     // When
     const res = await getRootVirtualDrive();

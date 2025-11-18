@@ -1,8 +1,7 @@
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { join } from 'node:path';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
@@ -39,7 +38,7 @@ export class Traverser {
 
     filesInThisFolder.forEach((file) => {
       const path = createRelativePath(currentFolder.path, file.nameWithExtension);
-      const absolutePath = join(context.pathname, path) as AbsolutePath;
+      const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
       const extendedFile = { ...file, path, absolutePath };
 
       tree.files[path] = extendedFile;
@@ -47,7 +46,7 @@ export class Traverser {
 
     foldersInThisFolder.forEach((folder) => {
       const path = createRelativePath(currentFolder.path, folder.name);
-      const absolutePath = join(context.pathname, path) as AbsolutePath;
+      const absolutePath = join(currentFolder.absolutePath, folder.name);
       const extendedFolder = { ...folder, path, absolutePath };
 
       tree.folders[path] = extendedFolder;
@@ -67,7 +66,7 @@ export class Traverser {
     };
 
     const rootFolder = this.createRootFolder({
-      rootPath: context.pathname as AbsolutePath,
+      rootPath: context.pathname,
       rootUuid: context.folderUuid as FolderUuid,
     });
 

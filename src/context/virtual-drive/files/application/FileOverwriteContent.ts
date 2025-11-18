@@ -65,7 +65,7 @@ export class FileOverwriteContent {
           contentsId: hydratedDangledRemoteFile.contentsId,
           folderUuid: hydratedDangledRemoteFile.parentUuid,
           size: hydratedDangledRemoteFile.size,
-          path: hydratedDangledRemoteFile.path,
+          path: hydratedDangledRemoteFile.absolutePath,
         },
       });
     };

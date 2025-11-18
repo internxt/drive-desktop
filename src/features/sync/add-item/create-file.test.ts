@@ -1,7 +1,7 @@
 import { mockDeep } from 'vitest-mock-extended';
 import * as createParentFolder from './create-folder';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from './create-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
@@ -14,7 +14,7 @@ describe('create-file', () => {
   const fileCreationOrchestratorMock = partialSpyOn(FileCreationOrchestrator, 'run');
   const createParentFolderMock = partialSpyOn(createParentFolder, 'createParentFolder');
 
-  const path = createRelativePath('folder', 'file.txt');
+  const path = abs('/folder/file.txt');
   const props = mockProps<typeof createFile>({
     ctx: { virtualDrive },
     path,

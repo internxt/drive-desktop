@@ -2,8 +2,8 @@ import { mkdir, rm, writeFile } from 'node:fs/promises';
 import LocalTreeBuilder from './LocalTreeBuilder';
 import { v4 } from 'uuid';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from 'node:path';
 import { mockProps } from 'tests/vitest/utils.helper.test';
+import { join } from '../../localFile/infrastructure/AbsolutePath';
 
 describe('LocalTreeBuilder', () => {
   const folder = join(TEST_FILES, v4());

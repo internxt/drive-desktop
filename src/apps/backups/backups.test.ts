@@ -1,7 +1,6 @@
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { Backup } from './Backups';
 import { beforeAll } from 'vitest';
-import { join } from 'node:path';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -14,6 +13,7 @@ import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');

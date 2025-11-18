@@ -13,6 +13,7 @@ import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export function addRemoteSyncManager({ context }: { context: SyncContext }) {
   remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, context.workspaceId));
@@ -133,7 +134,7 @@ ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBac
     uuid: folder.uuid,
     plainName: folder.plainName,
     tmpPath: '',
-    pathname: '',
+    pathname: '' as AbsolutePath,
     backupsBucket: folder.bucket,
   }));
 });
