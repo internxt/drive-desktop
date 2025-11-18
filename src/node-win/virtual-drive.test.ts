@@ -42,7 +42,7 @@ describe('VirtualDrive', () => {
         946684800000,
         946771200000,
         expect.any(Number),
-        '/parent',
+        String.raw`\parent`,
       ]);
     });
   });
@@ -69,7 +69,7 @@ describe('VirtualDrive', () => {
         946684800000,
         946771200000,
         expect.any(Number),
-        '/parent',
+        String.raw`\parent`,
       ]);
     });
   });

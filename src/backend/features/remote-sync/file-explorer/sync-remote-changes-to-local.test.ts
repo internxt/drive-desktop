@@ -85,7 +85,6 @@ describe('sync-remote-to-local', () => {
     // Then
     expect(loggerMock.error).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledWith({
-      tag: 'SYNC-ENGINE',
       msg: 'Error syncing remote changes to local',
       path: props.remote.path,
       error: expect.any(Error),
