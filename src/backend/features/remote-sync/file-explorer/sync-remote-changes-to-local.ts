@@ -46,7 +46,6 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
         newSize: remote.size,
       });
     } catch (error) {
-      console.log('🚀 ~ syncRemoteChangesToLocal ~ r:', error);
       ctx.logger.error({
         msg: 'Error syncing remote changes to local',
         path: remote.absolutePath,
