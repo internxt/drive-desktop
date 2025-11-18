@@ -25,14 +25,16 @@ export async function overwriteDangledContents({ ctx, dangledFiles }: Props) {
         await ipcRendererSqlite.invoke('fileUpdateByUuid', { uuid: file.uuid, payload: { isDangledStatus: false } });
 
         return;
-      }
+      } else if (error) {
+        if (error.message.includes('not found')) {
+          ctx.logger.warn({ msg: 'Dangled file contents not found', path: file.absolutePath, error });
 
-      if (error?.message.includes('not found')) {
-        ctx.logger.warn({ msg: 'Dangled file contents not found', path: file.absolutePath, error });
+          const stats = await FileSystemModule.statThrow({ absolutePath: file.absolutePath });
 
-        const stats = await FileSystemModule.statThrow({ absolutePath: file.absolutePath });
-
-        await updateContentsId({ ctx, path: file.absolutePath, uuid: file.uuid, stats });
+          await updateContentsId({ ctx, path: file.absolutePath, uuid: file.uuid, stats });
+        } else {
+          ctx.logger.warn({ msg: 'Error downloading dangled file', path: file.absolutePath, error });
+        }
       }
     } catch (error) {
       ctx.logger.warn({ msg: 'Error overwriting dangled contents', path: file.absolutePath, error });
