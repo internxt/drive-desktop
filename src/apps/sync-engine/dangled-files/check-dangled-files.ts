@@ -24,7 +24,7 @@ export async function checkDangledFiles({ ctx }: { ctx: ProcessSyncContext }) {
 
     if (!fileInfo) return false;
 
-    if (fileInfo.pinState === PinState.OnlineOnly) {
+    if (fileInfo.pinState !== PinState.AlwaysLocal) {
       ctx.logger.warn({ msg: 'Dangled file is not hydrated', path: file.absolutePath });
       return false;
     }
