@@ -37,7 +37,7 @@ function parseItemStatError({ code }: { code: Exclude<StatError['code'], 'UNKNOW
 }
 
 export class CLSFsLocalItemsGenerator {
-  static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: string }) {
+  static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: AbsolutePath }) {
     const { error } = await fileSystem.stat({ absolutePath });
 
     if (error) {
@@ -52,7 +52,7 @@ export class CLSFsLocalItemsGenerator {
     }
 
     return {
-      path: absolutePath as AbsolutePath,
+      path: absolutePath,
     };
   }
 

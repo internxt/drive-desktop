@@ -41,3 +41,9 @@ export const pathUtils = {
   createAbsolutePath,
   absoluteToRelative,
 };
+
+export const abs = createAbsolutePath;
+
+export function join(path: AbsolutePath, ...paths: string[]) {
+  return posix.join(path, ...paths) as AbsolutePath;
+}

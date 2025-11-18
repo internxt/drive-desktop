@@ -1,14 +1,13 @@
 import { createFolder, createParentFolder } from './create-folder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('create-folder', () => {
   const folderCreatorMock = partialSpyOn(FolderCreator, 'run');
 
-  const path = createRelativePath('folder1', 'folder2');
-  const parentPath = '/folder1';
+  const path = abs('/parent/folder');
   const props = mockProps<typeof createFolder>({ path });
 
   describe('createParentFolder', () => {
@@ -16,7 +15,7 @@ describe('create-folder', () => {
       // When
       await createParentFolder(props);
       // Then
-      call(folderCreatorMock).toMatchObject({ path: parentPath });
+      call(folderCreatorMock).toMatchObject({ path: '/parent' });
     });
   });
 
@@ -34,7 +33,7 @@ describe('create-folder', () => {
       // When
       await createFolder(props);
       // Then
-      calls(folderCreatorMock).toMatchObject([{ path }, { path: parentPath }, { path }]);
+      calls(folderCreatorMock).toMatchObject([{ path }, { path: '/parent' }, { path }]);
     });
   });
 });

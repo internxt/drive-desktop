@@ -1,8 +1,7 @@
 import { getAllItems } from './RemoteItemsGenerator';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createRelativePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { join } from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type Items = {
@@ -25,7 +24,7 @@ export class Traverser {
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: createRelativePath('/'),
-      absolutePath: ctx.rootPath as AbsolutePath,
+      absolutePath: ctx.rootPath,
       status: 'EXISTS',
       name: '',
     };
@@ -39,7 +38,7 @@ export class Traverser {
 
     filesInThisFolder.forEach((file) => {
       const path = createRelativePath(currentFolder.path, file.nameWithExtension);
-      const absolutePath = join(ctx.rootPath, path) as AbsolutePath;
+      const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
       const extendedFile = { ...file, path, absolutePath };
 
       if (file.status === 'DELETED' || file.status === 'TRASHED') {
@@ -51,7 +50,7 @@ export class Traverser {
 
     foldersInThisFolder.forEach((folder) => {
       const path = createRelativePath(currentFolder.path, folder.name);
-      const absolutePath = join(ctx.rootPath, path) as AbsolutePath;
+      const absolutePath = join(currentFolder.absolutePath, folder.name);
       const extendedFolder = { ...folder, path, absolutePath };
 
       if (folder.status === 'DELETED' || folder.status === 'TRASHED') {

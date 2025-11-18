@@ -3,20 +3,20 @@ import { dialog, shell } from 'electron';
 import { electronStore } from '../config';
 import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
 import { workers } from '../remote-sync/store';
 import { cleanSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
 
-export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
+export const OLD_SYNC_ROOT = join(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
 export async function getRootVirtualDrive() {
   const user = getUserOrThrow();
 
-  const defaultSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
-  const syncRoot = createAbsolutePath(electronStore.get('syncRoot') || defaultSyncRoot);
+  const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+  const syncRoot = abs(electronStore.get('syncRoot') || defaultSyncRoot);
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
@@ -43,10 +43,10 @@ export async function chooseSyncRootWithDialog() {
 
   const user = getUserOrThrow();
 
-  const chosenPath = result.filePaths[0];
+  const chosenPath = abs(result.filePaths[0]);
 
-  const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
-  const oldSyncRoot = createAbsolutePath(electronStore.get('syncRoot'));
+  const newSyncRoot = join(chosenPath, `InternxtDrive - ${user.uuid}`);
+  const oldSyncRoot = abs(electronStore.get('syncRoot'));
 
   logger.debug({ msg: 'Choose sync root with dialog', oldSyncRoot, newSyncRoot });
 

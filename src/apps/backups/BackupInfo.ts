@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupsIssue } from '../main/background-processes/issues';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
@@ -6,7 +7,7 @@ export type BackupInfo = {
   folderId: number;
   tmpPath: string;
   backupsBucket: string;
-  pathname: string;
+  pathname: AbsolutePath;
   plainName: string;
 };
 

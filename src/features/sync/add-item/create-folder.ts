@@ -1,12 +1,13 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: RelativePath;
+  path: AbsolutePath;
 };
 
 export async function createParentFolder({ path, ...props }: TProps) {
