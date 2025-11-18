@@ -1,4 +1,4 @@
-import { DriveFile, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
+import { SimpleDriveFile } from '../../../main/database/entities/DriveFile';
 import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -33,8 +33,6 @@ type SyncEngineInvocableFunctions = {
 type ProcessInfoUpdate = {
   ADD_SYNC_ISSUE: (payload: Omit<SyncIssue, 'tab'>) => void;
   ADD_GENERAL_ISSUE: (payload: Omit<GeneralIssue, 'tab'>) => void;
-  FIND_DANGLED_FILES: () => Promise<DriveFile[]>;
-  SET_HEALTHY_FILES: (ids: string[]) => Promise<void>;
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;

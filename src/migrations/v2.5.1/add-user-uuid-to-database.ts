@@ -1,5 +1,6 @@
 import { getUser } from '@/apps/main/auth/service';
-import { driveFilesCollection, driveFoldersCollection } from '@/apps/main/remote-sync/store';
+import { fileRepository } from '@/infra/sqlite/services/drive-file';
+import { folderRepository } from '@/infra/sqlite/services/drive-folder';
 
 export class AddUserUuidToDatabase {
   static readonly KEY = 'v2-5-1-add-user-uuid-to-database';
@@ -9,14 +10,8 @@ export class AddUserUuidToDatabase {
 
     if (user) {
       await Promise.all([
-        driveFilesCollection.updateInBatch({
-          where: { userUuid: '' },
-          payload: { userUuid: user.uuid },
-        }),
-        driveFoldersCollection.updateInBatch({
-          where: { userUuid: '' },
-          payload: { userUuid: user.uuid },
-        }),
+        fileRepository.update({ userUuid: '' }, { userUuid: user.uuid }),
+        folderRepository.update({ userUuid: '' }, { userUuid: user.uuid }),
       ]);
     }
   }
