@@ -56,7 +56,7 @@ export class CLSFsLocalItemsGenerator {
     };
   }
 
-  static async getAll({ context, dir }: { context: BackupsContext; dir: string }) {
+  static async getAll({ context, dir }: { context: BackupsContext; dir: AbsolutePath }) {
     const res = {
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],
