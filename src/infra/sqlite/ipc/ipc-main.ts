@@ -36,4 +36,8 @@ export function setupIpcSqlite() {
 
     return res;
   });
+
+  ipcMainSqlite.handle('fileUpdateByUuid', async (_, props) => {
+    return await SqliteModule.FileModule.updateByUuid(props);
+  });
 }

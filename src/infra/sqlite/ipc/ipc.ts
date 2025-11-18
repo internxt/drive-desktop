@@ -20,6 +20,9 @@ export type FromProcess = {
   folderCreateOrUpdate: (
     props: Parameters<typeof SqliteModule.FolderModule.createOrUpdate>[0],
   ) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
+  fileUpdateByUuid: (
+    props: Parameters<typeof SqliteModule.FileModule.updateByUuid>[0],
+  ) => Awaited<ReturnType<typeof SqliteModule.FileModule.updateByUuid>>;
 };
 
 export type FromMain = {};
