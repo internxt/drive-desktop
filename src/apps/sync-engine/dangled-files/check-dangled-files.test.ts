@@ -1,14 +1,14 @@
 import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { checkDangledFiles } from './check-dangled-files';
-import * as overwriteDangledContents from './overwrite-dangled-files';
+import * as checkDangledFile from './check-dangled-file';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('check-dangled-files', () => {
   const traverserMock = partialSpyOn(Traverser, 'run');
-  const overwriteDangledContentsMock = partialSpyOn(overwriteDangledContents, 'overwriteDangledContents');
+  const checkDangledFileMock = partialSpyOn(checkDangledFile, 'checkDangledFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
   const props = mockProps<typeof checkDangledFiles>({});
@@ -25,7 +25,7 @@ describe('check-dangled-files', () => {
     // When
     await checkDangledFiles(props);
     // Then
-    call(overwriteDangledContentsMock).toMatchObject({ dangledFiles: [] });
+    calls(checkDangledFileMock).toHaveLength(0);
   });
 
   it('should return empty if createdAt is earlier than startDate', async () => {
@@ -34,7 +34,7 @@ describe('check-dangled-files', () => {
     // When
     await checkDangledFiles(props);
     // Then
-    call(overwriteDangledContentsMock).toMatchObject({ dangledFiles: [] });
+    calls(checkDangledFileMock).toHaveLength(0);
   });
 
   it('should return empty if createdAt is later than endDate', async () => {
@@ -43,7 +43,7 @@ describe('check-dangled-files', () => {
     // When
     await checkDangledFiles(props);
     // Then
-    call(overwriteDangledContentsMock).toMatchObject({ dangledFiles: [] });
+    calls(checkDangledFileMock).toHaveLength(0);
   });
 
   it('should return empty if file is not hydrated', async () => {
@@ -52,7 +52,7 @@ describe('check-dangled-files', () => {
     // When
     await checkDangledFiles(props);
     // Then
-    call(overwriteDangledContentsMock).toMatchObject({ dangledFiles: [] });
+    calls(checkDangledFileMock).toHaveLength(0);
   });
 
   it('should return the file if it is dangled', async () => {
@@ -61,6 +61,6 @@ describe('check-dangled-files', () => {
     // When
     await checkDangledFiles(props);
     // Then
-    call(overwriteDangledContentsMock).toMatchObject({ dangledFiles: [{ absolutePath: '/file.txt' }] });
+    call(checkDangledFileMock).toMatchObject({ file: { absolutePath: '/file.txt' } });
   });
 });
