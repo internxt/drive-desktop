@@ -63,4 +63,19 @@ describe('check-dangled-files', () => {
     // Then
     call(checkDangledFileMock).toMatchObject({ file: { absolutePath: '/file.txt' } });
   });
+
+  it('should check through multiple files', async () => {
+    // Given
+    getFileInfoMock.mockReturnValue({ data: { pinState: PinState.AlwaysLocal } });
+    traverserMock.mockResolvedValue({
+      files: [
+        { absolutePath: abs('/file1.txt'), isDangledStatus: true, createdAt: '2025-03-01T00:00:00.000Z' },
+        { absolutePath: abs('/file2.txt'), isDangledStatus: true, createdAt: '2025-03-01T00:00:00.000Z' },
+      ],
+    });
+    // When
+    await checkDangledFiles(props);
+    // Then
+    calls(checkDangledFileMock).toMatchObject([{ file: { absolutePath: '/file1.txt' } }, { file: { absolutePath: '/file2.txt' } }]);
+  });
 });
