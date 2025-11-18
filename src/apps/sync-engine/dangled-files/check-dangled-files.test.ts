@@ -70,6 +70,7 @@ describe('check-dangled-files', () => {
     traverserMock.mockResolvedValue({
       files: [
         { absolutePath: abs('/file1.txt'), isDangledStatus: true, createdAt: '2025-03-01T00:00:00.000Z' },
+        { isDangledStatus: false },
         { absolutePath: abs('/file2.txt'), isDangledStatus: true, createdAt: '2025-03-01T00:00:00.000Z' },
       ],
     });
