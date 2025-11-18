@@ -35,7 +35,7 @@ export async function overwriteDangledContents({ ctx, dangledFiles }: Props) {
         await updateContentsId({ ctx, path: file.absolutePath, uuid: file.uuid, stats });
       }
     } catch (error) {
-      ctx.logger.error({ msg: 'Error overwriting dangled contents', path: file.absolutePath, error });
+      ctx.logger.warn({ msg: 'Error overwriting dangled contents', path: file.absolutePath, error });
     }
   }
 }
