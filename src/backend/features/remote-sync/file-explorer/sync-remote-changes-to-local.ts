@@ -16,7 +16,7 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
   if (remote.size !== local.stats.size && remoteDate > local.stats.mtime) {
     ctx.logger.debug({
       msg: 'Syncing remote changes to local',
-      path: remote.path,
+      path: remote.absolutePath,
       remoteSize: remote.size,
       localSize: local.stats.size,
       remoteDate: remoteDate.toISOString(),
@@ -28,7 +28,7 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
         await unlink(local.absolutePath);
         ctx.logger.debug({
           msg: 'Deleted old local file to prepare for remote sync',
-          path: remote.path,
+          path: remote.absolutePath,
         });
       }
 
@@ -42,13 +42,14 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
 
       ctx.logger.debug({
         msg: 'File successfully synced from remote to local',
-        path: remote.path,
+        path: remote.absolutePath,
         newSize: remote.size,
       });
     } catch (error) {
+      console.log('🚀 ~ syncRemoteChangesToLocal ~ r:', error);
       ctx.logger.error({
         msg: 'Error syncing remote changes to local',
-        path: remote.path,
+        path: remote.absolutePath,
         error,
       });
     }

@@ -49,6 +49,7 @@ describe('sync-remote-changes-to-local', () => {
       ctx: { virtualDrive },
       remote: {
         uuid: 'uuid' as FileUuid,
+        absolutePath: filePath,
         createdAt: '2000-01-01',
         updatedAt: '2000-01-02',
         size: 1000,
@@ -74,19 +75,18 @@ describe('sync-remote-changes-to-local', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', rootPath },
       { msg: 'onReady' },
-      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path: filePath, placeholderId: 'FILE:uuid' },
       {
-        tag: 'SYNC-ENGINE',
         msg: 'Syncing remote changes to local',
-        path: '/file.txt',
+        path: filePath,
         remoteSize: 1000,
         localSize: 2000,
         remoteDate: '2000-01-02T00:00:00.000Z',
         localDate: '2000-01-01T00:00:00.000Z',
       },
-      { tag: 'SYNC-ENGINE', msg: 'Deleted old local file to prepare for remote sync', path: '/file.txt' },
-      { tag: 'SYNC-ENGINE', msg: 'Creating file placeholder', itemPath: '/file.txt' },
-      { tag: 'SYNC-ENGINE', msg: 'File successfully synced from remote to local', path: '/file.txt', newSize: 1000 },
+      { msg: 'Deleted old local file to prepare for remote sync', path: filePath },
+      { tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path: filePath },
+      { msg: 'File successfully synced from remote to local', path: filePath, newSize: 1000 },
     ]);
   });
 });
