@@ -46,7 +46,7 @@ describe('sync-remote-changes-to-local', () => {
     virtualDrive.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
-      virtualDrive,
+      ctx: { virtualDrive },
       remote: {
         uuid: 'uuid' as FileUuid,
         createdAt: '2000-01-01',
@@ -72,7 +72,7 @@ describe('sync-remote-changes-to-local', () => {
 
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Registering sync root', syncRootPath: rootPath.replaceAll('/', '\\') },
+      { msg: 'Registering sync root', rootPath },
       { msg: 'onReady' },
       { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
       {

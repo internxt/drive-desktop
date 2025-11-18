@@ -24,7 +24,7 @@ describe('sync-remote-to-local', () => {
   beforeEach(() => {
     existsSyncMock.mockReturnValue(true);
     props = mockProps<typeof syncRemoteChangesToLocal>({
-      virtualDrive,
+      ctx: { virtualDrive },
       local: {
         absolutePath: 'localPath' as AbsolutePath,
         stats: {

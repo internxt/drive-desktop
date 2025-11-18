@@ -44,7 +44,7 @@ export class VirtualDrive {
   }
 
   registerSyncRoot({ providerName }: { providerName: string }) {
-    logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
+    logger.debug({ msg: 'Registering sync root', rootPath: this.syncRootPath });
     return this.addon.registerSyncRoot({
       rootPath: this.syncRootPath,
       providerName,
