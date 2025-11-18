@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 type TProps = {
   currentProviderIds?: string[];

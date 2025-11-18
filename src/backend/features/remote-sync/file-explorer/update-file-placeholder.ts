@@ -1,5 +1,4 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
-import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
@@ -31,8 +30,7 @@ export class FilePlaceholderUpdater {
       }
 
       if (hasToBeMoved({ ctx, remotePath, localPath: localPath.absolutePath })) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
+        ctx.logger.debug({
           msg: 'Moving file placeholder',
           remotePath,
           localPath: localPath.absolutePath,
@@ -42,14 +40,9 @@ export class FilePlaceholderUpdater {
         ctx.virtualDrive.updateSyncStatus({ path: remotePath });
       }
 
-      await syncRemoteChangesToLocal({
-        virtualDrive: ctx.virtualDrive,
-        local: localPath,
-        remote,
-      });
+      await syncRemoteChangesToLocal({ ctx, local: localPath, remote });
     } catch (exc) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
+      ctx.logger.error({
         msg: 'Error updating file placeholder',
         path,
         exc,

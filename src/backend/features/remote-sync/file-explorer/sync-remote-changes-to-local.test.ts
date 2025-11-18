@@ -1,6 +1,6 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';

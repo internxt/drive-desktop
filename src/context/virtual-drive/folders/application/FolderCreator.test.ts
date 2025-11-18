@@ -40,6 +40,6 @@ describe('Folder Creator', () => {
     await FolderCreator.run(props);
     // Then
     call(invokeMock).toMatchObject(['createFolder', { path }]);
-    call(virtualDrive.convertToPlaceholder).toStrictEqual({ path, id: 'FOLDER:uuid' });
+    call(virtualDrive.convertToPlaceholder).toStrictEqual({ path, placeholderId: 'FOLDER:uuid' });
   });
 });

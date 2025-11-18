@@ -1,4 +1,3 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -16,11 +15,7 @@ export async function createParentFolder({ path, ...props }: TProps) {
 }
 
 export async function createFolder({ ctx, path }: TProps) {
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'Create folder',
-    path,
-  });
+  ctx.logger.debug({ msg: 'Create folder', path });
 
   try {
     await FolderCreator.run({ ctx, path });
@@ -29,8 +24,7 @@ export async function createFolder({ ctx, path }: TProps) {
       await createParentFolder({ ctx, path });
       await createFolder({ ctx, path });
     } else {
-      logger.error({
-        tag: 'SYNC-ENGINE',
+      ctx.logger.error({
         msg: 'Error creating folder',
         path,
         error,

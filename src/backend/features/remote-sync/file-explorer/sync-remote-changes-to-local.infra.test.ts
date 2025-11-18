@@ -43,7 +43,7 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     await writeFile(filePath, 'content');
-    virtualDrive.convertToPlaceholder({ path: filePath, id: 'FILE:uuid' });
+    virtualDrive.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,

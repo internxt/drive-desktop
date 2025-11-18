@@ -1,10 +1,10 @@
-import { basename, dirname } from 'node:path';
+import { basename } from 'node:path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -19,9 +19,7 @@ export class VirtualDrive {
   constructor({ rootPath, providerId }: { rootPath: AbsolutePath; providerId: string }) {
     this.syncRootPath = rootPath;
     this.providerId = providerId;
-
     this.addon = new Addon();
-    this.addon.syncRootPath = this.syncRootPath;
   }
 
   getPlaceholderState({ path }: { path: AbsolutePath }) {
@@ -38,16 +36,17 @@ export class VirtualDrive {
   }
 
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
-    return this.addon.connectSyncRoot({ callbacks });
+    return this.addon.connectSyncRoot({ rootPath: this.syncRootPath, callbacks });
   }
 
   disconnectSyncRoot() {
-    return this.addon.disconnectSyncRoot({ syncRootPath: this.syncRootPath });
+    return this.addon.disconnectSyncRoot({ rootPath: this.syncRootPath });
   }
 
   registerSyncRoot({ providerName }: { providerName: string }) {
     logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
     return this.addon.registerSyncRoot({
+      rootPath: this.syncRootPath,
       providerName,
       providerVersion: INTERNXT_VERSION,
       providerId: this.providerId,
@@ -77,21 +76,16 @@ export class VirtualDrive {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating file placeholder', path });
-
-    try {
-      return this.addon.createFilePlaceholder({
-        name: basename(path),
-        placeholderId,
-        size,
-        creationTime,
-        lastWriteTime,
-        lastAccessTime: Date.now(),
-        parentPath: dirname(path),
-      });
-    } catch (exc) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error creating file placeholder', path, exc });
-    }
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
+    return this.addon.createFilePlaceholder({
+      name: basename(path),
+      placeholderId,
+      size,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime: Date.now(),
+      parentPath: dirname(path),
+    });
   }
 
   createFolderByPath({
@@ -105,33 +99,24 @@ export class VirtualDrive {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating folder placeholder', path });
-
-    try {
-      return this.addon.createFolderPlaceholder({
-        name: basename(path),
-        placeholderId,
-        creationTime,
-        lastWriteTime,
-        lastAccessTime: Date.now(),
-        parentPath: dirname(path),
-      });
-    } catch (error) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error creating folder placeholder', path, error });
-    }
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
+    return this.addon.createFolderPlaceholder({
+      name: basename(path),
+      placeholderId,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime: Date.now(),
+      parentPath: dirname(path),
+    });
   }
 
   updateSyncStatus({ path }: { path: AbsolutePath }) {
     return this.addon.updateSyncStatus({ path });
   }
 
-  convertToPlaceholder({ path, id }: { path: AbsolutePath; id: FilePlaceholderId | FolderPlaceholderId }) {
-    try {
-      this.addon.convertToPlaceholder({ path, id });
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', path, id });
-    } catch (error) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error converting to placeholder', path, error });
-    }
+  convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
+    return this.addon.convertToPlaceholder({ path, placeholderId });
   }
 
   dehydrateFile({ path }: { path: AbsolutePath }) {
@@ -142,5 +127,3 @@ export class VirtualDrive {
     return this.addon.hydrateFile({ path });
   }
 }
-
-export default VirtualDrive;

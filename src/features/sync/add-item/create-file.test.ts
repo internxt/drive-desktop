@@ -29,7 +29,7 @@ describe('create-file', () => {
     expect(fileCreationOrchestratorMock).toBeCalledTimes(1);
     expect(fileCreationOrchestratorMock).toBeCalledWith(expect.objectContaining({ path }));
     expect(virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
-    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ path, id: 'FILE:uuid' });
+    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ path, placeholderId: 'FILE:uuid' });
   });
 
   it('should run createParentFolder if parent folder does not exist', async () => {
