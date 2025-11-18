@@ -15,7 +15,7 @@ type TProps = {
 export async function createFile({ ctx, path, stats }: TProps) {
   try {
     const uuid = await FileCreationOrchestrator.run({ ctx, path, stats });
-    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FILE:${uuid}` });
+    ctx.virtualDrive.convertToPlaceholder({ path, id: `FILE:${uuid}` });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ ctx, path });

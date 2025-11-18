@@ -35,5 +35,5 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
     await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, path, workspaceToken });
   }
 
-  ctx.virtualDrive.updateSyncStatus({ itemPath: path });
+  ctx.virtualDrive.updateSyncStatus({ path });
 }

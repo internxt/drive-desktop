@@ -19,7 +19,7 @@ export class FolderPlaceholderUpdater {
 
       if (!localPath) {
         ctx.virtualDrive.createFolderByPath({
-          itemPath: path,
+          path: remotePath,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
@@ -37,7 +37,7 @@ export class FolderPlaceholderUpdater {
         });
 
         await rename(localPath, remotePath);
-        ctx.virtualDrive.updateSyncStatus({ itemPath: remotePath });
+        ctx.virtualDrive.updateSyncStatus({ path: remotePath });
       }
     } catch (exc) {
       logger.error({

@@ -1,10 +1,9 @@
 import VirtualDrive from '@/node-win/virtual-drive';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from 'node:path';
 import { v4 } from 'uuid';
 import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { createAbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
@@ -12,9 +11,9 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-folder-info', () => {
   const providerId = `{${v4()}}`;
-  const testPath = join(TEST_FILES, v4());
   const rootUuid = v4() as FolderUuid;
-  const rootPath = createAbsolutePath(testPath, rootUuid);
+  const testPath = join(TEST_FILES, v4());
+  const rootPath = join(testPath, rootUuid);
 
   const virtualDrive = new VirtualDrive({ rootPath, providerId });
 
@@ -35,7 +34,7 @@ describe('get-folder-info', () => {
 
   it('should return root info when read root path', () => {
     // Given
-    props.path = '/';
+    props.path = rootPath;
     // When
     const { data, error } = getFolderInfo(props);
     // Then
@@ -45,12 +44,12 @@ describe('get-folder-info', () => {
 
   it('should return folder info when read a folder placeholder', () => {
     // Given
-    const itemPath = createRelativePath('/folder');
+    const path = join(rootPath, 'folder');
     const uuid = v4();
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
-    props.path = itemPath;
+    props.path = path;
 
-    virtualDrive.createFolderByPath({ itemPath, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
+    virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
@@ -60,12 +59,12 @@ describe('get-folder-info', () => {
 
   it('should return error NOT_A_FILE when read a folder placeholder', () => {
     // Given
-    const itemPath = createRelativePath('/file.txt');
+    const path = join(rootPath, 'file.txt');
     const uuid = v4();
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
-    props.path = itemPath;
+    props.path = path;
 
-    virtualDrive.createFileByPath({ itemPath, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
@@ -75,8 +74,7 @@ describe('get-folder-info', () => {
 
   it('should return error NON_EXISTS when the path does not exist', () => {
     // Given
-    const itemPath = createAbsolutePath(rootPath, v4());
-    props.path = itemPath;
+    props.path = join(rootPath, v4());
     // When
     const { data, error } = getFolderInfo(props);
     // Then

@@ -65,7 +65,7 @@ describe('update-folder-placeholder', () => {
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(1);
     expect(virtualDrive.createFolderByPath).toBeCalledWith({
-      itemPath: '/folder1/folder2',
+      path: 'remotePath',
       placeholderId: 'FOLDER:uuid',
       creationTime: time,
       lastWriteTime: time,

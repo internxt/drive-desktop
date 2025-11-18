@@ -3,12 +3,11 @@ import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { join } from 'node:path/posix';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
 import * as debounceOnRaw from '@/node-win/watcher/events/debounce-on-raw';
@@ -20,7 +19,7 @@ describe('sync-remote-changes-to-local', () => {
 
   const providerName = 'Internxt Drive';
   const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, 'root') as AbsolutePath;
+  const rootPath = join(testPath, 'root');
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
@@ -44,19 +43,18 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     await writeFile(filePath, 'content');
-    virtualDrive.convertToPlaceholder({ itemPath: filePath, id: 'FILE:uuid' });
+    virtualDrive.convertToPlaceholder({ path: filePath, id: 'FILE:uuid' });
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
       remote: {
         uuid: 'uuid' as FileUuid,
-        path: createRelativePath('file.txt'),
         createdAt: '2000-01-01',
         updatedAt: '2000-01-02',
         size: 1000,
       },
       local: {
-        absolutePath: filePath as AbsolutePath,
+        absolutePath: filePath,
         stats: { mtime: new Date('2000-01-01'), size: 2000 },
       },
     });

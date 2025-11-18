@@ -20,7 +20,7 @@ export class FilePlaceholderUpdater {
 
       if (!localPath) {
         ctx.virtualDrive.createFileByPath({
-          itemPath: path,
+          path: remotePath,
           placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
           creationTime: new Date(remote.createdAt).getTime(),
@@ -39,7 +39,7 @@ export class FilePlaceholderUpdater {
         });
 
         await rename(localPath.absolutePath, remotePath);
-        ctx.virtualDrive.updateSyncStatus({ itemPath: remotePath });
+        ctx.virtualDrive.updateSyncStatus({ path: remotePath });
       }
 
       await syncRemoteChangesToLocal({

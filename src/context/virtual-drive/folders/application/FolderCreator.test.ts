@@ -1,5 +1,5 @@
 import { mockDeep } from 'vitest-mock-extended';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { call, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderCreator } from './FolderCreator';
@@ -40,6 +40,6 @@ describe('Folder Creator', () => {
     await FolderCreator.run(props);
     // Then
     call(invokeMock).toMatchObject(['createFolder', { path }]);
-    call(virtualDrive.convertToPlaceholder).toStrictEqual({ itemPath: path, id: 'FOLDER:uuid' });
+    call(virtualDrive.convertToPlaceholder).toStrictEqual({ path, id: 'FOLDER:uuid' });
   });
 });

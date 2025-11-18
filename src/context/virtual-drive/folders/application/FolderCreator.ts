@@ -30,6 +30,6 @@ export class FolderCreator {
 
     if (error) throw error;
 
-    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folder.uuid}` });
+    ctx.virtualDrive.convertToPlaceholder({ path, id: `FOLDER:${folder.uuid}` });
   }
 }
