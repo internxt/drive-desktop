@@ -127,3 +127,5 @@ export class VirtualDrive {
     return this.addon.hydrateFile({ path });
   }
 }
+
+export default VirtualDrive;
