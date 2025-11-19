@@ -19,7 +19,8 @@ export class Addon {
     if (result.error) {
       logger.error({
         tag: 'SYNC-ENGINE',
-        msg: `Error parsing ${fn}`,
+        msg: 'Error parsing addon result',
+        fn,
         error: result.error,
       });
     }
@@ -55,6 +56,7 @@ export class Addon {
   }
 
   unregisterSyncRoot({ providerId }: { providerId: string }) {
+    logger.debug({ msg: 'Unregister sync root', providerId });
     const result = addon.unregisterSyncRoot(providerId);
     return this.parseAddonZod('unregisterSyncRoot', result);
   }
@@ -69,42 +71,36 @@ export class Addon {
   }
 
   createFilePlaceholder({
-    name,
+    path,
     placeholderId,
     size,
     creationTime,
     lastWriteTime,
-    lastAccessTime,
-    parentPath,
   }: {
-    name: string;
+    path: AbsolutePath;
     placeholderId: FilePlaceholderId;
     size: number;
     creationTime: number;
     lastWriteTime: number;
-    lastAccessTime: number;
-    parentPath: AbsolutePath;
   }) {
-    const result = addon.createFilePlaceholder(name, placeholderId, size, creationTime, lastWriteTime, lastAccessTime, toWin32(parentPath));
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
+    const result = addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
     return this.parseAddonZod('createFilePlaceholder', result);
   }
 
   createFolderPlaceholder({
-    name,
+    path,
     placeholderId,
     creationTime,
     lastWriteTime,
-    lastAccessTime,
-    parentPath,
   }: {
-    name: string;
+    path: AbsolutePath;
     placeholderId: FolderPlaceholderId;
     creationTime: number;
     lastWriteTime: number;
-    lastAccessTime: number;
-    parentPath: AbsolutePath;
   }) {
-    const result = addon.createFolderPlaceholder(name, placeholderId, creationTime, lastWriteTime, lastAccessTime, toWin32(parentPath));
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
+    const result = addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
     return this.parseAddonZod('createFolderPlaceholder', result);
   }
 
@@ -114,6 +110,7 @@ export class Addon {
   }
 
   convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
     const result = addon.convertToPlaceholder(toWin32(path), placeholderId);
     return this.parseAddonZod('convertToPlaceholder', result);
   }

@@ -1,10 +1,8 @@
-import { basename } from 'node:path';
-
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -22,8 +20,8 @@ export class VirtualDrive {
     this.addon = new Addon();
   }
 
-  getPlaceholderState({ path }: { path: AbsolutePath }) {
-    return this.addon.getPlaceholderState({ path });
+  getPlaceholderState(props: { path: AbsolutePath }) {
+    return this.addon.getPlaceholderState(props);
   }
 
   async createSyncRootFolder() {
@@ -58,73 +56,38 @@ export class VirtualDrive {
     return DependencyInjectionAddonProvider.get().getRegisteredSyncRoots();
   }
 
-  static unregisterSyncRoot({ providerId }: { providerId: string }) {
-    logger.debug({ msg: 'Unregistering sync root', providerId });
-    return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
+  static unregisterSyncRoot(props: { providerId: string }) {
+    return DependencyInjectionAddonProvider.get().unregisterSyncRoot(props);
   }
 
-  createFileByPath({
-    path,
-    placeholderId,
-    size,
-    creationTime,
-    lastWriteTime,
-  }: {
+  createFileByPath(props: {
     path: AbsolutePath;
     placeholderId: FilePlaceholderId;
     size: number;
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
-    return this.addon.createFilePlaceholder({
-      name: basename(path),
-      placeholderId,
-      size,
-      creationTime,
-      lastWriteTime,
-      lastAccessTime: Date.now(),
-      parentPath: dirname(path),
-    });
+    return this.addon.createFilePlaceholder(props);
   }
 
-  createFolderByPath({
-    path,
-    placeholderId,
-    creationTime,
-    lastWriteTime,
-  }: {
-    path: AbsolutePath;
-    placeholderId: FolderPlaceholderId;
-    creationTime: number;
-    lastWriteTime: number;
-  }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
-    return this.addon.createFolderPlaceholder({
-      name: basename(path),
-      placeholderId,
-      creationTime,
-      lastWriteTime,
-      lastAccessTime: Date.now(),
-      parentPath: dirname(path),
-    });
+  createFolderByPath(props: { path: AbsolutePath; placeholderId: FolderPlaceholderId; creationTime: number; lastWriteTime: number }) {
+    return this.addon.createFolderPlaceholder(props);
   }
 
-  updateSyncStatus({ path }: { path: AbsolutePath }) {
-    return this.addon.updateSyncStatus({ path });
+  updateSyncStatus(props: { path: AbsolutePath }) {
+    return this.addon.updateSyncStatus(props);
   }
 
-  convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
-    return this.addon.convertToPlaceholder({ path, placeholderId });
+  convertToPlaceholder(props: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+    return this.addon.convertToPlaceholder(props);
   }
 
-  dehydrateFile({ path }: { path: AbsolutePath }) {
-    return this.addon.dehydrateFile({ path });
+  dehydrateFile(props: { path: AbsolutePath }) {
+    return this.addon.dehydrateFile(props);
   }
 
-  hydrateFile({ path }: { path: AbsolutePath }) {
-    return this.addon.hydrateFile({ path });
+  hydrateFile(props: { path: AbsolutePath }) {
+    return this.addon.hydrateFile(props);
   }
 }
 
