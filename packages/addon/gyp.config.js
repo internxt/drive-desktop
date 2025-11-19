@@ -8,8 +8,23 @@ function walk(allPaths, dir) {
 
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
     if (entry.isDirectory()) {
-      walk(allPaths, path.join(dir, entry.name));
+      walk(allPaths, fullPath);
+    }
+  }
+}
+
+function walkFiles(allPaths, dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      walkFiles(allPaths, fullPath);
+    } else if (entry.isFile()) {
+      allPaths.push(fullPath);
     }
   }
 }
@@ -20,20 +35,7 @@ function gatherFiles(pattern, isDirectory = false) {
   if (isDirectory) {
     walk(allPaths, pattern);
   } else {
-    function walkFiles(dir) {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
-
-        if (entry.isDirectory()) {
-          walkFiles(fullPath);
-        } else if (entry.isFile()) {
-          allPaths.push(fullPath);
-        }
-      }
-    }
-
-    walkFiles(pattern);
+    walkFiles(allPaths, pattern);
   }
 
   return allPaths.toSorted();
