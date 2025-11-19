@@ -1,52 +1,45 @@
 const fs = require('fs');
+const { win32, posix } = require('path');
 const path = require('path/posix');
 
 const gypFile = 'binding.gyp';
 
-function walk(allPaths, dir) {
-  allPaths.push(dir);
+function getFolders(root) {
+  const paths = [root];
 
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  const entries = fs.readdirSync(root, { withFileTypes: true, recursive: true });
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-
     if (entry.isDirectory()) {
-      walk(allPaths, fullPath);
+      const parentPath = entry.parentPath.replaceAll(win32.sep, posix.sep);
+      const fullPath = path.join(parentPath, entry.name);
+      paths.push(fullPath);
     }
   }
+
+  return paths.toSorted();
 }
 
-function walkFiles(allPaths, dir) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
+function getFiles(root) {
+  const paths = [];
 
-    if (entry.isDirectory()) {
-      walkFiles(allPaths, fullPath);
-    } else if (entry.isFile()) {
-      allPaths.push(fullPath);
+  const entries = fs.readdirSync(root, { withFileTypes: true, recursive: true });
+  for (const entry of entries) {
+    if (entry.isFile()) {
+      const parentPath = entry.parentPath.replaceAll(win32.sep, posix.sep);
+      const fullPath = path.join(parentPath, entry.name);
+      paths.push(fullPath);
     }
   }
-}
 
-function gatherFiles(pattern, isDirectory = false) {
-  const allPaths = [];
-
-  if (isDirectory) {
-    walk(allPaths, pattern);
-  } else {
-    walkFiles(allPaths, pattern);
-  }
-
-  return allPaths.toSorted();
+  return paths.toSorted();
 }
 
 function updateGypFile() {
   const fileContent = fs.readFileSync(gypFile);
   const gypData = JSON.parse(fileContent);
 
-  gypData.targets[0].sources = gatherFiles('native-src');
-  gypData.targets[0].include_dirs = gatherFiles('include', true);
+  gypData.targets[0].sources = getFiles('native-src');
+  gypData.targets[0].include_dirs = getFolders('include');
 
   fs.writeFileSync(gypFile, JSON.stringify(gypData, null, 2));
 }
