@@ -166,7 +166,12 @@ eventBus.on('USER_LOGGED_IN', async () => {
       setBoundsOfWidgetByPath(widget, tray);
     }
 
-    getAuthWindow()?.destroy();
+    setTimeout(() => {
+      const authWin = getAuthWindow();
+      if (authWin && !authWin.isDestroyed()) {
+        authWin.destroy();
+      }
+    }, 300);
 
     const lastOnboardingShown = configStore.get('lastOnboardingShown');
 
