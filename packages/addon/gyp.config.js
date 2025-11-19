@@ -3,22 +3,22 @@ const path = require('path/posix');
 
 const gypFile = 'binding.gyp';
 
+function walk(allPaths, dir) {
+  allPaths.push(dir);
+
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (entry.isDirectory()) {
+      walk(allPaths, path.join(dir, entry.name));
+    }
+  }
+}
+
 function gatherFiles(pattern, isDirectory = false) {
   const allPaths = [];
 
   if (isDirectory) {
-    function walk(dir) {
-      allPaths.push(dir);
-
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory()) {
-          walk(path.join(dir, entry.name));
-        }
-      }
-    }
-
-    walk(pattern);
+    walk(allPaths, pattern);
   } else {
     function walkFiles(dir) {
       const entries = fs.readdirSync(dir, { withFileTypes: true });
