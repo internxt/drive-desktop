@@ -5,9 +5,6 @@
   "types": "dist/index.d.ts",
   "gypfile": true,
   "scripts": {
-    "clean": "node-gyp clean",
-    "build:gyp": "node-gyp configure build",
-    "config:gyp": "python gyp.config.py",
-    "build": "python gyp.config.py && node-gyp clean && node-gyp configure build"
+    "build": "node gyp.config.js && node-gyp clean && node-gyp configure build"
   }
 }
