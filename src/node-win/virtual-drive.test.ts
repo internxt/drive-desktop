@@ -35,14 +35,7 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      call(addon.createFilePlaceholder).toStrictEqual([
-        String.raw`\parent\file.txt`,
-        'file.txt',
-        'FILE:uuid',
-        1024,
-        946684800000,
-        946771200000,
-      ]);
+      call(addon.createFilePlaceholder).toStrictEqual([String.raw`\parent\file.txt`, 'FILE:uuid', 1024, 946684800000, 946771200000]);
     });
   });
 
