@@ -28,7 +28,7 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
       continue; // Ignore root folder
     }
 
-    const parentPath = pathUtils.dirname(localFolder.relativePath);
+    const parentPath = pathUtils.dirname(localFolder.absolutePath);
     const parent = tree.folders[parentPath];
 
     if (!parent) {
@@ -50,7 +50,7 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
       });
 
       if (folder) {
-        tree.folders[localFolder.relativePath] = {
+        tree.folders[localFolder.absolutePath] = {
           ...folder,
           path: localFolder.relativePath,
           absolutePath: localFolder.absolutePath,

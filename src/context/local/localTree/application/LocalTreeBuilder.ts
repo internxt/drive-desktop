@@ -1,15 +1,15 @@
 import { LocalFile } from '../../localFile/domain/LocalFile';
-import { createRelativePath, RelativePath } from '../../localFile/infrastructure/AbsolutePath';
+import { createRelativePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'node:path';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { logger, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, logger, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 export type LocalTree = {
   root: LocalFolder;
-  files: Record<RelativePath, LocalFile>;
-  folders: Record<RelativePath, LocalFolder>;
+  files: Record<AbsolutePath, LocalFile>;
+  folders: Record<AbsolutePath, LocalFolder>;
 };
 
 export default class LocalTreeBuilder {
@@ -30,7 +30,7 @@ export default class LocalTreeBuilder {
 
       const relativePath = createRelativePath(relative(tree.root.absolutePath, file.path));
 
-      tree.files[relativePath] = {
+      tree.files[file.path] = {
         absolutePath: file.path,
         relativePath,
         modificationTime: file.modificationTime,
@@ -46,7 +46,7 @@ export default class LocalTreeBuilder {
         relativePath,
       };
 
-      tree.folders[relativePath] = folder;
+      tree.folders[folder.absolutePath] = folder;
     }
   }
 

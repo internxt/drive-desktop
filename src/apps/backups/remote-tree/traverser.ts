@@ -1,13 +1,12 @@
 import { AbsolutePath, createRelativePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 export type RemoteTree = {
-  files: Record<RelativePath, ExtendedDriveFile>;
-  folders: Record<RelativePath, ExtendedDriveFolder>;
+  files: Record<AbsolutePath, ExtendedDriveFile>;
+  folders: Record<AbsolutePath, ExtendedDriveFolder>;
 };
 
 type Items = {
@@ -41,7 +40,7 @@ export class Traverser {
       const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
       const extendedFile = { ...file, path, absolutePath };
 
-      tree.files[path] = extendedFile;
+      tree.files[absolutePath] = extendedFile;
     });
 
     foldersInThisFolder.forEach((folder) => {
@@ -49,7 +48,7 @@ export class Traverser {
       const absolutePath = join(currentFolder.absolutePath, folder.name);
       const extendedFolder = { ...folder, path, absolutePath };
 
-      tree.folders[path] = extendedFolder;
+      tree.folders[absolutePath] = extendedFolder;
       this.traverse(context, tree, items, extendedFolder);
     });
   }

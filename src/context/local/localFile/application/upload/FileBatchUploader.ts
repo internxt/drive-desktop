@@ -26,7 +26,7 @@ export class FileBatchUploader {
 
         if (!contentsId) return;
 
-        const parentPath = pathUtils.dirname(localFile.relativePath);
+        const parentPath = pathUtils.dirname(localFile.absolutePath);
         const parent = remoteTree.folders[parentPath];
 
         const { data: fileDto } = await HttpRemoteFileSystem.create({
