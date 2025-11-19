@@ -1,17 +1,13 @@
 {
-  "name": "@internxt/node-win",
-  "version": "1.0.28",
-  "author": "Internxt <hello@internxt.com>",
-  "description": "Drive desktop node addon",
+  "name": "@packages/addon",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "license": "MIT",
   "gypfile": true,
   "scripts": {
     "clean": "node-gyp clean",
     "build:gyp": "node-gyp configure build",
     "config:gyp": "python gyp.config.py",
-    "build": "python gyp.config.py && node-gyp clean && node-gyp configure build",
-    "pack:local": "node scripts/pack-local.js"
+    "build": "python gyp.config.py && node-gyp clean && node-gyp configure build"
   }
 }

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
-import { addon as rawAddon } from '@internxt/node-win/dist';
+import { addon as rawAddon } from '@packages/addon';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/brand.types';
