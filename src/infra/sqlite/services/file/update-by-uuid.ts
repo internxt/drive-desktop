@@ -11,6 +11,7 @@ type Props = {
     extension?: string;
     parentUuid?: FolderUuid;
     status?: DriveFile['status'];
+    isDangledStatus?: boolean;
   };
 };
 
@@ -23,6 +24,7 @@ export async function updateByUuid({ uuid, payload }: Props) {
         type: payload.extension,
         folderUuid: payload.parentUuid,
         status: payload.status,
+        isDangledStatus: payload.isDangledStatus,
       },
     );
 

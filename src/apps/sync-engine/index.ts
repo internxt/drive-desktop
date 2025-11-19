@@ -5,11 +5,10 @@ import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
-import VirtualDrive from '@/node-win/virtual-drive';
-import { runDangledFiles } from './run-dangled-files';
-import { buildProcessContainer } from './build-process-container';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
+import { checkDangledFiles } from './dangled-files/check-dangled-files';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -30,8 +29,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   BindingsManager.watch({ ctx });
 
-  const container = buildProcessContainer({ ctx });
-  void runDangledFiles({ ctx, container });
+  void checkDangledFiles({ ctx });
 }
 
 async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {

@@ -24,6 +24,7 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
     state.stop();
     readable.destroy();
   }
+
   return new Promise((resolve: TResolve) => {
     let interval: NodeJS.Timeout | undefined;
 
@@ -46,6 +47,7 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
       });
 
       interval = setInterval(() => abortOnChangeSize({ path, size, resolve, stopUpload, state }), 5000);
+
       abortSignal.addEventListener('abort', () => {
         logger.debug({ msg: 'Aborting upload', path });
         stopUpload(state);

@@ -17,6 +17,7 @@ export type SimpleDriveFile = {
   updatedAt: string;
   modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
+  isDangledStatus: boolean;
 };
 export type ExtendedDriveFile = SimpleDriveFile & {
   path: RelativePath;

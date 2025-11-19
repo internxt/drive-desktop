@@ -1,4 +1,3 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -53,12 +52,6 @@ export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
 
     ctx.virtualDrive.updateSyncStatus({ itemPath: path });
   } catch (exc) {
-    logger.error({
-      tag: 'SYNC-ENGINE',
-      msg: 'Error updating contents id',
-      path,
-      uuid,
-      exc,
-    });
+    ctx.logger.error({ msg: 'Error updating contents id', path, exc });
   }
 }

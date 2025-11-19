@@ -26,5 +26,6 @@ export function parseData({ data }: TProps): SimpleDriveFile {
     updatedAt: data.updatedAt,
     modificationTime: data.modificationTime,
     status: data.status,
+    isDangledStatus: data.isDangledStatus,
   };
 }
