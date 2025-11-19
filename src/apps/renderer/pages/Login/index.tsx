@@ -31,8 +31,8 @@ export default function Login() {
       <WindowTopBar className="bg-surface dark:bg-gray-1" />
 
       <div className="flex flex-1 items-center justify-center px-8">
-        <div className="flex w-full max-w-xs flex-col items-center justify-center space-y-4">
-          <h1 className="text-gray-900 mb-2 text-center text-3xl font-normal leading-tight">
+        <div className="flex w-full max-w-[300px] flex-col items-center justify-center">
+          <h1 className="text-gray-900 mb-3 text-center text-3xl font-normal leading-tight">
             {translate('login.welcome') || 'Bienvenido a Internxt'}
           </h1>
 
@@ -42,14 +42,14 @@ export default function Login() {
             size="lg"
             disabled={isLoading}
             onClick={handleSignInWithBrowser}
-            className="bg-blue-500 hover:bg-blue-600 flex w-full items-center justify-center rounded-lg px-6 py-4 text-center text-lg font-medium text-white"
+            className="bg-blue-500 hover:bg-blue-600 flex items-center justify-center rounded-lg px-6 py-3 text-center text-base font-medium text-white mb-6"
             data-automation-id="buttonSignInBrowser">
             {translate('login.action.login-in-browser') || 'Inicia sesión con el navegador'}
           </Button>
 
-          <div className="border-gray-300 my-4 w-full border-t" />
+          <div className="border-gray-300 w-full border-t" />
 
-          <div className="text-center">
+          <div className="text-center mt-6">
             <span className="text-gray-700 text-base">{translate('login.no-account') || '¿No tienes cuenta?'}</span>{' '}
             <button
               type="button"
