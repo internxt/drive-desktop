@@ -1,17 +1,17 @@
-const fs = require('fs');
+const { readFileSync, readdirSync, writeFileSync } = require('fs');
 const { win32, posix } = require('path');
-const path = require('path/posix');
+const { join } = require('path/posix');
 
 const gypFile = 'binding.gyp';
 
 function getFolders(root) {
   const paths = [root];
 
-  const entries = fs.readdirSync(root, { withFileTypes: true, recursive: true });
+  const entries = readdirSync(root, { withFileTypes: true, recursive: true });
   for (const entry of entries) {
     if (entry.isDirectory()) {
       const parentPath = entry.parentPath.replaceAll(win32.sep, posix.sep);
-      const fullPath = path.join(parentPath, entry.name);
+      const fullPath = join(parentPath, entry.name);
       paths.push(fullPath);
     }
   }
@@ -22,11 +22,11 @@ function getFolders(root) {
 function getFiles(root) {
   const paths = [];
 
-  const entries = fs.readdirSync(root, { withFileTypes: true, recursive: true });
+  const entries = readdirSync(root, { withFileTypes: true, recursive: true });
   for (const entry of entries) {
     if (entry.isFile()) {
       const parentPath = entry.parentPath.replaceAll(win32.sep, posix.sep);
-      const fullPath = path.join(parentPath, entry.name);
+      const fullPath = join(parentPath, entry.name);
       paths.push(fullPath);
     }
   }
@@ -34,14 +34,10 @@ function getFiles(root) {
   return paths.toSorted();
 }
 
-function updateGypFile() {
-  const fileContent = fs.readFileSync(gypFile);
-  const gypData = JSON.parse(fileContent);
+const fileContent = readFileSync(gypFile);
+const gypData = JSON.parse(fileContent);
 
-  gypData.targets[0].sources = getFiles('native-src');
-  gypData.targets[0].include_dirs = getFolders('include');
+gypData.targets[0].sources = getFiles('native-src');
+gypData.targets[0].include_dirs = getFolders('include');
 
-  fs.writeFileSync(gypFile, JSON.stringify(gypData, null, 2));
-}
-
-updateGypFile();
+writeFileSync(gypFile, JSON.stringify(gypData, null, 2));
