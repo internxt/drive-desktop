@@ -27,7 +27,7 @@ describe('update-file-placeholder', () => {
 
     props = mockProps<typeof FilePlaceholderUpdater.update>({
       ctx: { virtualDrive },
-      files: { ['uuid' as FileUuid]: { absolutePath: 'localPath.absolutePath' as AbsolutePath } },
+      files: { ['uuid' as FileUuid]: { path: 'localPath' as AbsolutePath } },
       remote: {
         path: createRelativePath('file1', 'file2'),
         absolutePath: 'remotePath' as AbsolutePath,
@@ -73,7 +73,7 @@ describe('update-file-placeholder', () => {
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
-    expect(renameMock).toBeCalledWith('localPath.absolutePath', 'remotePath');
+    expect(renameMock).toBeCalledWith('localPath', 'remotePath');
     call(virtualDrive.updateSyncStatus).toStrictEqual({ path: 'remotePath' });
   });
 
