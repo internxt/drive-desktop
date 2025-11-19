@@ -11,24 +11,24 @@ function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
 }
 
-export class Addon {
-  private parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
-    const schema = addonZod[fn];
-    const result = schema.safeParse(data);
+function parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
+  const schema = addonZod[fn];
+  const result = schema.safeParse(data);
 
-    if (result.error) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Error parsing addon result',
-        fn,
-        error: result.error,
-      });
-    }
-
-    return data;
+  if (result.error) {
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error parsing addon result',
+      fn,
+      error: result.error,
+    });
   }
 
-  registerSyncRoot({
+  return data;
+}
+
+export class Addon {
+  static registerSyncRoot({
     rootPath,
     providerName,
     providerVersion,
@@ -42,35 +42,35 @@ export class Addon {
     logoPath: string;
   }) {
     const result = addon.registerSyncRoot(toWin32(rootPath), providerName, providerVersion, providerId, logoPath);
-    return this.parseAddonZod('registerSyncRoot', result);
+    return parseAddonZod('registerSyncRoot', result);
   }
 
-  getRegisteredSyncRoots() {
+  static getRegisteredSyncRoots() {
     const result = addon.getRegisteredSyncRoots();
-    return this.parseAddonZod('getRegisteredSyncRoots', result);
+    return parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  connectSyncRoot({ rootPath, callbacks }: { rootPath: AbsolutePath; callbacks: Callbacks }) {
+  static connectSyncRoot({ rootPath, callbacks }: { rootPath: AbsolutePath; callbacks: Callbacks }) {
     const result = addon.connectSyncRoot(toWin32(rootPath), callbacks);
-    return this.parseAddonZod('connectSyncRoot', result);
+    return parseAddonZod('connectSyncRoot', result);
   }
 
-  unregisterSyncRoot({ providerId }: { providerId: string }) {
+  static unregisterSyncRoot({ providerId }: { providerId: string }) {
     logger.debug({ msg: 'Unregister sync root', providerId });
     const result = addon.unregisterSyncRoot(providerId);
-    return this.parseAddonZod('unregisterSyncRoot', result);
+    return parseAddonZod('unregisterSyncRoot', result);
   }
 
-  disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
+  static disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
     return addon.disconnectSyncRoot(toWin32(rootPath));
   }
 
-  getPlaceholderState({ path }: { path: AbsolutePath }) {
+  static getPlaceholderState({ path }: { path: AbsolutePath }) {
     const result = addon.getPlaceholderState(toWin32(path));
-    return this.parseAddonZod('getPlaceholderState', result);
+    return parseAddonZod('getPlaceholderState', result);
   }
 
-  createFilePlaceholder({
+  static createFilePlaceholder({
     path,
     placeholderId,
     size,
@@ -85,10 +85,10 @@ export class Addon {
   }) {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
     const result = addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
-    return this.parseAddonZod('createFilePlaceholder', result);
+    return parseAddonZod('createFilePlaceholder', result);
   }
 
-  createFolderPlaceholder({
+  static createFolderPlaceholder({
     path,
     placeholderId,
     creationTime,
@@ -101,39 +101,27 @@ export class Addon {
   }) {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
     const result = addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
-    return this.parseAddonZod('createFolderPlaceholder', result);
+    return parseAddonZod('createFolderPlaceholder', result);
   }
 
-  updateSyncStatus({ path }: { path: AbsolutePath }) {
+  static updateSyncStatus({ path }: { path: AbsolutePath }) {
     const result = addon.updateSyncStatus(toWin32(path));
-    return this.parseAddonZod('updateSyncStatus', result);
+    return parseAddonZod('updateSyncStatus', result);
   }
 
-  convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+  static convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
     const result = addon.convertToPlaceholder(toWin32(path), placeholderId);
-    return this.parseAddonZod('convertToPlaceholder', result);
+    return parseAddonZod('convertToPlaceholder', result);
   }
 
-  dehydrateFile({ path }: { path: AbsolutePath }) {
+  static dehydrateFile({ path }: { path: AbsolutePath }) {
     const result = addon.dehydrateFile(toWin32(path));
-    return this.parseAddonZod('dehydrateFile', result);
+    return parseAddonZod('dehydrateFile', result);
   }
 
-  async hydrateFile({ path }: { path: AbsolutePath }) {
+  static async hydrateFile({ path }: { path: AbsolutePath }) {
     const result = await addon.hydrateFile(toWin32(path));
-    return this.parseAddonZod('hydrateFile', result);
-  }
-}
-
-export class DependencyInjectionAddonProvider {
-  private static _addon?: Addon;
-
-  static get() {
-    if (DependencyInjectionAddonProvider._addon) return DependencyInjectionAddonProvider._addon;
-
-    DependencyInjectionAddonProvider._addon = new Addon();
-
-    return DependencyInjectionAddonProvider._addon;
+    return parseAddonZod('hydrateFile', result);
   }
 }
