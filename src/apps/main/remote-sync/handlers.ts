@@ -1,13 +1,10 @@
-import { In } from 'typeorm';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
 import { updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
-import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
-import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { getRemoteSyncManager, remoteSyncManagers } from './store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -18,35 +15,6 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 export function addRemoteSyncManager({ context }: { context: SyncContext }) {
   remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, context.workspaceId));
 }
-
-type UpdateFileInBatchInput = {
-  itemsId: string[];
-  file: Partial<DriveFile>;
-};
-
-export async function setAsNotDangledFiles(filesIds: string[]) {
-  await driveFilesCollection.updateInBatch({
-    where: { isDangledStatus: true, fileId: In(filesIds) },
-    payload: { isDangledStatus: false },
-  });
-}
-
-export const updateFileInBatch = async (input: UpdateFileInBatchInput) => {
-  const { itemsId, file } = input;
-
-  await driveFilesCollection.updateInBatch({
-    where: {
-      fileId: In(itemsId),
-    },
-    payload: file,
-  });
-};
-
-export const deleteFileInBatch = async (itemsIds: string[]) => {
-  await driveFilesCollection.removeInBatch({
-    fileId: In(itemsIds),
-  });
-};
 
 ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, { userUuid, workspaceId }) => {
   const { data: files = [] } = await SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId });
@@ -60,21 +28,6 @@ ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', async (_, { userUuid, works
   ]);
 
   return { files, folders };
-});
-
-ipcMainSyncEngine.handle('FIND_DANGLED_FILES', async () => {
-  const files = await driveFilesCollection.getAll({ status: 'EXISTS', isDangledStatus: true });
-  return files;
-});
-
-ipcMainSyncEngine.handle('SET_HEALTHY_FILES', async (_, inputData) => {
-  await Queue.enqueue(() => setAsNotDangledFiles(inputData));
-});
-
-ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
-  logger.debug({ msg: 'Updating fixed files', inputData });
-  await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
-  await deleteFileInBatch(inputData.toDelete);
 });
 
 export async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
