@@ -1,14 +1,17 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { addon } from './addon';
+import { addon, Win32Path } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
 import { logger } from '@/apps/shared/logger/logger';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { posix, win32 } from 'node:path';
+
+function toWin32(path: AbsolutePath) {
+  return path.replaceAll(posix.sep, win32.sep) as Win32Path;
+}
 
 export class Addon {
-  syncRootPath!: string;
-
   private parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
     const schema = addonZod[fn];
     const result = schema.safeParse(data);
@@ -25,17 +28,19 @@ export class Addon {
   }
 
   registerSyncRoot({
+    rootPath,
     providerName,
     providerVersion,
     providerId,
     logoPath,
   }: {
+    rootPath: AbsolutePath;
     providerName: string;
     providerVersion: string;
     providerId: string;
     logoPath: string;
   }) {
-    const result = addon.registerSyncRoot(this.syncRootPath, providerName, providerVersion, providerId, logoPath);
+    const result = addon.registerSyncRoot(toWin32(rootPath), providerName, providerVersion, providerId, logoPath);
     return this.parseAddonZod('registerSyncRoot', result);
   }
 
@@ -44,8 +49,8 @@ export class Addon {
     return this.parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
-    const result = addon.connectSyncRoot(this.syncRootPath, callbacks);
+  connectSyncRoot({ rootPath, callbacks }: { rootPath: AbsolutePath; callbacks: Callbacks }) {
+    const result = addon.connectSyncRoot(toWin32(rootPath), callbacks);
     return this.parseAddonZod('connectSyncRoot', result);
   }
 
@@ -54,12 +59,12 @@ export class Addon {
     return this.parseAddonZod('unregisterSyncRoot', result);
   }
 
-  disconnectSyncRoot({ syncRootPath }: { syncRootPath: string }) {
-    return addon.disconnectSyncRoot(syncRootPath);
+  disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
+    return addon.disconnectSyncRoot(toWin32(rootPath));
   }
 
-  getPlaceholderState({ path }: { path: string }) {
-    const result = addon.getPlaceholderState(path);
+  getPlaceholderState({ path }: { path: AbsolutePath }) {
+    const result = addon.getPlaceholderState(toWin32(path));
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
@@ -78,9 +83,9 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    parentPath: string;
+    parentPath: AbsolutePath;
   }) {
-    const result = addon.createFilePlaceholder(name, placeholderId, size, creationTime, lastWriteTime, lastAccessTime, parentPath);
+    const result = addon.createFilePlaceholder(name, placeholderId, size, creationTime, lastWriteTime, lastAccessTime, toWin32(parentPath));
     return this.parseAddonZod('createFilePlaceholder', result);
   }
 
@@ -97,29 +102,29 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    parentPath: string;
+    parentPath: AbsolutePath;
   }) {
-    const result = addon.createFolderPlaceholder(name, placeholderId, creationTime, lastWriteTime, lastAccessTime, parentPath);
+    const result = addon.createFolderPlaceholder(name, placeholderId, creationTime, lastWriteTime, lastAccessTime, toWin32(parentPath));
     return this.parseAddonZod('createFolderPlaceholder', result);
   }
 
-  updateSyncStatus({ path }: { path: string }) {
-    const result = addon.updateSyncStatus(path);
+  updateSyncStatus({ path }: { path: AbsolutePath }) {
+    const result = addon.updateSyncStatus(toWin32(path));
     return this.parseAddonZod('updateSyncStatus', result);
   }
 
-  convertToPlaceholder({ path, id }: { path: string; id: FilePlaceholderId | FolderPlaceholderId }) {
-    const result = addon.convertToPlaceholder(path, id);
+  convertToPlaceholder({ path, placeholderId }: { path: AbsolutePath; placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+    const result = addon.convertToPlaceholder(toWin32(path), placeholderId);
     return this.parseAddonZod('convertToPlaceholder', result);
   }
 
   dehydrateFile({ path }: { path: AbsolutePath }) {
-    const result = addon.dehydrateFile(path);
+    const result = addon.dehydrateFile(toWin32(path));
     return this.parseAddonZod('dehydrateFile', result);
   }
 
   async hydrateFile({ path }: { path: AbsolutePath }) {
-    const result = await addon.hydrateFile(path);
+    const result = await addon.hydrateFile(toWin32(path));
     return this.parseAddonZod('hydrateFile', result);
   }
 }

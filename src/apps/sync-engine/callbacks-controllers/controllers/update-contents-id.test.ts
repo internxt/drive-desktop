@@ -69,7 +69,7 @@ describe('update-contents-id', () => {
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
-    call(props.ctx.virtualDrive.updateSyncStatus).toMatchObject({ itemPath: path });
+    call(props.ctx.virtualDrive.updateSyncStatus).toMatchObject({ path });
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

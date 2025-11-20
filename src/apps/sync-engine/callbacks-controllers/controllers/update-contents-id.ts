@@ -50,7 +50,7 @@ export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
       path,
     });
 
-    ctx.virtualDrive.updateSyncStatus({ itemPath: path });
+    ctx.virtualDrive.updateSyncStatus({ path });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error updating contents id', path, exc });
   }

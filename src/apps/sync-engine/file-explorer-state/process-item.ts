@@ -22,7 +22,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   const pendingFileExplorerItem = { path, absolutePath, stats };
 
   if (stats.isDirectory()) {
-    const { error } = NodeWin.getFolderInfo({ ctx, path });
+    const { error } = NodeWin.getFolderInfo({ ctx, path: absolutePath });
 
     if (error && error.code === 'NON_EXISTS') {
       state.createFolders.push(pendingFileExplorerItem);
@@ -30,7 +30,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   }
 
   if (stats.isFile()) {
-    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path });
+    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path: absolutePath });
 
     if (fileInfo) {
       const { uuid, pinState } = fileInfo;

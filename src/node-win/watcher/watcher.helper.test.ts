@@ -4,7 +4,7 @@ import { mockDeep } from 'vitest-mock-extended';
 
 import { Watcher } from './watcher';
 import { TLogger } from '../logger';
-import VirtualDrive from '../virtual-drive';
+import { VirtualDrive } from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as unlinkFile from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';

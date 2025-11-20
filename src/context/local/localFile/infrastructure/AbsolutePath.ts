@@ -25,7 +25,7 @@ export function createRelativePath(...parts: string[]) {
   return parsePath({ path }) as RelativePath;
 }
 
-function dirname<T extends RelativePath | AbsolutePath>(path: T) {
+export function dirname<T extends RelativePath | AbsolutePath>(path: T) {
   return rawDirname(path) as T;
 }
 

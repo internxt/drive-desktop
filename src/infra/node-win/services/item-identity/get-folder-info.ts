@@ -3,6 +3,7 @@ import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/cont
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { FolderPlaceholderId, isFolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFolderInfoError extends Error {
   constructor(
@@ -15,11 +16,11 @@ export class GetFolderInfoError extends Error {
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: string;
+  path: AbsolutePath;
 };
 
 export function getFolderInfo({ ctx, path }: TProps) {
-  if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath || path === ctx.rootPath) {
+  if (path === ctx.rootPath) {
     return {
       data: {
         placeholderId: `FOLDER:${ctx.rootUuid}` as FolderPlaceholderId,

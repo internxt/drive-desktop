@@ -1,12 +1,12 @@
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { CLSFsLocalItemsGenerator } from './FsLocalItemsGenerator';
-import { join } from 'node:path';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { execSync } from 'node:child_process';
+import { join } from '../../localFile/infrastructure/AbsolutePath';
 
 describe('CLSFsLocalItemsGenerator', () => {
   const folder = join(TEST_FILES, v4());

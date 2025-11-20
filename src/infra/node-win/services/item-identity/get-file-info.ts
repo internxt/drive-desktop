@@ -2,6 +2,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/controllers/placeholder-id';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { isFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFileInfoError extends Error {
   constructor(
@@ -14,7 +15,7 @@ export class GetFileInfoError extends Error {
 
 type TProps = {
   ctx: ProcessSyncContext;
-  path: string;
+  path: AbsolutePath;
 };
 
 export function getFileInfo({ ctx, path }: TProps) {

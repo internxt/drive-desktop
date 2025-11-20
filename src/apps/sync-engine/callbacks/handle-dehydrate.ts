@@ -1,4 +1,4 @@
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 

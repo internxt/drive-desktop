@@ -1,6 +1,6 @@
 import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 describe('unregister-virtual-drives', () => {
   const getRegisteredSyncRootsMock = partialSpyOn(VirtualDrive, 'getRegisteredSyncRoots');

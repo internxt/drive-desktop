@@ -1,7 +1,6 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { dirname } from 'node:path';
 
 type TProps = {
   ctx: ProcessSyncContext;

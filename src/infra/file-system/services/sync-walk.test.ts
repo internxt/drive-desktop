@@ -31,10 +31,10 @@ describe('sync-walk', () => {
     const results = await syncWalk(props);
     // Then
     expect(results).toMatchObject([
-      { absolutePath: 'C:\\Users\\user\\InternxtDrive\\file1' },
-      { absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1' },
-      { absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder2' },
-      { absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\file2' },
+      { absolutePath: 'C:/Users/user/InternxtDrive/file1' },
+      { absolutePath: 'C:/Users/user/InternxtDrive/folder1' },
+      { absolutePath: 'C:/Users/user/InternxtDrive/folder2' },
+      { absolutePath: 'C:/Users/user/InternxtDrive/folder1/file2' },
     ]);
   });
 });

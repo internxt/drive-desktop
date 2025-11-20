@@ -1,5 +1,4 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
-import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
@@ -19,7 +18,7 @@ export class FolderPlaceholderUpdater {
 
       if (!localPath) {
         ctx.virtualDrive.createFolderByPath({
-          itemPath: path,
+          path: remotePath,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
@@ -29,19 +28,17 @@ export class FolderPlaceholderUpdater {
       }
 
       if (hasToBeMoved({ ctx, remotePath, localPath })) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
+        ctx.logger.debug({
           msg: 'Moving folder placeholder',
           remotePath,
           localPath,
         });
 
         await rename(localPath, remotePath);
-        ctx.virtualDrive.updateSyncStatus({ itemPath: remotePath });
+        ctx.virtualDrive.updateSyncStatus({ path: remotePath });
       }
     } catch (exc) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
+      ctx.logger.error({
         msg: 'Error updating folder placeholder',
         path,
         exc,

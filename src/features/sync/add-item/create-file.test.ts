@@ -5,7 +5,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from './create-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('create-file', () => {
@@ -29,7 +29,7 @@ describe('create-file', () => {
     expect(fileCreationOrchestratorMock).toBeCalledTimes(1);
     expect(fileCreationOrchestratorMock).toBeCalledWith(expect.objectContaining({ path }));
     expect(virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
-    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ itemPath: path, id: 'FILE:uuid' });
+    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ path, placeholderId: 'FILE:uuid' });
   });
 
   it('should run createParentFolder if parent folder does not exist', async () => {
