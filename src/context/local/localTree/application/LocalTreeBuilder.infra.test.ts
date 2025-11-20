@@ -35,12 +35,10 @@ describe('LocalTreeBuilder', () => {
   it('It should add files and folders', async () => {
     // Given
     const props = mockProps<typeof LocalTreeBuilder.run>({ context: { pathname: folder } });
-
     // When
     const tree = await LocalTreeBuilder.run(props);
-
     // Then
-    expect(Object.keys(tree.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
-    expect(Object.keys(tree.folders)).toStrictEqual(['/', '/folder1', '/folder2', '/folder1/folder3']);
+    expect(Object.keys(tree.files)).toStrictEqual([file1, file2, file3, file4]);
+    expect(Object.keys(tree.folders)).toStrictEqual([folder, folder1, folder2, folder3]);
   });
 });
