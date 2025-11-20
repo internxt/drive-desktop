@@ -1,8 +1,7 @@
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { throwWrapper } from '@internxt/drive-desktop-core/build/backend';
 
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error }) => void;
 
@@ -20,15 +19,15 @@ export class ContentsDownloader {
     }
   }
 
-  download({ path, contentsId }: { path: AbsolutePath; contentsId: ContentsId }) {
+  downloadThrow = throwWrapper(this.download);
+
+  download({ contentsId, onProgress }: { contentsId: ContentsId; onProgress?: (progress: number) => void }) {
     return new Promise((resolve: Resolve) => {
       this.state = this.environment.download(
         this.bucket,
         contentsId,
         {
-          progressCallback: (progress) => {
-            ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
-          },
+          progressCallback: (progress) => onProgress?.(progress),
           finishedCallback: (error, stream) => {
             if (stream) {
               return resolve({ data: stream });

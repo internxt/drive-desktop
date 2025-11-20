@@ -1,5 +1,4 @@
 import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { BackupsContext } from '../BackupInfo';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
@@ -15,8 +14,40 @@ type Items = {
 };
 
 export class Traverser {
-  private createRootFolder({ rootPath, rootUuid }: { rootPath: AbsolutePath; rootUuid: FolderUuid }): ExtendedDriveFolder {
-    return {
+  private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
+    if (!items) return;
+
+    const filesInThisFolder = items.files.filter((file) => file.parentUuid === parent.uuid);
+    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
+
+    filesInThisFolder.forEach((file) => {
+      const absolutePath = join(parent.absolutePath, file.nameWithExtension);
+      const extendedFile = { ...file, absolutePath };
+
+      tree.files[absolutePath] = extendedFile;
+    });
+
+    foldersInThisFolder.forEach((folder) => {
+      const absolutePath = join(parent.absolutePath, folder.name);
+      const extendedFolder = { ...folder, absolutePath };
+
+      tree.folders[absolutePath] = extendedFolder;
+      this.traverse(tree, items, extendedFolder);
+    });
+  }
+
+  static async run({ userUuid, rootUuid, rootPath }: { userUuid: string; rootUuid: FolderUuid; rootPath: AbsolutePath }) {
+    const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
+      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
+    ]);
+
+    const items = {
+      files: files.filter((file) => file.status === 'EXISTS'),
+      folders: folders.filter((folder) => folder.status === 'EXISTS'),
+    };
+
+    const rootFolder: ExtendedDriveFolder = {
       uuid: rootUuid,
       parentUuid: undefined,
       updatedAt: new Date().toISOString(),
@@ -25,46 +56,6 @@ export class Traverser {
       status: 'EXISTS',
       name: '',
     };
-  }
-
-  private traverse(context: BackupsContext, tree: RemoteTree, items: Items, currentFolder: ExtendedDriveFolder) {
-    if (!items) return;
-    if (context.abortController.signal.aborted) return;
-
-    const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
-    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
-
-    filesInThisFolder.forEach((file) => {
-      const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
-      const extendedFile = { ...file, absolutePath };
-
-      tree.files[absolutePath] = extendedFile;
-    });
-
-    foldersInThisFolder.forEach((folder) => {
-      const absolutePath = join(currentFolder.absolutePath, folder.name);
-      const extendedFolder = { ...folder, absolutePath };
-
-      tree.folders[absolutePath] = extendedFolder;
-      this.traverse(context, tree, items, extendedFolder);
-    });
-  }
-
-  async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
-    const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-      SqliteModule.FileModule.getByWorkspaceId({ userUuid: context.userUuid, workspaceId: '' }),
-      SqliteModule.FolderModule.getByWorkspaceId({ userUuid: context.userUuid, workspaceId: '' }),
-    ]);
-
-    const items = {
-      files: files.filter((file) => file.status === 'EXISTS'),
-      folders: folders.filter((folder) => folder.status === 'EXISTS'),
-    };
-
-    const rootFolder = this.createRootFolder({
-      rootPath: context.pathname,
-      rootUuid: context.folderUuid as FolderUuid,
-    });
 
     const tree: RemoteTree = {
       files: {},
@@ -73,7 +64,7 @@ export class Traverser {
       },
     };
 
-    this.traverse(context, tree, items, rootFolder);
+    this.traverse(tree, items, rootFolder);
 
     return tree;
   }

@@ -10,6 +10,7 @@ import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff
 import { createFolders } from './folders/create-folders';
 import { deleteRemoteFiles } from './process-files/delete-remote-files';
 import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
 
 type Props = {
   tracker: BackupsProcessTracker;
@@ -21,9 +22,11 @@ export class Backup {
 
   async run({ tracker, context }: Props) {
     const local = await LocalTreeBuilder.run({ context });
-    const remote = await new Traverser().run({ context });
-
-    if (context.abortController.signal.aborted) return;
+    const remote = await Traverser.run({
+      userUuid: context.userUuid,
+      rootPath: context.pathname,
+      rootUuid: context.folderUuid as FolderUuid,
+    });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
     const filesDiff = calculateFilesDiff({ local, remote });
@@ -57,6 +60,8 @@ export class Backup {
       total: filesDiff.total + foldersDiff.total,
       alreadyBacked,
     });
+
+    if (context.abortController.signal.aborted) return;
 
     tracker.currentTotal(filesDiff.total + foldersDiff.total);
     tracker.currentProcessed(alreadyBacked);
