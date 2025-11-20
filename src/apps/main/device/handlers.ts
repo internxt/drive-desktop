@@ -9,7 +9,6 @@ import {
   getOrCreateDevice,
   getDevices,
   renameDevice,
-  downloadBackup,
 } from './service';
 import { getBackupsFromDevice } from './get-backups-from-device';
 
@@ -28,7 +27,5 @@ ipcMain.handle('delete-backup', (_, v) => deleteBackup(v));
 ipcMain.handle('delete-backups-from-device', (_, v, c?) => deleteBackupsFromDevice(v, c));
 
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
-
-ipcMain.handle('download-backup', (_, v, fd) => downloadBackup(v, fd));
 
 ipcMain.handle('get-folder-path', () => getPathFromDialog());
