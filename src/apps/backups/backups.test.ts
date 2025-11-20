@@ -91,12 +91,12 @@ describe('backups', () => {
     ]);
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
-    call(createFolderMock).toMatchObject({ path: '/addedFolder', parentUuid: rootUuid, plainName: 'addedFolder' });
+    call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid, plainName: 'addedFolder' });
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', newContentId: 'newContentsId', newSize: 7 });
     calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
 
     call(createFileMock).toStrictEqual({
-      path: '/folder/addedFile.txt',
+      path: addedFile,
       body: {
         bucket: undefined,
         encryptVersion: '03-aes',
