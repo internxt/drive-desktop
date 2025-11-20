@@ -33,7 +33,7 @@ export class FileBatchUploader {
           bucket: context.backupsBucket,
           contentsId,
           folderUuid: parent.uuid,
-          path: localFile.relativePath,
+          path: localFile.absolutePath,
           size: localFile.size,
           workspaceId: '',
         });
@@ -52,7 +52,7 @@ export class FileBatchUploader {
         logger.error({
           tag: 'BACKUPS',
           msg: 'Error uploading file',
-          path: localFile.relativePath,
+          path: localFile.absolutePath,
           error,
         });
       } finally {

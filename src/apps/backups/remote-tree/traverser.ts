@@ -1,4 +1,4 @@
-import { AbsolutePath, createRelativePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
@@ -21,7 +21,6 @@ export class Traverser {
       parentUuid: undefined,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      path: createRelativePath('/'),
       absolutePath: rootPath,
       status: 'EXISTS',
       name: '',
@@ -36,17 +35,15 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((file) => {
-      const path = createRelativePath(currentFolder.path, file.nameWithExtension);
       const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
-      const extendedFile = { ...file, path, absolutePath };
+      const extendedFile = { ...file, absolutePath };
 
       tree.files[absolutePath] = extendedFile;
     });
 
     foldersInThisFolder.forEach((folder) => {
-      const path = createRelativePath(currentFolder.path, folder.name);
       const absolutePath = join(currentFolder.absolutePath, folder.name);
-      const extendedFolder = { ...folder, path, absolutePath };
+      const extendedFolder = { ...folder, absolutePath };
 
       tree.folders[absolutePath] = extendedFolder;
       this.traverse(context, tree, items, extendedFolder);
@@ -72,7 +69,7 @@ export class Traverser {
     const tree: RemoteTree = {
       files: {},
       folders: {
-        [rootFolder.path]: rootFolder,
+        [rootFolder.absolutePath]: rootFolder,
       },
     };
 

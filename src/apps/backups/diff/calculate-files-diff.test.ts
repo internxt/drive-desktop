@@ -1,5 +1,5 @@
 import { calculateFilesDiff } from './calculate-files-diff';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 
@@ -11,21 +11,20 @@ describe('calculate-files-diff', () => {
 
   const props = mockProps<typeof calculateFilesDiff>({
     local: {
-      root: { absolutePath: 'C:/root/' as AbsolutePath },
       files: {
-        ['/file1' as RelativePath]: { relativePath: '/file1' as RelativePath },
-        ['/file2' as RelativePath]: { relativePath: '/file2' as RelativePath },
-        ['/file6' as RelativePath]: { relativePath: '/file6' as RelativePath, size: 12 },
-        ['/file7' as RelativePath]: { relativePath: '/file7' as RelativePath },
+        [abs('/file1')]: { absolutePath: abs('/file1') },
+        [abs('/file2')]: { absolutePath: abs('/file2') },
+        [abs('/file6')]: { absolutePath: abs('/file6'), size: 12 },
+        [abs('/file7')]: { absolutePath: abs('/file7') },
       },
       folders: {},
     },
     remote: {
       files: {
-        ['/file1' as RelativePath]: { path: '/file1' as RelativePath },
-        ['/file3' as RelativePath]: { path: '/file3' as RelativePath },
-        ['/file6' as RelativePath]: { path: '/file6' as RelativePath, size: 10 },
-        ['/file7' as RelativePath]: { path: '/file7' as RelativePath, createdAt: new Date('2025-02-20').toISOString() },
+        [abs('/file1')]: { absolutePath: abs('/file1') },
+        [abs('/file3')]: { absolutePath: abs('/file3') },
+        [abs('/file6')]: { absolutePath: abs('/file6'), size: 10 },
+        [abs('/file7')]: { absolutePath: abs('/file7'), createdAt: new Date('2025-02-20').toISOString() },
       },
       folders: {},
     },
@@ -39,10 +38,10 @@ describe('calculate-files-diff', () => {
     const diff = calculateFilesDiff(props);
 
     // Then
-    expect(diff.unmodified.map((file) => file.relativePath)).toStrictEqual(['/file1']);
-    expect(diff.added.map((file) => file.relativePath)).toStrictEqual(['/file2']);
-    expect(diff.deleted.map((file) => file.path)).toStrictEqual(['/file3']);
-    expect(diff.modified.map(({ remote }) => remote.path)).toStrictEqual(['/file6', '/file7']);
+    expect(diff.unmodified.map((file) => file.absolutePath)).toStrictEqual(['/file1']);
+    expect(diff.added.map((file) => file.absolutePath)).toStrictEqual(['/file2']);
+    expect(diff.deleted.map((file) => file.absolutePath)).toStrictEqual(['/file3']);
+    expect(diff.modified.map(({ remote }) => remote.absolutePath)).toStrictEqual(['/file6', '/file7']);
     expect(applyDangledMock).toHaveBeenCalledTimes(1);
   });
 
@@ -54,7 +53,7 @@ describe('calculate-files-diff', () => {
     const diff = calculateFilesDiff(props);
 
     // Then
-    expect(diff.modified.map(({ remote }) => remote.path)).toStrictEqual(['/file6']);
+    expect(diff.modified.map(({ remote }) => remote.absolutePath)).toStrictEqual(['/file6']);
     expect(applyDangledMock).toHaveBeenCalledTimes(1);
   });
 });

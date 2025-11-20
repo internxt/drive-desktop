@@ -8,7 +8,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FilePlaceholderUpdater {
   static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
-    const { path } = remote;
+    const path = remote.absolutePath;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });

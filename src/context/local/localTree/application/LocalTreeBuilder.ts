@@ -1,13 +1,10 @@
 import { LocalFile } from '../../localFile/domain/LocalFile';
-import { createRelativePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
-import { relative } from 'node:path';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { AbsolutePath, logger, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 export type LocalTree = {
-  root: LocalFolder;
   files: Record<AbsolutePath, LocalFile>;
   folders: Record<AbsolutePath, LocalFolder>;
 };
@@ -28,22 +25,16 @@ export default class LocalTreeBuilder {
         continue;
       }
 
-      const relativePath = createRelativePath(relative(tree.root.absolutePath, file.path));
-
       tree.files[file.path] = {
         absolutePath: file.path,
-        relativePath,
         modificationTime: file.modificationTime,
         size: file.size,
       };
     }
 
     for (const folderAttributes of folders) {
-      const relativePath = createRelativePath(relative(tree.root.absolutePath, folderAttributes.path));
-
       const folder: LocalFolder = {
         absolutePath: folderAttributes.path,
-        relativePath,
       };
 
       tree.folders[folder.absolutePath] = folder;
@@ -55,14 +46,12 @@ export default class LocalTreeBuilder {
 
     const rootFolder: LocalFolder = {
       absolutePath: root.path,
-      relativePath: createRelativePath('/'),
     };
 
     const tree: LocalTree = {
-      root: rootFolder,
       files: {},
       folders: {
-        [rootFolder.relativePath]: rootFolder,
+        [rootFolder.absolutePath]: rootFolder,
       },
     };
 

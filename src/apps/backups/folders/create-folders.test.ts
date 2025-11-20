@@ -1,6 +1,6 @@
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolders } from './create-folders';
-import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -9,13 +9,16 @@ import * as createFolder from '@/infra/drive-server-wip/out/ipc-main';
 describe('create-folders', () => {
   const createFolderMock = partialSpyOn(createFolder, 'createFolder');
 
-  const rootFolderUuid = v4() as FolderUuid;
+  const rootUuid = v4() as FolderUuid;
+  const rootPath = abs('/backup');
+
   const baseProps = mockProps<typeof createFolders>({
     self: { backed: 0 },
     tracker: {
       currentProcessed: vi.fn(),
     },
     context: {
+      pathname: rootPath,
       addIssue: vi.fn(),
       abortController: {
         signal: {
@@ -25,7 +28,7 @@ describe('create-folders', () => {
     },
     tree: {
       folders: {
-        ['/' as RelativePath]: { uuid: rootFolderUuid, path: createRelativePath('/') },
+        [rootPath]: { uuid: rootUuid, absolutePath: rootPath },
       },
     },
   });
@@ -59,7 +62,7 @@ describe('create-folders', () => {
     // Given
     const props = mockProps<typeof createFolders>({
       ...baseProps,
-      added: [{ relativePath: '/' as RelativePath }],
+      added: [{ absolutePath: rootPath }],
     });
 
     // When
@@ -73,7 +76,7 @@ describe('create-folders', () => {
     // Given
     const props = mockProps<typeof createFolders>({
       ...baseProps,
-      added: [{ relativePath: '/folder1/folder2/folder3' as RelativePath }],
+      added: [{ absolutePath: join(rootPath, '/parent/folder') }],
     });
 
     // When
@@ -84,8 +87,7 @@ describe('create-folders', () => {
     calls(createFolderMock).toHaveLength(0);
     call(loggerMock.error).toMatchObject({
       msg: 'Parent folder does not exist',
-      parentPath: '/folder1/folder2',
-      relativePath: '/folder1/folder2/folder3',
+      path: '/backup/parent/folder',
     });
   });
 
@@ -95,7 +97,7 @@ describe('create-folders', () => {
 
     const props = mockProps<typeof createFolders>({
       ...baseProps,
-      added: [{ relativePath: '/folder1' as RelativePath }],
+      added: [{ absolutePath: join(rootPath, '/folder') }],
     });
 
     // When
@@ -114,7 +116,7 @@ describe('create-folders', () => {
 
     const props = mockProps<typeof createFolders>({
       ...baseProps,
-      added: [{ relativePath: '/folder1' as RelativePath }],
+      added: [{ absolutePath: join(rootPath, '/folder') }],
     });
 
     // When
@@ -122,9 +124,8 @@ describe('create-folders', () => {
 
     // Then
     call(createFolderMock).toMatchObject({
-      parentUuid: rootFolderUuid,
-      plainName: 'folder1',
-      path: '/folder1',
+      parentUuid: rootUuid,
+      path: '/backup/folder',
     });
     expect(props.self.backed).toBe(1);
     calls(props.tracker.currentProcessed).toHaveLength(1);
@@ -137,13 +138,13 @@ describe('create-folders', () => {
     const props = mockProps<typeof createFolders>({
       ...baseProps,
       added: [
-        { relativePath: '/folder1' as RelativePath },
-        { relativePath: '/folder1/folder2' as RelativePath },
-        { relativePath: '/folder3/folder4' as RelativePath },
-        { relativePath: '/folder3' as RelativePath },
-        { relativePath: '/' as RelativePath },
-        { relativePath: '/folder5' as RelativePath },
-        { relativePath: '/folder6/folder7' as RelativePath },
+        { absolutePath: join(rootPath, '/folder1') },
+        { absolutePath: join(rootPath, '/folder1/folder2') },
+        { absolutePath: join(rootPath, '/folder3/folder4') },
+        { absolutePath: join(rootPath, '/folder3') },
+        { absolutePath: rootPath },
+        { absolutePath: join(rootPath, '/folder5') },
+        { absolutePath: join(rootPath, '/folder6/folder7') },
       ],
     });
 
@@ -153,11 +154,11 @@ describe('create-folders', () => {
     // Then
     expect(props.self.backed).toBe(6);
     calls(createFolderMock).toMatchObject([
-      { plainName: 'folder1', path: '/folder1' },
-      { plainName: 'folder2', path: '/folder1/folder2' },
-      { plainName: 'folder3', path: '/folder3' },
-      { plainName: 'folder4', path: '/folder3/folder4' },
-      { plainName: 'folder5', path: '/folder5' },
+      { path: '/backup/folder1' },
+      { path: '/backup/folder1/folder2' },
+      { path: '/backup/folder3' },
+      { path: '/backup/folder3/folder4' },
+      { path: '/backup/folder5' },
     ]);
   });
 });
