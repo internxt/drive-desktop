@@ -11,21 +11,17 @@ export type Win32Path = Brand<string, 'Win32Path'>;
 
 type TAddon = {
   createFilePlaceholder(
-    name: string,
+    path: Win32Path,
     placeholderId: FilePlaceholderId,
     fileSize: number,
     creationTime: number,
     lastWriteTime: number,
-    lastAccessTime: number,
-    parentPath: Win32Path,
   ): z.infer<typeof addonZod.createFilePlaceholder>;
   createFolderPlaceholder(
-    name: string,
+    path: Win32Path,
     placeholderId: FolderPlaceholderId,
     creationTime: number,
     lastWriteTime: number,
-    lastAccessTime: number,
-    parentPath: Win32Path,
   ): z.infer<typeof addonZod.createFolderPlaceholder>;
   hydrateFile(path: Win32Path): Promise<z.infer<typeof addonZod.hydrateFile>>;
   dehydrateFile(path: Win32Path): z.infer<typeof addonZod.dehydrateFile>;

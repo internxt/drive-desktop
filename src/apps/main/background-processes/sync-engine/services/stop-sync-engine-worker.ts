@@ -1,7 +1,7 @@
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
 import { sleep } from '@/apps/main/util';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
   const { ctx } = worker;

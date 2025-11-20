@@ -1,5 +1,5 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export async function getParentUuid({ ctx, absolutePath }: Props) {
-  const parentPath = pathUtils.dirname(absolutePath);
+  const parentPath = dirname(absolutePath);
   const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 

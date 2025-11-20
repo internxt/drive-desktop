@@ -3,7 +3,6 @@ import { mkdir } from 'node:fs/promises';
 import { mockDeep } from 'vitest-mock-extended';
 
 import { Watcher } from './watcher';
-import { TLogger } from '../logger';
 import { VirtualDrive } from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
@@ -24,14 +23,13 @@ partialSpyOn(onRaw, 'onRaw');
 let watcher: Watcher | undefined;
 
 const virtualDrive = mockDeep<VirtualDrive>();
-const logger = mockDeep<TLogger>();
 
 export async function setupWatcher(syncRootPath: string) {
   if (!existsSync(syncRootPath)) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(syncRootPath as AbsolutePath, {}, logger);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {});
   const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
   watcher.watchAndWait(props);
 }

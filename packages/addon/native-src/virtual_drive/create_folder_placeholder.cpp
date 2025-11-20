@@ -7,20 +7,21 @@
 
 napi_value create_folder_placeholder_impl(napi_env env, napi_callback_info info)
 {
-    auto [name, placeholderId, creationTimeMs, lastWriteTimeMs, lastAccessTimeMs, parentPath] =
-        napi_extract_args<std::wstring, std::wstring, int64_t, int64_t, int64_t, std::wstring>(env, info);
-
-    LARGE_INTEGER creationTime = Utilities::JsTimestampToLargeInteger(creationTimeMs);
-    LARGE_INTEGER lastWriteTime = Utilities::JsTimestampToLargeInteger(lastWriteTimeMs);
-    LARGE_INTEGER lastAccessTime = Utilities::JsTimestampToLargeInteger(lastAccessTimeMs);
-
-    std::wstring path = parentPath + L'\\' + name;
+    auto [path, placeholderId, creationTimeMs, lastWriteTimeMs] =
+        napi_extract_args<std::wstring, std::wstring, int64_t, int64_t>(env, info);
 
     if (std::filesystem::exists(path))
     {
         convert_to_placeholder(path, placeholderId);
         return nullptr;
     }
+
+    LARGE_INTEGER creationTime = Utilities::JsTimestampToLargeInteger(creationTimeMs);
+    LARGE_INTEGER lastWriteTime = Utilities::JsTimestampToLargeInteger(lastWriteTimeMs);
+
+    std::filesystem::path fsPath(path);
+    std::wstring parentPath = fsPath.parent_path().wstring();
+    std::wstring name = fsPath.filename().wstring();
 
     CF_PLACEHOLDER_CREATE_INFO cloudEntry = {};
     cloudEntry.FileIdentity = placeholderId.c_str();
@@ -30,7 +31,7 @@ napi_value create_folder_placeholder_impl(napi_env env, napi_callback_info info)
     cloudEntry.FsMetadata.BasicInfo.FileAttributes = FILE_ATTRIBUTE_DIRECTORY;
     cloudEntry.FsMetadata.BasicInfo.CreationTime = creationTime;
     cloudEntry.FsMetadata.BasicInfo.LastWriteTime = lastWriteTime;
-    cloudEntry.FsMetadata.BasicInfo.LastAccessTime = lastAccessTime;
+    cloudEntry.FsMetadata.BasicInfo.LastAccessTime = lastWriteTime;
 
     check_hresult(
         "CfCreatePlaceholders",
