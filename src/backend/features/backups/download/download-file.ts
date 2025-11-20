@@ -19,7 +19,9 @@ export async function downloadFile({ file, contentsDownloader }: Props) {
   try {
     const writeStream = createWriteStream(file.absolutePath);
 
-    const readStream = await contentsDownloader.downloadThrow({ contentsId: file.contentsId });
+    const { data: readStream, error } = await contentsDownloader.download({ contentsId: file.contentsId });
+
+    if (error) throw error;
 
     await pipeline(readStream, writeStream);
   } catch (error) {

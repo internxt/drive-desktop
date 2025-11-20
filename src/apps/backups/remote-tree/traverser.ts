@@ -14,6 +14,18 @@ type Items = {
 };
 
 export class Traverser {
+  private static createRootFolder({ rootPath, rootUuid }: { rootPath: AbsolutePath; rootUuid: FolderUuid }): ExtendedDriveFolder {
+    return {
+      uuid: rootUuid,
+      parentUuid: undefined,
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      absolutePath: rootPath,
+      status: 'EXISTS',
+      name: '',
+    };
+  }
+
   private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
     if (!items) return;
 
@@ -47,15 +59,7 @@ export class Traverser {
       folders: folders.filter((folder) => folder.status === 'EXISTS'),
     };
 
-    const rootFolder: ExtendedDriveFolder = {
-      uuid: rootUuid,
-      parentUuid: undefined,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      absolutePath: rootPath,
-      status: 'EXISTS',
-      name: '',
-    };
+    const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
     const tree: RemoteTree = {
       files: {},

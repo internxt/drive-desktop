@@ -1,7 +1,6 @@
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { throwWrapper } from '@internxt/drive-desktop-core/build/backend';
 
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error }) => void;
 
@@ -18,8 +17,6 @@ export class ContentsDownloader {
       this.environment.downloadCancel(this.state);
     }
   }
-
-  downloadThrow = throwWrapper(this.download);
 
   download({ contentsId, onProgress }: { contentsId: ContentsId; onProgress?: (progress: number) => void }) {
     return new Promise((resolve: Resolve) => {
