@@ -62,6 +62,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { trySetupAntivirusIpcAndInitialize } from './background-processes/antivirus/try-setup-antivirus-ipc-and-initialize';
 import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
 import { handleDeeplink } from './auth/deeplink/handle-deeplink';
+import { setupAppImageDeeplink } from './auth/deeplink/setup-appimage-deeplink';
 import { version, release } from 'node:os';
 import { INTERNXT_VERSION } from '../../core/utils/utils';
 
@@ -114,6 +115,14 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    /**
+     * v.2.5.1
+     * Esteban Galvis Triana
+     * .AppImage users may experience login issues because the deeplink protocol
+     * is not registered automatically, unlike with .deb packages.
+     * This function manually registers the protocol handler for .AppImage installations.
+    */
+    await setupAppImageDeeplink();
     await installNautilusExtension();
 
     eventBus.emit('APP_IS_READY');
