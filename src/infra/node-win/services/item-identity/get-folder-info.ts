@@ -35,7 +35,7 @@ export function getFolderInfo({ ctx, path }: TProps) {
     const isFile = isFolderPlaceholderId(rawPlaceholderId);
 
     if (!isFile) {
-      return { error: new GetFolderInfoError('NOT_A_FILE') };
+      return { error: new GetFolderInfoError('NOT_A_FILE', rawPlaceholderId) };
     }
 
     const placeholderId = trimPlaceholderId({ placeholderId: rawPlaceholderId });
