@@ -24,13 +24,13 @@ let watcher: Watcher | undefined;
 
 const virtualDrive = mockDeep<VirtualDrive>();
 
-export async function setupWatcher(syncRootPath: string) {
-  if (!existsSync(syncRootPath)) {
-    await mkdir(syncRootPath);
+export async function setupWatcher(rootPath: AbsolutePath) {
+  if (!existsSync(rootPath)) {
+    await mkdir(rootPath);
   }
 
-  watcher = new Watcher(syncRootPath as AbsolutePath, {});
-  const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
+  watcher = new Watcher({});
+  const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive, rootPath } });
   watcher.watchAndWait(props);
 }
 
