@@ -2,7 +2,7 @@ import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
 import { onAdd } from './events/on-add.service';
-import { AbsolutePath, abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { debounceOnRaw } from './events/debounce-on-raw';
@@ -13,10 +13,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 export class Watcher {
   chokidar?: FSWatcher;
 
-  constructor(
-    public readonly syncRootPath: AbsolutePath,
-    public readonly options: WatchOptions,
-  ) {}
+  constructor(public readonly options: WatchOptions) {}
 
   private onError = (error: unknown) => {
     logger.error({ msg: 'onError', error });
@@ -28,7 +25,7 @@ export class Watcher {
 
   watchAndWait({ ctx }: { ctx: ProcessSyncContext }) {
     try {
-      this.chokidar = watch(this.syncRootPath, this.options);
+      this.chokidar = watch(ctx.rootPath, this.options);
       this.chokidar
         .on('all', (event, path) => onAll({ event, path: abs(path) }))
         /**

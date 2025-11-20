@@ -1,12 +1,7 @@
 import { Watcher } from '@/node-win/watcher/watcher';
-import { ProcessSyncContext } from './config';
 
-type TProps = {
-  ctx: ProcessSyncContext;
-};
-
-export function createWatcher({ ctx }: TProps) {
-  const watcher = new Watcher(ctx.rootPath, {
+export function createWatcher() {
+  const watcher = new Watcher({
     depth: undefined,
     followSymlinks: true,
     ignored: /(^|[/\\])\../,
