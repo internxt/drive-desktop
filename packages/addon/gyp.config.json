@@ -1,7 +1,0 @@
-{
-  "gyp_file": "binding.gyp",
-  "source_dirs": ["native-src/**/*.cpp"],
-  "ignored_source_dirs": [],
-  "include_dirs": ["include"],
-  "ignored_include_dirs": []
-}

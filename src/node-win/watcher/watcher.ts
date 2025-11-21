@@ -1,35 +1,31 @@
 import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
-import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
-import { AbsolutePath, abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { debounceOnRaw } from './events/debounce-on-raw';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class Watcher {
   chokidar?: FSWatcher;
 
-  constructor(
-    public readonly syncRootPath: AbsolutePath,
-    public readonly options: WatchOptions,
-    public readonly logger: TLogger,
-  ) {}
+  constructor(public readonly options: WatchOptions) {}
 
   private onError = (error: unknown) => {
-    this.logger.error({ msg: 'onError', error });
+    logger.error({ msg: 'onError', error });
   };
 
   private onReady = () => {
-    this.logger.debug({ msg: 'onReady' });
+    logger.debug({ msg: 'onReady' });
   };
 
   watchAndWait({ ctx }: { ctx: ProcessSyncContext }) {
     try {
-      this.chokidar = watch(this.syncRootPath, this.options);
+      this.chokidar = watch(ctx.rootPath, this.options);
       this.chokidar
         .on('all', (event, path) => onAll({ event, path: abs(path) }))
         /**
@@ -52,7 +48,7 @@ export class Watcher {
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {
-      this.logger.error({ msg: 'watchAndWait', exc });
+      logger.error({ msg: 'watchAndWait', exc });
     }
   }
 }

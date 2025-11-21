@@ -35,15 +35,7 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      call(addon.createFilePlaceholder).toStrictEqual([
-        'file.txt',
-        'FILE:uuid',
-        1024,
-        946684800000,
-        946771200000,
-        expect.any(Number),
-        String.raw`\parent`,
-      ]);
+      call(addon.createFilePlaceholder).toStrictEqual([String.raw`\parent\file.txt`, 'FILE:uuid', 1024, 946684800000, 946771200000]);
     });
   });
 
@@ -63,14 +55,7 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      call(addon.createFolderPlaceholder).toStrictEqual([
-        'folder',
-        'FOLDER:uuid',
-        946684800000,
-        946771200000,
-        expect.any(Number),
-        String.raw`\parent`,
-      ]);
+      call(addon.createFolderPlaceholder).toStrictEqual([String.raw`\parent\folder`, 'FOLDER:uuid', 946684800000, 946771200000]);
     });
   });
 

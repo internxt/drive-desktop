@@ -5,7 +5,7 @@ import { nativeDeps } from '../configs/webpack.paths';
 
 const depsWithBindingGyp = fs.readdirSync('node_modules').filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));
 const { dependencies } = JSON.parse(execSync(`npm ls ${depsWithBindingGyp.join(' ')} --json`).toString());
-const realNativeDeps = Object.keys(dependencies).concat(['@internxt/node-win']);
+const realNativeDeps = Object.keys(dependencies).concat(['@packages/addon']);
 
 if (JSON.stringify(realNativeDeps) !== JSON.stringify(nativeDeps)) {
   console.log(chalk.whiteBright.bgRed.bold('Make sure you have these dependencies listed in your nativeDeps'));

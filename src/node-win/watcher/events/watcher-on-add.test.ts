@@ -1,11 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path/posix';
 import { v4 } from 'uuid';
 
 import { setupWatcher, getEvents } from '../watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { onAdd } from './on-add.service';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('./on-add.service'));
 

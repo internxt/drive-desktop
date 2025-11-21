@@ -1,12 +1,12 @@
 import { execSync } from 'node:child_process';
 import { appendFile, mkdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
-import { join } from 'node:path/posix';
 import { v4 } from 'uuid';
 
 import { Watcher } from './watcher';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { sleep } from '@/apps/main/util';
 import { getEvents, setupWatcher } from './watcher.helper.test';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('Watcher', () => {
   let watcher: Watcher | undefined;
