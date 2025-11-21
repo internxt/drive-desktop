@@ -9,8 +9,8 @@ type TProps = {
 
 export async function addPendingFolders({ ctx, createFolders }: TProps) {
   await Promise.all(
-    createFolders.map(async ({ absolutePath }) => {
-      await createFolder({ ctx, path: absolutePath });
+    createFolders.map(async ({ path }) => {
+      await createFolder({ ctx, path });
     }),
   );
 }

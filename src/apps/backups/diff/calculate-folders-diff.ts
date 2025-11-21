@@ -21,7 +21,7 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   const deleted: FoldersDiff['deleted'] = [];
 
   Object.values(local.folders).forEach((folder) => {
-    if (remote.folders[folder.relativePath]) {
+    if (remote.folders[folder.absolutePath]) {
       unmodified.push(folder);
     } else {
       added.push(folder);
@@ -29,7 +29,7 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   });
 
   Object.values(remote.folders).forEach((folder) => {
-    if (!local.folders[folder.path]) {
+    if (!local.folders[folder.absolutePath]) {
       deleted.push(folder);
     }
   });

@@ -17,42 +17,40 @@ type TProps = {
 };
 
 export async function createFolders({ self, context, added, tree, tracker }: TProps) {
-  const sortedAdded = added.toSorted((a, b) => a.relativePath.localeCompare(b.relativePath));
+  const sortedAdded = added.toSorted((a, b) => a.absolutePath.localeCompare(b.absolutePath));
 
   for (const localFolder of sortedAdded) {
     if (context.abortController.signal.aborted) {
       return;
     }
 
-    if (localFolder.relativePath === '/') {
+    if (localFolder.absolutePath === context.pathname) {
       continue; // Ignore root folder
     }
 
-    const parentPath = pathUtils.dirname(localFolder.relativePath);
+    const parentPath = pathUtils.dirname(localFolder.absolutePath);
     const parent = tree.folders[parentPath];
 
     if (!parent) {
       logger.error({
         tag: 'BACKUPS',
         msg: 'Parent folder does not exist',
-        relativePath: localFolder.relativePath,
-        parentPath,
+        path: localFolder.absolutePath,
       });
 
       context.addIssue({ error: 'CREATE_FOLDER_FAILED', name: localFolder.absolutePath });
     } else {
       const { data: folder, error } = await createFolder({
-        path: localFolder.relativePath,
-        plainName: basename(localFolder.relativePath),
+        path: localFolder.absolutePath,
+        plainName: basename(localFolder.absolutePath),
         parentUuid: parent.uuid,
         userUuid: context.userUuid,
         workspaceId: '',
       });
 
       if (folder) {
-        tree.folders[localFolder.relativePath] = {
+        tree.folders[localFolder.absolutePath] = {
           ...folder,
-          path: localFolder.relativePath,
           absolutePath: localFolder.absolutePath,
         };
       } else if (error.code !== 'ABORTED') {

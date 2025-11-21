@@ -7,7 +7,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FolderPlaceholderUpdater {
   static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
-    const { path } = remote;
+    const path = remote.absolutePath;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
@@ -49,7 +49,7 @@ export class FolderPlaceholderUpdater {
   static async run({ ctx, remotes, folders }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
-        if (remote.path === '/') return;
+        if (remote.absolutePath === ctx.rootPath) return;
         await this.update({ ctx, remote, folders });
       }),
     );

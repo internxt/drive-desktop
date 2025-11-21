@@ -7,7 +7,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 type Props = {
   ctx: ProcessSyncContext;
   remote: ExtendedDriveFile;
-  local: { absolutePath: AbsolutePath; stats: Stats };
+  local: { path: AbsolutePath; stats: Stats };
 };
 
 export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
@@ -24,8 +24,8 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
     });
 
     try {
-      if (existsSync(local.absolutePath)) {
-        await unlink(local.absolutePath);
+      if (existsSync(local.path)) {
+        await unlink(local.path);
         ctx.logger.debug({
           msg: 'Deleted old local file to prepare for remote sync',
           path: remote.absolutePath,

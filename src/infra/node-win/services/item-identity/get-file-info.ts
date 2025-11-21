@@ -24,7 +24,7 @@ export function getFileInfo({ ctx, path }: TProps) {
     const isFile = isFilePlaceholderId(rawPlaceholderId);
 
     if (!isFile) {
-      return { error: new GetFileInfoError('NOT_A_FILE') };
+      return { error: new GetFileInfoError('NOT_A_FILE', rawPlaceholderId) };
     }
 
     const placeholderId = trimPlaceholderId({ placeholderId: rawPlaceholderId });

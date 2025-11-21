@@ -12,7 +12,6 @@ describe('traverser', () => {
   const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
 
   const folder = v4() as FolderUuid;
-
   const folder1 = v4() as FolderUuid;
   const folder2 = v4() as FolderUuid;
   const folder3 = v4() as FolderUuid;
@@ -39,30 +38,26 @@ describe('traverser', () => {
   });
 
   const traverser = new Traverser();
-  const props = mockProps<typeof traverser.run>({
-    context: {
-      abortController: { signal: { aborted: false } },
-      folderId: 1,
-      folderUuid: folder,
-      pathname: abs('/backup'),
-    },
+  let props: Parameters<typeof traverser.run>[0];
+
+  beforeEach(() => {
+    props = mockProps<typeof traverser.run>({
+      context: {
+        abortController: new AbortController(),
+        folderId: 1,
+        folderUuid: folder,
+        pathname: abs('/backup'),
+      },
+    });
   });
 
   it('If signal is aborted then do not traverse', async () => {
     // Given
-    const props = mockProps<typeof traverser.run>({
-      context: {
-        abortController: { signal: { aborted: true } },
-        folderId: 1,
-        folderUuid: folder,
-      },
-    });
-
+    props.context.abortController.abort();
     // When
     const res = await traverser.run(props);
-
     // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/']);
+    expect(Object.keys(res.folders)).toStrictEqual(['/backup']);
     expect(Object.keys(res.files)).toStrictEqual([]);
   });
 
@@ -71,7 +66,12 @@ describe('traverser', () => {
     const res = await traverser.run(props);
 
     // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);
-    expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
+    expect(Object.keys(res.folders)).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);
+    expect(Object.keys(res.files)).toStrictEqual([
+      '/backup/file1',
+      '/backup/file2',
+      '/backup/folder1/file3',
+      '/backup/folder1/folder3/file4',
+    ]);
   });
 });

@@ -26,7 +26,7 @@ describe('sync-remote-to-local', () => {
     props = mockProps<typeof syncRemoteChangesToLocal>({
       ctx: { virtualDrive },
       local: {
-        absolutePath: 'localPath' as AbsolutePath,
+        path: 'localPath' as AbsolutePath,
         stats: {
           size: 512,
           mtime: new Date('1999-01-01T00:00:00.000Z'),

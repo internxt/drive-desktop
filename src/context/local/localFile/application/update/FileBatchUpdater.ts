@@ -63,7 +63,7 @@ export class FileBatchUpdater {
       logger.error({
         tag: 'BACKUPS',
         msg: 'Error updating file',
-        path: localFile.relativePath,
+        path: localFile.absolutePath,
         exc,
       });
     } finally {

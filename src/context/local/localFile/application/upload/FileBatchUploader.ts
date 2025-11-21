@@ -26,14 +26,14 @@ export class FileBatchUploader {
 
         if (!contentsId) return;
 
-        const parentPath = pathUtils.dirname(localFile.relativePath);
+        const parentPath = pathUtils.dirname(localFile.absolutePath);
         const parent = remoteTree.folders[parentPath];
 
         const { data: fileDto } = await HttpRemoteFileSystem.create({
           bucket: context.backupsBucket,
           contentsId,
           folderUuid: parent.uuid,
-          path: localFile.relativePath,
+          path: localFile.absolutePath,
           size: localFile.size,
           workspaceId: '',
         });
@@ -52,7 +52,7 @@ export class FileBatchUploader {
         logger.error({
           tag: 'BACKUPS',
           msg: 'Error uploading file',
-          path: localFile.relativePath,
+          path: localFile.absolutePath,
           error,
         });
       } finally {

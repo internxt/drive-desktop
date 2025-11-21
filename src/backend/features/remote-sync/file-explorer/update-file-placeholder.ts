@@ -8,7 +8,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FilePlaceholderUpdater {
   static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
-    const { path } = remote;
+    const path = remote.absolutePath;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
@@ -29,14 +29,14 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ ctx, remotePath, localPath: localPath.absolutePath })) {
+      if (hasToBeMoved({ ctx, remotePath, localPath: localPath.path })) {
         ctx.logger.debug({
           msg: 'Moving file placeholder',
           remotePath,
-          localPath: localPath.absolutePath,
+          localPath: localPath.path,
         });
 
-        await rename(localPath.absolutePath, remotePath);
+        await rename(localPath.path, remotePath);
         ctx.virtualDrive.updateSyncStatus({ path: remotePath });
       }
 

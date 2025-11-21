@@ -2,7 +2,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { FileBatchUploader } from './FileBatchUploader';
-import { createRelativePath, pathUtils } from '../../infrastructure/AbsolutePath';
+import { abs, pathUtils } from '../../infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
@@ -15,7 +15,7 @@ describe('file-batch-uploader', () => {
 
   let props: Parameters<typeof FileBatchUploader.run>[0];
 
-  const path = createRelativePath('folder1', 'folder2', 'file.txt');
+  const path = abs('/folder1/folder2/file.txt');
   const parentPath = pathUtils.dirname(path);
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('file-batch-uploader', () => {
       context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' as FolderUuid } } },
-      added: [{ relativePath: path, size: 1024 }],
+      added: [{ absolutePath: path, size: 1024 }],
     });
   });
 

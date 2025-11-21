@@ -28,7 +28,7 @@ export async function uploadFile({ context, localFile }: TProps) {
       if (error.code !== 'UNKNOWN') {
         context.addIssue({
           error: error.code,
-          name: localFile.relativePath,
+          name: localFile.absolutePath,
         });
       }
     }

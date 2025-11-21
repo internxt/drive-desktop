@@ -3,7 +3,7 @@ import { FilePlaceholderUpdater } from './update-file-placeholder';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as hasToBeMoved from './has-to-be-moved';
 import { rename } from 'node:fs/promises';
@@ -27,9 +27,8 @@ describe('update-file-placeholder', () => {
 
     props = mockProps<typeof FilePlaceholderUpdater.update>({
       ctx: { virtualDrive },
-      files: { ['uuid' as FileUuid]: { absolutePath: 'localPath.absolutePath' as AbsolutePath } },
+      files: { ['uuid' as FileUuid]: { path: 'localPath' as AbsolutePath } },
       remote: {
-        path: createRelativePath('file1', 'file2'),
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
         createdAt: date,
@@ -73,7 +72,7 @@ describe('update-file-placeholder', () => {
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
-    expect(renameMock).toBeCalledWith('localPath.absolutePath', 'remotePath');
+    expect(renameMock).toBeCalledWith('localPath', 'remotePath');
     call(virtualDrive.updateSyncStatus).toStrictEqual({ path: 'remotePath' });
   });
 

@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Brand } from '@/context/shared/domain/Brand';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export type FolderUuid = Brand<string, 'FolderUuid'>;
 export type SimpleDriveFolder = {
@@ -12,7 +12,6 @@ export type SimpleDriveFolder = {
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };
 export type ExtendedDriveFolder = SimpleDriveFolder & {
-  path: RelativePath;
   absolutePath: AbsolutePath;
 };
 

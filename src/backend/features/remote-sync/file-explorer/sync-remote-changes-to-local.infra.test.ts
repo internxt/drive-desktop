@@ -54,7 +54,7 @@ describe('sync-remote-changes-to-local', () => {
         size: 1000,
       },
       local: {
-        absolutePath: filePath,
+        path: filePath,
         stats: { mtime: new Date('2000-01-01'), size: 2000 },
       },
     });
