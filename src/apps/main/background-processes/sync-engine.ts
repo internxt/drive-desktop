@@ -41,7 +41,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
   const currentProviderIds = workspaceProviderIds.concat([providerId]);
 
-  unregisterVirtualDrives({ currentProviderIds });
+  await unregisterVirtualDrives({ currentProviderIds });
 
   const promises = workspaces.map((workspace) => spawnWorkspace({ context, workspace }));
   await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), promises]);

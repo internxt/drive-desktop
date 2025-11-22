@@ -22,11 +22,11 @@ describe('get-file-info', () => {
 
   beforeAll(async () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
-    Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
+    await Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
   });
 
-  afterAll(() => {
-    Addon.unregisterSyncRoot({ providerId });
+  afterAll(async () => {
+    await Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should return file info when read a file placeholder', async () => {

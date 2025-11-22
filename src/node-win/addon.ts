@@ -24,13 +24,13 @@ type TAddon = {
     lastWriteTime: number,
   ): Promise<z.infer<typeof addonZod.createFolderPlaceholder>>;
   hydrateFile(path: Win32Path): Promise<z.infer<typeof addonZod.hydrateFile>>;
-  dehydrateFile(path: Win32Path): z.infer<typeof addonZod.dehydrateFile>;
+  dehydrateFile(path: Win32Path): Promise<z.infer<typeof addonZod.dehydrateFile>>;
   connectSyncRoot(path: Win32Path, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(
     path: Win32Path,
     placeholderId: FilePlaceholderId | FolderPlaceholderId,
-  ): z.infer<typeof addonZod.convertToPlaceholder>;
-  disconnectSyncRoot(path: Win32Path): z.infer<typeof addonZod.disconnectSyncRoot>;
+  ): Promise<z.infer<typeof addonZod.convertToPlaceholder>>;
+  disconnectSyncRoot(path: Win32Path): Promise<z.infer<typeof addonZod.disconnectSyncRoot>>;
   getPlaceholderState(path: Win32Path): z.infer<typeof addonZod.getPlaceholderState>;
   registerSyncRoot(
     rootPath: Win32Path,
@@ -38,9 +38,9 @@ type TAddon = {
     providerVersion: string,
     providerId: string,
     logoPath: string,
-  ): z.infer<typeof addonZod.registerSyncRoot>;
-  unregisterSyncRoot(providerId: string): z.infer<typeof addonZod.unregisterSyncRoot>;
-  updateSyncStatus(path: Win32Path): z.infer<typeof addonZod.updateSyncStatus>;
+  ): Promise<z.infer<typeof addonZod.registerSyncRoot>>;
+  unregisterSyncRoot(providerId: string): Promise<z.infer<typeof addonZod.unregisterSyncRoot>>;
+  updateSyncStatus(path: Win32Path): Promise<z.infer<typeof addonZod.updateSyncStatus>>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
 

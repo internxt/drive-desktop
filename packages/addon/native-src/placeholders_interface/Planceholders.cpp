@@ -1,22 +1,23 @@
-#include <stdafx.h>
 #include <Placeholders.h>
-#include <winrt/base.h>
+#include <Utilities.h>
+#include <check_hresult.h>
+#include <convert_to_placeholder.h>
+#include <shlobj.h>
 #include <shlwapi.h>
-#include <vector>
+#include <stdafx.h>
+#include <winbase.h>
+#include <windows.h>
+#include <winrt/base.h>
+
+#include <cctype>
 #include <filesystem>
 #include <fstream>
-#include <random>
 #include <iostream>
-#include <Utilities.h>
-#include <winbase.h>
+#include <random>
 #include <string>
-#include <cctype>
-#include <windows.h>
-#include <shlobj.h>
-#include <convert_to_placeholder.h>
-#include <check_hresult.h>
+#include <vector>
 
-winrt::file_handle Placeholders::OpenFileHandle(const std::wstring &path, DWORD dwDesiredAccess, bool openAsPlaceholder)
+winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD dwDesiredAccess, bool openAsPlaceholder)
 {
     bool isDirectory = std::filesystem::is_directory(path);
 
@@ -37,30 +38,14 @@ winrt::file_handle Placeholders::OpenFileHandle(const std::wstring &path, DWORD 
         dwFlagsAndAttributes,
         nullptr)};
 
-    if (!fileHandle)
-    {
+    if (!fileHandle) {
         throw std::runtime_error("Failed to open file handle: " + std::to_string(GetLastError()));
     }
 
     return fileHandle;
 }
 
-void Placeholders::UpdateSyncStatus(const std::wstring &path)
-{
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
-
-    check_hresult(
-        "CfSetInSyncState",
-        CfSetInSyncState(
-            fileHandle.get(),
-            CF_IN_SYNC_STATE_IN_SYNC,
-            CF_SET_IN_SYNC_FLAG_NONE,
-            nullptr));
-
-    SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, path.c_str(), nullptr);
-}
-
-void Placeholders::UpdateFileIdentity(const std::wstring &path, const std::wstring &placeholderId)
+void Placeholders::UpdateFileIdentity(const std::wstring& path, const std::wstring& placeholderId)
 {
     auto fileHandle = OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
@@ -78,7 +63,7 @@ void Placeholders::UpdateFileIdentity(const std::wstring &path, const std::wstri
             nullptr));
 }
 
-FileState Placeholders::GetPlaceholderInfo(const std::wstring &path)
+FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
 {
     auto fileHandle = OpenFileHandle(path, FILE_READ_ATTRIBUTES, true);
 
@@ -86,7 +71,7 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring &path)
     constexpr DWORD infoSize = sizeof(CF_PLACEHOLDER_BASIC_INFO) + fileIdMaxLength;
 
     std::vector<char> buffer(infoSize);
-    auto *info = reinterpret_cast<CF_PLACEHOLDER_BASIC_INFO *>(buffer.data());
+    auto* info = reinterpret_cast<CF_PLACEHOLDER_BASIC_INFO*>(buffer.data());
 
     check_hresult(
         "CfGetPlaceholderInfo",
@@ -97,7 +82,7 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring &path)
             infoSize,
             nullptr));
 
-    std::string placeholderId(reinterpret_cast<const char *>(info->FileIdentity), info->FileIdentityLength);
+    std::string placeholderId(reinterpret_cast<const char*>(info->FileIdentity), info->FileIdentityLength);
 
     placeholderId.erase(std::remove(placeholderId.begin(), placeholderId.end(), '\0'), placeholderId.end());
 

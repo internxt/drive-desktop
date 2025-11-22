@@ -1,9 +1,10 @@
 #include <Placeholders.h>
+#include <Windows.h>
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <convert_to_placeholder.h>
 #include <napi_extract_args.h>
-#include <windows.h>
+#include <update_sync_status_wrapper.h>
 
 #include <filesystem>
 
@@ -36,7 +37,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
         "CfCreatePlaceholders",
         CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_NONE, nullptr));
 
-    Placeholders::UpdateSyncStatus(path);
+    update_sync_status(path);
 }
 
 napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info info)

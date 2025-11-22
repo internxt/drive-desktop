@@ -5,8 +5,6 @@
 #include <napi_extract_args.h>
 
 #include <filesystem>
-#include <string>
-#include <thread>
 
 void hydrate_file(const std::wstring& path)
 {
@@ -21,13 +19,14 @@ void hydrate_file(const std::wstring& path)
     LARGE_INTEGER length;
     GetFileSizeEx(fileHandle.get(), &length);
 
-    check_hresult("CfHydratePlaceholder",
-                  CfHydratePlaceholder(
-                      fileHandle.get(),
-                      offset,
-                      length,
-                      CF_HYDRATE_FLAG_NONE,
-                      nullptr));
+    check_hresult(
+        "CfHydratePlaceholder",
+        CfHydratePlaceholder(
+            fileHandle.get(),
+            offset,
+            length,
+            CF_HYDRATE_FLAG_NONE,
+            nullptr));
 }
 
 napi_value hydrate_file_wrapper(napi_env env, napi_callback_info info)

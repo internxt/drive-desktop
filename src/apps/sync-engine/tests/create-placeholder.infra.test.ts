@@ -62,9 +62,9 @@ describe('create-placeholder', () => {
     environmentFileUploader.run.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });
 
-  afterAll(() => {
-    Addon.disconnectSyncRoot({ rootPath });
-    Addon.unregisterSyncRoot({ providerId });
+  afterAll(async () => {
+    await Addon.disconnectSyncRoot({ rootPath });
+    await Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should create placeholder', async () => {

@@ -51,7 +51,7 @@ export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
       path,
     });
 
-    Addon.updateSyncStatus({ path });
+    await Addon.updateSyncStatus({ path });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error updating contents id', path, exc });
   }

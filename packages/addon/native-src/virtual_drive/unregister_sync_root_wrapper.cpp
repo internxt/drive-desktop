@@ -1,13 +1,18 @@
-#include <windows.h>
+#include <Windows.h>
+#include <async_wrapper.h>
+#include <napi_extract_args.h>
 #include <node_api.h>
-#include <string>
-#include "napi_extract_args.h"
-#include "stdafx.h"
+#include <stdafx.h>
 
-napi_value unregister_sync_root_wrapper(napi_env env, napi_callback_info info) {
+#include <string>
+
+napi_value unregister_sync_root_wrapper(napi_env env, napi_callback_info info)
+{
     auto [providerId] = napi_extract_args<std::wstring>(env, info);
 
-    winrt::StorageProviderSyncRootManager::Unregister(providerId);
-
-    return nullptr;
+    return run_async(
+        env,
+        "UnregisterSyncRootAsync",
+        winrt::StorageProviderSyncRootManager::Unregister,
+        std::move(providerId));
 }

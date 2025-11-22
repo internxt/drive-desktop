@@ -1,7 +1,4 @@
-#include <Callbacks.h>
 #include <NAPI_SAFE_WRAP.h>
-#include <Placeholders.h>
-#include <SyncRoot.h>
 #include <connect_sync_root.h>
 #include <convert_to_placeholder.h>
 #include <create_file_placeholder.h>
@@ -11,15 +8,9 @@
 #include <get_placeholder_state_wrapper.h>
 #include <get_registered_sync_roots_wrapper.h>
 #include <hydrate_file.h>
-#include <register_sync_root_wrapper.h>
-#include <stdafx.h>
+#include <register_sync_root.h>
 #include <unregister_sync_root_wrapper.h>
 #include <update_sync_status_wrapper.h>
-
-#include <codecvt>
-#include <locale>
-#include <sstream>
-#include <vector>
 
 napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
 {
@@ -53,7 +44,7 @@ napi_value CreateFolderPlaceholderWrapper(napi_env env, napi_callback_info args)
 
 napi_value DisconnectSyncRootWrapper(napi_env env, napi_callback_info args)
 {
-    return NAPI_SAFE_WRAP(env, args, disconnect_sync_root);
+    return NAPI_SAFE_WRAP(env, args, disconnect_sync_root_wrapper);
 }
 
 napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info args)
@@ -78,5 +69,5 @@ napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
 
 napi_value DehydrateFileWrapper(napi_env env, napi_callback_info args)
 {
-    return NAPI_SAFE_WRAP(env, args, dehydrate_file);
+    return NAPI_SAFE_WRAP(env, args, dehydrate_file_wrapper);
 }

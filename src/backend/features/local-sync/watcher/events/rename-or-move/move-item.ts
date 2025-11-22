@@ -36,5 +36,5 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
     await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, path, workspaceToken });
   }
 
-  Addon.updateSyncStatus({ path });
+  await Addon.updateSyncStatus({ path });
 }

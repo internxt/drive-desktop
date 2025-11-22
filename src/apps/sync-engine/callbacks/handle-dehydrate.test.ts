@@ -10,21 +10,19 @@ describe('handle-dehydrate', () => {
   const path = '/folder/file.txt' as AbsolutePath;
   const props = mockProps<typeof handleDehydrate>({ path });
 
-  it('should call dehydrateFile', () => {
+  it('should call dehydrateFile', async () => {
     // When
-    handleDehydrate(props);
+    await handleDehydrate(props);
     // Then
     expect(dehydrateFileMock).toBeCalledWith({ path });
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 
-  it('should call logger.error if dehydrateFile throws', () => {
+  it('should call logger.error if dehydrateFile throws', async () => {
     // Given
-    dehydrateFileMock.mockImplementationOnce(() => {
-      throw new Error('error');
-    });
+    dehydrateFileMock.mockRejectedValue(new Error());
     // When
-    handleDehydrate(props);
+    await handleDehydrate(props);
     // Then
     expect(dehydrateFileMock).toBeCalledWith({ path });
     expect(loggerMock.error).toBeCalledTimes(1);

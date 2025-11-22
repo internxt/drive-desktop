@@ -1,9 +1,5 @@
 #pragma once
 
-#include <cfapi.h>
-#include <Callbacks.h>
-#include "stdafx.h"
-#include <iostream>
-#include <vector>
+#include <node_api.h>
 
-void register_sync_root(const wchar_t *syncRootPath, const wchar_t *providerName, const wchar_t *providerVersion, const wchar_t *providerId, const wchar_t *logoPath);
+napi_value register_sync_root_wrapper(napi_env env, napi_callback_info args);

@@ -36,7 +36,7 @@ export class FolderPlaceholderUpdater {
         });
 
         await rename(localPath, remotePath);
-        Addon.updateSyncStatus({ path: remotePath });
+        await Addon.updateSyncStatus({ path: remotePath });
       }
     } catch (exc) {
       ctx.logger.error({
