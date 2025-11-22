@@ -41,6 +41,6 @@ export async function detectContextMenuAction({ ctx, details, path }: TProps) {
   }
 
   if (prev.ctimeMs !== curr.ctimeMs && fileInfo.pinState === PinState.OnlineOnly) {
-    handleDehydrate({ ctx, path });
+    await handleDehydrate({ ctx, path });
   }
 }
