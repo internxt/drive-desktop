@@ -37,33 +37,18 @@ describe('traverser', () => {
     });
   });
 
-  const traverser = new Traverser();
-  let props: Parameters<typeof traverser.run>[0];
+  let props: Parameters<typeof Traverser.run>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof traverser.run>({
-      context: {
-        abortController: new AbortController(),
-        folderId: 1,
-        folderUuid: folder,
-        pathname: abs('/backup'),
-      },
+    props = mockProps<typeof Traverser.run>({
+      rootUuid: folder,
+      rootPath: abs('/backup'),
     });
-  });
-
-  it('If signal is aborted then do not traverse', async () => {
-    // Given
-    props.context.abortController.abort();
-    // When
-    const res = await traverser.run(props);
-    // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/backup']);
-    expect(Object.keys(res.files)).toStrictEqual([]);
   });
 
   it('It should add files and folders', async () => {
     // When
-    const res = await traverser.run(props);
+    const res = await Traverser.run(props);
 
     // Then
     expect(Object.keys(res.folders)).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);

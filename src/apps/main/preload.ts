@@ -176,9 +176,6 @@ const api = {
   getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
-  downloadBackup(backup: Device, folderUuids?: string[]): Promise<void> {
-    return ipcRenderer.invoke('download-backup', backup, folderUuids);
-  },
   getFolderPath(): ReturnType<typeof getPathFromDialog> {
     return ipcRenderer.invoke('get-folder-path');
   },
@@ -274,6 +271,7 @@ const api = {
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
+  downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

@@ -10,10 +10,7 @@ export async function checkDangledFile({ ctx, file }: Props) {
   try {
     ctx.logger.debug({ msg: 'Checking possible dangled file', path: file.absolutePath });
 
-    const { data, error } = await ctx.contentsDownloader.download({
-      path: file.absolutePath,
-      contentsId: file.contentsId,
-    });
+    const { data, error } = await ctx.contentsDownloader.download({ contentsId: file.contentsId });
 
     if (data) {
       ctx.logger.debug({ msg: 'Not dangled file', path: file.absolutePath });

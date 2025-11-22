@@ -190,9 +190,6 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  downloadBackup(backup, folderUuids) {
-    return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
-  },
   getFolderPath() {
     return import_electron2.ipcRenderer.invoke("get-folder-path");
   },
@@ -268,6 +265,7 @@ var api = {
   setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props),
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
-  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder")
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
+  downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

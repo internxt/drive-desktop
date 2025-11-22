@@ -2,11 +2,10 @@ import { useContext, useEffect, useState } from 'react';
 import { DeviceContext } from '../../context/DeviceContext';
 
 interface DownloadBackupProgress {
-  [key: string]: number | undefined;
+  [key: string]: number;
 }
 
 export interface BackupDownloadContextProps {
-  clearBackupDownloadProgress: (id: string) => void;
   thereIsDownloadProgress: boolean;
   downloadProgress: number;
 }
@@ -17,12 +16,11 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
-    const removeListener = window.electron.onBackupDownloadProgress(({ id, progress }: { id: string; progress: number }) =>
+    return window.electron.onBackupDownloadProgress(({ id, progress }) =>
       setBackupDownloadProgress((prevState) => {
         return { ...prevState, [id]: Math.round(progress) };
       }),
     );
-    return removeListener;
   }, []);
 
   const [thereIsDownloadProgress, setThereIsDownloadProgress] = useState<boolean>(false);
@@ -40,14 +38,7 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
     }
   }, [selected, backupDownloadProgress]);
 
-  function clearBackupDownloadProgress(id: string) {
-    setBackupDownloadProgress((prevState) => {
-      return { ...prevState, [id]: undefined };
-    });
-  }
-
   return {
-    clearBackupDownloadProgress,
     thereIsDownloadProgress,
     downloadProgress,
   };
