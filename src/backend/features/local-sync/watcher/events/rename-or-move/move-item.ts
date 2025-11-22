@@ -6,6 +6,7 @@ import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-rend
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -35,5 +36,5 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
     await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, path, workspaceToken });
   }
 
-  ctx.virtualDrive.updateSyncStatus({ path });
+  Addon.updateSyncStatus({ path });
 }

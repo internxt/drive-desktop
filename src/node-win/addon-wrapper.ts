@@ -6,6 +6,8 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { posix, win32 } from 'node:path';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { iconPath } from '@/apps/utils/icon';
 
 function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -28,20 +30,9 @@ function parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
 }
 
 export class Addon {
-  static registerSyncRoot({
-    rootPath,
-    providerName,
-    providerVersion,
-    providerId,
-    logoPath,
-  }: {
-    rootPath: AbsolutePath;
-    providerName: string;
-    providerVersion: string;
-    providerId: string;
-    logoPath: string;
-  }) {
-    const result = addon.registerSyncRoot(toWin32(rootPath), providerName, providerVersion, providerId, logoPath);
+  static registerSyncRoot({ rootPath, providerName, providerId }: { rootPath: AbsolutePath; providerName: string; providerId: string }) {
+    logger.debug({ msg: 'Register sync root', rootPath });
+    const result = addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
     return parseAddonZod('registerSyncRoot', result);
   }
 

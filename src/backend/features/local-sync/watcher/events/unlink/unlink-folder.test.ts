@@ -16,9 +16,7 @@ describe('unlink-folder', () => {
     absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\folder' as AbsolutePath,
     ctx: {
       workspaceToken: 'token',
-      virtualDrive: {
-        syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
-      },
+      rootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
     },
   });
 

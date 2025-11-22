@@ -33,7 +33,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
     }
 
     if (stats.isFile()) {
-      const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
+      const { data: fileInfo } = NodeWin.getFileInfo({ path });
       if (fileInfo) {
         files[fileInfo.uuid] = { stats, path };
       }

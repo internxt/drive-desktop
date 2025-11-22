@@ -1,6 +1,4 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { mockDeep } from 'vitest-mock-extended';
-import { VirtualDrive } from '../virtual-drive';
 import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -16,13 +14,11 @@ describe('detect-context-menu-action', () => {
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
-  const virtualDrive = mockDeep<VirtualDrive>();
 
   let props: Parameters<typeof detectContextMenuAction>[0];
 
   beforeEach(() => {
     props = mockProps<typeof detectContextMenuAction>({
-      ctx: { virtualDrive },
       path: '/file.txt' as AbsolutePath,
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
@@ -54,7 +50,7 @@ describe('detect-context-menu-action', () => {
     await detectContextMenuAction(props);
     // Then
     expect(throttleHydrateMock).toBeCalledTimes(0);
-    expect(handleDehydrateMock).toBeCalledWith({ drive: virtualDrive, path: props.path });
+    expect(handleDehydrateMock).toBeCalledWith({ path: props.path });
   });
 
   describe('what happens when hydrate event', () => {

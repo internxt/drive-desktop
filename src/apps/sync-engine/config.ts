@@ -23,7 +23,6 @@ export type Config = {
 export type SyncContext = AuthContext & Config & { logger: typeof logger };
 
 export type ProcessSyncContext = SyncContext & {
-  virtualDrive: VirtualDrive;
   fileUploader: EnvironmentFileUploader;
   contentsDownloader: InxtJs.ContentsDownloader;
 };

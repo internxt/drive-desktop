@@ -11,6 +11,7 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
 import * as debounceOnRaw from '@/node-win/watcher/events/debounce-on-raw';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('sync-remote-changes-to-local', () => {
   partialSpyOn(onAdd, 'onAdd');
@@ -23,29 +24,27 @@ describe('sync-remote-changes-to-local', () => {
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
-  const virtualDrive = new VirtualDrive({ providerId, rootPath });
 
   beforeEach(async () => {
-    await virtualDrive.createSyncRootFolder();
-    virtualDrive.registerSyncRoot({ providerName });
+    await VirtualDrive.createSyncRootFolder({ rootPath });
+    Addon.registerSyncRoot({ rootPath, providerId, providerName });
   });
 
   afterAll(() => {
-    VirtualDrive.unregisterSyncRoot({ providerId });
+    Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should sync remote changes to local', async () => {
     // Given
     const { watcher } = createWatcher();
-    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive, rootPath } });
+    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { rootPath } });
     watcher.watchAndWait(watcherProps);
     await sleep(100);
 
     await writeFile(filePath, 'content');
-    virtualDrive.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
+    Addon.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
-      ctx: { virtualDrive },
       remote: {
         uuid: 'uuid' as FileUuid,
         absolutePath: filePath,

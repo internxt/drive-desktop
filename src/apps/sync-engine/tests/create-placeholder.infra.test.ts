@@ -19,6 +19,7 @@ import * as addPendingItems from '../in/add-pending-items';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon } from '@/node-win/addon-wrapper';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -51,7 +52,6 @@ describe('create-placeholder', () => {
   const ctx: ProcessSyncContext = {
     ...config,
     logger: loggerMock,
-    virtualDrive: new VirtualDrive(config),
     fileUploader: environmentFileUploader,
     contentsDownloader,
     abortController: new AbortController(),
@@ -63,8 +63,8 @@ describe('create-placeholder', () => {
   });
 
   afterAll(() => {
-    ctx.virtualDrive.disconnectSyncRoot();
-    VirtualDrive.unregisterSyncRoot({ providerId });
+    Addon.disconnectSyncRoot({ rootPath });
+    Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should create placeholder', async () => {
@@ -110,7 +110,7 @@ describe('create-placeholder', () => {
     });
 
     // When
-    await ctx.virtualDrive.createSyncRootFolder();
+    await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
     await BindingsManager.start({ ctx });
     BindingsManager.watch({ ctx });
 
