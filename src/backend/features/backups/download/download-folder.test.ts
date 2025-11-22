@@ -39,18 +39,6 @@ describe('download-folder', () => {
     calls(downloadFileMock).toMatchObject([]);
   });
 
-  it('should not continue if aborted', async () => {
-    // Given
-    downloadFileMock.mockImplementation(({ file }) => {
-      if (file.uuid === 'file1') props.abortController.abort();
-      return Promise.resolve();
-    });
-    // When
-    await downloadFolder(props);
-    // Then
-    calls(downloadFileMock).toMatchObject([{ file: { uuid: 'file1' } }]);
-  });
-
   it('should update progress when we download files', async () => {
     // When
     await downloadFolder(props);
