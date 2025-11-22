@@ -87,7 +87,7 @@ export async function downloadBackup({ device, folderUuids }: Props) {
     }
   }
 
-  broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 100 } });
+  broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 0 } });
 
   ipcMain.removeListener(listenerName, eventListener);
 }
