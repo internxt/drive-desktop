@@ -71,7 +71,7 @@ describe('sync-remote-changes-to-local', () => {
 
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Registering sync root', rootPath },
+      { msg: 'Register sync root', rootPath },
       { msg: 'onReady' },
       { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path: filePath, placeholderId: 'FILE:uuid' },
       {
