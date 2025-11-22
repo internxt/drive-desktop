@@ -18,7 +18,7 @@ export class FilePlaceholderUpdater {
       const localPath = files[remote.uuid as FileUuid];
 
       if (!localPath) {
-        ctx.virtualDrive.createFileByPath({
+        await ctx.virtualDrive.createFileByPath({
           path: remotePath,
           placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
