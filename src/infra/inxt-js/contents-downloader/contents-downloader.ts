@@ -1,26 +1,31 @@
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Environment } from '@internxt/inxt-js';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { AbsolutePath, logger, throwWrapper } from '@internxt/drive-desktop-core/build/backend';
+
+const downloads = new Map<AbsolutePath, ActionState>();
 
 type Resolve = (_: { data: AsyncIterable<Buffer>; error?: undefined } | { data?: undefined; error: Error }) => void;
 
 export class ContentsDownloader {
-  private state: ActionState | null = null;
-
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
   ) {}
 
-  forceStop() {
-    if (this.state) {
-      this.environment.downloadCancel(this.state);
+  forceStop({ path }: { path: AbsolutePath }) {
+    const state = downloads.get(path);
+
+    if (state) {
+      logger.debug({ msg: 'Cancel download', path });
+      this.environment.downloadCancel(state);
+      downloads.delete(path);
     }
   }
 
-  download({ contentsId, onProgress }: { contentsId: ContentsId; onProgress?: (progress: number) => void }) {
+  download({ path, contentsId, onProgress }: { path: AbsolutePath; contentsId: ContentsId; onProgress?: (progress: number) => void }) {
     return new Promise((resolve: Resolve) => {
-      this.state = this.environment.download(
+      const state = this.environment.download(
         this.bucket,
         contentsId,
         {
@@ -37,10 +42,14 @@ export class ContentsDownloader {
           label: 'Dynamic',
           params: {
             useProxy: false,
-            chunkSize: 4 * 1024 * 1024,
+            chunkSize: 256 * 1024,
           },
         },
       );
+
+      downloads.set(path, state);
     });
   }
+
+  downloadThrow = throwWrapper(this.download.bind(this));
 }

@@ -182,6 +182,7 @@
     "chokidar": "^3.6.0",
     "crypto-js": "4.1.1",
     "dayjs": "^1.10.7",
+    "effect": "^3.19.6",
     "electron-debug": "^3.2.0",
     "electron-fetch": "^1.7.4",
     "electron-store": "^8.0.1",
