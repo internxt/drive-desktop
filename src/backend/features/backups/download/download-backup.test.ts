@@ -52,7 +52,6 @@ describe('download-backup', () => {
   });
 
   it('should use deviceUuid as rootUuids if no folderUuids are provided', async () => {
-    // Given
     // When
     await downloadBackup(props);
     // Then
