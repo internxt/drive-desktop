@@ -1,12 +1,12 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type TProps = {
   currentProviderIds?: string[];
 };
 
 export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
-  const syncRoots = VirtualDrive.getRegisteredSyncRoots();
+  const syncRoots = Addon.getRegisteredSyncRoots();
 
   const internxtSyncRoots = syncRoots.filter((syncRoot) => {
     const isFromInternxt = syncRoot.displayName.toLowerCase().includes('internxt') || syncRoot.path.toLowerCase().includes('internxt');
@@ -27,7 +27,7 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
        * the lastSyncCheckpoint of files and folders.
        */
       try {
-        VirtualDrive.unregisterSyncRoot({ providerId: syncRoot.id });
+        Addon.unregisterSyncRoot({ providerId: syncRoot.id });
       } catch (exc) {
         logger.error({
           tag: 'SYNC-ENGINE',

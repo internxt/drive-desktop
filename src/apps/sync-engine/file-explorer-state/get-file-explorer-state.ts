@@ -10,7 +10,7 @@ type TProps = {
 };
 
 export async function getFileExplorerState({ ctx }: TProps) {
-  const rootFolder = ctx.virtualDrive.syncRootPath;
+  const rootFolder = ctx.rootPath;
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Get file explorer state', rootFolder });
 

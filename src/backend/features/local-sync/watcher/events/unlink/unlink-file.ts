@@ -14,7 +14,7 @@ type TProps = {
 
 export async function unlinkFile({ ctx, absolutePath }: TProps) {
   const path = pathUtils.absoluteToRelative({
-    base: ctx.virtualDrive.syncRootPath,
+    base: ctx.rootPath,
     path: absolutePath,
   });
 

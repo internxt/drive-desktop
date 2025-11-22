@@ -22,7 +22,6 @@ describe('process-item', () => {
 
   beforeEach(() => {
     props = mockProps<typeof processItem>({
-      ctx: { virtualDrive: {} },
       localItem: { path: abs('/item'), stats: { isDirectory: () => false, isFile: () => false } },
       state: { createFolders: [], createFiles: [], modifiedFiles: [], hydrateFiles: [] },
     });

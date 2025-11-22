@@ -12,9 +12,7 @@ type Props = { ctx: ProcessSyncContext } & (
 export async function deleteItemPlaceholders({ ctx, remotes, type }: Props) {
   for (const remote of remotes) {
     const { data: info } =
-      type === 'folder'
-        ? NodeWin.getFolderInfo({ path: remote.absolutePath, ctx })
-        : NodeWin.getFileInfo({ path: remote.absolutePath, ctx });
+      type === 'folder' ? NodeWin.getFolderInfo({ path: remote.absolutePath, ctx }) : NodeWin.getFileInfo({ path: remote.absolutePath });
 
     /**
      * v2.5.6 Daniel Jiménez

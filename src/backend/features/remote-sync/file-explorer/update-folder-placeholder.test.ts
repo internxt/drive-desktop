@@ -1,6 +1,4 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { FolderPlaceholderUpdater } from './update-folder-placeholder';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { abs, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -8,12 +6,13 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as hasToBeMoved from './has-to-be-moved';
 import { rename } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { Addon } from '@/node-win/addon-wrapper';
 
 vi.mock(import('node:fs/promises'));
 
 describe('update-folder-placeholder', () => {
-  const virtualDrive = mockDeep<VirtualDrive>();
-
+  const createFolderPlaceholderMock = partialSpyOn(Addon, 'createFolderPlaceholder');
+  const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
   const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');
   const renameMock = vi.mocked(rename);
@@ -28,7 +27,6 @@ describe('update-folder-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof FolderPlaceholderUpdater.update>({
-      ctx: { virtualDrive },
       folders: { ['uuid' as FolderUuid]: 'localPath' as AbsolutePath },
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
@@ -67,8 +65,8 @@ describe('update-folder-placeholder', () => {
     await FolderPlaceholderUpdater.update(props);
     // Then
     expect(hasToBeMovedMock).toBeCalledTimes(0);
-    expect(virtualDrive.createFolderByPath).toBeCalledTimes(1);
-    expect(virtualDrive.createFolderByPath).toBeCalledWith({
+    expect(createFolderPlaceholderMock).toBeCalledTimes(1);
+    expect(createFolderPlaceholderMock).toBeCalledWith({
       path: 'remotePath',
       placeholderId: 'FOLDER:uuid',
       creationTime: time,
@@ -82,10 +80,10 @@ describe('update-folder-placeholder', () => {
     // When
     await FolderPlaceholderUpdater.update(props);
     // Then
-    expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
+    expect(createFolderPlaceholderMock).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
     expect(renameMock).toBeCalledWith('localPath', 'remotePath');
-    call(virtualDrive.updateSyncStatus).toStrictEqual({ path: 'remotePath' });
+    call(updateSyncStatusMock).toStrictEqual({ path: 'remotePath' });
   });
 
   it('should do nothing if not moved', async () => {
@@ -94,7 +92,7 @@ describe('update-folder-placeholder', () => {
     // When
     await FolderPlaceholderUpdater.update(props);
     // Then
-    expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
+    expect(createFolderPlaceholderMock).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(0);
   });
 

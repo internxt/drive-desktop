@@ -1,18 +1,17 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { existsSync } from 'node:fs';
+import { Addon } from '@/node-win/addon-wrapper';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
 
 describe('sync-remote-to-local', () => {
-  const virtualDrive = mockDeep<VirtualDrive>();
+  const createFilePlaceholderMock = partialSpyOn(Addon, 'createFilePlaceholder');
 
   const unlinkMock = deepMocked(unlink);
   const existsSyncMock = deepMocked(existsSync);
@@ -24,7 +23,6 @@ describe('sync-remote-to-local', () => {
   beforeEach(() => {
     existsSyncMock.mockReturnValue(true);
     props = mockProps<typeof syncRemoteChangesToLocal>({
-      ctx: { virtualDrive },
       local: {
         path: 'localPath' as AbsolutePath,
         stats: {
@@ -48,7 +46,7 @@ describe('sync-remote-to-local', () => {
     await syncRemoteChangesToLocal(props);
     // Then
     expect(unlinkMock).toBeCalledWith('localPath');
-    expect(virtualDrive.createFileByPath).toBeCalledWith({
+    expect(createFilePlaceholderMock).toBeCalledWith({
       path: 'remotePath',
       placeholderId: 'FILE:uuid',
       size: 1024,
@@ -77,7 +75,7 @@ describe('sync-remote-to-local', () => {
 
   it('should handle errors gracefully', async () => {
     // Given
-    virtualDrive.createFileByPath.mockImplementation(() => {
+    createFilePlaceholderMock.mockImplementation(() => {
       throw new Error('Creation failed');
     });
     // When

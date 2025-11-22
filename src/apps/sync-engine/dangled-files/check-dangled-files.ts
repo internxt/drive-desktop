@@ -19,7 +19,7 @@ export async function checkDangledFiles({ ctx }: { ctx: ProcessSyncContext }) {
 
     if (createdAt < startDate || createdAt > endDate) continue;
 
-    const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path: file.absolutePath });
+    const { data: fileInfo } = NodeWin.getFileInfo({ path: file.absolutePath });
 
     if (!fileInfo) continue;
 

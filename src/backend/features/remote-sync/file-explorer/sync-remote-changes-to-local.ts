@@ -3,6 +3,7 @@ import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { existsSync, Stats } from 'node:fs';
 import { unlink } from 'node:fs/promises';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -32,7 +33,7 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
         });
       }
 
-      await ctx.virtualDrive.createFileByPath({
+      await Addon.createFilePlaceholder({
         path: remote.absolutePath,
         placeholderId: `FILE:${remote.uuid}`,
         size: remote.size,

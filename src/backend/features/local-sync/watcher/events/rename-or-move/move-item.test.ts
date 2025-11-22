@@ -5,9 +5,11 @@ import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-rend
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('move-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
+  const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const invokeMock = vi.spyOn(ipcRendererDriveServerWip, 'invoke');
 
   let props: Parameters<typeof moveItem>[0];
@@ -23,7 +25,6 @@ describe('move-item', () => {
       path: '/folder/newName' as AbsolutePath,
       ctx: {
         workspaceToken: '',
-        virtualDrive: { updateSyncStatus: vi.fn() },
       },
     });
   });
@@ -59,7 +60,7 @@ describe('move-item', () => {
       parentUuid: 'newParentUuid',
       workspaceToken: '',
     });
-    expect(props.ctx.virtualDrive.updateSyncStatus).toBeCalledTimes(1);
+    expect(updateSyncStatusMock).toBeCalledTimes(1);
   });
 
   it('should move folder', async () => {
@@ -74,6 +75,6 @@ describe('move-item', () => {
       parentUuid: 'newParentUuid',
       workspaceToken: '',
     });
-    expect(props.ctx.virtualDrive.updateSyncStatus).toBeCalledTimes(1);
+    expect(updateSyncStatusMock).toBeCalledTimes(1);
   });
 });

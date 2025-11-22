@@ -1,10 +1,10 @@
 import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('unregister-virtual-drives', () => {
-  const getRegisteredSyncRootsMock = partialSpyOn(VirtualDrive, 'getRegisteredSyncRoots');
-  const unregisterSyncRootMock = partialSpyOn(VirtualDrive, 'unregisterSyncRoot');
+  const getRegisteredSyncRootsMock = partialSpyOn(Addon, 'getRegisteredSyncRoots');
+  const unregisterSyncRootMock = partialSpyOn(Addon, 'unregisterSyncRoot');
 
   let props: Parameters<typeof unregisterVirtualDrives>[0];
 

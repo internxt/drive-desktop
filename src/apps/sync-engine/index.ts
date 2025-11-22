@@ -19,7 +19,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
-  await ctx.virtualDrive.createSyncRootFolder();
+  await VirtualDrive.createSyncRootFolder({ rootPath });
 
   await BindingsManager.start({ ctx });
 
@@ -53,7 +53,6 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
       ...config,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
       abortController: new AbortController(),
-      virtualDrive: new VirtualDrive(config),
       fileUploader,
       contentsDownloader,
     };

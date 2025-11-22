@@ -6,6 +6,7 @@ import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -50,7 +51,7 @@ export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
       path,
     });
 
-    ctx.virtualDrive.updateSyncStatus({ path });
+    Addon.updateSyncStatus({ path });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error updating contents id', path, exc });
   }
