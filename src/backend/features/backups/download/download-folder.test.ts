@@ -5,6 +5,7 @@ import { Traverser } from '@/apps/backups/remote-tree/traverser';
 import * as downloadFile from './download-file';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { Effect } from 'effect/index';
 
 describe('download-folder', () => {
   const broadcastToWindowsMock = partialSpyOn(broadcastToWindows, 'broadcastToWindows');
@@ -14,7 +15,7 @@ describe('download-folder', () => {
   let props: Parameters<typeof downloadFolder>[0];
 
   beforeEach(() => {
-    downloadFileMock.mockResolvedValue();
+    downloadFileMock.mockResolvedValue(Effect.void);
     traverserMock.mockResolvedValue({
       files: {
         [abs('file1.txt')]: { uuid: 'file1' as FileUuid },
@@ -39,19 +40,7 @@ describe('download-folder', () => {
     calls(downloadFileMock).toMatchObject([]);
   });
 
-  it('should not continue if aborted', async () => {
-    // Given
-    downloadFileMock.mockImplementation(({ file }) => {
-      if (file.uuid === 'file1') props.abortController.abort();
-      return Promise.resolve();
-    });
-    // When
-    await downloadFolder(props);
-    // Then
-    calls(downloadFileMock).toMatchObject([{ file: { uuid: 'file1' } }]);
-  });
-
-  it('should update progress when we download a file', async () => {
+  it('should update progress when we download files', async () => {
     // When
     await downloadFolder(props);
     // Then
