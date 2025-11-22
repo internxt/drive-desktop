@@ -12,7 +12,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);
-        return nullptr;
+        return;
     }
 
     LARGE_INTEGER creationTime = Utilities::JsTimestampToLargeInteger(creationTimeMs);
@@ -37,8 +37,6 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
         CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_NONE, nullptr));
 
     Placeholders::UpdateSyncStatus(path);
-
-    return nullptr;
 }
 
 napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info info)
