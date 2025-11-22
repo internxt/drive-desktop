@@ -16,13 +16,13 @@ type TAddon = {
     fileSize: number,
     creationTime: number,
     lastWriteTime: number,
-  ): z.infer<typeof addonZod.createFilePlaceholder>;
+  ): Promise<z.infer<typeof addonZod.createFilePlaceholder>>;
   createFolderPlaceholder(
     path: Win32Path,
     placeholderId: FolderPlaceholderId,
     creationTime: number,
     lastWriteTime: number,
-  ): z.infer<typeof addonZod.createFolderPlaceholder>;
+  ): Promise<z.infer<typeof addonZod.createFolderPlaceholder>>;
   hydrateFile(path: Win32Path): Promise<z.infer<typeof addonZod.hydrateFile>>;
   dehydrateFile(path: Win32Path): z.infer<typeof addonZod.dehydrateFile>;
   connectSyncRoot(path: Win32Path, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;

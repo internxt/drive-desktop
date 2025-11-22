@@ -17,7 +17,7 @@ export class FolderPlaceholderUpdater {
       const localPath = folders[remote.uuid as FolderUuid];
 
       if (!localPath) {
-        ctx.virtualDrive.createFolderByPath({
+        await ctx.virtualDrive.createFolderByPath({
           path: remotePath,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),

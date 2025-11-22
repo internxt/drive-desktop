@@ -32,7 +32,7 @@ export async function syncRemoteChangesToLocal({ ctx, remote, local }: Props) {
         });
       }
 
-      ctx.virtualDrive.createFileByPath({
+      await ctx.virtualDrive.createFileByPath({
         path: remote.absolutePath,
         placeholderId: `FILE:${remote.uuid}`,
         size: remote.size,

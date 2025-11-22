@@ -45,7 +45,7 @@ export function setupIpcDriveServerWip() {
 }
 
 export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFileByUuidProps) {
-  const res = await driveServerWip.storage.deleteFileByUuid({ uuid, workspaceToken });
+  const res = await driveServerWip.storage.deleteFileByUuid({ path, uuid, workspaceToken });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });
@@ -58,7 +58,7 @@ export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFil
 }
 
 export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteFolderByUuidProps) {
-  const res = await driveServerWip.storage.deleteFolderByUuid({ uuid, workspaceToken });
+  const res = await driveServerWip.storage.deleteFolderByUuid({ path, uuid, workspaceToken });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });

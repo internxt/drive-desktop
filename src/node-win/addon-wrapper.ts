@@ -70,7 +70,7 @@ export class Addon {
     return parseAddonZod('getPlaceholderState', result);
   }
 
-  static createFilePlaceholder({
+  static async createFilePlaceholder({
     path,
     placeholderId,
     size,
@@ -84,11 +84,11 @@ export class Addon {
     lastWriteTime: number;
   }) {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
-    const result = addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
+    const result = await addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
     return parseAddonZod('createFilePlaceholder', result);
   }
 
-  static createFolderPlaceholder({
+  static async createFolderPlaceholder({
     path,
     placeholderId,
     creationTime,
@@ -100,7 +100,7 @@ export class Addon {
     lastWriteTime: number;
   }) {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
-    const result = addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
+    const result = await addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
     return parseAddonZod('createFolderPlaceholder', result);
   }
 

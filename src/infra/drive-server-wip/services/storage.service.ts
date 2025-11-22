@@ -4,6 +4,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export const storage = {
   deleteFile,
@@ -64,7 +65,7 @@ async function deleteFolder(context: { folderId: number }) {
   });
 }
 
-async function deleteFileByUuid(context: { uuid: FileUuid; workspaceToken: string }) {
+async function deleteFileByUuid(context: { path: AbsolutePath; uuid: FileUuid; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -80,18 +81,11 @@ async function deleteFileByUuid(context: { uuid: FileUuid; workspaceToken: strin
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Delete file by uuid request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Delete file by uuid request', context },
   });
 }
 
-async function deleteFolderByUuid(context: { uuid: FolderUuid; workspaceToken: string }) {
+async function deleteFolderByUuid(context: { path: AbsolutePath; uuid: FolderUuid; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -107,13 +101,6 @@ async function deleteFolderByUuid(context: { uuid: FolderUuid; workspaceToken: s
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Delete folder by uuid request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Delete folder by uuid request', context },
   });
 }

@@ -19,14 +19,14 @@ describe('VirtualDrive', () => {
   const drive = new VirtualDrive(props);
 
   describe('When call createFileByPath', () => {
-    it('Then it calls addon.createFilePlaceholder', () => {
+    it('Then it calls addon.createFilePlaceholder', async () => {
       // Given
       const creationTime = new Date('2000-01-01T00:00:00Z').getTime();
       const lastWriteTime = new Date('2000-01-02T00:00:00Z').getTime();
       const drive = new VirtualDrive(props);
 
       // When
-      drive.createFileByPath({
+      await drive.createFileByPath({
         placeholderId: 'FILE:uuid',
         path: abs('/parent/file.txt'),
         creationTime,
@@ -40,14 +40,14 @@ describe('VirtualDrive', () => {
   });
 
   describe('When call createFolderByPath', () => {
-    it('Then it calls addon.createFolderPlaceholder', () => {
+    it('Then it calls addon.createFolderPlaceholder', async () => {
       // Given
       const creationTime = new Date('2000-01-01T00:00:00Z').getTime();
       const lastWriteTime = new Date('2000-01-02T00:00:00Z').getTime();
       const drive = new VirtualDrive(props);
 
       // When
-      drive.createFolderByPath({
+      await drive.createFolderByPath({
         placeholderId: 'FOLDER:uuid',
         path: abs('/parent/folder'),
         creationTime,
