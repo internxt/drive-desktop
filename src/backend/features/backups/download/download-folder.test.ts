@@ -51,7 +51,7 @@ describe('download-folder', () => {
     calls(downloadFileMock).toMatchObject([{ file: { uuid: 'file1' } }]);
   });
 
-  it('should update progress when we download a file', async () => {
+  it('should update progress when we download files', async () => {
     // When
     await downloadFolder(props);
     // Then
