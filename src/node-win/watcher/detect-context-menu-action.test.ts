@@ -1,4 +1,4 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -50,7 +50,7 @@ describe('detect-context-menu-action', () => {
     await detectContextMenuAction(props);
     // Then
     expect(throttleHydrateMock).toBeCalledTimes(0);
-    expect(handleDehydrateMock).toBeCalledWith({ path: props.path });
+    call(handleDehydrateMock).toMatchObject({ path: props.path });
   });
 
   describe('what happens when hydrate event', () => {
