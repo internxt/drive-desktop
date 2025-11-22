@@ -36,9 +36,13 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
 
   updateProgress(1);
 
+  const runningFiles = new Set<AbsolutePath>();
+
   const promises = files.map(async (file) => {
     await limiter.schedule(async () => {
+      runningFiles.add(file.absolutePath);
       await Effect.runPromise(downloadFile({ file, contentsDownloader }));
+      runningFiles.delete(file.absolutePath);
 
       downloadedItems += 1;
       const progress = (downloadedItems / files.length) * 100;
@@ -50,8 +54,8 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
     await Promise.all(promises);
   } catch (error) {
     if (error instanceof Bottleneck.BottleneckError && error.message === 'This limiter has been stopped.') {
-      for (const file of files) {
-        contentsDownloader.forceStop({ path: file.absolutePath });
+      for (const path of runningFiles) {
+        contentsDownloader.forceStop({ path });
       }
     }
   }
