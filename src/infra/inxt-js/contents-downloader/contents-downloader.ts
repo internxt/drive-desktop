@@ -42,7 +42,7 @@ export class ContentsDownloader {
           label: 'Dynamic',
           params: {
             useProxy: false,
-            chunkSize: 4 * 1024 * 1024,
+            chunkSize: 256 * 1024,
           },
         },
       );
