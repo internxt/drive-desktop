@@ -29,13 +29,13 @@ describe('get-files-from-directory', () => {
     PathTypeCheckerMock.isFolder.mockResolvedValue(true);
     readdirMock
       .mockResolvedValueOnce([
-        { name: 'file1' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-        { name: 'file2' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-        { name: 'folder1' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
-        { name: 'folder2' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
-      ])
+        { name: 'file1', isFile: () => true, isDirectory: () => false },
+        { name: 'file2', isFile: () => true, isDirectory: () => false },
+        { name: 'folder1', isFile: () => false, isDirectory: () => true },
+        { name: 'folder2', isFile: () => false, isDirectory: () => true },
+      ] as any)
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ name: 'file3' as unknown as Buffer, isFile: () => true, isDirectory: () => false }]);
+      .mockResolvedValueOnce([{ name: 'file3', isFile: () => true, isDirectory: () => false } as any]);
 
     // When
     const files = await getFilesFromDirectory({ rootFolder });
