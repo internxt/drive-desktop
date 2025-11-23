@@ -1,11 +1,10 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { VirtualDrive } from '../virtual-drive';
 import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
@@ -23,7 +22,7 @@ describe('detect-context-menu-action', () => {
   beforeEach(() => {
     props = mockProps<typeof detectContextMenuAction>({
       ctx: { virtualDrive },
-      path: '/file.txt' as AbsolutePath,
+      path: abs('/file.txt'),
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
         curr: { ctimeMs: 2, mtimeMs: 1 },
@@ -38,23 +37,35 @@ describe('detect-context-menu-action', () => {
     // When
     await detectContextMenuAction(props);
     // Then
-    expect(updateContentsIdMock).toBeCalledWith(
-      expect.objectContaining({
-        stats: props.details.curr,
-        path: '/file.txt',
-        uuid: 'uuid',
-      }),
-    );
+    call(updateContentsIdMock).toMatchObject({
+      stats: props.details.curr,
+      path: '/file.txt',
+      uuid: 'uuid',
+    });
   });
 
-  it('should dehydrate when pin state is online only', async () => {
-    // Given
-    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
-    // When
-    await detectContextMenuAction(props);
-    // Then
-    expect(throttleHydrateMock).toBeCalledTimes(0);
-    expect(handleDehydrateMock).toBeCalledWith({ drive: virtualDrive, path: props.path });
+  describe('what happens when dehydrate event', () => {
+    beforeEach(() => {
+      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
+    });
+
+    it('should dehydrate when current blocks are not 0', async () => {
+      // Given
+      props.details.curr.blocks = 1;
+      // When
+      await detectContextMenuAction(props);
+      // Then
+      call(handleDehydrateMock).toMatchObject({ path: props.path });
+    });
+
+    it('should not dehydrate when current blocks are 0', async () => {
+      // Given
+      props.details.curr.blocks = 0;
+      // When
+      await detectContextMenuAction(props);
+      // Then
+      calls(handleDehydrateMock).toHaveLength(0);
+    });
   });
 
   describe('what happens when hydrate event', () => {
@@ -62,23 +73,22 @@ describe('detect-context-menu-action', () => {
       getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
-    it('should enqueue file for hydrate', async () => {
+    it('should hydrate when current blocks are 0', async () => {
       // Given
       props.details.curr.blocks = 0;
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(throttleHydrateMock).toBeCalledWith(expect.objectContaining({ path: props.path }));
+      call(throttleHydrateMock).toMatchObject({ path: props.path });
     });
 
-    it('should not enqueue file for hydrate if blocks is not 0', async () => {
+    it('should not hydrate when current blocks are not 0', async () => {
       // Given
       props.details.curr.blocks = 1;
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(throttleHydrateMock).toBeCalledTimes(0);
-      expect(loggerMock.debug).toBeCalledWith({ msg: 'Double click on file', path: props.path });
+      calls(throttleHydrateMock).toHaveLength(0);
     });
   });
 });
