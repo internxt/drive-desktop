@@ -16,10 +16,9 @@ type Props = {
   rootPath: AbsolutePath;
   abortController: AbortController;
   contentsDownloader: ContentsDownloader;
-  limiter: Bottleneck;
 };
 
-export async function downloadFolder({ user, device, rootUuid, rootPath, abortController, contentsDownloader, limiter }: Props) {
+export async function downloadFolder({ user, device, rootUuid, rootPath, abortController, contentsDownloader }: Props) {
   function updateProgress(progress: number) {
     if (abortController.signal.aborted) return;
 
@@ -29,14 +28,18 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
   }
 
   const tree = await Traverser.run({ rootPath, rootUuid, userUuid: user.uuid });
-
   const files = Object.values(tree.files);
 
   let downloadedItems = 0;
 
-  updateProgress(1);
-
+  const limiter = new Bottleneck({ maxConcurrent: 4 });
   const runningFiles = new Set<AbsolutePath>();
+
+  abortController.signal.addEventListener('abort', async () => {
+    await limiter.stop();
+  });
+
+  updateProgress(1);
 
   const promises = files.map(async (file) => {
     await limiter.schedule(async () => {
