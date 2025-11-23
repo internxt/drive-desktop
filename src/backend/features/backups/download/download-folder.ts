@@ -60,6 +60,8 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
       for (const path of runningFiles) {
         contentsDownloader.forceStop({ path });
       }
+    } else {
+      throw error;
     }
   }
 }
