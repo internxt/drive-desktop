@@ -1,0 +1,61 @@
+import { mkdir } from 'node:fs/promises';
+import { downloadFile } from './download-file';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Effect } from 'effect/index';
+import { mockDeep } from 'vitest-mock-extended';
+import { ContentsDownloader } from '@/infra/inxt-js';
+import * as pipeline from '@/core/utils/pipeline';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { createWriteStream } from 'node:fs';
+
+vi.mock(import('node:fs'));
+vi.mock(import('node:fs/promises'));
+
+describe('download-file', () => {
+  vi.mocked(createWriteStream);
+  const mkdirMock = vi.mocked(mkdir);
+  const contentsDownloader = mockDeep<ContentsDownloader>({});
+  const pipelineMock = partialSpyOn(pipeline, 'pipeline');
+
+  const props = mockProps<typeof downloadFile>({
+    contentsDownloader,
+    file: {
+      absolutePath: abs('/parent/file.txt'),
+    },
+  });
+
+  beforeEach(() => {
+    mkdirMock.mockResolvedValue(undefined);
+    contentsDownloader.downloadThrow.mockResolvedValue('content' as any);
+    pipelineMock.mockReturnValue(Effect.void);
+  });
+
+  it('should create parent folder recursively', async () => {
+    // When
+    await Effect.runPromise(downloadFile(props));
+    // Then
+    call(mkdirMock).toStrictEqual(['/parent', { recursive: true }]);
+  });
+
+  it('should not log error if aborted', async () => {
+    // Given
+    pipelineMock.mockReturnValue(Effect.fail(new pipeline.PipelineAborted()));
+    // When
+    await Effect.runPromise(downloadFile(props));
+    // Then
+    calls(loggerMock.error).toHaveLength(0);
+  });
+
+  it('should log error if any other error', async () => {
+    // Given
+    contentsDownloader.downloadThrow.mockRejectedValue(new Error('message'));
+    // When
+    await Effect.runPromise(downloadFile(props));
+    // Then
+    call(loggerMock.error).toMatchObject({
+      msg: 'Error downloading file',
+      error: { _tag: 'Die', defect: new Error('message') },
+    });
+  });
+});

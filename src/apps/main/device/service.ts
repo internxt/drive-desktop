@@ -2,25 +2,15 @@
 /* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
-import fetch from 'electron-fetch';
 import os from 'node:os';
 import path from 'node:path';
-import { IpcMainEvent, ipcMain } from 'electron';
-import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getUser } from '../auth/service';
 import electronStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
-import fs, { PathLike } from 'node:fs';
-import { downloadFolder } from '../network/download';
-import { broadcastToWindows } from '../windows';
-import { randomUUID } from 'node:crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
-import { getConfig } from '@/apps/sync-engine/config';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
-import { getAuthHeaders } from '../auth/headers';
 import { getBackupsFromDevice } from './get-backups-from-device';
 
 export type Device = {
@@ -32,14 +22,6 @@ export type Device = {
   hasBackups: boolean;
   lastBackupAt: string;
 };
-
-interface FolderTreeResponse {
-  tree: FolderTree;
-  folderDecryptedNames: Record<number, string>;
-  fileDecryptedNames: Record<number, string>;
-  size: number;
-  totalItems: number;
-}
 
 /**
  * V2.5.5
@@ -271,109 +253,6 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
-  const results = await Promise.all(
-    folderUuids.map(async (folderUuid) => {
-      return await driveServerWipModule.backup.fetchFolder({ folderUuid });
-    }),
-  );
-
-  return results;
-}
-
-async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
-  const res = await fetch(`${process.env.DRIVE_URL}/folders/${folderUuid}/tree`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Unsuccessful request to fetch folder tree for ID: ${folderUuid}`);
-  }
-
-  const { tree } = (await res.json()) as { tree: FolderTree };
-  return tree;
-}
-
-function processFolderTree(tree: FolderTree) {
-  let size = 0;
-  const folderDecryptedNames: Record<number, string> = {};
-  const fileDecryptedNames: Record<number, string> = {};
-  const pendingFolders = [tree];
-  let totalItems = 0;
-
-  while (pendingFolders.length > 0) {
-    const currentTree = pendingFolders.shift()!;
-    const { folders, files } = {
-      folders: currentTree.children,
-      files: currentTree.files,
-    };
-
-    folderDecryptedNames[currentTree.id] = currentTree.plainName;
-
-    for (const file of files) {
-      fileDecryptedNames[file.id] = aes.decrypt(file.name, `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`);
-      size += Number(file.size);
-      totalItems++;
-    }
-
-    pendingFolders.push(...folders);
-  }
-
-  return { size, folderDecryptedNames, fileDecryptedNames, totalItems };
-}
-
-export async function fetchArrayFolderTree(folderUuids: string[]): Promise<FolderTreeResponse> {
-  const trees: FolderTree[] = [];
-  const folderDecryptedNames: Record<number, string> = {};
-  const fileDecryptedNames: Record<number, string> = {};
-  let totalSize = 0;
-  let totalItemsInTree = 0;
-
-  for (const folderUuid of folderUuids) {
-    const tree = await fetchTreeFromApi(folderUuid);
-    trees.push(tree);
-
-    const { size, folderDecryptedNames: folderNames, fileDecryptedNames: fileNames, totalItems } = processFolderTree(tree);
-
-    totalSize += size;
-    totalItemsInTree += totalItems;
-    Object.assign(folderDecryptedNames, folderNames);
-    Object.assign(fileDecryptedNames, fileNames);
-  }
-
-  let combinedTree: FolderTree = trees[0];
-  if (trees.length > 1) {
-    combinedTree = {
-      id: 0,
-      bucket: trees[0].bucket,
-      children: trees,
-      encrypt_version: trees[0].encrypt_version,
-      files: [],
-      name: 'Multiple Folders',
-      plainName: 'Multiple Folders',
-      parentId: 0,
-      userId: trees[0].userId,
-      uuid: randomUUID(),
-      parentUuid: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      size: totalSize,
-      type: 'folder',
-      deleted: false,
-      removed: false,
-    };
-  }
-
-  return {
-    tree: combinedTree,
-    folderDecryptedNames,
-    fileDecryptedNames,
-    size: totalSize,
-    totalItems: totalItemsInTree,
-  };
-}
-
 export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
   const res = await driveServerWipModule.storage.deleteFolder({ folderId: backup.folderId });
 
@@ -415,121 +294,6 @@ export function findBackupPathnameFromId(id: number): string | undefined {
   return entryfound?.[0];
 }
 
-async function downloadDeviceBackupZip({
-  device,
-  folderUuidsToDownload,
-  path,
-  updateProgress,
-  abortController,
-}: {
-  device: Device;
-  folderUuidsToDownload: string[];
-  path: PathLike;
-  updateProgress: (progress: number) => void;
-  abortController?: AbortController;
-}) {
-  if (!device.id) {
-    throw new Error('This backup has not been uploaded yet');
-  }
-
-  const user = getUser();
-  if (!user) {
-    throw new Error('No saved user');
-  }
-  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup for device', deviceName: device.name });
-
-  const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
-
-  const bridgeUser = user.bridgeUser;
-  const bridgePass = user.userId;
-  const encryptionKey = getConfig().mnemonic;
-
-  await downloadFolder(
-    device.name,
-    folders.filter((folder) => folder.data).map((folder) => folder.data!.uuid),
-    path,
-    {
-      bridgeUser,
-      bridgePass,
-      encryptionKey,
-    },
-    {
-      abortController,
-      updateProgress,
-    },
-  );
-}
-
-export async function downloadBackup(device: Device, folderUuids?: string[]): Promise<void> {
-  const chosenItem = await getPathFromDialog();
-  if (!chosenItem || !chosenItem.path) {
-    return;
-  }
-
-  const chosenPath = chosenItem.path;
-  logger.debug({ tag: 'BACKUPS', msg: 'Downloading device', device: device.name, chosenPath });
-
-  const date = new Date();
-  const now =
-    String(date.getFullYear()) +
-    String(date.getMonth() + 1) +
-    String(date.getDay()) +
-    String(date.getHours()) +
-    String(date.getMinutes()) +
-    String(date.getSeconds());
-  const zipFilePath = chosenPath + 'Backup_' + now + '';
-  // const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
-
-  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup to', zipFilePath });
-
-  const abortController = new AbortController();
-
-  const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
-    if (abortDeviceUuid === device.uuid) {
-      try {
-        logger.debug({ tag: 'BACKUPS', msg: 'Aborting download for device', deviceName: device.name });
-        if (abortController && !abortController.signal.aborted) {
-          abortController.abort();
-          fs.unlinkSync(zipFilePath);
-        }
-      } catch (error) {
-        logger.error({ tag: 'BACKUPS', msg: 'Error while aborting download', error });
-      }
-    }
-  };
-
-  const listenerName = 'abort-download-backups-' + device.uuid;
-
-  const removeListenerIpc = ipcMain.on(listenerName, abortListener);
-
-  try {
-    const folderUuidsToDownload = folderUuids?.length ? folderUuids : [device.uuid];
-    logger.debug({ tag: 'BACKUPS', msg: 'Folders to download', length: folderUuidsToDownload.length });
-
-    await downloadDeviceBackupZip({
-      device,
-      folderUuidsToDownload,
-      path: zipFilePath,
-      updateProgress: (progress: number) => {
-        if (abortController?.signal.aborted) return;
-        logger.debug({ tag: 'BACKUPS', msg: 'Download progress', progress });
-        broadcastToWindows({
-          name: 'backup-download-progress',
-          data: { id: device.uuid, progress: Math.trunc(progress) },
-        });
-      },
-      abortController,
-    });
-  } catch {
-    // Try to delete zip if download backup has failed
-    try {
-      fs.unlinkSync(zipFilePath);
-    } catch {}
-  }
-
-  removeListenerIpc.removeListener(listenerName, abortListener);
-}
-
 function getDeviceUuid(): string {
   const deviceUuid = electronStore.get('deviceUuid');
 
@@ -554,12 +318,8 @@ export async function getUserSystemPath() {
   };
 }
 
-export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']) {
-  const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
-
-  const result = await dialog.showOpenDialog({
-    properties: dialogProperties,
-  });
+export async function getPathFromDialog() {
+  const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 
   if (result.canceled) {
     return null;

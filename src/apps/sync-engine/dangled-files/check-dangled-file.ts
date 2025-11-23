@@ -20,7 +20,7 @@ export async function checkDangledFile({ ctx, file }: Props) {
 
       await ipcRendererSqlite.invoke('fileUpdateByUuid', { uuid: file.uuid, payload: { isDangledStatus: false } });
 
-      ctx.contentsDownloader.forceStop();
+      ctx.contentsDownloader.forceStop({ path: file.absolutePath });
 
       return;
     }

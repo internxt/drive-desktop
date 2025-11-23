@@ -4,7 +4,6 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
-import { getByPath } from './files/get-by-path';
 import { checkExistence } from './files/check-existance';
 import { parseFileDto } from '../out/dto';
 import { move } from './files/move';
@@ -12,7 +11,6 @@ import { move } from './files/move';
 export const files = {
   getFiles,
   getByUuid,
-  getByPath,
   createFile,
   move,
   replaceFile,

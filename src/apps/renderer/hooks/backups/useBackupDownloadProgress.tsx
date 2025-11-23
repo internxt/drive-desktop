@@ -1,12 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { DeviceContext } from '../../context/DeviceContext';
 
 interface DownloadBackupProgress {
-  [key: string]: number | undefined;
+  [key: string]: number;
 }
 
 export interface BackupDownloadContextProps {
-  clearBackupDownloadProgress: (id: string) => void;
   thereIsDownloadProgress: boolean;
   downloadProgress: number;
 }
@@ -17,38 +16,25 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
-    const removeListener = window.electron.onBackupDownloadProgress(({ id, progress }: { id: string; progress: number }) =>
+    return window.electron.onBackupDownloadProgress(({ id, progress }) => {
       setBackupDownloadProgress((prevState) => {
         return { ...prevState, [id]: Math.round(progress) };
-      }),
-    );
-    return removeListener;
+      });
+    });
   }, []);
 
-  const [thereIsDownloadProgress, setThereIsDownloadProgress] = useState<boolean>(false);
-  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const downloadProgress = useMemo(() => {
+    if (!selected) return 0;
 
-  useEffect(() => {
-    if (!selected?.uuid) return;
     const downloadProgress = backupDownloadProgress[selected.uuid];
-    if (downloadProgress && downloadProgress < 100) {
-      setThereIsDownloadProgress(true);
-      setDownloadProgress(downloadProgress);
-    } else {
-      setThereIsDownloadProgress(false);
-      setDownloadProgress(0);
-    }
+
+    if (!downloadProgress) return 0;
+
+    return downloadProgress;
   }, [selected, backupDownloadProgress]);
 
-  function clearBackupDownloadProgress(id: string) {
-    setBackupDownloadProgress((prevState) => {
-      return { ...prevState, [id]: undefined };
-    });
-  }
-
   return {
-    clearBackupDownloadProgress,
-    thereIsDownloadProgress,
+    thereIsDownloadProgress: downloadProgress > 0,
     downloadProgress,
   };
 }
