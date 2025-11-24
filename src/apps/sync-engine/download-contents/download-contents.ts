@@ -20,7 +20,9 @@ export async function downloadContents({
   try {
     const { data: readable, error } = await ctx.contentsDownloader.download({
       contentsId: file.contentsId,
-      path,
+      onProgress: (progress) => {
+        ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
+      },
     });
 
     if (!readable) throw error;
