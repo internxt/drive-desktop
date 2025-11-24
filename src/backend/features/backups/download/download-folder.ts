@@ -32,7 +32,7 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
 
   let downloadedItems = 0;
 
-  const limiter = new Bottleneck({ maxConcurrent: 4 });
+  const limiter = new Bottleneck({ maxConcurrent: 3 });
   const runningFiles = new Set<AbsolutePath>();
 
   abortController.signal.addEventListener('abort', async () => {
