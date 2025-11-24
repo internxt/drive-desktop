@@ -16,7 +16,7 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
-    return window.electron.onBackupDownloadProgress(({ id, progress }) => {
+    return globalThis.window.electron.onBackupDownloadProgress(({ id, progress }) => {
       setBackupDownloadProgress((prevState) => {
         return { ...prevState, [id]: Math.round(progress) };
       });

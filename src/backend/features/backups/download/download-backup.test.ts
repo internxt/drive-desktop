@@ -51,7 +51,7 @@ describe('download-backup', () => {
     call(removeListenerMock).toStrictEqual(['abort-download-backups-deviceUuid', expect.any(Function)]);
   });
 
-  it('should use deviceUuid as rootUuids if no folderUuids are provided', async () => {
+  it('should use the device uuid as the root uuid if no folder uuids are provided', async () => {
     // When
     await downloadBackup(props);
     // Then
@@ -62,7 +62,7 @@ describe('download-backup', () => {
     });
   });
 
-  it('should use folderUuids as rootUuids if are provided', async () => {
+  it('should use folder uuids as the root uuids if they are provided', async () => {
     // Given
     props.folderUuids = ['folderUuid' as FolderUuid];
     // When
