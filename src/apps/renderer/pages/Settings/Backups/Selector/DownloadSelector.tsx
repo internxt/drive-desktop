@@ -9,6 +9,7 @@ import { ItemBackup } from '../../../../../shared/types/items';
 import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -28,8 +29,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
   const { translate } = useI18n();
 
-  const { backupsState, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
-    useContext(BackupContext);
+  const { backupsState, thereIsDownloadProgress } = useContext(BackupContext);
 
   const { selected } = useContext(DeviceContext);
 
@@ -81,24 +81,16 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     setFolder(newFolder);
   };
 
-  const handleDownloadBackup = async () => {
-    if (!thereIsDownloadProgress) {
-      const folderUuids = selectedBackup.map((item) => item.uuid);
-      await downloadBackups(selected!, folderUuids);
-      onClose();
-    } else {
-      try {
-        abortDownloadBackups(selected!);
-        onClose();
-      } catch {
-        // error while aborting (aborting also throws an exception itself)
-      } finally {
-        setTimeout(() => {
-          clearBackupDownloadProgress(selected!.uuid);
-        }, 600);
+  async function handleDownloadBackup() {
+    if (selected) {
+      if (!thereIsDownloadProgress) {
+        const folderUuids = selectedBackup.map((item) => item.uuid as FolderUuid);
+        await globalThis.window.electron.downloadBackup({ device: selected, folderUuids });
+      } else {
+        globalThis.window.electron.abortDownloadBackups(selected.uuid);
       }
     }
-  };
+  }
 
   return (
     <div className="flex flex-col gap-3 p-4">
