@@ -1,4 +1,4 @@
-export type TDriveServerWipError = 'UNKNOWN' | 'NETWORK' | 'SERVER' | 'ABORTED' | (string & { readonly brand?: unique symbol });
+export type TDriveServerWipError = 'UNKNOWN' | 'NETWORK' | 'SERVER' | 'ABORTED' | (string & {});
 
 export class DriveServerWipError extends Error {
   constructor(
