@@ -1,4 +1,4 @@
-import AppInfo from './AppInfo';
+import { AppInfo } from './AppInfo';
 import DeviceName from './DeviceName';
 import { LanguagePicker } from './LanguagePicker';
 import { ThemePicker } from './ThemePicker';
