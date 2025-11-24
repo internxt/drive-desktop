@@ -8,25 +8,18 @@ type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
   const { t } = useI18n();
-  const { selected } = useContext(DeviceContext);
-  const { backups, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress, backupStatus } =
-    useContext(BackupContext);
+  const { selected: device } = useContext(DeviceContext);
+  const { backups, thereIsDownloadProgress, backupStatus } = useContext(BackupContext);
 
-  const handleDownloadBackup = async () => {
-    if (!thereIsDownloadProgress) {
-      await downloadBackups(selected!);
-    } else {
-      try {
-        abortDownloadBackups(selected!);
-      } catch {
-        // error while aborting (aborting also throws an exception itself)
-      } finally {
-        setTimeout(() => {
-          clearBackupDownloadProgress(selected!.uuid);
-        }, 600);
+  async function handleDownloadBackup() {
+    if (device) {
+      if (!thereIsDownloadProgress) {
+        await globalThis.window.electron.downloadBackup({ device });
+      } else {
+        globalThis.window.electron.abortDownloadBackups(device.uuid);
       }
     }
-  };
+  }
 
   return (
     <>
