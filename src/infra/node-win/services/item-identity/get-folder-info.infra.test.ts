@@ -8,6 +8,7 @@ import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/Placehol
 import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('get-folder-info', () => {
   const providerId = `{${v4()}}`;
@@ -15,21 +16,19 @@ describe('get-folder-info', () => {
   const testPath = join(TEST_FILES, v4());
   const rootPath = join(testPath, rootUuid);
 
-  const virtualDrive = new VirtualDrive({ rootPath, providerId });
-
   let props: Parameters<typeof getFolderInfo>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof getFolderInfo>({ ctx: { rootUuid, rootPath, virtualDrive } });
+    props = mockProps<typeof getFolderInfo>({ ctx: { rootUuid, rootPath } });
   });
 
   beforeAll(async () => {
-    await virtualDrive.createSyncRootFolder();
-    virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive' });
+    await VirtualDrive.createSyncRootFolder({ rootPath });
+    Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
   });
 
   afterAll(() => {
-    VirtualDrive.unregisterSyncRoot({ providerId });
+    Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should return root info when read root path', () => {
@@ -49,7 +48,7 @@ describe('get-folder-info', () => {
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = path;
 
-    await virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
@@ -64,7 +63,7 @@ describe('get-folder-info', () => {
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
 
-    await virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
