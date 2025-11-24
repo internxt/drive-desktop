@@ -42,14 +42,14 @@ describe('get-folder-info', () => {
     expect(error).toStrictEqual(undefined);
   });
 
-  it('should return folder info when read a folder placeholder', () => {
+  it('should return folder info when read a folder placeholder', async () => {
     // Given
     const path = join(rootPath, 'folder');
     const uuid = v4();
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = path;
 
-    virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
@@ -57,14 +57,14 @@ describe('get-folder-info', () => {
     expect(error).toStrictEqual(undefined);
   });
 
-  it('should return error NOT_A_FILE when read a folder placeholder', () => {
+  it('should return error NOT_A_FILE when read a folder placeholder', async () => {
     // Given
     const path = join(rootPath, 'file.txt');
     const uuid = v4();
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
 
-    virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFolderInfo(props);
     // Then
