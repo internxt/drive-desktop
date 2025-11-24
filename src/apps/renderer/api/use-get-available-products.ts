@@ -4,6 +4,6 @@ import { queryKeys } from '../core/tanstack-query/query-keys';
 export const useGetAvailableProducts = () => {
   return useQuery({
     queryKey: queryKeys.availableProducts(),
-    queryFn: () => window.electron.getAvailableProducts(),
+    queryFn: () => globalThis.window.electron.getAvailableProducts(),
   });
 };
