@@ -6,6 +6,7 @@ import { addPendingItems } from './in/add-pending-items';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Addon } from '@/node-win/addon-wrapper';
 
 export class BindingsManager {
   static async start({ ctx }: { ctx: ProcessSyncContext }) {
@@ -28,8 +29,8 @@ export class BindingsManager {
     };
 
     try {
-      ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
-      ctx.virtualDrive.connectSyncRoot({ callbacks });
+      Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
+      Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
     } catch (error) {
       ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
       throw error;

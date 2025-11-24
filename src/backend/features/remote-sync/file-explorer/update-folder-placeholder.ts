@@ -4,6 +4,7 @@ import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { Addon } from '@/node-win/addon-wrapper';
 
 export class FolderPlaceholderUpdater {
   static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
@@ -17,7 +18,7 @@ export class FolderPlaceholderUpdater {
       const localPath = folders[remote.uuid as FolderUuid];
 
       if (!localPath) {
-        await ctx.virtualDrive.createFolderByPath({
+        await Addon.createFolderPlaceholder({
           path: remotePath,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
@@ -35,7 +36,7 @@ export class FolderPlaceholderUpdater {
         });
 
         await rename(localPath, remotePath);
-        ctx.virtualDrive.updateSyncStatus({ path: remotePath });
+        Addon.updateSyncStatus({ path: remotePath });
       }
     } catch (exc) {
       ctx.logger.error({
