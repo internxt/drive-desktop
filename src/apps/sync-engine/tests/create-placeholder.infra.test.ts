@@ -49,9 +49,7 @@ describe('create-placeholder', () => {
   });
 
   const config = getConfig();
-  const user = getUserOrThrow();
   const ctx: ProcessSyncContext = {
-    user,
     ...config,
     logger: loggerMock,
     fileUploader: environmentFileUploader,
