@@ -1,4 +1,5 @@
 import { workers } from '../remote-sync/store';
+import { getUserOrThrow } from '../auth/service';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
@@ -16,12 +17,12 @@ export function updateSyncEngine(workspaceId: string) {
   }
 }
 
-export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
-  const { user } = ctx;
+export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
+  const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const syncContext: SyncContext = {
-    ...ctx,
+    ...context,
     userUuid: user.uuid,
     providerId,
     rootPath: await getRootVirtualDrive(),
@@ -42,6 +43,6 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
 
   unregisterVirtualDrives({ currentProviderIds });
 
-  const promises = workspaces.map((workspace) => spawnWorkspace({ ctx, workspace }));
+  const promises = workspaces.map((workspace) => spawnWorkspace({ context, workspace }));
   await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), promises]);
 }
