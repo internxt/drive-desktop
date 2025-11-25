@@ -4,8 +4,10 @@ import * as unregisterVirtualDrives from './sync-engine/services/unregister-virt
 import * as spawnSyncEngineWorker from './sync-engine/services/spawn-sync-engine-worker';
 import * as spawnWorkspace from './sync-engine/services/spawn-workspace';
 import { spawnSyncEngineWorkers } from './sync-engine';
+import * as getRootVirtualDrive from '../virtual-root-folder/service';
 
 describe('spawn-sync-engine-workers', () => {
+  partialSpyOn(getRootVirtualDrive, 'getRootVirtualDrive');
   const getWorkspacesMock = partialSpyOn(getWorkspaces, 'getWorkspaces');
   const unregisterVirtualDrivesMock = partialSpyOn(unregisterVirtualDrives, 'unregisterVirtualDrives');
   const spawnSyncEngineWorkerMock = partialSpyOn(spawnSyncEngineWorker, 'spawnSyncEngineWorker');
