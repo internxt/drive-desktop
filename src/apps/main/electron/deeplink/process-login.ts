@@ -31,7 +31,7 @@ export async function processLogin({ search }: Props) {
      * mnemonic. However, since now the client never touches the password we need the backend
      * to send as the decrypted privateKey and mnemonic.
      */
-    setUser({ ...data.user, privateKey, mnemonic } as any);
+    setUser({ ...data.user, privateKey, mnemonic });
 
     restoreSavedConfig({ uuid: data.user.uuid });
     setIsLoggedIn(true);
