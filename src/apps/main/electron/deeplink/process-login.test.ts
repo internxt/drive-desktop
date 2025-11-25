@@ -16,10 +16,10 @@ describe('process-login', () => {
     // Given
     refreshMock.mockResolvedValue({ data: { user: { uuid: 'uuid' } } });
     // When
-    await processLogin({ search: '?newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==' });
+    await processLogin({ search: '?mnemonic=bW5lbW9uaWM=&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==' });
     // Then
     call(updateCredentialsMock).toStrictEqual({ newToken: 'newToken' });
-    call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey' });
+    call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey', mnemonic: 'mnemonic' });
     call(restoreSavedConfigMock).toStrictEqual({ uuid: 'uuid' });
     call(setIsLoggedInMock).toBe(true);
     calls(emitUserLoggedInMock).toHaveLength(1);

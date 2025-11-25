@@ -11,9 +11,9 @@ describe('process-deeplink', () => {
 
   it('should process login if hostname is login-success', () => {
     // When
-    processDeeplink({ argv: [...argv, 'internxt://login-success/?mnemonic=mnemonic&token=token&newToken=newToken&privateKey=privateKey'] });
+    processDeeplink({ argv: [...argv, 'internxt://login-success/?mnemonic=mnemonic&newToken=newToken&privateKey=privateKey'] });
     // Then
-    call(processLoginMock).toStrictEqual({ search: '?mnemonic=mnemonic&token=token&newToken=newToken&privateKey=privateKey' });
+    call(processLoginMock).toStrictEqual({ search: '?mnemonic=mnemonic&newToken=newToken&privateKey=privateKey' });
   });
 
   it('should process notification if hostname is notification', () => {
