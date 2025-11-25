@@ -3,7 +3,7 @@ import './App.css';
 import { Suspense } from 'react';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 
-import Login from './pages/Login';
+import { Login } from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
