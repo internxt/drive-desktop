@@ -42,7 +42,16 @@
 	"jest.autoRun": "off",
 	"jest.rootPath": ".",
 	"jest.runMode": "on-demand",
-	"jest.testMatch": ["<rootDir>/src/**/*.test.ts", "<rootDir>/src/**/*.spec.ts"],
+	"jest.testMatch": [
+		"<rootDir>/src/**/*.test.ts",
+		"<rootDir>/src/**/*.spec.ts"
+	],
 	"jest.disabledWorkspaceFolders": [],
-	"debug.node.autoAttach": "on"
+	"debug.node.autoAttach": "on",
+	"i18n-ally.localesPaths": [
+		"src/apps/renderer/messages",
+		"src/apps/antivirus/ipc/messages",
+		"src/apps/renderer/localize/locales",
+		"src/backend/features/payments/ipc/messages"
+	]
 }
