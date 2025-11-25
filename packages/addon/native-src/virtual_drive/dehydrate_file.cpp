@@ -1,16 +1,14 @@
-#include <windows.h>
-#include <napi_extract_args.h>
-#include <stdafx.h>
 #include <Placeholders.h>
+#include <Windows.h>
+#include <async_wrapper.h>
 #include <check_hresult.h>
+#include <napi_extract_args.h>
+
 #include <filesystem>
 
-napi_value dehydrate_file(napi_env env, napi_callback_info info)
+void dehydrate_file(const std::wstring& path)
 {
-    auto [path] = napi_extract_args<std::wstring>(env, info);
-
-    if (std::filesystem::is_directory(path))
-    {
+    if (std::filesystem::is_directory(path)) {
         throw std::runtime_error("Cannot dehydrate folder");
     }
 
@@ -29,6 +27,11 @@ napi_value dehydrate_file(napi_env env, napi_callback_info info)
             length,
             CF_DEHYDRATE_FLAG_NONE,
             nullptr));
+}
 
-    return nullptr;
+napi_value dehydrate_file_wrapper(napi_env env, napi_callback_info info)
+{
+    auto [path] = napi_extract_args<std::wstring>(env, info);
+
+    return run_async(env, "DehydrateFileAsync", dehydrate_file, std::move(path));
 }

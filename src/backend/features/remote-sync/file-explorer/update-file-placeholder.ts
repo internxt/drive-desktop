@@ -38,7 +38,7 @@ export class FilePlaceholderUpdater {
         });
 
         await rename(localPath.path, remotePath);
-        Addon.updateSyncStatus({ path: remotePath });
+        await Addon.updateSyncStatus({ path: remotePath });
       }
 
       await syncRemoteChangesToLocal({ ctx, local: localPath, remote });

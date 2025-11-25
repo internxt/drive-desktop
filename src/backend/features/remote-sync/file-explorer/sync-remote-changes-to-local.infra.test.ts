@@ -27,11 +27,11 @@ describe('sync-remote-changes-to-local', () => {
 
   beforeEach(async () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
-    Addon.registerSyncRoot({ rootPath, providerId, providerName });
+    await Addon.registerSyncRoot({ rootPath, providerId, providerName });
   });
 
-  afterAll(() => {
-    Addon.unregisterSyncRoot({ providerId });
+  afterAll(async () => {
+    await Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should sync remote changes to local', async () => {
@@ -42,7 +42,7 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     await writeFile(filePath, 'content');
-    Addon.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
+    await Addon.convertToPlaceholder({ path: filePath, placeholderId: 'FILE:uuid' });
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
       remote: {
