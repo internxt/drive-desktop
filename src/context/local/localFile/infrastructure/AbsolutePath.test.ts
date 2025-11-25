@@ -3,9 +3,9 @@ import { abs, dirname } from './AbsolutePath';
 describe('AbsolutePath', () => {
   it('abs', () => {
     expect(abs('C:\\Users\\user', 'InternxtDrive')).toBe('C:/Users/user/InternxtDrive');
-    expect(abs('C:\\Users\\user\\', '\\InternxtDrive\\')).toBe('C:/Users/user/InternxtDrive');
+    expect(abs('C:\\\\Users\\\\user\\\\', '\\\\InternxtDrive\\\\')).toBe('C:/Users/user/InternxtDrive');
     expect(abs('C:/Users/user', 'InternxtDrive')).toBe('C:/Users/user/InternxtDrive');
-    expect(abs('C:/Users/user/', '/InternxtDrive/')).toBe('C:/Users/user/InternxtDrive');
+    expect(abs('C://Users//user//', '//InternxtDrive//')).toBe('C:/Users/user/InternxtDrive');
   });
 
   it('dirname', () => {

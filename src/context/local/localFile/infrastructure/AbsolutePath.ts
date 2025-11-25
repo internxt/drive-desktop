@@ -7,7 +7,7 @@ export function createAbsolutePath(...parts: string[]) {
   let path = posix.join(...parts);
   path = path.replaceAll(win32.sep, posix.sep);
   path = posix.normalize(path);
-  path = path.replace(/\/+$/, '');
+  if (path.endsWith(posix.sep)) path = path.slice(0, -1);
   return path as AbsolutePath;
 }
 
