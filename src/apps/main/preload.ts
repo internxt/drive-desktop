@@ -4,7 +4,6 @@ import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
-import { AccessResponse } from '../renderer/pages/Login/types';
 import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
@@ -30,17 +29,11 @@ const api = {
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
   },
-  userLoggedIn(data: AccessResponse) {
-    ipcRenderer.send('user-logged-in', data);
-  },
   isUserLoggedIn(): Promise<boolean> {
     return ipcRenderer.invoke('is-user-logged-in');
   },
   onUserLoggedInChanged(func: (_: boolean) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
-  },
-  userLogginFailed(email: string) {
-    ipcRenderer.send('USER_LOGIN_FAILED', email);
   },
   logout() {
     ipcRenderer.send('USER_LOGGED_OUT');
@@ -247,8 +240,6 @@ const api = {
   path,
   shellOpenExternal: shell.openExternal,
   shellOpenPath: shell.openPath,
-  authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
-  authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),

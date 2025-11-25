@@ -2,6 +2,7 @@ import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/service';
 import { emitUserLoggedIn, setIsLoggedIn } from '../../auth/handlers';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { validateMnemonic } from 'bip39';
 
 type Props = { search: string };
 
@@ -18,6 +19,10 @@ export async function processLogin({ search }: Props) {
     const newToken = Buffer.from(base64Token, 'base64').toString('utf8');
     const privateKey = Buffer.from(base64PrivateKey, 'base64').toString('utf8');
 
+    const isValid = validateMnemonic(mnemonic);
+
+    if (!isValid) throw new Error(`Invalid mnemonic: ${mnemonic.slice(0, 20)}`);
+
     updateCredentials({ newToken });
 
     const { data, error } = await DriveServerWipModule.auth.refresh();
@@ -31,7 +36,7 @@ export async function processLogin({ search }: Props) {
      * mnemonic. However, since now the client never touches the password we need the backend
      * to send as the decrypted privateKey and mnemonic.
      */
-    setUser({ ...data.user, privateKey, mnemonic } as any);
+    setUser({ ...data.user, privateKey, mnemonic });
 
     restoreSavedConfig({ uuid: data.user.uuid });
     setIsLoggedIn(true);

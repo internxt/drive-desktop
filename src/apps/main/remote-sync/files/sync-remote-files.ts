@@ -3,6 +3,7 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
+import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -21,10 +22,10 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
      * However, if no checkpoint is provided it means that we don't have a local state yet.
      * In that situation, fetch only EXISTS files.
      */
-    const query = {
+    const query: GetFilesQuery = {
       limit: FETCH_LIMIT_1000,
       offset,
-      status: from ? ('ALL' as const) : ('EXISTS' as const),
+      status: from ? 'ALL' : 'EXISTS',
       updatedAt: from?.toISOString(),
       sort: 'updatedAt',
       order: 'ASC',
