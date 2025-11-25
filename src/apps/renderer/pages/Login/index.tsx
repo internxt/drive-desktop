@@ -1,12 +1,12 @@
 import { useI18n } from '../../localize/use-i18n';
 import Button from '../../components/Button';
 
+function openUrl(url: string) {
+  void globalThis.window.electron.shellOpenExternal(url).catch(reportError);
+}
+
 export function Login() {
   const { t } = useI18n();
-
-  function openUrl(url: string) {
-    void globalThis.window.electron.shellOpenExternal(url).catch(reportError);
-  }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center gap-6">
