@@ -9,17 +9,12 @@ import { isMoveFileEvent } from './is-move-event';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
 };
 
-export async function unlinkFile({ ctx, absolutePath }: TProps) {
-  const path = pathUtils.absoluteToRelative({
-    base: ctx.rootPath,
-    path: absolutePath,
-  });
-
+export async function unlinkFile({ ctx, path }: TProps) {
   try {
-    const parentUuid = await getParentUuid({ ctx, absolutePath });
+    const parentUuid = await getParentUuid({ ctx, path });
     if (!parentUuid) return;
 
     const nameWithExtension = basename(path);
@@ -46,7 +41,7 @@ export async function unlinkFile({ ctx, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
       uuid: file.uuid,
       workspaceToken: ctx.workspaceToken,
-      path: absolutePath,
+      path,
     });
 
     if (error) throw error;

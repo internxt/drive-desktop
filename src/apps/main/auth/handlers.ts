@@ -10,19 +10,16 @@ import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
-
-let isLoggedIn: boolean;
+import { User } from '../types';
 
 export function setIsLoggedIn(value: boolean) {
-  isLoggedIn = value;
-
   getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
 setIsLoggedIn(!!getUser());
 
 export function getIsLoggedIn() {
-  return isLoggedIn;
+  return !!getUser();
 }
 
 export function onUserUnauthorized() {
@@ -38,7 +35,7 @@ export async function checkIfUserIsLoggedIn() {
     eventBus.emit('USER_LOGGED_OUT');
   }
 
-  if (!isLoggedIn) return;
+  if (!user) return;
 
   try {
     await createTokenSchedule();
@@ -47,7 +44,7 @@ export async function checkIfUserIsLoggedIn() {
     else throw exc;
   }
 
-  await emitUserLoggedIn();
+  await emitUserLoggedIn({ user });
 }
 
 export function setupAuthIpcHandlers() {
@@ -60,16 +57,17 @@ export function setupAuthIpcHandlers() {
   });
 }
 
-export async function emitUserLoggedIn() {
-  const context: AuthContext = {
+export async function emitUserLoggedIn({ user }: { user: User }) {
+  const ctx: AuthContext = {
+    user,
     abortController: new AbortController(),
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {
-    await logout({ ctx: context });
+    await logout({ ctx });
   });
 
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await spawnSyncEngineWorkers({ context });
+  await spawnSyncEngineWorkers({ ctx });
 }

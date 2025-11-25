@@ -2,7 +2,6 @@ import { call, deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { spawnWorkspace } from './spawn-workspace';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
-import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -17,9 +16,9 @@ describe('spawn-workspace.service', () => {
   const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);
   const decryptMessageWithPrivateKeyMock = vi.mocked(decryptMessageWithPrivateKey);
   const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
-  const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const props = mockProps<typeof spawnWorkspace>({
+    ctx: { user: {} },
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
@@ -38,7 +37,6 @@ describe('spawn-workspace.service', () => {
         },
       },
     });
-    getUserOrThrowMock.mockReturnValue({});
     decryptMessageWithPrivateKeyMock.mockResolvedValue('decryptedMnemonic');
   });
 

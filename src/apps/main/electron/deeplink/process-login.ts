@@ -36,11 +36,12 @@ export async function processLogin({ search }: Props) {
      * mnemonic. However, since now the client never touches the password we need the backend
      * to send as the decrypted privateKey and mnemonic.
      */
-    setUser({ ...data.user, privateKey, mnemonic });
+    const user = { ...data.user, privateKey, mnemonic };
 
+    setUser(user);
     restoreSavedConfig({ uuid: data.user.uuid });
     setIsLoggedIn(true);
-    await emitUserLoggedIn();
+    await emitUserLoggedIn({ user });
   } catch (error) {
     logger.error({
       msg: 'Cannot process login deeplink',

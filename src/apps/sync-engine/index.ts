@@ -9,6 +9,7 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { checkDangledFiles } from './dangled-files/check-dangled-files';
+import { getUserOrThrow } from '../main/auth/service';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -45,12 +46,14 @@ async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
 ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
+    const user = getUserOrThrow();
 
     const { fileUploader, environment } = buildFileUploader({ bucket: config.bucket });
     const contentsDownloader = new InxtJs.ContentsDownloader(environment, config.bucket);
 
     const ctx: ProcessSyncContext = {
       ...config,
+      user,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
       abortController: new AbortController(),
       fileUploader,

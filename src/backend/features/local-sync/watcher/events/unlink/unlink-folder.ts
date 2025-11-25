@@ -9,17 +9,12 @@ import { isMoveFolderEvent } from './is-move-event';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
 };
 
-export async function unlinkFolder({ ctx, absolutePath }: TProps) {
-  const path = pathUtils.absoluteToRelative({
-    base: ctx.rootPath,
-    path: absolutePath,
-  });
-
+export async function unlinkFolder({ ctx, path }: TProps) {
   try {
-    const parentUuid = await getParentUuid({ absolutePath, ctx });
+    const parentUuid = await getParentUuid({ path, ctx });
     if (!parentUuid) return;
 
     const plainName = basename(path);
@@ -41,7 +36,7 @@ export async function unlinkFolder({ ctx, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFolderByUuid', {
       uuid: folder.uuid,
       workspaceToken: ctx.workspaceToken,
-      path: absolutePath,
+      path,
     });
 
     if (error) throw error;

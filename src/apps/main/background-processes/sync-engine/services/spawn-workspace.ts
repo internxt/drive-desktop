@@ -3,13 +3,12 @@ import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { getUserOrThrow } from '@/apps/main/auth/service';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
-  context: AuthContext;
+  ctx: AuthContext;
   workspace: {
     id: string;
     key: string;
@@ -19,24 +18,22 @@ type TProps = {
   };
 };
 
-export async function spawnWorkspace({ context, workspace }: TProps) {
+export async function spawnWorkspace({ ctx, workspace }: TProps) {
   logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
 
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
 
   if (error) return;
 
-  const user = getUserOrThrow();
-
   try {
     const mnemonic = await decryptMessageWithPrivateKey({
       encryptedMessage: Buffer.from(workspace.key, 'base64').toString(),
-      privateKeyInBase64: user.privateKey,
+      privateKeyInBase64: ctx.user.privateKey,
     });
 
     const syncCtx: SyncContext = {
-      ...context,
-      userUuid: user.uuid,
+      ...ctx,
+      userUuid: ctx.user.uuid,
       mnemonic,
       providerId: workspace.providerId,
       rootPath: workspace.rootPath,
