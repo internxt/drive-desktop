@@ -1,9 +1,9 @@
 #include <Placeholders.h>
+#include <Windows.h>
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <convert_to_placeholder.h>
 #include <napi_extract_args.h>
-#include <windows.h>
 
 #include <filesystem>
 

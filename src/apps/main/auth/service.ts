@@ -1,15 +1,8 @@
-import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.service';
 import { safeStorage } from 'electron';
 import ConfigStore from '../config';
 import { User } from '../types';
 
 const TOKEN_ENCODING = 'latin1';
-
-type Credentials = {
-  userData: User;
-  newToken: string;
-  password: string;
-};
 
 export function obtainToken(): string {
   const token = ConfigStore.get('newToken');
@@ -39,20 +32,6 @@ export function setUser(userData: User) {
     ...userData,
     needLogout: false,
   });
-}
-
-export function setCredentials({ userData, newToken, password }: Credentials) {
-  const { publicKey, privateKey, publicKyberKey, privateKyberKey } = parseAndDecryptUserKeys(userData, password);
-
-  userData.publicKey = publicKey;
-  userData.privateKey = privateKey;
-  userData.keys.ecc.publicKey = publicKey;
-  userData.keys.ecc.privateKey = privateKey;
-  userData.keys.kyber.publicKey = publicKyberKey;
-  userData.keys.kyber.privateKey = privateKyberKey;
-
-  setUser(userData);
-  updateCredentials({ newToken });
 }
 
 export function updateCredentials({ newToken }: { newToken: string }) {

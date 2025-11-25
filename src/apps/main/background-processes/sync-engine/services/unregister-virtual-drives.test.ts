@@ -13,54 +13,54 @@ describe('unregister-virtual-drives', () => {
     props = mockProps<typeof unregisterVirtualDrives>({ currentProviderIds: ['{PROVIDER_ID}'] });
   });
 
-  it('should unregister if displayName contains internxt', () => {
+  it('should unregister if displayName contains internxt', async () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([{ id: '{OLD_PROVIDER_ID}', displayName: 'Internxt', path: 'Other' }]);
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     call(unregisterSyncRootMock).toStrictEqual({ providerId: '{OLD_PROVIDER_ID}' });
   });
 
-  it('should unregister if path contains internxt', () => {
+  it('should unregister if path contains internxt', async () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([{ id: '{OLD_PROVIDER_ID}', displayName: 'Other', path: 'Internxt' }]);
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     call(unregisterSyncRootMock).toStrictEqual({ providerId: '{OLD_PROVIDER_ID}' });
   });
 
-  it('should ignore if it is not from internxt', () => {
+  it('should ignore if it is not from internxt', async () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}', displayName: 'Other', path: 'Other' }]);
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
   });
 
-  it('should unregister if it not already registered', () => {
+  it('should unregister if it not already registered', async () => {
     // Given
     props.currentProviderIds = ['{NEW_PROVIDER_ID}'];
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     call(unregisterSyncRootMock).toStrictEqual({ providerId: '{PROVIDER_ID}' });
   });
 
-  it('should do nothing if nothing was registered', () => {
+  it('should do nothing if nothing was registered', async () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([]);
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
   });
 
-  it('should not unregister if it is already registered', () => {
+  it('should not unregister if it is already registered', async () => {
     // When
-    unregisterVirtualDrives(props);
+    await unregisterVirtualDrives(props);
     // Then
     expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
   });

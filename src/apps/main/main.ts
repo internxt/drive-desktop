@@ -50,7 +50,7 @@ import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
 import { Marketing } from '@/backend/features';
-import { processDeeplink } from './electron/process-deeplink';
+import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
 
 if (process.defaultApp) {

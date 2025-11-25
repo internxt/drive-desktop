@@ -59,7 +59,7 @@
     "protocols": {
       "name": "Internxt",
       "schemes": [
-        "com.internxt.drive"
+        "internxt"
       ]
     },
     "win": {
@@ -164,7 +164,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/drive-desktop-core": "0.1.9",
+    "@internxt/drive-desktop-core": "^0.1.10",
     "@internxt/inxt-js": "2.2.9",
     "@internxt/lib": "1.3.1",
     "@internxt/scan": "1.0.7",
@@ -181,7 +181,6 @@
     "bytes": "^3.1.1",
     "chokidar": "^3.6.0",
     "clsx": "^2.1.1",
-    "crypto-js": "4.1.1",
     "dayjs": "^1.10.7",
     "effect": "^3.19.6",
     "electron-debug": "^3.2.0",
@@ -198,7 +197,6 @@
     "openpgp": "5.11.3",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
-    "react-auth-code-input": "^3.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",
