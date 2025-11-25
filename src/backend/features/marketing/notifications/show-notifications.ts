@@ -1,4 +1,5 @@
 import { iconPath } from '@/apps/utils/icon';
+import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { MarketingNotification } from '@/infra/drive-server-wip/services/notifications/get-notifications';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
@@ -10,7 +11,7 @@ function showNotification(notification: MarketingNotification) {
   const escapedLink = notification.link.replace(/&/g, '&amp;');
 
   const toastXml = `
-<toast launch="com.internxt.drive:action=navigate&amp;contentId=${escapedLink}" activationType="protocol">
+<toast launch="${INTERNXT_PROTOCOL}://notification/${escapedLink}" activationType="protocol">
   <visual>
     <binding template="ToastGeneric">
       <text>${notification.message}</text>

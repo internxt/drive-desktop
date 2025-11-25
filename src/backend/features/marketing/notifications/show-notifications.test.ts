@@ -24,7 +24,7 @@ describe('show-notifications', () => {
     calls(mockOn).toHaveLength(1);
     call(Notification).toStrictEqual({
       toastXml: expect.stringContaining(
-        'com.internxt.drive:action=navigate&amp;contentId=https://internxt.com/deals/black-friday-internxt?next=another-url&amp;prop=value',
+        'internxt://notification/https://internxt.com/deals/black-friday-internxt?next=another-url&amp;prop=value',
       ),
     });
   });

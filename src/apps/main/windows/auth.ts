@@ -11,8 +11,8 @@ export const getAuthWindow = () => {
 
 export const createAuthWindow = async () => {
   authWindow = new BrowserWindow({
-    width: 300,
-    height: 450,
+    width: 520,
+    height: 320,
     show: false,
     webPreferences: {
       preload: preloadPath,
