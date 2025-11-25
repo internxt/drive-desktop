@@ -7,37 +7,36 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('get-file-info', () => {
   const providerId = `{${v4()}}`;
   const testPath = join(TEST_FILES, v4());
   const rootPath = join(testPath, v4());
 
-  const virtualDrive = new VirtualDrive({ rootPath, providerId });
-
   let props: Parameters<typeof getFileInfo>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof getFileInfo>({ ctx: { virtualDrive } });
+    props = mockProps<typeof getFileInfo>({});
   });
 
   beforeAll(async () => {
-    await virtualDrive.createSyncRootFolder();
-    virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive' });
+    await VirtualDrive.createSyncRootFolder({ rootPath });
+    Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
   });
 
   afterAll(() => {
-    VirtualDrive.unregisterSyncRoot({ providerId });
+    Addon.unregisterSyncRoot({ providerId });
   });
 
-  it('should return file info when read a file placeholder', () => {
+  it('should return file info when read a file placeholder', async () => {
     // Given
     const path = join(rootPath, 'file.txt');
     const uuid = v4();
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
 
-    virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFileInfo(props);
     // Then
@@ -45,14 +44,14 @@ describe('get-file-info', () => {
     expect(error).toStrictEqual(undefined);
   });
 
-  it('should return error NOT_A_FILE when read a folder placeholder', () => {
+  it('should return error NOT_A_FILE when read a folder placeholder', async () => {
     // Given
     const path = join(rootPath, 'folder');
     const uuid = v4();
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = path;
 
-    virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
+    await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFileInfo(props);
     // Then

@@ -27,8 +27,6 @@ export class Traverser {
   }
 
   private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
-    if (!items) return;
-
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === parent.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
 

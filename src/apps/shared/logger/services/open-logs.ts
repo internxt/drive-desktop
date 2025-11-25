@@ -11,8 +11,6 @@ import { pipeline } from 'node:stream/promises';
 export async function openLogs() {
   logger.debug({ msg: 'Open logs' });
 
-  void shell.openPath(PATHS.LOGS);
-
   try {
     const output = join(PATHS.LOGS, INTERNXT_LOGS);
     const writeStream = createWriteStream(output);
@@ -39,4 +37,6 @@ export async function openLogs() {
   } catch (error) {
     logger.error({ msg: 'Error creating logs zip', error });
   }
+
+  void shell.openPath(PATHS.LOGS);
 }

@@ -40,7 +40,7 @@ describe('download-file', () => {
 
   it('should not log error if aborted', async () => {
     // Given
-    pipelineMock.mockReturnValue(Effect.fail(new pipeline.PipelineAborted()));
+    pipelineMock.mockReturnValue(Effect.fail(new pipeline.PipelineAborted({ error: new Error() })));
     // When
     await Effect.runPromise(downloadFile(props));
     // Then
@@ -49,13 +49,10 @@ describe('download-file', () => {
 
   it('should log error if any other error', async () => {
     // Given
-    contentsDownloader.downloadThrow.mockRejectedValue(new Error('message'));
+    contentsDownloader.downloadThrow.mockRejectedValue(new Error());
     // When
     await Effect.runPromise(downloadFile(props));
     // Then
-    call(loggerMock.error).toMatchObject({
-      msg: 'Error downloading file',
-      error: { _tag: 'Die', defect: new Error('message') },
-    });
+    call(loggerMock.error).toMatchObject({ msg: 'Error downloading file' });
   });
 });

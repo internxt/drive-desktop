@@ -5,13 +5,15 @@ import * as getPathFromDialog from '@/apps/main/device/service';
 import * as downloadFolder from './download-folder';
 import { ipcMain } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as broadcastToWindows from '@/apps/main/windows';
 
 describe('download-backup', () => {
   const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');
   const getPathFromDialogMock = partialSpyOn(getPathFromDialog, 'getPathFromDialog');
   const downloadFolderMock = partialSpyOn(downloadFolder, 'downloadFolder');
   const onMock = partialSpyOn(ipcMain, 'on');
-  const removeListenerMock = vi.spyOn(ipcMain, 'removeListener');
+  const removeListenerMock = partialSpyOn(ipcMain, 'removeListener');
+  const broadcastToWindowsMock = partialSpyOn(broadcastToWindows, 'broadcastToWindows');
 
   const props = mockProps<typeof downloadBackup>({
     device: {
@@ -43,7 +45,7 @@ describe('download-backup', () => {
     calls(downloadFolderMock).toHaveLength(0);
   });
 
-  it('should set listeners', async () => {
+  it('should set and remove listener', async () => {
     // When
     await downloadBackup(props);
     // Then
@@ -51,10 +53,11 @@ describe('download-backup', () => {
     call(removeListenerMock).toStrictEqual(['abort-download-backups-deviceUuid', expect.any(Function)]);
   });
 
-  it('should use deviceUuid as rootUuids if no folderUuids are provided', async () => {
+  it('should use the device uuid as the root uuid if no folder uuids are provided', async () => {
     // When
     await downloadBackup(props);
     // Then
+    call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
       device: { name: 'device', uuid: 'deviceUuid' },
       rootPath: '/backup/Backup_20250101120000',
@@ -62,12 +65,13 @@ describe('download-backup', () => {
     });
   });
 
-  it('should use folderUuids as rootUuids if are provided', async () => {
+  it('should use folder uuids as the root uuids if they are provided', async () => {
     // Given
     props.folderUuids = ['folderUuid' as FolderUuid];
     // When
     await downloadBackup(props);
     // Then
+    call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
       device: { name: 'device', uuid: 'deviceUuid' },
       rootPath: '/backup/Backup_20250101120000',

@@ -5,6 +5,7 @@ import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { Addon } from '@/node-win/addon-wrapper';
 
 export class FilePlaceholderUpdater {
   static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
@@ -18,7 +19,7 @@ export class FilePlaceholderUpdater {
       const localPath = files[remote.uuid as FileUuid];
 
       if (!localPath) {
-        ctx.virtualDrive.createFileByPath({
+        await Addon.createFilePlaceholder({
           path: remotePath,
           placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
@@ -37,7 +38,7 @@ export class FilePlaceholderUpdater {
         });
 
         await rename(localPath.path, remotePath);
-        ctx.virtualDrive.updateSyncStatus({ path: remotePath });
+        Addon.updateSyncStatus({ path: remotePath });
       }
 
       await syncRemoteChangesToLocal({ ctx, local: localPath, remote });

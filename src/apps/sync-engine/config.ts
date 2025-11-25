@@ -1,7 +1,6 @@
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
@@ -23,7 +22,6 @@ export type Config = {
 export type SyncContext = AuthContext & Config & { logger: typeof logger };
 
 export type ProcessSyncContext = SyncContext & {
-  virtualDrive: VirtualDrive;
   fileUploader: EnvironmentFileUploader;
   contentsDownloader: InxtJs.ContentsDownloader;
 };
