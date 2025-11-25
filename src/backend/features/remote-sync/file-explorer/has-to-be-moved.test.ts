@@ -1,4 +1,4 @@
-import { abs, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { hasToBeMoved } from './has-to-be-moved';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';

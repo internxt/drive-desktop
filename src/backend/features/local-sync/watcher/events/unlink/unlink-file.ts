@@ -1,4 +1,4 @@
-import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';

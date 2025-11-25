@@ -1,6 +1,6 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { unlinkFile } from './unlink-file';
-import { abs, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as isMoveFileEvent from './is-move-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
