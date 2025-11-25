@@ -5,7 +5,7 @@ type TProps = {
   currentProviderIds?: string[];
 };
 
-export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
+export async function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
   const syncRoots = Addon.getRegisteredSyncRoots();
 
   const internxtSyncRoots = syncRoots.filter((syncRoot) => {
@@ -18,7 +18,7 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
 
   logger.debug({ msg: 'Current provider ids', currentProviderIds });
 
-  internxtSyncRoots.forEach((syncRoot) => {
+  const promises = internxtSyncRoots.map(async (syncRoot) => {
     if (!currentProviderIds.includes(syncRoot.id)) {
       /**
        * v2.5.1 Daniel Jiménez
@@ -27,7 +27,7 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
        * the lastSyncCheckpoint of files and folders.
        */
       try {
-        Addon.unregisterSyncRoot({ providerId: syncRoot.id });
+        await Addon.unregisterSyncRoot({ providerId: syncRoot.id });
       } catch (exc) {
         logger.error({
           tag: 'SYNC-ENGINE',
@@ -38,4 +38,6 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
       }
     }
   });
+
+  await Promise.all(promises);
 }

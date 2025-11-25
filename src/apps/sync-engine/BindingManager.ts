@@ -32,7 +32,7 @@ export class BindingsManager {
     };
 
     try {
-      Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
+      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
       Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
     } catch (error) {
       ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
