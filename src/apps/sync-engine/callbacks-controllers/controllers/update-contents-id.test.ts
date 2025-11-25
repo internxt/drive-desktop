@@ -6,11 +6,13 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { Addon } from '@/node-win/addon-wrapper';
 
 describe('update-contents-id', () => {
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
   const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
+  const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
   const path = '/folder/file.txt' as AbsolutePath;
   const uuid = 'uuid';
@@ -20,7 +22,6 @@ describe('update-contents-id', () => {
   beforeEach(() => {
     contentsUploaderMock.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
-      ctx: { virtualDrive: { updateSyncStatus: vi.fn() } },
       path,
       uuid,
       stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') },
@@ -69,7 +70,7 @@ describe('update-contents-id', () => {
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
-    call(props.ctx.virtualDrive.updateSyncStatus).toMatchObject({ path });
+    call(updateSyncStatusMock).toMatchObject({ path });
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

@@ -31,9 +31,7 @@ export function downloadFile({ file, contentsDownloader }: Props) {
 
     yield* pipeline({ readable, writable });
   }).pipe(
-    Effect.catchTag('PipelineAborted', () => {
-      return Effect.void;
-    }),
+    Effect.catchTag('PipelineAborted', () => Effect.void),
     Effect.catchAllCause((error) => {
       logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
       return Effect.void;

@@ -4,6 +4,7 @@ import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -14,7 +15,7 @@ type TProps = {
 export async function createFile({ ctx, path, stats }: TProps) {
   try {
     const uuid = await FileCreationOrchestrator.run({ ctx, path, stats });
-    ctx.virtualDrive.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
+    Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ ctx, path });

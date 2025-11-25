@@ -9,7 +9,6 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
 import { Environment } from '@internxt/inxt-js';
-import Bottleneck from 'bottleneck';
 import { broadcastToWindows } from '@/apps/main/windows';
 
 type Props = {
@@ -27,7 +26,6 @@ export async function downloadBackup({ device, folderUuids }: Props) {
 
   const chosenPath = abs(chosenItem.path);
 
-  const limiter = new Bottleneck({ maxConcurrent: 4 });
   const abortController = new AbortController();
 
   const environment = new Environment({
@@ -44,10 +42,9 @@ export async function downloadBackup({ device, folderUuids }: Props) {
 
   const contentsDownloader = new InxtJs.ContentsDownloader(environment, device.bucket);
 
-  async function eventListener() {
+  function eventListener() {
     logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.name });
     abortController.abort();
-    await limiter.stop();
   }
 
   const listenerName = 'abort-download-backups-' + device.uuid;
@@ -78,7 +75,6 @@ export async function downloadBackup({ device, folderUuids }: Props) {
         rootPath,
         abortController,
         contentsDownloader,
-        limiter,
       });
 
       logger.debug({ tag: 'BACKUPS', msg: 'Download folder finished', rootUuid });

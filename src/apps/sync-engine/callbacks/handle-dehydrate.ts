@@ -1,27 +1,18 @@
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon } from '@/node-win/addon-wrapper';
+import { ProcessSyncContext } from '../config';
 
 type TProps = {
-  drive: VirtualDrive;
+  ctx: ProcessSyncContext;
   path: AbsolutePath;
 };
 
-export function handleDehydrate({ drive, path }: TProps) {
+export function handleDehydrate({ ctx, path }: TProps) {
   try {
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Dehydrating file',
-      path,
-    });
+    ctx.logger.debug({ msg: 'Dehydrating file', path });
 
-    drive.dehydrateFile({ path });
+    Addon.dehydrateFile({ path });
   } catch (error) {
-    logger.error({
-      tag: 'SYNC-ENGINE',
-      msg: 'Error dehydrating file',
-      path,
-      error,
-    });
+    ctx.logger.error({ msg: 'Error dehydrating file', path, error });
   }
 }
