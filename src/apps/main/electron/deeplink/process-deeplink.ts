@@ -11,9 +11,12 @@ type Props = { argv: string[] };
 export function processDeeplink({ argv }: Props) {
   const url = argv.find((arg) => arg.startsWith(INTERNXT_PROTOCOL));
 
-  if (!url) return;
+  if (!url) {
+    logger.debug({ msg: 'Unknown deeplink', argv });
+    return;
+  }
 
-  logger.debug({ msg: 'Process deeplink', url: url.slice(0, 50) });
+  logger.debug({ msg: 'Known deeplink', url: url.slice(0, 50) });
 
   if (url.startsWith(loginPrefix)) {
     void processLogin({ search: url.slice(loginPrefix.length) });
