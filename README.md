@@ -1,42 +1,57 @@
-<img src=".erb/img/erb-banner.svg" width="100%" />
+# Internxt Drive Desktop for Linux
 
-<br>
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/internxt/drive-desktop-linux)
 
-<p>
-  Electron React Boilerplate uses <a href="https://electron.atom.io/">Electron</a>, <a href="https://facebook.github.io/react/">React</a>, <a href="https://github.com/reactjs/react-router">React Router</a>, <a href="https://webpack.js.org/">Webpack</a> and <a href="https://www.npmjs.com/package/react-refresh">React Fast Refresh</a>.
-</p>
+## Installation
 
-<br>
+Internxt Drive is available for Linux in two formats:
 
-<div align="center">
+### .deb Package (Recommended)
 
-[![Build Status][github-actions-status]][github-actions-url]
-[![Github Tag][github-tag-image]][github-tag-url]
+Download and install the `.deb` package for full compatibility:
 
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/backers/badge.svg)](#backers)
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/sponsors/badge.svg)](#sponsors)
-[![StackOverflow][stackoverflow-img]][stackoverflow-url]
+```bash
+sudo dpkg -i internxt_2.5.1_amd64.deb
+```
 
-</div>
+### AppImage
 
-## Install
+Alternatively, you can use the AppImage format:
+
+```bash
+chmod +x Internxt-2.5.1.AppImage
+./Internxt-2.5.1.AppImage
+```
+
+#### ⚠️ Important Note about AppImage and SSO Login:
+
+Due to technical limitations of the AppImage format, the new SSO login flow is only supported when using Chrome. The .deb version does not have this restriction and remains fully compatible with all browsers.
+
+For the best experience with SSO authentication, we recommend using the .deb package installation method.
+
+## Development
+
+### Prerequisites
+
+- [NVM](https://github.com/nvm-sh/nvm) (Node Version Manager)
+- Node.js 18
+
+### Install
 
 Clone the repo and install dependencies:
 
 ```bash
-git clone --depth 1 --branch main https://github.com/electron-react-boilerplate/electron-react-boilerplate.git your-project-name
-cd your-project-name
-npm install
+git clone https://github.com/internxt/drive-desktop-linux.git
+cd drive-desktop-linux
+yarn install
 ```
 
-**Having issues installing? See our [debugging guide](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)**
-
-## Starting Development
+### Starting Development
 
 Start the app in the `dev` environment:
 
 ```bash
-npm start
+yarn start
 ```
 
 ## Packaging for Production
@@ -44,20 +59,5 @@ npm start
 To package apps for the local platform:
 
 ```bash
-npm run package
+yarn package
 ```
-
-## License
-
-AGPL3
-
-## Credits
-
-This project relies on Electron Boilerplate, which can be found [here](https://electron-react-boilerplate.js.org).
-
-[github-actions-status]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/workflows/Test/badge.svg
-[github-actions-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/actions
-[github-tag-image]: https://img.shields.io/github/tag/electron-react-boilerplate/electron-react-boilerplate.svg?label=version
-[github-tag-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/releases/latest
-[stackoverflow-img]: https://img.shields.io/badge/stackoverflow-electron_react_boilerplate-blue.svg
-[stackoverflow-url]: https://stackoverflow.com/questions/tagged/electron-react-boilerplate
