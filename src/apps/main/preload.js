@@ -44,17 +44,11 @@ var api = {
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
   },
-  userLoggedIn(data) {
-    import_electron2.ipcRenderer.send("user-logged-in", data);
-  },
   isUserLoggedIn() {
     return import_electron2.ipcRenderer.invoke("is-user-logged-in");
   },
   onUserLoggedInChanged(func) {
     import_electron2.ipcRenderer.on("user-logged-in-changed", (_, v) => func(v));
-  },
-  userLogginFailed(email) {
-    import_electron2.ipcRenderer.send("USER_LOGIN_FAILED", email);
   },
   logout() {
     import_electron2.ipcRenderer.send("USER_LOGGED_OUT");
@@ -242,8 +236,6 @@ var api = {
   path: import_node_path.default,
   shellOpenExternal: import_electron2.shell.openExternal,
   shellOpenPath: import_electron2.shell.openPath,
-  authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
-  authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),

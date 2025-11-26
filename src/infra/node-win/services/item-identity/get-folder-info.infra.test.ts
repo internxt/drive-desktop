@@ -24,11 +24,11 @@ describe('get-folder-info', () => {
 
   beforeAll(async () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
-    Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
+    await Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
   });
 
-  afterAll(() => {
-    Addon.unregisterSyncRoot({ providerId });
+  afterAll(async () => {
+    await Addon.unregisterSyncRoot({ providerId });
   });
 
   it('should return root info when read root path', () => {

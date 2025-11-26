@@ -74,7 +74,7 @@ async function deleteFileByUuid(context: { path: AbsolutePath; uuid: FileUuid; w
     noContentWrapper({
       request: client.POST(endpoint, {
         headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-        body: { items: [{ type: 'file', uuid: context.uuid, id: null }] },
+        body: { items: [{ type: 'file', uuid: context.uuid }] },
       }),
     });
 
@@ -94,7 +94,7 @@ async function deleteFolderByUuid(context: { path: AbsolutePath; uuid: FolderUui
     noContentWrapper({
       request: client.POST(endpoint, {
         headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-        body: { items: [{ type: 'folder', uuid: context.uuid, id: null }] },
+        body: { items: [{ type: 'folder', uuid: context.uuid }] },
       }),
     });
 

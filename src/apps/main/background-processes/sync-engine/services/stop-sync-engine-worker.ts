@@ -20,7 +20,7 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
   await sleep(2000);
 
   try {
-    Addon.unregisterSyncRoot({ providerId: ctx.providerId });
+    await Addon.unregisterSyncRoot({ providerId: ctx.providerId });
   } catch (error) {
     ctx.logger.error({
       msg: 'Error unregistering sync root',
@@ -36,5 +36,5 @@ export async function cleanSyncEngineWorkers() {
   });
 
   await sleep(2000);
-  unregisterVirtualDrives({});
+  await unregisterVirtualDrives({});
 }

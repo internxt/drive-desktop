@@ -1,11 +1,15 @@
-#include "Callbacks.h"
-#include "SyncRoot.h"
-#include "stdafx.h"
+#include <Windows.h>
+#include <async_wrapper.h>
+#include <napi_extract_args.h>
+#include <register_sync_root.h>
+#include <stdafx.h>
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
 
-void register_sync_root(const wchar_t *syncRootPath, const wchar_t *providerName, const wchar_t *providerVersion, const wchar_t *providerId, const wchar_t *logoPath)
+void register_sync_root(const std::wstring& syncRootPath, const std::wstring& providerName,
+                        const std::wstring& providerVersion, const std::wstring& providerId, const std::wstring& logoPath)
 {
     winrt::StorageProviderSyncRootInfo info;
     info.Id(providerId);
@@ -30,4 +34,20 @@ void register_sync_root(const wchar_t *syncRootPath, const wchar_t *providerName
     info.RecycleBinUri(uri);
 
     winrt::StorageProviderSyncRootManager::Register(info);
+}
+
+napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
+{
+    auto [syncRootPath, providerName, providerVersion, providerId, logoPath] =
+        napi_extract_args<std::wstring, std::wstring, std::wstring, std::wstring, std::wstring>(env, info);
+
+    return run_async(
+        env,
+        "RegisterSyncRootAsync",
+        register_sync_root,
+        std::move(syncRootPath),
+        std::move(providerName),
+        std::move(providerVersion),
+        std::move(providerId),
+        std::move(logoPath));
 }

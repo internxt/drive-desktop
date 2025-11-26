@@ -16,7 +16,7 @@ import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 setupElectronLog({ logsPath: PATHS.LOGS });
 
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
+import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';
@@ -31,7 +31,6 @@ import './remote-sync/handlers';
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
-import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import { electronStore } from './config';
@@ -50,7 +49,7 @@ import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
 import { Marketing } from '@/backend/features';
-import { processDeeplink } from './electron/process-deeplink';
+import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
 
 if (process.defaultApp) {
@@ -132,10 +131,12 @@ app
 
     void setUpBackups();
 
-    await checkIfUserIsLoggedIn();
-    const isLoggedIn = getIsLoggedIn();
+    const isLoggedIn = await checkIfUserIsLoggedIn();
 
-    if (!isLoggedIn) {
+    if (isLoggedIn) {
+      await emitUserLoggedIn();
+    } else {
+      setIsLoggedIn(false);
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
