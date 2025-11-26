@@ -8,7 +8,6 @@ process.env.NODE_ENV = 'development';
 // We do not want to log anything
 vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 // We do not want to make network calls
-vi.mock(import('@/apps/shared/HttpClient/auth-client'));
 vi.mock(import('@/apps/shared/HttpClient/client'));
 
 vi.mock(import('electron'), () => {

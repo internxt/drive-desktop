@@ -15,7 +15,7 @@ type TProps = {
 export async function createFile({ ctx, path, stats }: TProps) {
   try {
     const uuid = await FileCreationOrchestrator.run({ ctx, path, stats });
-    Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
+    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ ctx, path });

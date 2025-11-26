@@ -16,7 +16,7 @@
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint src --ext .ts,.tsx --max-warnings 436",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 406",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src tests --check",
     "format:fix": "prettier src tests --write",
@@ -59,7 +59,7 @@
     "protocols": {
       "name": "Internxt",
       "schemes": [
-        "com.internxt.drive"
+        "internxt"
       ]
     },
     "win": {
@@ -95,7 +95,6 @@
     "@types/lodash.debounce": "^4.0.9",
     "@types/lokijs": "^1.5.14",
     "@types/node": "^20.19.0",
-    "@types/node-schedule": "^2.1.0",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/uuid": "^8.3.4",
@@ -164,7 +163,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/drive-desktop-core": "0.1.9",
+    "@internxt/drive-desktop-core": "^0.1.10",
     "@internxt/inxt-js": "2.2.9",
     "@internxt/lib": "1.3.1",
     "@internxt/scan": "1.0.7",
@@ -180,7 +179,6 @@
     "bytes": "^3.1.1",
     "chokidar": "^3.6.0",
     "clsx": "^2.1.1",
-    "crypto-js": "4.1.1",
     "dayjs": "^1.10.7",
     "effect": "^3.19.6",
     "electron-debug": "^3.2.0",
@@ -191,12 +189,10 @@
     "jwt-decode": "^3.1.2",
     "lodash.debounce": "^4.0.8",
     "lokijs": "^1.5.12",
-    "node-schedule": "^2.1.0",
     "openapi-fetch": "^0.13.4",
     "openpgp": "5.11.3",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
-    "react-auth-code-input": "^3.2.0",
     "react-circular-progressbar": "^2.1.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^6.2.1",

@@ -1,6 +1,6 @@
 import { clientWrapper } from './in/client-wrapper.service';
 import { driveServerWip } from './drive-server-wip.module';
-import { authClientMock, clientMock } from 'tests/vitest/mocks.helper.test';
+import { clientMock } from 'tests/vitest/mocks.helper.test';
 import { FetchResponse } from 'openapi-fetch';
 
 vi.mock(import('./in/client-wrapper.service'));
@@ -36,8 +36,6 @@ describe('drive-server-wip', () => {
 
   it.each(dataset)('%s', async ({ service, method }) => {
     // Given
-    authClientMock.POST.mockResolvedValueOnce({ response: { status: 200 } });
-    authClientMock.POST.mockResolvedValueOnce({ response: { status: 201 } });
     clientMock.GET.mockResolvedValueOnce({ response: { status: 200 } });
     clientMock.GET.mockResolvedValueOnce({ response: { status: 201 } });
     clientMock.POST.mockResolvedValueOnce({ response: { status: 200 } });

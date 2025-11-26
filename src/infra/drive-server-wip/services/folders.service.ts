@@ -18,7 +18,7 @@ export const folders = {
 };
 export const FolderModule = folders;
 
-type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
+export type GetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 
 async function getMetadata(context: { folderId: number }) {
   const method = 'GET';
@@ -44,7 +44,7 @@ async function getMetadata(context: { folderId: number }) {
   });
 }
 
-async function getFolders(context: { query: TGetFoldersQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
+async function getFolders(context: { query: GetFoldersQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });

@@ -19,10 +19,10 @@ export const files = {
 };
 export const FileModule = files;
 
-type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
+export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
-async function getFiles(context: { query: TGetFilesQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
+async function getFiles(context: { query: GetFilesQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });

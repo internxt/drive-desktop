@@ -6,6 +6,7 @@ import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getItemsToSync } from '../common/get-items-to-sync';
 import { getDeletedItems } from '../common/get-deleted-items';
+import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
 
 type Props = {
   ctx: SyncContext;
@@ -14,10 +15,11 @@ type Props = {
 
 export async function filesRecoverySync({ ctx, offset }: Props) {
   const extra = { abortSignal: ctx.abortController.signal, skipLog: true };
-  const query = {
+
+  const query: GetFilesQuery = {
     limit: FETCH_LIMIT_1000,
     offset,
-    status: 'EXISTS' as const,
+    status: 'EXISTS',
     sort: 'uuid',
     order: 'ASC',
   };
