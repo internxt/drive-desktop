@@ -1,4 +1,4 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { hasToBeMoved } from './has-to-be-moved';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -6,8 +6,8 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('has-to-be-moved', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
-  const remotePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\current' as AbsolutePath;
-  const localPath = 'C:\\Users\\user\\InternxtDrive\\folder2\\current' as AbsolutePath;
+  const remotePath = abs('/drive/folder1/current');
+  const localPath = abs('/drive/folder2/current');
 
   let props: Parameters<typeof hasToBeMoved>[0];
 
@@ -66,8 +66,8 @@ describe('has-to-be-moved', () => {
 
   it('should return true if item has been renamed but not moved', () => {
     // Given
-    props.remotePath = 'C:\\Users\\user\\InternxtDrive\\folder\\old' as AbsolutePath;
-    props.localPath = 'C:\\Users\\user\\InternxtDrive\\folder\\new' as AbsolutePath;
+    props.remotePath = abs('/drive/folder/old');
+    props.localPath = abs('/drive/folder/new');
     // When
     const hasBeenMoved = hasToBeMoved(props);
     // Then
@@ -84,8 +84,8 @@ describe('has-to-be-moved', () => {
    */
   it('should return false if item has been renamed but both parents have the same uuid', () => {
     // Given
-    props.remotePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2\\old' as AbsolutePath;
-    props.localPath = 'C:\\Users\\user\\InternxtDrive\\folder3\\folder2\\new' as AbsolutePath;
+    props.remotePath = abs('/drive/folder1/folder2/old');
+    props.localPath = abs('/drive/folder3/folder2/new');
     getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
     getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
     // When

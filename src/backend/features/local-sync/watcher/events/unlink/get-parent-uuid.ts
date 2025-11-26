@@ -5,11 +5,11 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type Props = {
   ctx: ProcessSyncContext;
-  absolutePath: AbsolutePath;
+  path: AbsolutePath;
 };
 
-export async function getParentUuid({ ctx, absolutePath }: Props) {
-  const parentPath = dirname(absolutePath);
+export async function getParentUuid({ ctx, path }: Props) {
+  const parentPath = dirname(path);
   const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 
