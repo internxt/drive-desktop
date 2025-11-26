@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { getWidget } from '../windows/widget';
-import { createTokenSchedule, RefreshTokenError } from './refresh-token';
+import { refreshToken } from './refresh-token';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -10,6 +10,7 @@ import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
+import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 
 let isLoggedIn: boolean;
 
@@ -33,21 +34,17 @@ export function onUserUnauthorized() {
 export async function checkIfUserIsLoggedIn() {
   const user = getUser();
 
-  if (user && user.needLogout === undefined) {
-    logger.debug({ tag: 'AUTH', msg: 'User need logout is undefined' });
-    eventBus.emit('USER_LOGGED_OUT');
+  if (!user) {
+    logger.debug({ tag: 'AUTH', msg: 'User not logged in' });
+    return false;
   }
 
-  if (!isLoggedIn) return;
-
-  try {
-    await createTokenSchedule();
-  } catch (exc) {
-    if (exc instanceof RefreshTokenError) return;
-    else throw exc;
+  if (user.needLogout === undefined) {
+    logger.debug({ tag: 'AUTH', msg: 'User needs logout' });
+    return false;
   }
 
-  await emitUserLoggedIn();
+  return await refreshToken();
 }
 
 export function setupAuthIpcHandlers() {
@@ -61,11 +58,15 @@ export function setupAuthIpcHandlers() {
 }
 
 export async function emitUserLoggedIn() {
+  const scheduler = new TokenScheduler();
+  scheduler.schedule();
+
   const context: AuthContext = {
     abortController: new AbortController(),
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {
+    scheduler.stop();
     await logout({ ctx: context });
   });
 
