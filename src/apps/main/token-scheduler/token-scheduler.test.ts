@@ -52,7 +52,7 @@ describe('Token Scheduler', () => {
     call(loggerMock.error).toMatchObject({ msg: 'Error scheduling refresh token' });
   });
 
-  it('should not schedule if token is invalid', () => {
+  it('should schedule if token is valid', () => {
     // Given
     obtainTokenMock.mockReturnValue(createToken('31 day'));
     // When
