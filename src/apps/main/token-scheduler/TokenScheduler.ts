@@ -3,7 +3,7 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 import { refreshToken } from '../auth/refresh-token';
 import { obtainToken } from '../auth/service';
 
-const DAYS_BEFORE = 5;
+const DAYS_BEFORE = 1;
 
 export class TokenScheduler {
   timeout: NodeJS.Timeout | undefined;
