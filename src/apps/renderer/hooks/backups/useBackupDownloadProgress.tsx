@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { DeviceContext } from '../../context/DeviceContext';
 
 interface DownloadBackupProgress {
@@ -16,30 +16,25 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
-    return globalThis.window.electron.onBackupDownloadProgress(({ id, progress }) =>
+    return globalThis.window.electron.onBackupDownloadProgress(({ id, progress }) => {
       setBackupDownloadProgress((prevState) => {
         return { ...prevState, [id]: Math.round(progress) };
-      }),
-    );
+      });
+    });
   }, []);
 
-  const [thereIsDownloadProgress, setThereIsDownloadProgress] = useState<boolean>(false);
-  const [downloadProgress, setDownloadProgress] = useState<number>(0);
+  const downloadProgress = useMemo(() => {
+    if (!selected) return 0;
 
-  useEffect(() => {
-    if (!selected?.uuid) return;
     const downloadProgress = backupDownloadProgress[selected.uuid];
-    if (downloadProgress && downloadProgress < 100) {
-      setThereIsDownloadProgress(true);
-      setDownloadProgress(downloadProgress);
-    } else {
-      setThereIsDownloadProgress(false);
-      setDownloadProgress(0);
-    }
+
+    if (!downloadProgress) return 0;
+
+    return downloadProgress;
   }, [selected, backupDownloadProgress]);
 
   return {
-    thereIsDownloadProgress,
+    thereIsDownloadProgress: downloadProgress > 0,
     downloadProgress,
   };
 }

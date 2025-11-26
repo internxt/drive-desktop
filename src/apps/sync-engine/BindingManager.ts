@@ -11,23 +11,20 @@ import { Addon } from '@/node-win/addon-wrapper';
 export class BindingsManager {
   static async start({ ctx }: { ctx: ProcessSyncContext }) {
     const callbacks: Callbacks = {
-      fetchDataCallback: async (path, callback) => {
+      fetchDataCallback: async (win32Path, callback) => {
         await fetchData({
           ctx,
-          path: createAbsolutePath(path),
+          path: createAbsolutePath(win32Path),
           callback,
         });
       },
-      cancelFetchDataCallback: (path) => {
-        try {
-          ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
+      cancelFetchDataCallback: (win32Path) => {
+        const path = createAbsolutePath(win32Path);
 
-          ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path: createAbsolutePath(path) });
+        ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
 
-          ctx.contentsDownloader.forceStop();
-        } catch (error) {
-          ctx.logger.error({ msg: 'Error stopping file download', path, error });
-        }
+        ctx.contentsDownloader.forceStop({ path });
+        ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
       },
     };
 

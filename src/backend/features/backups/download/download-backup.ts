@@ -9,6 +9,7 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
 import { Environment } from '@internxt/inxt-js';
+import { broadcastToWindows } from '@/apps/main/windows';
 
 type Props = {
   device: Device;
@@ -24,14 +25,6 @@ export async function downloadBackup({ device, folderUuids }: Props) {
   }
 
   const chosenPath = abs(chosenItem.path);
-
-  logger.debug({
-    tag: 'BACKUPS',
-    msg: 'Downloading device',
-    device: device.name,
-    chosenPath,
-    folderUuids,
-  });
 
   const abortController = new AbortController();
 
@@ -61,11 +54,19 @@ export async function downloadBackup({ device, folderUuids }: Props) {
   const rootPath = join(chosenPath, 'Backup_' + now);
   const rootUuids = folderUuids ?? [device.uuid as FolderUuid];
 
-  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup', rootPath, rootUuids });
+  logger.debug({
+    tag: 'BACKUPS',
+    msg: 'Download backup',
+    name: device.name,
+    rootPath,
+    rootUuids,
+  });
 
   for (const rootUuid of rootUuids) {
+    if (abortController.signal.aborted) return;
+
     try {
-      logger.debug({ msg: 'Download folder', rootUuid });
+      logger.debug({ tag: 'BACKUPS', msg: 'Download folder', rootUuid });
 
       await downloadFolder({
         user,
@@ -75,15 +76,14 @@ export async function downloadBackup({ device, folderUuids }: Props) {
         abortController,
         contentsDownloader,
       });
+
+      logger.debug({ tag: 'BACKUPS', msg: 'Download folder finished', rootUuid });
     } catch (error) {
-      logger.error({
-        tag: 'BACKUPS',
-        msg: 'Error downloading folder',
-        rootUuid,
-        error,
-      });
+      logger.error({ tag: 'BACKUPS', msg: 'Error downloading folder', rootUuid, error });
     }
   }
+
+  broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 0 } });
 
   ipcMain.removeListener(listenerName, eventListener);
 }

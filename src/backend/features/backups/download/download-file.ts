@@ -1,35 +1,40 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pipeline } from '@/core/utils/pipeline';
 import { InxtJs } from '@/infra';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { Effect } from 'effect/index';
 import { createWriteStream } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
-import { pipeline } from 'node:stream/promises';
 
 type Props = {
   file: ExtendedDriveFile;
   contentsDownloader: InxtJs.ContentsDownloader;
 };
 
-export async function downloadFile({ file, contentsDownloader }: Props) {
-  logger.debug({ tag: 'BACKUPS', msg: 'Download file', path: file.absolutePath });
+export function downloadFile({ file, contentsDownloader }: Props) {
+  return Effect.gen(function* () {
+    logger.debug({ tag: 'BACKUPS', msg: 'Download file', path: file.absolutePath });
 
-  await mkdir(dirname(file.absolutePath), { recursive: true });
+    const parentPath = dirname(file.absolutePath);
 
-  try {
-    const writeStream = createWriteStream(file.absolutePath);
+    yield* Effect.promise(() => mkdir(parentPath, { recursive: true }));
 
-    const { data: readStream, error } = await contentsDownloader.download({ contentsId: file.contentsId });
+    const writable = createWriteStream(file.absolutePath);
 
-    if (error) throw error;
+    const readable = yield* Effect.promise(() =>
+      contentsDownloader.downloadThrow({
+        path: file.absolutePath,
+        contentsId: file.contentsId,
+      }),
+    );
 
-    await pipeline(readStream, writeStream);
-  } catch (error) {
-    logger.error({
-      tag: 'BACKUPS',
-      msg: 'Error downloading file',
-      path: file.absolutePath,
-      error,
-    });
-  }
+    yield* pipeline({ readable, writable });
+  }).pipe(
+    Effect.catchTag('PipelineAborted', () => Effect.void),
+    Effect.catchAllCause((error) => {
+      logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
+      return Effect.void;
+    }),
+  );
 }
