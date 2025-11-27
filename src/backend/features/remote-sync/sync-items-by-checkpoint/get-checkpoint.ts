@@ -8,7 +8,7 @@ type TProps = {
 };
 
 export async function getCheckpoint({ ctx, type }: TProps) {
-  const { data: checkpoint } = await SqliteModule.CheckpointModule.get({
+  const { data: checkpoint } = await SqliteModule.CheckpointModule.getCheckpoint({
     userUuid: ctx.userUuid,
     workspaceId: ctx.workspaceId,
     type,

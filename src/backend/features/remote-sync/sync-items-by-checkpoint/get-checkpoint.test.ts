@@ -3,11 +3,11 @@ import { getCheckpoint } from './get-checkpoint';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('get-checkpoint', () => {
-  const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'get');
+  const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'getCheckpoint');
 
   const props = mockProps<typeof getCheckpoint>({});
 
-  it('should return from lokijs if it exists minus 2 minutes', async () => {
+  it('should return from sqlite if it exists minus 2 minutes', async () => {
     // Given
     getCheckpointMock.mockResolvedValueOnce({ data: { updatedAt: '2025-01-01T00:02:00.000Z' } });
     // When

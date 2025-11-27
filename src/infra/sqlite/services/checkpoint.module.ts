@@ -1,7 +1,7 @@
 import { createOrUpdate } from './checkpoint/create-or-update';
-import { get } from './checkpoint/get';
+import { getCheckpoint } from './checkpoint/get-checkpoint';
 
 export const CheckpointModule = {
-  get,
+  getCheckpoint,
   createOrUpdate,
 };

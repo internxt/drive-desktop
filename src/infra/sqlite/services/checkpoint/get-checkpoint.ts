@@ -8,7 +8,7 @@ type Props = {
   workspaceId: string;
 };
 
-export async function get(payload: Props) {
+export async function getCheckpoint(payload: Props) {
   try {
     const data = await CheckpointRepository.findOne({ where: payload });
 
