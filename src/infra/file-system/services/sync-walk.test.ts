@@ -1,7 +1,6 @@
 import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { readdir } from 'node:fs/promises';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { Dirent } from 'node:fs';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { syncWalk } from './sync-walk';
 
@@ -17,9 +16,9 @@ describe('sync-walk', () => {
   it('should return files and folders', async () => {
     // Given
     readdirMock
-      .mockResolvedValueOnce(['file1', 'folder1', 'folder2'] as unknown as Dirent<Buffer>[])
+      .mockResolvedValueOnce(['file1', 'folder1', 'folder2'] as any)
       .mockResolvedValueOnce([])
-      .mockResolvedValueOnce(['file2'] as unknown as Dirent<Buffer>[]);
+      .mockResolvedValueOnce(['file2'] as any);
 
     statMock
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })

@@ -32,15 +32,13 @@ export async function detectContextMenuAction({ ctx, details, path }: TProps) {
     return;
   }
 
-  if (prev.ctimeMs !== curr.ctimeMs && fileInfo.pinState === PinState.AlwaysLocal) {
-    if (curr.blocks === 0) {
+  if (prev.ctimeMs !== curr.ctimeMs) {
+    if (fileInfo.pinState === PinState.AlwaysLocal && curr.blocks === 0) {
       void throttleHydrate({ ctx, path });
-    } else {
-      ctx.logger.debug({ msg: 'Double click on file', path });
     }
-  }
 
-  if (prev.ctimeMs !== curr.ctimeMs && fileInfo.pinState === PinState.OnlineOnly) {
-    await handleDehydrate({ ctx, path });
+    if (fileInfo.pinState === PinState.OnlineOnly && curr.blocks !== 0) {
+      handleDehydrate({ ctx, path });
+    }
   }
 }

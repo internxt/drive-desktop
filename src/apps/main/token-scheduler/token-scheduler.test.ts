@@ -62,7 +62,7 @@ describe('Token Scheduler', () => {
     call(loggerMock.debug).toMatchObject({
       msg: 'Token renew date',
       expiresAt: new Date('1970-02-01'),
-      renewAt: new Date('1970-01-27'),
+      renewAt: new Date('1970-01-31'),
     });
   });
 });

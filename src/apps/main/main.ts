@@ -70,6 +70,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   app.quit();
+  process.exit(0);
 } else {
   app.on('second-instance', (event, argv) => {
     processDeeplink({ argv });
@@ -87,6 +88,7 @@ setupIpcSqlite();
 
 logger.debug({
   msg: 'Starting app',
+  gotTheLock,
   version: INTERNXT_VERSION,
   isPackaged: app.isPackaged,
   osVersion: version(),

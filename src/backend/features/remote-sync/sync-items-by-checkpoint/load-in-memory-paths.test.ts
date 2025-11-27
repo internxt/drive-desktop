@@ -5,7 +5,6 @@ import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Dirent } from 'node:fs';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('node:fs/promises'));
@@ -22,9 +21,7 @@ describe('load-in-memory-paths', () => {
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
-    readdirMock
-      .mockResolvedValueOnce(['folder', 'file1'] as unknown as Dirent<Buffer>[])
-      .mockResolvedValueOnce(['file2'] as unknown as Dirent<Buffer>[]);
+    readdirMock.mockResolvedValueOnce(['folder', 'file1'] as any).mockResolvedValueOnce(['file2'] as any);
 
     statMock
       .mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } })

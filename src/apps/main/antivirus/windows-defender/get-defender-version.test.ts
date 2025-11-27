@@ -1,7 +1,6 @@
 import { getDefenderVersions } from './get-defender-version';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { readdir, access } from 'node:fs/promises';
-import { Dirent } from 'node:fs';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:path'));
@@ -33,7 +32,7 @@ describe('getDefenderVersions', () => {
       { name: '4.18.2207.10', isDirectory: () => true },
       { name: '4.2.2207.10', isDirectory: () => true },
       { name: '4.18.5', isDirectory: () => true },
-    ] as unknown as Dirent<Buffer>[]);
+    ] as any);
     // When
     const result = await getDefenderVersions(props);
     // Then
@@ -46,7 +45,7 @@ describe('getDefenderVersions', () => {
       { name: 'file.txt', isDirectory: () => false },
       { name: '4.18.10', isDirectory: () => true },
       { name: 'readme.md', isDirectory: () => false },
-    ] as unknown as Dirent<Buffer>[]);
+    ] as any);
     // When
     const result = await getDefenderVersions(props);
     // Then

@@ -3,7 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { shell } from 'electron';
-import { createWriteStream, Dirent } from 'node:fs';
+import { createWriteStream } from 'node:fs';
 import { INTERNXT_LOGS } from '@/core/utils/utils';
 import archiver from 'archiver';
 import { mockDeep } from 'vitest-mock-extended';
@@ -24,7 +24,7 @@ describe('open-logs', () => {
   const archive = mockDeep<archiver.Archiver>();
 
   beforeEach(() => {
-    readdirMock.mockResolvedValue(['drive.log', 'drive-important.log', INTERNXT_LOGS] as unknown as Dirent<Buffer>[]);
+    readdirMock.mockResolvedValue(['drive.log', 'drive-important.log', INTERNXT_LOGS] as any);
     archiverMock.mockReturnValue(archive);
   });
 
