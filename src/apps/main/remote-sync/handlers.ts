@@ -4,7 +4,7 @@ import { updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
-import { getRemoteSyncManager, remoteSyncManagers } from './store';
+import { remoteSyncManagers } from './store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -13,7 +13,9 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export function addRemoteSyncManager({ context }: { context: SyncContext }) {
-  remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, context.workspaceId));
+  const remoteSyncManager = new RemoteSyncManager(context, context.workspaceId);
+  remoteSyncManagers.set(context.workspaceId, remoteSyncManager);
+  return remoteSyncManager;
 }
 
 ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, { userUuid, workspaceId }) => {
@@ -30,15 +32,12 @@ ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', async (_, { userUuid, works
   return { files, folders };
 });
 
-export async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
-  const manager = getRemoteSyncManager({ workspaceId });
-  if (!manager) return;
-
+export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager }) {
   try {
     const isSyncing = manager.status === 'SYNCING';
 
     if (isSyncing) {
-      logger.debug({ msg: 'Remote sync is already running', workspaceId });
+      logger.debug({ msg: 'Remote sync is already running', workspaceId: manager.workspaceId });
       return;
     }
 
@@ -46,7 +45,7 @@ export async function updateRemoteSync({ workspaceId }: { workspaceId: string })
     await manager.startRemoteSync();
     manager.changeStatus('SYNCED');
 
-    updateSyncEngine(workspaceId);
+    updateSyncEngine(manager.workspaceId);
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');
     logger.error({
@@ -58,8 +57,8 @@ export async function updateRemoteSync({ workspaceId }: { workspaceId: string })
 
 async function updateAllRemoteSync() {
   await Promise.all(
-    [...remoteSyncManagers].map(async ([workspaceId]) => {
-      await updateRemoteSync({ workspaceId });
+    remoteSyncManagers.values().map(async (manager) => {
+      await updateRemoteSync({ manager });
     }),
   );
 }
