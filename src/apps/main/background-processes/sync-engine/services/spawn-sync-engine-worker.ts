@@ -16,13 +16,6 @@ type TProps = {
 export async function spawnSyncEngineWorker({ ctx }: TProps) {
   ctx.logger.debug({ msg: 'Spawn sync engine worker' });
 
-  /**
-   * v2.5.6 Daniel Jiménez
-   * Since we can have a different status in our local database that in remote,
-   * we want to run also this sync in background to update the statuses.
-   */
-  void RecoverySyncModule.recoverySync({ ctx });
-
   try {
     const browserWindow = new BrowserWindow({
       show: false,
@@ -86,6 +79,13 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
         await spawnSyncEngineWorker({ ctx });
       },
     });
+
+    /**
+     * v2.5.6 Daniel Jiménez
+     * Since we can have a different status in our local database that in remote,
+     * we want to run also this sync in background to update the statuses.
+     */
+    void RecoverySyncModule.recoverySync({ ctx });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }
