@@ -95,7 +95,7 @@ describe('sync-remote-files.service', () => {
     // Then
     const common = { userUuid: 'uuid', workspaceId: '', type: 'file' };
     expect(createOrUpdateCheckpointMock).toHaveBeenCalledTimes(2);
-    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-28T12:25:07.000Z' });
-    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-29T12:25:07.000Z' });
+    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, updatedAt: '2025-06-28T12:25:07.000Z' });
+    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, updatedAt: '2025-06-29T12:25:07.000Z' });
   });
 });
