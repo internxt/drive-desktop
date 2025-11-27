@@ -57,24 +57,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       }
     });
 
-    addRemoteSyncManager({ context: ctx });
-
-    const worker: WorkerConfig = {
-      ctx,
-      browserWindow,
-      syncSchedule: scheduleSync({ ctx }),
-    };
-
-    workers.set(ctx.workspaceId, worker);
-
-    monitorHealth({
-      browserWindow,
-      stopAndSpawn: async () => {
-        await cleanSyncEngineWorker({ worker });
-        await spawnSyncEngineWorker({ ctx });
-      },
-    });
-
     await browserWindow.loadFile(
       process.env.NODE_ENV === 'development'
         ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
@@ -86,6 +68,24 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { logger, ...config } = ctx;
     browserWindow.webContents.send('SET_CONFIG', config);
+
+    const manager = addRemoteSyncManager({ context: ctx });
+
+    const worker: WorkerConfig = {
+      ctx,
+      browserWindow,
+      syncSchedule: scheduleSync({ ctx, manager }),
+    };
+
+    workers.set(ctx.workspaceId, worker);
+
+    monitorHealth({
+      browserWindow,
+      stopAndSpawn: async () => {
+        await cleanSyncEngineWorker({ worker });
+        await spawnSyncEngineWorker({ ctx });
+      },
+    });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }

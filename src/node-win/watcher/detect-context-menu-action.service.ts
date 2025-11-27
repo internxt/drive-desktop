@@ -38,7 +38,7 @@ export async function detectContextMenuAction({ ctx, details, path }: TProps) {
     }
 
     if (fileInfo.pinState === PinState.OnlineOnly && curr.blocks !== 0) {
-      handleDehydrate({ ctx, path });
+      void handleDehydrate({ ctx, path });
     }
   }
 }
