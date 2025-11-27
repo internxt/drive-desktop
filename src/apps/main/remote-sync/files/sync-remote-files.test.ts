@@ -3,18 +3,17 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
-import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 import { Config } from '@/apps/sync-engine/config';
 import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
-vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-files.service', () => {
   const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
+  const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
   const getFilesMock = deepMocked(driveServerWip.files.getFiles);
-  const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
 
   const config = mockDeep<Config>();
   config.userUuid = 'uuid';
@@ -95,8 +94,8 @@ describe('sync-remote-files.service', () => {
 
     // Then
     const common = { userUuid: 'uuid', workspaceId: '', type: 'file' };
-    expect(updateCheckpointMock).toHaveBeenCalledTimes(2);
-    expect(updateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-28T12:25:07.000Z' });
-    expect(updateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-29T12:25:07.000Z' });
+    expect(createOrUpdateCheckpointMock).toHaveBeenCalledTimes(2);
+    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-28T12:25:07.000Z' });
+    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-29T12:25:07.000Z' });
   });
 });

@@ -2,6 +2,7 @@ import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import { PATHS } from '@/core/electron/paths';
+import { Checkpoint } from './entities/checkpoint';
 
 /**
  * v2.5.1 Daniel Jiménez
@@ -14,5 +15,7 @@ export const AppDataSource = new DataSource({
   database: PATHS.SQLITE_DB,
   logging: false,
   synchronize: true,
-  entities: [DriveFile, DriveFolder],
+  entities: [DriveFile, DriveFolder, Checkpoint],
 });
+
+export const CheckpointRepository = AppDataSource.getRepository(Checkpoint);
