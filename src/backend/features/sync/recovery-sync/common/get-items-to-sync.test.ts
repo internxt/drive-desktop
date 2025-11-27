@@ -1,17 +1,17 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getItemsToSync } from './get-items-to-sync';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { CheckpointsModule } from '@/infra/lokijs/databases/checkpoints/checkpoints.module';
 import * as isItemToSyncModule from './is-item-to-sync';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('get-items-to-sync', () => {
-  const getCheckpointMock = partialSpyOn(CheckpointsModule, 'getCheckpoint');
+  const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'getCheckpoint');
   const isItemToSyncMock = partialSpyOn(isItemToSyncModule, 'isItemToSync');
 
   let props: Parameters<typeof getItemsToSync>[0];
 
   beforeEach(() => {
-    getCheckpointMock.mockResolvedValue({ data: 'datetime' });
+    getCheckpointMock.mockResolvedValue({ data: { updatedAt: 'datetime' } });
 
     props = mockProps<typeof getItemsToSync>({
       remotes: [{ uuid: 'uuid' as FileUuid, updatedAt: 'datetime' }],
