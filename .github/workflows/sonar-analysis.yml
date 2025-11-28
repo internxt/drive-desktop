@@ -20,10 +20,10 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: yarn
+        run: npm ci
 
       - name: Test and coverage
-        run: yarn test:cov
+        run: npm run test:cov
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

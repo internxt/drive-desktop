@@ -43,7 +43,7 @@ Clone the repo and install dependencies:
 ```bash
 git clone https://github.com/internxt/drive-desktop-linux.git
 cd drive-desktop-linux
-yarn install
+npm install
 ```
 
 ### Starting Development
@@ -51,7 +51,7 @@ yarn install
 Start the app in the `dev` environment:
 
 ```bash
-yarn start
+npm start
 ```
 
 ## Packaging for Production
@@ -59,5 +59,5 @@ yarn start
 To package apps for the local platform:
 
 ```bash
-yarn package
+npm run package
 ```

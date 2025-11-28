@@ -38,7 +38,7 @@
 	"cSpell.words": [
 		"avaliable"
 	],
-	"jest.jestCommandLine": "yarn jest --config=jest.config.main.js",
+	"jest.jestCommandLine": "npm run jest --config=jest.config.main.js",
 	"jest.autoRun": "off",
 	"jest.rootPath": ".",
 	"jest.runMode": "on-demand",

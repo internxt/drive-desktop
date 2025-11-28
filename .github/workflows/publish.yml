@@ -24,7 +24,7 @@ jobs:
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
 
       - name: Install dependencies
-        run: yarn
+        run: npm ci
 
       - name: Add .env
         run: |
@@ -47,7 +47,7 @@ jobs:
           echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
 
       - name: Build app
-        run: yarn run build
+        run: npm run build
 
       - name: Publish app
-        run: yarn run publish
+        run: npm run publish

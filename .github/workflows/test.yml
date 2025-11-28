@@ -18,16 +18,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Lint
-        run: yarn run lint
+        run: npm run lint
 
       - name: Build processes
-        run: yarn build:main && yarn build:renderer
+        run: npm run build:main && npm run build:renderer
 
       - name: Run test
-        run: yarn test:unit
+        run: npm run test:unit

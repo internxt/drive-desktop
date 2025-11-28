@@ -43,3 +43,5 @@ clamAV/**
 
 # Claude Code project instructions
 CLAUDE.md
+
+enable-sso.sh
