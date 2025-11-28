@@ -1221,7 +1221,7 @@
 
 "@internxt/drive-desktop-core@0.1.7":
   version "0.1.7"
-  resolved "https://npm.pkg.github.com/download/@internxt/drive-desktop-core/0.1.7/40157e3392ad13ff1c52de20fece450d0fa68801#40157e3392ad13ff1c52de20fece450d0fa68801"
+  resolved "https://registry.yarnpkg.com/@internxt/drive-desktop-core/-/drive-desktop-core-0.1.7.tgz#40157e3392ad13ff1c52de20fece450d0fa68801"
   integrity sha512-XzuQ/oqBUrzLP55mjUXjS/KwGidsON3IWqWO/dMGytnRz38Bb2I9Lt4Iw2hM69+AMX1psFwTEE5/uDxXHY4tRQ==
   dependencies:
     "@internxt/sdk" "^1.11.10"
@@ -1233,9 +1233,9 @@
     uuid "^13.0.0"
 
 "@internxt/eslint-config-internxt@^1.0.9":
-  version "1.0.9"
-  resolved "https://npm.pkg.github.com/download/@internxt/eslint-config-internxt/1.0.9/d2dddb6a5809873ce717507f8d9dbc5964f6d0f4#d2dddb6a5809873ce717507f8d9dbc5964f6d0f4"
-  integrity sha512-e1VCBhXnGcaWZq4viz2MJ1jsgLObw4BgDKMF7F4oDEktOybe+4Bty69+oezuj+q3LAf2M7JZSgkhpLBiP7vrpw==
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@internxt/eslint-config-internxt/-/eslint-config-internxt-1.0.10.tgz#19025c479f84617a59484660f2f9c983ff3bc4ec"
+  integrity sha512-58fMjE/ro/eK/b4v1UBwpDtK0PvUo6o7yULRU5LVrqe4gCE4pgruI4RUJfLJ/WprfAFDQxUgJbyQMc5TtUVjiw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^5.4.0"
     "@typescript-eslint/parser" "^5.4.0"
@@ -1243,8 +1243,8 @@
 
 "@internxt/inxt-js@^2.2.3":
   version "2.2.9"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.2.9/59492b93bd658747f2b9b26cc5b4a38d63f6a2ae#59492b93bd658747f2b9b26cc5b4a38d63f6a2ae"
-  integrity sha512-YmPkqMgGU4+VTUsPiOPOzd3jXZMFoKK1eMMXPTcto85SZ8eSp6+xVRUFKZW9+UrNcU5ZEnH6FieyCVKfo4LnIA==
+  resolved "https://registry.yarnpkg.com/@internxt/inxt-js/-/inxt-js-2.2.9.tgz#57654adb1153e5e77e33a17553e1e863b4c57358"
+  integrity sha512-wYGSolYcRb3apNUAlDsn8eJFpOejBW/RbbpDJazaAe8FztyBpkcNDZ4NOVCmpdwaCXRLGQd3/JNqDd0ZIRyNDQ==
   dependencies:
     "@internxt/lib" "1.3.1"
     "@internxt/sdk" "1.11.10"
@@ -1256,42 +1256,42 @@
 
 "@internxt/lib@1.3.1":
   version "1.3.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/lib/1.3.1/c330ee66e4963469691f448a1716a9f6266ec729#c330ee66e4963469691f448a1716a9f6266ec729"
-  integrity sha512-W0D7aIdH1wg9YNLmLw7iaZ0T0pvG7qtDKkKRZRKVU4zSMWH0Rc+q+ZMLpo5Agyqua07A0gQ3Y8i4M42cglV0bw==
+  resolved "https://registry.yarnpkg.com/@internxt/lib/-/lib-1.3.1.tgz#7ba42996afe5c91e2badf3f6a02cedaa1671f4ee"
+  integrity sha512-3VWPRi0G8F7QR2pP+M7lM3Resw9zGSF0dFpE86pV7VyJt2WtxJW08AdxikjaBWR6knTHLU7BZPpnKQmUD/GFnw==
 
 "@internxt/lib@^1.1.6":
   version "1.4.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/lib/1.4.1/215ee72e49c238e13d40ec9033296f70c8279f88#215ee72e49c238e13d40ec9033296f70c8279f88"
-  integrity sha512-0Nv+/V4z+bwCt9r+XMKWMSxwdnTCD7YHEeNMtMQKtyOzNVElDjGoDuYP8UrQ5TC5wVsP/yyQ/kM2ugZjueH6Mg==
+  resolved "https://registry.yarnpkg.com/@internxt/lib/-/lib-1.4.1.tgz#dd4974cb49ab6bba118cf218434e69e95cc4a481"
+  integrity sha512-sWNp57IKCk0HjzTdPSuxOgZWvrSDWGYrzNOq90LIZTzr1HwkxObicUaZqSzmw4uDKrJhsdFdzwdywk3g8gwDDA==
   dependencies:
     uuid "^11.1.0"
 
 "@internxt/scan@^1.0.7":
   version "1.0.7"
-  resolved "https://npm.pkg.github.com/download/@internxt/scan/1.0.7/332bd94bc242d783da480aae0510003880ef9560#332bd94bc242d783da480aae0510003880ef9560"
+  resolved "https://registry.yarnpkg.com/@internxt/scan/-/scan-1.0.7.tgz#332bd94bc242d783da480aae0510003880ef9560"
   integrity sha512-PDNnNbjR5D9YIgk7OxcdamREtkjcjiJuRLQuxboIalOsPoMxl0rlymW7qYfruPFOGjDwkCASoX8o1Jwd1jwqfw==
 
 "@internxt/sdk@1.11.10":
   version "1.11.10"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.11.10/b589ec79d7846f362fd2405b174a1f43f4b3a04d#b589ec79d7846f362fd2405b174a1f43f4b3a04d"
-  integrity sha512-+Wk224ebG0qtrP+Mi4Ebv124kbB7E/gQiLA8C150gWV+FtadAfmRN4lCLFQxsvCIq1mAOXsjbwn3PABN/7ofVQ==
+  resolved "https://registry.yarnpkg.com/@internxt/sdk/-/sdk-1.11.10.tgz#43a871b62257eb8543e7fcf1695391d32c004e8d"
+  integrity sha512-wiOOIIy1VqXySCIPbz1Rv8D6uTXWaP1o8URudEpIzrejxCNFM1M505MLDPStZdEmBW3ESJQa64LouCXUBQWKQQ==
   dependencies:
     axios "^1.12.2"
     uuid "11.1.0"
 
 "@internxt/sdk@1.9.12":
   version "1.9.12"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.9.12/534488617eac3eea5fb4ad965130e5c2811819d1#534488617eac3eea5fb4ad965130e5c2811819d1"
-  integrity sha512-/GNKYrvrcQvIGaIrg74aeoJq6yjJQaFyO89Af8qZFLbTTpvdVsbQnq3eA17vlTNNEVaTeDllwJQtL4ZMsR6HBQ==
+  resolved "https://registry.yarnpkg.com/@internxt/sdk/-/sdk-1.9.12.tgz#ce32ff62a5cd2bf8029b95cbc99610dd98517175"
+  integrity sha512-X6HK1D/+Z1st/2Arl5TDbnkfIglQu0KHQe5gntOX4fW6WMpqKq+azQneiOaPPraZLacMsYI8Wp/xrqQlMc/sfQ==
   dependencies:
     axios "^0.24.0"
     query-string "^7.1.0"
     uuid "^8.3.2"
 
 "@internxt/sdk@^1.11.10":
-  version "1.11.15"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.11.15/b227bf455b00ad9374c3f773b5e2241f4cd085e6#b227bf455b00ad9374c3f773b5e2241f4cd085e6"
-  integrity sha512-mJ90Ba9aH44RdsO3HQyl8sLqapv5micjVCwdLz/EAjR/TPl/yIoKmXp+LuRpuoSvWaJfrHopoqLRyye6OCPCHQ==
+  version "1.11.17"
+  resolved "https://registry.yarnpkg.com/@internxt/sdk/-/sdk-1.11.17.tgz#2f5bdada5d3cbf5cfc685a21c24b5df3ff51d8c8"
+  integrity sha512-91iEUvZizlwX6KBEFJ3JdFiGrhMBQ9R54sTc3Pei9QtV2FYTU8nTVEPYAg39tLOGzT/kVuplYOtBxfk6wFtSDA==
   dependencies:
     axios "1.13.2"
     uuid "11.1.0"

@@ -12,7 +12,7 @@
   "dependencies": {
     "@gcas/fuse": "^2.4.2",
     "@rudderstack/rudder-sdk-node": "^1.1.4",
-    "better-sqlite3": "^8.3.0",
+    "better-sqlite3": "^11.10.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.26"
   },
