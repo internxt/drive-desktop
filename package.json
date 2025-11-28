@@ -288,7 +288,7 @@
     "@internxt/inxt-js": "^2.2.3",
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "^1.0.7",
-    "@internxt/sdk": "1.9.12",
+    "@internxt/sdk": "1.11.17",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@tanstack/react-virtual": "^3.13.12",
