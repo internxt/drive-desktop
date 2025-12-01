@@ -1,13 +1,11 @@
-import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { MoveCheckpointToSqlite } from './move-checkpoint-to-sqlite';
 import { readFile } from 'node:fs/promises';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
 
 vi.mock(import('node:fs/promises'));
 
 describe('move-checkpoint-to-sqlite', () => {
   const readFileMock = vi.mocked(readFile);
-  const createOrUpdateMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
 
   const checkpoints = {
     collections: [
@@ -29,13 +27,18 @@ describe('move-checkpoint-to-sqlite', () => {
     ],
   };
 
+  beforeAll(async () => {
+    await AppDataSource.initialize();
+  });
+
   it('should migrate all checkpoints to sqlite', async () => {
     // Given
     readFileMock.mockResolvedValue(JSON.stringify(checkpoints));
     // When
     await MoveCheckpointToSqlite.run();
     // Then
-    calls(createOrUpdateMock).toStrictEqual([
+    const res = await CheckpointRepository.find({});
+    expect(res).toMatchObject([
       { name: '', type: 'file', updatedAt: 'updatedAt1', userUuid: 'userUuid1', workspaceId: '' },
       { name: '', type: 'file', updatedAt: 'updatedAt2', userUuid: 'userUuid2', workspaceId: '' },
       { name: '', type: 'folder', updatedAt: 'updatedAt3', userUuid: 'userUuid1', workspaceId: '' },
