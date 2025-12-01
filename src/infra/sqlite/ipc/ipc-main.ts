@@ -40,8 +40,4 @@ export function setupIpcSqlite() {
   ipcMainSqlite.handle('fileUpdateByUuid', async (_, props) => {
     return await SqliteModule.FileModule.updateByUuid(props);
   });
-
-  ipcMainSqlite.handle('createOrUpdateCheckpoint', async (_, props) => {
-    return await SqliteModule.CheckpointModule.createOrUpdate(props);
-  });
 }
