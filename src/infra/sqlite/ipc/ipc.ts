@@ -23,6 +23,9 @@ export type FromProcess = {
   fileUpdateByUuid: (
     props: Parameters<typeof SqliteModule.FileModule.updateByUuid>[0],
   ) => Awaited<ReturnType<typeof SqliteModule.FileModule.updateByUuid>>;
+  createOrUpdateCheckpoint: (
+    props: Parameters<typeof SqliteModule.CheckpointModule.createOrUpdate>[0],
+  ) => Awaited<ReturnType<typeof SqliteModule.CheckpointModule.createOrUpdate>>;
 };
 
 export type FromMain = {};

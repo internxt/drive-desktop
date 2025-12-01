@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { TEST_FILES } from './mocks.helper.test';
 
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'test';
 
 // We do not want to log anything
 vi.mock(import('@internxt/drive-desktop-core/build/backend'));
