@@ -1,3 +1,7 @@
+/*
+v2.6.3 Daniel Jiménez
+https://github.com/internxt/drive-desktop/pull/1159
+
 import { logger } from '@/apps/shared/logger/logger';
 import { CheckpointsModule } from '@/infra/lokijs/databases/checkpoints/checkpoints.module';
 import { fileRepository } from '@/infra/sqlite/services/drive-file';
@@ -12,10 +16,6 @@ const resSchema = z.array(
   }),
 );
 
-/**
- * v2.5.6 Daniel Jiménez
- * DELETE AFTER 4 MONTHS (2026-01-18)
- */
 export class MoveCheckpointToLokijs {
   static readonly KEY = 'v2-5-6-move-checkpoint-to-lokijs';
 
@@ -95,3 +95,4 @@ export class MoveCheckpointToLokijs {
     }
   }
 }
+*/

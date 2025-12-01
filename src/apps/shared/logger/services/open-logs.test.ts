@@ -49,7 +49,6 @@ describe('open-logs', () => {
       ['/mock/logs/internxt-drive/logs/drive.log', { name: 'drive.log' }],
       ['/mock/logs/internxt-drive/logs/drive-important.log', { name: 'drive-important.log' }],
       ['/mock/logs/internxt-drive/internxt_desktop.db', { name: 'internxt_desktop.db' }],
-      ['/mock/logs/internxt-drive/internxt_desktop.json', { name: 'internxt_desktop.json' }],
     ]);
   });
 });

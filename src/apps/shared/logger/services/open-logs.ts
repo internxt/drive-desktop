@@ -18,7 +18,7 @@ export async function openLogs() {
 
     const pipelinePromise = pipeline(archive, writeStream);
 
-    const paths = [join(PATHS.LOGS, 'drive.log'), join(PATHS.LOGS, 'drive-important.log'), PATHS.SQLITE_DB, PATHS.LOKIJS_DB];
+    const paths = [join(PATHS.LOGS, 'drive.log'), join(PATHS.LOGS, 'drive-important.log'), PATHS.SQLITE_DB];
 
     for (const path of paths) {
       try {
