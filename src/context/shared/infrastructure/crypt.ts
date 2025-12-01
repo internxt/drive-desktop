@@ -1,10 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { aes } from '@internxt/lib';
 
-// Webpack dotenv plugin won't replace if you destructure
-// eslint-disable-next-line prefer-destructuring
-const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
-
 export function decryptName({ encryptedName, parentId }: { encryptedName: string; parentId?: number | null }) {
   /**
    * v2.5.2 Daniel Jiménez
@@ -19,7 +15,7 @@ export function decryptName({ encryptedName, parentId }: { encryptedName: string
 
   try {
     const salt = parentId.toString();
-    const password = `${CRYPTO_KEY}-${salt}`;
+    const password = `${process.env.NEW_CRYPTO_KEY}-${salt}`;
     return aes.decrypt(encryptedName, password);
   } catch (exc) {
     throw logger.error({

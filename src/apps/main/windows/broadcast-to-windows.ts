@@ -9,10 +9,12 @@ export type BroadcastToWidget =
   | { name: 'sync-info-update'; data: SyncStateItem[] }
   | { name: 'remote-sync-status-change'; data: RemoteSyncStatus };
 
+export type BackupDownloadProgress = { id: string; progress: number };
+
 export type BroadcastToWindows =
   | { name: 'preferedLanguage-updated'; data: string }
   | { name: 'preferedTheme-updated'; data: ThemeData }
   | { name: 'issues-changed'; data: Issue[] }
   | { name: 'backups-status-changed'; data: BackupsStatus }
-  | { name: 'backup-download-progress'; data: { id: string; progress: number } }
+  | { name: 'backup-download-progress'; data: BackupDownloadProgress }
   | { name: 'backup-progress'; data: BackupsProgress };
