@@ -139,6 +139,7 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "react-refresh": "^0.17.0",
     "rimraf": "^6.0.1",
+    "sql.js": "^1.13.0",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^5.3.0",

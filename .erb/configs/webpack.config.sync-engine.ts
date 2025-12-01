@@ -8,7 +8,7 @@ import webpackPaths from './webpack.paths';
 import Dotenv from 'dotenv-webpack';
 
 const configuration: webpack.Configuration = {
-  mode: process.env.NODE_ENV,
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
 
   target: 'electron-renderer',
 

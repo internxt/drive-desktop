@@ -10,12 +10,22 @@ import { Checkpoint } from './entities/checkpoint';
  * Otherwise we will lose the checkpoint and the current status of files and folders.
  */
 
-export const AppDataSource = new DataSource({
-  type: 'better-sqlite3',
-  database: PATHS.SQLITE_DB,
-  logging: false,
-  synchronize: true,
-  entities: [DriveFile, DriveFolder, Checkpoint],
-});
+export const AppDataSource = new DataSource(
+  process.env.NODE_ENV === 'test'
+    ? {
+        type: 'sqljs',
+        autoSave: false,
+        logging: false,
+        synchronize: true,
+        entities: [DriveFile, DriveFolder, Checkpoint],
+      }
+    : {
+        type: 'better-sqlite3',
+        database: PATHS.SQLITE_DB,
+        logging: false,
+        synchronize: true,
+        entities: [DriveFile, DriveFolder, Checkpoint],
+      },
+);
 
 export const CheckpointRepository = AppDataSource.getRepository(Checkpoint);
