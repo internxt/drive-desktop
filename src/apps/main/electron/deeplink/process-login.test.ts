@@ -26,13 +26,11 @@ describe('process-login', () => {
 
   it('should process search params and login', async () => {
     // Given
-    refreshMock.mockResolvedValue({ data: { user: { uuid: 'uuid' } } });
+    refreshMock.mockResolvedValue({ data: { newToken: 'refreshToken', user: { uuid: 'uuid' } } });
     // When
-    await processLogin({
-      search: `?mnemonic=${base64Mnemonic}&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==`,
-    });
+    await processLogin({ search: `?mnemonic=${base64Mnemonic}&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==` });
     // Then
-    call(updateCredentialsMock).toStrictEqual({ newToken: 'newToken' });
+    calls(updateCredentialsMock).toStrictEqual([{ newToken: 'newToken' }, { newToken: 'refreshToken' }]);
     call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey', mnemonic });
     call(restoreSavedConfigMock).toStrictEqual({ uuid: 'uuid' });
     call(setIsLoggedInMock).toBe(true);

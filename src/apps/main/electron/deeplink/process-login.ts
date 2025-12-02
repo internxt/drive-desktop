@@ -27,6 +27,8 @@ export async function processLogin({ search }: Props) {
 
   if (error) throw error;
 
+  updateCredentials({ newToken: data.newToken });
+
   /**
    * v2.6.3 Daniel Jiménez
    * We need to override the privateKey and the mnemonic since inside the user they are encrypted.
