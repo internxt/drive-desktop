@@ -11,7 +11,7 @@ export const addonZod = {
   disconnectSyncRoot: z.undefined(),
   getPlaceholderState: z.object({
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
-    pinState: z.nativeEnum(PinState),
+    pinState: z.enum(PinState),
   }),
   hydrateFile: z.undefined(),
   registerSyncRoot: z.undefined(),
