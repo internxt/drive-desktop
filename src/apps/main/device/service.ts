@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-use-before-define */
-import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
 import os from 'node:os';
 import path from 'node:path';
@@ -12,6 +11,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getBackupsFromDevice } from './get-backups-from-device';
+import { decryptDeviceName } from '@/backend/features/device/services/decrypt-device-name';
 
 export type Device = {
   name: string;
@@ -157,25 +157,6 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   }
 
   throw new Error('Error in the request to rename a device');
-}
-
-export function decryptDeviceName({ name, ...rest }: Device): Device {
-  let nameDevice;
-  let key;
-  try {
-    key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
-    nameDevice = aes.decrypt(name, key);
-  } catch {
-    key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
-    nameDevice = aes.decrypt(name, key);
-  }
-
-  logger.debug({ tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
-
-  return {
-    name: nameDevice,
-    ...rest,
-  };
 }
 
 /**

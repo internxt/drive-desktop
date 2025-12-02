@@ -199,34 +199,4 @@ describe('Device Service', () => {
       expect(data).toBe(undefined);
     });
   });
-
-  describe('decryptDeviceName', () => {
-    it('should decrypt the device name with the correct key using bucket', () => {
-      decryptMock.mockReturnValue(decryptedName);
-
-      const result = decryptDeviceName(deviceMock);
-      expect(decryptMock).toHaveBeenCalledWith(deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${deviceMock.bucket}`);
-      expect(result).toStrictEqual({
-        ...deviceMock,
-        name: decryptedName,
-      });
-    });
-
-    it('should fall back to using null in the key when first decryption fails', () => {
-      decryptMock
-        .mockImplementationOnce(() => {
-          throw new Error('Decryption failed');
-        })
-        .mockReturnValueOnce(decryptedName);
-
-      const result = decryptDeviceName(deviceMock);
-      expect(decryptMock).toHaveBeenCalledTimes(2);
-      expect(decryptMock).toHaveBeenNthCalledWith(1, deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${deviceMock.bucket}`);
-      expect(decryptMock).toHaveBeenNthCalledWith(2, deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${null}`);
-      expect(result).toStrictEqual({
-        ...deviceMock,
-        name: decryptedName,
-      });
-    });
-  });
 });
