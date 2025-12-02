@@ -3,7 +3,7 @@ import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
-import { createUniqueDevice, decryptDeviceName, fetchDevice, saveDeviceToConfig } from './service';
+import { createUniqueDevice, fetchDevice, saveDeviceToConfig } from './service';
 import { loggerMock } from '../../../../tests/vitest/mocks.helper.test';
 import { GetDeviceError } from '@/infra/drive-server-wip/services/backup/get-device';
 
