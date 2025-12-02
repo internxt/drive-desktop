@@ -10,9 +10,7 @@ import AvailableOfflineImageEnglish from '../../assets/onboarding/folder-with-ov
 import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-overlay-icons/offline/fr.svg';
 
 // Finder images
-import MacOSFinderImage from '../../assets/onboarding/finder/macos.svg';
 import LinuxFinderImage from '../../assets/onboarding/finder/linux.svg';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 
 // Antivirus images
 import AntivirusImageSpanish from '../../assets/onboarding/antivirus/es.svg';
@@ -61,10 +59,8 @@ export const getOfflineImageSvg = (language: string) => {
   return AvailableOfflineImageEnglish;
 };
 
-export const getFinderImage = (platform: string) => {
-  if (platform === 'win32') return WindowsFinderImage;
-  if (platform === 'linux') return LinuxFinderImage;
-  return MacOSFinderImage;
+export const getFinderImage = (_platform: string) => {
+  return LinuxFinderImage;
 };
 
 export const getPlatformName = (platform: string) => {

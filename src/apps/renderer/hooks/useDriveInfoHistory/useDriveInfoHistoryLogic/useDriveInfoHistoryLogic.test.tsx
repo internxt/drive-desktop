@@ -9,7 +9,7 @@ describe('useDriveInfoHistoryLogic', () => {
   const mockItem4: DriveOperationInfo = { name: 'file4', action: 'DOWNLOADING', progress: 0, oldName: 'file4' };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should add item to history', () => {

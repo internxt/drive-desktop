@@ -1,32 +1,32 @@
-import '@testing-library/jest-dom';
+import { vi, type Mock } from 'vitest';
 import { useBackupsInterval } from '../../../../hooks/backups/useBackupsInterval/useBackupsInterval';
 import { useUserAvailableProducts } from '../../../../hooks/useUserAvailableProducts/useUserAvailableProducts';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Frequency } from './Frequency';
 
-jest.mock('../../../../context/LocalContext', () => ({
+vi.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
     language: 'en',
   }),
 }));
 
-jest.mock('../../../../hooks/backups/useBackupsInterval/useBackupsInterval', () => ({
-  useBackupsInterval: jest.fn(),
+vi.mock('../../../../hooks/backups/useBackupsInterval/useBackupsInterval', () => ({
+  useBackupsInterval: vi.fn(),
 }));
 
-jest.mock('../../../../hooks/useUserAvailableProducts/useUserAvailableProducts', () => ({
-  useUserAvailableProducts: jest.fn(),
+vi.mock('../../../../hooks/useUserAvailableProducts/useUserAvailableProducts', () => ({
+  useUserAvailableProducts: vi.fn(),
 }));
 
 const renderFrequencyComponent = (customProps = {}, backups = true) => {
-  (useBackupsInterval as jest.Mock).mockReturnValue({
+  (useBackupsInterval as Mock).mockReturnValue({
     backupsInterval: -1,
-    updateBackupsInterval: jest.fn(),
+    updateBackupsInterval: vi.fn(),
     ...customProps,
   });
 
-  (useUserAvailableProducts as jest.Mock).mockReturnValue({
+  (useUserAvailableProducts as Mock).mockReturnValue({
     products: { backups },
   });
 
@@ -84,7 +84,7 @@ describe('Frequency', () => {
     expect(selectBefore).toHaveClass('pointer-events-none border-gray-5 text-gray-40');
 
     // Step 2: User now has backups
-    (useUserAvailableProducts as jest.Mock).mockReturnValue({
+    (useUserAvailableProducts as Mock).mockReturnValue({
       products: { backups: true },
     });
 

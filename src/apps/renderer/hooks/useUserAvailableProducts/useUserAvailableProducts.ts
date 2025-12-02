@@ -10,7 +10,9 @@ export function useUserAvailableProducts() {
 
   useEffect(() => {
     const { userAvailableProducts } = window.electron;
-    userAvailableProducts.get().then(handleSetProducts);
+    userAvailableProducts.get().then(handleSetProducts).catch((error) => {
+      console.error('Failed to fetch user available products:', error);
+    });
 
     userAvailableProducts.subscribe();
 

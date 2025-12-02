@@ -1,22 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LockedState } from './LockedState';
 
-jest.mock('../../../../context/LocalContext');
-
-const mockOpenUrl = jest.fn();
-beforeAll(() => {
-  if (!global.window) {
-    global.window = {} as any;
-  }
-
-  global.window.electron = {
-    openUrl: mockOpenUrl,
-  } as any;
-});
+vi.mock('../../../../context/LocalContext');
 
 describe('LockedState', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders locked state with correct text', () => {
@@ -39,7 +28,7 @@ describe('LockedState', () => {
     const upgradeButton = screen.getByText('settings.antivirus.featureLocked.action');
     await fireEvent.click(upgradeButton);
 
-    expect(mockOpenUrl).toHaveBeenCalledWith('https://internxt.com/pricing');
+    expect(window.electron.openUrl).toHaveBeenCalledWith('https://internxt.com/pricing');
   });
 
   it('renders with correct styling', () => {

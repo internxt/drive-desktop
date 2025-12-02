@@ -2,34 +2,35 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanResult } from './ScanResult';
 import { ScanSuccessful } from './ScanSuccessful';
 import { CorruptedItemsFound } from './CorruptedItemsFound';
+import { type Mock } from 'vitest';
 
 interface ScanResultProps {
-  translate: jest.Mock;
-  onScanAgainButtonClicked: jest.Mock;
-  onRemoveMalwareButtonClicked: jest.Mock;
+  translate: Mock;
+  onScanAgainButtonClicked: Mock;
+  onRemoveMalwareButtonClicked: Mock;
   thereAreCorruptedFiles: boolean;
 }
 
-jest.mock('./ScanSuccessful', () => ({
-  ScanSuccessful: jest.fn(() => <div data-testid="scan-successful" />),
+vi.mock('./ScanSuccessful', () => ({
+  ScanSuccessful: vi.fn(() => <div data-testid="scan-successful" />),
 }));
 
-jest.mock('./CorruptedItemsFound', () => ({
-  CorruptedItemsFound: jest.fn(() => <div data-testid="corrupted-items-found" />),
+vi.mock('./CorruptedItemsFound', () => ({
+  CorruptedItemsFound: vi.fn(() => <div data-testid="corrupted-items-found" />),
 }));
 
 describe('ScanResult', () => {
   const defaultMockProps: ScanResultProps = {
-    translate: jest.fn((key) => key),
-    onScanAgainButtonClicked: jest.fn(),
-    onRemoveMalwareButtonClicked: jest.fn(),
+    translate: vi.fn((key) => key),
+    onScanAgainButtonClicked: vi.fn(),
+    onRemoveMalwareButtonClicked: vi.fn(),
     thereAreCorruptedFiles: false,
   };
 
   let mockProps: ScanResultProps;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockProps = { ...defaultMockProps };
   });
 

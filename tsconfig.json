@@ -31,8 +31,7 @@
     "allowJs": true,
     "outDir": "release/app/dist",
     "types": [
-      "jest",
-      "@testing-library/jest-dom",
+      "vitest/globals",
       "node"
     ]
   },
@@ -50,6 +49,8 @@
     "src/types/**/*",
     "tests/**/*",
     "*.d.ts",
-    "assets/**/*.d.ts"
+    "assets/**/*.d.ts",
+    "vitest.config.*.ts",
+    "vitest.setup.*.ts"
   ]
 }

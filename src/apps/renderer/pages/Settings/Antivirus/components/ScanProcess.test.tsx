@@ -1,25 +1,26 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanProcess } from './ScanProcess';
+import { type Mock } from 'vitest';
 
 interface ScanProcessProps {
   currentScanPath?: string;
   scannedProcess: number;
-  stopScanProcess: jest.Mock;
-  translate: jest.Mock;
+  stopScanProcess: Mock;
+  translate: Mock;
 }
 
 describe('ScanProcess', () => {
   const defaultMockProps: ScanProcessProps = {
     currentScanPath: '/test/path/file.txt',
     scannedProcess: 50,
-    stopScanProcess: jest.fn(),
-    translate: jest.fn((key) => key),
+    stopScanProcess: vi.fn(),
+    translate: vi.fn((key) => key),
   };
 
   let mockProps: ScanProcessProps;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockProps = { ...defaultMockProps };
   });
 

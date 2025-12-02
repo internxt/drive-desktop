@@ -1,20 +1,11 @@
+import { vi } from 'vitest';
 import { useBackupsInterval } from './useBackupsInterval';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
-import { mockElectron, mockGetBackupsInterval, mockSetBackupsInterval } from '../../../../__mocks__/mockElectron';
 
 describe('useBackupsInterval', () => {
-  beforeAll(() => {
-    window.electron = mockElectron;
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterAll(() => {
-    // @ts-ignore
-    delete window.electron;
+    vi.clearAllMocks();
   });
 
   it('should have the default state of backupsInterval as BACKUP_MANUAL_INTERVAL value', () => {
@@ -23,13 +14,12 @@ describe('useBackupsInterval', () => {
   });
 
   it('should properly retrieve the backupsInterval and set it to the state', async () => {
-    mockGetBackupsInterval.mockResolvedValue(3600000); // 1h
-
+    vi.mocked(window.electron.getBackupsInterval).mockResolvedValue(3600000); // 1h
     const { result, waitForNextUpdate } = renderHook(() => useBackupsInterval());
 
     await waitForNextUpdate();
 
-    expect(mockGetBackupsInterval).toHaveBeenCalled();
+    expect(window.electron.getBackupsInterval).toHaveBeenCalled();
     expect(result.current.backupsInterval).toBe(3600000);
   });
 
@@ -45,6 +35,6 @@ describe('useBackupsInterval', () => {
     });
 
     expect(result.current.backupsInterval).toBe(7200000);
-    expect(mockSetBackupsInterval).toHaveBeenCalledWith(7200000);
+    expect(window.electron.setBackupsInterval).toHaveBeenCalledWith(7200000);
   });
 });

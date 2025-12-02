@@ -2,25 +2,22 @@ import { Device } from '../../../../../main/device/service';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DeviceContext, DeviceState } from '../../../../context/DeviceContext';
 import { DevicesList } from './DevicesList';
-import { jest } from '@jest/globals';
-import '@testing-library/jest-dom';
-import { mockElectron } from '../../../../../__mocks__/mockElectron';
 
-jest.mock('../../../../hooks/devices/useDevices');
+vi.mock('../../../../hooks/devices/useDevices');
 
-jest.mock('../../../../context/LocalContext', () => ({
+vi.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
   }),
 }));
 
-jest.mock('../../../../components/ScrollableContent', () => ({
+vi.mock('../../../../components/ScrollableContent', () => ({
   ScrollableContent: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="scrollable-content">{children}</div>
   ),
 }));
 
-jest.mock('./Help', () => ({
+vi.mock('./Help', () => ({
   __esModule: true,
   default: () => <div data-testid="help-component">Help Component</div>,
 }));
@@ -44,8 +41,8 @@ const mockDevices: Array<Device> = [
   },
 ];
 
-const mockDeviceRename = jest.fn(async (): Promise<void> => {});
-const mockgetDevices = jest.fn(async (): Promise<void> => {});
+const mockDeviceRename = vi.fn(async (): Promise<void> => {});
+const mockgetDevices = vi.fn(async (): Promise<void> => {});
 
 const renderComponent = (contextOverrides = {}) => {
   const contextValue = {
@@ -54,8 +51,8 @@ const renderComponent = (contextOverrides = {}) => {
     current: mockDevices[0],
     selected: mockDevices[0],
     deviceRename: mockDeviceRename,
-    setSelected: jest.fn(),
-    setCurrent: jest.fn(),
+    setSelected: vi.fn(),
+    setCurrent: vi.fn(),
     getDevices: mockgetDevices,
     ...contextOverrides,
   };
@@ -71,12 +68,8 @@ const renderComponent = (contextOverrides = {}) => {
 };
 
 describe('DevicesList', () => {
-  beforeAll(() => {
-    window.electron = mockElectron;
-  });
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
@@ -100,7 +93,7 @@ describe('DevicesList', () => {
   });
 
   it('should call setSelected when a device is clicked', () => {
-    const setSelectedMock = jest.fn();
+    const setSelectedMock = vi.fn();
 
     const { getByTestId } = renderComponent({
       setSelected: setSelectedMock,

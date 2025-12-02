@@ -1,50 +1,38 @@
+import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useOnlineStatus } from './useOnlineStatus';
 
 describe('useOnlineStatus', () => {
-  beforeAll(() => {
-    global.window = global as any;
-
-    global.window.electron = {
-      checkInternetConnection: jest.fn().mockResolvedValue(true),
-    } as unknown as typeof window.electron;
-    global.window.addEventListener = jest.fn();
-    global.window.removeEventListener = jest.fn();
-
-    global.navigator = {
-      onLine: false,
-    } as unknown as Navigator;
-  });
-
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
-    jest.restoreAllMocks();
-    jest.clearAllMocks();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return true when online', async () => {
-    jest.spyOn(window.electron, 'checkInternetConnection').mockResolvedValue(true);
+
+     vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
 
     const { result } = renderHook(() => useOnlineStatus(1000));
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(result.current).toBe(true);
   });
 
   it('should return false when offline', async () => {
-    jest.spyOn(window.electron, 'checkInternetConnection').mockResolvedValue(false);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(false);
 
     const { result, waitForNextUpdate } = renderHook(() => useOnlineStatus(1000));
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     await waitForNextUpdate();
@@ -53,23 +41,22 @@ describe('useOnlineStatus', () => {
   });
 
   it('should return true when online after being offline', async () => {
-    const checkInternetConnectionMock = jest.spyOn(window.electron, 'checkInternetConnection');
-    checkInternetConnectionMock.mockResolvedValue(false);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(false);
 
     const { rerender, result, waitForNextUpdate } = renderHook(() => useOnlineStatus(1000));
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     await waitForNextUpdate();
     expect(result.current).toBe(false);
 
-    checkInternetConnectionMock.mockResolvedValue(true);
+     vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
     rerender();
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
     await waitForNextUpdate();
 
@@ -77,14 +64,18 @@ describe('useOnlineStatus', () => {
   });
 
   it('should use navigator.onLine as fallback if checkInternetConnection fails', async () => {
-    const checkInternetConnectionMock = jest.spyOn(window.electron, 'checkInternetConnection');
+    vi.mocked(window.electron.checkInternetConnection).mockRejectedValue(new Error('IPC failed'));
 
-    checkInternetConnectionMock.mockRejectedValue(new Error('IPC failed'));
+    // Mock navigator.onLine to return false
+    Object.defineProperty(navigator, 'onLine', {
+      writable: true,
+      value: false,
+    });
 
     const { result, waitForNextUpdate } = renderHook(() => useOnlineStatus(1000));
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     await waitForNextUpdate();
@@ -93,8 +84,8 @@ describe('useOnlineStatus', () => {
   });
 
   it('should clean up event listeners on unmount', () => {
-    const addEventListenerMock = jest.spyOn(window, 'addEventListener');
-    const removeEventListenerMock = jest.spyOn(window, 'removeEventListener');
+    const addEventListenerMock = vi.spyOn(window, 'addEventListener');
+    const removeEventListenerMock = vi.spyOn(window, 'removeEventListener');
 
     const { unmount } = renderHook(() => useOnlineStatus(1000));
 
@@ -108,37 +99,34 @@ describe('useOnlineStatus', () => {
   });
 
   it('should respect the custom interval time', async () => {
-    const checkInternetConnectionMock = jest.spyOn(window.electron, 'checkInternetConnection');
-    checkInternetConnectionMock.mockResolvedValue(true);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
 
     const INTERVAL = 5000;
     renderHook(() => useOnlineStatus(INTERVAL));
 
     act(() => {
-      jest.advanceTimersByTime(4000);
+      vi.advanceTimersByTime(4000);
     });
 
-    expect(checkInternetConnectionMock).toHaveBeenCalledTimes(1);
+    expect(window.electron.checkInternetConnection).toHaveBeenCalledTimes(1);
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
-    expect(checkInternetConnectionMock).toHaveBeenCalledTimes(2);
+    expect(window.electron.checkInternetConnection).toHaveBeenCalledTimes(2);
   });
 
   it('should update state only when checkInternetConnection returns a different value', async () => {
-    const checkInternetConnectionMock = jest.spyOn(window.electron, 'checkInternetConnection');
-
-    checkInternetConnectionMock.mockResolvedValue(true);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
 
     const { result } = renderHook(() => useOnlineStatus(1000));
 
     act(() => {
-      jest.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(3000);
     });
 
-    expect(checkInternetConnectionMock).toHaveBeenCalledTimes(4);
+    expect(window.electron.checkInternetConnection).toHaveBeenCalledTimes(4);
     expect(result.current).toBe(true);
   });
 });

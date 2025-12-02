@@ -1,24 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import Onboarding from './index';
-import '@testing-library/jest-dom';
-
-// Mock electron
-const mockFinishOnboarding = jest.fn();
-const mockAddBackupsFromLocalPaths = jest.fn();
-
-window.electron = {
-  finishOnboarding: mockFinishOnboarding,
-  addBackupsFromLocalPaths: mockAddBackupsFromLocalPaths,
-} as any;
 
 // Mock the platform hook
-jest.mock('../../hooks/ClientPlatform', () => ({
+vi.mock('../../hooks/ClientPlatform', () => ({
   __esModule: true,
-  default: () => 'windows',
+  default: () => 'linux',
 }));
 
 // Mock the translation context
-jest.mock('../../context/LocalContext', () => ({
+vi.mock('../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
     language: 'en',
@@ -27,7 +17,7 @@ jest.mock('../../context/LocalContext', () => ({
 
 describe('Onboarding', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the first slide (Welcome) by default', () => {
@@ -50,7 +40,7 @@ describe('Onboarding', () => {
 
     fireEvent.click(screen.getByText('onboarding.common.skip'));
 
-    expect(mockFinishOnboarding).toHaveBeenCalled();
+    expect(window.electron.finishOnboarding).toHaveBeenCalled();
   });
 
   it('shows backup folder selector when setting up backups', () => {

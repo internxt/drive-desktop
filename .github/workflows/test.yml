@@ -6,8 +6,8 @@ on:
       - '*'
 
 jobs:
-  test:
-    name: 🧪 Lint and test
+  lint:
+    name: 🔍 Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +23,51 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
-      - name: Lint
+      - name: Run linter
         run: npm run lint
 
-      - name: Build processes
-        run: npm run build:main && npm run build:renderer
+  test-main:
+    name: 🧪 Test Main Process
+    runs-on: ubuntu-latest
 
-      - name: Run test
-        run: npm run test:unit
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build main process
+        run: npm run build:main
+
+      - name: Run main process tests
+        run: npm run test:main
+
+  test-renderer:
+    name: 🎨 Test Renderer Process
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build renderer process
+        run: npm run build:renderer
+
+      - name: Run renderer tests
+        run: npm run test:renderer

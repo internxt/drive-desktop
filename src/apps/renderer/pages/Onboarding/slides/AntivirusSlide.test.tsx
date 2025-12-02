@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { AntivirusSlide } from './AntivirusSlide';
 
-jest.mock('../../../context/LocalContext', () => ({
+vi.mock('../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
     language: 'en',
@@ -12,10 +11,10 @@ jest.mock('../../../context/LocalContext', () => ({
 
 describe('AntivirusSlide', () => {
   const mockProps = {
-    onGoNextSlide: jest.fn(),
-    onSkipOnboarding: jest.fn(),
-    onSetupBackups: jest.fn(),
-    onFinish: jest.fn(),
+    onGoNextSlide: vi.fn(),
+    onSkipOnboarding: vi.fn(),
+    onSetupBackups: vi.fn(),
+    onFinish: vi.fn(),
     platform: 'windows',
     currentSlide: 1,
     totalSlides: 7,

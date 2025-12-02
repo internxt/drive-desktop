@@ -2,11 +2,11 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CorruptedItemsFound } from './CorruptedItemsFound';
 
 describe('CorruptedItemsFound', () => {
-  const mockTranslate = jest.fn((key) => key);
-  const mockOnRemoveMalwareButtonClicked = jest.fn();
+  const mockTranslate = vi.fn((key) => key);
+  const mockOnRemoveMalwareButtonClicked = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the component with correct content', () => {

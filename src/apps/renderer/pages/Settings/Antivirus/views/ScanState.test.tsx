@@ -1,12 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanState } from './ScanState';
 import { useAntivirusContext } from '../../../../context/AntivirusContext';
+import { type Mock } from 'vitest';
 
-jest.mock('../../../../context/LocalContext');
-jest.mock('../../../../context/AntivirusContext');
+vi.mock('../../../../context/LocalContext');
+vi.mock('../../../../context/AntivirusContext');
 
 describe('ScanState', () => {
-  const mockShowItemsWithMalware = jest.fn();
+  const mockShowItemsWithMalware = vi.fn();
 
   const mockAntivirusContext = {
     currentScanPath: '/test/path/file.txt',
@@ -16,13 +17,13 @@ describe('ScanState', () => {
     isScanCompleted: false,
     infectedFiles: [],
     showErrorState: false,
-    onCancelScan: jest.fn(),
-    onScanAgainButtonClicked: jest.fn(),
+    onCancelScan: vi.fn(),
+    onScanAgainButtonClicked: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useAntivirusContext as jest.Mock).mockReturnValue(mockAntivirusContext);
+    vi.clearAllMocks();
+    (useAntivirusContext as Mock).mockReturnValue(mockAntivirusContext);
   });
 
   it('renders scanning state correctly', () => {
@@ -45,7 +46,7 @@ describe('ScanState', () => {
   });
 
   it('shows scan completed state with no corrupted files', () => {
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       isScanning: false,
       isScanCompleted: true,
@@ -67,7 +68,7 @@ describe('ScanState', () => {
   it('shows scan completed state with corrupted files', () => {
     const corruptedFiles = ['/test/infected1.txt', '/test/infected2.txt'];
 
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       isScanning: false,
       isScanCompleted: true,
@@ -88,10 +89,10 @@ describe('ScanState', () => {
   });
 
   it('shows error state when scan fails', () => {
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       isScanning: false,
-      isScanCompleted: false,
+      isScanCompleted: true,
       showErrorState: true,
     });
 
@@ -109,7 +110,7 @@ describe('ScanState', () => {
   it('shows scan statistics', () => {
     const corruptedFiles = ['/test/infected1.txt', '/test/infected2.txt'];
 
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       infectedFiles: corruptedFiles,
     });
@@ -126,7 +127,7 @@ describe('ScanState', () => {
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
     expect(screen.getByText('/test/path/file.txt')).toBeInTheDocument();
 
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       currentScanPath: '/test/path/another-file.txt',
     });

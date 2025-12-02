@@ -1,10 +1,7 @@
-/**
- * @jest-environment jsdom
- */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ActionDialog } from './ActionDialog';
 
-jest.mock('react-i18next', () => ({
+vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
   }),
@@ -17,12 +14,12 @@ describe('ActionDialog', () => {
     children: <div>Test Description</div>,
     cancelText: 'Cancel',
     confirmText: 'Confirm',
-    onCancel: jest.fn(),
-    onConfirm: jest.fn(),
+    onCancel: vi.fn(),
+    onConfirm: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders with provided props', () => {

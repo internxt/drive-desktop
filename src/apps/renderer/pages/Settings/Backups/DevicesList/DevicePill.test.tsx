@@ -1,11 +1,8 @@
-import '@testing-library/jest-dom';
-import { jest } from '@jest/globals';
-import { mockElectron } from '../../../../../__mocks__/mockElectron';
 import { Device } from '../../../../../main/device/service';
 import { screen, render, fireEvent } from '@testing-library/react';
 import DevicePill from './DevicePill';
 
-jest.mock('../../../../context/LocalContext', () => ({
+vi.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
   }),
@@ -21,30 +18,24 @@ const mockDevice: Device = {
 };
 
 describe('DevicePill', () => {
-  beforeAll(() => {
-    window.electron = mockElectron;
-  });
   afterAll(() => {
     // @ts-ignore
     delete window.electron;
   });
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should render the component properly', () => {
-    render(<DevicePill device={mockDevice} setSelected={jest.fn()} />);
+    render(<DevicePill device={mockDevice} setSelected={vi.fn()} />);
     expect(screen.getByText('Device 1')).toBeInTheDocument();
   });
 
   it('should show the "this device" label if current is true', () => {
-    render(<DevicePill device={mockDevice} current={true} setSelected={jest.fn()} />);
+    render(<DevicePill device={mockDevice} current={true} setSelected={vi.fn()} />);
 
     expect(screen.getByText('settings.backups.this-device')).toBeInTheDocument();
   });
 
   it('should have selected styling when selected is true', () => {
-    render(<DevicePill device={mockDevice} selected={true} setSelected={jest.fn()} />);
+    render(<DevicePill device={mockDevice} selected={true} setSelected={vi.fn()} />);
 
     const pill = screen.getByTestId('device-pill-1');
     expect(pill).toHaveClass('border-gray-10');
@@ -53,7 +44,7 @@ describe('DevicePill', () => {
   });
 
   it('should call setSelected with the device on click', () => {
-    const mockSetSelected = jest.fn();
+    const mockSetSelected = vi.fn();
 
     render(<DevicePill device={mockDevice} setSelected={mockSetSelected} />);
 

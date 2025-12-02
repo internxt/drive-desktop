@@ -35,7 +35,7 @@ describe('DropdownItem', () => {
   });
 
   it('calls onClick when clicked', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(
       <DropdownItem onClick={handleClick}>
         <span>Clickable Item</span>
@@ -49,7 +49,7 @@ describe('DropdownItem', () => {
   });
 
   it('calls onClick when key is pressed', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(
       <DropdownItem onClick={handleClick}>
         <span>Keyboard Item</span>

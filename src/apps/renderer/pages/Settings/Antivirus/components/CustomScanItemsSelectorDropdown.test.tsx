@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { CustomScanItemsSelectorDropdown } from './CustomScanItemsSelectorDropdown';
 
 // Mock the DropdownItem component
-jest.mock('./DropdownItem', () => ({
+vi.mock('./DropdownItem', () => ({
   DropdownItem: ({ children, onClick }: any) => (
     <button data-testid="dropdown-item" onClick={onClick}>
       {children}
@@ -14,11 +14,11 @@ describe('CustomScanItemsSelectorDropdown', () => {
   const mockProps = {
     disabled: false,
     translate: (key: string) => key, // Simple mock that returns the key
-    onScanItemsButtonClicked: jest.fn(),
+    onScanItemsButtonClicked: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the dropdown button with correct text', () => {

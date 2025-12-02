@@ -18,6 +18,7 @@ import { CleanerReport, CleanerViewModel, CleanupProgress } from '../../backend/
  **/
 
 export interface IElectronAPI {
+  finishOnboarding: () => void;
   getBackupsInterval(): Promise<number>;
 
   setBackupsInterval(value: number): Promise<void>;
@@ -45,10 +46,12 @@ export interface IElectronAPI {
 
   openUrl: (url: string) => Promise<void>;
 
+  checkInternetConnection(): Promise<boolean>;
+
   userAvailableProducts: {
     get: () => Promise<UserAvailableProducts | undefined>;
     subscribe: () => void;
-    onUpdate: (callback: (products: UserAvailableProducts) => void) => void;
+    onUpdate: (callback: (products: UserAvailableProducts) => void) => () => void;
   };
   login(email: string): Promise<AuthLoginResponseViewModel>;
   access(credentials: LoginAccessRequest): Promise<AuthAccessResponseViewModel>;
@@ -64,6 +67,34 @@ export interface IElectronAPI {
     stopCleanup: () => Promise<void>;
     onCleanupProgress: (callback: (progressData: CleanupProgress) => void) => () => void;
     getDiskSpace: () => Promise<number>;
+  };
+  antivirus: {
+    isAvailable: () => Promise<boolean>;
+    isDefenderActive: () => Promise<boolean>;
+    scanItems: (folderPaths?: { path: string; itemName: string; isDirectory: boolean }[]) => Promise<void>;
+    scanSystem: () => Promise<void>;
+    onScanProgress: (
+      callback: (progress: {
+        scanId: string;
+        currentScanPath: string;
+        infectedFiles: string[];
+        progress: number;
+        totalInfectedFiles: number;
+        totalScannedFiles: number;
+        done?: boolean;
+      }) => void,
+    ) => Promise<void>;
+    removeScanProgressListener: () => void;
+    addItemsToScan: (getFiles?: boolean) => Promise<
+      | {
+          path: string;
+          itemName: string;
+          isDirectory: boolean;
+        }[]
+      | undefined
+    >;
+    removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
+    cancelScan: () => Promise<void>;
   };
 }
 

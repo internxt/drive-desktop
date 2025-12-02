@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { ScanStatistics } from './ScanStatistics';
 import * as LocalContext from '../../../../context/LocalContext';
 
@@ -23,11 +22,11 @@ class ResizeObserverMock {
 global.ResizeObserver = ResizeObserverMock;
 
 describe('ScanStatistics', () => {
-  const mockTranslate = jest.fn((key) => key);
+  const mockTranslate = vi.fn((key) => key);
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.spyOn(LocalContext, 'useTranslationContext').mockReturnValue({
+    vi.clearAllMocks();
+    vi.spyOn(LocalContext, 'useTranslationContext').mockReturnValue({
       translate: mockTranslate,
       language: 'en',
     });

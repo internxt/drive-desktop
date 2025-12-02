@@ -2,11 +2,11 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorWhileScanningItems } from './ErrorWhileScanningItems';
 
 describe('ErrorWhileScanningItems', () => {
-  const mockTranslate = jest.fn((key) => key);
-  const mockOnScanAgainButtonClicked = jest.fn();
+  const mockTranslate = vi.fn((key) => key);
+  const mockOnScanAgainButtonClicked = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the component with correct content', () => {

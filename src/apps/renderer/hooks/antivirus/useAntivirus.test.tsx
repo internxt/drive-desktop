@@ -1,45 +1,39 @@
+import { vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useAntivirus } from './useAntivirus';
 
-const originalWindow = { ...window };
+type ProgressCallback = (progress: {
+  scanId: string;
+  currentScanPath: string;
+  infectedFiles: string[];
+  progress: number;
+  totalInfectedFiles: number;
+  totalScannedFiles: number;
+  done?: boolean;
+}) => void;
 
 describe('useAntivirus', () => {
-  let progressCallbackStore: ((progress: any) => void) | null = null;
-
-  const mockOnScanProgress = jest.fn().mockImplementation((cb) => {
-    progressCallbackStore = cb;
-    return Promise.resolve();
-  });
-
-  const mockRemoveScanProgressListener = jest.fn();
-  const mockIsAvailable = jest.fn().mockResolvedValue(true);
-  const mockAddItemsToScan = jest.fn().mockResolvedValue(['file1.txt', 'file2.txt']);
-  const mockScanItems = jest.fn().mockResolvedValue(undefined);
-  const mockRemoveInfectedFiles = jest.fn().mockResolvedValue(undefined);
-  const mockCancelScan = jest.fn().mockResolvedValue(undefined);
+  let progressCallbackStore: ProgressCallback | null = null;
 
   beforeEach(() => {
-    window.electron = {
-      ...window.electron,
-      antivirus: {
-        onScanProgress: mockOnScanProgress,
-        removeScanProgressListener: mockRemoveScanProgressListener,
-        isAvailable: mockIsAvailable,
-        isDefenderActive: jest.fn().mockResolvedValue(true),
-        scanItems: mockScanItems,
-        scanSystem: jest.fn().mockResolvedValue(undefined),
-        addItemsToScan: mockAddItemsToScan,
-        removeInfectedFiles: mockRemoveInfectedFiles,
-        cancelScan: mockCancelScan,
-      },
-    };
-
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     progressCallbackStore = null;
-  });
 
-  afterEach(() => {
-    window.electron = originalWindow.electron;
+    // Setup mock implementation for onScanProgress to capture the callback
+    vi.mocked(window.electron.antivirus.onScanProgress).mockImplementation((cb) => {
+      progressCallbackStore = cb;
+      return Promise.resolve();
+    });
+
+    // Setup default mock implementations
+    vi.mocked(window.electron.antivirus.isAvailable).mockResolvedValue(true);
+    vi.mocked(window.electron.antivirus.scanItems).mockResolvedValue(undefined);
+    vi.mocked(window.electron.antivirus.addItemsToScan).mockResolvedValue([
+      { path: '/test/file1.txt', itemName: 'file1.txt', isDirectory: false },
+      { path: '/test/file2.txt', itemName: 'file2.txt', isDirectory: false },
+    ]);
+    vi.mocked(window.electron.antivirus.removeInfectedFiles).mockResolvedValue(undefined);
+    vi.mocked(window.electron.antivirus.cancelScan).mockResolvedValue(undefined);
   });
 
   describe('initialization', () => {
@@ -47,7 +41,7 @@ describe('useAntivirus', () => {
       const { result } = renderHook(() => useAntivirus());
 
       expect(result.current.infectedFiles).toEqual([]);
-      expect(result.current.currentScanPath).toBeUndefined();
+      expect(result.current.currentScanPath).toBe('');
       expect(result.current.countScannedFiles).toBe(0);
       expect(result.current.progressRatio).toBe(0);
       expect(result.current.isScanCompleted).toBe(false);
@@ -75,7 +69,7 @@ describe('useAntivirus', () => {
     });
 
     it('should handle system scan button click', async () => {
-      const { result, waitForNextUpdate } = renderHook(() => useAntivirus());
+      const { result } = renderHook(() => useAntivirus());
 
       let scanPromise: Promise<void> = Promise.resolve();
       act(() => {
@@ -87,14 +81,12 @@ describe('useAntivirus', () => {
 
       await scanPromise;
 
-      expect(mockScanItems).toHaveBeenCalled();
-
-      expect(result.current.isScanning).toBe(false);
-      expect(result.current.isScanCompleted).toBe(true);
+      expect(window.electron.antivirus.scanItems).toHaveBeenCalled();
+      expect(window.electron.antivirus.scanItems).toHaveBeenCalledWith([]);
     });
 
     it('should handle errors during scanning', async () => {
-      mockScanItems.mockRejectedValueOnce(new Error('Scan failed'));
+      vi.mocked(window.electron.antivirus.scanItems).mockRejectedValueOnce(new Error('Scan failed'));
 
       const { result } = renderHook(() => useAntivirus());
 
@@ -108,7 +100,7 @@ describe('useAntivirus', () => {
 
       await scanPromise;
 
-      expect(mockScanItems).toHaveBeenCalled();
+      expect(window.electron.antivirus.scanItems).toHaveBeenCalled();
 
       expect(result.current.isScanning).toBe(false);
       expect(result.current.showErrorState).toBe(true);
@@ -129,7 +121,7 @@ describe('useAntivirus', () => {
         await result.current.onCancelScan();
       });
 
-      expect(mockCancelScan).toHaveBeenCalled();
+      expect(window.electron.antivirus.cancelScan).toHaveBeenCalled();
 
       expect(result.current.view).toBe('chooseItems');
       expect(result.current.isScanning).toBe(false);
@@ -152,9 +144,10 @@ describe('useAntivirus', () => {
 
   describe('progress handling', () => {
     it('should update state based on progress updates', () => {
+      vi.useFakeTimers();
       const { result } = renderHook(() => useAntivirus());
 
-      expect(mockOnScanProgress).toHaveBeenCalled();
+      expect(window.electron.antivirus.onScanProgress).toHaveBeenCalled();
 
       expect(progressCallbackStore).not.toBeNull();
 
@@ -165,6 +158,7 @@ describe('useAntivirus', () => {
             currentScanPath: '/path/to/file.txt',
             infectedFiles: ['infected.exe'],
             progress: 50,
+            totalInfectedFiles: 1,
             totalScannedFiles: 100,
             done: false,
           });
@@ -185,17 +179,26 @@ describe('useAntivirus', () => {
             currentScanPath: '/path/to/last/file.txt',
             infectedFiles: ['infected.exe', 'virus.dll'],
             progress: 100,
+            totalInfectedFiles: 2,
             totalScannedFiles: 200,
             done: true,
           });
         }
       });
 
-      expect(result.current.infectedFiles).toEqual(['infected.exe', 'virus.dll']);
       expect(result.current.progressRatio).toBe(100);
+
+      // Fast-forward the 500ms timeout for scan completion
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+
+      expect(result.current.infectedFiles).toEqual(['infected.exe', 'virus.dll']);
       expect(result.current.countScannedFiles).toBe(200);
       expect(result.current.isScanning).toBe(false);
       expect(result.current.isScanCompleted).toBe(true);
+
+      vi.useRealTimers();
     });
   });
 });

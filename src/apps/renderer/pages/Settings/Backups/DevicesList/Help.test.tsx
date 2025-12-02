@@ -1,26 +1,16 @@
-import '@testing-library/jest-dom';
 import Help from './Help';
-import { jest } from '@jest/globals';
-import { mockElectron, mockOpenUrl } from '../../../../../__mocks__/mockElectron';
 import { screen, render, fireEvent } from '@testing-library/react';
 
-jest.mock('../../../../context/LocalContext', () => ({
+vi.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
     translate: (key: string) => key,
   }),
 }));
 
 describe('Help', () => {
-  beforeAll(() => {
-    window.electron = mockElectron;
-  });
-  afterAll(() => {
-    // @ts-ignore
-    delete window.electron;
-  });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the component properly', () => {
@@ -36,7 +26,7 @@ describe('Help', () => {
 
     fireEvent.click(screen.getByText('settings.backups.backups-help'));
 
-    expect(mockOpenUrl).toHaveBeenCalledWith(
+    expect(window.electron.openUrl).toHaveBeenCalledWith(
       'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive',
     );
   });

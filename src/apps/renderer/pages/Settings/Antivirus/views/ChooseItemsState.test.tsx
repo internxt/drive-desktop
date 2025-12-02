@@ -1,20 +1,21 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ChooseItemsState } from './ChooseItemsState';
 import { useAntivirusContext } from '../../../../context/AntivirusContext';
+import { type Mock } from 'vitest';
 
-jest.mock('../../../../context/LocalContext');
-jest.mock('../../../../context/AntivirusContext');
+vi.mock('../../../../context/LocalContext');
+vi.mock('../../../../context/AntivirusContext');
 
 describe('ChooseItemsState', () => {
   const mockAntivirusContext = {
     isAntivirusAvailable: true,
-    onCustomScanButtonClicked: jest.fn(),
-    onScanUserSystemButtonClicked: jest.fn(),
+    onCustomScanButtonClicked: vi.fn(),
+    onScanUserSystemButtonClicked: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useAntivirusContext as jest.Mock).mockReturnValue(mockAntivirusContext);
+    vi.clearAllMocks();
+    (useAntivirusContext as Mock).mockReturnValue(mockAntivirusContext);
   });
 
   it('renders the component with all options', () => {
@@ -28,7 +29,7 @@ describe('ChooseItemsState', () => {
   });
 
   it('disables buttons when user is not eligible', () => {
-    (useAntivirusContext as jest.Mock).mockReturnValue({
+    (useAntivirusContext as Mock).mockReturnValue({
       ...mockAntivirusContext,
       isAntivirusAvailable: false,
     });

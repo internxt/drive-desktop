@@ -1,34 +1,20 @@
+import { vi } from 'vitest';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useUserAvailableProducts } from './useUserAvailableProducts';
-import {
-  mockElectron,
-  mockUserAvailableProductsGet as mockGet,
-  mockUserAvailableProductsSubscribe as mockSubscribe,
-  mockUserAvailableProductsOnUpdate as mockOnUpdate,
-} from '../../../__mocks__/mockElectron';
 
-const mockListener = jest.fn();
+const mockListener = vi.fn();
 
 describe('useUserAvailableProducts', () => {
-  beforeAll(() => {
-    window.electron = mockElectron;
-  });
+  const mockProducts = {
+    backups: true,
+    antivirus: false,
+    cleaner: true,
+  };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    const products = {
-      backups: true,
-      antivirus: false,
-    };
-
-    mockGet.mockResolvedValue(products);
-    mockOnUpdate.mockReturnValue(mockListener);
-  });
-
-  afterAll(() => {
-    // @ts-ignore
-    delete window.electron;
+    vi.clearAllMocks();
+    vi.mocked(window.electron.userAvailableProducts.get).mockResolvedValue(undefined);
+    vi.mocked(window.electron.userAvailableProducts.onUpdate).mockReturnValue(mockListener);
   });
 
   it('should initialize with undefined products', () => {
@@ -38,43 +24,42 @@ describe('useUserAvailableProducts', () => {
   });
 
   it('should fetch products on mount', async () => {
-    const mockProducts = {
-      backups: true,
-      antivirus: false,
-    };
-    mockGet.mockResolvedValue(mockProducts);
+    vi.mocked(window.electron.userAvailableProducts.get).mockResolvedValue(mockProducts);
 
     const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
 
     await waitForNextUpdate();
 
-    expect(mockGet).toHaveBeenCalledTimes(1);
+    expect(window.electron.userAvailableProducts.get).toHaveBeenCalledTimes(1);
     expect(result.current.products).toEqual(mockProducts);
   });
 
   it('should subscribe to product updates on mount', async () => {
     renderHook(() => useUserAvailableProducts());
 
-    expect(mockSubscribe).toHaveBeenCalledTimes(1);
+    expect(window.electron.userAvailableProducts.subscribe).toHaveBeenCalledTimes(1);
   });
 
   it('should register update listener on mount', async () => {
     renderHook(() => useUserAvailableProducts());
 
-    expect(mockOnUpdate).toHaveBeenCalledTimes(1);
-    expect(mockOnUpdate).toHaveBeenCalledWith(expect.any(Function));
+    expect(window.electron.userAvailableProducts.onUpdate).toHaveBeenCalledTimes(1);
+    expect(window.electron.userAvailableProducts.onUpdate).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it('should update products when listener is triggered', async () => {
+    vi.mocked(window.electron.userAvailableProducts.get).mockResolvedValue(mockProducts);
+
     const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
 
     await waitForNextUpdate();
 
-    const updateCallback = mockOnUpdate.mock.calls[0][0];
+    const updateCallback = vi.mocked(window.electron.userAvailableProducts.onUpdate).mock.calls[0][0];
 
     const updatedProducts = {
       backups: true,
       antivirus: true,
+      cleaner: false,
     };
 
     act(() => {
@@ -95,11 +80,16 @@ describe('useUserAvailableProducts', () => {
 
   it('should handle errors when fetching products', async () => {
     const error = new Error('Failed to fetch products');
-    mockGet.mockRejectedValue(error);
+    vi.mocked(window.electron.userAvailableProducts.get).mockRejectedValue(error);
 
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useUserAvailableProducts());
+
+    // Wait for the promise to reject and be handled
+    await vi.waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch user available products:', error);
+    });
 
     expect(result.current.products).toBeUndefined();
 

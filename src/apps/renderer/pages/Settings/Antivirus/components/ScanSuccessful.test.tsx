@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { ScanSuccessful } from './ScanSuccessful';
 
 describe('ScanSuccessful', () => {
-  const mockTranslate = jest.fn((key) => key);
+  const mockTranslate = vi.fn((key) => key);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the component with correct content', () => {
