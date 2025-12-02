@@ -1,50 +1,42 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/service';
 import { emitUserLoggedIn, setIsLoggedIn } from '../../auth/handlers';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { validateMnemonic } from 'bip39';
 
 type Props = { search: string };
 
 export async function processLogin({ search }: Props) {
-  try {
-    const params = new URLSearchParams(search);
-    const base64Token = params.get('newToken');
-    const base64PrivateKey = params.get('privateKey');
-    const base64Mnemonic = params.get('mnemonic');
+  const params = new URLSearchParams(search);
+  const base64Token = params.get('newToken');
+  const base64PrivateKey = params.get('privateKey');
+  const base64Mnemonic = params.get('mnemonic');
 
-    if (!base64Token || !base64PrivateKey || !base64Mnemonic) return;
+  if (!base64Token || !base64PrivateKey || !base64Mnemonic) return;
 
-    const mnemonic = Buffer.from(base64Mnemonic, 'base64').toString('utf8');
-    const newToken = Buffer.from(base64Token, 'base64').toString('utf8');
-    const privateKey = Buffer.from(base64PrivateKey, 'base64').toString('utf8');
+  const mnemonic = Buffer.from(base64Mnemonic, 'base64').toString('utf8');
+  const newToken = Buffer.from(base64Token, 'base64').toString('utf8');
+  const privateKey = Buffer.from(base64PrivateKey, 'base64').toString('utf8');
 
-    const isValid = validateMnemonic(mnemonic);
+  const isValid = validateMnemonic(mnemonic);
 
-    if (!isValid) throw new Error(`Invalid mnemonic: ${mnemonic.slice(0, 20)}`);
+  if (!isValid) throw new Error(`Invalid mnemonic: ${mnemonic.slice(0, 20)}`);
 
-    updateCredentials({ newToken });
+  updateCredentials({ newToken });
 
-    const { data, error } = await DriveServerWipModule.auth.refresh();
+  const { data, error } = await DriveServerWipModule.auth.refresh();
 
-    if (error) throw error;
+  if (error) throw error;
 
-    /**
-     * v2.6.3 Daniel Jiménez
-     * We need to override the privateKey and the mnemonic since inside the user they are encrypted.
-     * Previous to SSO we were using the password to encrypt and decrypt the privateKey and
-     * mnemonic. However, since now the client never touches the password we need the backend
-     * to send as the decrypted privateKey and mnemonic.
-     */
-    setUser({ ...data.user, privateKey, mnemonic });
+  /**
+   * v2.6.3 Daniel Jiménez
+   * We need to override the privateKey and the mnemonic since inside the user they are encrypted.
+   * Previous to SSO we were using the password to encrypt and decrypt the privateKey and
+   * mnemonic. However, since now the client never touches the password we need the backend
+   * to send as the decrypted privateKey and mnemonic.
+   */
+  setUser({ ...data.user, privateKey, mnemonic });
 
-    restoreSavedConfig({ uuid: data.user.uuid });
-    setIsLoggedIn(true);
-    await emitUserLoggedIn();
-  } catch (error) {
-    logger.error({
-      msg: 'Cannot process login deeplink',
-      error,
-    });
-  }
+  restoreSavedConfig({ uuid: data.user.uuid });
+  setIsLoggedIn(true);
+  void emitUserLoggedIn();
 }
