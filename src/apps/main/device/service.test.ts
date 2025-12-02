@@ -3,7 +3,7 @@ import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
-import { createUniqueDevice, decryptDeviceName, fetchDevice, saveDeviceToConfig } from './service';
+import { createUniqueDevice, fetchDevice, saveDeviceToConfig } from './service';
 import { loggerMock } from '../../../../tests/vitest/mocks.helper.test';
 import { GetDeviceError } from '@/infra/drive-server-wip/services/backup/get-device';
 
@@ -197,36 +197,6 @@ describe('Device Service', () => {
       expect(error).toBeInstanceOf(Error);
       expect(error?.message).toContain('Could not create device trying different names');
       expect(data).toBe(undefined);
-    });
-  });
-
-  describe('decryptDeviceName', () => {
-    it('should decrypt the device name with the correct key using bucket', () => {
-      decryptMock.mockReturnValue(decryptedName);
-
-      const result = decryptDeviceName(deviceMock);
-      expect(decryptMock).toHaveBeenCalledWith(deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${deviceMock.bucket}`);
-      expect(result).toStrictEqual({
-        ...deviceMock,
-        name: decryptedName,
-      });
-    });
-
-    it('should fall back to using null in the key when first decryption fails', () => {
-      decryptMock
-        .mockImplementationOnce(() => {
-          throw new Error('Decryption failed');
-        })
-        .mockReturnValueOnce(decryptedName);
-
-      const result = decryptDeviceName(deviceMock);
-      expect(decryptMock).toHaveBeenCalledTimes(2);
-      expect(decryptMock).toHaveBeenNthCalledWith(1, deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${deviceMock.bucket}`);
-      expect(decryptMock).toHaveBeenNthCalledWith(2, deviceMock.name, `${process.env.NEW_CRYPTO_KEY}-${null}`);
-      expect(result).toStrictEqual({
-        ...deviceMock,
-        name: decryptedName,
-      });
     });
   });
 });

@@ -158,7 +158,7 @@
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",
     "webpack-merge": "^5.8.0",
-    "zod": "^3.24.2"
+    "zod": "^4.1.13"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
@@ -199,6 +199,7 @@
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
+    "source-map-support": "^0.5.21",
     "typeorm": "^0.3.26",
     "zustand": "^4.5.7"
   },
