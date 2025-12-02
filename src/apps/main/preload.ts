@@ -264,6 +264,7 @@ const api = {
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
+  openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

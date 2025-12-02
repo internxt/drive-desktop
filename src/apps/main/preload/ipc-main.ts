@@ -11,6 +11,7 @@ import { getLanguage } from '../config/language';
 import { getTheme } from '../config/theme';
 import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
+import { openLoginUrl } from '../auth/open-login-url';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -30,4 +31,5 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog());
   ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
   ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup(props));
+  ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
 }

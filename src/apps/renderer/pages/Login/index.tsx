@@ -21,7 +21,7 @@ export function Login() {
             variant="primary"
             size="lg"
             data-automation-id="buttonLogin"
-            onClick={() => openUrl('https://drive.internxt.com/login?universalLink=true')}
+            onClick={() => globalThis.window.electron.openLoginUrl()}
             customClassName="font-medium">
             {t('login.signInBrowser')}
           </Button>
