@@ -27,7 +27,6 @@ jobs:
         env:
           ANALYZE: ${{ secrets.ANALYZE }}
           BRIDGE_URL: ${{ secrets.BRIDGE_URL }}
-          CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
           DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
           DRIVE_URL: ${{ secrets.DRIVE_URL }}
           NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
@@ -40,7 +39,6 @@ jobs:
         run: |
           echo "ANALYZE=$ANALYZE" > .env
           echo "BRIDGE_URL=$BRIDGE_URL" >> .env
-          echo "CRYPTO_KEY=$CRYPTO_KEY" >> .env
           echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
           echo "DRIVE_URL=$DRIVE_URL" >> .env
           echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env

@@ -8,6 +8,7 @@ import { broadcastToWindows } from '@/apps/main/windows';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import Bottleneck from 'bottleneck';
 import { Effect } from 'effect/index';
+import { mkdir } from 'node:fs/promises';
 
 type Props = {
   user: User;
@@ -29,6 +30,7 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
 
   const tree = await Traverser.run({ rootPath, rootUuid, userUuid: user.uuid });
   const files = Object.values(tree.files);
+  const folders = Object.values(tree.folders);
 
   let downloadedItems = 0;
 
@@ -41,6 +43,8 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
 
   updateProgress(1);
 
+  await Promise.all(folders.map((folder) => mkdir(folder.absolutePath, { recursive: true })));
+
   const promises = files.map(async (file) => {
     await limiter.schedule(async () => {
       runningFiles.add(file.absolutePath);
@@ -49,7 +53,7 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
 
       downloadedItems += 1;
       const progress = (downloadedItems / files.length) * 100;
-      updateProgress(Math.trunc(progress));
+      updateProgress(Math.max(progress, 1));
     });
   });
 

@@ -22,6 +22,7 @@ function parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
       tag: 'SYNC-ENGINE',
       msg: 'Error parsing addon result',
       fn,
+      data,
       error: result.error,
     });
   }

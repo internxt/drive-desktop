@@ -1,4 +1,3 @@
-import { mkdir } from 'node:fs/promises';
 import { downloadFile } from './download-file';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -10,11 +9,9 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { createWriteStream } from 'node:fs';
 
 vi.mock(import('node:fs'));
-vi.mock(import('node:fs/promises'));
 
 describe('download-file', () => {
   vi.mocked(createWriteStream);
-  const mkdirMock = vi.mocked(mkdir);
   const contentsDownloader = mockDeep<ContentsDownloader>({});
   const pipelineMock = partialSpyOn(pipeline, 'pipeline');
 
@@ -26,16 +23,8 @@ describe('download-file', () => {
   });
 
   beforeEach(() => {
-    mkdirMock.mockResolvedValue(undefined);
     contentsDownloader.downloadThrow.mockResolvedValue('content' as any);
     pipelineMock.mockReturnValue(Effect.void);
-  });
-
-  it('should create parent folder recursively', async () => {
-    // When
-    await Effect.runPromise(downloadFile(props));
-    // Then
-    call(mkdirMock).toStrictEqual(['/parent', { recursive: true }]);
   });
 
   it('should not log error if aborted', async () => {

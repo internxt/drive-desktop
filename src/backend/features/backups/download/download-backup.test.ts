@@ -60,7 +60,7 @@ describe('download-backup', () => {
     call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
       device: { name: 'device', uuid: 'deviceUuid' },
-      rootPath: '/backup/Backup_20250101120000',
+      rootPath: '/backup/Backup_20250101120000/device',
       rootUuid: 'deviceUuid',
     });
   });
@@ -74,7 +74,7 @@ describe('download-backup', () => {
     call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
       device: { name: 'device', uuid: 'deviceUuid' },
-      rootPath: '/backup/Backup_20250101120000',
+      rootPath: '/backup/Backup_20250101120000/device',
       rootUuid: 'folderUuid',
     });
   });
