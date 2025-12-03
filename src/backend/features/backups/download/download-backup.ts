@@ -51,7 +51,7 @@ export async function downloadBackup({ device, folderUuids }: Props) {
   ipcMain.on(listenerName, eventListener);
 
   const now = new Date().toISOString().replace('T', '').replaceAll('-', '').replaceAll(':', '').slice(0, 14);
-  const rootPath = join(chosenPath, 'Backup_' + now);
+  const rootPath = join(chosenPath, 'Backup_' + now, device.name);
   const rootUuids = folderUuids ?? [device.uuid as FolderUuid];
 
   logger.debug({

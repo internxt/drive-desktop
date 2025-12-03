@@ -1,10 +1,13 @@
 {
   "entry": ["src/apps/main/main.ts", "src/apps/sync-engine/index.ts", "src/apps/renderer/index.tsx"],
   "exclude": ["devDependencies"],
-  "ignore": ["**/*.test.{ts,tsx}", "src/apps/shared/HttpClient/schema.ts"],
+  "ignore": ["**/*.test.{ts,tsx}", "src/apps/shared/HttpClient/schema.ts", "src/migrations/v2.5.6/move-checkpoint-to-lokijs.ts"],
   "ignoreBinaries": ["powershell", "esbuild"],
   "ignoreExportsUsedInFile": true,
   "project": ["src/**/*.{ts,tsx}"],
   "vitest": false,
-  "webpack": false
+  "webpack": false,
+  "rules": {
+    "duplicates": "off"
+  }
 }

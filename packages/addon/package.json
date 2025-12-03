@@ -1,10 +1,16 @@
 {
   "name": "@packages/addon",
+  "version": "1.0.0",
   "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "gypfile": true,
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "node gyp.config.js && node-gyp clean && node-gyp configure build"
+    "compile": "node gyp.config.js && node-gyp clean && node-gyp configure build",
+    "refresh": "cd ../.. && npm update @packages/addon",
+    "build": "npm run compile && npm pack && npm run refresh"
   }
 }

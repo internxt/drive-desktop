@@ -1,12 +1,10 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import { findMpCmdRun } from './find-mcp-command';
+import { execAsync } from '@/core/utils/exec-async';
 
-const execPromise = promisify(exec);
 export async function isWindowsDefenderAvailable(): Promise<boolean> {
   try {
-    const { stdout } = await execPromise('powershell "Get-MpComputerStatus | Select-Object -Property AMServiceEnabled"');
+    const { stdout } = await execAsync('powershell "Get-MpComputerStatus | Select-Object -Property AMServiceEnabled"');
     const mpCmdRunIsAvailable = await findMpCmdRun();
     return stdout.includes('True') && !!mpCmdRunIsAvailable;
   } catch (error) {

@@ -16,6 +16,7 @@ import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
+import { BackupDownloadProgress } from './windows/broadcast-to-windows';
 
 const api = {
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {
@@ -157,9 +158,9 @@ const api = {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  onBackupDownloadProgress(func: (_: { id: string; progress: number }) => void): () => void {
+  onBackupDownloadProgress(func: (_: BackupDownloadProgress) => void): () => void {
     const eventName = 'backup-download-progress';
-    const callback = (_: unknown, v: { id: string; progress: number }) => func(v);
+    const callback = (_: unknown, v: BackupDownloadProgress) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
@@ -263,6 +264,7 @@ const api = {
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
+  openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

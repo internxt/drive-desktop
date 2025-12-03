@@ -4,11 +4,11 @@ import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 
 export class FilePlaceholderUpdater {
-  static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
+  static async update({ ctx, remote, files }: { ctx: SyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
     const path = remote.absolutePath;
 
     try {
@@ -51,7 +51,7 @@ export class FilePlaceholderUpdater {
     }
   }
 
-  static async run({ ctx, remotes, files }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
+  static async run({ ctx, remotes, files }: { ctx: SyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
     const promises = remotes.map((remote) => this.update({ ctx, remote, files }));
     await Promise.all(promises);
   }

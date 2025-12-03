@@ -1,8 +1,8 @@
 import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { ipcMain } from 'electron';
 import { FromMain, FromProcess } from './ipc';
-import { SqliteModule } from '../sqlite.module';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
+import { SqliteModule } from '../sqlite.module';
 
 const ipcMainSqlite = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 

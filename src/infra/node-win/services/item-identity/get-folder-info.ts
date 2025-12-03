@@ -1,6 +1,6 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/controllers/placeholder-id';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { FolderPlaceholderId, isFolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
@@ -16,7 +16,7 @@ export class GetFolderInfoError extends Error {
 }
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
 };
 

@@ -33,7 +33,7 @@ describe('load-in-memory-paths', () => {
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual({ folderUuid: 'C:/Users/user/InternxtDrive/folder' });
-    expect(files).toStrictEqual({ fileUuid2: expect.objectContaining({ path: 'C:/Users/user/InternxtDrive/folder/file2' }) });
+    expect(folders).toStrictEqual({ folderUuid: { path: 'C:/Users/user/InternxtDrive/folder' } });
+    expect(files).toMatchObject({ fileUuid2: { path: 'C:/Users/user/InternxtDrive/folder/file2' } });
   });
 });

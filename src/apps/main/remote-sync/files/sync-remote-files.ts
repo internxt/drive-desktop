@@ -2,8 +2,8 @@ import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sq
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -46,12 +46,12 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
 
     const lastFile = fileDtos.at(-1);
     if (lastFile) {
-      await LokijsModule.CheckpointsModule.updateCheckpoint({
+      await SqliteModule.CheckpointModule.createOrUpdate({
         userUuid: self.context.userUuid,
         workspaceId: self.workspaceId,
         type: 'file',
-        plainName: lastFile.plainName,
-        checkpoint: lastFile.updatedAt,
+        name: lastFile.plainName,
+        updatedAt: lastFile.updatedAt,
       });
     }
   }

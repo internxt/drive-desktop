@@ -3,7 +3,6 @@ import { processLogin } from './process-login';
 import * as authService from '../../auth/service';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import * as authHandlers from '../../auth/handlers';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('process-login', () => {
   const updateCredentialsMock = partialSpyOn(authService, 'updateCredentials');
@@ -20,23 +19,18 @@ describe('process-login', () => {
     // Given
     refreshMock.mockResolvedValue({ data: { user: { uuid: 'uuid' } } });
     // When
-    await processLogin({ search: '?mnemonic=bW5lbW9uaWM=&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==' });
+    const promise = processLogin({ search: '?mnemonic=bW5lbW9uaWM=&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==' });
     // Then
-    call(loggerMock.error).toStrictEqual({
-      msg: 'Cannot process login deeplink',
-      error: new Error('Invalid mnemonic: mnemonic'),
-    });
+    await expect(promise).rejects.toThrow(new Error('Invalid mnemonic: mnemonic'));
   });
 
   it('should process search params and login', async () => {
     // Given
-    refreshMock.mockResolvedValue({ data: { user: { uuid: 'uuid' } } });
+    refreshMock.mockResolvedValue({ data: { newToken: 'refreshToken', user: { uuid: 'uuid' } } });
     // When
-    await processLogin({
-      search: `?mnemonic=${base64Mnemonic}&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==`,
-    });
+    await processLogin({ search: `?mnemonic=${base64Mnemonic}&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==` });
     // Then
-    call(updateCredentialsMock).toStrictEqual({ newToken: 'newToken' });
+    calls(updateCredentialsMock).toStrictEqual([{ newToken: 'newToken' }, { newToken: 'refreshToken' }]);
     call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey', mnemonic });
     call(restoreSavedConfigMock).toStrictEqual({ uuid: 'uuid' });
     call(setIsLoggedInMock).toBe(true);

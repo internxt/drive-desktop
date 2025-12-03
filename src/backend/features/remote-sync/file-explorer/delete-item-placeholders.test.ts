@@ -1,68 +1,58 @@
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { deleteItemPlaceholders } from './delete-item-placeholders';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rm } from 'node:fs/promises';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('node:fs/promises'));
 
 describe('delete-item-placeholders', () => {
   const rmMock = vi.mocked(rm);
 
-  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
-  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const uuid = 'uuid' as FileUuid;
+  const path = abs('/drive/file.txt');
 
-  describe('what should happen for folders', () => {
-    const absolutePath = 'C:/Users/user/Internxt/folder1/folder2' as AbsolutePath;
-    const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ absolutePath, uuid: 'uuid' as FolderUuid }],
-      type: 'folder',
-    });
+  let props: Parameters<typeof deleteItemPlaceholders>[0];
 
-    it('should call deleteFileSyncRoot if folder uuids match', async () => {
-      // Given
-      getFolderInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FolderUuid } });
-      // When
-      await deleteItemPlaceholders(props);
-      // Then
-      expect(rmMock).toBeCalledWith(absolutePath, { recursive: true, force: true });
-    });
-
-    it('should not call deleteFileSyncRoot if folder uuids do not match', async () => {
-      // Given
-      getFolderInfoMock.mockReturnValue({ data: { uuid: 'different' as FolderUuid } });
-      // When
-      await deleteItemPlaceholders(props);
-      // Then
-      expect(rmMock).toBeCalledTimes(0);
+  beforeEach(() => {
+    props = mockProps<typeof deleteItemPlaceholders>({
+      remotes: [{ absolutePath: path, uuid }],
+      locals: { [uuid]: { path } },
+      type: 'file',
     });
   });
 
-  describe('what should happen for files', () => {
-    const absolutePath = 'C:/Users/user/Internxt/folder/file.txt' as AbsolutePath;
-    const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ absolutePath, uuid: 'uuid' as FileUuid }],
+  it('should skip if local item does not exist', async () => {
+    // Given
+    props.locals = {};
+    // When
+    await deleteItemPlaceholders(props);
+    // Then
+    calls(rmMock).toHaveLength(0);
+    calls(loggerMock.error).toHaveLength(0);
+  });
+
+  it('should skip if paths do not match', async () => {
+    // Given
+    props.locals = { [uuid]: { path: abs('/drive/other.txt') } };
+    // When
+    await deleteItemPlaceholders(props);
+    // Then
+    calls(rmMock).toHaveLength(0);
+    call(loggerMock.error).toStrictEqual({
+      msg: 'Cannot delete placeholder, path does not match',
+      localPath: '/drive/other.txt',
+      remotePath: '/drive/file.txt',
       type: 'file',
     });
+  });
 
-    it('should call deleteFileSyncRoot if file uuids match', async () => {
-      // Given
-      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
-      // When
-      await deleteItemPlaceholders(props);
-      // Then
-      expect(rmMock).toBeCalledWith(absolutePath, { recursive: true, force: true });
-    });
-
-    it('should not call deleteFileSyncRoot if file uuids do not match', async () => {
-      // Given
-      getFileInfoMock.mockReturnValue({ data: { uuid: 'different' as FileUuid } });
-      // When
-      await deleteItemPlaceholders(props);
-      // Then
-      expect(rmMock).toBeCalledTimes(0);
-    });
+  it('should delete item if paths match', async () => {
+    // When
+    await deleteItemPlaceholders(props);
+    // Then
+    calls(loggerMock.error).toHaveLength(0);
+    call(rmMock).toStrictEqual([path, { recursive: true, force: true }]);
   });
 });

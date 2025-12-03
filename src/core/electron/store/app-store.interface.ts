@@ -32,6 +32,6 @@ export type AppStore = {
   preferedTheme: ConfigTheme;
   'patch-executed-2-5-1': boolean;
   'migrations.v2-5-1-add-user-uuid-to-database': boolean;
-  'migrations.v2-5-6-move-checkpoint-to-lokijs': boolean;
   'migrations.v2-5-7-remove-antivirus-table': boolean;
+  'migrations.v2-6-3-move-checkpoint-to-sqlite': boolean;
 };

@@ -2,11 +2,11 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { existsSync, Stats } from 'node:fs';
 import { unlink } from 'node:fs/promises';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   remote: ExtendedDriveFile;
   local: { path: AbsolutePath; stats: Stats };
 };

@@ -2,8 +2,8 @@ import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 import { GetFoldersQuery } from '@/infra/drive-server-wip/services/folders.service';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -46,12 +46,12 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
 
     const lastFolder = folderDtos.at(-1);
     if (lastFolder) {
-      await LokijsModule.CheckpointsModule.updateCheckpoint({
+      await SqliteModule.CheckpointModule.createOrUpdate({
         userUuid: self.context.userUuid,
         workspaceId: self.workspaceId,
         type: 'folder',
-        plainName: lastFolder.plainName,
-        checkpoint: lastFolder.updatedAt,
+        name: lastFolder.plainName,
+        updatedAt: lastFolder.updatedAt,
       });
     }
   }
