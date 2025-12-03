@@ -123,7 +123,7 @@ describe('create-placeholder', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
-      { msg: 'Tree built', files: 0, folders: 0, trashedFiles: 0, trashedFolders: 0 },
+      { msg: 'Tree built', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
       { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
