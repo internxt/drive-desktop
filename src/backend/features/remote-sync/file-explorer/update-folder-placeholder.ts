@@ -1,25 +1,24 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
-import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 
 export class FolderPlaceholderUpdater {
-  static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
+  static async update({ ctx, remote, folders }: { ctx: SyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
     const path = remote.absolutePath;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const remotePath = remote.absolutePath;
-      const localPath = folders[remote.uuid as FolderUuid];
+      const local = folders[remote.uuid];
 
-      if (!localPath) {
+      if (!local) {
         await Addon.createFolderPlaceholder({
-          path: remotePath,
+          path,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
@@ -27,6 +26,9 @@ export class FolderPlaceholderUpdater {
 
         return;
       }
+
+      const remotePath = remote.absolutePath;
+      const localPath = local.path;
 
       if (hasToBeMoved({ ctx, remotePath, localPath })) {
         ctx.logger.debug({
@@ -47,7 +49,7 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  static async run({ ctx, remotes, folders }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
+  static async run({ ctx, remotes, folders }: { ctx: SyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
         if (remote.absolutePath === ctx.rootPath) return;
