@@ -58,8 +58,8 @@ export class Traverser {
   }
 
   static async run({ ctx }: { ctx: SyncContext }) {
-    const items = await getAllItems({ ctx });
     const rootFolder = this.createRootFolder({ ctx });
+    const items = await getAllItems({ ctx });
 
     const tree: Tree = {
       files: [],

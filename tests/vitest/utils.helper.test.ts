@@ -29,6 +29,10 @@ export function deepMocked<T extends (...args: any[]) => unknown>(fn: T) {
   return vi.mocked(fn) as MockedFunction<(...args: Parameters<T>) => DeepPartial<ReturnType<T>>>;
 }
 
+export function testSleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * v2.5.6 Daniel Jiménez
  * Code extracted from vitest
