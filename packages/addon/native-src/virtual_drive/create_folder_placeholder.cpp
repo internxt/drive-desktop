@@ -27,7 +27,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
     cloudEntry.FileIdentity = placeholderId.c_str();
     cloudEntry.FileIdentityLength = static_cast<DWORD>((placeholderId.size() + 1) * sizeof(WCHAR));
     cloudEntry.RelativeFileName = name.c_str();
-    cloudEntry.Flags = CF_PLACEHOLDER_CREATE_FLAG_DISABLE_ON_DEMAND_POPULATION;  // Deactivate download on demand
+    cloudEntry.Flags = CF_PLACEHOLDER_CREATE_FLAG_DISABLE_ON_DEMAND_POPULATION;
     cloudEntry.FsMetadata.BasicInfo.FileAttributes = FILE_ATTRIBUTE_DIRECTORY;
     cloudEntry.FsMetadata.BasicInfo.CreationTime = creationTime;
     cloudEntry.FsMetadata.BasicInfo.LastWriteTime = lastWriteTime;
@@ -35,7 +35,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
 
     check_hresult(
         "CfCreatePlaceholders",
-        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_NONE, nullptr));
+        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_STOP_ON_ERROR, nullptr));
 
     update_sync_status(path);
 }
