@@ -2,7 +2,7 @@ import { getAllItems } from './RemoteItemsGenerator';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type Items = {
   files: Array<SimpleDriveFile>;
@@ -17,21 +17,7 @@ export type Tree = {
 };
 
 export class Traverser {
-  private static createRootFolder({ ctx }: { ctx: ProcessSyncContext }): ExtendedDriveFolder {
-    return {
-      uuid: ctx.rootUuid,
-      parentUuid: undefined,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      absolutePath: ctx.rootPath,
-      status: 'EXISTS',
-      name: '',
-    };
-  }
-
-  private static traverse(ctx: ProcessSyncContext, tree: Tree, items: Items, currentFolder: ExtendedDriveFolder) {
-    if (!items) return;
-
+  private static traverse(tree: Tree, items: Items, currentFolder: Pick<ExtendedDriveFolder, 'uuid' | 'absolutePath'>) {
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
@@ -54,23 +40,22 @@ export class Traverser {
         tree.trashedFolders.push(extendedFolder);
       } else {
         tree.folders.push(extendedFolder);
-        this.traverse(ctx, tree, items, extendedFolder);
+        this.traverse(tree, items, extendedFolder);
       }
     });
   }
 
-  static async run({ ctx }: { ctx: ProcessSyncContext }) {
-    const rootFolder = this.createRootFolder({ ctx });
+  static async run({ ctx }: { ctx: SyncContext }) {
     const items = await getAllItems({ ctx });
 
     const tree: Tree = {
       files: [],
-      folders: [rootFolder],
+      folders: [],
       trashedFiles: [],
       trashedFolders: [],
     };
 
-    this.traverse(ctx, tree, items, rootFolder);
+    this.traverse(tree, items, { uuid: ctx.rootUuid, absolutePath: ctx.rootPath });
 
     return tree;
   }

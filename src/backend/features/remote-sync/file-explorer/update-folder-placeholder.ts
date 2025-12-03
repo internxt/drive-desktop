@@ -3,11 +3,11 @@ import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/D
 import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 
 export class FolderPlaceholderUpdater {
-  static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
+  static async update({ ctx, remote, folders }: { ctx: SyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
     const path = remote.absolutePath;
 
     try {
@@ -47,10 +47,9 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  static async run({ ctx, remotes, folders }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
+  static async run({ ctx, remotes, folders }: { ctx: SyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
-        if (remote.absolutePath === ctx.rootPath) return;
         await this.update({ ctx, remote, folders });
       }),
     );

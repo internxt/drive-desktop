@@ -4,13 +4,13 @@ import { broadcastSyncStatus } from './services/broadcast-sync-status';
 import { syncRemoteFiles } from './files/sync-remote-files';
 import { syncRemoteFolders } from './folders/sync-remote-folders';
 import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
 
   constructor(
-    public readonly context: Config,
+    public readonly context: SyncContext,
     public readonly workspaceId: string,
   ) {}
 

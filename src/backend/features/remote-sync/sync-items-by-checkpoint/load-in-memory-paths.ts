@@ -5,12 +5,12 @@ import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Stats } from 'node:fs';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 export type InMemoryFiles = Record<FileUuid, { path: AbsolutePath; stats: Stats }>;
-export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
+export type InMemoryFolders = Record<FolderUuid, { path: AbsolutePath }>;
 
-export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
+export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   const files: InMemoryFiles = {};
   const folders: InMemoryFolders = {};
 
@@ -28,7 +28,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
     if (stats.isDirectory()) {
       const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path });
       if (folderInfo) {
-        folders[folderInfo.uuid] = path;
+        folders[folderInfo.uuid] = { path };
       }
     }
 
