@@ -1,6 +1,8 @@
-import path from 'node:path/posix';
 import { mkdirSync } from 'node:fs';
-import { TEST_FILES } from './mocks.helper.test';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { cwd } from 'node:process';
+
+const TEST_FILES = join(abs(cwd()), 'test-files');
 
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'test';
@@ -17,10 +19,7 @@ vi.mock(import('electron'), () => {
     ...actual,
     app: {
       getPath: vi.fn((string) => {
-        if (string === 'home') {
-          return path.join(TEST_FILES, 'setup-root-folder');
-        }
-        return '/mock/logs';
+        return join(TEST_FILES, string);
       }),
       on: vi.fn(),
     },

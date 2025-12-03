@@ -1,6 +1,7 @@
 import Store, { Schema } from 'electron-store';
 import { AppStore } from '@/core/electron/store/app-store.interface';
 import { defaults } from '@/core/electron/store/defaults';
+import { PATHS } from '@/core/electron/paths';
 
 const schema: Schema<AppStore> = {
   backupsEnabled: { type: 'boolean' },
@@ -26,7 +27,14 @@ const schema: Schema<AppStore> = {
   'migrations.v2-6-3-move-checkpoint-to-sqlite': { type: 'boolean' },
 } as const;
 
-const configStore = new Store({ schema, defaults, accessPropertiesByDotNotation: false });
+const configStore = new Store({
+  schema,
+  defaults,
+  accessPropertiesByDotNotation: false,
+  cwd: PATHS.INTERNXT,
+  name: 'config',
+  fileExtension: 'json',
+});
 
 function get<T extends keyof AppStore>(key: T) {
   return configStore.get(key);
