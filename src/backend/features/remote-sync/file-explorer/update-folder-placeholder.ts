@@ -14,12 +14,11 @@ export class FolderPlaceholderUpdater {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const remotePath = remote.absolutePath;
-      const localPath = folders[remote.uuid].path;
+      const local = folders[remote.uuid];
 
-      if (!localPath) {
+      if (!local) {
         await Addon.createFolderPlaceholder({
-          path: remotePath,
+          path,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
@@ -27,6 +26,9 @@ export class FolderPlaceholderUpdater {
 
         return;
       }
+
+      const remotePath = remote.absolutePath;
+      const localPath = local.path;
 
       if (hasToBeMoved({ ctx, remotePath, localPath })) {
         ctx.logger.debug({

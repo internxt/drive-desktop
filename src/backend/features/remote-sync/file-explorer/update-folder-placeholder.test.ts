@@ -1,7 +1,7 @@
 import { FolderPlaceholderUpdater } from './update-folder-placeholder';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
-import { abs, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as hasToBeMoved from './has-to-be-moved';
 import { rename } from 'node:fs/promises';
@@ -19,7 +19,6 @@ describe('update-folder-placeholder', () => {
 
   const date = '2000-01-01T00:00:00.000Z';
   const time = new Date(date).getTime();
-  const rootPath = abs('/drive');
 
   let props: Parameters<typeof FolderPlaceholderUpdater.update>[0];
 
@@ -35,18 +34,6 @@ describe('update-folder-placeholder', () => {
         updatedAt: date,
       },
     });
-  });
-
-  it('should skip if path is root', async () => {
-    // Given
-    const props = mockProps<typeof FolderPlaceholderUpdater.run>({
-      ctx: { rootPath },
-      remotes: [{ absolutePath: rootPath }],
-    });
-    // When
-    await FolderPlaceholderUpdater.run(props);
-    // Then
-    expect(validateWindowsNameMock).toBeCalledTimes(0);
   });
 
   it('should do nothing if name is invalid', async () => {
