@@ -41,7 +41,7 @@ describe('Traverser', () => {
     const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/drive/file.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual([]);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/drive']);
   });
 
   it('second level files starts with /', async () => {
@@ -67,7 +67,7 @@ describe('Traverser', () => {
     const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/drive/folder/file.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/drive', '/drive/folder']);
   });
 
   it('second level folder starts with /', async () => {
@@ -92,7 +92,7 @@ describe('Traverser', () => {
     const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual([]);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder1', '/drive/folder1/folder2']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/drive', '/drive/folder1', '/drive/folder1/folder2']);
   });
 
   it('filters the files and folders depending on the filters set', async () => {
@@ -126,7 +126,7 @@ describe('Traverser', () => {
     const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/drive/file1.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder1']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/drive', '/drive/folder1']);
     expect(extractPaths(tree.trashedFiles)).toStrictEqual(['/drive/file2.txt']);
     expect(extractPaths(tree.trashedFolders)).toStrictEqual(['/drive/folder2']);
   });

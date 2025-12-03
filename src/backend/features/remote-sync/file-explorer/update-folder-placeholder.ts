@@ -52,6 +52,7 @@ export class FolderPlaceholderUpdater {
   static async run({ ctx, remotes, folders }: { ctx: SyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
+        if (remote.absolutePath === ctx.rootPath) return;
         await this.update({ ctx, remote, folders });
       }),
     );
