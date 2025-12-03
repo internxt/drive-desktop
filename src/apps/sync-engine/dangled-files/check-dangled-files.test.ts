@@ -48,7 +48,7 @@ describe('check-dangled-files', () => {
 
   it('should return empty if file is not hydrated', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: { pinState: PinState.OnlineOnly } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
     // When
     await checkDangledFiles(props);
     // Then
@@ -57,7 +57,7 @@ describe('check-dangled-files', () => {
 
   it('should return the file if it is dangled', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: { pinState: PinState.AlwaysLocal } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
     // When
     await checkDangledFiles(props);
     // Then
@@ -66,7 +66,7 @@ describe('check-dangled-files', () => {
 
   it('should check through multiple files', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: { pinState: PinState.AlwaysLocal } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
     traverserMock.mockResolvedValue({
       files: [
         { absolutePath: abs('/file1.txt'), isDangledStatus: true, createdAt: '2025-03-01T00:00:00.000Z' },

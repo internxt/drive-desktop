@@ -21,7 +21,7 @@ export class FileCreator {
   static async run({ ctx, path, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
-      const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
+      const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
       if (!parentInfo) {
         throw new FolderNotFoundError(parentPath);

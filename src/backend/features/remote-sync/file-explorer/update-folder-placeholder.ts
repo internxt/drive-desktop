@@ -30,7 +30,7 @@ export class FolderPlaceholderUpdater {
       const remotePath = remote.absolutePath;
       const localPath = local.path;
 
-      if (hasToBeMoved({ ctx, remotePath, localPath })) {
+      if (isMoved) {
         ctx.logger.debug({
           msg: 'Moving folder placeholder',
           remotePath,

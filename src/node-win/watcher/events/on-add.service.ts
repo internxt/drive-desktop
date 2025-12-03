@@ -15,7 +15,7 @@ type TProps = {
 
 export async function onAdd({ ctx, path, stats }: TProps) {
   try {
-    const { data: fileInfo } = NodeWin.getFileInfo({ path });
+    const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
     if (!fileInfo) {
       await AddController.createFile({ ctx, path, stats });

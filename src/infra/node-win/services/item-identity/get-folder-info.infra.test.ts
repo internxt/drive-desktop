@@ -31,11 +31,11 @@ describe('get-folder-info', () => {
     await Addon.unregisterSyncRoot({ providerId });
   });
 
-  it('should return root info when read root path', () => {
+  it('should return root info when read root path', async () => {
     // Given
     props.path = rootPath;
     // When
-    const { data, error } = getFolderInfo(props);
+    const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual({ pinState: PinState.Excluded, placeholderId: `FOLDER:${rootUuid}`, uuid: rootUuid });
     expect(error).toStrictEqual(undefined);
@@ -50,7 +50,7 @@ describe('get-folder-info', () => {
 
     await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { data, error } = getFolderInfo(props);
+    const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual({ pinState: PinState.Unspecified, placeholderId, uuid });
     expect(error).toStrictEqual(undefined);
@@ -65,17 +65,17 @@ describe('get-folder-info', () => {
 
     await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { data, error } = getFolderInfo(props);
+    const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFolderInfoError('NOT_A_FILE'));
   });
 
-  it('should return error NON_EXISTS when the path does not exist', () => {
+  it('should return error NON_EXISTS when the path does not exist', async () => {
     // Given
     props.path = join(rootPath, v4());
     // When
-    const { data, error } = getFolderInfo(props);
+    const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFolderInfoError('NON_EXISTS'));

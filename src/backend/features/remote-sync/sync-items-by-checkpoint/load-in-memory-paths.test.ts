@@ -28,8 +28,8 @@ describe('load-in-memory-paths', () => {
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
 
-    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'folderUuid' as FolderUuid } });
-    getFileInfoMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'folderUuid' as FolderUuid } });
+    getFileInfoMock.mockResolvedValueOnce({}).mockResolvedValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } });
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then

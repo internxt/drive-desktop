@@ -64,7 +64,7 @@ describe('update-file-placeholder', () => {
 
   it('should move placeholder if it has been moved', async () => {
     // Given
-    hasToBeMovedMock.mockReturnValue(true);
+    hasToBeMovedMock.mockResolvedValue(true);
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
@@ -76,7 +76,7 @@ describe('update-file-placeholder', () => {
 
   it('should do nothing if not moved', async () => {
     // Given
-    hasToBeMovedMock.mockReturnValue(false);
+    hasToBeMovedMock.mockResolvedValue(false);
     // When
     await FilePlaceholderUpdater.update(props);
     // Then

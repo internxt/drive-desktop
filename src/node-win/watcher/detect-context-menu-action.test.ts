@@ -28,7 +28,7 @@ describe('detect-context-menu-action', () => {
 
   it('should update contents id when file modification time changes', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     props.details.curr.mtimeMs = 2;
     // When
     await detectContextMenuAction(props);
@@ -42,7 +42,7 @@ describe('detect-context-menu-action', () => {
 
   describe('what happens when dehydrate event', () => {
     beforeEach(() => {
-      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
+      getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     });
 
     it('should dehydrate when current blocks are not 0', async () => {
@@ -66,7 +66,7 @@ describe('detect-context-menu-action', () => {
 
   describe('what happens when hydrate event', () => {
     beforeEach(() => {
-      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
+      getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
     it('should hydrate when current blocks are 0', async () => {

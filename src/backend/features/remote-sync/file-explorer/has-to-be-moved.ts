@@ -8,7 +8,7 @@ type TProps = {
   localPath: AbsolutePath;
 };
 
-export function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
+export async function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
   if (remotePath === localPath) return false;
 
   const remoteParentPath = dirname(remotePath);
@@ -17,8 +17,8 @@ export function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
   const isRenamed = remoteParentPath === localParentPath;
   if (isRenamed) return true;
 
-  const { data: remoteParentInfo } = NodeWin.getFolderInfo({ ctx, path: remoteParentPath });
-  const { data: localParentInfo } = NodeWin.getFolderInfo({ ctx, path: localParentPath });
+  const { data: remoteParentInfo } = await NodeWin.getFolderInfo({ ctx, path: remoteParentPath });
+  const { data: localParentInfo } = await NodeWin.getFolderInfo({ ctx, path: localParentPath });
 
   if (!remoteParentInfo || !localParentInfo) return false;
 
