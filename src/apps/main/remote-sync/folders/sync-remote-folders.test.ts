@@ -3,7 +3,7 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import * as createOrUpdateFoldersModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
@@ -15,7 +15,7 @@ describe('sync-remote-folders.service', () => {
   const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
   const getFoldersMock = deepMocked(driveServerWip.folders.getFolders);
 
-  const config = mockDeep<Config>();
+  const config = mockDeep<SyncContext>();
   config.userUuid = 'uuid';
   const remoteSyncManager = new RemoteSyncManager(config, '');
 

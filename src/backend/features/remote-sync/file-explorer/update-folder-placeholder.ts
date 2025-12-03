@@ -1,5 +1,5 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
-import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
@@ -15,7 +15,7 @@ export class FolderPlaceholderUpdater {
       if (!isValid) return;
 
       const remotePath = remote.absolutePath;
-      const localPath = folders[remote.uuid as FolderUuid];
+      const localPath = folders[remote.uuid].path;
 
       if (!localPath) {
         await Addon.createFolderPlaceholder({
