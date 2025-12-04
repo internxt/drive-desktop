@@ -31,7 +31,7 @@ type TAddon = {
     placeholderId: FilePlaceholderId | FolderPlaceholderId,
   ): Promise<z.infer<typeof addonZod.convertToPlaceholder>>;
   disconnectSyncRoot(path: Win32Path): Promise<z.infer<typeof addonZod.disconnectSyncRoot>>;
-  getPlaceholderState(path: Win32Path): z.infer<typeof addonZod.getPlaceholderState>;
+  getPlaceholderState(path: Win32Path): Promise<z.infer<typeof addonZod.getPlaceholderState>>;
   registerSyncRoot(
     rootPath: Win32Path,
     providerName: string,

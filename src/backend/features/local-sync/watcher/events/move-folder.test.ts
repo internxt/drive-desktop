@@ -34,8 +34,8 @@ describe('move-folder', () => {
     });
 
     getFolderInfoMock.mockImplementation(({ path }) => {
-      if (path === rootPath) return { data: { uuid: 'parentUuid' as FolderUuid } };
-      return { data: { uuid: 'uuid' as FolderUuid } };
+      if (path === rootPath) return Promise.resolve({ data: { uuid: 'parentUuid' as FolderUuid } });
+      return Promise.resolve({ data: { uuid: 'uuid' as FolderUuid } });
     });
   });
 

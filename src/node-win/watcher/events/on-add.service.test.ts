@@ -19,14 +19,14 @@ describe('on-add', () => {
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
-    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
 
     props = mockProps<typeof onAdd>({ path: abs('/file.txt') });
   });
 
   it('should call add controller if the file is new', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: undefined });
+    getFileInfoMock.mockResolvedValue({ data: undefined });
     // When
     await onAdd(props);
     // Then

@@ -33,8 +33,8 @@ describe('move-file', () => {
       }
     });
 
-    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid } });
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
   });
 
   it('should perform move request and ignore unlink event', async () => {

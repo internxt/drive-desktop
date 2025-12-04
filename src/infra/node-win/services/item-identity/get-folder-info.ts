@@ -20,7 +20,7 @@ type TProps = {
   path: AbsolutePath;
 };
 
-export function getFolderInfo({ ctx, path }: TProps) {
+export async function getFolderInfo({ ctx, path }: TProps) {
   if (path === ctx.rootPath) {
     return {
       data: {
@@ -32,7 +32,7 @@ export function getFolderInfo({ ctx, path }: TProps) {
   }
 
   try {
-    const { placeholderId: rawPlaceholderId, pinState } = Addon.getPlaceholderState({ path });
+    const { placeholderId: rawPlaceholderId, pinState } = await Addon.getPlaceholderState({ path });
     const isFile = isFolderPlaceholderId(rawPlaceholderId);
 
     if (!isFile) {

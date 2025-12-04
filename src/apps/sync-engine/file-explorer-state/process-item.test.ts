@@ -32,11 +32,11 @@ describe('process-item', () => {
       props.localItem.stats!.isDirectory = () => true;
     });
 
-    it('should be added to create folders if not exists', () => {
+    it('should be added to create folders if not exists', async () => {
       // Given
-      getFolderInfoMock.mockReturnValue({ error: new GetFolderInfoError('NON_EXISTS') });
+      getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NON_EXISTS') });
       // When
-      processItem(props);
+      await processItem(props);
       // Then
       expect(props.state).toStrictEqual({
         createFolders: [expect.objectContaining({ path: '/item' })],
@@ -46,11 +46,11 @@ describe('process-item', () => {
       });
     });
 
-    it('should not be added to create folders if exists', () => {
+    it('should not be added to create folders if exists', async () => {
       // Given
-      getFolderInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FolderUuid } });
+      getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
       // When
-      processItem(props);
+      await processItem(props);
       // Then
       expect(props.state).toStrictEqual({
         createFolders: [],
@@ -64,14 +64,14 @@ describe('process-item', () => {
   describe('for files', () => {
     beforeEach(() => {
       props.localItem.stats!.isFile = () => true;
-      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
+      getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
-    it('should be added to create files if not exists', () => {
+    it('should be added to create files if not exists', async () => {
       // Given
-      getFileInfoMock.mockReturnValue({ error: new GetFileInfoError('NON_EXISTS') });
+      getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NON_EXISTS') });
       // When
-      processItem(props);
+      await processItem(props);
       // Then
       expect(props.state).toStrictEqual({
         createFolders: [],
@@ -81,11 +81,11 @@ describe('process-item', () => {
       });
     });
 
-    it('should be added to modified files if modified', () => {
+    it('should be added to modified files if modified', async () => {
       // Given
       isModifiedMock.mockReturnValue(true);
       // When
-      processItem(props);
+      await processItem(props);
       // Then
       expect(props.state).toStrictEqual({
         createFolders: [],
@@ -95,11 +95,11 @@ describe('process-item', () => {
       });
     });
 
-    it('should be added to hydrate files if hydration is pending', () => {
+    it('should be added to hydrate files if hydration is pending', async () => {
       // Given
       isHydrationPendingMock.mockReturnValue(true);
       // When
-      processItem(props);
+      await processItem(props);
       // Then
       expect(props.state).toStrictEqual({
         createFolders: [],

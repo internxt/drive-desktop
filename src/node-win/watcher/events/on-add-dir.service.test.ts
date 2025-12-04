@@ -24,7 +24,7 @@ describe('on-add-dir', () => {
 
   it('should call add controller if the folder is new', async () => {
     // Given
-    getFolderInfoMock.mockReturnValueOnce({ data: undefined });
+    getFolderInfoMock.mockResolvedValueOnce({ data: undefined });
     // When
     await onAddDir(props);
     // Then
@@ -33,7 +33,7 @@ describe('on-add-dir', () => {
 
   it('should call moveFolder if the folder is moved', async () => {
     // Given
-    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
     // When
     await onAddDir(props);
     // Then

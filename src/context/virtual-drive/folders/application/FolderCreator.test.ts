@@ -25,7 +25,7 @@ describe('Folder Creator', () => {
 
   it('If placeholderId is not found, throw error', async () => {
     // Given
-    getFolderInfoMock.mockReturnValueOnce({ error: new Error() });
+    getFolderInfoMock.mockResolvedValueOnce({ error: new Error() });
     // When
     const promise = FolderCreator.run(props);
     // Then
@@ -34,7 +34,7 @@ describe('Folder Creator', () => {
 
   it('If placeholder id is found, create folder', async () => {
     // Given
-    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'parentUuid' as FolderUuid } });
     // When
     await FolderCreator.run(props);
     // Then

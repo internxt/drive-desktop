@@ -25,13 +25,13 @@ describe('File Creator', () => {
   const props = mockProps<typeof FileCreator.run>({ contents, path });
 
   beforeEach(() => {
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     invokeMock.mockResolvedValue({});
   });
 
   it('should throw an error if placeholderId is not found', async () => {
     // Given
-    getFolderInfoMock.mockReturnValue({ error: new GetFolderInfoError('NON_EXISTS') });
+    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NON_EXISTS') });
     // When
     const promise = FileCreator.run(props);
     // Then
