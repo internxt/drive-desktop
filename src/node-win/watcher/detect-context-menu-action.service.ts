@@ -19,7 +19,7 @@ type TProps = {
 export async function detectContextMenuAction({ ctx, details, path }: TProps) {
   const { prev, curr } = details;
 
-  const { data: fileInfo } = NodeWin.getFileInfo({ path });
+  const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
   const diff = getStatsDiff({ prev, curr });
 

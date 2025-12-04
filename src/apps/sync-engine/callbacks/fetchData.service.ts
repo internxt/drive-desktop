@@ -15,7 +15,7 @@ export async function fetchData({ ctx, path, callback }: TProps) {
   try {
     ctx.logger.debug({ msg: 'Download file', path });
 
-    const { data: fileInfo, error: error1 } = NodeWin.getFileInfo({ path });
+    const { data: fileInfo, error: error1 } = await NodeWin.getFileInfo({ path });
 
     if (error1) throw error1;
 

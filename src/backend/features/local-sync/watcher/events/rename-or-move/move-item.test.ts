@@ -15,7 +15,7 @@ describe('move-item', () => {
   let props: Parameters<typeof moveItem>[0];
 
   beforeEach(() => {
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'newParentUuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'newParentUuid' as FolderUuid } });
 
     props = mockProps<typeof moveItem>({
       type: 'file',
@@ -31,7 +31,7 @@ describe('move-item', () => {
 
   it('should not do anything if cannot find parent uuid', async () => {
     // Given
-    getFolderInfoMock.mockReturnValue({ error: new Error() });
+    getFolderInfoMock.mockResolvedValue({ error: new Error() });
     // When
     const promise = moveItem(props);
     // Then
@@ -40,7 +40,7 @@ describe('move-item', () => {
 
   it('should not do anything if neither move nor renamed', async () => {
     // Given
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     props.path = '/folder/name' as AbsolutePath;
     // When
     await moveItem(props);

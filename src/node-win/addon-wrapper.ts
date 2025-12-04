@@ -66,8 +66,8 @@ export class Addon {
     return parseAddonZod('disconnectSyncRoot', result);
   }
 
-  static getPlaceholderState({ path }: { path: AbsolutePath }) {
-    const result = addon.getPlaceholderState(toWin32(path));
+  static async getPlaceholderState({ path }: { path: AbsolutePath }) {
+    const result = await addon.getPlaceholderState(toWin32(path));
     return parseAddonZod('getPlaceholderState', result);
   }
 

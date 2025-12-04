@@ -38,7 +38,7 @@ describe('get-file-info', () => {
 
     await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { data, error } = getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toStrictEqual({ pinState: PinState.Unspecified, placeholderId, uuid });
     expect(error).toStrictEqual(undefined);
@@ -53,17 +53,17 @@ describe('get-file-info', () => {
 
     await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { data, error } = getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFileInfoError('NOT_A_FILE'));
   });
 
-  it('should return error NON_EXISTS when the path does not exist', () => {
+  it('should return error NON_EXISTS when the path does not exist', async () => {
     // Given
     props.path = join(rootPath, v4());
     // When
-    const { data, error } = getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFileInfoError('NON_EXISTS'));

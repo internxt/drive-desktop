@@ -18,7 +18,7 @@ describe('restoreParentFolder', () => {
   });
 
   beforeEach(() => {
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parent-uuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parent-uuid' as FolderUuid } });
     moveSpy.mockResolvedValue({ error: undefined });
   });
 
@@ -43,7 +43,7 @@ describe('restoreParentFolder', () => {
   });
 
   it('should throw and log if parentUuid is missing', async () => {
-    getFolderInfoMock.mockReturnValue({ data: undefined });
+    getFolderInfoMock.mockResolvedValue({ data: undefined });
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 

@@ -12,7 +12,7 @@ type Props = {
   remoteFilesMap: RemoteFilesMap;
 };
 
-export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
+export async function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   const { path, stats } = localItem;
 
   if (!stats) return;
@@ -20,7 +20,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   const pendingFileExplorerItem = { path, stats };
 
   if (stats.isDirectory()) {
-    const { error } = NodeWin.getFolderInfo({ ctx, path });
+    const { error } = await NodeWin.getFolderInfo({ ctx, path });
 
     if (error && error.code === 'NON_EXISTS') {
       state.createFolders.push(pendingFileExplorerItem);
@@ -28,7 +28,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   }
 
   if (stats.isFile()) {
-    const { data: fileInfo, error } = NodeWin.getFileInfo({ path });
+    const { data: fileInfo, error } = await NodeWin.getFileInfo({ path });
 
     if (fileInfo) {
       const { uuid, pinState } = fileInfo;

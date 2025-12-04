@@ -13,13 +13,13 @@ describe('get-parent-uuid', () => {
   const props = mockProps<typeof getParentUuid>({ path });
 
   beforeEach(() => {
-    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     statMock.mockResolvedValue({ data: { size: 1024 } });
   });
 
   it('should skip if no parentUuid', async () => {
     // Given
-    getFolderInfoMock.mockReturnValue({});
+    getFolderInfoMock.mockResolvedValue({});
     // When
     const res = await getParentUuid(props);
     // Then

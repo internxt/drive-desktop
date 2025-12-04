@@ -26,14 +26,14 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
     if (!stats) continue;
 
     if (stats.isDirectory()) {
-      const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path });
+      const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
       if (folderInfo) {
         folders[folderInfo.uuid] = { path };
       }
     }
 
     if (stats.isFile()) {
-      const { data: fileInfo } = NodeWin.getFileInfo({ path });
+      const { data: fileInfo } = await NodeWin.getFileInfo({ path });
       if (fileInfo) {
         files[fileInfo.uuid] = { stats, path };
       }

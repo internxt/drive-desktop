@@ -10,7 +10,7 @@ type Props = {
 
 export async function getParentUuid({ ctx, path }: Props) {
   const parentPath = dirname(path);
-  const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 
   /**

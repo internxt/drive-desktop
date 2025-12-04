@@ -12,7 +12,7 @@ type TProps = {
 
 export async function onAddDir({ ctx, path }: TProps) {
   try {
-    const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path });
+    const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
 
     if (!folderInfo) {
       await createFolder({ ctx, path });

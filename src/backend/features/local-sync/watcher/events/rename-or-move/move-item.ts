@@ -19,7 +19,7 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
-  const { data: parentInfo, error } = NodeWin.getFolderInfo({ ctx, path: parentPath });
+  const { data: parentInfo, error } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
   if (error) throw error;
 

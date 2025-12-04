@@ -15,7 +15,7 @@ type TProps = {
 export class FolderCreator {
   static async run({ ctx, path }: TProps) {
     const parentPath = pathUtils.dirname(path);
-    const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: parentPath });
+    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
     if (!parentInfo) {
       throw new FolderNotFoundError(parentPath);
