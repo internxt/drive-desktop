@@ -13,7 +13,7 @@ const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProc
 export function setupIpcDriveServerWip() {
   ipcMainDriveServerWip.handle('storageDeleteFileByUuid', (_, props) => deleteFileByUuid(props));
   ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', (_, props) => deleteFolderByUuid(props));
-  ipcMainDriveServerWip.handle('createFolder', (_, props) => createFolder(props));
+  ipcMainDriveServerWip.handle('persistFolder', (_, props) => persistFolder(props));
 
   ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, path }) => {
     const { name, extension } = getNameAndExtension({ path });
@@ -70,7 +70,7 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
   return res;
 }
 
-export async function createFolder({ plainName, parentUuid, path, userUuid, workspaceId }: CreateFolderProps) {
+export async function persistFolder({ plainName, parentUuid, path, userUuid, workspaceId }: CreateFolderProps) {
   const res = await HttpRemoteFolderSystem.persist({ plainName, parentUuid, path, workspaceId });
 
   if (res.error) return res;

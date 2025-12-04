@@ -1,5 +1,3 @@
-import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
-import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { BackupsContext } from './BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
@@ -11,6 +9,8 @@ import { createFolders } from './folders/create-folders';
 import { deleteRemoteFiles } from './process-files/delete-remote-files';
 import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
+import { replaceFiles } from '@/context/local/localFile/application/replace-files';
+import { createFiles } from '@/context/local/localFile/application/create-files';
 
 type Props = {
   tracker: BackupsProcessTracker;
@@ -79,12 +79,12 @@ export class Backup {
     ]);
   }
 
-  private async backupFiles(context: BackupsContext, tracker: BackupsProcessTracker, diff: FilesDiff, remote: RemoteTree) {
+  private async backupFiles(context: BackupsContext, tracker: BackupsProcessTracker, diff: FilesDiff, remoteTree: RemoteTree) {
     const { added, modified, deleted } = diff;
 
     await Promise.all([
-      FileBatchUploader.run({ self: this, tracker, context, remoteTree: remote, added }),
-      FileBatchUpdater.run({ self: this, tracker, context, modified }),
+      createFiles({ self: this, tracker, context, remoteTree, added }),
+      replaceFiles({ self: this, tracker, context, modified }),
       deleteRemoteFiles({ context, deleted }),
     ]);
   }

@@ -1,29 +1,29 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as uploadFile from '../upload-file';
+import * as uploadFile from './upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { FileBatchUploader } from './FileBatchUploader';
-import { abs, pathUtils } from '../../infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createFiles } from './create-files';
+import { abs, dirname } from '../infrastructure/AbsolutePath';
 
-describe('file-batch-uploader', () => {
+describe('create-files', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const createMock = partialSpyOn(HttpRemoteFileSystem, 'create');
 
-  let props: Parameters<typeof FileBatchUploader.run>[0];
+  let props: Parameters<typeof createFiles>[0];
 
   const path = abs('/folder1/folder2/file.txt');
-  const parentPath = pathUtils.dirname(path);
+  const parentPath = dirname(path);
 
   beforeEach(() => {
-    props = mockProps<typeof FileBatchUploader.run>({
+    props = mockProps<typeof createFiles>({
       self: { backed: 0 },
       context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
-      remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' as FolderUuid } } },
+      remoteTree: { folders: new Map([[parentPath, { uuid: 'parentUuid' as FolderUuid }]]) },
       added: [{ absolutePath: path, size: 1024 }],
     });
   });
@@ -32,7 +32,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockResolvedValue(undefined);
     // When
-    await FileBatchUploader.run(props);
+    await createFiles(props);
     // Then
     expect(createMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
@@ -43,7 +43,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
     // When
-    await FileBatchUploader.run(props);
+    await createFiles(props);
     // Then
     expect(createMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
     expect(props.self.backed).toBe(1);
@@ -54,7 +54,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockRejectedValue(new Error());
     // When
-    await FileBatchUploader.run(props);
+    await createFiles(props);
     // Then
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
