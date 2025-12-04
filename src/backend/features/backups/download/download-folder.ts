@@ -29,8 +29,8 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
   }
 
   const tree = await Traverser.run({ rootPath, rootUuid, userUuid: user.uuid });
-  const files = Object.values(tree.files);
-  const folders = Object.values(tree.folders);
+  const files = [...tree.files.values()];
+  const folders = [...tree.folders.values()];
 
   let downloadedItems = 0;
 

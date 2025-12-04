@@ -38,7 +38,7 @@ describe('Folder Creator', () => {
     // When
     await FolderCreator.run(props);
     // Then
-    call(invokeMock).toMatchObject(['createFolder', { path }]);
+    call(invokeMock).toMatchObject(['persistFolder', { path }]);
     call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FOLDER:uuid' });
   });
 });
