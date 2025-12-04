@@ -5,6 +5,7 @@ import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge
 import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -21,6 +22,7 @@ export async function createFile({ ctx, path, stats }: TProps) {
       await createParentFolder({ ctx, path });
       await createFile({ ctx, path, stats });
     } else {
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
       ctx.logger.error({
         msg: 'Error creating file',
         path,

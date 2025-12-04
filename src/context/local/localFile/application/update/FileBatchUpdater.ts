@@ -16,59 +16,38 @@ type Props = {
   modified: FilesDiff['modified'];
 };
 
-export class FileBatchUpdater {
-  static async run({ self, context, tracker, modified }: Props) {
-    await Promise.all(
-      modified.map(({ local, remote }) =>
-        this.process({
-          self,
-          context,
-          tracker,
-          localFile: local,
-          file: remote,
-        }),
-      ),
-    );
-  }
-
-  static async process({
-    self,
-    context,
-    tracker,
-    localFile,
-    file,
-  }: {
-    self: Backup;
-    context: BackupsContext;
-    tracker: BackupsProcessTracker;
-    localFile: LocalFile;
-    file: ExtendedDriveFile;
-  }) {
-    try {
-      const contentsId = await uploadFile({ context, localFile });
-
-      if (!contentsId) return;
-
-      const { data: fileDto } = await driveServerWip.files.replaceFile({
-        uuid: file.uuid,
-        newContentId: contentsId,
-        newSize: localFile.size,
-        modificationTime: localFile.modificationTime.toISOString(),
-      });
-
-      if (fileDto) {
-        await createOrUpdateFile({ context, fileDto });
-      }
-    } catch (exc) {
-      logger.error({
-        tag: 'BACKUPS',
-        msg: 'Error updating file',
-        path: localFile.absolutePath,
-        exc,
-      });
-    } finally {
+export async function replaceFiles({ self, context, tracker, modified }: Props) {
+  await Promise.all(
+    modified.map(async ({ local, remote }) => {
+      await replaceFile({ context, localFile: local, file: remote });
       self.backed++;
       tracker.currentProcessed(self.backed);
+    }),
+  );
+}
+
+async function replaceFile({ context, localFile, file }: { context: BackupsContext; localFile: LocalFile; file: ExtendedDriveFile }) {
+  try {
+    const contentsId = await uploadFile({ context, localFile });
+
+    if (!contentsId) return;
+
+    const { data: fileDto } = await driveServerWip.files.replaceFile({
+      uuid: file.uuid,
+      newContentId: contentsId,
+      newSize: localFile.size,
+      modificationTime: localFile.modificationTime.toISOString(),
+    });
+
+    if (fileDto) {
+      await createOrUpdateFile({ context, fileDto });
     }
+  } catch (exc) {
+    logger.error({
+      tag: 'BACKUPS',
+      msg: 'Error updating file',
+      path: localFile.absolutePath,
+      exc,
+    });
   }
 }

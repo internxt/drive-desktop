@@ -15,7 +15,7 @@ export function calls(object: any) {
 
 export function call(object: any) {
   const calls = getCalls(object);
-  if (calls.length !== 1) throw new Error(`Invalid length: ${calls.length} calls`);
+  if (calls.length !== 1) throw new Error(`Invalid length in ${object.getMockName()}: ${calls.length} calls`);
   return expect(calls[0]);
 }
 

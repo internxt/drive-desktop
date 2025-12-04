@@ -51,8 +51,8 @@ describe('traverser', () => {
     const res = await Traverser.run(props);
 
     // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);
-    expect(Object.keys(res.files)).toStrictEqual([
+    expect([...res.folders.keys()]).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);
+    expect([...res.files.keys()]).toStrictEqual([
       '/backup/file1',
       '/backup/file2',
       '/backup/folder1/file3',

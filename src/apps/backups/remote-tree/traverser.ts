@@ -4,8 +4,8 @@ import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 export type RemoteTree = {
-  files: Record<AbsolutePath, ExtendedDriveFile>;
-  folders: Record<AbsolutePath, ExtendedDriveFolder>;
+  files: Map<AbsolutePath, ExtendedDriveFile>;
+  folders: Map<AbsolutePath, ExtendedDriveFolder>;
 };
 
 type Items = {
@@ -34,14 +34,14 @@ export class Traverser {
       const absolutePath = join(parent.absolutePath, file.nameWithExtension);
       const extendedFile = { ...file, absolutePath };
 
-      tree.files[absolutePath] = extendedFile;
+      tree.files.set(absolutePath, extendedFile);
     });
 
     foldersInThisFolder.forEach((folder) => {
       const absolutePath = join(parent.absolutePath, folder.name);
       const extendedFolder = { ...folder, absolutePath };
 
-      tree.folders[absolutePath] = extendedFolder;
+      tree.folders.set(absolutePath, extendedFolder);
       this.traverse(tree, items, extendedFolder);
     });
   }
@@ -60,10 +60,8 @@ export class Traverser {
     const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
     const tree: RemoteTree = {
-      files: {},
-      folders: {
-        [rootFolder.absolutePath]: rootFolder,
-      },
+      files: new Map(),
+      folders: new Map([[rootFolder.absolutePath, rootFolder]]),
     };
 
     this.traverse(tree, items, rootFolder);

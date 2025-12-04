@@ -18,7 +18,7 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
   const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
-  const createFolderMock = partialSpyOn(ipcMain, 'createFolder');
+  const persistFolderMock = partialSpyOn(ipcMain, 'persistFolder');
   const createFileMock = partialSpyOn(driveServerWip.files, 'createFile');
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
@@ -77,7 +77,7 @@ describe('backups', () => {
     });
 
     fileUploader.run.mockResolvedValue({ data: 'newContentsId' as ContentsId });
-    createFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
+    persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
     replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' } });
 
@@ -91,7 +91,7 @@ describe('backups', () => {
     ]);
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
-    call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid, plainName: 'addedFolder' });
+    call(persistFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid, plainName: 'addedFolder' });
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', newContentId: 'newContentsId', newSize: 7 });
     calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
 

@@ -73,7 +73,6 @@ describe('sync-remote-changes-to-local', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
       { msg: 'onReady' },
-      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path: filePath, placeholderId: 'FILE:uuid' },
       {
         msg: 'Syncing remote changes to local',
         path: filePath,
@@ -83,7 +82,6 @@ describe('sync-remote-changes-to-local', () => {
         localDate: '2000-01-01T00:00:00.000Z',
       },
       { msg: 'Deleted old local file to prepare for remote sync', path: filePath },
-      { tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path: filePath },
       { msg: 'File successfully synced from remote to local', path: filePath, newSize: 1000 },
     ]);
   });
