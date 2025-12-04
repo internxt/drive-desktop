@@ -1,6 +1,6 @@
-import { LocalFile } from '../domain/LocalFile';
+import { LocalFile } from '../../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { uploadFile } from './upload-file';
+import { uploadFile } from '../upload-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { Backup } from '@/apps/backups/Backups';

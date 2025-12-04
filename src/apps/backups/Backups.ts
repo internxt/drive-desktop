@@ -9,8 +9,8 @@ import { createFolders } from './folders/create-folders';
 import { deleteRemoteFiles } from './process-files/delete-remote-files';
 import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { replaceFiles } from '@/context/local/localFile/application/replace-files';
-import { createFiles } from '@/context/local/localFile/application/create-files';
+import { replaceFiles } from '@/context/local/localFile/application/update/FileBatchUpdater';
+import { createFiles } from '@/context/local/localFile/application/upload/FileBatchUploader';
 
 type Props = {
   tracker: BackupsProcessTracker;

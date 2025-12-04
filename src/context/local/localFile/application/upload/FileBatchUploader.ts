@@ -1,14 +1,14 @@
-import { LocalFile } from '../domain/LocalFile';
+import { LocalFile } from '../../domain/LocalFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { uploadFile } from './upload-file';
+import { uploadFile } from '../upload-file';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { dirname } from '../infrastructure/AbsolutePath';
+import { dirname } from '../../infrastructure/AbsolutePath';
 
 type Props = {
   self: Backup;

@@ -1,9 +1,9 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as uploadFile from './upload-file';
+import * as uploadFile from '../upload-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { replaceFiles } from './replace-files';
+import { replaceFiles } from './FileBatchUpdater';
 
 describe('replace-files', () => {
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
