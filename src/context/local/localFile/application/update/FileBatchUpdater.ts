@@ -2,12 +2,11 @@ import { LocalFile } from '../../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { uploadFile } from '../upload-file';
 import { logger } from '@/apps/shared/logger/logger';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { persistReplaceFile } from '@/infra/drive-server-wip/out/ipc-main';
 
 type Props = {
   self: Backup;
@@ -32,16 +31,14 @@ async function replaceFile({ context, localFile, file }: { context: BackupsConte
 
     if (!contentsId) return;
 
-    const { data: fileDto } = await driveServerWip.files.replaceFile({
+    await persistReplaceFile({
+      ctx: context,
+      path: localFile.absolutePath,
       uuid: file.uuid,
-      newContentId: contentsId,
-      newSize: localFile.size,
+      contentsId,
+      size: localFile.size,
       modificationTime: localFile.modificationTime.toISOString(),
     });
-
-    if (fileDto) {
-      await createOrUpdateFile({ ctx: context, fileDto });
-    }
   } catch (exc) {
     logger.error({
       tag: 'BACKUPS',

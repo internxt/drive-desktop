@@ -1,6 +1,14 @@
 import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { ipcMain } from 'electron';
-import { DeleteFileByUuidProps, DeleteFolderByUuidProps, FromMain, FromProcess, PersistFileProps, PersistFolderProps } from './ipc';
+import {
+  DeleteFileByUuidProps,
+  DeleteFolderByUuidProps,
+  FromMain,
+  FromProcess,
+  PersistFileProps,
+  PersistFolderProps,
+  ReplaceFileProps,
+} from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
@@ -19,6 +27,7 @@ export function setupIpcDriveServerWip() {
   ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', (_, props) => deleteFolderByUuid(props));
   ipcMainDriveServerWip.handle('persistFolder', (_, props) => persistFolder(props));
   ipcMainDriveServerWip.handle('persistFile', (_, props) => persistFile(props));
+  ipcMainDriveServerWip.handle('persistReplaceFile', (_, props) => persistReplaceFile(props));
   ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, path }) => {
     const { name, extension } = getNameAndExtension({ path });
     const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });
@@ -90,4 +99,12 @@ export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProp
   if (res.error) return res;
 
   return await createOrUpdateFolder({ ctx, folderDto: res.data });
+}
+
+export async function persistReplaceFile({ ctx, path, uuid, size, contentsId, modificationTime }: ReplaceFileProps) {
+  const res = await driveServerWip.files.replaceFile({ path, uuid, contentsId, size, modificationTime });
+
+  if (res.error) return res;
+
+  return await createOrUpdateFile({ ctx, fileDto: res.data });
 }

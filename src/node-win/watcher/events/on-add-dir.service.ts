@@ -3,7 +3,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import { trackAddFolderEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { createFolder } from '@/features/sync/add-item/create-folder';
+import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -15,7 +15,7 @@ export async function onAddDir({ ctx, path }: TProps) {
     const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
 
     if (!folderInfo) {
-      await createFolder({ ctx, path });
+      await FolderCreator.run({ ctx, path });
       return;
     }
 

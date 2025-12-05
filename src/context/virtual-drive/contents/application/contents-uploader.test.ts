@@ -16,7 +16,7 @@ describe('contents-uploader', () => {
   const props = mockProps<typeof ContentsUploader.run>({
     ctx: { fileUploader: uploader },
     path: '/file.txt' as AbsolutePath,
-    stats: { size: 1024 },
+    size: 1024,
   });
 
   it('should throw error if upload fails', async () => {
@@ -35,6 +35,6 @@ describe('contents-uploader', () => {
     // When
     const result = await ContentsUploader.run(props);
     // Then
-    expect(result).toStrictEqual({ id: 'contentsId', size: 1024 });
+    expect(result).toStrictEqual('contentsId');
   });
 });

@@ -7,6 +7,8 @@ import { createFile } from './files/create-file';
 import { checkExistence } from './files/check-existance';
 import { parseFileDto } from '../out/dto';
 import { move } from './files/move';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 export const files = {
   getFiles,
@@ -47,7 +49,13 @@ async function getFiles(context: { query: GetFilesQuery }, extra?: { abortSignal
   }
 }
 
-async function replaceFile(context: { uuid: string; newContentId: string; newSize: number; modificationTime: string }) {
+async function replaceFile(context: {
+  path: AbsolutePath;
+  uuid: FileUuid;
+  contentsId: ContentsId;
+  size: number;
+  modificationTime: string;
+}) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
@@ -55,8 +63,8 @@ async function replaceFile(context: { uuid: string; newContentId: string; newSiz
   const promiseFn = () =>
     client.PUT(endpoint, {
       body: {
-        fileId: context.newContentId,
-        size: context.newSize,
+        fileId: context.contentsId,
+        size: context.size,
         modificationTime: context.modificationTime,
       },
       params: { path: { uuid: context.uuid } },
