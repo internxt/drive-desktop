@@ -2,14 +2,14 @@ import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { parseCreateFileResponse } from '../files/create-file';
+import { parseCreateFolderResponse } from '../folders/create-folder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-type Body = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
+type Body = paths['/workspaces/{workspaceId}/folders']['post']['requestBody']['content']['application/json'];
 
-export async function createFile(context: { path: AbsolutePath; workspaceId: string; body: Body; workspaceToken: string }) {
+export async function createFolder(context: { path: AbsolutePath; workspaceId: string; body: Body; workspaceToken: string }) {
   const method = 'POST';
-  const endpoint = '/workspaces/{workspaceId}/files';
+  const endpoint = '/workspaces/{workspaceId}/folders';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
@@ -22,8 +22,8 @@ export async function createFile(context: { path: AbsolutePath; workspaceId: str
   const res = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: { msg: 'Create file in workspace request', context },
+    loggerBody: { msg: 'Create folder in workspace request', context },
   });
 
-  return parseCreateFileResponse(res);
+  return parseCreateFolderResponse(res);
 }

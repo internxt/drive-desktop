@@ -1,12 +1,14 @@
 import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { ipcMain } from 'electron';
-import { CreateFolderProps, DeleteFileByUuidProps, DeleteFolderByUuidProps, FromMain, FromProcess } from './ipc';
+import { DeleteFileByUuidProps, DeleteFolderByUuidProps, FromMain, FromProcess, PersistFileProps, PersistFolderProps } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 import { LocalSync } from '@/backend/features';
 import { basename } from 'node:path';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -70,12 +72,36 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
   return res;
 }
 
-export async function persistFolder({ plainName, parentUuid, path, userUuid, workspaceId }: CreateFolderProps) {
-  const res = await HttpRemoteFolderSystem.persist({ plainName, parentUuid, path, workspaceId });
+export async function persistFile({ ctx, path, parentUuid, contentsId, size }: PersistFileProps) {
+  const res = await HttpRemoteFileSystem.persist({ ctx, path, parentUuid, contentsId, size });
+
+  if (res.error) return res;
+
+  void createAndUploadThumbnail({
+    absolutePath: path,
+    bucket: ctx.bucket,
+    fileUuid: res.data.uuid,
+  });
+
+  return await SqliteModule.FolderModule.createOrUpdate({
+    folder: {
+      ...res.data,
+      userUuid: ctx.userUuid,
+      workspaceId: ctx.workspaceId,
+    },
+  });
+}
+
+export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProps) {
+  const res = await HttpRemoteFolderSystem.persist({ ctx, parentUuid, path });
 
   if (res.error) return res;
 
   return await SqliteModule.FolderModule.createOrUpdate({
-    folder: { ...res.data, userUuid, workspaceId },
+    folder: {
+      ...res.data,
+      userUuid: ctx.userUuid,
+      workspaceId: ctx.workspaceId,
+    },
   });
 }

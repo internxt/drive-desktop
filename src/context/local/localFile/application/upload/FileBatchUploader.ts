@@ -5,10 +5,8 @@ import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { uploadFile } from '../upload-file';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
-import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { dirname } from '../../infrastructure/AbsolutePath';
+import { persistFile } from '@/infra/drive-server-wip/out/ipc-main';
 
 type Props = {
   self: Backup;
@@ -39,25 +37,13 @@ async function createFile({ context, localFile, remoteTree }: { context: Backups
 
     if (!parent) return;
 
-    const { data: fileDto } = await HttpRemoteFileSystem.create({
-      bucket: context.backupsBucket,
-      contentsId,
-      folderUuid: parent.uuid,
+    await persistFile({
+      ctx: context,
       path: localFile.absolutePath,
+      contentsId,
+      parentUuid: parent.uuid,
       size: localFile.size,
-      workspaceId: '',
     });
-
-    if (fileDto) {
-      await Promise.all([
-        createOrUpdateFile({ context, fileDto }),
-        createAndUploadThumbnail({
-          bucket: context.backupsBucket,
-          fileUuid: fileDto.uuid,
-          absolutePath: localFile.absolutePath,
-        }),
-      ]);
-    }
   } catch (error) {
     logger.error({
       tag: 'BACKUPS',

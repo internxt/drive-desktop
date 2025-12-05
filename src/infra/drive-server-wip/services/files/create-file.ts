@@ -9,7 +9,7 @@ type TCreateFileBody = paths['/files']['post']['requestBody']['content']['applic
 
 class CreateFileError extends DriveServerWipError {
   constructor(
-    public readonly code: TDriveServerWipError | 'FOLDER_NOT_FOUND' | 'FILE_ALREADY_EXISTS',
+    public readonly code: TDriveServerWipError | 'PARENT_NOT_FOUND' | 'FILE_ALREADY_EXISTS',
     cause: unknown,
   ) {
     super(code, cause);
@@ -39,7 +39,7 @@ export function parseCreateFileResponse(res: Awaited<TResponse<FileDto>>) {
   if (res.error) {
     switch (true) {
       case res.error.response?.status === 404:
-        return { error: new CreateFileError('FOLDER_NOT_FOUND', res.error.cause) };
+        return { error: new CreateFileError('PARENT_NOT_FOUND', res.error.cause) };
       case res.error.response?.status === 409:
         return { error: new CreateFileError('FILE_ALREADY_EXISTS', res.error.cause) };
       default:

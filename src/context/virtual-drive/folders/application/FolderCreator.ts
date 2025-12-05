@@ -1,4 +1,3 @@
-import { basename } from 'node:path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -22,11 +21,9 @@ export class FolderCreator {
     }
 
     const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
-      userUuid: ctx.userUuid,
-      workspaceId: ctx.workspaceId,
-      parentUuid: parentInfo.uuid,
-      plainName: basename(path),
+      ctx,
       path,
+      parentUuid: parentInfo.uuid,
     });
 
     if (error) throw error;

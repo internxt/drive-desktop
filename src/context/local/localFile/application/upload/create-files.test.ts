@@ -11,7 +11,7 @@ import { abs, dirname } from '../../infrastructure/AbsolutePath';
 describe('create-files', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
-  const createMock = partialSpyOn(HttpRemoteFileSystem, 'create');
+  const persistMock = partialSpyOn(HttpRemoteFileSystem, 'persist');
 
   let props: Parameters<typeof createFiles>[0];
 
@@ -34,7 +34,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(createMock).toBeCalledTimes(0);
+    expect(persistMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
@@ -45,7 +45,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(createMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
+    expect(persistMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });

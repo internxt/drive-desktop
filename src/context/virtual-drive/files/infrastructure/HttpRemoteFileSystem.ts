@@ -1,65 +1,41 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
-import { restoreParentFolder } from './restore-parent-folder';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { CommonContext } from '@/apps/sync-engine/config';
+
+type Props = {
+  ctx: CommonContext;
+  contentsId: ContentsId;
+  parentUuid: FolderUuid;
+  path: AbsolutePath;
+  size: number;
+};
 
 export class HttpRemoteFileSystem {
-  static async create(offline: {
-    bucket: string;
-    contentsId: string;
-    folderUuid: string;
-    path: string;
-    size: number;
-    workspaceId: string;
-  }) {
-    const { name, extension } = getNameAndExtension({ path: offline.path });
+  static async persist({ ctx, contentsId, parentUuid, path, size }: Props) {
+    const { name, extension } = getNameAndExtension({ path });
 
     const body = {
-      bucket: offline.bucket,
-      fileId: offline.contentsId,
+      bucket: ctx.bucket,
+      fileId: contentsId,
       encryptVersion: EncryptionVersion.Aes03,
-      folderUuid: offline.folderUuid,
+      folderUuid: parentUuid,
       plainName: name,
-      size: offline.size,
+      size,
       type: extension,
     };
 
-    const res = offline.workspaceId
-      ? await driveServerWip.workspaces.createFile({ body, workspaceId: offline.workspaceId, path: offline.path })
-      : await driveServerWip.files.createFile({ body, path: offline.path });
+    const res = ctx.workspaceId
+      ? await driveServerWip.workspaces.createFile({ body, path, workspaceId: ctx.workspaceId, workspaceToken: ctx.workspaceToken })
+      : await driveServerWip.files.createFile({ body, path });
 
     if (res.error?.code === 'FILE_ALREADY_EXISTS') {
-      return await driveServerWip.files.checkExistence({ parentUuid: offline.folderUuid, name, extension });
+      return await driveServerWip.files.checkExistence({ parentUuid, name, extension });
     }
 
     return res;
-  }
-
-  static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: AbsolutePath; size: number }) {
-    const props = {
-      ...offline,
-      bucket: ctx.bucket,
-      workspaceId: ctx.workspaceId,
-    };
-
-    const { data, error } = await HttpRemoteFileSystem.create(props);
-
-    if (data) return data;
-
-    if (error.code === 'FOLDER_NOT_FOUND') {
-      await restoreParentFolder({ ctx, offline });
-      const { data } = await HttpRemoteFileSystem.create(props);
-      if (data) return data;
-    }
-
-    throw logger.error({
-      tag: 'SYNC-ENGINE',
-      msg: 'Failed to persist file',
-      path: offline.path,
-      error,
-    });
   }
 }
