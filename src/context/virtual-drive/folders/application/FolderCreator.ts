@@ -15,7 +15,7 @@ export class FolderCreator {
 
     const parentUuid = await getParentUuid({ ctx, path });
 
-    const { data: folder, error: error2 } = await ipcRendererDriveServerWip.invoke('persistFolder', {
+    const { data: folder, error: error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
       ctx: {
         bucket: ctx.bucket,
         userUuid: ctx.userUuid,
@@ -26,7 +26,7 @@ export class FolderCreator {
       parentUuid,
     });
 
-    if (error2) throw error2;
+    if (error) throw error;
 
     await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
 
