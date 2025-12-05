@@ -7,7 +7,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Body = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
 
-export async function createFile(context: { path: AbsolutePath; workspaceId: string; body: Body; workspaceToken: string }) {
+export async function createFile(context: { path: AbsolutePath; body: Body; workspaceId: string; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/workspaces/{workspaceId}/files';
   const key = getRequestKey({ method, endpoint, context });

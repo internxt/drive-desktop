@@ -79,11 +79,7 @@ export async function persistFile({ ctx, path, parentUuid, contentsId, size }: P
 
   if (res.error) return res;
 
-  void createAndUploadThumbnail({
-    absolutePath: path,
-    bucket: ctx.bucket,
-    fileUuid: res.data.uuid,
-  });
+  void createAndUploadThumbnail({ absolutePath: path, bucket: ctx.bucket, fileUuid: res.data.uuid });
 
   return await createOrUpdateFile({ ctx, fileDto: res.data });
 }

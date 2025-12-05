@@ -7,7 +7,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Body = paths['/workspaces/{workspaceId}/folders']['post']['requestBody']['content']['application/json'];
 
-export async function createFolder(context: { path: AbsolutePath; workspaceId: string; body: Body; workspaceToken: string }) {
+export async function createFolder(context: { path: AbsolutePath; body: Body; workspaceId: string; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/workspaces/{workspaceId}/folders';
   const key = getRequestKey({ method, endpoint, context });
