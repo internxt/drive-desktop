@@ -15,13 +15,14 @@ type TProps = {
 export class FolderCreator {
   static async run({ ctx, path }: TProps) {
     const parentPath = pathUtils.dirname(path);
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+    const { data: parentInfo, error: error1 } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
-    if (!parentInfo) {
-      throw new FolderNotFoundError(parentPath);
+    if (error1) {
+      if (error1?.code === 'NOT_A_PLACEHOLDER') throw new FolderNotFoundError(parentPath);
+      else throw error1;
     }
 
-    const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
+    const { data: folder, error: error2 } = await ipcRendererDriveServerWip.invoke('persistFolder', {
       userUuid: ctx.userUuid,
       workspaceId: ctx.workspaceId,
       parentUuid: parentInfo.uuid,
@@ -29,7 +30,7 @@ export class FolderCreator {
       path,
     });
 
-    if (error) throw error;
+    if (error2) throw error2;
 
     await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
   }

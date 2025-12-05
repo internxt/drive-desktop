@@ -15,10 +15,11 @@ type TProps = {
 
 export async function onAdd({ ctx, path, stats }: TProps) {
   try {
-    const { data: fileInfo } = await NodeWin.getFileInfo({ path });
+    const { data: fileInfo, error } = await NodeWin.getFileInfo({ path });
 
-    if (!fileInfo) {
-      await AddController.createFile({ ctx, path, stats });
+    if (error) {
+      if (error.code === 'NOT_A_PLACEHOLDER') await AddController.createFile({ ctx, path, stats });
+      else throw error;
       return;
     }
 

@@ -18,10 +18,11 @@ type Props = {
 export class FileCreator {
   static async run({ ctx, path, contents }: Props) {
     const parentPath = pathUtils.dirname(path);
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+    const { data: parentInfo, error: error1 } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
-    if (!parentInfo) {
-      throw new FolderNotFoundError(parentPath);
+    if (error1) {
+      if (error1?.code === 'NOT_A_PLACEHOLDER') throw new FolderNotFoundError(parentPath);
+      else throw error1;
     }
 
     const fileDto = await HttpRemoteFileSystem.persist(ctx, {
@@ -31,7 +32,7 @@ export class FileCreator {
       size: contents.size,
     });
 
-    const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+    const { error: error2 } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
       file: {
         ...fileDto,
         size: Number(fileDto.size),
@@ -43,7 +44,7 @@ export class FileCreator {
       path,
     });
 
-    if (error) throw error;
+    if (error2) throw error2;
 
     return fileDto;
   }

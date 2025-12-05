@@ -26,7 +26,7 @@ describe('File Creator', () => {
 
   it('should throw an error if placeholderId is not found', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NON_EXISTS') });
+    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
     // When
     const promise = FileCreator.run(props);
     // Then

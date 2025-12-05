@@ -7,6 +7,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Addon } from '@/node-win/addon-wrapper';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 describe('Folder Creator', () => {
   const convertToPlaceholderMock = partialSpyOn(Addon, 'convertToPlaceholder');
@@ -25,7 +26,7 @@ describe('Folder Creator', () => {
 
   it('If placeholderId is not found, throw error', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({ error: new Error() });
+    getFolderInfoMock.mockResolvedValueOnce({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
     // When
     const promise = FolderCreator.run(props);
     // Then
