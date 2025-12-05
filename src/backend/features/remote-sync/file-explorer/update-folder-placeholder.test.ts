@@ -63,7 +63,7 @@ describe('update-folder-placeholder', () => {
 
   it('should move placeholder if it has been moved', async () => {
     // Given
-    hasToBeMovedMock.mockResolvedValue(true);
+    hasToBeMovedMock.mockReturnValue(true);
     // When
     await FolderPlaceholderUpdater.update(props);
     // Then
@@ -75,7 +75,7 @@ describe('update-folder-placeholder', () => {
 
   it('should do nothing if not moved', async () => {
     // Given
-    hasToBeMovedMock.mockResolvedValue(false);
+    hasToBeMovedMock.mockReturnValue(false);
     // When
     await FolderPlaceholderUpdater.update(props);
     // Then
