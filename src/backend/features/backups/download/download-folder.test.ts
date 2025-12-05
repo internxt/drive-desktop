@@ -27,14 +27,12 @@ describe('download-folder', () => {
 
   beforeEach(() => {
     traverserMock.mockResolvedValue({
-      folders: {
-        [folder1]: { uuid: 'folder1' as FolderUuid, absolutePath: folder1 },
-      },
-      files: {
-        [file1]: { uuid: 'file1' as FileUuid, absolutePath: file1 },
-        [file2]: { uuid: 'file2' as FileUuid, absolutePath: file2 },
-        [file3]: { uuid: 'file3' as FileUuid, absolutePath: file3 },
-      },
+      folders: new Map([[folder1, { uuid: 'folder1' as FolderUuid, absolutePath: folder1 }]]),
+      files: new Map([
+        [file1, { uuid: 'file1' as FileUuid, absolutePath: file1 }],
+        [file2, { uuid: 'file2' as FileUuid, absolutePath: file2 }],
+        [file3, { uuid: 'file3' as FileUuid, absolutePath: file3 }],
+      ]),
     });
 
     props = mockProps<typeof downloadFolder>({

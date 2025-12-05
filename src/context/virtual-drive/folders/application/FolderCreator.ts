@@ -21,7 +21,7 @@ export class FolderCreator {
       throw new FolderNotFoundError(parentPath);
     }
 
-    const { data: folder, error } = await ipcRendererDriveServerWip.invoke('createFolder', {
+    const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
       userUuid: ctx.userUuid,
       workspaceId: ctx.workspaceId,
       parentUuid: parentInfo.uuid,

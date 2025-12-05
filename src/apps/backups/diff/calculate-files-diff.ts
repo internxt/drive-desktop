@@ -27,7 +27,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
   const { isApplied } = isDangledApplied();
 
   Object.values(local.files).forEach((local) => {
-    const remoteFile = remote.files[local.absolutePath];
+    const remoteFile = remote.files.get(local.absolutePath);
 
     if (!remoteFile) {
       added.push(local);
@@ -58,11 +58,11 @@ export function calculateFilesDiff({ local, remote }: TProps) {
     unmodified.push(local);
   });
 
-  Object.values(remote.files).forEach((remoteFile) => {
+  for (const remoteFile of remote.files.values()) {
     if (!local.files[remoteFile.absolutePath]) {
       deleted.push(remoteFile);
     }
-  });
+  }
 
   applyDangled();
 

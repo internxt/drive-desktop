@@ -20,13 +20,13 @@ describe('calculate-files-diff', () => {
       folders: {},
     },
     remote: {
-      files: {
-        [abs('/file1')]: { absolutePath: abs('/file1') },
-        [abs('/file3')]: { absolutePath: abs('/file3') },
-        [abs('/file6')]: { absolutePath: abs('/file6'), size: 10 },
-        [abs('/file7')]: { absolutePath: abs('/file7'), createdAt: new Date('2025-02-20').toISOString() },
-      },
-      folders: {},
+      files: new Map([
+        [abs('/file1'), { absolutePath: abs('/file1') }],
+        [abs('/file3'), { absolutePath: abs('/file3') }],
+        [abs('/file6'), { absolutePath: abs('/file6'), size: 10 }],
+        [abs('/file7'), { absolutePath: abs('/file7'), createdAt: new Date('2025-02-20').toISOString() }],
+      ]),
+      folders: new Map(),
     },
   });
 

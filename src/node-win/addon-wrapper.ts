@@ -84,7 +84,6 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
     const result = await addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
     return parseAddonZod('createFilePlaceholder', result);
   }
@@ -100,7 +99,6 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
     const result = await addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
     return parseAddonZod('createFolderPlaceholder', result);
   }
@@ -117,7 +115,6 @@ export class Addon {
     path: AbsolutePath;
     placeholderId: FilePlaceholderId | FolderPlaceholderId;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
     const result = await addon.convertToPlaceholder(toWin32(path), placeholderId);
     return parseAddonZod('convertToPlaceholder', result);
   }
