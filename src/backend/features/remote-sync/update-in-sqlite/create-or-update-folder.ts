@@ -12,12 +12,12 @@ export async function createOrUpdateFolder({ ctx, folderDto }: { ctx: CommonCont
   });
 }
 
-export async function createOrUpdateFolders({ context, folderDtos }: { context: CommonContext; folderDtos: FolderDto[] }) {
+export async function createOrUpdateFolders({ ctx, folderDtos }: { ctx: CommonContext; folderDtos: FolderDto[] }) {
   return await SqliteModule.FolderModule.createOrUpdateBatch({
     folders: folderDtos.map((folderDto) => ({
       ...folderDto,
-      userUuid: context.userUuid,
-      workspaceId: context.workspaceId,
+      userUuid: ctx.userUuid,
+      workspaceId: ctx.workspaceId,
     })),
   });
 }

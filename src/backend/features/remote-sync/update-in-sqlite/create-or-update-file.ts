@@ -14,14 +14,14 @@ export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext;
   });
 }
 
-export async function createOrUpdateFiles({ context, fileDtos }: { context: CommonContext; fileDtos: FileDto[] }) {
+export async function createOrUpdateFiles({ ctx, fileDtos }: { ctx: CommonContext; fileDtos: FileDto[] }) {
   return await SqliteModule.FileModule.createOrUpdateBatch({
     files: fileDtos.map((fileDto) => ({
       ...fileDto,
       size: Number(fileDto.size),
       isDangledStatus: false,
-      userUuid: context.userUuid,
-      workspaceId: context.workspaceId,
+      userUuid: ctx.userUuid,
+      workspaceId: ctx.workspaceId,
     })),
   });
 }
