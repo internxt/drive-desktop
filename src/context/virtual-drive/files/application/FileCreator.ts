@@ -1,9 +1,9 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { getParentUuid } from './get-parent-uuid';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -17,14 +17,9 @@ export class FileCreator {
 
     ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 
-    const parentPath = pathUtils.dirname(path);
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+    const parentUuid = await getParentUuid({ ctx, path });
 
-    if (!parentInfo) {
-      throw new FolderNotFoundError(parentPath);
-    }
-
-    const { data, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
+    const { data: file, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
       ctx: {
         bucket: ctx.bucket,
         userUuid: ctx.userUuid,
@@ -32,13 +27,13 @@ export class FileCreator {
         workspaceToken: ctx.workspaceToken,
       },
       path,
-      parentUuid: parentInfo.uuid,
+      parentUuid,
       contentsId,
       size,
     });
 
     if (error) throw error;
 
-    return data;
+    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
   }
 }
