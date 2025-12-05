@@ -2,25 +2,26 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('update-contents-id', () => {
-  const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
   const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
-  const path = '/folder/file.txt' as AbsolutePath;
-  const uuid = 'uuid';
+  const path = abs('/folder/file.txt');
+  const uuid = 'uuid' as FileUuid;
 
   let props: Parameters<typeof updateContentsId>[0];
 
   beforeEach(() => {
-    contentsUploaderMock.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
+    contentsUploaderMock.mockResolvedValue('contentsId' as ContentsId);
+
     props = mockProps<typeof updateContentsId>({
       path,
       uuid,
@@ -54,24 +55,27 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileMock).toBeCalledTimes(0);
+    expect(invokeMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 
   it('should update contents id', async () => {
     // Given
-    replaceFileMock.mockResolvedValue({ data: {} });
+    invokeMock.mockResolvedValue({ data: {} });
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileMock).toBeCalledWith({
-      uuid,
-      newContentId: 'newContentsId',
-      newSize: 1,
-      modificationTime: '2025-08-20T00:00:00.000Z',
-    });
+    call(invokeMock).toMatchObject([
+      'persistReplaceFile',
+      {
+        path: '/folder/file.txt',
+        uuid,
+        contentsId: 'contentsId',
+        size: 1024,
+        modificationTime: '2025-08-20T00:00:00.000Z',
+      },
+    ]);
     call(updateSyncStatusMock).toMatchObject({ path });
-    expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

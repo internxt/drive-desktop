@@ -76,7 +76,7 @@ describe('backups', () => {
       ],
     });
 
-    fileUploader.run.mockResolvedValue({ data: 'newContentsId' as ContentsId });
+    fileUploader.run.mockResolvedValue({ data: 'contentsId' as ContentsId });
     persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
     replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' } });
@@ -92,7 +92,7 @@ describe('backups', () => {
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
     call(persistFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
-    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', newContentId: 'newContentsId', newSize: 7 });
+    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', contentsId: 'contentsId', size: 7 });
     calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
 
     call(createFileMock).toStrictEqual({
@@ -100,7 +100,7 @@ describe('backups', () => {
       body: {
         bucket: undefined,
         encryptVersion: '03-aes',
-        fileId: 'newContentsId',
+        fileId: 'contentsId',
         folderUuid: 'folder',
         plainName: 'addedFile',
         size: 7,

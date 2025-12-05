@@ -8,14 +8,12 @@ import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-rend
 type Props = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  contents: {
-    id: ContentsId;
-    size: number;
-  };
+  contentsId: ContentsId;
+  size: number;
 };
 
 export class FileCreator {
-  static async run({ ctx, path, contents }: Props) {
+  static async run({ ctx, path, contentsId, size }: Props) {
     const parentPath = pathUtils.dirname(path);
     const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
@@ -32,8 +30,8 @@ export class FileCreator {
       },
       path,
       parentUuid: parentInfo.uuid,
-      contentsId: contents.id,
-      size: contents.size,
+      contentsId,
+      size,
     });
 
     if (error) throw error;
