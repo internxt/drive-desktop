@@ -14,10 +14,12 @@ describe('File Creator', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
-  const contents = { id: 'contentsId' as ContentsId, size: 1024 };
   const path = abs('/file.txt');
 
-  const props = mockProps<typeof FileCreator.run>({ contents, path });
+  const props = mockProps<typeof FileCreator.run>({
+    path,
+    contentsId: 'contentsId' as ContentsId,
+  });
 
   beforeEach(() => {
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
