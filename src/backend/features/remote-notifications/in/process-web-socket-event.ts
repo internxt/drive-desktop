@@ -1,6 +1,6 @@
 import { NOTIFICATION_SCHEMA } from '@/apps/main/notification-schema';
 import { logger } from '@/apps/shared/logger/logger';
-import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
+import { updateAllRemoteSync } from '@/apps/main/remote-sync/handlers';
 import { INTERNXT_CLIENT } from '@/core/utils/utils';
 
 export async function processWebSocketEvent({ data }: { data: unknown }) {
@@ -16,6 +16,6 @@ export async function processWebSocketEvent({ data }: { data: unknown }) {
     });
   } else {
     logger.debug({ msg: 'Remote notification received', data });
-    await debouncedSynchronization();
+    await updateAllRemoteSync();
   }
 }

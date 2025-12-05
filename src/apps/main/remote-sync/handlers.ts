@@ -1,7 +1,6 @@
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
 import { updateSyncEngine } from '../background-processes/sync-engine';
-import lodashDebounce from 'lodash.debounce';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { remoteSyncManagers } from './store';
@@ -55,15 +54,13 @@ export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager
   }
 }
 
-async function updateAllRemoteSync() {
+export async function updateAllRemoteSync() {
   await Promise.all(
     remoteSyncManagers.values().map(async (manager) => {
       await updateRemoteSync({ manager });
     }),
   );
 }
-
-export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 5000);
 
 ipcMain.handle('get-remote-sync-status', () => {
   return getSyncStatus();

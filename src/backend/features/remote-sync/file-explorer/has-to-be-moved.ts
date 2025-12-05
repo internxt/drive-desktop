@@ -1,6 +1,5 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   ctx: SyncContext;
@@ -8,20 +7,18 @@ type TProps = {
   localPath: AbsolutePath;
 };
 
-export async function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
+export function hasToBeMoved({ remotePath, localPath }: TProps) {
   if (remotePath === localPath) return false;
 
-  const remoteParentPath = dirname(remotePath);
-  const localParentPath = dirname(localPath);
+  let remoteParentPath = dirname(remotePath);
+  let localParentPath = dirname(localPath);
 
   const isRenamed = remoteParentPath === localParentPath;
   if (isRenamed) return true;
 
-  const { data: remoteParentInfo } = await NodeWin.getFolderInfo({ ctx, path: remoteParentPath });
-  const { data: localParentInfo } = await NodeWin.getFolderInfo({ ctx, path: localParentPath });
+  remoteParentPath = dirname(remoteParentPath);
+  localParentPath = dirname(localParentPath);
 
-  if (!remoteParentInfo || !localParentInfo) return false;
-
-  const isMoved = remoteParentInfo.uuid !== localParentInfo.uuid;
+  const isMoved = remoteParentPath === localParentPath;
   return isMoved;
 }

@@ -12,7 +12,7 @@ type Props = { ctx: SyncContext } & (FileProps | FolderProps);
 export async function deleteItemPlaceholders({ ctx, type, remotes, locals }: Props) {
   await Promise.all(
     remotes.map(async (remote) => {
-      const local = (locals as Record<string, { path: AbsolutePath }>)[remote.uuid];
+      const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
 
       if (!local) return;
 

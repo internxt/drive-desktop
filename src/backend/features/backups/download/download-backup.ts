@@ -1,7 +1,7 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Device, getPathFromDialog } from '@/apps/main/device/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import { downloadFolder } from './download-folder';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUserOrThrow } from '@/apps/main/auth/service';
@@ -16,7 +16,7 @@ type Props = {
   folderUuids?: FolderUuid[];
 };
 
-export async function downloadBackup({ device, folderUuids }: Props) {
+export async function downloadBackup({ device, folderUuids = [] }: Props) {
   const user = getUserOrThrow();
   const chosenItem = await getPathFromDialog();
 
@@ -52,7 +52,7 @@ export async function downloadBackup({ device, folderUuids }: Props) {
 
   const now = new Date().toISOString().replace('T', '').replaceAll('-', '').replaceAll(':', '').slice(0, 14);
   const rootPath = join(chosenPath, 'Backup_' + now, device.name);
-  const rootUuids = folderUuids ?? [device.uuid as FolderUuid];
+  const rootUuids = folderUuids.length === 0 ? [device.uuid as FolderUuid] : folderUuids;
 
   logger.debug({
     tag: 'BACKUPS',
@@ -86,4 +86,6 @@ export async function downloadBackup({ device, folderUuids }: Props) {
   broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 0 } });
 
   ipcMain.removeListener(listenerName, eventListener);
+
+  void shell.openPath(rootPath);
 }

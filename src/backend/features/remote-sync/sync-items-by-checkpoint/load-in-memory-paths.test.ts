@@ -16,7 +16,7 @@ describe('load-in-memory-paths', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
   const props = mockProps<typeof loadInMemoryPaths>({
-    ctx: { rootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath },
+    ctx: { rootPath: '/drive' as AbsolutePath },
   });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
@@ -33,7 +33,7 @@ describe('load-in-memory-paths', () => {
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual({ folderUuid: { path: 'C:/Users/user/InternxtDrive/folder' } });
-    expect(files).toMatchObject({ fileUuid2: { path: 'C:/Users/user/InternxtDrive/folder/file2' } });
+    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/drive/folder' }]]));
+    expect(files).toMatchObject(new Map([['fileUuid2', { path: '/drive/folder/file2' }]]));
   });
 });

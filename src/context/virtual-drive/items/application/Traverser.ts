@@ -17,19 +17,7 @@ export type Tree = {
 };
 
 export class Traverser {
-  private static createRootFolder({ ctx }: { ctx: SyncContext }): ExtendedDriveFolder {
-    return {
-      uuid: ctx.rootUuid,
-      parentUuid: undefined,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      absolutePath: ctx.rootPath,
-      status: 'EXISTS',
-      name: '',
-    };
-  }
-
-  private static traverse(tree: Tree, items: Items, currentFolder: ExtendedDriveFolder) {
+  private static traverse(tree: Tree, items: Items, currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>) {
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
@@ -58,17 +46,16 @@ export class Traverser {
   }
 
   static async run({ ctx }: { ctx: SyncContext }) {
-    const rootFolder = this.createRootFolder({ ctx });
     const items = await getAllItems({ ctx });
 
     const tree: Tree = {
       files: [],
-      folders: [rootFolder],
+      folders: [],
       trashedFiles: [],
       trashedFolders: [],
     };
 
-    this.traverse(tree, items, rootFolder);
+    this.traverse(tree, items, { absolutePath: ctx.rootPath, uuid: ctx.rootUuid });
 
     return tree;
   }
