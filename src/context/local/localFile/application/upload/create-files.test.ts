@@ -45,7 +45,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(persistMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
+    expect(persistMock).toBeCalledWith(expect.objectContaining({ parentUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });

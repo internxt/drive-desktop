@@ -11,7 +11,7 @@ describe('create-file', () => {
     const { error, data } = await createFile(props);
 
     expect(data).toBeUndefined();
-    expect(error?.code).toStrictEqual('FOLDER_NOT_FOUND');
+    expect(error?.code).toStrictEqual('PARENT_NOT_FOUND');
   });
 
   it('should return FILE_ALREADY_EXISTS when server responds 409', async () => {
