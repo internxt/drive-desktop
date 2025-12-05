@@ -6,8 +6,7 @@ import { Optional } from '../../../../shared/types/Optional';
 import { TemporalFileChunkReader } from '../../../../context/storage/TemporalFiles/application/read/TemporalFileChunkReader';
 import { StorageFileChunkReader } from '../../../../context/storage/StorageFiles/application/read/StorageFileChunkReader';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fuse = require('@gcas/fuse');
+import Fuse from '@gcas/fuse';
 
 export class ReadCallback {
   constructor(private readonly container: Container) {}
@@ -54,7 +53,7 @@ export class ReadCallback {
 
         if (!document) {
           logger.error({ msg: 'READ FILE NOT FOUND', path });
-          cb(fuse.ENOENT);
+          cb(Fuse.ENOENT);
           return;
         }
 
@@ -70,7 +69,7 @@ export class ReadCallback {
       cb(bytesRead);
     } catch (err) {
       logger.error({ msg: 'Error reading file:', error: err });
-      cb(fuse.EIO);
+      cb(Fuse.EIO);
     }
   }
 }

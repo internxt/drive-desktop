@@ -38,6 +38,11 @@ export async function stopSyncEngineWatcher() {
 }
 
 export async function stopAndClearFuseApp() {
+  if (!fuseApp || !hydrationApi) {
+    logger.debug({ msg: 'FuseApp or HydrationApi not initialized, skipping stop and clear.' });
+    return;
+  }
+
   try {
     await hydrationApi.stop();
     await fuseApp.clearCache();

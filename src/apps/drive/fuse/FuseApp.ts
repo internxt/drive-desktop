@@ -18,22 +18,24 @@ import { RenameMoveOrTrashCallback } from './callbacks/RenameOrMoveCallback';
 import { TrashFileCallback } from './callbacks/TrashFileCallback';
 import { TrashFolderCallback } from './callbacks/TrashFolderCallback';
 import { WriteCallback } from './callbacks/WriteCallback';
-import { mountPromise, unmountPromise } from './helpers';
+import { mountPromise } from './helpers';
 import { StorageRemoteChangesSyncher } from '../../../context/storage/StorageFiles/application/sync/StorageRemoteChangesSyncher';
 import { ThumbnailSynchronizer } from '../../../context/storage/thumbnails/application/sync/ThumbnailSynchronizer';
 import { EventEmitter } from 'stream';
 import { getExistingFiles } from '../../main/remote-sync/service';
 import configStore from '../../main/config';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fuse = require('@gcas/fuse');
+import Fuse from '@gcas/fuse';
+
+
 const STORAGE_MIGRATION_DATE = new Date(configStore.get('storageMigrationDate'));
 const FIX_DEPLOYMENT_DATE = new Date(configStore.get('fixDeploymentDate'));
 
 export class FuseApp extends EventEmitter {
   private status: FuseDriveStatus = 'UNMOUNTED';
   private static readonly MAX_INT_32 = 2147483647;
-  private _fuse: any;
+  private static readonly MAX_RETRIES = 5;
+  private _fuse: Fuse | undefined;
 
   constructor(
     private readonly virtualDrive: VirtualDrive,
@@ -102,46 +104,32 @@ export class FuseApp extends EventEmitter {
     };
   }
 
-  async start(): Promise<void> {
+  async start() {
     const ops = this.getOpt();
 
     await this.update();
 
-    this._fuse = new fuse(this.localRoot, ops, {
+    this._fuse = new Fuse(this.localRoot, ops, {
       debug: false,
       force: true,
       maxRead: FuseApp.MAX_INT_32,
     });
 
-    try {
-      await mountPromise(this._fuse);
-      this.status = 'MOUNTED';
-      logger.debug({ msg: '[FUSE] mounted' });
-      this.emit('mounted');
-
-      // Run after mount is complete
-      await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
-    } catch (firstMountError) {
-      logger.error({ msg: '[FUSE] mount error first try:', error: firstMountError });
-      try {
-        await unmountPromise(this._fuse);
-        await mountPromise(this._fuse);
-        this.status = 'MOUNTED';
-        logger.debug({ msg: '[FUSE] mounted' });
-        this.emit('mounted');
-
-        // Run after mount is complete (retry)
-        await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
-      } catch (err) {
-        this.status = 'ERROR';
-        logger.error({ msg: '[FUSE] mount error final try:', error: err });
-        this.emit('mount-error');
-      }
+    const mountSuccessful = await this.mountWithRetries();
+    if (!mountSuccessful) {
+      logger.error({ msg: '[FUSE] mount error after max retries' });
+      this.emit('mount-error');
+      return;
     }
+
+    this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE).catch((error) => {
+      logger.error({ msg: '[FUSE] Error fixing dangling files:', error });
+    });
   }
 
-  async stop(): Promise<void> {
-    /** no-op */
+  async stop() {
+    // It is not possible to implement this method while still using @gcas/fuse.
+    // For more information, see this ticket. https://inxt.atlassian.net/browse/PB-5389
   }
 
   async clearCache(): Promise<void> {
@@ -170,17 +158,40 @@ export class FuseApp extends EventEmitter {
   }
 
   async mount() {
+    if (this.status === 'MOUNTED') {
+      logger.debug({ msg: '[FUSE] Already mounted' });
+      return this.status;
+    }
+
+    if (!this._fuse) {
+      logger.error({ msg: '[FUSE] Cannot mount: FUSE instance not initialized' });
+      return this.status;
+    }
+
     try {
-      await unmountPromise(this._fuse);
       await mountPromise(this._fuse);
       this.status = 'MOUNTED';
+      this.emit('mounted');
     } catch (err) {
       this.status = 'ERROR';
       logger.error({ msg: '[FUSE] mount error:', error: err });
     }
 
-    this.emit('mounted');
-
     return this.status;
+  }
+
+  private async mountWithRetries(): Promise<boolean> {
+    for (let attempt = 1; attempt <= FuseApp.MAX_RETRIES; attempt++) {
+      const status = await this.mount();
+
+      if (status === 'MOUNTED') return true;
+
+      if (attempt < FuseApp.MAX_RETRIES) {
+        const delay = Math.min(1000 * attempt, 3000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+
+    return false;
   }
 }
