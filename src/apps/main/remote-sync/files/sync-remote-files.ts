@@ -42,7 +42,7 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
     hasMore = fileDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    await createOrUpdateFiles({ context: self.context, fileDtos });
+    await createOrUpdateFiles({ ctx: self.context, fileDtos });
 
     const lastFile = fileDtos.at(-1);
     if (lastFile) {

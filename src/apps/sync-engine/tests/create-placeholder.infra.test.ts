@@ -69,18 +69,13 @@ describe('create-placeholder', () => {
 
   it('should create placeholder', async () => {
     // Given
-
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
         return Promise.resolve({ files: [], folders: [] });
       }
 
-      if (event === 'FIND_DANGLED_FILES') {
-        return Promise.resolve([]);
-      }
-
-      if (event === 'fileCreateOrUpdate') {
-        return Promise.resolve({});
+      if (event === 'persistFile') {
+        return Promise.resolve({ data: { uuid: 'uuid' } });
       }
 
       return Promise.resolve();

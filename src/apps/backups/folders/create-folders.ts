@@ -2,7 +2,6 @@ import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/
 import { BackupsContext } from '../BackupInfo';
 import { LocalFolder } from '@/context/local/localFolder/domain/LocalFolder';
 import { RemoteTree } from '../remote-tree/traverser';
-import { basename } from 'node:path';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import type { Backup } from '../Backups';
 import { persistFolder } from '@/infra/drive-server-wip/out/ipc-main';
@@ -38,11 +37,9 @@ async function createFolder({ context, local, tree }: { context: BackupsContext;
   if (!parent) return;
 
   const { data: folder, error } = await persistFolder({
+    ctx: context,
     path: local.absolutePath,
-    plainName: basename(local.absolutePath),
     parentUuid: parent.uuid,
-    userUuid: context.userUuid,
-    workspaceId: '',
   });
 
   if (folder) {

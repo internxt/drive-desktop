@@ -1,10 +1,9 @@
-import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -24,27 +23,21 @@ export class FileCreator {
       throw new FolderNotFoundError(parentPath);
     }
 
-    const fileDto = await HttpRemoteFileSystem.persist(ctx, {
-      contentsId: contents.id,
-      folderUuid: parentInfo.uuid,
-      path,
-      size: contents.size,
-    });
-
-    const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
-      file: {
-        ...fileDto,
-        size: Number(fileDto.size),
-        isDangledStatus: false,
+    const { data, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
+      ctx: {
+        bucket: ctx.bucket,
         userUuid: ctx.userUuid,
         workspaceId: ctx.workspaceId,
+        workspaceToken: ctx.workspaceToken,
       },
-      bucket: ctx.bucket,
       path,
+      parentUuid: parentInfo.uuid,
+      contentsId: contents.id,
+      size: contents.size,
     });
 
     if (error) throw error;
 
-    return fileDto;
+    return data;
   }
 }

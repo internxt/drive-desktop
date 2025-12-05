@@ -70,7 +70,9 @@ export async function launchBackupProcesses(
     const context: BackupsContext = {
       ...backupInfo,
       userUuid: user.uuid,
+      bucket: backupInfo.backupsBucket,
       workspaceId: '',
+      workspaceToken: '',
       fileUploader,
       abortController,
       addIssue: (issue) => {

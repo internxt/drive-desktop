@@ -40,7 +40,7 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
   const foldersToSync = await getItemsToSync({ ctx, type: 'folder', remotes, locals });
   const deletedFolders = getDeletedItems({ ctx, type: 'folder', remotes, locals });
 
-  const foldersToSyncPromises = createOrUpdateFolders({ context: ctx, folderDtos: foldersToSync });
+  const foldersToSyncPromises = createOrUpdateFolders({ ctx, folderDtos: foldersToSync });
   const deletedFoldersPromises = deletedFolders.map(async (folder) => {
     return await SqliteModule.FolderModule.updateByUuid({
       uuid: folder.uuid,

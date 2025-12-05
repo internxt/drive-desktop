@@ -27,7 +27,7 @@ export async function getFileExplorerState({ ctx }: TProps) {
   const localItems = await fileSystem.syncWalk({ rootFolder });
 
   for (const localItem of localItems) {
-    processItem({ ctx, localItem, state, remoteFilesMap });
+    await processItem({ ctx, localItem, state, remoteFilesMap });
   }
 
   logger.debug({
