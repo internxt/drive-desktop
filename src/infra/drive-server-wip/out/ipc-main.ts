@@ -9,6 +9,8 @@ import { basename } from 'node:path';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -83,13 +85,7 @@ export async function persistFile({ ctx, path, parentUuid, contentsId, size }: P
     fileUuid: res.data.uuid,
   });
 
-  return await SqliteModule.FolderModule.createOrUpdate({
-    folder: {
-      ...res.data,
-      userUuid: ctx.userUuid,
-      workspaceId: ctx.workspaceId,
-    },
-  });
+  return await createOrUpdateFile({ ctx, fileDto: res.data });
 }
 
 export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProps) {
@@ -97,11 +93,5 @@ export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProp
 
   if (res.error) return res;
 
-  return await SqliteModule.FolderModule.createOrUpdate({
-    folder: {
-      ...res.data,
-      userUuid: ctx.userUuid,
-      workspaceId: ctx.workspaceId,
-    },
-  });
+  return await createOrUpdateFolder({ ctx, folderDto: res.data });
 }

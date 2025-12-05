@@ -40,7 +40,7 @@ async function replaceFile({ context, localFile, file }: { context: BackupsConte
     });
 
     if (fileDto) {
-      await createOrUpdateFile({ context, fileDto });
+      await createOrUpdateFile({ ctx: context, fileDto });
     }
   } catch (exc) {
     logger.error({
