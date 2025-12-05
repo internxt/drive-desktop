@@ -6,6 +6,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import * as trackAddFileEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
+import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
@@ -26,7 +27,7 @@ describe('on-add', () => {
 
   it('should call add controller if the file is new', async () => {
     // Given
-    getFileInfoMock.mockResolvedValue({ data: undefined });
+    getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NOT_A_PLACEHOLDER') });
     // When
     await onAdd(props);
     // Then

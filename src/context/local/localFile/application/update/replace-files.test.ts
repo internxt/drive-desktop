@@ -31,6 +31,8 @@ describe('replace-files', () => {
     await replaceFiles(props);
     // Then
     expect(replaceFileMock).toBeCalledTimes(0);
+    expect(props.self.backed).toBe(1);
+    expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
 
   it('should increase backed if content is updated', async () => {

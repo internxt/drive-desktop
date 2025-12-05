@@ -7,23 +7,29 @@
 #include <exception>
 #include <string>
 
+inline std::string format_exception_message(const char* function_name)
+{
+    try {
+        throw;
+    } catch (const winrt::hresult_error& e) {
+        return std::format("[{}] WinRT error: {} (HRESULT: 0x{:x})", function_name, winrt::to_string(e.message()), static_cast<uint32_t>(e.code()));
+    } catch (const std::exception& e) {
+        return std::format("[{}] {}", function_name, e.what());
+    } catch (...) {
+        return std::format("[{}] Unknown native error", function_name);
+    }
+}
+
 template <typename Fn>
 napi_value napi_safe_wrap(napi_env env, napi_callback_info info, Fn&& fn, const char* function_name)
 {
-    std::ostringstream oss;
-
     try {
         return fn(env, info);
-    } catch (const winrt::hresult_error& e) {
-        oss << "[" << function_name << "] WinRT error: " << winrt::to_string(e.message()) << " (HRESULT: 0x" << std::hex << e.code() << ")";
-    } catch (const std::exception& e) {
-        oss << "[" << function_name << "] " << e.what();
     } catch (...) {
-        oss << "[" << function_name << "] Unknown native error";
+        std::string error_msg = format_exception_message(function_name);
+        napi_throw_error(env, nullptr, error_msg.c_str());
+        return nullptr;
     }
-
-    napi_throw_error(env, nullptr, oss.str().c_str());
-    return nullptr;
 }
 
 #define NAPI_SAFE_WRAP(env, info, fn) \

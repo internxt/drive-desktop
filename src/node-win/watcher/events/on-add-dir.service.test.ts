@@ -6,6 +6,7 @@ import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-
 import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));
@@ -24,7 +25,7 @@ describe('on-add-dir', () => {
 
   it('should call add controller if the folder is new', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: undefined });
+    getFolderInfoMock.mockResolvedValueOnce({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
     // When
     await onAddDir(props);
     // Then
