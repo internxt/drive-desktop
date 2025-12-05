@@ -25,7 +25,7 @@ describe('update-file-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof FilePlaceholderUpdater.update>({
-      files: { ['uuid' as FileUuid]: { path: 'localPath' as AbsolutePath } },
+      files: new Map([['uuid' as FileUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
@@ -47,7 +47,7 @@ describe('update-file-placeholder', () => {
 
   it('should create placeholder if file does not exist locally', async () => {
     // Given
-    props.files = {};
+    props.files = new Map();
     // When
     await FilePlaceholderUpdater.update(props);
     // Then

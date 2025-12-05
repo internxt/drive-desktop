@@ -7,12 +7,12 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Stats } from 'node:fs';
 import { SyncContext } from '@/apps/sync-engine/config';
 
-export type InMemoryFiles = Record<FileUuid, { path: AbsolutePath; stats: Stats }>;
-export type InMemoryFolders = Record<FolderUuid, { path: AbsolutePath }>;
+export type InMemoryFiles = Map<FileUuid, { path: AbsolutePath; stats: Stats }>;
+export type InMemoryFolders = Map<FolderUuid, { path: AbsolutePath }>;
 
 export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
-  const files: InMemoryFiles = {};
-  const folders: InMemoryFolders = {};
+  const files: InMemoryFiles = new Map();
+  const folders: InMemoryFolders = new Map();
 
   const { rootPath } = ctx;
 
@@ -28,14 +28,14 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
     if (stats.isDirectory()) {
       const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
       if (folderInfo) {
-        folders[folderInfo.uuid] = { path };
+        folders.set(folderInfo.uuid, { path });
       }
     }
 
     if (stats.isFile()) {
       const { data: fileInfo } = await NodeWin.getFileInfo({ path });
       if (fileInfo) {
-        files[fileInfo.uuid] = { stats, path };
+        files.set(fileInfo.uuid, { stats, path });
       }
     }
   }

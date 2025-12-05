@@ -1,95 +1,60 @@
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { hasToBeMoved } from './has-to-be-moved';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 
 describe('has-to-be-moved', () => {
-  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
-  const remotePath = abs('/drive/folder1/current');
-  const localPath = abs('/drive/folder2/current');
-
   let props: Parameters<typeof hasToBeMoved>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof hasToBeMoved>({ remotePath, localPath });
+    props = mockProps<typeof hasToBeMoved>({});
   });
 
-  it('should return false if path is the same', async () => {
+  it('should return false if path is the same', () => {
     // Given
-    props.remotePath = props.localPath;
+    props.remotePath = abs('/parent2/parent1/current');
+    props.localPath = abs('/parent2/parent1/current');
     // When
-    const hasBeenMoved = await hasToBeMoved(props);
+    const hasBeenMoved = hasToBeMoved(props);
     // Then
     expect(hasBeenMoved).toBe(false);
   });
 
-  it('should return false if local parent does not exist', async () => {
+  it('should return true if item is renamed', () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({});
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    props.remotePath = abs('/parent2/parent1/old');
+    props.localPath = abs('/parent2/parent1/new');
     // When
-    const hasBeenMoved = await hasToBeMoved(props);
-    // Then
-    expect(hasBeenMoved).toBe(false);
-  });
-
-  it('should return false if remote parent does not exist', async () => {
-    // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({});
-    // When
-    const hasBeenMoved = await hasToBeMoved(props);
-    // Then
-    expect(hasBeenMoved).toBe(false);
-  });
-
-  it('should return false if both parents have the same uuid', async () => {
-    // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    // When
-    const hasBeenMoved = await hasToBeMoved(props);
-    // Then
-    expect(hasBeenMoved).toBe(false);
-  });
-
-  it('should return true if both parents have different uuid', async () => {
-    // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid1' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid2' as FolderUuid } });
-    // When
-    const hasBeenMoved = await hasToBeMoved(props);
+    const hasBeenMoved = hasToBeMoved(props);
     // Then
     expect(hasBeenMoved).toBe(true);
   });
 
-  it('should return true if item has been renamed but not moved', async () => {
+  it('should return true if parent is moved', () => {
     // Given
-    props.remotePath = abs('/drive/folder/old');
-    props.localPath = abs('/drive/folder/new');
+    props.remotePath = abs('/parent2/old/current');
+    props.localPath = abs('/parent2/new/current');
     // When
-    const hasBeenMoved = await hasToBeMoved(props);
+    const hasBeenMoved = hasToBeMoved(props);
     // Then
     expect(hasBeenMoved).toBe(true);
   });
 
-  /**
-   * v2.5.6 Daniel Jiménez
-   * This is a use case that we cannot handle right now. Basically we cannot rename
-   * an item if the move event is in another folder because we cannot move an inner
-   * item. What will happen is that in the first sync iteration we will call move from
-   * folder1 to folder3 and in the second sync iteration now the path will be the same
-   * so we will rename the inner folder.
-   */
-  it('should return false if item has been renamed but both parents have the same uuid', async () => {
+  it('should return true if item is renamed and parent is moved', () => {
     // Given
-    props.remotePath = abs('/drive/folder1/folder2/old');
-    props.localPath = abs('/drive/folder3/folder2/new');
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    props.remotePath = abs('/parent2/old/old');
+    props.localPath = abs('/parent2/new/new');
     // When
-    const hasBeenMoved = await hasToBeMoved(props);
+    const hasBeenMoved = hasToBeMoved(props);
+    // Then
+    expect(hasBeenMoved).toBe(true);
+  });
+
+  it('should return false if gran parent is moved', () => {
+    // Given
+    props.remotePath = abs('/old/old/old');
+    props.localPath = abs('/new/new/new');
+    // When
+    const hasBeenMoved = hasToBeMoved(props);
     // Then
     expect(hasBeenMoved).toBe(false);
   });
