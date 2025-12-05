@@ -1,4 +1,3 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '../sqlite.module';
 
 export type FromProcess = {

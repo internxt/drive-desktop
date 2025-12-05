@@ -1,11 +1,11 @@
 import { AddController } from './add-controller';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as createFile from '@/features/sync/add-item/create-file';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { FileCreator } from '@/context/virtual-drive/files/application/FileCreator';
 
 describe('add-controller', () => {
-  const createFileMock = partialSpyOn(createFile, 'createFile');
+  const createFileMock = partialSpyOn(FileCreator, 'run');
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
 
   describe('createFile', () => {

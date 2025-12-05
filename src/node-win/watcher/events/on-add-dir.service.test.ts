@@ -3,9 +3,9 @@ import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
-import * as createFolder from '@/features/sync/add-item/create-folder';
 import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
@@ -14,7 +14,7 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add-dir', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveFolderMock = vi.mocked(moveFolder);
-  const createFolderMock = partialSpyOn(createFolder, 'createFolder');
+  const createFolderMock = partialSpyOn(FolderCreator, 'run');
   const trackAddFolderEventMock = partialSpyOn(trackAddFolderEvent, 'trackAddFolderEvent');
 
   let props: Parameters<typeof onAddDir>[0];

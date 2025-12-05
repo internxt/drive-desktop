@@ -1,6 +1,6 @@
 import { ProcessSyncContext } from '../config';
-import { createFolder } from '@/features/sync/add-item/create-folder';
 import { PendingFileExplorerItem } from '../file-explorer-state/file-explorer-state.types';
+import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -10,7 +10,15 @@ type TProps = {
 export async function addPendingFolders({ ctx, createFolders }: TProps) {
   await Promise.all(
     createFolders.map(async ({ path }) => {
-      await createFolder({ ctx, path });
+      try {
+        await FolderCreator.run({ ctx, path });
+      } catch (error) {
+        ctx.logger.error({
+          msg: 'Error adding pending folder',
+          path,
+          error,
+        });
+      }
     }),
   );
 }
