@@ -18,7 +18,7 @@ export function setupIpcDriveServerWip() {
   ipcMainDriveServerWip.handle('storageDeleteFileByUuid', (_, props) => deleteFileByUuid(props));
   ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', (_, props) => deleteFolderByUuid(props));
   ipcMainDriveServerWip.handle('persistFolder', (_, props) => persistFolder(props));
-
+  ipcMainDriveServerWip.handle('persistFile', (_, props) => persistFile(props));
   ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, path }) => {
     const { name, extension } = getNameAndExtension({ path });
     const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });

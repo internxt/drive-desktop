@@ -24,7 +24,12 @@ export class FileCreator {
     }
 
     const { data, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
-      ctx,
+      ctx: {
+        bucket: ctx.bucket,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
+        workspaceToken: ctx.workspaceToken,
+      },
       path,
       parentUuid: parentInfo.uuid,
       contentsId: contents.id,

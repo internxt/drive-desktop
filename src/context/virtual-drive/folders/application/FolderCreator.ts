@@ -21,7 +21,12 @@ export class FolderCreator {
     }
 
     const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
-      ctx,
+      ctx: {
+        bucket: ctx.bucket,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
+        workspaceToken: ctx.workspaceToken,
+      },
       path,
       parentUuid: parentInfo.uuid,
     });
