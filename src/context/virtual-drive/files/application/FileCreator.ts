@@ -22,7 +22,7 @@ export class FileCreator {
       else throw error1;
     }
 
-    const { data, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
+    const { data, error: error2 } = await ipcRendererDriveServerWip.invoke('persistFile', {
       ctx: {
         bucket: ctx.bucket,
         userUuid: ctx.userUuid,
