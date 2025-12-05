@@ -29,6 +29,7 @@ export class FolderCreator {
     if (error) throw error;
 
     await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
-    await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
+
+    return folder.uuid;
   }
 }
