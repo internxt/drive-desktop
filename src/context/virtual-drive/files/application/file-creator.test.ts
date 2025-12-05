@@ -1,42 +1,31 @@
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FileCreator } from './FileCreator';
+import * as getParentUuid from './get-parent-uuid';
+import { Addon } from '@/node-win/addon-wrapper';
 
-describe('File Creator', () => {
+describe('FileCreator', () => {
+  const convertToPlaceholderMock = partialSpyOn(Addon, 'convertToPlaceholder');
   const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
-  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
+  const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const path = abs('/file.txt');
-
   const props = mockProps<typeof FileCreator.run>({ path });
 
-  beforeEach(() => {
-    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
-    invokeMock.mockResolvedValue({});
-    contentsUploaderMock.mockResolvedValue('contentsId' as ContentsId);
-  });
-
-  it('should throw an error if placeholderId is not found', async () => {
+  it('should create file', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NON_EXISTS') });
-    // When
-    const promise = FileCreator.run(props);
-    // Then
-    await expect(promise).rejects.toThrowError(FolderNotFoundError);
-  });
-
-  it('creates the file on the drive server', async () => {
+    contentsUploaderMock.mockResolvedValue('contentsId' as ContentsId);
+    invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    getParentUuidMock.mockResolvedValue('parentUuid' as FolderUuid);
     // When
     await FileCreator.run(props);
     // Then
-    expect(invokeMock).toBeCalledTimes(1);
+    call(invokeMock).toMatchObject(['persistFile', { path, parentUuid: 'parentUuid' }]);
+    call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FILE:uuid' });
   });
 });
