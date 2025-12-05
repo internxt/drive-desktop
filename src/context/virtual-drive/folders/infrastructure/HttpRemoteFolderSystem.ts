@@ -1,27 +1,31 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { CommonContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { basename } from 'node:path';
 
-type TProps = {
-  workspaceId: string;
-  plainName: string;
+type Props = {
+  ctx: CommonContext;
   parentUuid: FolderUuid;
-  path: string;
+  path: AbsolutePath;
 };
 
 export class HttpRemoteFolderSystem {
-  static async persist({ workspaceId, plainName, parentUuid, path }: TProps) {
+  static async persist({ ctx, parentUuid, path }: Props) {
+    const name = basename(path);
+
     const body = {
-      plainName,
-      name: plainName,
+      name,
+      plainName: name,
       parentFolderUuid: parentUuid,
     };
 
-    const res = workspaceId
-      ? await driveServerWip.workspaces.createFolderInWorkspace({ path, body, workspaceId })
+    const res = ctx.workspaceId
+      ? await driveServerWip.workspaces.createFolder({ path, body, workspaceId: ctx.workspaceId, workspaceToken: ctx.workspaceToken })
       : await driveServerWip.folders.createFolder({ path, body });
 
-    if (res.error) {
-      return await driveServerWip.folders.checkExistence({ parentUuid, name: plainName });
+    if (res.error?.code === 'FOLDER_ALREADY_EXISTS') {
+      return await driveServerWip.folders.checkExistence({ parentUuid, name });
     }
 
     return res;

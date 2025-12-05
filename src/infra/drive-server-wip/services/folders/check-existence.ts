@@ -27,7 +27,7 @@ export async function checkExistence(context: { parentUuid: string; name: string
   const res = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: { msg: 'Check file existence request', context },
+    loggerBody: { msg: 'Check folder existence request', context },
   });
 
   if (res.error) {

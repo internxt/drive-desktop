@@ -1,14 +1,15 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { clientWrapper } from '../../in/client-wrapper.service';
+import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../../in/get-in-flight-request';
+import { FolderDto, parseFolderDto } from '../../out/dto';
 
 type TCreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
 
 class CreateFolderError extends DriveServerWipError {
   constructor(
-    public readonly code: TDriveServerWipError | 'ALREADY_EXISTS',
+    public readonly code: TDriveServerWipError | 'PARENT_NOT_FOUND' | 'FOLDER_ALREADY_EXISTS',
     cause: unknown,
   ) {
     super(code, cause);
@@ -31,12 +32,20 @@ export async function createFolder(context: { path: string; body: TCreateFolderB
     loggerBody: { msg: 'Create folder request', context },
   });
 
-  if (res.error?.code) {
+  return parseCreateFolderResponse(res);
+}
+
+export function parseCreateFolderResponse(res: Awaited<TResponse<FolderDto>>) {
+  if (res.error) {
     switch (true) {
+      case res.error.response?.status === 404:
+        return { error: new CreateFolderError('PARENT_NOT_FOUND', res.error.cause) };
       case res.error.response?.status === 409:
-        return { error: new CreateFolderError('ALREADY_EXISTS', res.error.cause) };
+        return { error: new CreateFolderError('FOLDER_ALREADY_EXISTS', res.error.cause) };
+      default:
+        return { error: res.error };
     }
   }
 
-  return res;
+  return { data: parseFolderDto({ folderDto: res.data }) };
 }

@@ -5,15 +5,18 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
 
-export type Config = {
+export type CommonContext = {
   userUuid: string;
+  workspaceId: string;
+  workspaceToken: string;
+  bucket: string;
+};
+
+export type Config = CommonContext & {
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
   providerName: string;
-  workspaceId: string;
-  workspaceToken: string;
-  bucket: string;
   mnemonic: string;
   bridgeUser: string;
   bridgePass: string;

@@ -43,8 +43,8 @@ describe('replace-files', () => {
     // Then
     expect(replaceFileMock).toBeCalledWith({
       uuid: 'uuid',
-      newContentId: 'contentsId',
-      newSize: 1024,
+      contentsId: 'contentsId',
+      size: 1024,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
     expect(props.self.backed).toBe(1);
