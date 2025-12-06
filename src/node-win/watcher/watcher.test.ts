@@ -2,17 +2,17 @@ import { execSync } from 'node:child_process';
 import { appendFile, mkdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { v4 } from 'uuid';
 
-import { Watcher } from './watcher';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { sleep } from '@/apps/main/util';
 import { getEvents, setupWatcher } from './watcher.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FSWatcher } from 'chokidar';
 
 describe('Watcher', () => {
-  let watcher: Watcher | undefined;
+  let watcher: FSWatcher | undefined;
 
   afterEach(async () => {
-    await watcher?.chokidar?.close();
+    await watcher?.close();
   });
 
   describe('[Watcher] When call watchAndWait', () => {
