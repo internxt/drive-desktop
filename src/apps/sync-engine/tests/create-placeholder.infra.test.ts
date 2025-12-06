@@ -20,6 +20,7 @@ import { PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
+import { initWatcher } from '@/node-win/watcher/watcher';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -107,7 +108,7 @@ describe('create-placeholder', () => {
     // When
     await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
     await BindingsManager.start({ ctx });
-    BindingsManager.watch({ ctx });
+    initWatcher({ ctx });
 
     await sleep(100);
     await writeFile(file, 'content');
