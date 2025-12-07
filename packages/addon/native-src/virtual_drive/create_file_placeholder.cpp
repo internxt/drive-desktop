@@ -7,8 +7,7 @@
 
 #include <filesystem>
 
-void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId,
-                             int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
+void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);

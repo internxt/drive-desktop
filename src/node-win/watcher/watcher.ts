@@ -15,18 +15,20 @@ export function initWatcher({ ctx, options }: Props) {
   const watcher = watch(ctx.rootPath, {
     alwaysStat: true,
     atomic: true,
-    awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
+    awaitWriteFinish: process.env.NODE_ENV === 'test' ? false : true,
+    binaryInterval: 500,
     depth: undefined,
     followSymlinks: true,
     ignored: /(^|[/\\])\../,
     ignoreInitial: true,
+    interval: process.env.NODE_ENV === 'test' ? 100 : 500,
     persistent: true,
-    usePolling: false,
+    usePolling: true,
     ...options,
   });
 
   watcher
-    .on('all', (event, path) => onAll({ event, path: abs(path) }))
+    .on('all', (event, path, stats) => onAll({ event, path: abs(path), stats }))
     /**
      * v2.5.7 Daniel Jiménez
      * add events are triggered when:
