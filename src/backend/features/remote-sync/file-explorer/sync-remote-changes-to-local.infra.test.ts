@@ -65,6 +65,7 @@ describe('sync-remote-changes-to-local', () => {
     // Then
     calls(onAllMock).toMatchObject([
       { event: 'add', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 7 } },
       { event: 'change', path, stats: { size: 1000 } },
     ]);
 
