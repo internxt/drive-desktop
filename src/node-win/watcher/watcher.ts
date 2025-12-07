@@ -15,15 +15,13 @@ export function initWatcher({ ctx, options }: Props) {
   const watcher = watch(ctx.rootPath, {
     alwaysStat: true,
     atomic: true,
-    awaitWriteFinish: process.env.NODE_ENV === 'test' ? false : true,
-    binaryInterval: 500,
+    awaitWriteFinish: true,
     depth: undefined,
     followSymlinks: true,
     ignored: /(^|[/\\])\../,
     ignoreInitial: true,
-    interval: process.env.NODE_ENV === 'test' ? 100 : 500,
     persistent: true,
-    usePolling: true,
+    usePolling: false,
     ...options,
   });
 
