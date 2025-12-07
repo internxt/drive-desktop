@@ -9,7 +9,7 @@ vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
 
 describe('sync-remote-to-local', () => {
-  const setPinStateMock = partialSpyOn(Addon, 'setPinState');
+  partialSpyOn(Addon, 'setPinState');
   const updatePlaceholderMock = partialSpyOn(Addon, 'updatePlaceholder');
 
   const localDate = new Date('1999-01-01T00:00:00.000Z');
