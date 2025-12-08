@@ -1,29 +1,25 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
+import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { getParentUuid } from './get-parent-uuid';
+import { Addon } from '@/node-win/addon-wrapper';
 
 type Props = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  contents: {
-    id: ContentsId;
-    size: number;
-  };
+  size: number;
 };
 
 export class FileCreator {
-  static async run({ ctx, path, contents }: Props) {
-    const parentPath = pathUtils.dirname(path);
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+  static async run({ ctx, path, size }: Props) {
+    const contentsId = await ContentsUploader.run({ ctx, path, size });
 
-    if (!parentInfo) {
-      throw new FolderNotFoundError(parentPath);
-    }
+    ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 
-    const { data, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
+    const parentUuid = await getParentUuid({ ctx, path });
+
+    const { data: file, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
       ctx: {
         bucket: ctx.bucket,
         userUuid: ctx.userUuid,
@@ -31,13 +27,13 @@ export class FileCreator {
         workspaceToken: ctx.workspaceToken,
       },
       path,
-      parentUuid: parentInfo.uuid,
-      contentsId: contents.id,
-      size: contents.size,
+      parentUuid,
+      contentsId,
+      size,
     });
 
     if (error) throw error;
 
-    return data;
+    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
   }
 }

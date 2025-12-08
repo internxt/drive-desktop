@@ -1,55 +1,52 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { Addon } from '@/node-win/addon-wrapper';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 
 type TProps = {
   ctx: ProcessSyncContext;
   stats: Stats;
   path: AbsolutePath;
-  uuid: string;
+  uuid: FileUuid;
 };
 
 export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
   try {
-    if (stats.size === 0) {
+    const { size } = stats;
+
+    if (size === 0) {
       ctx.logger.warn({ msg: 'File is empty', path });
       return;
     }
 
-    if (stats.size > SyncModule.MAX_FILE_SIZE) {
-      ctx.logger.warn({ msg: 'File size is too big', path, size: stats.size });
+    if (size > SyncModule.MAX_FILE_SIZE) {
+      ctx.logger.warn({ msg: 'File size is too big', path, size });
       ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'FILE_SIZE_TOO_BIG', name: path });
       return;
     }
 
-    const contents = await ContentsUploader.run({ ctx, path, stats });
+    const contentsId = await ContentsUploader.run({ ctx, path, size });
 
-    const { data: fileDto, error } = await driveServerWip.files.replaceFile({
+    const { error } = await ipcRendererDriveServerWip.invoke('persistReplaceFile', {
+      ctx: {
+        bucket: ctx.bucket,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
+        workspaceToken: ctx.workspaceToken,
+      },
+      path,
       uuid,
-      newContentId: contents.id,
-      newSize: contents.size,
+      size,
       modificationTime: stats.mtime.toISOString(),
+      contentsId,
     });
 
     if (error) throw error;
-
-    await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
-      file: {
-        ...fileDto,
-        size: Number(fileDto.size),
-        isDangledStatus: false,
-        userUuid: ctx.userUuid,
-        workspaceId: ctx.workspaceId,
-      },
-      bucket: ctx.bucket,
-      path,
-    });
 
     await Addon.updateSyncStatus({ path });
   } catch (exc) {

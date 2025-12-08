@@ -10,7 +10,15 @@ type TProps = {
 export async function addPendingFiles({ ctx, createFiles }: TProps) {
   await Promise.all(
     createFiles.map(async ({ path, stats }) => {
-      await AddController.createFile({ ctx, path, stats });
+      try {
+        await AddController.createFile({ ctx, path, stats });
+      } catch (error) {
+        ctx.logger.error({
+          msg: 'Error adding pending file',
+          path,
+          error,
+        });
+      }
     }),
   );
 }

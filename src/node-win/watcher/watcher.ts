@@ -15,14 +15,6 @@ export class Watcher {
 
   constructor(public readonly options: WatchOptions) {}
 
-  private onError = (error: unknown) => {
-    logger.error({ msg: 'onError', error });
-  };
-
-  private onReady = () => {
-    logger.debug({ msg: 'onReady' });
-  };
-
   watchAndWait({ ctx }: { ctx: ProcessSyncContext }) {
     try {
       this.chokidar = watch(ctx.rootPath, this.options);
@@ -45,8 +37,8 @@ export class Watcher {
         .on('unlink', (path) => unlinkFile({ ctx, path: abs(path) }))
         .on('unlinkDir', (path) => unlinkFolder({ ctx, path: abs(path) }))
         .on('raw', (event, path, details) => debounceOnRaw({ ctx, event, path: abs(path), details }))
-        .on('error', this.onError)
-        .on('ready', this.onReady);
+        .on('error', (error) => ctx.logger.error({ msg: 'onError', error }))
+        .on('ready', () => ctx.logger.debug({ msg: 'onReady' }));
     } catch (exc) {
       logger.error({ msg: 'watchAndWait', exc });
     }

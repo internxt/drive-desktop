@@ -59,7 +59,7 @@ describe('create-placeholder', () => {
 
   beforeEach(() => {
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
-    environmentFileUploader.run.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
+    environmentFileUploader.run.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
   });
 
   afterAll(async () => {
@@ -88,7 +88,7 @@ describe('create-placeholder', () => {
         createdAt: new Date().toISOString(),
         creationTime: new Date().toISOString(),
         encryptVersion: 'encryptVersion',
-        fileId: '012345678901234567890123',
+        fileId: 'contentsId',
         folderId: 1,
         folderUuid: rootFolderUuid,
         id: 1,
@@ -122,7 +122,7 @@ describe('create-placeholder', () => {
       { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
-      { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: file, contentsId: '012345678901234567890123', size: 7 },
+      { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
       {
         msg: 'Change event triggered',
         path: file,
