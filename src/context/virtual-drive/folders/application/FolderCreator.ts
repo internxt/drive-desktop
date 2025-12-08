@@ -15,7 +15,7 @@ export class FolderCreator {
 
     const parentUuid = await getParentUuid({ ctx, path });
 
-    const { data: folder, error: error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
+    const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
       ctx: {
         bucket: ctx.bucket,
         userUuid: ctx.userUuid,
