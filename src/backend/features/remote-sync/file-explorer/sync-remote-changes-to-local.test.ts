@@ -12,8 +12,8 @@ describe('sync-remote-to-local', () => {
   partialSpyOn(Addon, 'setPinState');
   const updatePlaceholderMock = partialSpyOn(Addon, 'updatePlaceholder');
 
-  const localDate = new Date('1999-01-01T00:00:00.000Z');
-  const remoteDate = new Date('2025-01-01T00:00:00.000Z');
+  const localDate = new Date('2000-01-01');
+  const remoteDate = new Date('2000-01-02');
   let props: Parameters<typeof syncRemoteChangesToLocal>[0];
 
   beforeEach(() => {
@@ -35,9 +35,9 @@ describe('sync-remote-to-local', () => {
     });
   });
 
-  it('should not sync when remote file is older', async () => {
+  it('should not sync when local file is older', async () => {
     // Given
-    props.local.stats.mtime = new Date('2026-01-01T00:00:00.000Z');
+    props.local.stats.mtime = new Date('2000-01-03');
     // When
     await syncRemoteChangesToLocal(props);
     // Then

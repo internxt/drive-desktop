@@ -61,7 +61,7 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(3000);
 
     // Then
-    calls(onAllMock).toMatchObject([
+    calls(onAllMock).toStrictEqual([
       { event: 'add', path },
       { event: 'change', path },
     ]);
