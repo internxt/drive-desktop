@@ -6,7 +6,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFileInfoError extends Error {
   constructor(
-    public readonly code: 'NON_EXISTS' | 'NOT_A_FILE',
+    public readonly code: 'NOT_A_PLACEHOLDER' | 'NOT_A_FILE' | 'UNKNOWN',
     cause?: unknown,
   ) {
     super(code, { cause });
@@ -31,6 +31,10 @@ export async function getFileInfo({ path }: TProps) {
 
     return { data: { placeholderId, uuid, pinState } };
   } catch (error) {
-    return { error: new GetFileInfoError('NON_EXISTS', error) };
+    if (error === '[GetPlaceholderInfoAsync] WinRT error: [CfGetPlaceholderInfo] The file is not a cloud file. (HRESULT: 0x80070178)') {
+      return { error: new GetFileInfoError('NOT_A_PLACEHOLDER', error) };
+    }
+
+    return { error: new GetFileInfoError('UNKNOWN', error) };
   }
 }

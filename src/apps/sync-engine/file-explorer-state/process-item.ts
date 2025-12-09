@@ -22,7 +22,7 @@ export async function processItem({ ctx, localItem, state, remoteFilesMap }: Pro
   if (stats.isDirectory()) {
     const { error } = await NodeWin.getFolderInfo({ ctx, path });
 
-    if (error && error.code === 'NON_EXISTS') {
+    if (error && error.code === 'NOT_A_PLACEHOLDER') {
       state.createFolders.push(pendingFileExplorerItem);
     }
   }
@@ -41,7 +41,7 @@ export async function processItem({ ctx, localItem, state, remoteFilesMap }: Pro
       }
     }
 
-    if (error && error.code === 'NON_EXISTS') {
+    if (error && error.code === 'NOT_A_PLACEHOLDER') {
       state.createFiles.push(pendingFileExplorerItem);
     }
   }

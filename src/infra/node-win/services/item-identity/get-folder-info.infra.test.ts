@@ -9,6 +9,7 @@ import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Addon } from '@/node-win/addon-wrapper';
+import { mkdir } from 'node:fs/promises';
 
 describe('get-folder-info', () => {
   const providerId = `{${v4()}}`;
@@ -31,7 +32,7 @@ describe('get-folder-info', () => {
     await Addon.unregisterSyncRoot({ providerId });
   });
 
-  it('should return root info when read root path', async () => {
+  it('should return root data when path is root', async () => {
     // Given
     props.path = rootPath;
     // When
@@ -41,10 +42,10 @@ describe('get-folder-info', () => {
     expect(error).toStrictEqual(undefined);
   });
 
-  it('should return folder info when read a folder placeholder', async () => {
+  it('should return data when path is a folder placeholder', async () => {
     // Given
-    const path = join(rootPath, 'folder');
     const uuid = v4();
+    const path = join(rootPath, uuid);
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = path;
 
@@ -56,10 +57,10 @@ describe('get-folder-info', () => {
     expect(error).toStrictEqual(undefined);
   });
 
-  it('should return error NOT_A_FILE when read a folder placeholder', async () => {
+  it('should return error NOT_A_FOLDER when path is a file placeholder', async () => {
     // Given
-    const path = join(rootPath, 'file.txt');
     const uuid = v4();
+    const path = join(rootPath, uuid);
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
 
@@ -68,16 +69,32 @@ describe('get-folder-info', () => {
     const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFolderInfoError('NOT_A_FILE'));
+    expect(error).toStrictEqual(new GetFolderInfoError('NOT_A_FOLDER'));
   });
 
-  it('should return error NON_EXISTS when the path does not exist', async () => {
+  it('should return error NOT_A_PLACEHOLDER when the path is not a placeholder', async () => {
+    // Given
+    props.path = join(rootPath, v4());
+    await mkdir(props.path);
+    // When
+    const { data, error } = await getFolderInfo(props);
+    // Then
+    expect(data).toStrictEqual(undefined);
+    expect(error).toStrictEqual(
+      new GetFolderInfoError(
+        'NOT_A_PLACEHOLDER',
+        '[GetPlaceholderInfoAsync] WinRT error: [CfGetPlaceholderInfo] The file is not a cloud file. (HRESULT: 0x80070178)',
+      ),
+    );
+  });
+
+  it('should return error UNKNOWN when the path does not exist', async () => {
     // Given
     props.path = join(rootPath, v4());
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFolderInfoError('NON_EXISTS'));
+    expect(error).toStrictEqual(new GetFolderInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
   });
 });

@@ -34,7 +34,7 @@ describe('process-item', () => {
 
     it('should be added to create folders if not exists', async () => {
       // Given
-      getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NON_EXISTS') });
+      getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
       // When
       await processItem(props);
       // Then
@@ -69,7 +69,7 @@ describe('process-item', () => {
 
     it('should be added to create files if not exists', async () => {
       // Given
-      getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NON_EXISTS') });
+      getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NOT_A_PLACEHOLDER') });
       // When
       await processItem(props);
       // Then

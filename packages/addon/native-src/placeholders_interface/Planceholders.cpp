@@ -39,6 +39,7 @@ winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD 
         nullptr)};
 
     if (!fileHandle) {
+        // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
         throw std::runtime_error("Failed to open file handle: " + std::to_string(GetLastError()));
     }
 
