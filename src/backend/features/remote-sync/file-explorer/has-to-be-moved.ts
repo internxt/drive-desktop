@@ -1,11 +1,12 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   ctx: SyncContext;
-  remote: ExtendedDriveFile;
+  remote: ExtendedDriveFile | ExtendedDriveFolder;
   localPath: AbsolutePath;
 };
 
