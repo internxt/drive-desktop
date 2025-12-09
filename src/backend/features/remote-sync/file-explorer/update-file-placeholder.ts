@@ -31,7 +31,7 @@ export class FilePlaceholderUpdater {
 
       const remotePath = remote.absolutePath;
       const localPath = local.path;
-      const isMoved = hasToBeMoved({ ctx, remotePath, localPath });
+      const isMoved = await hasToBeMoved({ ctx, remote, localPath });
 
       if (isMoved) {
         ctx.logger.debug({
