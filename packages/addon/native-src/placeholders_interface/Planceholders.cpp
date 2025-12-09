@@ -46,24 +46,6 @@ winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD 
     return fileHandle;
 }
 
-void Placeholders::UpdateFileIdentity(const std::wstring& path, const std::wstring& placeholderId)
-{
-    auto fileHandle = OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
-
-    check_hresult(
-        "CfUpdatePlaceholder",
-        CfUpdatePlaceholder(
-            fileHandle.get(),
-            nullptr,
-            placeholderId.c_str(),
-            static_cast<DWORD>(placeholderId.size() * sizeof(wchar_t)),
-            nullptr,
-            0,
-            CF_UPDATE_FLAG_NONE,
-            nullptr,
-            nullptr));
-}
-
 FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
 {
     auto fileHandle = OpenFileHandle(path, FILE_READ_ATTRIBUTES, true);

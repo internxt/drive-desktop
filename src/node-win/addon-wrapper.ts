@@ -8,6 +8,7 @@ import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/Fold
 import { posix, win32 } from 'node:path';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
+import { PinState } from './types/placeholder.type';
 
 function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -69,6 +70,14 @@ export class Addon {
   static async getPlaceholderState({ path }: { path: AbsolutePath }) {
     const result = await addon.getPlaceholderState(toWin32(path));
     return parseAddonZod('getPlaceholderState', result);
+  }
+
+  static async updatePlaceholder({ path, placeholderId, size }: { path: AbsolutePath; placeholderId: FilePlaceholderId; size: number }) {
+    await addon.updatePlaceholder(toWin32(path), placeholderId, size);
+  }
+
+  static async setPinState({ path, pinState }: { path: AbsolutePath; pinState: PinState }) {
+    await addon.setPinState(toWin32(path), pinState);
   }
 
   static async createFilePlaceholder({
