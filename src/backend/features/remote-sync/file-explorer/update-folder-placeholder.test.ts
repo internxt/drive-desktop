@@ -23,7 +23,7 @@ describe('update-folder-placeholder', () => {
   let props: Parameters<typeof FolderPlaceholderUpdater.update>[0];
 
   beforeEach(() => {
-    validateWindowsNameMock.mockResolvedValue({ isValid: true });
+    validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof FolderPlaceholderUpdater.update>({
       folders: new Map([['uuid' as FolderUuid, { path: 'localPath' as AbsolutePath }]]),
@@ -38,7 +38,7 @@ describe('update-folder-placeholder', () => {
 
   it('should do nothing if name is invalid', async () => {
     // Given
-    validateWindowsNameMock.mockResolvedValue({ isValid: false });
+    validateWindowsNameMock.mockReturnValue({ isValid: false });
     // When
     await FolderPlaceholderUpdater.update(props);
     // Then
