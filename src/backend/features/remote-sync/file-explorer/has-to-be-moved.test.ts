@@ -12,12 +12,15 @@ describe('has-to-be-moved', () => {
   let props: Parameters<typeof hasToBeMoved>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof hasToBeMoved>({ remotePath, localPath });
+    props = mockProps<typeof hasToBeMoved>({
+      remote: { absolutePath: remotePath },
+      localPath,
+    });
   });
 
   it('should return false if path is the same', async () => {
     // Given
-    props.remotePath = props.localPath;
+    props.remote.absolutePath = props.localPath;
     // When
     const hasBeenMoved = await hasToBeMoved(props);
     // Then
@@ -26,18 +29,8 @@ describe('has-to-be-moved', () => {
 
   it('should return false if local parent does not exist', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({});
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    // When
-    const hasBeenMoved = await hasToBeMoved(props);
-    // Then
-    expect(hasBeenMoved).toBe(false);
-  });
-
-  it('should return false if remote parent does not exist', async () => {
-    // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({});
+    props.remote.parentUuid = 'uuid' as FolderUuid;
+    getFolderInfoMock.mockResolvedValue({});
     // When
     const hasBeenMoved = await hasToBeMoved(props);
     // Then
@@ -46,8 +39,8 @@ describe('has-to-be-moved', () => {
 
   it('should return false if both parents have the same uuid', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    props.remote.parentUuid = 'uuid' as FolderUuid;
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     // When
     const hasBeenMoved = await hasToBeMoved(props);
     // Then
@@ -56,8 +49,8 @@ describe('has-to-be-moved', () => {
 
   it('should return true if both parents have different uuid', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid1' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid2' as FolderUuid } });
+    props.remote.parentUuid = 'uuid1' as FolderUuid;
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid2' as FolderUuid } });
     // When
     const hasBeenMoved = await hasToBeMoved(props);
     // Then
@@ -66,7 +59,7 @@ describe('has-to-be-moved', () => {
 
   it('should return true if item has been renamed but not moved', async () => {
     // Given
-    props.remotePath = abs('/drive/folder/old');
+    props.remote.absolutePath = abs('/drive/folder/old');
     props.localPath = abs('/drive/folder/new');
     // When
     const hasBeenMoved = await hasToBeMoved(props);
@@ -84,10 +77,10 @@ describe('has-to-be-moved', () => {
    */
   it('should return false if item has been renamed but both parents have the same uuid', async () => {
     // Given
-    props.remotePath = abs('/drive/folder1/folder2/old');
+    props.remote.absolutePath = abs('/drive/folder1/folder2/old');
     props.localPath = abs('/drive/folder3/folder2/new');
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
-    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    props.remote.parentUuid = 'uuid' as FolderUuid;
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     // When
     const hasBeenMoved = await hasToBeMoved(props);
     // Then

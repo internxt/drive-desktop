@@ -14,7 +14,7 @@ export class FolderPlaceholderUpdater {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const local = folders[remote.uuid];
+      const local = folders.get(remote.uuid);
 
       if (!local) {
         await Addon.createFolderPlaceholder({
@@ -29,7 +29,7 @@ export class FolderPlaceholderUpdater {
 
       const remotePath = remote.absolutePath;
       const localPath = local.path;
-      const isMoved = await hasToBeMoved({ ctx, remotePath, localPath });
+      const isMoved = await hasToBeMoved({ ctx, remote, localPath });
 
       if (isMoved) {
         ctx.logger.debug({
@@ -51,11 +51,7 @@ export class FolderPlaceholderUpdater {
   }
 
   static async run({ ctx, remotes, folders }: { ctx: SyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
-    await Promise.all(
-      remotes.map(async (remote) => {
-        if (remote.absolutePath === ctx.rootPath) return;
-        await this.update({ ctx, remote, folders });
-      }),
-    );
+    const promises = remotes.map((remote) => this.update({ ctx, remote, folders }));
+    await Promise.all(promises);
   }
 }

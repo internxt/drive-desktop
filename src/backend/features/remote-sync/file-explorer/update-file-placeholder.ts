@@ -15,7 +15,7 @@ export class FilePlaceholderUpdater {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const local = files[remote.uuid];
+      const local = files.get(remote.uuid);
 
       if (!local) {
         await Addon.createFilePlaceholder({
@@ -31,7 +31,7 @@ export class FilePlaceholderUpdater {
 
       const remotePath = remote.absolutePath;
       const localPath = local.path;
-      const isMoved = await hasToBeMoved({ ctx, remotePath, localPath });
+      const isMoved = await hasToBeMoved({ ctx, remote, localPath });
 
       if (isMoved) {
         ctx.logger.debug({
