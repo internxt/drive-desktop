@@ -43,8 +43,14 @@ void execute_work(napi_env env, void* data)
         }
 
         asyncWork->success = true;
+    } catch (const winrt::hresult_error& e) {
+        asyncWork->error = std::format("[{}] WinRT error: {} (HRESULT: 0x{:x})", asyncWork->function_name.c_str(), winrt::to_string(e.message()), static_cast<uint32_t>(e.code()));
+        asyncWork->success = false;
+    } catch (const std::exception& e) {
+        asyncWork->error = std::format("[{}] {}", asyncWork->function_name.c_str(), e.what());
+        asyncWork->success = false;
     } catch (...) {
-        asyncWork->error = format_exception_message(asyncWork->function_name.c_str());
+        asyncWork->error = std::format("[{}] Unknown native error", asyncWork->function_name.c_str());
         asyncWork->success = false;
     }
 }
