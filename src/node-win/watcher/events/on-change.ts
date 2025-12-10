@@ -51,10 +51,6 @@ export async function onChange({ ctx, path }: Props) {
       }
     }
   } catch (error) {
-    ctx.logger.error({
-      msg: 'Error on change event',
-      path,
-      error,
-    });
+    ctx.logger.error({ msg: 'Error on change event', path, error });
   }
 }

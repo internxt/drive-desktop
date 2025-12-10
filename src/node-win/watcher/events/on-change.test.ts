@@ -42,53 +42,31 @@ describe('on-change', () => {
     await onChange(props);
     // Then
     call(updateContentsIdMock).toMatchObject({ path });
+    calls(handleDehydrateMock).toHaveLength(0);
+    calls(throttleHydrateMock).toHaveLength(0);
   });
 
-  describe('what happens when dehydrate event', () => {
-    beforeEach(() => {
-      getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
-    });
-
-    it('should dehydrate when current blocks are not 0', async () => {
-      // Given
-      statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
-      // When
-      await onChange(props);
-      // Then
-      call(handleDehydrateMock).toMatchObject({ path: props.path });
-    });
-
-    it('should not dehydrate when current blocks are 0', async () => {
-      // Given
-      statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 0 });
-      // When
-      await onChange(props);
-      // Then
-      calls(handleDehydrateMock).toHaveLength(0);
-    });
+  it('should hydrate when ctime is modified and current current blocks are 0', async () => {
+    // Given
+    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 0 });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
+    // When
+    await onChange(props);
+    // Then
+    calls(updateContentsId).toHaveLength(0);
+    calls(handleDehydrateMock).toHaveLength(0);
+    call(throttleHydrateMock).toMatchObject({ path: props.path });
   });
 
-  describe('what happens when hydrate event', () => {
-    beforeEach(() => {
-      getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
-    });
-
-    it('should hydrate when current blocks are 0', async () => {
-      // Given
-      statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 0 });
-      // When
-      await onChange(props);
-      // Then
-      call(throttleHydrateMock).toMatchObject({ path: props.path });
-    });
-
-    it('should not hydrate when current blocks are not 0', async () => {
-      // Given
-      statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
-      // When
-      await onChange(props);
-      // Then
-      calls(throttleHydrateMock).toHaveLength(0);
-    });
+  it('should dehydrate when ctime is modified and current blocks are not 0', async () => {
+    // Given
+    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
+    // When
+    await onChange(props);
+    // Then
+    calls(updateContentsId).toHaveLength(0);
+    call(handleDehydrateMock).toMatchObject({ path: props.path });
+    calls(throttleHydrateMock).toHaveLength(0);
   });
 });
