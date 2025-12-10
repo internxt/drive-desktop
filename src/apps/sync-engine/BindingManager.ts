@@ -1,7 +1,6 @@
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessSyncContext } from './config';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
@@ -52,11 +51,5 @@ export class BindingsManager {
      * all item placeholders and then execute this function.
      */
     void addPendingItems({ ctx });
-  }
-
-  static watch({ ctx }: { ctx: ProcessSyncContext }) {
-    const { watcher } = createWatcher();
-
-    watcher.watchAndWait({ ctx });
   }
 }

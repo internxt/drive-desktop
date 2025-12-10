@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { setupWatcher, getEvents } from '../watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { onAdd } from './on-add.service';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('./on-add.service'));
@@ -22,12 +21,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    getEvents().toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'addDir', path: folder },
-      ]),
-    );
+    getEvents().toMatchObject([{ event: 'addDir', path: folder }]);
   });
 
   it('When add a file, then emit one add event', async () => {
@@ -42,12 +36,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    getEvents().toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([{ event: 'add', path: file, stats: { size: 7 } }]);
   });
 
   it('When add a file of zero size, then emit one add event', async () => {
@@ -62,19 +51,7 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(onAdd).toHaveBeenCalledWith(
-      expect.objectContaining({
-        path: file,
-        stats: expect.objectContaining({ size: 0 }),
-      }),
-    );
-
-    getEvents().toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([{ event: 'add', path: file, stats: { size: 0 } }]);
   });
 
   it('When add a folder and a file inside, then emit one addDir and one add event', async () => {
@@ -91,12 +68,9 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    getEvents().toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'addDir', path: folder },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([
+      { event: 'addDir', path: folder },
+      { event: 'add', path: file },
+    ]);
   });
 });

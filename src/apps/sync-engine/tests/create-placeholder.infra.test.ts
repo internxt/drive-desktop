@@ -4,7 +4,7 @@ import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
@@ -20,6 +20,7 @@ import { PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
+import { initWatcher } from '@/node-win/watcher/watcher';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -107,14 +108,18 @@ describe('create-placeholder', () => {
     // When
     await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
     await BindingsManager.start({ ctx });
-    BindingsManager.watch({ ctx });
+    initWatcher({ ctx });
 
     await sleep(100);
     await writeFile(file, 'content');
     await sleep(5000);
 
     // Then
-    call(onAllMock).toStrictEqual({ event: 'add', path: file });
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path: file },
+      { event: 'change', path: file },
+    ]);
+
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
@@ -124,10 +129,14 @@ describe('create-placeholder', () => {
       { msg: 'Create file', path: file },
       { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
       {
-        msg: 'Change event triggered',
+        msg: 'On change event',
         path: file,
         pinState: PinState.Unspecified,
-        diff: { ctimeMs: { curr: expect.any(Number), prev: expect.any(Number) } },
+        blocks: 0,
+        ctime: expect.any(Date),
+        mtime: expect.any(Date),
+        isChanged: true,
+        isModified: true,
       },
     ]);
   });

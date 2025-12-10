@@ -22,8 +22,12 @@ export async function processItem({ ctx, localItem, state, remoteFilesMap }: Pro
   if (stats.isDirectory()) {
     const { error } = await NodeWin.getFolderInfo({ ctx, path });
 
-    if (error && error.code === 'NOT_A_PLACEHOLDER') {
-      state.createFolders.push(pendingFileExplorerItem);
+    if (error) {
+      if (error.code === 'NOT_A_PLACEHOLDER') {
+        state.createFolders.push(pendingFileExplorerItem);
+      } else {
+        ctx.logger.error({ msg: 'Error getting folder info', path, error });
+      }
     }
   }
 
@@ -41,8 +45,12 @@ export async function processItem({ ctx, localItem, state, remoteFilesMap }: Pro
       }
     }
 
-    if (error && error.code === 'NOT_A_PLACEHOLDER') {
-      state.createFiles.push(pendingFileExplorerItem);
+    if (error) {
+      if (error.code === 'NOT_A_PLACEHOLDER') {
+        state.createFiles.push(pendingFileExplorerItem);
+      } else {
+        ctx.logger.error({ msg: 'Error getting file info', path, error });
+      }
     }
   }
 }

@@ -1,29 +1,28 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { onRaw } from './on-raw.service';
+import { abs, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { onChange } from './on-change';
 
-export const timeouts = new Map<string, NodeJS.Timeout>();
+export const timeouts = new Map<AbsolutePath, NodeJS.Timeout>();
 
 type TProps = {
   ctx: ProcessSyncContext;
   event: string;
-  path: AbsolutePath;
-  details: unknown;
+  details: any;
 };
 
-export function debounceOnRaw(props: TProps) {
-  const key = `${props.event}:${props.path}`;
+export function debounceOnRaw({ ctx, event, details }: TProps) {
+  if (event !== 'change') return;
 
-  const currTimeout = timeouts.get(key);
+  const path = abs(details.watchedPath);
 
-  if (currTimeout) {
-    clearTimeout(currTimeout);
-  }
+  let timeout = timeouts.get(path);
 
-  const timeout = setTimeout(() => {
-    void onRaw(props);
-    timeouts.delete(key);
+  if (timeout) clearTimeout(timeout);
+
+  timeout = setTimeout(async () => {
+    timeouts.delete(path);
+    await onChange({ ctx, path });
   }, 2000);
 
-  timeouts.set(key, timeout);
+  timeouts.set(path, timeout);
 }

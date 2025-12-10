@@ -15,6 +15,7 @@ export async function handleHydrate({ ctx, path }: TProps) {
     ctx.logger.debug({ msg: 'Hydrating file', path });
 
     await Addon.hydrateFile({ path });
+    await Addon.updateSyncStatus({ path });
 
     ctx.logger.debug({ msg: 'File hydrated', path });
   } catch (error) {
