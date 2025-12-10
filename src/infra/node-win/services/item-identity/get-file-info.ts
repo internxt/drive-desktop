@@ -19,7 +19,7 @@ type TProps = {
 
 export function getFileInfo({ path }: TProps) {
   try {
-    const { placeholderId: rawPlaceholderId, pinState } = Addon.getPlaceholderState({ path });
+    const { placeholderId: rawPlaceholderId, pinState } = await Addon.getPlaceholderState({ path });
     const isFile = isFilePlaceholderId(rawPlaceholderId);
 
     if (!isFile) {
