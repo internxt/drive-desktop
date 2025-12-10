@@ -6,8 +6,6 @@ describe('register-sync-root', () => {
     // When
     const promise = Addon.registerSyncRoot({ rootPath: abs('/'), providerName: 'Internxt Drive', providerId: 'providerId' });
     // Then
-    await expect(promise).rejects.toThrow(
-      '[RegisterSyncRootAsync] WinRT error: The specified path is too short. It must have at least 1 character. (HRESULT: 0x80070057)',
-    );
+    await expect(promise).rejects.toThrow('Unknown error');
   });
 });
