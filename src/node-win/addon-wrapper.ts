@@ -32,9 +32,18 @@ function parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
 }
 
 export class Addon {
-  static registerSyncRoot({ rootPath, providerName, providerId }: { rootPath: AbsolutePath; providerName: string; providerId: string }) {
+  static async registerSyncRoot({
+    rootPath,
+    providerName,
+    providerId,
+  }: {
+    rootPath: AbsolutePath;
+    providerName: string;
+    providerId: string;
+  }) {
     logger.debug({ msg: 'Register sync root', rootPath });
-    addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
+    console.log('REGISTER', providerId, this.getRegisteredSyncRoots());
+    await addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
   }
 
   static getRegisteredSyncRoots() {
@@ -49,8 +58,8 @@ export class Addon {
 
   static async unregisterSyncRoot({ providerId }: { providerId: string }) {
     logger.debug({ msg: 'Unregister sync root', providerId });
-    const result = await addon.unregisterSyncRoot(providerId);
-    return parseAddonZod('unregisterSyncRoot', result);
+    console.log('UNREGISTER', providerId, this.getRegisteredSyncRoots());
+    await addon.unregisterSyncRoot(providerId);
   }
 
   static async disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
