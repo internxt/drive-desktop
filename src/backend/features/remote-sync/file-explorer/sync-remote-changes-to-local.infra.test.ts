@@ -11,7 +11,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
 import * as debounceOnRaw from '@/node-win/watcher/events/debounce-on-raw';
 import { Addon } from '@/node-win/addon-wrapper';
-import { createWatcher } from '@/apps/sync-engine/create-watcher';
+import { initWatcher } from '@/node-win/watcher/watcher';
 
 describe('sync-remote-changes-to-local', () => {
   partialSpyOn(onAdd, 'onAdd');
@@ -34,9 +34,8 @@ describe('sync-remote-changes-to-local', () => {
 
   it('should sync remote changes to local', async () => {
     // Given
-    const { watcher } = createWatcher();
-    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { rootPath } });
-    watcher.watchAndWait(watcherProps);
+    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
+    initWatcher(watcherProps);
     await sleep(100);
 
     await writeFile(path, 'content');

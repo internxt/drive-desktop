@@ -43,7 +43,7 @@ export function initWatcher({ ctx, options }: Props) {
      */
     .on('unlink', (path) => unlinkFile({ ctx, path: abs(path) }))
     .on('unlinkDir', (path) => unlinkFolder({ ctx, path: abs(path) }))
-    .on('raw', (event, _, details) => debounceOnRaw({ ctx, event, details }))
+    .on('raw', (event, _, details) => debounceOnRaw({ ctx, event, details: details as { watchedPath: string } }))
     .on('error', (error) => ctx.logger.error({ msg: 'onError', error }))
     .on('ready', () => ctx.logger.debug({ msg: 'onReady' }));
 
