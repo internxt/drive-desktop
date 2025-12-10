@@ -68,16 +68,21 @@ describe('get-file-info', () => {
     const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFileInfoError('NOT_A_PLACEHOLDER', 'Unknown error'));
+    expect(error).toStrictEqual(
+      new GetFileInfoError(
+        'NOT_A_PLACEHOLDER',
+        '[GetPlaceholderInfoAsync] WinRT error: [CfGetPlaceholderInfo] The file is not a cloud file. (HRESULT: 0x80070178)',
+      ),
+    );
   });
 
-  it('should return error UNKNOWN when path does not exist', async () => {
+  it('should return error UNKNOWN when the path does not exist', async () => {
     // Given
     props.path = join(rootPath, v4());
     // When
     const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', 'Failed to open file handle: 2'));
+    expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
   });
 });

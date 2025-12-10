@@ -1,5 +1,6 @@
 #pragma once
 
+#include <napi_safe_wrap.h>
 #include <napi_serializers.h>
 #include <node_api.h>
 
@@ -14,6 +15,7 @@ struct AsyncWorkWrapper {
     napi_deferred deferred;
     std::function<R()> fn;
     std::string error;
+    std::string function_name;
     bool success;
     R result;
 };
@@ -24,6 +26,7 @@ struct AsyncWorkWrapper<void> {
     napi_deferred deferred;
     std::function<void()> fn;
     std::string error;
+    std::string function_name;
     bool success;
 };
 
@@ -41,10 +44,7 @@ void execute_work(napi_env env, void* data)
 
         asyncWork->success = true;
     } catch (const std::exception& e) {
-        asyncWork->error = e.what();
-        asyncWork->success = false;
-    } catch (...) {
-        asyncWork->error = "Unknown error";
+        asyncWork->error = format_exception_message(asyncWork->function_name.c_str());
         asyncWork->success = false;
     }
 }
