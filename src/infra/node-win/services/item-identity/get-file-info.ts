@@ -31,7 +31,7 @@ export async function getFileInfo({ path }: TProps) {
 
     return { data: { placeholderId, uuid, pinState } };
   } catch (error) {
-    if (error === 'Unknown error') {
+    if (error === '[GetPlaceholderInfoAsync] WinRT error: [CfGetPlaceholderInfo] The file is not a cloud file. (HRESULT: 0x80070178)') {
       return { error: new GetFileInfoError('NOT_A_PLACEHOLDER', error) };
     }
 
