@@ -1,4 +1,4 @@
-import { watch, WatchOptions } from 'chokidar';
+import { watch } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
 import { onAdd } from './events/on-add.service';
