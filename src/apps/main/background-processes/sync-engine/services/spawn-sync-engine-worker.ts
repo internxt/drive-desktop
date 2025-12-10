@@ -8,6 +8,9 @@ import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
 import { cleanSyncEngineWorker } from './stop-sync-engine-worker';
+import { Addon } from '@/node-win/addon-wrapper';
+import { addSyncIssue } from '../../issues';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 
 type TProps = {
   ctx: SyncContext;
@@ -17,6 +20,22 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
   ctx.logger.debug({ msg: 'Spawn sync engine worker' });
 
   try {
+    try {
+      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
+    } catch (error) {
+      addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
+      throw error;
+    }
+
+    /**
+     * Jonathan Arce v2.5.1
+     * The goal is to create/update/delete placeholders once the sync engine process spawns,
+     * also as we fetch from the backend and after the fetch finish to ensure that all placeholders are right.
+     * This one is for the first case, since maybe the sync engine failed in a previous fetching
+     * and we have some placeholders pending from being created/updated/deleted
+     */
+    await refreshItemPlaceholders({ ctx });
+
     const browserWindow = new BrowserWindow({
       show: false,
       webPreferences: {

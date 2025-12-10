@@ -1,11 +1,14 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export function getAllItems({ ctx }: { ctx: SyncContext }) {
-  return ipcRendererSyncEngine.invoke('GET_UPDATED_REMOTE_ITEMS', {
-    userUuid: ctx.userUuid,
-    workspaceId: ctx.workspaceId,
-  });
+export async function getAllItems({ ctx }: { ctx: SyncContext }) {
+  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+    SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
+    SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),
+  ]);
+
+  return { files, folders };
 }
 
 export function getExistingFiles({ ctx }: { ctx: SyncContext }) {

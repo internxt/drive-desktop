@@ -1,6 +1,5 @@
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
-import { updateSyncEngine } from '../background-processes/sync-engine';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { remoteSyncManagers } from './store';
@@ -10,6 +9,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 
 export function addRemoteSyncManager({ context }: { context: SyncContext }) {
   const remoteSyncManager = new RemoteSyncManager(context, context.workspaceId);
@@ -20,15 +20,6 @@ export function addRemoteSyncManager({ context }: { context: SyncContext }) {
 ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, { userUuid, workspaceId }) => {
   const { data: files = [] } = await SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId });
   return files;
-});
-
-ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', async (_, { userUuid, workspaceId }) => {
-  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-    SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId }),
-    SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId }),
-  ]);
-
-  return { files, folders };
 });
 
 export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager }) {
@@ -44,7 +35,7 @@ export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager
     await manager.startRemoteSync();
     manager.changeStatus('SYNCED');
 
-    updateSyncEngine(manager.workspaceId);
+    await refreshItemPlaceholders({ ctx: manager.context });
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');
     logger.error({

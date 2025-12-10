@@ -3,11 +3,9 @@ import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
 import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
-import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { checkDangledFiles } from './dangled-files/check-dangled-files';
 import { initWatcher } from '@/node-win/watcher/watcher';
 
@@ -22,11 +20,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await VirtualDrive.createSyncRootFolder({ rootPath });
 
-  await BindingsManager.start({ ctx });
-
-  ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await refreshItemPlaceholders({ ctx });
-  });
+  BindingsManager.start({ ctx });
 
   initWatcher({ ctx });
 
