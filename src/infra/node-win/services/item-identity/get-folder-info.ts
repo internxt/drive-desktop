@@ -21,6 +21,7 @@ type TProps = {
 };
 
 export function getFolderInfo({ ctx, path }: TProps) {
+  console.log('HEY');
   if (path === ctx.rootPath) {
     return {
       data: {
