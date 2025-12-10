@@ -3,6 +3,7 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Addon } from '@/node-win/addon-wrapper';
+import { initWatcher } from '@/node-win/watcher/watcher';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn, testSleep } from '@/tests/vitest/utils.helper.test';
 import { mkdir, rename, writeFile } from 'node:fs/promises';
@@ -10,7 +11,6 @@ import { v4 } from 'uuid';
 import { store } from './unlink/is-move-event';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { initWatcher } from '@/node-win/watcher/watcher';
 
 describe('move-file', () => {
   partialSpyOn(sleep, 'sleep');

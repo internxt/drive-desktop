@@ -7,7 +7,7 @@ export const timeouts = new Map<AbsolutePath, NodeJS.Timeout>();
 type TProps = {
   ctx: ProcessSyncContext;
   event: string;
-  details: any;
+  details: { watchedPath: string };
 };
 
 export function debounceOnRaw({ ctx, event, details }: TProps) {
