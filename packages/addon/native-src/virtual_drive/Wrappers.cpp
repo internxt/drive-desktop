@@ -11,6 +11,7 @@
 #include <register_sync_root.h>
 #include <unregister_sync_root_wrapper.h>
 #include <update_sync_status_wrapper.h>
+#include <virtual_drive.h>
 
 napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
 {
@@ -70,4 +71,14 @@ napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
 napi_value DehydrateFileWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, dehydrate_file_wrapper);
+}
+
+napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, update_placeholder_wrapper);
+}
+
+napi_value SetPinStateWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, set_pin_state_wrapper);
 }

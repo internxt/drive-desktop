@@ -1,33 +1,28 @@
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
-import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { existsSync } from 'node:fs';
 import { Addon } from '@/node-win/addon-wrapper';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
 
 describe('sync-remote-to-local', () => {
-  const createFilePlaceholderMock = partialSpyOn(Addon, 'createFilePlaceholder');
+  partialSpyOn(Addon, 'setPinState');
+  const updatePlaceholderMock = partialSpyOn(Addon, 'updatePlaceholder');
 
-  const unlinkMock = deepMocked(unlink);
-  const existsSyncMock = deepMocked(existsSync);
-
-  const date = '2025-01-01T00:00:00.000Z';
-  const time = new Date(date).getTime();
+  const localDate = new Date('2000-01-01');
+  const remoteDate = new Date('2000-01-02');
   let props: Parameters<typeof syncRemoteChangesToLocal>[0];
 
   beforeEach(() => {
-    existsSyncMock.mockReturnValue(true);
     props = mockProps<typeof syncRemoteChangesToLocal>({
       local: {
         path: 'localPath' as AbsolutePath,
         stats: {
           size: 512,
-          mtime: new Date('1999-01-01T00:00:00.000Z'),
+          mtime: localDate,
         },
       },
       remote: {
@@ -35,57 +30,42 @@ describe('sync-remote-to-local', () => {
         uuid: 'uuid' as FileUuid,
         name: 'file2',
         size: 1024,
-        createdAt: date,
-        updatedAt: date,
+        updatedAt: remoteDate.toISOString(),
       },
     });
   });
 
-  it('should sync remote changes to local when remote file is newer and has different size', async () => {
-    // Given/When
-    await syncRemoteChangesToLocal(props);
-    // Then
-    expect(unlinkMock).toBeCalledWith('localPath');
-    expect(createFilePlaceholderMock).toBeCalledWith({
-      path: 'remotePath',
-      placeholderId: 'FILE:uuid',
-      size: 1024,
-      creationTime: time,
-      lastWriteTime: time,
-    });
-  });
-
-  it('should not sync when remote file is not newer', async () => {
+  it('should not sync when local file is older', async () => {
     // Given
-    props.local.stats.mtime = new Date('2026-01-01T00:00:00.000Z');
+    props.local.stats.mtime = new Date('2000-01-03');
     // When
     await syncRemoteChangesToLocal(props);
     // Then
-    expect(unlinkMock).not.toBeCalled();
+    calls(updatePlaceholderMock).toHaveLength(0);
   });
 
-  it('should not sync when file sizes are the same', async () => {
+  it('should not sync when file sizes are equal', async () => {
     // Given
     props.local.stats.size = 1024;
     // When
     await syncRemoteChangesToLocal(props);
     // Then
-    expect(unlinkMock).not.toBeCalled();
+    calls(updatePlaceholderMock).toHaveLength(0);
+  });
+
+  it('should sync when remote file is newer and has different size', async () => {
+    // When
+    await syncRemoteChangesToLocal(props);
+    // Then
+    call(updatePlaceholderMock).toStrictEqual({ path: 'remotePath', placeholderId: 'FILE:uuid', size: 1024 });
   });
 
   it('should handle errors gracefully', async () => {
     // Given
-    createFilePlaceholderMock.mockImplementation(() => {
-      throw new Error('Creation failed');
-    });
+    updatePlaceholderMock.mockRejectedValue(new Error());
     // When
     await syncRemoteChangesToLocal(props);
     // Then
-    expect(loggerMock.error).toBeCalledTimes(1);
-    expect(loggerMock.error).toBeCalledWith({
-      msg: 'Error syncing remote changes to local',
-      path: props.remote.absolutePath,
-      error: expect.any(Error),
-    });
+    call(loggerMock.error).toMatchObject({ msg: 'Error syncing remote changes to local', path: props.remote.absolutePath });
   });
 });
