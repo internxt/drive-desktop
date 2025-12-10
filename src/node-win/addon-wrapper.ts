@@ -42,6 +42,7 @@ export class Addon {
     providerId: string;
   }) {
     logger.debug({ msg: 'Register sync root', rootPath });
+    console.log('REGISTER', providerId, this.getRegisteredSyncRoots());
     const result = await addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
     return parseAddonZod('registerSyncRoot', result);
   }
@@ -58,6 +59,7 @@ export class Addon {
 
   static async unregisterSyncRoot({ providerId }: { providerId: string }) {
     logger.debug({ msg: 'Unregister sync root', providerId });
+    console.log('UNREGISTER', providerId, this.getRegisteredSyncRoots());
     const result = await addon.unregisterSyncRoot(providerId);
     return parseAddonZod('unregisterSyncRoot', result);
   }

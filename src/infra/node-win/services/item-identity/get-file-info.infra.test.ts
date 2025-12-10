@@ -76,7 +76,7 @@ describe('get-file-info', () => {
     );
   });
 
-  it('should return error UNKNOWN when the path does not exist', async () => {
+  it('should return error UNKNOWN when path does not exist', async () => {
     // Given
     props.path = join(rootPath, v4());
     // When
