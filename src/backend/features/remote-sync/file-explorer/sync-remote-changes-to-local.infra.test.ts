@@ -63,6 +63,7 @@ describe('sync-remote-changes-to-local', () => {
     calls(onAllMock).toStrictEqual([
       { event: 'add', path },
       { event: 'change', path },
+      { event: 'change', path },
     ]);
 
     calls(loggerMock.error).toHaveLength(0);
