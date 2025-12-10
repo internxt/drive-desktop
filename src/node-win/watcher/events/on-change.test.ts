@@ -53,7 +53,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    calls(updateContentsId).toHaveLength(0);
+    calls(updateContentsIdMock).toHaveLength(0);
     calls(handleDehydrateMock).toHaveLength(0);
     call(throttleHydrateMock).toMatchObject({ path: props.path });
   });
@@ -65,7 +65,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    calls(updateContentsId).toHaveLength(0);
+    calls(updateContentsIdMock).toHaveLength(0);
     call(handleDehydrateMock).toMatchObject({ path: props.path });
     calls(throttleHydrateMock).toHaveLength(0);
   });
