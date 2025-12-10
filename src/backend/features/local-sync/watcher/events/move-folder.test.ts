@@ -3,7 +3,7 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Addon } from '@/node-win/addon-wrapper';
-import { Watcher } from '@/node-win/watcher/watcher';
+import { initWatcher } from '@/node-win/watcher/watcher';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn, testSleep } from '@/tests/vitest/utils.helper.test';
 import { mkdir, rename } from 'node:fs/promises';
@@ -46,9 +46,8 @@ describe('move-folder', () => {
     await mkdir(rootPath);
     await mkdir(folder1);
 
-    const watcher = new Watcher({ ignoreInitial: true });
-    const props = mockProps<typeof watcher.watchAndWait>({ ctx: { rootPath } });
-    watcher.watchAndWait(props);
+    const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
+    initWatcher(props);
     // When
     await testSleep(50);
     await rename(folder1, folder2);

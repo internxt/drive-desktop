@@ -1,17 +1,18 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { debounceOnRaw, timeouts } from './debounce-on-raw';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as onRaw from './on-raw.service';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as onChange from './on-change';
 
 describe('debounce-on-raw', () => {
-  const onRawMock = partialSpyOn(onRaw, 'onRaw');
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
 
+  const path = abs('path');
   let props: Parameters<typeof debounceOnRaw>[0];
 
   beforeEach(() => {
     vi.useFakeTimers();
     timeouts.clear();
-    props = mockProps<typeof debounceOnRaw>({ event: 'change', path: 'absolutePath' as AbsolutePath });
+    props = mockProps<typeof debounceOnRaw>({ event: 'change', details: { watchedPath: path } });
   });
 
   afterEach(() => {
@@ -23,8 +24,8 @@ describe('debounce-on-raw', () => {
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(1999);
-    expect(onRawMock).toBeCalledTimes(0);
-    expect(timeouts.has('change:absolutePath')).toBe(true);
+    expect(onChangeMock).toBeCalledTimes(0);
+    expect(timeouts.has(path)).toBe(true);
   });
 
   it('should call it after 2s', () => {
@@ -32,7 +33,7 @@ describe('debounce-on-raw', () => {
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(2000);
-    expect(onRawMock).toBeCalledTimes(1);
+    expect(onChangeMock).toBeCalledTimes(1);
     expect(timeouts.size).toBe(0);
   });
 
@@ -42,18 +43,18 @@ describe('debounce-on-raw', () => {
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(2000);
-    expect(onRawMock).toBeCalledTimes(1);
+    expect(onChangeMock).toBeCalledTimes(1);
     expect(timeouts.size).toBe(0);
   });
 
   it('should call just twice if key is different', () => {
     // When
     debounceOnRaw(props);
-    props.path = 'anotherPath' as AbsolutePath;
+    props.details.watchedPath = 'anotherPath';
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(2000);
-    expect(onRawMock).toBeCalledTimes(2);
+    expect(onChangeMock).toBeCalledTimes(2);
     expect(timeouts.size).toBe(0);
   });
 });
