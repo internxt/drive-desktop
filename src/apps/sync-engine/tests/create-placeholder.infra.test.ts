@@ -4,7 +4,7 @@ import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
