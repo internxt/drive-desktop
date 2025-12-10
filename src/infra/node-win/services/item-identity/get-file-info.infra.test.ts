@@ -11,7 +11,7 @@ import { Addon } from '@/node-win/addon-wrapper';
 import { writeFile } from 'node:fs/promises';
 
 describe('get-file-info', () => {
-  const providerId = `{${v4()}}`;
+  const providerId = v4();
   const testPath = join(TEST_FILES, v4());
   const rootPath = join(testPath, v4());
 
