@@ -43,7 +43,7 @@ void execute_work(napi_env env, void* data)
         }
 
         asyncWork->success = true;
-    } catch (const std::exception& e) {
+    } catch (...) {
         asyncWork->error = format_exception_message(asyncWork->function_name.c_str());
         asyncWork->success = false;
     }
@@ -84,6 +84,7 @@ napi_value run_async(napi_env env, const char* resource_name, Func&& fn, Args&&.
 
     auto asyncWork = std::make_unique<AsyncWorkWrapper<R>>();
     asyncWork->deferred = deferred;
+    asyncWork->function_name = resource_name;
 
     asyncWork->fn = [fn = std::forward<Func>(fn), ... args = std::forward<Args>(args)]() mutable {
         if constexpr (std::is_void_v<R>) {
