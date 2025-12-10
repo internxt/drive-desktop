@@ -42,8 +42,8 @@ describe('on-change', () => {
     await onChange(props);
     // Then
     call(updateContentsIdMock).toMatchObject({ path });
-    calls(handleDehydrateMock).toHaveLength(0);
     calls(throttleHydrateMock).toHaveLength(0);
+    calls(handleDehydrateMock).toHaveLength(0);
   });
 
   it('should hydrate when ctime is modified and current current blocks are 0', async () => {
@@ -54,8 +54,8 @@ describe('on-change', () => {
     await onChange(props);
     // Then
     calls(updateContentsIdMock).toHaveLength(0);
-    calls(handleDehydrateMock).toHaveLength(0);
     call(throttleHydrateMock).toMatchObject({ path });
+    calls(handleDehydrateMock).toHaveLength(0);
   });
 
   it('should dehydrate when ctime is modified and current blocks are not 0', async () => {
@@ -66,7 +66,7 @@ describe('on-change', () => {
     await onChange(props);
     // Then
     calls(updateContentsIdMock).toHaveLength(0);
-    call(handleDehydrateMock).toMatchObject({ path });
     calls(throttleHydrateMock).toHaveLength(0);
+    call(handleDehydrateMock).toMatchObject({ path });
   });
 });
