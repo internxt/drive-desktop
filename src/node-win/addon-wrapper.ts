@@ -42,6 +42,7 @@ export class Addon {
     providerId: string;
   }) {
     logger.debug({ msg: 'Register sync root', rootPath });
+    console.log('REGISTERRRRR', providerId, this.getRegisteredSyncRoots());
     const result = await addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
     return parseAddonZod('registerSyncRoot', result);
   }
