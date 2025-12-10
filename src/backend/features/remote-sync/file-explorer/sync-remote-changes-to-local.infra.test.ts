@@ -25,7 +25,7 @@ describe('sync-remote-changes-to-local', () => {
 
   beforeEach(async () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
-    await Addon.registerSyncRoot({ rootPath, providerId, providerName });
+    Addon.registerSyncRoot({ rootPath, providerId, providerName });
   });
 
   afterAll(async () => {

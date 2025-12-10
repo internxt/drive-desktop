@@ -52,15 +52,21 @@ describe('VirtualDrive', () => {
   });
 
   describe('When call registerSyncRoot', () => {
-    it('Then it assigns callbacks and calls addon.registerSyncRoot', async () => {
+    it('Then it assigns callbacks and calls addon.registerSyncRoot', () => {
       // Given
       const rootPath = abs('C:/Users/user/InternxtDrive');
       const providerId = v4();
       const providerName = 'InternxtDrive';
       // When
-      await Addon.registerSyncRoot({ rootPath, providerId, providerName });
+      Addon.registerSyncRoot({ rootPath, providerId, providerName });
       // Then
-      call(addon.registerSyncRoot).toStrictEqual(['C:\\Users\\user\\InternxtDrive', providerName, INTERNXT_VERSION, providerId, iconPath]);
+      call(addon.registerSyncRoot).toStrictEqual([
+        String.raw`C:\Users\user\InternxtDrive`,
+        providerName,
+        INTERNXT_VERSION,
+        providerId,
+        iconPath,
+      ]);
     });
   });
 });
