@@ -15,7 +15,7 @@ export function initWatcher({ ctx }: Props) {
   const watcher = watch(ctx.rootPath, {
     alwaysStat: true,
     atomic: true,
-    awaitWriteFinish: process.env.NODE_ENV === 'test' ? false : true,
+    awaitWriteFinish: process.env.NODE_ENV !== 'test',
     depth: undefined,
     followSymlinks: true,
     ignored: /(^|[/\\])\../,

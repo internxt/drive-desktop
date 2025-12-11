@@ -40,7 +40,7 @@ describe('create-placeholder', () => {
   const testFolder = join(TEST_FILES, v4());
   const rootPath = join(testFolder, 'root') as AbsolutePath;
   const file = join(rootPath, 'file.txt');
-  const providerId = `{${rootFolderUuid.toUpperCase()}}`;
+  const providerId = v4();
 
   setDefaultConfig({
     rootPath,

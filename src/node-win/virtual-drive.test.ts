@@ -60,7 +60,13 @@ describe('VirtualDrive', () => {
       // When
       await Addon.registerSyncRoot({ rootPath, providerId, providerName });
       // Then
-      call(addon.registerSyncRoot).toStrictEqual(['C:\\Users\\user\\InternxtDrive', providerName, INTERNXT_VERSION, providerId, iconPath]);
+      call(addon.registerSyncRoot).toStrictEqual([
+        String.raw`C:\Users\user\InternxtDrive`,
+        providerName,
+        INTERNXT_VERSION,
+        providerId,
+        iconPath,
+      ]);
     });
   });
 });

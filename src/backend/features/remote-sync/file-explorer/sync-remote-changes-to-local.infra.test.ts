@@ -19,7 +19,7 @@ describe('sync-remote-changes-to-local', () => {
   const onAllMock = partialSpyOn(onAll, 'onAll');
 
   const providerName = 'Internxt Drive';
-  const providerId = `{${v4().toUpperCase()}}`;
+  const providerId = v4();
   const rootPath = join(TEST_FILES, v4());
   const path = join(rootPath, 'file.txt');
 

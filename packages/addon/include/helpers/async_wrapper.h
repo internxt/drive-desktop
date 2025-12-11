@@ -17,17 +17,7 @@ struct AsyncWorkWrapper {
     std::string error;
     std::string function_name;
     bool success;
-    R result;
-};
-
-template <>
-struct AsyncWorkWrapper<void> {
-    napi_async_work work;
-    napi_deferred deferred;
-    std::function<void()> fn;
-    std::string error;
-    std::string function_name;
-    bool success;
+    [[no_unique_address]] std::conditional_t<std::is_void_v<R>, std::monostate, R> result;
 };
 
 template <typename R>
@@ -41,7 +31,6 @@ void execute_work(napi_env env, void* data)
         } else {
             asyncWork->result = asyncWork->fn();
         }
-
         asyncWork->success = true;
     } catch (...) {
         asyncWork->error = format_exception_message(asyncWork->function_name.c_str());
@@ -54,9 +43,9 @@ void complete_work(napi_env env, napi_status status, void* data)
 {
     std::unique_ptr<AsyncWorkWrapper<R>> asyncWork(static_cast<AsyncWorkWrapper<R>*>(data));
 
-    if (asyncWork->success) {
-        napi_value result;
+    napi_value result;
 
+    if (asyncWork->success) {
         if constexpr (std::is_void_v<R>) {
             napi_get_undefined(env, &result);
         } else {
@@ -65,9 +54,8 @@ void complete_work(napi_env env, napi_status status, void* data)
 
         napi_resolve_deferred(env, asyncWork->deferred, result);
     } else {
-        napi_value error;
-        napi_create_string_utf8(env, asyncWork->error.c_str(), NAPI_AUTO_LENGTH, &error);
-        napi_reject_deferred(env, asyncWork->deferred, error);
+        napi_create_string_utf8(env, asyncWork->error.c_str(), NAPI_AUTO_LENGTH, &result);
+        napi_reject_deferred(env, asyncWork->deferred, result);
     }
 
     napi_delete_async_work(env, asyncWork->work);
@@ -86,12 +74,8 @@ napi_value run_async(napi_env env, const char* resource_name, Func&& fn, Args&&.
     asyncWork->deferred = deferred;
     asyncWork->function_name = resource_name;
 
-    asyncWork->fn = [fn = std::forward<Func>(fn), ... args = std::forward<Args>(args)]() mutable {
-        if constexpr (std::is_void_v<R>) {
-            fn(std::forward<Args>(args)...);
-        } else {
-            return fn(std::forward<Args>(args)...);
-        }
+    asyncWork->fn = [fn = std::forward<Func>(fn), ... args = std::forward<Args>(args)]() mutable -> R {
+        return fn(std::forward<Args>(args)...);
     };
 
     napi_value resourceName;

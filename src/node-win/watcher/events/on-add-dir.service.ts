@@ -22,6 +22,6 @@ export async function onAddDir({ ctx, path }: TProps) {
     trackAddFolderEvent({ uuid: folderInfo.uuid });
     await moveFolder({ ctx, path, uuid: folderInfo.uuid });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error on event "addDir"', error });
+    ctx.logger.error({ msg: 'Error on addDir event', path, error });
   }
 }
