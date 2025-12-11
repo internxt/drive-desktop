@@ -35,8 +35,14 @@ type TAddon = {
   ): Promise<z.infer<typeof addonZod.convertToPlaceholder>>;
   disconnectSyncRoot(path: Win32Path): Promise<z.infer<typeof addonZod.disconnectSyncRoot>>;
   getPlaceholderState(path: Win32Path): Promise<z.infer<typeof addonZod.getPlaceholderState>>;
-  registerSyncRoot(rootPath: Win32Path, providerName: string, providerVersion: string, providerId: string, logoPath: string): Promise<void>;
-  unregisterSyncRoot(providerId: string): Promise<void>;
+  registerSyncRoot(
+    rootPath: Win32Path,
+    providerName: string,
+    providerVersion: string,
+    providerId: string,
+    logoPath: string,
+  ): Promise<z.infer<typeof addonZod.registerSyncRoot>>;
+  unregisterSyncRoot(providerId: string): Promise<z.infer<typeof addonZod.unregisterSyncRoot>>;
   updateSyncStatus(path: Win32Path): Promise<z.infer<typeof addonZod.updateSyncStatus>>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };

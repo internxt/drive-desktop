@@ -14,7 +14,9 @@ export const addonZod = {
     pinState: z.enum(PinState),
   }),
   hydrateFile: z.undefined(),
+  registerSyncRoot: z.undefined(),
   updateSyncStatus: z.undefined(),
+  unregisterSyncRoot: z.undefined(),
   getRegisteredSyncRoots: z.array(
     z.object({
       id: z.string(),

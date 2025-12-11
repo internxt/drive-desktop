@@ -41,15 +41,13 @@ napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
     auto [syncRootPath, providerName, providerVersion, providerId, logoPath] =
         napi_extract_args<std::wstring, std::wstring, std::wstring, std::wstring, std::wstring>(env, info);
 
-    register_sync_root(syncRootPath, providerName, providerVersion, providerId, logoPath);
-    return nullptr;
-    // return run_async(
-    //     env,
-    //     "RegisterSyncRootAsync",
-    //     register_sync_root,
-    //     std::move(syncRootPath),
-    //     std::move(providerName),
-    //     std::move(providerVersion),
-    //     std::move(providerId),
-    //     std::move(logoPath));
+    return run_async(
+        env,
+        "RegisterSyncRootAsync",
+        register_sync_root,
+        std::move(syncRootPath),
+        std::move(providerName),
+        std::move(providerVersion),
+        std::move(providerId),
+        std::move(logoPath));
 }
