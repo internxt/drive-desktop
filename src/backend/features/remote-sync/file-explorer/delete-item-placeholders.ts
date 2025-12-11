@@ -28,6 +28,7 @@ export async function deleteItemPlaceholders({ ctx, type, remotes, locals }: Pro
       }
 
       try {
+        ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath });
         await rm(remote.absolutePath, { recursive: true, force: true });
       } catch (error) {
         ctx.logger.error({

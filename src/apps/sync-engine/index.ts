@@ -9,6 +9,7 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { checkDangledFiles } from './dangled-files/check-dangled-files';
+import { initWatcher } from '@/node-win/watcher/watcher';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -27,7 +28,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
     await refreshItemPlaceholders({ ctx });
   });
 
-  BindingsManager.watch({ ctx });
+  initWatcher({ ctx });
 
   void checkDangledFiles({ ctx });
 }

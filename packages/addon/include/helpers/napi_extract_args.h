@@ -1,6 +1,7 @@
 #pragma once
 
 #include <node_api.h>
+#include <stdafx.h>
 
 #include <string>
 #include <tuple>
