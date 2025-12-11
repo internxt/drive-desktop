@@ -20,8 +20,6 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   for (const item of items) {
     const { path, stats } = item;
 
-    if (!stats) continue;
-
     if (stats.isDirectory()) {
       const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
       if (folderInfo) {

@@ -12,7 +12,7 @@ type TProps = {
 export async function getFileExplorerState({ ctx }: TProps) {
   const rootFolder = ctx.rootPath;
 
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Get file explorer state', rootFolder });
+  ctx.logger.debug({ msg: 'Get file explorer state' });
 
   const state: FileExplorerState = {
     createFiles: [],
@@ -24,11 +24,14 @@ export async function getFileExplorerState({ ctx }: TProps) {
   const remoteFiles = await getExistingFiles({ ctx });
   const remoteFilesMap = Object.fromEntries(remoteFiles.map((file) => [file.uuid, file]));
 
-  const localItems = await fileSystem.syncWalk({ rootFolder });
+  const localItems = await fileSystem.syncWalk({
+    rootFolder,
+    onError: ({ path, error }) => {
+      ctx.logger.error({ msg: 'Error getting item stats', path, error });
+    },
+  });
 
-  for (const localItem of localItems) {
-    await processItem({ ctx, localItem, state, remoteFilesMap });
-  }
+  await Promise.all(localItems.map((localItem) => processItem({ ctx, localItem, state, remoteFilesMap })));
 
   logger.debug({
     tag: 'SYNC-ENGINE',
