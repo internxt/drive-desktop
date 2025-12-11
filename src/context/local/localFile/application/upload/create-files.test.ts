@@ -2,11 +2,11 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import * as createAndUploadThumbnail from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createFiles } from './FileBatchUploader';
 import { abs, dirname } from '../../infrastructure/AbsolutePath';
+import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 
 describe('create-files', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
