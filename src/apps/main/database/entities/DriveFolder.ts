@@ -1,4 +1,15 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Brand } from '../../../../context/shared/domain/Brand';
+
+export type FolderUuid = Brand<string, 'FolderUuid'>;
+export type SimpleDriveFolder = {
+  uuid: FolderUuid;
+  name: string;
+  parentId: number | undefined;
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+};
 
 @Entity('drive_folder')
 export class DriveFolder {

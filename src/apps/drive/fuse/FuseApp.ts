@@ -107,8 +107,6 @@ export class FuseApp extends EventEmitter {
   async start() {
     const ops = this.getOpt();
 
-    await this.update();
-
     this._fuse = new Fuse(this.localRoot, ops, {
       debug: false,
       force: true,
@@ -122,9 +120,9 @@ export class FuseApp extends EventEmitter {
       return;
     }
 
-    this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE).catch((error) => {
-      logger.error({ msg: '[FUSE] Error fixing dangling files:', error });
-    });
+    await this.update();
+
+    void this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
   }
 
   async stop() {
@@ -136,16 +134,16 @@ export class FuseApp extends EventEmitter {
     await this.container.get(StorageClearer).run();
   }
 
-  async update(): Promise<void> {
+  async update() {
     try {
       const tree = await this.container.get(RemoteTreeBuilder).run(this.remoteRoot, this.remoteRootUuid);
 
-      await this.container.get(FileRepositorySynchronizer).run(tree.files);
-      await this.container.get(ThumbnailSynchronizer).run(tree.files);
-
-      await this.container.get(FolderRepositorySynchronizer).run(tree.folders);
-
-      await this.container.get(StorageRemoteChangesSyncher).run();
+      Promise.all([
+        this.container.get(FileRepositorySynchronizer).run(tree.files),
+        this.container.get(ThumbnailSynchronizer).run(tree.files),
+        this.container.get(FolderRepositorySynchronizer).run(tree.folders),
+        this.container.get(StorageRemoteChangesSyncher).run(),
+      ]);
 
       logger.debug({ msg: '[FUSE] Tree updated successfully' });
     } catch (err) {

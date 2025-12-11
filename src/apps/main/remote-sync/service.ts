@@ -21,8 +21,8 @@ export const remoteSyncManager = new RemoteSyncManager(
   },
   {
     httpClient: getNewTokenClient(),
-    fetchFilesLimitPerRequest: 50,
-    fetchFoldersLimitPerRequest: 50,
+    fetchFilesLimitPerRequest: 1000,
+    fetchFoldersLimitPerRequest: 1000,
     syncFiles: true,
     syncFolders: true,
   },

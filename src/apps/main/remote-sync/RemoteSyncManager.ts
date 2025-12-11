@@ -19,6 +19,8 @@ import {
   RemoteSyncServerError,
 } from './errors';
 import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
+import { createOrUpdateFolderByBatch } from '../../../infra/sqlite/services/folder/create-or-update-folder-by-batch';
+import { createOrUpdateFileByBatch } from '../../../infra/sqlite/services/file/create-or-update-file-by-batch';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -198,58 +200,56 @@ export class RemoteSyncManager {
    * @returns
    */
   private async syncRemoteFiles(syncConfig: SyncConfig, from?: Date) {
-    const fileCheckPoint = from ?? (await this.getFileCheckpoint());
-    let lastFileSynced = null;
+    let fileCheckPoint = from ?? (await this.getFileCheckpoint());
+    let hasMore = true;
+    let retryCount = 0;
 
-    try {
-      const { hasMore, result } = await this.fetchFilesFromRemote(fileCheckPoint);
+    while (hasMore && retryCount < syncConfig.maxRetries) {
+      let lastFileSynced = null;
 
-      for (const remoteFile of result) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.createOrUpdateSyncedFileEntry(remoteFile);
+      try {
+        const { hasMore: moreAvailable, result } = await this.fetchFilesFromRemote(fileCheckPoint);
 
-        this.totalFilesSynced++;
-        lastFileSynced = remoteFile;
+        await createOrUpdateFileByBatch({ files: result });
+        this.totalFilesSynced += result.length;
+        lastFileSynced = result.length > 0 ? result[result.length - 1] : null;
+
+        hasMore = moreAvailable;
+
+        if (hasMore && lastFileSynced) {
+          fileCheckPoint = new Date(lastFileSynced.updatedAt);
+        }
+
+        retryCount = 0;
+      } catch (error) {
+        retryCount++;
+
+        if (error instanceof RemoteSyncError) {
+          this.errorHandler.handleSyncError(error, 'files', lastFileSynced?.name ?? 'unknown', fileCheckPoint);
+        } else {
+          logger.error({
+            tag: 'SYNC-ENGINE',
+            msg: 'Remote files sync failed with uncontrolled error: ',
+            error,
+          });
+        }
+
+        if (retryCount >= syncConfig.maxRetries) {
+          this.filesSyncStatus = 'SYNC_FAILED';
+          this.checkRemoteSyncStatus();
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 1000 * retryCount));
       }
-
-      if (!hasMore) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Remote files sync finished',
-        });
-        this.filesSyncStatus = 'SYNCED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-      await this.syncRemoteFiles(
-        {
-          retry: 1,
-          maxRetries: syncConfig.maxRetries,
-        },
-        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined,
-      );
-    } catch (error) {
-      if (error instanceof RemoteSyncError) {
-        this.errorHandler.handleSyncError(error, 'files', lastFileSynced?.name ?? 'unknown', fileCheckPoint);
-      } else {
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Remote files sync failed with uncontrolled error: ',
-          error,
-        });
-      }
-      if (syncConfig.retry >= syncConfig.maxRetries) {
-        // No more retries allowed,
-        this.filesSyncStatus = 'SYNC_FAILED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-
-      await this.syncRemoteFiles({
-        retry: syncConfig.retry + 1,
-        maxRetries: syncConfig.maxRetries,
-      });
     }
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Remote files sync finished',
+    });
+    this.filesSyncStatus = 'SYNCED';
+    this.checkRemoteSyncStatus();
   }
 
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
@@ -269,56 +269,58 @@ export class RemoteSyncManager {
    * @returns
    */
   private async syncRemoteFolders(syncConfig: SyncConfig, from?: Date) {
-    const folderCheckPoint = from ?? (await this.getLastFolderSyncAt());
-    let lastFolderSynced = null;
+    let folderCheckPoint = from ?? (await this.getLastFolderSyncAt());
+    let hasMore = true;
+    let retryCount = 0;
 
-    try {
-      const { hasMore, result } = await this.fetchFoldersFromRemote(folderCheckPoint);
+    while (hasMore && retryCount < syncConfig.maxRetries) {
+      let lastFolderSynced = null;
 
-      for (const remoteFolder of result) {
-        // eslint-disable-next-line no-await-in-loop
-        await this.createOrUpdateSyncedFolderEntry(remoteFolder);
+      try {
+        const { hasMore: moreAvailable, result } = await this.fetchFoldersFromRemote(folderCheckPoint);
 
-        this.totalFoldersSynced++;
-        lastFolderSynced = remoteFolder;
+        await createOrUpdateFolderByBatch({ folders: result });
+        this.totalFoldersSynced += result.length;
+        lastFolderSynced = result.length > 0 ? result[result.length - 1] : null;
+
+        hasMore = moreAvailable;
+
+        if (hasMore && lastFolderSynced) {
+          folderCheckPoint = new Date(lastFolderSynced.updatedAt);
+        }
+
+        // Reset retry count on successful fetch
+        retryCount = 0;
+      } catch (error) {
+        retryCount++;
+
+        if (error instanceof RemoteSyncError) {
+          this.errorHandler.handleSyncError(error, 'folders', lastFolderSynced?.name ?? 'unknown', folderCheckPoint);
+        } else {
+          logger.error({
+            tag: 'SYNC-ENGINE',
+            msg: 'Remote folders sync failed with uncontrolled error: ',
+            error,
+          });
+        }
+
+        if (retryCount >= syncConfig.maxRetries) {
+          this.foldersSyncStatus = 'SYNC_FAILED';
+          this.checkRemoteSyncStatus();
+          return;
+        }
+
+        // Brief delay before retry to avoid hammering the server
+        await new Promise((resolve) => setTimeout(resolve, 1000 * retryCount));
       }
-
-      if (!hasMore) {
-        this.foldersSyncStatus = 'SYNCED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-
-      await this.syncRemoteFolders(
-        {
-          retry: 1,
-          maxRetries: syncConfig.maxRetries,
-        },
-        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined,
-      );
-    } catch (error) {
-      if (error instanceof RemoteSyncError) {
-        this.errorHandler.handleSyncError(error, 'folders', lastFolderSynced?.name ?? 'unknown', folderCheckPoint);
-      } else {
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Remote folders sync failed with uncontrolled error: ',
-          error,
-        });
-      }
-
-      if (syncConfig.retry >= syncConfig.maxRetries) {
-        // No more retries allowed,
-        this.foldersSyncStatus = 'SYNC_FAILED';
-        this.checkRemoteSyncStatus();
-        return;
-      }
-
-      await this.syncRemoteFolders({
-        retry: syncConfig.retry + 1,
-        maxRetries: syncConfig.maxRetries,
-      });
     }
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Remote folders sync finished',
+    });
+    this.foldersSyncStatus = 'SYNCED';
+    this.checkRemoteSyncStatus();
   }
 
   /**
@@ -452,23 +454,4 @@ export class RemoteSyncManager {
       size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
     };
   };
-
-  private async createOrUpdateSyncedFileEntry(remoteFile: RemoteSyncedFile) {
-    if (!remoteFile.folderId) {
-      return;
-    }
-    await this.db.files.create(remoteFile);
-  }
-
-  private async createOrUpdateSyncedFolderEntry(remoteFolder: RemoteSyncedFolder) {
-    if (!remoteFolder.id) {
-      return;
-    }
-
-    await this.db.folders.create({
-      ...remoteFolder,
-      parentId: remoteFolder.parentId ?? undefined,
-      bucket: remoteFolder.bucket ?? undefined,
-    });
-  }
 }

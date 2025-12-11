@@ -11,33 +11,18 @@ if (!CRYPTO_KEY) {
   throw Error('No encryption key provided');
 }
 
-function deterministicDecryption(cipherText: string, salt: string) {
-  try {
-    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);
-    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key;
-
-    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, key, { iv });
-    const plain = decrypt.toString(CryptoJS.enc.Utf8);
-
-    return plain;
-  } catch (e) {
-    return null;
-  }
-}
-
-function decryptName(cipherText: string, salt: string, encryptVersion: string) {
+function decryptName(cipherText: string, salt?: string, encryptVersion?: string) {
   if (!salt) {
-    // If no salt, something is trying to use legacy decryption
-    return probabilisticDecryption(cipherText);
+    throw logger.error({
+      msg: 'AES Decrypt failed because parentId is null',
+      cipherText,
+    });
   }
-  try {
-    const possibleAesResult = aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
 
-    return possibleAesResult;
+  try {
+    return aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
   } catch (e) {
-    logger.warn({
+    throw logger.error({
       msg: 'AES Decrypt failed',
       cipher: cipherText,
       salt: salt,
@@ -45,28 +30,6 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
       encryptVersion: encryptVersion,
       stack: (e as Error).stack,
     });
-  }
-  const decrypted = deterministicDecryption(cipherText, salt);
-
-  if (!decrypted) {
-    logger.warn({ msg: 'Error decrypting on a deterministic way' });
-
-    return probabilisticDecryption(cipherText);
-  }
-
-  return decrypted;
-}
-
-function probabilisticDecryption(cipherText: string) {
-  try {
-    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, CRYPTO_KEY);
-    const plain = decrypt.toString(CryptoJS.enc.Utf8);
-
-    return plain;
-  } catch (error) {
-    return null;
   }
 }
 
