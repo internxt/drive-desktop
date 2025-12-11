@@ -124,7 +124,7 @@ describe('create-placeholder', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
       { msg: 'Tree built', files: 0, folders: 0, trashedFiles: 0, trashedFolders: 0 },
-      { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
+      { msg: 'Load in memory paths' },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
       { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
