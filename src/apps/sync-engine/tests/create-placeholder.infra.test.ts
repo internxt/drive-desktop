@@ -116,8 +116,8 @@ describe('create-placeholder', () => {
 
     // Then
     calls(onAllMock).toMatchObject([
-      { event: 'add', path: file },
-      { event: 'change', path: file },
+      { event: 'add', path: file, stats: { size: 7 } },
+      { event: 'change', path: file, stats: { size: 7 } },
     ]);
 
     calls(loggerMock.debug).toStrictEqual([
