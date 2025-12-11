@@ -1,8 +1,8 @@
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { parseStatError } from './parse-stat-error';
 
 type LocalFileDTO = {
   path: AbsolutePath;
@@ -14,24 +14,6 @@ type LocalFolderDTO = {
   path: AbsolutePath;
 };
 
-function parseStatError({ context, path, error }: { context: BackupsContext; path: AbsolutePath; error: StatError }) {
-  if (error.code === 'UNKNOWN') return;
-
-  context.addIssue({
-    name: path,
-    error: (() => {
-      switch (error.code) {
-        case 'NON_EXISTS':
-          return 'FOLDER_DOES_NOT_EXIST';
-        case 'NO_ACCESS':
-          return 'FOLDER_ACCESS_DENIED';
-        default:
-          return error.code;
-      }
-    })(),
-  });
-}
-
 export class CLSFsLocalItemsGenerator {
   static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: AbsolutePath }) {
     const { error } = await fileSystem.stat({ absolutePath });
@@ -41,9 +23,7 @@ export class CLSFsLocalItemsGenerator {
       throw error;
     }
 
-    return {
-      path: absolutePath,
-    };
+    return absolutePath;
   }
 
   static async getAll({ context, dir }: { context: BackupsContext; dir: AbsolutePath }) {
