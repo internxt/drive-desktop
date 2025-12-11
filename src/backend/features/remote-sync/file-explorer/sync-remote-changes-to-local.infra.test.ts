@@ -19,7 +19,7 @@ describe('sync-remote-changes-to-local', () => {
   const onAllMock = partialSpyOn(onAll, 'onAll');
 
   const providerName = 'Internxt Drive';
-  const providerId = `{${v4().toUpperCase()}}`;
+  const providerId = v4();
   const rootPath = join(TEST_FILES, v4());
   const path = join(rootPath, 'file.txt');
 
@@ -60,12 +60,11 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     // Then
-    calls(onAllMock).toStrictEqual(
-      expect.arrayContaining([
-        { event: 'add', path, stats: expect.objectContaining({ size: 7 }) },
-        { event: 'change', path, stats: expect.objectContaining({ size: 1000 }) },
-      ]),
-    );
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 1000 } },
+    ]);
 
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([

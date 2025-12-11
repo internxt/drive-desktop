@@ -12,7 +12,7 @@ import { Addon } from '@/node-win/addon-wrapper';
 import { mkdir } from 'node:fs/promises';
 
 describe('get-folder-info', () => {
-  const providerId = `{${v4()}}`;
+  const providerId = v4();
   const rootUuid = v4() as FolderUuid;
   const testPath = join(TEST_FILES, v4());
   const rootPath = join(testPath, rootUuid);
