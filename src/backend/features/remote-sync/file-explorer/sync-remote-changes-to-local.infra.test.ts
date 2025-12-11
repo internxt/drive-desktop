@@ -55,15 +55,15 @@ describe('sync-remote-changes-to-local', () => {
     });
 
     // When
-    await sleep(3000);
+    await sleep(100);
     await syncRemoteChangesToLocal(props);
-    await sleep(3000);
+    await sleep(100);
 
     // Then
-    calls(onAllMock).toStrictEqual([
-      { event: 'add', path },
-      { event: 'change', path },
-      { event: 'change', path },
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 1000 } },
     ]);
 
     calls(loggerMock.error).toHaveLength(0);

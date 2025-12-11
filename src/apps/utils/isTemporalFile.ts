@@ -14,11 +14,6 @@ export const isTemporaryFile = (filePath: string): boolean => {
       return true;
     }
 
-    // if start with $Recycle.Bin
-    if (filePath.includes('$Recycle.Bin')) {
-      logger.debug({ msg: `File ${filePath} is in Recycle Bin` });
-      return true;
-    }
     return false;
   } catch (error) {
     logger.error({ msg: `Failed to check if the file is temporary`, error });

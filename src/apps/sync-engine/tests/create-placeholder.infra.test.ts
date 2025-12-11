@@ -115,16 +115,16 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    calls(onAllMock).toStrictEqual([
-      { event: 'add', path: file },
-      { event: 'change', path: file },
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path: file, stats: { size: 7 } },
+      { event: 'change', path: file, stats: { size: 7 } },
     ]);
 
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
       { msg: 'Tree built', files: 0, folders: 0, trashedFiles: 0, trashedFolders: 0 },
-      { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
+      { msg: 'Load in memory paths' },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
       { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
@@ -134,9 +134,9 @@ describe('create-placeholder', () => {
         pinState: PinState.Unspecified,
         blocks: 0,
         ctime: expect.any(Date),
+        mtime: expect.any(Date),
         isChanged: true,
         isModified: true,
-        mtime: expect.any(Date),
       },
     ]);
   });

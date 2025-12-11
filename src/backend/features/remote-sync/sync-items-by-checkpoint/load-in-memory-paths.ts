@@ -1,4 +1,3 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { fileSystem } from '@/infra/file-system/file-system.module';
@@ -14,11 +13,9 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   const files: InMemoryFiles = new Map();
   const folders: InMemoryFolders = new Map();
 
-  const { rootPath } = ctx;
+  ctx.logger.debug({ msg: 'Load in memory paths' });
 
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
-
-  const items = await fileSystem.syncWalk({ rootFolder: rootPath });
+  const items = await fileSystem.syncWalk({ rootFolder: ctx.rootPath });
 
   for (const item of items) {
     const { path, stats } = item;

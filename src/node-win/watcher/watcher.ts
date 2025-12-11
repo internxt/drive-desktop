@@ -1,4 +1,4 @@
-import { ChokidarOptions, watch } from 'chokidar';
+import { watch } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
 import { onAdd } from './events/on-add.service';
@@ -9,9 +9,9 @@ import { debounceOnRaw } from './events/debounce-on-raw';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
-type Props = { ctx: ProcessSyncContext; options?: ChokidarOptions };
+type Props = { ctx: ProcessSyncContext };
 
-export function initWatcher({ ctx, options }: Props) {
+export function initWatcher({ ctx }: Props) {
   const watcher = watch(ctx.rootPath, {
     alwaysStat: true,
     atomic: true,
@@ -22,11 +22,10 @@ export function initWatcher({ ctx, options }: Props) {
     ignoreInitial: true,
     persistent: true,
     usePolling: false,
-    ...options,
   });
 
   watcher
-    .on('all', (event, path) => onAll({ event, path: abs(path) }))
+    .on('all', (event, path, stats) => onAll({ event, path: abs(path), stats }))
     /**
      * v2.5.7 Daniel Jiménez
      * add events are triggered when:
