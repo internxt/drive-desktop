@@ -42,10 +42,10 @@ export default class LocalTreeBuilder {
   }
 
   static async run({ context }: { context: BackupsContext }) {
-    const root = await CLSFsLocalItemsGenerator.root({ context, absolutePath: context.pathname });
+    const absolutePath = await CLSFsLocalItemsGenerator.root({ context, absolutePath: context.pathname });
 
     const rootFolder: LocalFolder = {
-      absolutePath: root.path,
+      absolutePath,
     };
 
     const tree: LocalTree = {

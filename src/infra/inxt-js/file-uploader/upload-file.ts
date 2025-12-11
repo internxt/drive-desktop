@@ -33,12 +33,14 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
         source: readable,
         fileSize: size,
         finishedCallback: (err, contentsId) => {
-          readable.close();
           clearInterval(interval);
+          readable.close();
+
           if (contentsId) {
             callbacks.onFinish();
             return resolve({ data: contentsId as ContentsId });
           }
+
           return resolve({ error: processError({ path, err, callbacks }) });
         },
         progressCallback: (progress) => {
@@ -52,10 +54,12 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
         logger.debug({ msg: 'Aborting upload', path });
         stopUpload(state);
       });
-    } catch (err) {
+    } catch (error) {
       clearInterval(interval);
       readable.close();
-      return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
+
+      logger.error({ msg: 'Error uploading file to the bucket', path, error });
+      return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', error) });
     }
   });
 }

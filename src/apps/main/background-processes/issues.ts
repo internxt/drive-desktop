@@ -19,9 +19,7 @@ export type BackupsIssue = {
     | 'FOLDER_ACCESS_DENIED'
     | 'FOLDER_DOES_NOT_EXIST'
     | 'NOT_ENOUGH_SPACE'
-    | 'FILE_MODIFIED'
-    | 'PARENT_FOLDER_DOES_NOT_EXIST'
-    | 'ROOT_FOLDER_DOES_NOT_EXIST';
+    | 'FILE_MODIFIED';
 };
 
 export type GeneralIssue = {
