@@ -3,7 +3,7 @@ import * as crypt from '@/context/shared/infrastructure/crypt';
 type TProps = {
   plainName: string | undefined;
   encryptedName: string;
-  parentId: number | null;
+  parentId: number;
   extension: string | null;
 };
 

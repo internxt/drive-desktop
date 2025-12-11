@@ -14,6 +14,7 @@ import { FolderUuid } from '../main/database/entities/DriveFolder';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as createAndUploadThumbnail from '../main/thumbnail/create-and-upload-thumbnail';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
@@ -24,6 +25,7 @@ describe('backups', () => {
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
+  const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
 
   const testPath = join(TEST_FILES, v4());
   const folder = join(testPath, 'folder');
@@ -94,7 +96,7 @@ describe('backups', () => {
     call(persistFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', contentsId: 'contentsId', size: 7 });
     calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
-
+    call(createAndUploadThumbnailMock).toMatchObject({ fileUuid: 'createFile' });
     call(createFileMock).toStrictEqual({
       path: addedFile,
       body: {
