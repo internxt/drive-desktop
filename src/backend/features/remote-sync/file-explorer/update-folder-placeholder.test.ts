@@ -40,8 +40,9 @@ describe('update-folder-placeholder', () => {
     // Given
     validateWindowsNameMock.mockReturnValue({ isValid: false });
     // When
-    await FolderPlaceholderUpdater.update(props);
+    const res = await FolderPlaceholderUpdater.update(props);
     // Then
+    expect(res).toBe(false);
     expect(hasToBeMovedMock).toBeCalledTimes(0);
   });
 
@@ -49,8 +50,9 @@ describe('update-folder-placeholder', () => {
     // Given
     props.folders = new Map();
     // When
-    await FolderPlaceholderUpdater.update(props);
+    const res = await FolderPlaceholderUpdater.update(props);
     // Then
+    expect(res).toBe(true);
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(createFolderPlaceholderMock).toBeCalledTimes(1);
     expect(createFolderPlaceholderMock).toBeCalledWith({
@@ -65,8 +67,9 @@ describe('update-folder-placeholder', () => {
     // Given
     hasToBeMovedMock.mockResolvedValue(true);
     // When
-    await FolderPlaceholderUpdater.update(props);
+    const res = await FolderPlaceholderUpdater.update(props);
     // Then
+    expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
     expect(renameMock).toBeCalledWith('localPath', 'remotePath');
@@ -77,8 +80,9 @@ describe('update-folder-placeholder', () => {
     // Given
     hasToBeMovedMock.mockResolvedValue(false);
     // When
-    await FolderPlaceholderUpdater.update(props);
+    const res = await FolderPlaceholderUpdater.update(props);
     // Then
+    expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(0);
   });
@@ -89,8 +93,9 @@ describe('update-folder-placeholder', () => {
       throw new Error('Something failed');
     });
     // When
-    await FolderPlaceholderUpdater.update(props);
+    const res = await FolderPlaceholderUpdater.update(props);
     // Then
+    expect(res).toBe(false);
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
