@@ -8,7 +8,6 @@ import { buildFileUploader } from '../main/background-processes/backups/build-fi
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
-import { checkDangledFiles } from './dangled-files/check-dangled-files';
 import { initWatcher } from '@/node-win/watcher/watcher';
 
 logger.debug({ msg: 'Running sync engine' });
@@ -25,12 +24,10 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   await BindingsManager.start({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await refreshItemPlaceholders({ ctx });
+    await refreshItemPlaceholders({ ctx, runDangledFiles: false });
   });
 
   initWatcher({ ctx });
-
-  void checkDangledFiles({ ctx });
 }
 
 async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
