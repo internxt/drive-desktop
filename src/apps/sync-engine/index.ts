@@ -6,7 +6,6 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { InxtJs } from '@/infra';
-import { checkDangledFiles } from './dangled-files/check-dangled-files';
 import { initWatcher } from '@/node-win/watcher/watcher';
 
 logger.debug({ msg: 'Running sync engine' });
@@ -23,8 +22,6 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   BindingsManager.start({ ctx });
 
   initWatcher({ ctx });
-
-  void checkDangledFiles({ ctx });
 }
 
 async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {

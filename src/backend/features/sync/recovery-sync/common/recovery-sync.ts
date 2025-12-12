@@ -20,7 +20,7 @@ async function iterateRecoverySync(ctx: SyncContext, fn: typeof filesRecoverySyn
       moreItems = fileDtos.length === FETCH_LIMIT_1000;
       offset += FETCH_LIMIT_1000;
 
-      await sleep(60 * 1000);
+      await sleep(30 * 1000);
     } catch (error) {
       ctx.logger.error({ msg: 'Error in recovery sync', error });
       break;

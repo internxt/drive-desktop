@@ -12,7 +12,7 @@ export class FolderPlaceholderUpdater {
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
-      if (!isValid) return;
+      if (!isValid) return false;
 
       const local = folders.get(remote.uuid);
 
@@ -24,7 +24,7 @@ export class FolderPlaceholderUpdater {
           lastWriteTime: new Date(remote.updatedAt).getTime(),
         });
 
-        return;
+        return true;
       }
 
       const remotePath = remote.absolutePath;
@@ -41,17 +41,11 @@ export class FolderPlaceholderUpdater {
         await rename(localPath, remotePath);
         await Addon.updateSyncStatus({ path: remotePath });
       }
-    } catch (exc) {
-      ctx.logger.error({
-        msg: 'Error updating folder placeholder',
-        path,
-        exc,
-      });
-    }
-  }
 
-  static async run({ ctx, remotes, folders }: { ctx: SyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
-    const promises = remotes.map((remote) => this.update({ ctx, remote, folders }));
-    await Promise.all(promises);
+      return true;
+    } catch (exc) {
+      ctx.logger.error({ msg: 'Error updating folder placeholder', path, exc });
+      return false;
+    }
   }
 }
