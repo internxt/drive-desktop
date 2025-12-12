@@ -22,9 +22,9 @@ describe('needs-to-be-moved', () => {
     // Given
     props.remote.absolutePath = props.localPath;
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(false);
+    expect(isMoved).toBe(false);
   });
 
   it('should return false if local parent does not exist', async () => {
@@ -32,9 +32,9 @@ describe('needs-to-be-moved', () => {
     props.remote.parentUuid = 'uuid' as FolderUuid;
     getFolderInfoMock.mockResolvedValue({});
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(false);
+    expect(isMoved).toBe(false);
   });
 
   it('should return false if both parents have the same uuid', async () => {
@@ -42,9 +42,9 @@ describe('needs-to-be-moved', () => {
     props.remote.parentUuid = 'uuid' as FolderUuid;
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(false);
+    expect(isMoved).toBe(false);
   });
 
   it('should return true if both parents have different uuid', async () => {
@@ -52,9 +52,9 @@ describe('needs-to-be-moved', () => {
     props.remote.parentUuid = 'uuid1' as FolderUuid;
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid2' as FolderUuid } });
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(true);
+    expect(isMoved).toBe(true);
   });
 
   it('should return true if item has been renamed but not moved', async () => {
@@ -62,9 +62,9 @@ describe('needs-to-be-moved', () => {
     props.remote.absolutePath = abs('/drive/folder/old');
     props.localPath = abs('/drive/folder/new');
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(true);
+    expect(isMoved).toBe(true);
   });
 
   /**
@@ -82,8 +82,8 @@ describe('needs-to-be-moved', () => {
     props.remote.parentUuid = 'uuid' as FolderUuid;
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     // When
-    const hasBeenMoved = await needsToBeMoved(props);
+    const isMoved = await needsToBeMoved(props);
     // Then
-    expect(hasBeenMoved).toBe(false);
+    expect(isMoved).toBe(false);
   });
 });
