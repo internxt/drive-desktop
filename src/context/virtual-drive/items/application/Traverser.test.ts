@@ -68,9 +68,9 @@ describe('Traverser', () => {
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'folder' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'file' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'folder' },
     ]);
 
     calls(updateFolderPlaceholderMock).toMatchObject([
@@ -95,9 +95,9 @@ describe('Traverser', () => {
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'folder' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'file' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'folder' },
     ]);
 
     calls(updateFolderPlaceholderMock).toMatchObject([
