@@ -1,11 +1,10 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { rename } from 'node:fs/promises';
-import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
+import { checkIfMoved } from './check-if-moved';
 
 export class FilePlaceholderUpdater {
   static async update({ ctx, remote, files }: { ctx: SyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
@@ -29,21 +28,7 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      const remotePath = remote.absolutePath;
-      const localPath = local.path;
-      const isMoved = await hasToBeMoved({ ctx, remote, localPath });
-
-      if (isMoved) {
-        ctx.logger.debug({
-          msg: 'Moving file placeholder',
-          remotePath,
-          localPath,
-        });
-
-        await rename(localPath, remotePath);
-        await Addon.updateSyncStatus({ path: remotePath });
-      }
-
+      await checkIfMoved({ ctx, type: 'file', remote, localPath: local.path });
       await syncRemoteChangesToLocal({ ctx, local, remote });
     } catch (exc) {
       ctx.logger.error({

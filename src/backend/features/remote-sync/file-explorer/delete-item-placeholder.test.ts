@@ -1,5 +1,5 @@
 import { call, calls, mockProps } from '@/tests/vitest/utils.helper.test';
-import { deleteItemPlaceholder } from './delete-item-placeholders';
+import { deleteItemPlaceholder } from './delete-item-placeholder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { rm } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -7,7 +7,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('node:fs/promises'));
 
-describe('delete-item-placeholders', () => {
+describe('delete-item-placeholder', () => {
   const rmMock = vi.mocked(rm);
 
   const uuid = 'uuid' as FolderUuid;

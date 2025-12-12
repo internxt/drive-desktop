@@ -10,7 +10,7 @@ type TProps = {
   localPath: AbsolutePath;
 };
 
-export async function hasToBeMoved({ ctx, remote, localPath }: TProps) {
+export async function needsToBeMoved({ ctx, remote, localPath }: TProps) {
   if (remote.absolutePath === localPath) return false;
 
   const remoteParentPath = dirname(remote.absolutePath);
