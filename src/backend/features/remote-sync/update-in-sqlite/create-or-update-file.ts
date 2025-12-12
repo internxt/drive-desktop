@@ -1,8 +1,8 @@
 import { CommonContext } from '@/apps/sync-engine/config';
-import { FileDto } from '@/infra/drive-server-wip/out/dto';
+import { ParsedFileDto } from '@/infra/drive-server-wip/out/dto';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext; fileDto: FileDto }) {
+export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext; fileDto: ParsedFileDto }) {
   return await SqliteModule.FileModule.createOrUpdate({
     file: {
       ...fileDto,
@@ -14,7 +14,7 @@ export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext;
   });
 }
 
-export async function createOrUpdateFiles({ ctx, fileDtos }: { ctx: CommonContext; fileDtos: FileDto[] }) {
+export async function createOrUpdateFiles({ ctx, fileDtos }: { ctx: CommonContext; fileDtos: ParsedFileDto[] }) {
   return await SqliteModule.FileModule.createOrUpdateBatch({
     files: fileDtos.map((fileDto) => ({
       ...fileDto,

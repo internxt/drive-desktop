@@ -15,6 +15,12 @@ export function parseFileDto({ fileDto }: { fileDto: FileDto }): ParsedFileDto {
   return {
     ...fileDto,
     uuid: fileDto.uuid as FileUuid,
+    /**
+     * v2.6.4 Daniel Jiménez
+     * When wip implementes zero size files we need to update the schema.ts
+     * and review this to check that backend it's sending a null value for empty files.
+     */
+    fileId: fileDto.fileId ?? '',
   };
 }
 

@@ -46,8 +46,10 @@ export async function onChange({ ctx, path }: Props) {
         await throttleHydrate({ ctx, path });
       }
 
-      if (fileInfo.pinState === PinState.OnlineOnly && stats.blocks !== 0) {
-        await handleDehydrate({ ctx, path });
+      if (fileInfo.pinState === PinState.OnlineOnly) {
+        if (stats.size === 0 || stats.blocks !== 0) {
+          await handleDehydrate({ ctx, path });
+        }
       }
     }
   } catch (error) {

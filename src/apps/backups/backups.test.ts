@@ -81,7 +81,7 @@ describe('backups', () => {
     fileUploader.run.mockResolvedValue({ data: 'contentsId' as ContentsId });
     persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
-    replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' } });
+    replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });
 
     // When
     await service.run(props);
