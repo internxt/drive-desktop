@@ -35,7 +35,7 @@ export class FilePlaceholderUpdater {
 
       if (isMoved) {
         ctx.logger.debug({
-          msg: 'Moving folder placeholder',
+          msg: 'Moving file placeholder',
           remotePath,
           localPath,
         });
