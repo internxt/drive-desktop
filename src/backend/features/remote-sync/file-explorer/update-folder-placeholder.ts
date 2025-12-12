@@ -1,9 +1,10 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { rename } from 'node:fs/promises';
+import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
-import { checkIfMoved } from './check-if-moved';
 
 export class FolderPlaceholderUpdater {
   static async update({ ctx, remote, folders }: { ctx: SyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
@@ -26,7 +27,21 @@ export class FolderPlaceholderUpdater {
         return true;
       }
 
-      await checkIfMoved({ ctx, type: 'folder', remote, localPath: local.path });
+      const remotePath = remote.absolutePath;
+      const localPath = local.path;
+      const isMoved = await hasToBeMoved({ ctx, remote, localPath });
+
+      if (isMoved) {
+        ctx.logger.debug({
+          msg: 'Moving folder placeholder',
+          remotePath,
+          localPath,
+        });
+
+        await rename(localPath, remotePath);
+        await Addon.updateSyncStatus({ path: remotePath });
+      }
+
       return true;
     } catch (exc) {
       ctx.logger.error({ msg: 'Error updating folder placeholder', path, exc });
