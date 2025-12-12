@@ -15,6 +15,9 @@ export async function refreshItemPlaceholders({ ctx, runDangledFiles }: Props) {
     const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
     await Traverser.run({ ctx, currentFolder, items, files, folders, runDangledFiles });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error refreshing item placeholders', error });
+    ctx.logger.error({
+      msg: 'Error refreshing item placeholders',
+      error,
+    });
   }
 }
