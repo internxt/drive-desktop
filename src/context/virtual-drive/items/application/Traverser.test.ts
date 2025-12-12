@@ -2,7 +2,7 @@ import { Traverser } from './Traverser';
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
+import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import * as checkDangledFiles from '@/apps/sync-engine/dangled-files/check-dangled-files';
