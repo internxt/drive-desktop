@@ -27,26 +27,26 @@ export class Traverser {
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
-    const filePromises = filesInThisFolder.map(async (file) => {
+    for (const file of filesInThisFolder) {
       const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
       const remote = { ...file, absolutePath };
 
       if (file.status === 'DELETED' || file.status === 'TRASHED') {
-        await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: files });
+        void deleteItemPlaceholder({ ctx, type: 'file', remote, locals: files });
       } else {
-        await FilePlaceholderUpdater.update({ ctx, remote, files });
+        void FilePlaceholderUpdater.update({ ctx, remote, files });
         if (runDangledFiles) {
           void checkDangledFiles({ ctx, file: remote });
         }
       }
-    });
+    }
 
     const folderPromises = foldersInThisFolder.map(async (folder) => {
       const absolutePath = join(currentFolder.absolutePath, folder.name);
       const remote = { ...folder, absolutePath };
 
       if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
-        await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: folders });
+        void deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: folders });
       } else {
         const success = await FolderPlaceholderUpdater.update({ ctx, remote, folders });
         if (success) {
@@ -55,6 +55,6 @@ export class Traverser {
       }
     });
 
-    await Promise.all([filePromises, folderPromises]);
+    await Promise.all(folderPromises);
   }
 }
