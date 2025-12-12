@@ -5,7 +5,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { InMemoryFiles, InMemoryFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
+import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { checkDangledFiles } from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
 type Items = {
