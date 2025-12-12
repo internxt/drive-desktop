@@ -35,7 +35,7 @@ export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager
     await manager.startRemoteSync();
     manager.changeStatus('SYNCED');
 
-    await refreshItemPlaceholders({ ctx: manager.context });
+    await refreshItemPlaceholders({ ctx: manager.context, runDangledFiles: false });
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');
     logger.error({

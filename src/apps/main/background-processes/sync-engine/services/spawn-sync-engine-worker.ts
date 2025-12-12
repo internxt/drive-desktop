@@ -34,7 +34,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await refreshItemPlaceholders({ ctx });
+    await refreshItemPlaceholders({ ctx, runDangledFiles: true });
 
     const browserWindow = new BrowserWindow({
       show: false,
