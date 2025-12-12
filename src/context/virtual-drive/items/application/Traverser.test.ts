@@ -21,17 +21,17 @@ describe('Traverser', () => {
       items: {
         files: [
           { parentUuid: 'root' as FolderUuid, nameWithExtension: 'deleted', status: 'DELETED' },
-          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'trashed', status: 'TRASHED' },
           { parentUuid: 'root' as FolderUuid, nameWithExtension: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'trashed', status: 'TRASHED' },
           { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'child2', status: 'EXISTS' },
           { parentUuid: 'parent2' as FolderUuid, nameWithExtension: 'child3', status: 'EXISTS' },
         ],
         folders: [
           { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
-          { parentUuid: 'root' as FolderUuid, name: 'trashed', status: 'TRASHED' },
           { parentUuid: 'root' as FolderUuid, uuid: 'parent1' as FolderUuid, name: 'parent1', status: 'EXISTS' },
-          { parentUuid: 'parent1' as FolderUuid, uuid: 'parent2' as FolderUuid, name: 'parent2', status: 'EXISTS' },
           { parentUuid: 'root' as FolderUuid, name: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, uuid: 'parent2' as FolderUuid, name: 'parent2', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'trashed', status: 'TRASHED' },
           { parentUuid: 'parent1' as FolderUuid, name: 'child2', status: 'EXISTS' },
           { parentUuid: 'parent2' as FolderUuid, name: 'child3', status: 'EXISTS' },
         ],
@@ -48,9 +48,7 @@ describe('Traverser', () => {
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
-      { remote: { absolutePath: '/drive/trashed' }, type: 'folder' },
     ]);
 
     calls(updateFolderPlaceholderMock).toMatchObject([
