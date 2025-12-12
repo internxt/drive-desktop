@@ -1,37 +1,23 @@
-import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { SyncContext } from './config';
-import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import { ProcessSyncContext } from './config';
 import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
-import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { getAllItems } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
 
 type Props = {
-  ctx: SyncContext;
+  ctx: ProcessSyncContext;
+  runDangledFiles: boolean;
 };
 
-export async function refreshItemPlaceholders({ ctx }: Props) {
+export async function refreshItemPlaceholders({ ctx, runDangledFiles }: Props) {
   try {
-    const tree = await Traverser.run({ ctx });
-
-    ctx.logger.debug({
-      msg: 'Tree built',
-      files: tree.files.length,
-      folders: tree.folders.length,
-      trashedFiles: tree.trashedFiles.length,
-      trashedFolders: tree.trashedFolders.length,
-    });
-
     const { files, folders } = await loadInMemoryPaths({ ctx });
-    await Promise.all([
-      deleteItemPlaceholders({ ctx, type: 'folder', remotes: tree.trashedFolders, locals: folders }),
-      deleteItemPlaceholders({ ctx, type: 'file', remotes: tree.trashedFiles, locals: files }),
-      FolderPlaceholderUpdater.run({ ctx, remotes: tree.folders, folders }),
-      FilePlaceholderUpdater.run({ ctx, remotes: tree.files, files }),
-    ]);
-  } catch (exc) {
+    const items = await getAllItems({ ctx });
+    const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
+    await Traverser.run({ ctx, currentFolder, items, files, folders, runDangledFiles });
+  } catch (error) {
     ctx.logger.error({
       msg: 'Error refreshing item placeholders',
-      exc,
+      error,
     });
   }
 }

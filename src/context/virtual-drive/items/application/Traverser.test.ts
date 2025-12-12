@@ -1,133 +1,131 @@
-import { v4 } from 'uuid';
 import { Traverser } from './Traverser';
-import * as crypt from '@/context/shared/infrastructure/crypt';
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
-import { getAllItems } from './RemoteItemsGenerator';
+import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
-
-vi.mock(import('@/context/shared/infrastructure/crypt'));
-vi.mock(import('./RemoteItemsGenerator'));
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
+import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import * as checkDangledFiles from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
 describe('Traverser', () => {
-  const cryptMock = vi.mocked(crypt);
-  const getAllItemsMock = deepMocked(getAllItems);
+  const deleteItemPlaceholderMock = partialSpyOn(deleteItemPlaceholder, 'deleteItemPlaceholder');
+  const updateFilePlaceholderMock = partialSpyOn(FilePlaceholderUpdater, 'update');
+  const updateFolderPlaceholderMock = partialSpyOn(FolderPlaceholderUpdater, 'update');
+  const checkDangledFilesMock = partialSpyOn(checkDangledFiles, 'checkDangledFiles');
 
-  const rootPath = abs('/drive');
-  const rootUuid = v4() as FolderUuid;
-  const props = mockProps<typeof Traverser.run>({ ctx: { rootPath, rootUuid } });
+  let props: Parameters<typeof Traverser.run>[0];
 
-  beforeAll(() => {
-    cryptMock.decryptName.mockImplementation(({ encryptedName }) => encryptedName);
+  beforeEach(() => {
+    props = mockProps<typeof Traverser.run>({
+      currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
+      items: {
+        files: [
+          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'deleted', status: 'DELETED' },
+          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'trashed', status: 'TRASHED' },
+          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'child2', status: 'EXISTS' },
+          { parentUuid: 'parent2' as FolderUuid, nameWithExtension: 'child3', status: 'EXISTS' },
+        ],
+        folders: [
+          { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
+          { parentUuid: 'root' as FolderUuid, uuid: 'parent1' as FolderUuid, name: 'parent1', status: 'EXISTS' },
+          { parentUuid: 'root' as FolderUuid, name: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, uuid: 'parent2' as FolderUuid, name: 'parent2', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'trashed', status: 'TRASHED' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'child2', status: 'EXISTS' },
+          { parentUuid: 'parent2' as FolderUuid, name: 'child3', status: 'EXISTS' },
+        ],
+      },
+    });
   });
 
-  function extractPaths(items: ExtendedDriveFile[] | ExtendedDriveFolder[]) {
-    return items.map((item) => item.absolutePath);
-  }
+  it('should not include any child if first parent fails', async () => {
+    // Given
+    updateFolderPlaceholderMock.mockResolvedValue(false);
+    // When
+    await Traverser.run(props);
+    // Then
+    calls(checkDangledFilesMock).toHaveLength(0);
+    calls(deleteItemPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
+      { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
+    ]);
 
-  it('first level files starts with /', async () => {
-    getAllItemsMock.mockResolvedValue({
-      files: [
-        {
-          nameWithExtension: 'file.txt',
-          parentUuid: rootUuid,
-          status: 'EXISTS',
-        },
-      ],
-      folders: [],
-    });
+    calls(updateFolderPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/parent1' } },
+      { remote: { absolutePath: '/drive/child1' } },
+    ]);
 
-    const tree = await Traverser.run(props);
-
-    expect(extractPaths(tree.files)).toStrictEqual(['/drive/file.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual([]);
+    calls(updateFilePlaceholderMock).toMatchObject([{ remote: { absolutePath: '/drive/child1' } }]);
   });
 
-  it('second level files starts with /', async () => {
-    const parentUuid = v4() as FolderUuid;
-    getAllItemsMock.mockResolvedValue({
-      files: [
-        {
-          nameWithExtension: 'file.txt',
-          parentUuid,
-          status: 'EXISTS',
-        },
-      ],
-      folders: [
-        {
-          name: 'folder',
-          parentUuid: rootUuid,
-          status: 'EXISTS',
-          uuid: parentUuid,
-        },
-      ],
-    });
+  it('should include some childreen if first parent succeed', async () => {
+    // Given
+    updateFolderPlaceholderMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    // When
+    await Traverser.run(props);
+    // Then
+    calls(checkDangledFilesMock).toHaveLength(0);
+    calls(deleteItemPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
+      { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'file' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'folder' },
+    ]);
 
-    const tree = await Traverser.run(props);
+    calls(updateFolderPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/parent1' } },
+      { remote: { absolutePath: '/drive/child1' } },
+      { remote: { absolutePath: '/drive/parent1/parent2' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+    ]);
 
-    expect(extractPaths(tree.files)).toStrictEqual(['/drive/folder/file.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder']);
+    calls(updateFilePlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/child1' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+    ]);
   });
 
-  it('second level folder starts with /', async () => {
-    const parentUuid = v4() as FolderUuid;
-    getAllItemsMock.mockResolvedValue({
-      files: [],
-      folders: [
-        {
-          uuid: parentUuid,
-          parentUuid: rootUuid,
-          name: 'folder1',
-          status: 'EXISTS',
-        },
-        {
-          parentUuid,
-          name: 'folder2',
-          status: 'EXISTS',
-        },
-      ],
-    });
+  it('should include all childreen if all parents succeed', async () => {
+    // Given
+    updateFolderPlaceholderMock.mockResolvedValue(true);
+    // When
+    await Traverser.run(props);
+    // Then
+    calls(checkDangledFilesMock).toHaveLength(0);
+    calls(deleteItemPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
+      { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'file' },
+      { remote: { absolutePath: '/drive/parent1/trashed' }, type: 'folder' },
+    ]);
 
-    const tree = await Traverser.run(props);
+    calls(updateFolderPlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/parent1' } },
+      { remote: { absolutePath: '/drive/child1' } },
+      { remote: { absolutePath: '/drive/parent1/parent2' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/parent1/parent2/child3' } },
+    ]);
 
-    expect(extractPaths(tree.files)).toStrictEqual([]);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder1', '/drive/folder1/folder2']);
+    calls(updateFilePlaceholderMock).toMatchObject([
+      { remote: { absolutePath: '/drive/child1' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/parent1/parent2/child3' } },
+    ]);
   });
 
-  it('filters the files and folders depending on the filters set', async () => {
-    getAllItemsMock.mockResolvedValue({
-      files: [
-        {
-          nameWithExtension: 'file1.txt',
-          parentUuid: rootUuid,
-          status: 'EXISTS',
-        },
-        {
-          nameWithExtension: 'file2.txt',
-          parentUuid: rootUuid,
-          status: 'TRASHED',
-        },
-      ],
-      folders: [
-        {
-          parentUuid: rootUuid,
-          name: 'folder1',
-          status: 'EXISTS',
-        },
-        {
-          parentUuid: rootUuid,
-          name: 'folder2',
-          status: 'TRASHED',
-        },
-      ],
-    });
-
-    const tree = await Traverser.run(props);
-
-    expect(extractPaths(tree.files)).toStrictEqual(['/drive/file1.txt']);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/drive/folder1']);
-    expect(extractPaths(tree.trashedFiles)).toStrictEqual(['/drive/file2.txt']);
-    expect(extractPaths(tree.trashedFolders)).toStrictEqual(['/drive/folder2']);
+  it('should run dangled files if set to true', async () => {
+    // Given
+    updateFolderPlaceholderMock.mockResolvedValue(true);
+    props.runDangledFiles = true;
+    // When
+    await Traverser.run(props);
+    // Then
+    calls(checkDangledFilesMock).toMatchObject([
+      { file: { absolutePath: '/drive/child1' } },
+      { file: { absolutePath: '/drive/parent1/child2' } },
+      { file: { absolutePath: '/drive/parent1/parent2/child3' } },
+    ]);
   });
 });

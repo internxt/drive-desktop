@@ -5,39 +5,35 @@ import { InMemoryFiles, InMemoryFolders } from '../sync-items-by-checkpoint/load
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-type FileProps = { type: 'file'; remotes: ExtendedDriveFile[]; locals: InMemoryFiles };
-type FolderProps = { type: 'folder'; remotes: ExtendedDriveFolder[]; locals: InMemoryFolders };
+type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: InMemoryFiles };
+type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: InMemoryFolders };
 type Props = { ctx: SyncContext } & (FileProps | FolderProps);
 
-export async function deleteItemPlaceholders({ ctx, type, remotes, locals }: Props) {
-  await Promise.all(
-    remotes.map(async (remote) => {
-      const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
+export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props) {
+  const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
 
-      if (!local) return;
+  if (!local) return;
 
-      if (local.path !== remote.absolutePath) {
-        ctx.logger.error({
-          msg: 'Cannot delete placeholder, path does not match',
-          remotePath: remote.absolutePath,
-          localPath: local.path,
-          type,
-        });
+  if (local.path !== remote.absolutePath) {
+    ctx.logger.error({
+      msg: 'Cannot delete placeholder, path does not match',
+      remotePath: remote.absolutePath,
+      localPath: local.path,
+      type,
+    });
 
-        return;
-      }
+    return;
+  }
 
-      try {
-        ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath });
-        await rm(remote.absolutePath, { recursive: true, force: true });
-      } catch (error) {
-        ctx.logger.error({
-          msg: 'Error deleting placeholder',
-          path: remote.absolutePath,
-          type,
-          error,
-        });
-      }
-    }),
-  );
+  try {
+    ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath });
+    await rm(remote.absolutePath, { recursive: true, force: true });
+  } catch (error) {
+    ctx.logger.error({
+      msg: 'Error deleting placeholder',
+      path: remote.absolutePath,
+      type,
+      error,
+    });
+  }
 }

@@ -53,9 +53,4 @@ export class FilePlaceholderUpdater {
       });
     }
   }
-
-  static async run({ ctx, remotes, files }: { ctx: SyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
-    const promises = remotes.map((remote) => this.update({ ctx, remote, files }));
-    await Promise.all(promises);
-  }
 }
