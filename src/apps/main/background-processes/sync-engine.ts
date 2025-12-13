@@ -8,11 +8,14 @@ import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
+import { buildUserEnvironment } from './backups/build-environment';
 
 export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
+  const { fileUploader, contentsDownloader } = buildUserEnvironment({ user });
+
   const syncContext: SyncContext = {
     ...context,
     userUuid: user.uuid,
@@ -27,6 +30,8 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     bridgePass: user.userId,
     workspaceToken: '',
     logger: createLogger({ tag: 'SYNC-ENGINE' }),
+    fileUploader,
+    contentsDownloader,
   };
 
   const workspaces = await getWorkspaces();

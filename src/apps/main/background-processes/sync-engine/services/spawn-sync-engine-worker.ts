@@ -78,7 +78,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     ctx.logger.debug({ msg: 'Browser window loaded' });
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { logger, ...config } = ctx;
+    const { logger, fileUploader, contentsDownloader, ...config } = ctx;
     browserWindow.webContents.send('SET_CONFIG', config);
 
     const manager = addRemoteSyncManager({ context: ctx });

@@ -3,10 +3,9 @@ import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
 import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { InxtJs } from '@/infra';
 import { initWatcher } from '@/node-win/watcher/watcher';
+import { buildEnvironment } from '../main/background-processes/backups/build-environment';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -38,8 +37,12 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
 
-    const { fileUploader, environment } = buildFileUploader({ bucket: config.bucket });
-    const contentsDownloader = new InxtJs.ContentsDownloader(environment, config.bucket);
+    const { fileUploader, contentsDownloader } = buildEnvironment({
+      bucket: config.bucket,
+      bridgePass: config.bridgePass,
+      bridgeUser: config.bridgeUser,
+      mnemonic: config.mnemonic,
+    });
 
     const ctx: ProcessSyncContext = {
       ...config,
