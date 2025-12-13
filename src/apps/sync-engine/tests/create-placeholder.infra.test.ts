@@ -1,5 +1,4 @@
 import { join } from 'node:path/posix';
-import { BindingsManager } from '../BindingManager';
 import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
@@ -71,10 +70,6 @@ describe('create-placeholder', () => {
   it('should create placeholder', async () => {
     // Given
     invokeMock.mockImplementation((event) => {
-      if (event === 'GET_UPDATED_REMOTE_ITEMS') {
-        return Promise.resolve({ files: [], folders: [] });
-      }
-
       if (event === 'persistFile') {
         return Promise.resolve({ data: { uuid: 'uuid' } });
       }
@@ -107,7 +102,6 @@ describe('create-placeholder', () => {
 
     // When
     await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
-    await BindingsManager.start({ ctx });
     initWatcher({ ctx });
 
     await sleep(100);
@@ -123,7 +117,6 @@ describe('create-placeholder', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
-      { msg: 'Load in memory paths' },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
       { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },

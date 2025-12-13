@@ -1,10 +1,10 @@
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { ProcessSyncContext } from './config';
+import { SyncContext } from './config';
 import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
-import { getAllItems } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   runDangledFiles: boolean;
 };
 
@@ -20,4 +20,13 @@ export async function refreshItemPlaceholders({ ctx, runDangledFiles }: Props) {
       error,
     });
   }
+}
+
+async function getAllItems({ ctx }: { ctx: SyncContext }) {
+  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+    SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
+    SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),
+  ]);
+
+  return { files, folders };
 }

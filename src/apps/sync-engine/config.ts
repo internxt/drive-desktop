@@ -12,7 +12,11 @@ export type CommonContext = {
   bucket: string;
 };
 
-export type Config = CommonContext & {
+export type Config = {
+  userUuid: string;
+  workspaceId: string;
+  workspaceToken: string;
+  bucket: string;
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
@@ -22,12 +26,14 @@ export type Config = CommonContext & {
   bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config & { logger: typeof logger };
+export type SyncContext = AuthContext &
+  Config & {
+    logger: typeof logger;
+    fileUploader: EnvironmentFileUploader;
+    contentsDownloader: InxtJs.ContentsDownloader;
+  };
 
-export type ProcessSyncContext = SyncContext & {
-  fileUploader: EnvironmentFileUploader;
-  contentsDownloader: InxtJs.ContentsDownloader;
-};
+export type ProcessSyncContext = SyncContext;
 
 const emptyValues = (): Config => {
   return {
@@ -61,10 +67,10 @@ const defaultValues = (): Config => {
     providerName: config.providerName,
     workspaceId: config.workspaceId,
     rootUuid: config.rootUuid,
-    bucket: user.bucket || config.bucket,
-    mnemonic: user.mnemonic || config.mnemonic,
-    bridgeUser: user.bridgeUser || config.bridgeUser,
-    bridgePass: user.userId || config.bridgePass,
+    bucket: user.bucket,
+    mnemonic: user.mnemonic,
+    bridgeUser: user.bridgeUser,
+    bridgePass: user.userId,
     workspaceToken: config.workspaceToken,
   };
 };

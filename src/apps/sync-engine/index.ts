@@ -3,12 +3,9 @@ import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
 import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { InxtJs } from '@/infra';
-import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { initWatcher } from '@/node-win/watcher/watcher';
+import { buildEnvironment } from '../main/background-processes/backups/build-environment';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -21,11 +18,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await VirtualDrive.createSyncRootFolder({ rootPath });
 
-  await BindingsManager.start({ ctx });
-
-  ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await refreshItemPlaceholders({ ctx, runDangledFiles: false });
-  });
+  BindingsManager.start({ ctx });
 
   initWatcher({ ctx });
 }
@@ -44,8 +37,12 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
   try {
     setConfig(config);
 
-    const { fileUploader, environment } = buildFileUploader({ bucket: config.bucket });
-    const contentsDownloader = new InxtJs.ContentsDownloader(environment, config.bucket);
+    const { fileUploader, contentsDownloader } = buildEnvironment({
+      bucket: config.bucket,
+      bridgePass: config.bridgePass,
+      bridgeUser: config.bridgeUser,
+      mnemonic: config.mnemonic,
+    });
 
     const ctx: ProcessSyncContext = {
       ...config,

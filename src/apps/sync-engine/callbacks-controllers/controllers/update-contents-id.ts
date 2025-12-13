@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { Stats } from 'node:fs';
-import { ProcessSyncContext } from '../../config';
+import { SyncContext } from '../../config';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -9,7 +9,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   stats: Stats;
   path: AbsolutePath;
   uuid: FileUuid;

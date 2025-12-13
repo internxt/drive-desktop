@@ -1,5 +1,4 @@
 import { SimpleDriveFile } from '../../../main/database/entities/DriveFile';
-import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
@@ -18,13 +17,6 @@ type FilesEvents = {
 };
 
 type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: ({
-    userUuid,
-    workspaceId,
-  }: {
-    userUuid: string;
-    workspaceId: string;
-  }) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_LOGGED_OUT: () => void;
   FIND_EXISTING_FILES: ({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) => Promise<SimpleDriveFile[]>;
@@ -36,6 +28,4 @@ type ProcessInfoUpdate = {
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
-export type FromMain = {
-  UPDATE_SYNC_ENGINE_PROCESS: () => void;
-};
+export type FromMain = {};
