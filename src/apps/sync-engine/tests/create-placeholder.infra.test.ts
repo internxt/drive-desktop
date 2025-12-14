@@ -3,7 +3,7 @@ import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
@@ -15,7 +15,6 @@ import { ipcRenderer } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -109,27 +108,13 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    calls(onAllMock).toMatchObject([
-      { event: 'add', path: file, stats: { size: 7 } },
-      { event: 'change', path: file, stats: { size: 7 } },
-    ]);
-
+    call(onAllMock).toMatchObject({ event: 'add', path: file, stats: { size: 7 } });
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
       { msg: 'onReady' },
       { msg: 'Create file', path: file },
       { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
-      {
-        msg: 'On change event',
-        path: file,
-        pinState: PinState.Unspecified,
-        blocks: 0,
-        ctime: expect.any(Date),
-        mtime: expect.any(Date),
-        isChanged: true,
-        isModified: true,
-      },
     ]);
   });
 });
