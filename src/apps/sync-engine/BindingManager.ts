@@ -26,12 +26,7 @@ export class BindingsManager {
       },
     };
 
-    try {
-      Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
-    } catch (error) {
-      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
-      throw error;
-    }
+    Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
 
     /**
      * v2.5.7 Daniel Jiménez
