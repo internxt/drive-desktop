@@ -22,12 +22,14 @@ export type Config = CommonContext & {
   bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config & { logger: typeof logger };
+export type SyncContext = AuthContext &
+  Config & {
+    logger: typeof logger;
+    fileUploader: EnvironmentFileUploader;
+    contentsDownloader: InxtJs.ContentsDownloader;
+  };
 
-export type ProcessSyncContext = SyncContext & {
-  fileUploader: EnvironmentFileUploader;
-  contentsDownloader: InxtJs.ContentsDownloader;
-};
+export type ProcessSyncContext = SyncContext;
 
 const emptyValues = (): Config => {
   return {

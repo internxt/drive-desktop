@@ -12,6 +12,8 @@ export type DeleteFolderByUuidProps = Parameters<typeof driveServerWip.storage.d
 export type PersistFileProps = Parameters<typeof HttpRemoteFileSystem.persist>[0];
 export type PersistFolderProps = Parameters<typeof HttpRemoteFolderSystem.persist>[0];
 export type ReplaceFileProps = Parameters<typeof driveServerWip.files.replaceFile>[0] & { ctx: CommonContext };
+export type PersistMoveFileProps = { uuid: FileUuid; workspaceToken: string; parentUuid: FolderUuid; path: AbsolutePath };
+export type PersistMoveFolderProps = { uuid: FolderUuid; workspaceToken: string; parentUuid: FolderUuid; path: AbsolutePath };
 
 export type FromProcess = {
   storageDeleteFileByUuid: (props: DeleteFileByUuidProps) => Awaited<ReturnType<typeof driveServerWip.storage.deleteFileByUuid>>;
@@ -19,18 +21,8 @@ export type FromProcess = {
   persistFile: (props: PersistFileProps) => Awaited<ReturnType<typeof SqliteModule.FileModule.createOrUpdate>>;
   persistFolder: (props: PersistFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
   persistReplaceFile: (props: ReplaceFileProps) => Awaited<ReturnType<typeof SqliteModule.FileModule.createOrUpdate>>;
-  moveFileByUuid: (props: {
-    uuid: FileUuid;
-    workspaceToken: string;
-    parentUuid: FolderUuid;
-    path: AbsolutePath;
-  }) => Awaited<ReturnType<typeof driveServerWip.files.move>>;
-  moveFolderByUuid: (props: {
-    uuid: FolderUuid;
-    workspaceToken: string;
-    parentUuid: FolderUuid;
-    path: AbsolutePath;
-  }) => Awaited<ReturnType<typeof driveServerWip.folders.move>>;
+  moveFileByUuid: (props: PersistMoveFileProps) => Awaited<ReturnType<typeof driveServerWip.files.move>>;
+  moveFolderByUuid: (props: PersistMoveFolderProps) => Awaited<ReturnType<typeof driveServerWip.folders.move>>;
 };
 
 export type FromMain = {};

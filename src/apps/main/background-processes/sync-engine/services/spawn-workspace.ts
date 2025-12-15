@@ -7,6 +7,7 @@ import { getUserOrThrow } from '@/apps/main/auth/service';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { buildEnvironment } from '../../backups/build-environment';
 
 type TProps = {
   context: AuthContext;
@@ -34,6 +35,13 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       privateKeyInBase64: user.privateKey,
     });
 
+    const { fileUploader, contentsDownloader } = buildEnvironment({
+      bucket: credentials.bucket,
+      mnemonic,
+      bridgeUser: credentials.credentials.networkUser,
+      bridgePass: credentials.credentials.networkPass,
+    });
+
     const syncCtx: SyncContext = {
       ...context,
       userUuid: user.uuid,
@@ -48,6 +56,8 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       bridgeUser: credentials.credentials.networkUser,
       bridgePass: credentials.credentials.networkPass,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: workspace.id }),
+      fileUploader,
+      contentsDownloader,
     };
 
     await spawnSyncEngineWorker({ ctx: syncCtx });

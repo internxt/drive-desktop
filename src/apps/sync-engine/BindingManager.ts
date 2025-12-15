@@ -2,13 +2,12 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessSyncContext } from './config';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { addPendingItems } from './in/add-pending-items';
-import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
 
 export class BindingsManager {
-  static async start({ ctx }: { ctx: ProcessSyncContext }) {
+  static start({ ctx }: { ctx: ProcessSyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (win32Path, callback) => {
         await fetchData({
@@ -27,22 +26,7 @@ export class BindingsManager {
       },
     };
 
-    try {
-      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
-      Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
-    } catch (error) {
-      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
-      throw error;
-    }
-
-    /**
-     * Jonathan Arce v2.5.1
-     * The goal is to create/update/delete placeholders once the sync engine process spawns,
-     * also as we fetch from the backend and after the fetch finish to ensure that all placeholders are right.
-     * This one is for the first case, since maybe the sync engine failed in a previous fetching
-     * and we have some placeholders pending from being created/updated/deleted
-     */
-    await refreshItemPlaceholders({ ctx, runDangledFiles: true });
+    Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
 
     /**
      * v2.5.7 Daniel Jiménez
