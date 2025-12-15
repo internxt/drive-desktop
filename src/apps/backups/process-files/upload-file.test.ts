@@ -1,11 +1,11 @@
 import { uploadFile } from './upload-file';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { AbsolutePath } from '../infrastructure/AbsolutePath';
 import { mockDeep } from 'vitest-mock-extended';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('node:fs'));
 
@@ -14,7 +14,7 @@ describe('upload-file', () => {
   const props = mockProps<typeof uploadFile>({
     context: { fileUploader: uploader, abortController: new AbortController(), addIssue: vi.fn() },
     localFile: {
-      absolutePath: 'C:\\Users\\user\\backup' as AbsolutePath,
+      absolutePath: abs('/backup'),
       size: 1024,
     },
   });

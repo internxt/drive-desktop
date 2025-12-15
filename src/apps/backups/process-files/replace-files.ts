@@ -1,6 +1,6 @@
-import { LocalFile } from '../../domain/LocalFile';
+import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { uploadFile } from '../upload-file';
+import { uploadFile } from './upload-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';

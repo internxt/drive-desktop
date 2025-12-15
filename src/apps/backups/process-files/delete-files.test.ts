@@ -1,9 +1,9 @@
-import { deleteRemoteFiles } from './delete-remote-files';
+import { deleteFiles } from './delete-files';
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as deleteFileByUuidModule from '@/infra/drive-server-wip/out/ipc-main';
 
-describe('delete-remote-files', () => {
+describe('delete-files', () => {
   const deleteFileByUuidMock = partialSpyOn(deleteFileByUuidModule, 'deleteFileByUuid');
 
   const deleted = [{ uuid: 'uuid1' as FileUuid }, { uuid: 'uuid2' as FileUuid }];
@@ -14,8 +14,8 @@ describe('delete-remote-files', () => {
     abortController.abort();
 
     // When
-    const props = mockProps<typeof deleteRemoteFiles>({ deleted, context: { abortController } });
-    await deleteRemoteFiles(props);
+    const props = mockProps<typeof deleteFiles>({ deleted, context: { abortController } });
+    await deleteFiles(props);
 
     // Then
     expect(deleteFileByUuidMock).toHaveBeenCalledTimes(0);
@@ -30,8 +30,8 @@ describe('delete-remote-files', () => {
     });
 
     // When
-    const props = mockProps<typeof deleteRemoteFiles>({ deleted, context: { abortController } });
-    await deleteRemoteFiles(props);
+    const props = mockProps<typeof deleteFiles>({ deleted, context: { abortController } });
+    await deleteFiles(props);
 
     // Then
     expect(deleteFileByUuidMock).toHaveBeenCalledTimes(1);
@@ -42,8 +42,8 @@ describe('delete-remote-files', () => {
     const abortController = new AbortController();
 
     // When
-    const props = mockProps<typeof deleteRemoteFiles>({ deleted, context: { abortController } });
-    await deleteRemoteFiles(props);
+    const props = mockProps<typeof deleteFiles>({ deleted, context: { abortController } });
+    await deleteFiles(props);
 
     // Then
     expect(deleteFileByUuidMock).toHaveBeenCalledTimes(2);
