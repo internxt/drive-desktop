@@ -1,7 +1,6 @@
 import * as sleep from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Addon } from '@/node-win/addon-wrapper';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
@@ -11,28 +10,23 @@ import { v4 } from 'uuid';
 import { store } from './unlink/is-move-event';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import * as persistMoveFile from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('move-file', () => {
   partialSpyOn(sleep, 'sleep');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
-  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const getByUuidMock = partialSpyOn(SqliteModule.FileModule, 'getByUuid');
+  const persistMoveFileMock = partialSpyOn(persistMoveFile, 'persistMoveFile');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
   const rootPath = join(TEST_FILES, v4());
 
   beforeEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    invokeMock.mockImplementation((event, _) => {
-      if (event === 'fileGetByName') {
-        return Promise.resolve({ data: { uuid: 'uuid' } });
-      } else if (event === 'fileGetByUuid') {
-        return Promise.resolve({ data: { parentUuid: 'parentUuid' } });
-      } else {
-        return Promise.resolve({ data: {} });
-      }
-    });
-
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, parentUuid: 'parentUuid' } });
+    getByUuidMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
   });
@@ -56,12 +50,6 @@ describe('move-file', () => {
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
     calls(loggerMock.debug).toMatchObject([{ msg: 'onReady' }, { msg: 'Is move event', path: file1 }]);
-    calls(invokeMock).toStrictEqual(
-      expect.arrayContaining([
-        ['fileGetByName', { parentUuid: 'parentUuid', nameWithExtension: 'file1' }],
-        ['fileGetByUuid', { uuid: 'uuid' }],
-        ['moveFileByUuid', { parentUuid: 'parentUuid', path: file2, uuid: 'uuid', workspaceToken: undefined }],
-      ]),
-    );
+    call(persistMoveFileMock).toStrictEqual({ parentUuid: 'parentUuid', path: file2, uuid: 'uuid', workspaceToken: undefined });
   });
 });

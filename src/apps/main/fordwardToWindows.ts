@@ -13,18 +13,6 @@ ipcMainSyncEngine.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
   LocalSync.SyncState.addItem({ action: 'DOWNLOAD_CANCEL', path: payload.path });
 });
 
-ipcMainSyncEngine.on('FILE_UPLOADING', (_, payload) => {
-  LocalSync.SyncState.addItem({ action: 'UPLOADING', path: payload.path, progress: payload.progress });
-});
-
-ipcMainSyncEngine.on('FILE_UPLOADED', (_, payload) => {
-  LocalSync.SyncState.addItem({ action: 'UPLOADED', path: payload.path });
-});
-
-ipcMainSyncEngine.on('FILE_UPLOAD_ERROR', (_, payload) => {
-  LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path: payload.path });
-});
-
 ipcMainSyncEngine.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path: payload.path });
 });

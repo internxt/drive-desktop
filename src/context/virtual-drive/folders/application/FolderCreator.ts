@@ -1,8 +1,8 @@
 import { SyncContext } from '@/apps/sync-engine/config';
-import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
 import { getParentUuid } from '../../files/application/get-parent-uuid';
+import { persistFolder } from '@/infra/drive-server-wip/out/ipc-main';
 
 type TProps = {
   ctx: SyncContext;
@@ -15,16 +15,7 @@ export class FolderCreator {
 
     const parentUuid = await getParentUuid({ ctx, path });
 
-    const { data: folder, error } = await ipcRendererDriveServerWip.invoke('persistFolder', {
-      ctx: {
-        bucket: ctx.bucket,
-        userUuid: ctx.userUuid,
-        workspaceId: ctx.workspaceId,
-        workspaceToken: ctx.workspaceToken,
-      },
-      path,
-      parentUuid,
-    });
+    const { data: folder, error } = await persistFolder({ ctx, path, parentUuid });
 
     if (error) throw error;
 

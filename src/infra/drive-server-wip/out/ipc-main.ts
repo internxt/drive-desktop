@@ -1,10 +1,6 @@
-import { CustomIpc } from '@/apps/shared/IPC/IPCs';
-import { ipcMain } from 'electron';
 import {
   DeleteFileByUuidProps,
   DeleteFolderByUuidProps,
-  FromMain,
-  FromProcess,
   PersistFileProps,
   PersistFolderProps,
   PersistMoveFileProps,
@@ -21,18 +17,6 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
-
-const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
-
-export function setupIpcDriveServerWip() {
-  ipcMainDriveServerWip.handle('storageDeleteFileByUuid', (_, props) => deleteFileByUuid(props));
-  ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', (_, props) => deleteFolderByUuid(props));
-  ipcMainDriveServerWip.handle('persistFolder', (_, props) => persistFolder(props));
-  ipcMainDriveServerWip.handle('persistFile', (_, props) => persistFile(props));
-  ipcMainDriveServerWip.handle('persistReplaceFile', (_, props) => persistReplaceFile(props));
-  ipcMainDriveServerWip.handle('moveFileByUuid', (_, props) => persistMoveFile(props));
-  ipcMainDriveServerWip.handle('moveFolderByUuid', (_, props) => persistMoveFolder(props));
-}
 
 export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFileByUuidProps) {
   const res = await driveServerWip.storage.deleteFileByUuid({ path, uuid, workspaceToken });

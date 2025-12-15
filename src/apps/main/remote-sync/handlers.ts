@@ -4,9 +4,7 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { remoteSyncManagers } from './store';
 import { getSyncStatus } from './services/broadcast-sync-status';
-import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
@@ -16,11 +14,6 @@ export function addRemoteSyncManager({ context }: { context: SyncContext }) {
   remoteSyncManagers.set(context.workspaceId, remoteSyncManager);
   return remoteSyncManager;
 }
-
-ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, { userUuid, workspaceId }) => {
-  const { data: files = [] } = await SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId });
-  return files;
-});
 
 export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager }) {
   try {

@@ -4,13 +4,13 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as addSyncIssue from '@/apps/main/background-processes/issues';
 
 vi.mock(import('node:fs'));
 
 describe('contents-uploader', () => {
-  const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');
+  const addSyncIssueMock = partialSpyOn(addSyncIssue, 'addSyncIssue');
   const uploader = mockDeep<EnvironmentFileUploader>();
 
   const props = mockProps<typeof ContentsUploader.run>({
@@ -26,7 +26,7 @@ describe('contents-uploader', () => {
     const promise = ContentsUploader.run(props);
     // Then
     await expect(promise).rejects.toThrow();
-    expect(sendMock).toBeCalledWith('ADD_SYNC_ISSUE', { error: 'NOT_ENOUGH_SPACE', name: '/file.txt' });
+    expect(addSyncIssueMock).toBeCalledWith({ error: 'NOT_ENOUGH_SPACE', name: '/file.txt' });
   });
 
   it('should return contents id if upload is successful', async () => {

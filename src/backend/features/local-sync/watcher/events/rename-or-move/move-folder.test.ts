@@ -1,10 +1,10 @@
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as moveItemModule from './move-item';
 import { moveFolder } from './move-folder';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('move-folder', () => {
-  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const getByUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByUuid');
   const moveItemMock = partialSpyOn(moveItemModule, 'moveItem');
 
   let props: Parameters<typeof moveFolder>[0];
@@ -15,7 +15,7 @@ describe('move-folder', () => {
 
   it('should move if folder exists', async () => {
     // Given
-    invokeMock.mockResolvedValue({ data: {} });
+    getByUuidMock.mockResolvedValue({ data: {} });
     // When
     await moveFolder(props);
     // Then
@@ -24,7 +24,7 @@ describe('move-folder', () => {
 
   it('should throw error if folder does not exist', async () => {
     // Given
-    invokeMock.mockResolvedValue({ error: new Error() });
+    getByUuidMock.mockResolvedValue({ error: new Error() });
     // When
     await moveFolder(props);
     // Then

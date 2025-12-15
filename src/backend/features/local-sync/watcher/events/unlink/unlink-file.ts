@@ -1,11 +1,11 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';
 import { getParentUuid } from './get-parent-uuid';
-import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { isMoveFileEvent } from './is-move-event';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { deleteFileByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -18,7 +18,7 @@ export async function unlinkFile({ ctx, path }: TProps) {
     if (!parentUuid) return;
 
     const nameWithExtension = basename(path);
-    const { data: file } = await ipcRendererSqlite.invoke('fileGetByName', { parentUuid, nameWithExtension });
+    const { data: file } = await SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension });
 
     /**
      * v2.5.6 Daniel Jiménez
@@ -38,7 +38,7 @@ export async function unlinkFile({ ctx, path }: TProps) {
 
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'File unlinked', path });
 
-    const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
+    const { error } = await deleteFileByUuid({
       uuid: file.uuid,
       workspaceToken: ctx.workspaceToken,
       path,
