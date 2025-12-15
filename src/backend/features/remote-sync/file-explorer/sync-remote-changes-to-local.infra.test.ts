@@ -28,7 +28,7 @@ describe('sync-remote-changes-to-local', () => {
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await Addon.unregisterSyncRoot({ providerId });
   });
 
