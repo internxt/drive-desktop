@@ -5,6 +5,7 @@ import fetch from 'electron-fetch';
 import { FileError } from '../file.error';
 import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function renameFile({
   plainName,
@@ -31,9 +32,10 @@ export async function renameFile({
     }
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       msg: 'Error renaming file',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new FileError('UNKNOWN'),

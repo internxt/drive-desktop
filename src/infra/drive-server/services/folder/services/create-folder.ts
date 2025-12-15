@@ -4,6 +4,7 @@ import { Result } from './../../../../../context/shared/domain/Result';
 import { FolderError } from '../folder.error';
 import fetch, { Response } from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 function errorHandler(response: Response): { error: FolderError } {
   if (response.status === 409) {
@@ -49,9 +50,10 @@ export async function createFolder(
     }
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       msg: 'error creating a folder',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new FolderError('UNKNOWN'),

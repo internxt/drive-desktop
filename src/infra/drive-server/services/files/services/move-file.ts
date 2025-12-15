@@ -4,6 +4,7 @@ import fetch from 'electron-fetch';
 import { FileError } from '../file.error';
 import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function moveFile({
   destinationFolder,
@@ -27,9 +28,10 @@ export async function moveFile({
     }
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       msg: 'Error moving file',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new FileError('UNKNOWN'),

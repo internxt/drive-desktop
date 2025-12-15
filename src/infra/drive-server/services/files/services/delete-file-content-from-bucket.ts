@@ -2,6 +2,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/l
 import { Result } from './../../../../../context/shared/domain/Result';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function deleteFileFromStorageByFileId({
   bucketId,
@@ -23,10 +24,11 @@ export async function deleteFileFromStorageByFileId({
       error: new Error('Response delete file content from storage contained unexpected data'),
     };
   } catch (error) {
+    const mappedError = mapError(error);
     return {
       error: logger.error({
         msg: 'Request delete file content from storage threw an exception',
-        error,
+        error: mappedError.message,
       }),
     };
   }

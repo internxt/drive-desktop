@@ -5,6 +5,7 @@ import fetch from 'electron-fetch';
 import { FileError } from '../file.error';
 import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function createThumbnail(
   body: components['schemas']['CreateThumbnailDto'],
@@ -22,9 +23,10 @@ export async function createThumbnail(
     }
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       msg: 'error creating a thumbnail',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new FileError('UNKNOWN'),

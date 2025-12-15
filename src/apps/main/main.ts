@@ -140,11 +140,9 @@ app
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
 app.on('second-instance', async (_, argv) => {
-  logger.warn({ tag: 'AUTH', msg: 'Received internxt deeplink', argv });
+  logger.debug({tag: 'AUTH', msg: 'Deeplink received on second instance, processing...'});
   const deeplinkArg = argv.find((arg) => arg.startsWith('internxt://'));
   if (!deeplinkArg) return;
-
-  logger.debug({ tag: 'AUTH', msg: 'Deeplink found in arguments:', deeplinkArg });
 
   try {
     await handleDeeplink({ url: deeplinkArg });

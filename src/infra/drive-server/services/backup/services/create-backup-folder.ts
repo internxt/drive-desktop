@@ -4,6 +4,7 @@ import { components } from '../../../../schemas';
 import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
 import fetch, { Response } from 'electron-fetch';
+import { mapError } from '../../utils/mapError';
 
 function errorHandler(response: Response): { error: BackupError } {
   if (response.status === 409) {
@@ -48,10 +49,11 @@ export async function createBackupFolder(
     }
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       tag: 'BACKUPS',
       msg: 'error posting a backup',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new BackupError('UNKNOWN'),

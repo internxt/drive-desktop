@@ -368,7 +368,7 @@ export class RemoteSyncManager {
       }
 
       if (axios.isAxiosError(error)) {
-        throw new RemoteSyncNetworkError(error);
+        throw new RemoteSyncNetworkError(error.message, error.code, error.response?.status);
       }
 
       throw new RemoteSyncError('Uncontrolled Error in fetchFilesFromRemote', undefined, { originalError: error });
@@ -419,10 +419,10 @@ export class RemoteSyncManager {
       }
 
       if (axios.isAxiosError(error)) {
-        throw new RemoteSyncNetworkError(error);
+        throw new RemoteSyncNetworkError(error.message, error.code, error.response?.status);
       }
 
-      throw new RemoteSyncError('Uncontrolled Error in fetchFilesFromRemote', undefined, { originalError: error });
+      throw new RemoteSyncError('Uncontrolled Error in fetchFoldersFromRemote', undefined, { originalError: error });
     }
   }
 

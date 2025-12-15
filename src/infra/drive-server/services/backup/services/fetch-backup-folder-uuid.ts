@@ -3,6 +3,7 @@ import { Result } from '../../../../../context/shared/domain/Result';
 import fetch from 'electron-fetch';
 import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
+import { mapError } from '../../utils/mapError';
 
 export async function getBackupFolderUuid(backup: {
   enabled: boolean;
@@ -26,10 +27,11 @@ export async function getBackupFolderUuid(backup: {
     const data: components['schemas']['FolderDto'] = await response.json();
     return { data: data.uuid };
   } catch (error) {
+    const mappedError = mapError(error);
     const err = logger.error({
       tag: 'BACKUPS',
       msg: 'Error fetching backup folder UUID',
-      error,
+      error: mappedError.message,
     });
     return { error: err };
   }

@@ -12,7 +12,6 @@ type Props = {
 };
 
 export async function handleDeeplink({ url }: Props) {
-  logger.debug({ tag: 'AUTH', msg: 'Processing deeplink URL', url });
   try {
     const deeplinkParams = await processDeeplink({ url });
 

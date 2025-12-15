@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
@@ -23,7 +23,7 @@ export class AuthorizedHttpClient {
 
   private responseInterceptor(error: AxiosError) {
     if (error?.response?.status === 401) {
-      logger.warn({ msg: '[AUTH] Request unauthorized', error: error.config.url });
+      logger.warn({ msg: '[AUTH] Request unauthorized', url: error.config?.url });
       if (this.unauthorizedNotifier) this.unauthorizedNotifier();
     }
 
@@ -32,14 +32,15 @@ export class AuthorizedHttpClient {
     }
 
     // Prevent the token from being displayed in the logs
-    if (error.config.headers?.Authorization) {
+    if (error.config?.headers?.Authorization) {
       error.config.headers['Authorization'] = 'Bearer ****************';
     }
-    return Promise.reject(error);
+    return Promise.reject(error.message);
   }
 
-  private async addApplicationHeaders(config: AxiosRequestConfig) {
-    config.headers = await this.headersProvider();
+  private async addApplicationHeaders(config: InternalAxiosRequestConfig) {
+    const headers = await this.headersProvider();
+    Object.assign(config.headers, headers);
 
     return config;
   }

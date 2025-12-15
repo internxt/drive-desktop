@@ -24,7 +24,7 @@ export class UserService {
       const loggerError = logger.error({
         msg: 'Get usage request threw an exception',
         attributes: { endpoint: '/users/usage' },
-        error,
+        error: error.message,
       });
       return left(loggerError);
     }
@@ -46,8 +46,8 @@ export class UserService {
       const error = mapError(err);
       const loggerError = logger.error({
         msg: 'Get limit request threw an exception',
-        attributes: { endpoint: '/users/usage' },
-        error,
+        attributes: { endpoint: '/users/limit' },
+        error: error.message,
       });
       return left(loggerError);
     }

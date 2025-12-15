@@ -3,6 +3,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/l
 import { Result } from '../../../../../context/shared/domain/Result';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function updateBackupFolderName(
   folderUuid: string,
@@ -29,10 +30,11 @@ export async function updateBackupFolderName(
     const data: components['schemas']['FolderDto'] = await response.json();
     return { data };
   } catch (error) {
+    const mappedError = mapError(error);
     const err = logger.error({
       tag: 'BACKUPS',
       msg: 'Error updating backup folder name',
-      error,
+      error: mappedError.message,
     });
     return { error: err };
   }

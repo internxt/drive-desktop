@@ -28,7 +28,7 @@ export class AuthService {
       logger.error({
         msg: 'Access request threw an exception',
         tag: 'AUTH',
-        error: error,
+        error: error.message,
         attributes: {
           endpoint: '/auth/login/access',
         },
@@ -58,7 +58,7 @@ export class AuthService {
       logger.error({
         msg: 'Login request threw an exception',
         tag: 'AUTH',
-        error: error,
+        error: error.message,
         attributes: {
           endpoint: '/auth/login',
         },
@@ -89,7 +89,7 @@ export class AuthService {
       logger.error({
         msg: 'Login request threw an exception',
         tag: 'AUTH',
-        error: error,
+        error: error.message,
         attributes: {
           endpoint: '/auth/login',
         },
@@ -120,7 +120,7 @@ export class AuthService {
       logger.error({
         msg: 'Logout request threw an exception',
         tag: 'AUTH',
-        error: error,
+        error: error.message,
         attributes: {
           endpoint: '/auth/logout',
         },

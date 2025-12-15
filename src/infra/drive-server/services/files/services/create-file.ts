@@ -5,6 +5,7 @@ import fetch from 'electron-fetch';
 import { FileError } from '../file.error';
 import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function createFile(
   body: components['schemas']['CreateFileDto'],
@@ -24,9 +25,10 @@ export async function createFile(
 
     return errorHandler(response);
   } catch (error) {
+    const mappedError = mapError(error);
     logger.error({
       msg: 'error creating a file',
-      error,
+      error: mappedError.message,
     });
     return {
       error: new FileError('UNKNOWN'),

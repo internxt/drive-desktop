@@ -3,6 +3,7 @@ import { Result } from '../../../../../context/shared/domain/Result';
 import { components } from '../../../../../infra/schemas';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
+import { mapError } from '../../utils/mapError';
 
 export async function renameFolder(
   folderUuid: string,
@@ -28,9 +29,10 @@ export async function renameFolder(
     const data: components['schemas']['FolderDto'] = await response.json();
     return { data };
   } catch (error) {
+    const mappedError = mapError(error);
     const err = logger.error({
       msg: 'Error updating folder name',
-      error,
+      error: mappedError.message,
     });
     return { error: err };
   }
