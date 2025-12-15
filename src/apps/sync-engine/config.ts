@@ -12,11 +12,7 @@ export type CommonContext = {
   bucket: string;
 };
 
-export type Config = {
-  userUuid: string;
-  workspaceId: string;
-  workspaceToken: string;
-  bucket: string;
+export type Config = CommonContext & {
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
@@ -67,10 +63,10 @@ const defaultValues = (): Config => {
     providerName: config.providerName,
     workspaceId: config.workspaceId,
     rootUuid: config.rootUuid,
-    bucket: user.bucket,
-    mnemonic: user.mnemonic,
-    bridgeUser: user.bridgeUser,
-    bridgePass: user.userId,
+    bucket: user.bucket || config.bucket,
+    mnemonic: user.mnemonic || config.mnemonic,
+    bridgeUser: user.bridgeUser || config.bridgeUser,
+    bridgePass: user.userId || config.bridgePass,
     workspaceToken: config.workspaceToken,
   };
 };
