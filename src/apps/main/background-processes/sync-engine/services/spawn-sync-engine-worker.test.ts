@@ -7,12 +7,14 @@ import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recove
 import { Addon } from '@/node-win/addon-wrapper';
 import * as addSyncIssue from '../../issues';
 import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 vi.mock(import('./stop-sync-engine-worker'));
 vi.mock(import('./monitor-health'));
 vi.mock(import('./schedule-sync'));
 
 describe('spawn-sync-engine-worker', () => {
+  const createSyncRootFolderMock = partialSpyOn(VirtualDrive, 'createSyncRootFolder');
   const registerSyncRootMock = partialSpyOn(Addon, 'registerSyncRoot');
   const addSyncIssueMock = partialSpyOn(addSyncIssue, 'addSyncIssue');
   const monitorHealthMock = vi.mocked(monitorHealth);
@@ -43,6 +45,7 @@ describe('spawn-sync-engine-worker', () => {
     await spawnSyncEngineWorker(props);
     // Then
     calls(addSyncIssueMock).toHaveLength(0);
+    calls(createSyncRootFolderMock).toHaveLength(1);
     calls(refreshItemPlaceholdersMock).toHaveLength(1);
     calls(monitorHealthMock).toHaveLength(1);
     calls(scheduleSyncMock).toHaveLength(1);

@@ -13,6 +13,7 @@ import { addSyncIssue } from '../../issues';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
 import { initWatcher } from '@/node-win/watcher/watcher';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 type TProps = {
   ctx: SyncContext;
@@ -23,6 +24,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
 
   try {
     try {
+      await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
       await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
     } catch (error) {
       addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
