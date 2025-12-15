@@ -3,20 +3,17 @@ import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
 import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { buildEnvironment } from '../main/background-processes/backups/build-environment';
 
 logger.debug({ msg: 'Running sync engine' });
 
-async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
+function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
 
   const { rootPath } = ctx;
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
-
-  await VirtualDrive.createSyncRootFolder({ rootPath });
 
   BindingsManager.start({ ctx });
 
@@ -33,7 +30,7 @@ async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
   }
 }
 
-ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
+ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   try {
     setConfig(config);
 
@@ -56,7 +53,7 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
       setInterval(() => refreshToken({ ctx }), 23 * 60 * 60 * 1000);
     }
 
-    await setUp({ ctx });
+    setUp({ ctx });
 
     logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
   } catch (exc) {
