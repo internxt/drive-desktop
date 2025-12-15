@@ -88,8 +88,8 @@ describe('backups', () => {
 
     // Then
     calls(fileUploader.run).toMatchObject([
-      { path: expect.stringContaining('addedFile'), size: 7 },
       { path: expect.stringContaining('modifiedFile'), size: 7 },
+      { path: expect.stringContaining('addedFile'), size: 7 },
     ]);
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
@@ -110,12 +110,14 @@ describe('backups', () => {
       },
     });
 
+    expect(service.backed).toBe(8);
+
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'BACKUPS', msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
-      { tag: 'BACKUPS', msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 3 },
-      { tag: 'BACKUPS', msg: 'Total items to backup', total: 7, alreadyBacked: 3 },
+      { tag: 'BACKUPS', msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
+      { tag: 'BACKUPS', msg: 'Total items to backup', total: 8, alreadyBacked: 3 },
     ]);
   });
 });
