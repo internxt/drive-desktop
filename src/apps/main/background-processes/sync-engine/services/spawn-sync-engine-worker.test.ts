@@ -8,6 +8,8 @@ import { Addon } from '@/node-win/addon-wrapper';
 import * as addSyncIssue from '../../issues';
 import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
 import { VirtualDrive } from '@/node-win/virtual-drive';
+import * as initWatcher from '@/node-win/watcher/watcher';
+import * as addPendingItems from '@/apps/sync-engine/in/add-pending-items';
 
 vi.mock(import('./stop-sync-engine-worker'));
 vi.mock(import('./monitor-health'));
@@ -21,6 +23,8 @@ describe('spawn-sync-engine-worker', () => {
   const scheduleSyncMock = vi.mocked(scheduleSync);
   const recoverySyncMock = partialSpyOn(RecoverySyncModule, 'recoverySync');
   const refreshItemPlaceholdersMock = partialSpyOn(refreshItemPlaceholders, 'refreshItemPlaceholders');
+  const initWatcherMock = partialSpyOn(initWatcher, 'initWatcher');
+  const addPendingItemsMock = partialSpyOn(addPendingItems, 'addPendingItems');
 
   const workspaceId = 'workspaceId';
   const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
@@ -50,6 +54,8 @@ describe('spawn-sync-engine-worker', () => {
     calls(monitorHealthMock).toHaveLength(1);
     calls(scheduleSyncMock).toHaveLength(1);
     calls(recoverySyncMock).toHaveLength(1);
+    calls(initWatcherMock).toHaveLength(1);
+    calls(addPendingItemsMock).toHaveLength(1);
     expect(workers.get(workspaceId)).toBeDefined();
   });
 });
