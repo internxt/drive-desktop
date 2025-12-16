@@ -60,12 +60,6 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     // Then
-    calls(onAllMock).toMatchObject([
-      { event: 'add', path, stats: { size: 7 } },
-      { event: 'change', path, stats: { size: 7 } },
-      { event: 'change', path, stats: { size: 1000 } },
-    ]);
-
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
@@ -79,6 +73,12 @@ describe('sync-remote-changes-to-local', () => {
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
+    ]);
+
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 1000 } },
     ]);
   });
 });
