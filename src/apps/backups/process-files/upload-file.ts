@@ -1,4 +1,4 @@
-import { LocalFile } from '../domain/LocalFile';
+import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { getUploadCallbacks } from '@/apps/backups/process-files/upload-callbacks';
 import { logger } from '@/apps/shared/logger/logger';
