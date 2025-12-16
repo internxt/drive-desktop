@@ -9,7 +9,7 @@ import { PinState } from './types/placeholder.type';
 
 export type Win32Path = Brand<string, 'Win32Path'>;
 export type CallbackDownload = (buffer: Buffer, offset: number) => void;
-export type FetchDataFn = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => void;
+export type FetchDataFn = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => Promise<void>;
 export type CancelFetchDataFn = (connectionKey: bigint, path: Win32Path) => void;
 
 type TAddon = {
