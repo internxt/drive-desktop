@@ -11,6 +11,8 @@ import { cleanSyncEngineWorker } from './stop-sync-engine-worker';
 import { Addon } from '@/node-win/addon-wrapper';
 import { addSyncIssue } from '../../issues';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
+import { initWatcher } from '@/node-win/watcher/watcher';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 
 type TProps = {
@@ -37,6 +39,14 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await refreshItemPlaceholders({ ctx, runDangledFiles: true });
+
+    /**
+     * v2.5.7 Daniel Jiménez
+     * If the cloud provider was not registered before it means that all items that
+     * were in the root folder have their placeholders gone, so we need to refresh first
+     * all item placeholders and then execute this function.
+     */
+    void addPendingItems({ ctx });
 
     const browserWindow = new BrowserWindow({
       show: false,
@@ -89,6 +99,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       ctx,
       browserWindow,
       syncSchedule: scheduleSync({ ctx, manager }),
+      watcher: initWatcher({ ctx }),
     };
 
     workers.set(ctx.workspaceId, worker);

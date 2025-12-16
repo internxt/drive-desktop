@@ -41,7 +41,6 @@ import { setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
-import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
@@ -83,7 +82,6 @@ setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
-setupIpcDriveServerWip();
 setupIpcSqlite();
 
 logger.debug({

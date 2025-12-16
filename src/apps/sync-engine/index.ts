@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron';
 import { BindingsManager } from './BindingManager';
 import { setConfig, ProcessSyncContext, Config } from './config';
 import { createLogger, logger } from '../shared/logger/logger';
-import { initWatcher } from '@/node-win/watcher/watcher';
 import { buildEnvironment } from '../main/background-processes/backups/build-environment';
 import { refreshWorkspaceToken } from './refresh-workspace-token';
 
@@ -16,8 +15,6 @@ function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
   BindingsManager.start({ ctx });
-
-  initWatcher({ ctx });
 }
 
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {

@@ -2,7 +2,6 @@ import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { DriveServerWipError } from '../out/error.types';
 import { fetchExceptionSchema, isAbortError, isNetworkConnectivityError, networkErrorIssue } from './helpers/error-helpers';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type TProps = {
   loggerBody: TLoggerBody;
@@ -22,12 +21,7 @@ export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
 
   switch (true) {
     case isNetwork:
-      if (process.type === 'renderer') {
-        ipcRendererSyncEngine.send('ADD_GENERAL_ISSUE', networkErrorIssue);
-      } else {
-        addGeneralIssue(networkErrorIssue);
-      }
-
+      addGeneralIssue(networkErrorIssue);
       return new DriveServerWipError('NETWORK', loggedError);
     case isAbort:
       return new DriveServerWipError('ABORTED', loggedError);

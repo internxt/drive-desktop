@@ -1,7 +1,6 @@
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessSyncContext } from './config';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { addPendingItems } from './in/add-pending-items';
 import { fetchData } from './callbacks/fetchData.service';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -27,13 +26,5 @@ export class BindingsManager {
     };
 
     Addon.connectSyncRoot({ rootPath: ctx.rootPath, callbacks });
-
-    /**
-     * v2.5.7 Daniel Jiménez
-     * If the cloud provider was not registered before it means that all items that
-     * were in the root folder have their placeholders gone, so we need to refresh first
-     * all item placeholders and then execute this function.
-     */
-    void addPendingItems({ ctx });
   }
 }

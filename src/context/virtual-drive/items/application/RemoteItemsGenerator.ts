@@ -1,9 +1,11 @@
 import { SyncContext } from '@/apps/sync-engine/config';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export function getExistingFiles({ ctx }: { ctx: SyncContext }) {
-  return ipcRendererSyncEngine.invoke('FIND_EXISTING_FILES', {
+export async function getExistingFiles({ ctx }: { ctx: SyncContext }) {
+  const { data: files = [] } = await SqliteModule.FileModule.getByWorkspaceId({
     userUuid: ctx.userUuid,
     workspaceId: ctx.workspaceId,
   });
+
+  return files;
 }

@@ -5,8 +5,8 @@ import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { ipcRenderer } from 'electron';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as persistFile from '@/infra/drive-server-wip/out/ipc-main';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -18,7 +18,7 @@ vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
 
 describe('create-placeholder', () => {
   const onAllMock = partialSpyOn(onAll, 'onAll');
-  const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
+  const persistFileMock = partialSpyOn(persistFile, 'persistFile');
   const fileUploader = mockDeep<EnvironmentFileUploader>();
 
   const providerName = 'Internxt Drive';
@@ -39,7 +39,7 @@ describe('create-placeholder', () => {
 
   it('should create placeholder', async () => {
     // Given
-    invokeMock.mockResolvedValue({ data: { uuid: 'uuid' } });
+    persistFileMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath, fileUploader } });
     initWatcher(watcherProps);
     await sleep(100);
@@ -54,6 +54,7 @@ describe('create-placeholder', () => {
       { event: 'change', path: file, stats: { size: 7 } },
     ]);
 
+    calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },

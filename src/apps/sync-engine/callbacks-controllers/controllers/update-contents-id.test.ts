@@ -3,13 +3,13 @@ import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as persistReplaceFile from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('update-contents-id', () => {
-  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const persistReplaceFileMock = partialSpyOn(persistReplaceFile, 'persistReplaceFile');
   const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
@@ -54,26 +54,23 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(invokeMock).toBeCalledTimes(0);
+    expect(persistReplaceFileMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 
   it('should update contents id', async () => {
     // Given
-    invokeMock.mockResolvedValue({ data: {} });
+    persistReplaceFileMock.mockResolvedValue({ data: {} });
     // When
     await updateContentsId(props);
     // Then
-    call(invokeMock).toMatchObject([
-      'persistReplaceFile',
-      {
-        path: '/folder/file.txt',
-        uuid,
-        contentsId: 'contentsId',
-        size: 1024,
-        modificationTime: '2025-08-20T00:00:00.000Z',
-      },
-    ]);
+    call(persistReplaceFileMock).toMatchObject({
+      path: '/folder/file.txt',
+      uuid,
+      contentsId: 'contentsId',
+      size: 1024,
+      modificationTime: '2025-08-20T00:00:00.000Z',
+    });
     call(updateSyncStatusMock).toMatchObject({ path });
     expect(loggerMock.error).toBeCalledTimes(0);
   });

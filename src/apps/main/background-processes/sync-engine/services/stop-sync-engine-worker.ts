@@ -1,14 +1,14 @@
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
-import { unregisterVirtualDrives } from './unregister-virtual-drives';
 import { sleep } from '@/apps/main/util';
 import { Addon } from '@/node-win/addon-wrapper';
 
-function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
+async function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
   const { ctx } = worker;
 
   ctx.logger.debug({ msg: 'Stop sync engine' });
 
   clearInterval(worker.syncSchedule);
+  await worker.watcher.close();
   worker.browserWindow.destroy();
   workers.delete(ctx.workspaceId);
 }
@@ -16,7 +16,7 @@ function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
 export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
   const { ctx } = worker;
 
-  stopSyncEngineWorker({ worker });
+  await stopSyncEngineWorker({ worker });
   await sleep(2000);
 
   try {
@@ -31,10 +31,5 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
 }
 
 export async function cleanSyncEngineWorkers() {
-  workers.forEach((worker) => {
-    stopSyncEngineWorker({ worker });
-  });
-
-  await sleep(2000);
-  await unregisterVirtualDrives({});
+  await Promise.all(workers.values().map((worker) => cleanSyncEngineWorker({ worker })));
 }
