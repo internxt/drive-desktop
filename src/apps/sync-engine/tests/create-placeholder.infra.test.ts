@@ -50,6 +50,7 @@ describe('create-placeholder', () => {
     // Then
     call(onAllMock).toMatchObject({ event: 'add', path: file, stats: { size: 7 } });
 
+    calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
