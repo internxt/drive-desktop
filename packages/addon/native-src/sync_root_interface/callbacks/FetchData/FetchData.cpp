@@ -144,13 +144,16 @@ void notify_fetch_data_call(napi_env env, napi_value js_callback, void *, void *
 {
     TransferContext *ctx = static_cast<TransferContext *>(data);
 
+    napi_value js_connection_key;
+    napi_create_bigint_int64(env, ctx->connectionKey.Internal, &js_connection_key);
+
     napi_value js_path;
     napi_create_string_utf16(env, (char16_t *)ctx->path.c_str(), ctx->path.length(), &js_path);
 
     napi_value js_callback_fn;
     napi_create_function(env, "callback", NAPI_AUTO_LENGTH, response_callback_fn_fetch_data_wrapper, ctx, &js_callback_fn);
 
-    std::array<napi_value, 2> js_args = {js_path, js_callback_fn};
+    std::array<napi_value, 3> js_args = {js_connection_key, js_path, js_callback_fn};
 
     napi_value undefined;
     napi_get_undefined(env, &undefined);
@@ -186,20 +189,17 @@ void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO *callbackI
     RemoveTransferContext(ctx->transferKey);
 }
 
-void register_threadsafe_fetch_data_callback(const std::string &resource_name, napi_env env, InputSyncCallbacks input)
+void register_threadsafe_fetch_data_callback(const std::string &resource_name, napi_env env, napi_value callback)
 {
     std::u16string converted_resource_name(resource_name.begin(), resource_name.end());
 
     napi_value resource_name_value;
     napi_create_string_utf16(env, converted_resource_name.c_str(), NAPI_AUTO_LENGTH, &resource_name_value);
 
-    napi_value fetch_data_value;
-    napi_get_reference_value(env, input.fetch_data_callback_ref, &fetch_data_value);
-
     napi_threadsafe_function tsfn_fetch_data;
     napi_create_threadsafe_function(
         env,
-        fetch_data_value,
+        callback,
         nullptr,
         resource_name_value,
         0,

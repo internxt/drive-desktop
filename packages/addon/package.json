@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "compile": "node gyp.config.js && node-gyp clean && node-gyp configure build",
-    "refresh": "cd ../.. && npm update @packages/addon",
-    "build": "npm run compile && npm pack && npm run refresh"
+    "refresh": "npm pack && cd ../.. && npm update @packages/addon",
+    "build": "npm run compile && npm run refresh"
   }
 }
