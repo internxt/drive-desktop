@@ -1,7 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { addon, Win32Path } from './addon';
 import { addonZod } from './addon/addon-zod';
-import { Callbacks } from './types/callbacks.type';
 import { logger } from '@/apps/shared/logger/logger';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
@@ -9,6 +8,8 @@ import { posix, win32 } from 'node:path';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
 import { PinState } from './types/placeholder.type';
+import { cancelFetchDataFn, ctxs, fetchDataFn } from './callbacks';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -51,9 +52,11 @@ export class Addon {
     return parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  static connectSyncRoot({ rootPath, callbacks }: { rootPath: AbsolutePath; callbacks: Callbacks }) {
-    const result = addon.connectSyncRoot(toWin32(rootPath), callbacks);
-    return parseAddonZod('connectSyncRoot', result);
+  static connectSyncRoot({ ctx }: { ctx: SyncContext }) {
+    const result = addon.connectSyncRoot(toWin32(ctx.rootPath), fetchDataFn, cancelFetchDataFn);
+    const connectionKey = parseAddonZod('connectSyncRoot', result);
+    ctxs.set(connectionKey, ctx);
+    return connectionKey;
   }
 
   static async unregisterSyncRoot({ providerId }: { providerId: string }) {
@@ -62,8 +65,8 @@ export class Addon {
     return parseAddonZod('unregisterSyncRoot', result);
   }
 
-  static async disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
-    const result = await addon.disconnectSyncRoot(toWin32(rootPath));
+  static async disconnectSyncRoot({ connectionKey }: { connectionKey: bigint }) {
+    const result = await addon.disconnectSyncRoot(connectionKey);
     return parseAddonZod('disconnectSyncRoot', result);
   }
 
