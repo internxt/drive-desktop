@@ -33,7 +33,7 @@ export const cancelFetchDataFn: CancelFetchDataFn = (connectionKey, win32Path) =
   const path = abs(win32Path);
 
   if (ctx) {
-    ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
+    ctx.logger.debug({ msg: 'Cancel fetch data callback', path });
     ctx.contentsDownloader.forceStop({ path });
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_CANCEL', path });
   } else {
