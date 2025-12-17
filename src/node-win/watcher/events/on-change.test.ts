@@ -7,6 +7,7 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { stat } from 'node:fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('node:fs/promises'));
 
@@ -61,6 +62,18 @@ describe('on-change', () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
+    // When
+    await onChange(props);
+    // Then
+    calls(updateContentsIdMock).toHaveLength(0);
+    calls(throttleHydrateMock).toHaveLength(0);
+    call(handleDehydrateMock).toMatchObject({ path });
+  });
+
+  it('should dehydrate when ctime is modified and size is 0', async () => {
+    // Given
+    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), size: 0 });
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     // When
     await onChange(props);
     // Then
