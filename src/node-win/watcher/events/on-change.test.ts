@@ -7,6 +7,7 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { stat } from 'node:fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('node:fs/promises'));
 
