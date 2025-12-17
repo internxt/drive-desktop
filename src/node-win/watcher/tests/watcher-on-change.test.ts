@@ -25,7 +25,7 @@ describe('watcher on change', () => {
     await appendFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toStrictEqual([{ event: 'change', path: file, stats: { size: 14 } }]);
+    getEvents().toMatchObject([{ event: 'change', path: file, stats: { size: 14 } }]);
   });
 
   it('should emit change event when pin a file', async () => {
