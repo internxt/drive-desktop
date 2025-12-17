@@ -11,9 +11,6 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
     onProgress({ progress }: { progress: number }) {
       ipcRendererSyncEngine.send('FILE_UPLOADING', { path, progress });
     },
-    onFinish() {
-      ipcRendererSyncEngine.send('FILE_UPLOADED', { path });
-    },
     onError() {
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { path });
     },

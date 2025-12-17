@@ -8,6 +8,8 @@ export type SyncStateItem = {
     | 'DOWNLOAD_ERROR'
     | 'DOWNLOADED'
     | 'DOWNLOADING'
+    | 'MODIFIED'
+    | 'MODIFY_ERROR'
     | 'MOVE_ERROR'
     | 'MOVED'
     | 'UPLOAD_ERROR'
@@ -22,10 +24,12 @@ export type ExtendedSyncStateItem = SyncStateItem & { time: number; timeout: Nod
 export const PRIORITIES: Record<SyncStateItem['action'], number> = {
   DELETE_ERROR: 1,
   MOVE_ERROR: 1,
+  MODIFY_ERROR: 1,
   UPLOAD_ERROR: 2,
   DOWNLOAD_ERROR: 2,
   DELETED: 3,
   MOVED: 3,
+  MODIFIED: 3,
   DOWNLOAD_CANCEL: 4,
   UPLOADED: 5,
   DOWNLOADED: 5,
