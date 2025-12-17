@@ -2,10 +2,10 @@ import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/contr
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { stat } from 'node:fs/promises';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -14,13 +14,13 @@ type Props = {
 
 export async function onChange({ ctx, path }: Props) {
   try {
-    const stats = await stat(path);
+    const { data: stats } = await fileSystem.stat({ absolutePath: path });
 
-    if (stats.isDirectory()) return;
+    if (!stats || stats.isDirectory()) return;
 
-    const { data: fileInfo, error } = await NodeWin.getFileInfo({ path });
+    const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
-    if (error) throw error;
+    if (!fileInfo) return;
 
     const now = Date.now();
     const isChanged = now - stats.ctimeMs <= 5000;

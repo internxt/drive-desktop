@@ -24,5 +24,5 @@ if (process.env.NODE_ENV === 'development') {
 export const preloadPath = path.join(__dirname, 'preload.js');
 
 export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
