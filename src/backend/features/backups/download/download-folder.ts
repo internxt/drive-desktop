@@ -7,7 +7,6 @@ import { Device } from '@/apps/main/device/service';
 import { broadcastToWindows } from '@/apps/main/windows';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import Bottleneck from 'bottleneck';
-import { Effect } from 'effect/index';
 import { mkdir } from 'node:fs/promises';
 
 type Props = {
@@ -48,7 +47,7 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
   const promises = files.map(async (file) => {
     await limiter.schedule(async () => {
       runningFiles.add(file.absolutePath);
-      await Effect.runPromise(downloadFile({ file, contentsDownloader }));
+      await downloadFile({ file, contentsDownloader });
       runningFiles.delete(file.absolutePath);
 
       downloadedItems += 1;
