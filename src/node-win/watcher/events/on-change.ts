@@ -30,9 +30,9 @@ export async function onChange({ ctx, path }: Props) {
       msg: 'On change event',
       path,
       pinState: fileInfo.pinState,
-      blocks: stats.blocks,
-      ctime: stats.ctime,
-      mtime: stats.mtime,
+      inSyncState: fileInfo.inSyncState,
+      size: stats.size,
+      onDiskSize: fileInfo.onDiskDataSize,
       isChanged,
       isModified,
     });
@@ -42,12 +42,12 @@ export async function onChange({ ctx, path }: Props) {
     }
 
     if (isChanged) {
-      if (fileInfo.pinState === PinState.AlwaysLocal && stats.blocks === 0) {
+      if (fileInfo.pinState === PinState.AlwaysLocal && fileInfo.onDiskDataSize === 0) {
         await throttleHydrate({ ctx, path });
       }
 
       if (fileInfo.pinState === PinState.OnlineOnly) {
-        if (stats.size === 0 || stats.blocks !== 0) {
+        if (stats.size === 0 || fileInfo.onDiskDataSize !== 0) {
           await handleDehydrate({ ctx, path });
         }
       }

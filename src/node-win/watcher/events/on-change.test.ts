@@ -7,7 +7,6 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { stat } from 'node:fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('node:fs/promises'));
 
@@ -46,10 +45,10 @@ describe('on-change', () => {
     calls(handleDehydrateMock).toHaveLength(0);
   });
 
-  it('should hydrate when ctime is modified and current current blocks are 0', async () => {
+  it('should hydrate when ctime is modified and disk size is 0', async () => {
     // Given
-    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 0 });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
+    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now() });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskDataSize: 0 } });
     // When
     await onChange(props);
     // Then
@@ -58,10 +57,10 @@ describe('on-change', () => {
     calls(handleDehydrateMock).toHaveLength(0);
   });
 
-  it('should dehydrate when ctime is modified and current blocks are not 0', async () => {
+  it('should dehydrate when ctime is modified and disk size is not 0', async () => {
     // Given
-    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
+    statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now() });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly, onDiskDataSize: 1 } });
     // When
     await onChange(props);
     // Then
@@ -73,7 +72,7 @@ describe('on-change', () => {
   it('should dehydrate when ctime is modified and size is 0', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), size: 0 });
-    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
     // When
     await onChange(props);
     // Then

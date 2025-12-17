@@ -1,12 +1,14 @@
 import { z } from 'zod';
 
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
   connectSyncRoot: z.undefined(),
   getPlaceholderState: z.object({
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
     pinState: z.enum(PinState),
+    inSyncState: z.enum(InSyncState),
+    onDiskDataSize: z.number(),
   }),
   getRegisteredSyncRoots: z.array(
     z.object({

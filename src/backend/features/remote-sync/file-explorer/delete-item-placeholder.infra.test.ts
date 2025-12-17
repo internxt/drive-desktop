@@ -48,7 +48,7 @@ describe('delete-item-placeholder', () => {
     // Then
     calls(loggerMock.debug).toStrictEqual([{ msg: 'Register sync root', rootPath }, { msg: 'onReady' }]);
     call(loggerMock.error).toMatchObject({ msg: 'Path does not match when removing placeholder' });
-    call(onAllMock).toMatchObject({ event: 'change', path, stats: { size: 7, blocks: 0 } });
+    call(onAllMock).toMatchObject({ event: 'change', path, stats: { size: 7 } });
 
     const { error } = await NodeWin.getFileInfo({ path });
     expect(error?.code).toBe('NOT_A_PLACEHOLDER');

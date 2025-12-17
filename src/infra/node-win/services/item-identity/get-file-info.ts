@@ -19,7 +19,7 @@ type TProps = {
 
 export async function getFileInfo({ path }: TProps) {
   try {
-    const { placeholderId: rawPlaceholderId, pinState } = await Addon.getPlaceholderState({ path });
+    const { placeholderId: rawPlaceholderId, ...data } = await Addon.getPlaceholderState({ path });
     const isFile = isFilePlaceholderId(rawPlaceholderId);
 
     if (!isFile) {
@@ -29,7 +29,7 @@ export async function getFileInfo({ path }: TProps) {
     const placeholderId = trimPlaceholderId({ placeholderId: rawPlaceholderId });
     const uuid = placeholderId.split(':')[1] as FileUuid;
 
-    return { data: { placeholderId, uuid, pinState } };
+    return { data: { placeholderId, uuid, ...data } };
   } catch (error) {
     if (typeof error === 'string' && error.includes('0x80070178')) {
       return { error: new GetFileInfoError('NOT_A_PLACEHOLDER', error) };
