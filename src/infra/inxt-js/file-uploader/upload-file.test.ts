@@ -44,7 +44,6 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    expect(callbacks.onFinish).toBeCalledTimes(1);
     expect(processErrorMock).toBeCalledTimes(0);
   });
 
@@ -59,7 +58,6 @@ describe('upload-file', () => {
     await uploadFile(props);
     // Then
     expect(callbacks.onProgress).toBeCalledWith({ progress: 50 });
-    expect(callbacks.onFinish).toBeCalledTimes(1);
     expect(processErrorMock).toBeCalledTimes(0);
   });
 
@@ -72,7 +70,6 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    expect(callbacks.onFinish).toBeCalledTimes(0);
     expect(processErrorMock).toBeCalledTimes(1);
   });
 

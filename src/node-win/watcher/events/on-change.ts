@@ -37,7 +37,7 @@ export async function onChange({ ctx, path }: Props) {
       isModified,
     });
 
-    if (isModified && fileInfo.pinState === PinState.AlwaysLocal) {
+    if (isModified) {
       await updateContentsId({ ctx, stats, path, uuid: fileInfo.uuid });
     }
 

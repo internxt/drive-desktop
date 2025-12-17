@@ -1,6 +1,5 @@
 import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
@@ -34,10 +33,10 @@ describe('on-change', () => {
     calls(getFileInfoMock).toHaveLength(0);
   });
 
-  it('should update contents id when file is modified and hydrated', async () => {
+  it('should update contents id when file is modified', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, mtimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
+    getFileInfoMock.mockResolvedValue({ data: {} });
     // When
     await onChange(props);
     // Then
@@ -49,7 +48,7 @@ describe('on-change', () => {
   it('should hydrate when ctime is modified and current current blocks are 0', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 0 });
-    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
     // When
     await onChange(props);
     // Then
@@ -61,7 +60,7 @@ describe('on-change', () => {
   it('should dehydrate when ctime is modified and current blocks are not 0', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now(), blocks: 1 });
-    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
     // When
     await onChange(props);
     // Then
