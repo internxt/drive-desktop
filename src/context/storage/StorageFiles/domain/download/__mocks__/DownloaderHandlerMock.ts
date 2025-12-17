@@ -1,10 +1,9 @@
 import { DownloaderHandler, DownloadEvents } from '../DownloaderHandler';
 import { Readable } from 'stream';
 import { StorageFile } from '../../StorageFile';
-import { jest } from '@jest/globals';
 
 export class DownloaderHandlerMock implements DownloaderHandler {
-  download = jest.fn<Promise<Readable>, [StorageFile]>(() =>
+  download = vi.fn<(file: StorageFile) => Promise<Readable>>(() =>
     Promise.resolve(
       new Readable({
         read() {
@@ -14,7 +13,7 @@ export class DownloaderHandlerMock implements DownloaderHandler {
     ),
   );
 
-  downloadById = jest.fn<Promise<Readable>, [string]>(() =>
+  downloadById = vi.fn<(id: string) => Promise<Readable>>(() =>
     Promise.resolve(
       new Readable({
         read() {
@@ -24,9 +23,9 @@ export class DownloaderHandlerMock implements DownloaderHandler {
     ),
   );
 
-  forceStop = jest.fn<void, []>();
+  forceStop = vi.fn<() => void>();
 
-  on = jest.fn<void, [keyof DownloadEvents, DownloadEvents[keyof DownloadEvents]]>();
+  on = vi.fn<(event: keyof DownloadEvents, handler: DownloadEvents[keyof DownloadEvents]) => void>();
 
-  elapsedTime = jest.fn<number, []>(() => 1000);
+  elapsedTime = vi.fn<() => number>(() => 1000);
 }

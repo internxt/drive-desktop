@@ -20,51 +20,52 @@ export type SimpleDriveFile = {
 
 @Entity('drive_file')
 export class DriveFile {
-  @Column({ nullable: false, unique: true })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   fileId!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'integer', nullable: false })
   id!: number;
 
   @PrimaryColumn({
+    type: 'varchar',
     nullable: false,
     unique: true,
   })
   uuid!: string;
 
-  @Column({ nullable: true, default: '' })
+  @Column({ type: 'varchar', nullable: true, default: '' })
   type!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'integer', nullable: false })
   size!: number;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   bucket!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'integer', nullable: false })
   folderId!: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   folderUuid?: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'integer', nullable: false })
   userId!: number;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   modificationTime!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   createdAt!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   updatedAt!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   plainName?: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   name!: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   status!: string;
 }

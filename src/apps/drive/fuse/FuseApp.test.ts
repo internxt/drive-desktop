@@ -1,3 +1,24 @@
+vi.mock('@gcas/fuse', () => ({
+  default: vi.fn(),
+  Fuse: vi.fn().mockImplementation(() => ({
+    mount: vi.fn(),
+    unmount: vi.fn(),
+    ops: {},
+  })),
+}));
+
+vi.mock('../../main/remote-sync/service', () => ({
+  getExistingFiles: vi.fn(),
+}));
+
+// Mock the electron-store
+vi.mock('../../main/config', () => ({
+  default: {
+    get: vi.fn(),
+    set: vi.fn(),
+  },
+}));
+
 import { FuseApp } from './FuseApp';
 import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
@@ -5,16 +26,7 @@ import { Container } from 'diod';
 import { VirtualDrive } from '../virtual-drive/VirtualDrive';
 import configStore from '../../main/config';
 import { getExistingFiles } from '../../main/remote-sync/service';
-
-jest.mock('../../main/remote-sync/service', () => ({
-  getExistingFiles: jest.fn(),
-}));
-
-// Mock the electron-store
-jest.mock('../../main/config', () => ({
-  get: jest.fn(),
-  set: jest.fn(),
-}));
+import { Mock } from 'vitest';
 
 describe('FuseApp', () => {
   let fuseApp: FuseApp;
@@ -24,11 +36,11 @@ describe('FuseApp', () => {
 
   beforeEach(() => {
     fileRepositoryMock = {
-      fixDanglingFiles: jest.fn(),
+      fixDanglingFiles: vi.fn(),
     } as unknown as FileRepositorySynchronizer;
 
     const containerMock = {
-      get: jest.fn((service) => {
+      get: vi.fn((service) => {
         if (service === FileRepositorySynchronizer) {
           return fileRepositoryMock;
         }
@@ -38,19 +50,19 @@ describe('FuseApp', () => {
 
     const virtualDriveMock = {} as unknown as VirtualDrive;
 
-    fuseApp = new FuseApp(virtualDriveMock, containerMock, '/local/root', 123);
+    fuseApp = new FuseApp(virtualDriveMock, containerMock, '/local/root', 123, 'ca4391b1-24d9-4e14-b305-e124b0ff5801');
 
-    jest.spyOn(logger, 'debug').mockImplementation(jest.fn());
-    jest.spyOn(logger, 'error').mockImplementation(jest.fn());
+    vi.spyOn(logger, 'debug').mockImplementation(vi.fn());
+    vi.spyOn(logger, 'error').mockImplementation(vi.fn());
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('fixDanglingFiles', () => {
     it('should not continue with the execution if configStore.shouldFixDanglingFiles returns false', async () => {
-      (configStore.get as jest.Mock).mockReturnValue(false);
+      (configStore.get as Mock).mockReturnValue(false);
       await fuseApp.fixDanglingFiles(startDate, endDate);
 
       expect(getExistingFiles).not.toHaveBeenCalled();
@@ -58,14 +70,14 @@ describe('FuseApp', () => {
     });
 
     it('should fix only the files that are within a time period', async () => {
-      (configStore.get as jest.Mock).mockReturnValue(true);
+      (configStore.get as Mock).mockReturnValue(true);
       const mockFiles = [
         { fileId: 'file1', createdAt: '2025-02-20T10:00:00Z' }, // Within range
         { fileId: 'file2', createdAt: '2025-03-05T10:00:00Z' }, // Out of range
       ];
 
-      (getExistingFiles as jest.Mock).mockResolvedValue(mockFiles);
-      (fileRepositoryMock.fixDanglingFiles as jest.Mock).mockResolvedValue(true);
+      (getExistingFiles as Mock).mockResolvedValue(mockFiles);
+      (fileRepositoryMock.fixDanglingFiles as Mock).mockResolvedValue(true);
 
       await fuseApp.fixDanglingFiles(startDate, endDate);
 
@@ -73,11 +85,11 @@ describe('FuseApp', () => {
     });
 
     it('should not fix any files if there arent any', async () => {
-      (configStore.get as jest.Mock).mockReturnValue(true);
+      (configStore.get as Mock).mockReturnValue(true);
       const mockFiles = [
         { fileId: 'file1', createdAt: '2025-03-10T10:00:00Z' }, // Out of range
       ];
-      (getExistingFiles as jest.Mock).mockResolvedValue(mockFiles);
+      (getExistingFiles as Mock).mockResolvedValue(mockFiles);
 
       await fuseApp.fixDanglingFiles(startDate, endDate);
 
@@ -85,12 +97,12 @@ describe('FuseApp', () => {
     });
 
     it('should set the configStore.shouldFixDanglingFiles to false if all the files are fixed', async () => {
-      (configStore.get as jest.Mock).mockReturnValue(true);
+      (configStore.get as Mock).mockReturnValue(true);
       const mockFiles = [
         { fileId: 'file1', createdAt: '2025-02-20T10:00:00Z' }, // Within range
       ];
-      (getExistingFiles as jest.Mock).mockResolvedValue(mockFiles);
-      (fileRepositoryMock.fixDanglingFiles as jest.Mock).mockResolvedValue(true);
+      (getExistingFiles as Mock).mockResolvedValue(mockFiles);
+      (fileRepositoryMock.fixDanglingFiles as Mock).mockResolvedValue(true);
 
       await fuseApp.fixDanglingFiles(startDate, endDate);
 

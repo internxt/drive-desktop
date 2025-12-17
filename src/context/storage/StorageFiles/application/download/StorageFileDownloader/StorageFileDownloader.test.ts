@@ -1,5 +1,5 @@
 import { StorageFileDownloader } from './StorageFileDownloader';
-import { DownloadProgressTrackerMock } from '../../../../../../../tests/context/storage/StorageFiles/__mocks__/DownloadProgressTrackerMock';
+import { DownloadProgressTrackerMock } from '../../../__mocks__/DownloadProgressTrackerMock';
 import { DownloaderHandlerFactoryMock } from '../../../domain/download/__mocks__/DownloaderHandlerFactoryMock';
 import { DownloaderHandlerMock } from '../../../domain/download/__mocks__/DownloaderHandlerMock';
 import { StorageFile } from '../../../domain/StorageFile';
@@ -30,7 +30,7 @@ describe('StorageFileDownloader', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('registerEvents', () => {

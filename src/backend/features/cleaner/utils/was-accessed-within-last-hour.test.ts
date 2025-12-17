@@ -1,27 +1,27 @@
 import { promises as fs, Stats } from 'fs';
 import { wasAccessedWithinLastHour } from './was-accessed-within-last-hour';
 
-jest.mock('fs', () => ({
+vi.mock('fs', () => ({
   promises: {
-    stat: jest.fn(),
+    stat: vi.fn(),
   },
 }));
 
 describe('wasAccessedWithinLastHour', () => {
-  const mockedFs = jest.mocked(fs);
+  const mockedFs = vi.mocked(fs);
   const mockFilePath = '/test/file.txt';
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-01-01T12:00:00Z'));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-01T12:00:00Z'));
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should return true when file was accessed within last hour', async () => {

@@ -2,9 +2,10 @@ import { Environment } from '@internxt/inxt-js';
 import { downloadFileV2 } from '@internxt/inxt-js/build/lib/core/download/downloadV2';
 import { customSafeDownloader } from './customSafeDownloader';
 import { PassThrough, Readable } from 'node:stream';
+import { Mock } from 'vitest';
 
-jest.mock('@internxt/inxt-js/build/lib/core/download/downloadV2', () => ({
-  downloadFileV2: jest.fn(),
+vi.mock('@internxt/inxt-js/build/lib/core/download/downloadV2', () => ({
+  downloadFileV2: vi.fn(),
 }));
 
 describe('customSafeDownloader', () => {
@@ -14,7 +15,7 @@ describe('customSafeDownloader', () => {
   let env: Environment;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     env = {
       config: {
@@ -28,7 +29,7 @@ describe('customSafeDownloader', () => {
 
   it('should return a PassThrough stream', () => {
     const sourceStream = new PassThrough(); // ✅ válido y seguro
-    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.resolve(), sourceStream]);
+    (downloadFileV2 as Mock).mockReturnValue([Promise.resolve(), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
@@ -41,7 +42,7 @@ describe('customSafeDownloader', () => {
     expect(() => customSafeDownloader(env)(bucketId, fileId)).toThrow('Missing required environment configuration');
   });
 
-  it('should pipe data from source stream to passThrough', (done) => {
+  it('should pipe data from source stream to passThrough', async () => {
     const sourceStream = new Readable({
       read() {
         process.nextTick(() => {
@@ -51,52 +52,54 @@ describe('customSafeDownloader', () => {
       },
     });
 
-    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.resolve(), sourceStream]);
+    (downloadFileV2 as Mock).mockReturnValue([Promise.resolve(), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
     let data = '';
-    stream.on('data', (chunk) => {
-      data += chunk.toString();
-    });
 
-    stream.on('end', () => {
-      expect(data).toBe('test');
-      done();
+    await new Promise<void>((resolve) => {
+      stream.on('data', (chunk) => {
+        data += chunk.toString();
+      });
+
+      stream.on('end', () => {
+        expect(data).toBe('test');
+        resolve();
+      });
     });
   });
 
-  it('should emit error if downloadPromise rejects', (done) => {
+  it('should emit error if downloadPromise rejects', async () => {
     const sourceStream = new PassThrough();
     const error = new Error('Download failed');
 
-    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.reject(error), sourceStream]);
+    (downloadFileV2 as Mock).mockReturnValue([Promise.reject(error), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
-    stream.on('error', (err) => {
-      expect(err).toBe(error);
-      done();
+    await new Promise<void>((resolve) => {
+      stream.on('error', (err) => {
+        expect(err).toBe(error);
+        resolve();
+      });
     });
-
-    // Trigger downloadPromise.catch
-    setTimeout(() => {
-      /* no-op */
-    }, 0);
   });
 
-  it('should emit error if downloadFileV2 throws synchronously', (done) => {
+  it('should emit error if downloadFileV2 throws synchronously', async () => {
     const syncError = new Error('Immediate failure');
 
-    (downloadFileV2 as jest.Mock).mockImplementation(() => {
+    (downloadFileV2 as Mock).mockImplementation(() => {
       throw syncError;
     });
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
-    stream.on('error', (err) => {
-      expect(err).toBe(syncError);
-      done();
+    await new Promise<void>((resolve) => {
+      stream.on('error', (err) => {
+        expect(err).toBe(syncError);
+        resolve();
+      });
     });
   });
 });

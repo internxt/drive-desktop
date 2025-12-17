@@ -1,20 +1,21 @@
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { StorageFileService } from './StorageFileService';
 import { Environment } from '@internxt/inxt-js';
 import { customSafeDownloader } from './infrastructure/download/customSafeDownloader';
+import { Mock } from 'vitest';
 
-jest.mock('./infrastructure/download/customSafeDownloader');
+vi.mock('./infrastructure/download/customSafeDownloader');
 // Mock the Environment module
-jest.mock('@internxt/inxt-js', () => {
+vi.mock('@internxt/inxt-js', () => {
   return {
-    Environment: jest.fn().mockImplementation(() => ({
+    Environment: vi.fn().mockImplementation(() => ({
       config: {
         bridgeUrl: 'mock-url',
         bridgeUser: 'mock-user',
         bridgePass: 'mock-pass',
         encryptionKey: 'mock-key',
       },
-      download: jest.fn(),
+      download: vi.fn(),
     })),
   };
 });
@@ -24,7 +25,7 @@ describe('StorageFileService', () => {
   let bucket: string;
   let sut: StorageFileService;
   let mockStream: Readable;
-  let mockedDownloader: jest.Mock;
+  let mockedDownloader: Mock;
 
   describe('isFileDownloadable', () => {
     const fileContentsId = '7b5d8a53-e166-48e7-90f21';
@@ -47,8 +48,8 @@ describe('StorageFileService', () => {
         },
       });
       bucket = 'test-bucket';
-      mockedDownloader = jest.fn().mockReturnValue(mockStream);
-      (customSafeDownloader as jest.Mock).mockReturnValue(mockedDownloader);
+      mockedDownloader = vi.fn().mockReturnValue(mockStream);
+      (customSafeDownloader as Mock).mockReturnValue(mockedDownloader);
       sut = new StorageFileService(environment, bucket);
     });
 

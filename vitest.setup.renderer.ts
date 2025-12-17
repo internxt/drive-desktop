@@ -3,7 +3,15 @@
 import { afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import type { IElectronAPI } from './src/apps/main/interface';
-
+// Mock @internxt/drive-desktop-core backend logger
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
 // Type-safe deep mock creator that recursively mocks all properties
 type DeepMock<T> = T extends (...args: any[]) => any
   ? ReturnType<typeof vi.fn>

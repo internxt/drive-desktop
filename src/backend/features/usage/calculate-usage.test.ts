@@ -2,13 +2,13 @@ import { calculateUsage } from './calculate-usage';
 import { getUsageAndLimit } from './get-usage-and-limit';
 import { INFINITE_SPACE_TRHESHOLD, OFFER_UPGRADE_TRHESHOLD } from './usage.types';
 
-jest.mock('./get-usage-and-limit');
+vi.mock('./get-usage-and-limit');
 
-const mockGetUsageAndLimit = getUsageAndLimit as jest.MockedFunction<typeof getUsageAndLimit>;
+const mockGetUsageAndLimit =vi.mocked(getUsageAndLimit);
 
 describe('calculateUsage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return usage when getUsageAndLimit is successful', async () => {

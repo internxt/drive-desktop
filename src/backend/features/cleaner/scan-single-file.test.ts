@@ -1,27 +1,27 @@
-import { promises as fs, Stats } from 'fs';
+import { promises as fs, Stats } from 'node:fs';
 import { scanSingleFile } from './scan-single-file';
 import { wasAccessedWithinLastHour } from './utils/was-accessed-within-last-hour';
 import { createCleanableItem } from './utils/create-cleanable-item';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-jest.mock('fs', () => ({
+vi.mock('fs', () => ({
   promises: {
-    stat: jest.fn(),
+    stat: vi.fn(),
   },
 }));
-jest.mock('./utils/was-accessed-within-last-hour');
-jest.mock('./utils/create-cleanable-item');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('./utils/was-accessed-within-last-hour');
+vi.mock('./utils/create-cleanable-item');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    warn: jest.fn(),
+    warn: vi.fn(),
   },
 }));
 
 describe('scanSingleFile', () => {
-  const mockedFs = jest.mocked(fs);
-  const mockedWasAccessedWithinLastHour = jest.mocked(wasAccessedWithinLastHour);
-  const mockedCreateCleanableItem = jest.mocked(createCleanableItem);
-  const mockedLogger = jest.mocked(logger);
+  const mockedFs = vi.mocked(fs);
+  const mockedWasAccessedWithinLastHour = vi.mocked(wasAccessedWithinLastHour);
+  const mockedCreateCleanableItem = vi.mocked(createCleanableItem);
+  const mockedLogger = vi.mocked(logger);
 
   const mockFilePath = '/home/user/.xsession-errors';
   const mockCleanableItem = {
@@ -34,7 +34,7 @@ describe('scanSingleFile', () => {
     ({ isDirectory: () => !isFile, isFile: () => isFile, size }) as Stats;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedFs.stat.mockResolvedValue(createMockStats());
     mockedWasAccessedWithinLastHour.mockResolvedValue(false);
   });

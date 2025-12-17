@@ -17,11 +17,11 @@ describe('VirtualDrive', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should make a file locally available given a path', async () => {
-    const cacheStorageFileMock = { run: jest.fn() };
+    const cacheStorageFileMock = { run: vi.fn() };
 
     container.set(CacheStorageFile, cacheStorageFileMock);
 
@@ -33,7 +33,7 @@ describe('VirtualDrive', () => {
 
   describe('isLocallyAvailable', () => {
     it('should verify if a file is locally available', async () => {
-      const storageFileIsAvailableOfflineMock = { run: jest.fn().mockResolvedValue(true) };
+      const storageFileIsAvailableOfflineMock = { run: vi.fn().mockResolvedValue(true) };
       container.set(StorageFileIsAvailableOffline, storageFileIsAvailableOfflineMock);
 
       const result = await virtualDrive.isLocallyAvailable(path);
@@ -45,7 +45,7 @@ describe('VirtualDrive', () => {
 
     it('Should verify if a folder is available locally', async () => {
       path = '/path/to/folder';
-      const allFilesInFolderAreAvailableOfflineMock = { run: jest.fn().mockResolvedValue(true) };
+      const allFilesInFolderAreAvailableOfflineMock = { run: vi.fn().mockResolvedValue(true) };
       container.set(AllFilesInFolderAreAvailableOffline, allFilesInFolderAreAvailableOfflineMock);
 
       const result = await virtualDrive.isLocallyAvailable(path);
@@ -57,7 +57,7 @@ describe('VirtualDrive', () => {
   });
 
   it('should verify if a temporal file exists', async () => {
-    const temporalFileMock = { run: jest.fn().mockResolvedValue(true) };
+    const temporalFileMock = { run: vi.fn().mockResolvedValue(true) };
     container.set(TemporalFileByPathFinder, temporalFileMock);
 
     const result = await virtualDrive.temporalFileExists(path);
@@ -68,7 +68,7 @@ describe('VirtualDrive', () => {
   });
 
   it('should return false if a temporal file doesnt exist', async () => {
-    const temporalFileMock = { run: jest.fn().mockResolvedValue(null) };
+    const temporalFileMock = { run: vi.fn().mockResolvedValue(null) };
     container.set(TemporalFileByPathFinder, temporalFileMock);
 
     const result = await virtualDrive.temporalFileExists(path);

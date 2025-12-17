@@ -5,23 +5,23 @@ import { scanSubDirectory } from '../scan-subdirectory';
 import { appCacheFileFilter } from './utils/is-safe-cache-file';
 import { isDirectoryWebBrowserRelated } from './utils/is-directory-web-browser-related';
 
-jest.mock('../scan-directory');
-jest.mock('./get-app-cache-paths');
-jest.mock('../scan-subdirectory');
-jest.mock('./utils/is-safe-cache-file');
-jest.mock('../utils/is-directory-web-browser-related');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('../scan-directory');
+vi.mock('./get-app-cache-paths');
+vi.mock('../scan-subdirectory');
+vi.mock('./utils/is-safe-cache-file');
+vi.mock('../utils/is-directory-web-browser-related');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    warn: jest.fn(),
+    warn: vi.fn(),
   },
 }));
 
 describe('generateAppCacheReport', () => {
-  const mockedScanDirectory = jest.mocked(scanDirectory);
-  const mockedGetAppCachePaths = jest.mocked(getAppCachePaths);
-  const mockedScanSubDirectory = jest.mocked(scanSubDirectory);
-  const mockedAppCacheFileFilter = jest.mocked(appCacheFileFilter);
-  const mockedIsDirectoryWebBrowserRelated = jest.mocked(isDirectoryWebBrowserRelated);
+  const mockedScanDirectory = vi.mocked(scanDirectory);
+  const mockedGetAppCachePaths = vi.mocked(getAppCachePaths);
+  const mockedScanSubDirectory = vi.mocked(scanSubDirectory);
+  const mockedAppCacheFileFilter = vi.mocked(appCacheFileFilter);
+  const mockedIsDirectoryWebBrowserRelated = vi.mocked(isDirectoryWebBrowserRelated);
 
   const mockPaths = {
     userCache: '/home/user/.cache',
@@ -37,7 +37,7 @@ describe('generateAppCacheReport', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedScanDirectory.mockResolvedValue([]);
     mockedScanSubDirectory.mockResolvedValue([]);
     mockedGetAppCachePaths.mockReturnValue(mockPaths);

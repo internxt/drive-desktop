@@ -1,22 +1,27 @@
 import { FolderRepository } from '../../domain/FolderRepository';
 import { FolderRepositorySynchronizer } from './FolderRepositorySynchronizer';
 import { Folder } from '../../domain/Folder';
+import { vi, Mock } from 'vitest';
 
 describe('FolderRepositorySynchronizer', () => {
-  let folderRepositoryMock: jest.Mocked<FolderRepository>;
+  let folderRepositoryMock: {
+    all: Mock;
+    add: Mock;
+    delete: Mock;
+  };
   let sut: FolderRepositorySynchronizer;
 
   beforeEach(() => {
     folderRepositoryMock = {
-      all: jest.fn(),
-      add: jest.fn(),
-      delete: jest.fn(),
-    } as unknown as jest.Mocked<FolderRepository>;
-    sut = new FolderRepositorySynchronizer(folderRepositoryMock);
+      all: vi.fn(),
+      add: vi.fn(),
+      delete: vi.fn(),
+    };
+    sut = new FolderRepositorySynchronizer(folderRepositoryMock as unknown as FolderRepository);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const mockFolder = (id: string, path: string, isRoot = false): Folder =>

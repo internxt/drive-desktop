@@ -2,17 +2,20 @@ import { createClient } from '../drive-server.client';
 import Bottleneck from 'bottleneck';
 import eventBus from '../../../apps/main/event-bus';
 import { logout } from '../../../apps/main/auth/service';
+import { Mock } from 'vitest';
 
-jest.mock('../drive-server.client', () => ({
-  createClient: jest.fn(() => ({})),
+vi.mock('../drive-server.client', () => ({
+  createClient: vi.fn(() => ({})),
 }));
 
-jest.mock('../../../apps/main/auth/service', () => ({
-  logout: jest.fn(),
+vi.mock('../../../apps/main/auth/service', () => ({
+  logout: vi.fn(),
 }));
 
-jest.mock('../../../apps/main/event-bus', () => ({
-  emit: jest.fn(),
+vi.mock('../../../apps/main/event-bus', () => ({
+  default: {
+    emit: vi.fn(),
+  },
 }));
 
 describe('driveServerClient instance', () => {
@@ -26,7 +29,7 @@ describe('driveServerClient instance', () => {
     if (originalEnv !== undefined) {
       process.env.NEW_DRIVE_URL = originalEnv;
     } else {
-      delete process.env.NEW_DRIVE_URL;
+      delete (process.env as any).NEW_DRIVE_URL;
     }
   });
 
@@ -42,7 +45,7 @@ describe('driveServerClient instance', () => {
   });
 
   it('should call eventBus.emit and logout when onUnauthorized is triggered', () => {
-    const clientOptionsArg = (createClient as jest.Mock).mock.calls[0][0];
+    const clientOptionsArg = (createClient as Mock).mock.calls[0][0];
 
     clientOptionsArg.onUnauthorized();
 
@@ -53,11 +56,13 @@ describe('driveServerClient instance', () => {
   it('should use process.env.NEW_DRIVE_URL as baseUrl', async () => {
     process.env.NEW_DRIVE_URL = 'https://mock.api';
 
-    jest.resetModules();
-    const { createClient } = await import('../drive-server.client');
+    vi.clearAllMocks();
+    vi.resetModules();
+
     await import('./drive-server.client.instance');
 
-    const clientOptions = (createClient as jest.Mock).mock.calls[0][0];
+    const mostRecentCall = (createClient as Mock).mock.calls[(createClient as Mock).mock.calls.length - 1];
+    const clientOptions = mostRecentCall[0];
     expect(clientOptions.baseUrl).toBe('https://mock.api');
   });
 });

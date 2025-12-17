@@ -4,40 +4,41 @@ import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { right } from '../../../shared/domain/Either';
 import { File } from '../domain/File';
 import { StorageFileService } from '../../../storage/StorageFiles/StorageFileService';
+import { Mocked } from 'vitest';
 
 // Mock the Environment module
-jest.mock('@internxt/inxt-js', () => ({
+vi.mock('@internxt/inxt-js', () => ({
   Environment: {
-    get: jest.fn(),
+    get: vi.fn(),
   },
 }));
 
 describe('FileRepositorySynchronizer', () => {
   let sut: FileRepositorySynchronizer;
-  let fileRepositoryMock: jest.Mocked<FileRepository>;
-  let storageFileServiceMock: jest.Mocked<StorageFileService>;
+  let fileRepositoryMock: Mocked<FileRepository>;
+  let storageFileServiceMock: Mocked<StorageFileService>;
   let remoteFileSystemMock: RemoteFileSystem;
 
   beforeEach(() => {
     fileRepositoryMock = {
-      searchByArrayOfContentsId: jest.fn(),
-      clear: jest.fn(),
-      upsert: jest.fn(),
-    } as unknown as jest.Mocked<FileRepository>;
+      searchByArrayOfContentsId: vi.fn(),
+      clear: vi.fn(),
+      upsert: vi.fn(),
+    } as unknown as Mocked<FileRepository>;
 
     storageFileServiceMock = {
-      isFileDownloadable: jest.fn(),
-    } as unknown as jest.Mocked<StorageFileService>;
+      isFileDownloadable: vi.fn(),
+    } as unknown as Mocked<StorageFileService>;
 
     remoteFileSystemMock = {
-      hardDelete: jest.fn(),
+      hardDelete: vi.fn(),
     } as unknown as RemoteFileSystem;
 
     sut = new FileRepositorySynchronizer(fileRepositoryMock, storageFileServiceMock, remoteFileSystemMock);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('fixDanglingFiles', () => {

@@ -6,21 +6,21 @@ import { DeviceModule } from './../../../backend/features/device/device.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { enableExistingBackup } from './enable-existing-backup';
 
-jest.mock('../device/service');
-jest.mock('../config');
-jest.mock('./create-backup');
-jest.mock('./../../../backend/features/device/device.module');
-jest.mock('./enable-existing-backup');
-jest.mock('../../../backend/features/device/fetchDevice', () => ({
-  fetchDevice: jest.fn(),
+vi.mock('../device/service');
+vi.mock('../config');
+vi.mock('./create-backup');
+vi.mock('./../../../backend/features/device/device.module');
+vi.mock('./enable-existing-backup');
+vi.mock('../../../backend/features/device/fetchDevice', () => ({
+  fetchDevice: vi.fn(),
 }));
 
-const mockedGetPathFromDialog = jest.mocked(getPathFromDialog);
-const mockedConfigStore = jest.mocked(configStore);
-const mockedCreateBackup = jest.mocked(createBackup);
-const mockedDeviceModule = jest.mocked(DeviceModule);
-const mockedLogger = jest.mocked(logger);
-const mockedEnableExistingBackup = jest.mocked(enableExistingBackup);
+const mockedGetPathFromDialog = vi.mocked(getPathFromDialog);
+const mockedConfigStore = vi.mocked(configStore);
+const mockedCreateBackup = vi.mocked(createBackup);
+const mockedDeviceModule = vi.mocked(DeviceModule);
+const mockedLogger = vi.mocked(logger);
+const mockedEnableExistingBackup = vi.mocked(enableExistingBackup);
 
 describe('addBackup', () => {
   const mockDevice = {
@@ -33,7 +33,7 @@ describe('addBackup', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should throw error when device is not found', async () => {

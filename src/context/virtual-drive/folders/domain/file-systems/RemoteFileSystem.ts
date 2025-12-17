@@ -2,7 +2,6 @@ import { Either } from '../../../../shared/domain/Either';
 import { Folder } from '../Folder';
 import { FolderId } from '../FolderId';
 import { FolderPath } from '../FolderPath';
-import { FolderUuid } from '../FolderUuid';
 
 export type FolderPersistedDto = {
   id: number;

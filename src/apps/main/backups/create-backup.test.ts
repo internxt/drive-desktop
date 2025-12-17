@@ -4,14 +4,14 @@ import configStore from '../config';
 import { app } from 'electron';
 import path from 'node:path';
 
-jest.mock('./post-backup');
-jest.mock('../config');
-jest.mock('node:path');
+vi.mock('./post-backup');
+vi.mock('../config');
+vi.mock('node:path');
 
-const mockPostBackup = jest.mocked(postBackup);
-const mockConfigStore = jest.mocked(configStore);
-const mockApp = jest.mocked(app);
-const mockPath = jest.mocked(path);
+const mockPostBackup = vi.mocked(postBackup);
+const mockConfigStore = vi.mocked(configStore);
+const mockApp = vi.mocked(app);
+const mockPath = vi.mocked(path);
 
 describe('createBackup', () => {
   const mockDevice = {
@@ -24,7 +24,7 @@ describe('createBackup', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockPath.parse.mockReturnValue({
       root: '/',

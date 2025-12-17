@@ -1,3 +1,4 @@
+import { vi, Mock } from 'vitest';
 import { BackupService } from './BackupService';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
@@ -7,87 +8,87 @@ import { FileDeleter } from '../../context/virtual-drive/files/application/delet
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { BackupInfo } from './BackupInfo';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { LocalTreeMother } from '../../../tests/context/local/tree/domain/LocalTreeMother';
-import { RemoteTreeMother } from '../../../tests/context/virtual-drive/tree/domain/RemoteTreeMother';
+import { LocalTreeMother } from '../../context/local/localTree/domain/__test-helpers__/LocalTreeMother';
+import { RemoteTreeMother } from '../../context/virtual-drive/remoteTree/domain/__test-helpers__/RemoteTreeMother';
 import { left, right } from '../../context/shared/domain/Either';
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
-import { jest } from '@jest/globals';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
-import { FolderMother } from '../../../tests/context/virtual-drive/folders/domain/FolderMother';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 import { DiffFilesCalculatorService } from './diff/DiffFilesCalculatorService';
 import { UsageModule } from '../../backend/features/usage/usage.module';
+import { FolderMother } from '../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
+
 
 // Mock the BackupsIPCRenderer module
-jest.mock('./BackupsIPCRenderer', () => ({
+vi.mock('./BackupsIPCRenderer', () => ({
   BackupsIPCRenderer: {
-    send: jest.fn(), // Mock the send method
+    send: vi.fn(), // Mock the send method
   },
 }));
 
 // Mock the UsageModule
-jest.mock('../../backend/features/usage/usage.module', () => ({
+vi.mock('../../backend/features/usage/usage.module', () => ({
   UsageModule: {
-    validateSpace: jest.fn(),
+    validateSpace: vi.fn(),
   },
 }));
 
 // Mock the Environment module
-jest.mock('@internxt/inxt-js', () => ({
+vi.mock('@internxt/inxt-js', () => ({
   Environment: {
-    get: jest.fn(),
+    get: vi.fn(),
   },
 }));
 
 describe('BackupService', () => {
   let backupService: BackupService;
-  let localTreeBuilder: jest.Mocked<LocalTreeBuilder>;
-  let remoteTreeBuilder: jest.Mocked<RemoteTreeBuilder>;
-  let fileBatchUploader: jest.Mocked<FileBatchUploader>;
-  let fileBatchUpdater: jest.Mocked<FileBatchUpdater>;
-  let remoteFileDeleter: jest.Mocked<FileDeleter>;
-  let simpleFolderCreator: jest.Mocked<SimpleFolderCreator>;
-  let backupsDanglingFilesService: jest.Mocked<BackupsDanglingFilesService>;
-  let mockValidateSpace: jest.MockedFunction<typeof UsageModule.validateSpace>;
+  let localTreeBuilder: LocalTreeBuilder;
+  let remoteTreeBuilder: RemoteTreeBuilder;
+  let fileBatchUploader: FileBatchUploader;
+  let fileBatchUpdater: FileBatchUpdater;
+  let remoteFileDeleter: FileDeleter;
+  let simpleFolderCreator: SimpleFolderCreator;
+  let backupsDanglingFilesService: BackupsDanglingFilesService;
+  let mockValidateSpace: Mock;
 
   beforeEach(() => {
     localTreeBuilder = {
-      run: jest.fn(),
-      generator: jest.fn(),
-      traverse: jest.fn(),
-    } as unknown as jest.Mocked<LocalTreeBuilder>;
+      run: vi.fn(),
+      generator: vi.fn(),
+      traverse: vi.fn(),
+    } as unknown as LocalTreeBuilder;
 
     remoteTreeBuilder = {
-      run: jest.fn(),
-      generator: jest.fn(),
-      traverse: jest.fn(),
-    } as unknown as jest.Mocked<RemoteTreeBuilder>;
+      run: vi.fn(),
+      generator: vi.fn(),
+      traverse: vi.fn(),
+    } as unknown as RemoteTreeBuilder;
 
     fileBatchUploader = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<FileBatchUploader>;
+      run: vi.fn(),
+    } as unknown as FileBatchUploader;
 
     fileBatchUpdater = {
-      run: jest.fn(),
-      uploader: jest.fn(),
-      simpleFileOverrider: jest.fn(),
-    } as unknown as jest.Mocked<FileBatchUpdater>;
+      run: vi.fn(),
+      uploader: vi.fn(),
+      simpleFileOverrider: vi.fn(),
+    } as unknown as FileBatchUpdater;
     remoteFileDeleter = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<FileDeleter>;
+      run: vi.fn(),
+    } as unknown as FileDeleter;
 
-    mockValidateSpace = UsageModule.validateSpace as jest.MockedFunction<typeof UsageModule.validateSpace>;
+    mockValidateSpace = UsageModule.validateSpace as Mock;
 
     backupsDanglingFilesService = {
-      handleDanglingFilesOnBackup: jest.fn(),
-    } as unknown as jest.Mocked<BackupsDanglingFilesService>;
+      handleDanglingFilesOnBackup: vi.fn(),
+    } as unknown as BackupsDanglingFilesService;
 
     simpleFolderCreator = {
-      run: jest.fn<Promise<Folder>, [string, number]>().mockImplementation((_path: string, _parentId: number) => {
+      run: vi.fn().mockImplementation(() => {
         return Promise.resolve(FolderMother.any() as Folder);
       }),
-    } as unknown as jest.Mocked<SimpleFolderCreator>;
+    } as unknown as SimpleFolderCreator;
 
     backupService = new BackupService(
       localTreeBuilder,
@@ -100,7 +101,7 @@ describe('BackupService', () => {
     );
 
     // Clear the mocks before each test
-    (BackupsIPCRenderer.send as jest.Mock).mockClear();
+    (BackupsIPCRenderer.send as Mock).mockClear();
     mockValidateSpace.mockClear();
   });
 
@@ -117,15 +118,15 @@ describe('BackupService', () => {
     const localTree = LocalTreeMother.oneLevel(10);
     const remoteTree = RemoteTreeMother.oneLevel(10);
 
-    localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
-    remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
+    (localTreeBuilder.run as Mock).mockResolvedValueOnce(right(localTree));
+    (remoteTreeBuilder.run as Mock).mockResolvedValueOnce(remoteTree);
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
 
     const result = await backupService.run(info, abortController);
 
     expect(result).toBeUndefined();
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
-    expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId);
+    expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId, info.folderUuid);
     expect(BackupsIPCRenderer.send).toHaveBeenCalled(); // Check if send was called
   });
 
@@ -141,7 +142,7 @@ describe('BackupService', () => {
     const abortController = new AbortController();
     const error = new DriveDesktopError('NOT_EXISTS', 'Failed to generate local tree');
 
-    localTreeBuilder.run.mockResolvedValueOnce(left(error));
+    (localTreeBuilder.run as Mock).mockResolvedValueOnce(left(error));
 
     const result = await backupService.run(info, abortController);
 
@@ -162,13 +163,13 @@ describe('BackupService', () => {
     const error = new DriveDesktopError('NOT_EXISTS', 'Failed to generate remote tree');
 
     // Mock the behavior of dependencies
-    localTreeBuilder.run.mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
-    remoteTreeBuilder.run.mockResolvedValueOnce(left(error) as unknown as Promise<RemoteTree>);
+    (localTreeBuilder.run as Mock).mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
+    (remoteTreeBuilder.run as Mock).mockResolvedValueOnce(left(error) as unknown as Promise<RemoteTree>);
 
     const result = await backupService.run(info, abortController);
 
     expect(result).toStrictEqual(new DriveDesktopError('UNKNOWN', 'An unknown error occurred'));
-    expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId);
+    expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId, info.folderUuid);
   });
 
   it('should return an error if there is not enough space', async () => {
@@ -182,8 +183,8 @@ describe('BackupService', () => {
     };
     const abortController = new AbortController();
 
-    localTreeBuilder.run.mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
-    remoteTreeBuilder.run.mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
+    (localTreeBuilder.run as Mock).mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
+    (remoteTreeBuilder.run as Mock).mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: false } });
 
     const result = await backupService.run(info, abortController);
@@ -202,7 +203,7 @@ describe('BackupService', () => {
     };
     const abortController = new AbortController();
 
-    localTreeBuilder.run.mockImplementationOnce(() => {
+    (localTreeBuilder.run as Mock).mockImplementationOnce(() => {
       throw new Error('Unexpected error');
     });
 
@@ -238,15 +239,15 @@ describe('BackupService', () => {
       total: 0,
     };
 
-    localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
-    remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
+    (localTreeBuilder.run as Mock).mockResolvedValueOnce(right(localTree));
+    (remoteTreeBuilder.run as Mock).mockResolvedValueOnce(remoteTree);
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
-    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(
+    (backupsDanglingFilesService.handleDanglingFilesOnBackup as Mock).mockResolvedValueOnce(
       new Map([[danglingFile, remoteFile]]),
     );
 
     const originalCalculate = DiffFilesCalculatorService.calculate;
-    DiffFilesCalculatorService.calculate = jest.fn(() => fakeDiff);
+    DiffFilesCalculatorService.calculate = vi.fn(() => fakeDiff);
 
     const result = await backupService.run(info, abortController);
 

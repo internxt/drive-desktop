@@ -1,13 +1,13 @@
 import { getRawUsageAndLimit } from './get-raw-usage-and-limit';
 import { getUsageAndLimit } from './get-usage-and-limit';
 
-jest.mock('./get-usage-and-limit');
+vi.mock('./get-usage-and-limit');
 
-const mockGetUsageAndLimit = getUsageAndLimit as jest.MockedFunction<typeof getUsageAndLimit>;
+const mockGetUsageAndLimit = vi.mocked(getUsageAndLimit);
 
 describe('getRawUsageAndLimit', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return raw usage and limit when getUsageAndLimit is successful', async () => {

@@ -1,22 +1,22 @@
 import { scanDirectory } from './scan-directory';
-import { Dirent, promises as fs, Stats } from 'fs';
-import path from 'path';
+import { Dirent, promises as fs, Stats } from 'node:fs';
+import path from 'node:path';
 import { isInternxtRelated } from './utils/is-file-internxt-related';
 import { processDirent } from './process-dirent';
 
-jest.mock('fs', () => ({
+vi.mock('fs', () => ({
   promises: {
-    stat: jest.fn(),
-    readdir: jest.fn(),
+    stat: vi.fn(),
+    readdir: vi.fn(),
   },
 }));
 
-jest.mock('path');
-jest.mock('./utils/is-file-internxt-related');
-jest.mock('./process-dirent');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('path');
+vi.mock('./utils/is-file-internxt-related');
+vi.mock('./process-dirent');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    warn: jest.fn(),
+    warn: vi.fn(),
   },
 }));
 const createMockStats = (isDirectory = true, size = 0): Stats => ({ isDirectory: () => isDirectory, size }) as Stats;
@@ -25,11 +25,11 @@ const createMockDirent = (name: string, isFile = true): Dirent =>
   ({ name, isFile: () => isFile, isDirectory: () => !isFile }) as Dirent;
 
 describe('scanDirectory', () => {
-  const mockedFs = jest.mocked(fs);
-  const mockedPath = jest.mocked(path);
+  const mockedFs = vi.mocked(fs);
+  const mockedPath = vi.mocked(path);
   const mockBasePath = '/test/path';
-  const mockedIsInternxtRelated = jest.mocked(isInternxtRelated);
-  const mockedProcessDirent = jest.mocked(processDirent);
+  const mockedIsInternxtRelated = vi.mocked(isInternxtRelated);
+  const mockedProcessDirent = vi.mocked(processDirent);
 
   const createCleanableItemMock = (fileName: string, size: number, basePath = mockBasePath) => ({
     fullPath: `${basePath}/${fileName}`,
@@ -38,7 +38,7 @@ describe('scanDirectory', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedPath.join.mockImplementation((...args) => args.join('/'));
     mockedIsInternxtRelated.mockReturnValue(false);
     mockedFs.stat.mockResolvedValue(createMockStats(true));

@@ -1,26 +1,27 @@
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
-import { LocalFileMother } from '../../../tests/context/local/localFile/domain/LocalFileMother';
-import { FileMother } from '../../../tests/context/virtual-drive/files/domain/FileMother';
+import { LocalFileMother } from '../../context/local/localFile/domain/__test-helpers__/LocalFileMother';
+import { FileMother } from '../../context/virtual-drive/files/domain/__test-helpers__/FileMother';
 import { left, right } from '../../context/shared/domain/Either';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { StorageFileService } from '../../context/storage/StorageFiles/StorageFileService';
+import { Mocked } from 'vitest';
 
 // Mock the Environment module
-jest.mock('@internxt/inxt-js', () => ({
+vi.mock('@internxt/inxt-js', () => ({
   Environment: {
-    get: jest.fn(),
+    get: vi.fn(),
   },
 }));
 
 describe('BackupsDanglingFilesService', () => {
   let sut: BackupsDanglingFilesService;
-  let storageFileService: jest.Mocked<StorageFileService>;
+  let storageFileService: Mocked<StorageFileService>;
 
   beforeEach(() => {
     storageFileService = {
-      isFileDownloadable: jest.fn(),
-    } as unknown as jest.Mocked<StorageFileService>;
+      isFileDownloadable: vi.fn(),
+    } as unknown as Mocked<StorageFileService>;
 
     sut = new BackupsDanglingFilesService(storageFileService);
   });

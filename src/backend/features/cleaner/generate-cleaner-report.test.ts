@@ -8,23 +8,36 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { CleanerSection, CleanerReport } from './cleaner.types';
 
 // Mock all the section generators
-jest.mock('./app-cache/generate-app-cache-report');
-jest.mock('./log-files/generate-logs-files-report');
-jest.mock('./trash-files/generate-trash-files-report');
-jest.mock('./web-storage-files/generate-web-storage-files-report');
-jest.mock('./web-cache/generate-web-cache-report');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('./app-cache/generate-app-cache-report', () => ({
+  generateAppCacheReport: vi.fn(),
+}));
+vi.mock('./log-files/generate-logs-files-report', () => ({
+  generateLogsFilesReport: vi.fn(),
+}));
+vi.mock('./trash-files/generate-trash-files-report', () => ({
+  generateTrashFilesReport: vi.fn(),
+}));
+vi.mock('./web-storage-files/generate-web-storage-files-report', () => ({
+  generateWebStorageFilesReport: vi.fn(),
+}));
+vi.mock('./web-cache/generate-web-cache-report', () => ({
+  generateWebCacheReport: vi.fn(),
+}));
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    error: jest.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
-const mockedGenerateAppCacheReport = jest.mocked(generateAppCacheReport);
-const mockedGenerateLogsFilesReport = jest.mocked(generateLogsFilesReport);
-const mockedGenerateTrashFilesReport = jest.mocked(generateTrashFilesReport);
-const mockedGenerateWebStorageFilesReport = jest.mocked(generateWebStorageFilesReport);
-const mockedGenerateWebCacheReport = jest.mocked(generateWebCacheReport);
-const mockedLogger = jest.mocked(logger);
+const mockedGenerateAppCacheReport = vi.mocked(generateAppCacheReport);
+const mockedGenerateLogsFilesReport = vi.mocked(generateLogsFilesReport);
+const mockedGenerateTrashFilesReport = vi.mocked(generateTrashFilesReport);
+const mockedGenerateWebStorageFilesReport = vi.mocked(generateWebStorageFilesReport);
+const mockedGenerateWebCacheReport = vi.mocked(generateWebCacheReport);
+const mockedLogger = vi.mocked(logger);
 
 describe('generateCleanerReport', () => {
   // Mock section data
@@ -84,7 +97,7 @@ describe('generateCleanerReport', () => {
 
   beforeEach(() => {
     clearCleanerReportCache(); // Ensure clean cache state
-    jest.clearAllMocks(); // Clear all mocks before each test in this describe block
+    vi.clearAllMocks(); // Clear all mocks before each test in this describe block
 
     // Reset all mocks to their default behavior
     mockedGenerateAppCacheReport.mockReset();
@@ -126,7 +139,7 @@ describe('generateCleanerReport', () => {
       expect(firstResult).toEqual(expectedCompleteReport);
 
       // Reset mocks to verify they aren't called again
-      jest.clearAllMocks();
+      vi.clearAllMocks();
 
       // Second call should return cached result
       const secondResult = await generateCleanerReport();
@@ -222,7 +235,7 @@ describe('generateCleanerReport', () => {
     it('should handle Promise.allSettled throwing an error', async () => {
       // Mock Promise.allSettled to throw (though this is extremely unlikely)
       const originalAllSettled = Promise.allSettled;
-      jest.spyOn(Promise, 'allSettled').mockRejectedValue(new Error('Promise.allSettled failed'));
+      vi.spyOn(Promise, 'allSettled').mockRejectedValue(new Error('Promise.allSettled failed'));
 
       const result = await generateCleanerReport();
 
@@ -277,14 +290,14 @@ describe('generateCleanerReport', () => {
 
     it('should not cache when catastrophic error occurs', async () => {
       // Mock Promise.allSettled to throw
-      jest.spyOn(Promise, 'allSettled').mockRejectedValueOnce(new Error('Catastrophic failure'));
+      vi.spyOn(Promise, 'allSettled').mockRejectedValueOnce(new Error('Catastrophic failure'));
 
       // First call should fail and not cache
       const firstResult = await generateCleanerReport();
       expect(firstResult).toEqual(expectedEmptyReport);
 
       // Restore Promise.allSettled
-      jest.spyOn(Promise, 'allSettled').mockRestore();
+      vi.spyOn(Promise, 'allSettled').mockRestore();
 
       // Clear cache and reset all mocks completely
       clearCleanerReportCache();

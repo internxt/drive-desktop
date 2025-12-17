@@ -1,37 +1,38 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from './isPermissionError';
 import { readdir } from 'fs/promises';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-jest.mock('fs/promises');
-jest.mock('../../../shared/fs/PathTypeChecker ');
-jest.mock('./isPermissionError');
-jest.mock('child_process');
-jest.mock('util');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('fs/promises');
+vi.mock('../../../shared/fs/PathTypeChecker ');
+vi.mock('./isPermissionError');
+vi.mock('child_process');
+vi.mock('util');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 import { getFilesFromDirectory } from './getFilesFromDirectory';
 
 describe('getFilesFromDirectory', () => {
-  const mockReaddir = readdir as jest.MockedFunction<typeof readdir>;
-  const mockPathTypeChecker = PathTypeChecker as jest.Mocked<typeof PathTypeChecker>;
-  const mockIsPermissionError = isPermissionError as jest.MockedFunction<typeof isPermissionError>;
-  const mockLogger = logger as jest.Mocked<typeof logger>;
+  const mockReaddir = vi.mocked(readdir);
+  const mockPathTypeChecker = vi.mocked(PathTypeChecker);
+  const mockIsPermissionError = vi.mocked(isPermissionError);
+  const mockLogger = vi.mocked(logger);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should process a single file', async () => {
     const testFile = '/path/to/file.txt';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     mockPathTypeChecker.isFile.mockResolvedValue(true);
 
     await getFilesFromDirectory(testFile, mockCallback);
@@ -43,7 +44,7 @@ describe('getFilesFromDirectory', () => {
 
   it('should process files in a directory', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'file2.txt', isDirectory: () => false },
@@ -61,12 +62,12 @@ describe('getFilesFromDirectory', () => {
     expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file2.txt');
   });
 
-  it('should filter out temp files and directories', async () => {
+  it('should filter out .tmp files and temp/tmp directories', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
-      { name: 'temp_file.txt', isDirectory: () => false },
+      { name: 'file2.tmp', isDirectory: () => false },
       { name: 'tmp', isDirectory: () => true },
     ];
 
@@ -77,13 +78,13 @@ describe('getFilesFromDirectory', () => {
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
     expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockCallback).not.toHaveBeenCalledWith('/path/to/dir/temp_file.txt');
+    expect(mockCallback).not.toHaveBeenCalledWith('/path/to/dir/file2.tmp');
     expect(mockCallback).not.toHaveBeenCalledWith('/path/to/dir/tmp');
   });
 
   it('should recursively process subdirectories', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'subdir', isDirectory: () => true },
@@ -106,7 +107,7 @@ describe('getFilesFromDirectory', () => {
 
   it('should handle permission errors when reading directory', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const permissionError = new Error('Permission denied') as NodeJS.ErrnoException;
     permissionError.code = 'EACCES';
 
@@ -117,7 +118,7 @@ describe('getFilesFromDirectory', () => {
     const result = await getFilesFromDirectory(testDir, mockCallback);
 
     expect(mockIsPermissionError).toHaveBeenCalledWith(permissionError);
-    expect(mockLogger.debug).toHaveBeenCalledWith(
+    expect(mockLogger.error).toHaveBeenCalledWith(
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Skipping directory'),
@@ -127,22 +128,32 @@ describe('getFilesFromDirectory', () => {
     expect(mockCallback).not.toHaveBeenCalled();
   });
 
-  it('should propagate non-permission errors', async () => {
+  it('should handle non-permission errors and continue scanning', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const nonPermissionError = new Error('Other error');
 
     mockPathTypeChecker.isFile.mockResolvedValue(false);
     mockReaddir.mockRejectedValue(nonPermissionError);
     mockIsPermissionError.mockReturnValue(false);
 
-    await expect(getFilesFromDirectory(testDir, mockCallback)).rejects.toThrow('Other error');
+    const result = await getFilesFromDirectory(testDir, mockCallback);
+
+    expect(mockIsPermissionError).toHaveBeenCalledWith(nonPermissionError);
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tag: 'ANTIVIRUS',
+        msg: expect.stringContaining('Error reading directory'),
+        error: nonPermissionError,
+      }),
+    );
+    expect(result).toBeNull();
     expect(mockCallback).not.toHaveBeenCalled();
   });
 
   it('should handle permission errors in subdirectories', async () => {
     const testDir = '/path/to/dir';
-    const mockCallback = jest.fn().mockResolvedValue(undefined);
+    const mockCallback = vi.fn().mockResolvedValue(undefined);
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'subdir', isDirectory: () => true },

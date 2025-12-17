@@ -1,24 +1,24 @@
-import { Dirent } from 'fs';
+import { Dirent } from 'node:fs';
 import { processDirent } from './process-dirent';
 import { wasAccessedWithinLastHour } from './utils/was-accessed-within-last-hour';
 import { createCleanableItem } from './utils/create-cleanable-item';
 import { scanDirectory } from './scan-directory';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-jest.mock('./utils/was-accessed-within-last-hour');
-jest.mock('./utils/create-cleanable-item');
-jest.mock('./scan-directory');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('./utils/was-accessed-within-last-hour');
+vi.mock('./utils/create-cleanable-item');
+vi.mock('./scan-directory');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    warn: jest.fn(),
+    warn: vi.fn(),
   },
 }));
 
 describe('processDirent', () => {
-  const mockedWasAccessedWithinLastHour = jest.mocked(wasAccessedWithinLastHour);
-  const mockedCreateCleanableItem = jest.mocked(createCleanableItem);
-  const mockedScanDirectory = jest.mocked(scanDirectory);
-  const mockedLogger = jest.mocked(logger);
+  const mockedWasAccessedWithinLastHour = vi.mocked(wasAccessedWithinLastHour);
+  const mockedCreateCleanableItem = vi.mocked(createCleanableItem);
+  const mockedScanDirectory = vi.mocked(scanDirectory);
+  const mockedLogger = vi.mocked(logger);
   const mockBasePath = '/test';
   const mockFileName = 'test.txt';
   const mockFullpath = `${mockBasePath}/${mockFileName}`;
@@ -37,7 +37,7 @@ describe('processDirent', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedWasAccessedWithinLastHour.mockResolvedValue(false);
   });
 
@@ -66,7 +66,7 @@ describe('processDirent', () => {
   });
 
   it('should return empty array when custom filter excludes file', async () => {
-    const customFileFilter = jest.fn().mockReturnValue(true); // true means skip
+    const customFileFilter = vi.fn().mockReturnValue(true); // true means skip
     mockedWasAccessedWithinLastHour.mockResolvedValue(false);
     const result = await processDirent({
       entry: mockFileDirent,
@@ -99,8 +99,8 @@ describe('processDirent', () => {
   it('should process directory when custom directory filter allows it', async () => {
     const mockDir = createMockDirent('important-folder', false);
     const mockPath = '/test/important-folder';
-    const customDirectoryFilter = jest.fn().mockReturnValue(false); // false means process
-    const customFileFilter = jest.fn();
+    const customDirectoryFilter = vi.fn().mockReturnValue(false); // false means process
+    const customFileFilter = vi.fn();
     const mockDirectoryItems = [mockCleanableItem];
 
     mockedScanDirectory.mockResolvedValue(mockDirectoryItems);

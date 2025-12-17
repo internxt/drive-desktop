@@ -1,22 +1,24 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ManualSystemScan, getManualScanMonitorInstance, ProgressData } from './ManualSystemScan';
 import { Antivirus } from './Antivirus';
 import { ScannedItem } from '../database/entities/ScannedItem';
-import fs from 'fs';
+import fs from 'node:fs';
 import eventBus from '../event-bus';
+import { Mock, Mocked } from 'vitest';
 
-jest.mock('./Antivirus');
-jest.mock('../device/service', () => ({
-  getUserSystemPath: jest.fn(() => '/home/user/Documents'),
+vi.mock('./Antivirus');
+vi.mock('../device/service', () => ({
+  getUserSystemPath: vi.fn(() => '/home/user/Documents'),
 }));
-jest.mock('./utils/getFilesFromDirectory', () => ({
-  getFilesFromDirectory: jest.fn((_path, callback) => {
+vi.mock('./utils/getFilesFromDirectory', () => ({
+  getFilesFromDirectory: vi.fn((_path, callback) => {
     callback('/path/to/file.txt');
     return Promise.resolve();
   }),
-  countSystemFiles: jest.fn(() => Promise.resolve(10)),
+  countSystemFiles: vi.fn(() => Promise.resolve(10)),
 }));
-jest.mock('./utils/transformItem', () => ({
-  transformItem: jest.fn((path) => ({
+vi.mock('./utils/transformItem', () => ({
+  transformItem: vi.fn((path) => ({
     pathName: path,
     name: path.split('/').pop(),
     hash: 'mock-hash',
@@ -24,137 +26,147 @@ jest.mock('./utils/transformItem', () => ({
     isInfected: false,
   })),
 }));
-jest.mock('./utils/isPermissionError', () => ({
-  isPermissionError: jest.fn(() => false),
+vi.mock('./utils/isPermissionError', () => ({
+  isPermissionError: vi.fn(() => false),
 }));
-jest.mock('./utils/errorUtils', () => ({
-  isError: jest.fn((error) => error instanceof Error),
-  getErrorMessage: jest.fn((error) => error?.message || String(error)),
-  shouldRethrowError: jest.fn(() => false),
+vi.mock('./utils/errorUtils', () => ({
+  isError: vi.fn((error) => error instanceof Error),
+  getErrorMessage: vi.fn((error) => error?.message || String(error)),
+  shouldRethrowError: vi.fn(() => false),
 }));
-jest.mock('./db/DBScannerConnection', () => ({
-  DBScannerConnection: jest.fn().mockImplementation(() => ({
-    getConnection: jest.fn(() => ({
-      getRepository: jest.fn(() => ({
-        save: jest.fn(),
-        find: jest.fn(),
-        findOne: jest.fn(),
+vi.mock('./db/DBScannerConnection', () => ({
+  DBScannerConnection: vi.fn().mockImplementation(() => ({
+    getConnection: vi.fn(() => ({
+      getRepository: vi.fn(() => ({
+        save: vi.fn(),
+        find: vi.fn(),
+        findOne: vi.fn(),
       })),
     })),
-    getItemFromDatabase: jest.fn().mockResolvedValue(null),
-    addItemToDatabase: jest.fn().mockResolvedValue(undefined),
-    updateItemToDatabase: jest.fn().mockResolvedValue(undefined),
+    getItemFromDatabase: vi.fn().mockResolvedValue(null),
+    addItemToDatabase: vi.fn().mockResolvedValue(undefined),
+    updateItemToDatabase: vi.fn().mockResolvedValue(undefined),
   })),
 }));
-jest.mock('../database/collections/ScannedItemCollection', () => ({
-  ScannedItemCollection: jest.fn().mockImplementation(() => ({
-    findByPath: jest.fn(),
-    save: jest.fn(),
+vi.mock('../database/collections/ScannedItemCollection', () => ({
+  ScannedItemCollection: vi.fn().mockImplementation(() => ({
+    findByPath: vi.fn(),
+    save: vi.fn(),
   })),
 }));
-jest.mock('../database/data-source', () => ({
+vi.mock('../database/data-source', () => ({
   AppDataSource: {
-    initialize: jest.fn().mockResolvedValue({
-      getRepository: jest.fn(() => ({
-        save: jest.fn(),
-        find: jest.fn(),
-        findOne: jest.fn(),
+    initialize: vi.fn().mockResolvedValue({
+      getRepository: vi.fn(() => ({
+        save: vi.fn(),
+        find: vi.fn(),
+        findOne: vi.fn(),
       })),
     }),
     isInitialized: true,
   },
 }));
-jest.mock('async', () => ({
-  queue: jest.fn((worker) => ({
-    push: jest.fn((item, callback) => {
+vi.mock('async', () => ({
+  queue: vi.fn((worker) => ({
+    push: vi.fn((item, callback) => {
       worker(item, callback);
-      return { drain: jest.fn() };
+      return { drain: vi.fn() };
     }),
-    pushAsync: jest.fn((item) => {
+    pushAsync: vi.fn((item) => {
       return Promise.resolve(worker(item));
     }),
-    drain: jest.fn().mockResolvedValue(undefined),
-    kill: jest.fn(),
+    drain: vi.fn().mockResolvedValue(undefined),
+    kill: vi.fn(),
   })),
 }));
-jest.mock('../event-bus', () => ({
+vi.mock('../event-bus', () => ({
   __esModule: true,
   default: {
-    emit: jest.fn(),
+    emit: vi.fn(),
   },
 }));
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getName: jest.fn(() => 'drive-desktop-linux'),
-    getPath: jest.fn(() => '/mock/path'),
-    getVersion: jest.fn(() => '1.0.0'),
+    getName: vi.fn(() => 'drive-desktop-linux'),
+    getPath: vi.fn(() => '/mock/path'),
+    getVersion: vi.fn(() => '1.0.0'),
   },
-  BrowserWindow: jest.fn(),
+  BrowserWindow: vi.fn(),
   ipcMain: {
-    on: jest.fn(),
-    handle: jest.fn(),
+    on: vi.fn(),
+    handle: vi.fn(),
   },
 }));
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
-jest.mock('path', () => ({
-  join: jest.fn((...args) => args.join('/')),
-  dirname: jest.fn((p) => p.split('/').slice(0, -1).join('/')),
-  basename: jest.fn((p) => p.split('/').pop()),
-}));
-jest.mock('fs', () => ({
-  promises: {
-    readdir: jest.fn(),
-    stat: jest.fn(),
+vi.mock('path', () => ({
+  default: {
+    join: vi.fn((...args) => args.join('/')),
+    dirname: vi.fn((p) => p.split('/').slice(0, -1).join('/')),
+    basename: vi.fn((p) => p.split('/').pop()),
   },
-  existsSync: jest.fn(),
-  statSync: jest.fn(),
+}));
+vi.mock('os', () => ({
+  default: {
+    homedir: vi.fn(() => '/home/user'),
+  },
+}));
+vi.mock('fs', () => ({
+  default: {
+    promises: {
+      readdir: vi.fn(),
+      stat: vi.fn(),
+    },
+    existsSync: vi.fn(),
+    statSync: vi.fn(),
+    readFileSync: vi.fn(() => 'LOGFILE_PATH\nDATABASE_DIRECTORY\nFRESHCLAM_LOG_PATH'),
+  },
 }));
 
 describe('ManualSystemScan', () => {
   let manualSystemScan: ManualSystemScan;
-  let mockAntivirus: jest.Mocked<Antivirus>;
+  let mockAntivirus: Antivirus;
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockAntivirus = {
-      scanFile: jest.fn().mockImplementation((path) => {
+      scanFile: vi.fn().mockImplementation((path) => {
         return Promise.resolve({
           file: path,
           isInfected: false,
           viruses: [],
         });
       }),
-      scanFileWithRetry: jest.fn().mockImplementation((path) => {
+      scanFileWithRetry: vi.fn().mockImplementation((path) => {
         return Promise.resolve({
           file: path,
           isInfected: false,
           viruses: [],
         });
       }),
-      stopClamAv: jest.fn().mockResolvedValue(undefined),
-      stopServer: jest.fn().mockResolvedValue(undefined),
-    } as unknown as jest.Mocked<Antivirus>;
+      stopClamAv: vi.fn().mockResolvedValue(undefined),
+      stopServer: vi.fn().mockResolvedValue(undefined),
+    } as unknown as Mocked<Antivirus>;
 
-    (Antivirus.createInstance as jest.Mock).mockResolvedValue(mockAntivirus);
+    (Antivirus.createInstance as Mock).mockResolvedValue(mockAntivirus);
 
-    (fs.promises.readdir as jest.Mock).mockResolvedValue(['file1.txt', 'file2.txt']);
-    (fs.promises.stat as jest.Mock).mockImplementation((path) => {
+    (fs.promises.readdir as Mock).mockResolvedValue(['file1.txt', 'file2.txt']);
+    (fs.promises.stat as Mock).mockImplementation((path) => {
       return Promise.resolve({
         isDirectory: () => path.includes('dir'),
         isFile: () => !path.includes('dir'),
       });
     });
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.statSync as jest.Mock).mockReturnValue({
+    (fs.existsSync as Mock).mockReturnValue(true);
+    (fs.statSync as Mock).mockReturnValue({
       isDirectory: () => false,
       isFile: () => true,
     });
@@ -171,24 +183,22 @@ describe('ManualSystemScan', () => {
     manualSystemScan = await getManualScanMonitorInstance();
   });
 
-  describe('scanItems', () => {
-    jest.setTimeout(15000);
-
+  describe('scanItems', { timeout: 15000 }, () => {
     it('should scan specified paths', async () => {
-      const getFilesFromDirectory = jest.requireMock('./utils/getFilesFromDirectory').getFilesFromDirectory;
+      const { getFilesFromDirectory } = await import('./utils/getFilesFromDirectory');
 
       const originalResetCounters = manualSystemScan['resetCounters'];
-      manualSystemScan['resetCounters'] = jest.fn().mockResolvedValue(undefined);
+      manualSystemScan['resetCounters'] = vi.fn().mockResolvedValue(undefined);
 
       const mockQueue = {
-        pushAsync: jest.fn().mockResolvedValue(undefined),
-        drain: jest.fn().mockResolvedValue(undefined),
-        kill: jest.fn(),
+        pushAsync: vi.fn().mockResolvedValue(undefined),
+        drain: vi.fn().mockResolvedValue(undefined),
+        kill: vi.fn(),
       };
       (manualSystemScan as any).manualQueue = mockQueue;
 
       const originalWaitForActiveScans = manualSystemScan['waitForActiveScans'];
-      manualSystemScan['waitForActiveScans'] = jest.fn().mockResolvedValue(undefined);
+      manualSystemScan['waitForActiveScans'] = vi.fn().mockResolvedValue(undefined);
 
       await manualSystemScan.scanItems(['/path/to/file.txt']);
 
@@ -203,7 +213,7 @@ describe('ManualSystemScan', () => {
 
   describe('stopScan', () => {
     it('should stop the scan process', async () => {
-      const mockKill = jest.fn();
+      const mockKill = vi.fn();
       (manualSystemScan as any).manualQueue = {
         kill: mockKill,
       };
@@ -211,7 +221,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).antivirus = mockAntivirus;
 
       const originalResetCounters = manualSystemScan['resetCounters'];
-      manualSystemScan['resetCounters'] = jest.fn().mockResolvedValue(undefined);
+      manualSystemScan['resetCounters'] = vi.fn().mockResolvedValue(undefined);
 
       await manualSystemScan.stopScan();
 
@@ -262,10 +272,10 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).infectedFiles = ['/test/infected.txt'];
       (manualSystemScan as any).totalScannedFiles = 10;
 
-      const calculateProgressSpy = jest.spyOn(manualSystemScan as any, 'calculateProgress');
+      const calculateProgressSpy = vi.spyOn(manualSystemScan as any, 'calculateProgress');
       calculateProgressSpy.mockReturnValue(75);
 
-      const result = manualSystemScan['emitProgressEvent']({});
+      (manualSystemScan as any).emitProgressEvent({});
 
       expect(eventBus.emit).toHaveBeenCalledWith(
         'ANTIVIRUS_SCAN_PROGRESS',
@@ -356,17 +366,17 @@ describe('ManualSystemScan', () => {
     });
 
     it('should emit a delayed event when delay > 0', () => {
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       manualSystemScan['emitCompletionEvent']('Delayed Complete', 1000);
 
       expect(eventBus.emit).toHaveBeenCalledTimes(1);
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       expect(eventBus.emit).toHaveBeenCalledTimes(2);
 
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
   });
 
@@ -399,7 +409,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalInfectedFiles = 0;
       (manualSystemScan as any).totalItemsToScan = 10;
 
-      jest.spyOn(manualSystemScan as any, 'emitProgressEvent').mockReturnValue({
+      vi.spyOn(manualSystemScan as any, 'emitProgressEvent').mockReturnValue({
         currentScanPath: 'test',
         progress: 10,
         done: false,
@@ -407,7 +417,7 @@ describe('ManualSystemScan', () => {
     });
 
     afterEach(() => {
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('should track progress for non-infected files', () => {
@@ -466,14 +476,14 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalScannedFiles = 9;
       (manualSystemScan as any).totalItemsToScan = 10;
 
-      jest.spyOn(manualSystemScan as any, 'calculateProgress').mockReturnValue(100);
+      vi.spyOn(manualSystemScan as any, 'calculateProgress').mockReturnValue(100);
 
       (manualSystemScan as any).emitProgressEvent.mockReturnValue({
         done: false,
         currentScanPath: '/test/last.txt',
       });
 
-      jest.useFakeTimers();
+      vi.useFakeTimers();
 
       manualSystemScan.trackProgress(1, {
         file: '/test/last.txt',
@@ -482,10 +492,10 @@ describe('ManualSystemScan', () => {
 
       expect((manualSystemScan as any).emitProgressEvent.mock.results[0].value.done).toBe(true);
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
       expect(eventBus.emit).toHaveBeenCalledWith('ANTIVIRUS_SCAN_PROGRESS', expect.objectContaining({ done: true }));
 
-      jest.useRealTimers();
+      vi.useRealTimers();
       (manualSystemScan as any).calculateProgress.mockRestore();
     });
   });
@@ -530,12 +540,12 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).errorCount = 10;
       (manualSystemScan as any).cancelled = true;
 
-      const mockQueue = { kill: jest.fn() };
+      const mockQueue = { kill: vi.fn() };
       (manualSystemScan as any).manualQueue = mockQueue;
 
       (manualSystemScan as any).antivirus = mockAntivirus;
 
-      jest.spyOn(manualSystemScan as any, 'clearAllIntervals').mockImplementation(() => {
+      vi.spyOn(manualSystemScan as any, 'clearAllIntervals').mockImplementation(() => {
         /* mock implementation */
       });
 
@@ -559,7 +569,7 @@ describe('ManualSystemScan', () => {
 
   describe('emitEmptyDirProgressEvent', () => {
     it('should emit a progress event for an empty directory', () => {
-      jest.spyOn(manualSystemScan as any, 'emitProgressEvent').mockImplementation(() => ({}));
+      vi.spyOn(manualSystemScan as any, 'emitProgressEvent').mockImplementation(() => ({}));
 
       manualSystemScan['emitEmptyDirProgressEvent']('/empty/dir', 123);
 
@@ -637,7 +647,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalScannedFiles = 98;
       (manualSystemScan as any).errorCount = 1;
 
-      jest.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(true);
+      vi.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(true);
 
       const result = manualSystemScan['handleStalledScan'](98, 1, 30, false, false, false);
 
@@ -653,7 +663,7 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalItemsToScan = 100;
       (manualSystemScan as any).totalScannedFiles = 50;
 
-      jest.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(false);
+      vi.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(false);
 
       const result = manualSystemScan['handleStalledScan'](50, 1, 30, false, false, true);
 
@@ -696,7 +706,7 @@ describe('ManualSystemScan', () => {
         isInfected: false,
       };
 
-      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+      const trackProgressSpy = vi.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
         /* mock implementation */
       });
 
@@ -715,10 +725,10 @@ describe('ManualSystemScan', () => {
     });
 
     it('should not track progress if session IDs differ', async () => {
-      const currentSession = 1;
+      // const currentSession = 1;
       const wrongSession = 2;
 
-      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+      const trackProgressSpy = vi.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
         /* mock implementation */
       });
 
@@ -759,7 +769,7 @@ describe('ManualSystemScan', () => {
         isInfected: false,
       };
 
-      const trackProgressSpy = jest.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
+      const trackProgressSpy = vi.spyOn(manualSystemScan, 'trackProgress').mockImplementation(() => {
         /* mock implementation */
       });
 

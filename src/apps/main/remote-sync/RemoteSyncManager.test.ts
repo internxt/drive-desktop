@@ -1,11 +1,15 @@
-jest.mock('@internxt/drive-desktop-core/build/backend');
-jest.mock('electron');
-jest.mock('electron-store');
-jest.mock('axios');
-jest.mock('./RemoteSyncErrorHandler/RemoteSyncErrorHandler', () => ({
-  RemoteSyncErrorHandler: jest.fn().mockImplementation(() => ({
-    handleSyncError: jest.fn(),
+vi.mock('@internxt/drive-desktop-core/build/backend');
+vi.mock('axios');
+vi.mock('./RemoteSyncErrorHandler/RemoteSyncErrorHandler', () => ({
+  RemoteSyncErrorHandler: vi.fn().mockImplementation(() => ({
+    handleSyncError: vi.fn(),
   })),
+}));
+vi.mock('../../../infra/sqlite/services/file/create-or-update-file-by-batch', () => ({
+  createOrUpdateFileByBatch: vi.fn().mockResolvedValue({ data: [] }),
+}));
+vi.mock('../../../infra/sqlite/services/folder/create-or-update-folder-by-batch', () => ({
+  createOrUpdateFolderByBatch: vi.fn().mockResolvedValue({ data: [] }),
 }));
 import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
 import { RemoteSyncManager } from './RemoteSyncManager';
@@ -15,25 +19,29 @@ import axios from 'axios';
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
+import { createOrUpdateFileByBatch } from '../../../infra/sqlite/services/file/create-or-update-file-by-batch';
+import { createOrUpdateFolderByBatch } from '../../../infra/sqlite/services/folder/create-or-update-folder-by-batch';
 
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedAxios = vi.mocked(axios);
+const mockedCreateOrUpdateFileByBatch = vi.mocked(createOrUpdateFileByBatch);
+const mockedCreateOrUpdateFolderByBatch = vi.mocked(createOrUpdateFolderByBatch);
 
 const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
-  get: jest.fn(),
-  connect: jest.fn(),
-  update: jest.fn(),
-  create: jest.fn(),
-  remove: jest.fn(),
-  getLastUpdated: jest.fn(),
+  get: vi.fn(),
+  connect: vi.fn(),
+  update: vi.fn(),
+  create: vi.fn(),
+  remove: vi.fn(),
+  getLastUpdated: vi.fn(),
 };
 
 const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> = {
-  get: jest.fn(),
-  connect: jest.fn(),
-  update: jest.fn(),
-  create: jest.fn(),
-  remove: jest.fn(),
-  getLastUpdated: jest.fn(),
+  get: vi.fn(),
+  connect: vi.fn(),
+  update: vi.fn(),
+  create: vi.fn(),
+  remove: vi.fn(),
+  getLastUpdated: vi.fn(),
 };
 
 const createRemoteSyncedFileFixture = (payload: Partial<RemoteSyncedFile>): RemoteSyncedFile => {
@@ -102,6 +110,8 @@ describe('RemoteSyncManager', () => {
       errorHandler,
     );
     mockedAxios.get.mockClear();
+    mockedCreateOrUpdateFileByBatch.mockClear();
+    mockedCreateOrUpdateFolderByBatch.mockClear();
   });
 
   describe('When there are files in remote, should sync them with local', () => {
@@ -227,8 +237,7 @@ describe('RemoteSyncManager', () => {
 
       expect(mockedAxios.get).toBeCalledTimes(2);
       expect(sut.getSyncStatus()).toBe('SYNCED');
-      expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file1);
-      expect(inMemorySyncedFilesCollection.create).toHaveBeenCalledWith(file2);
+      expect(mockedCreateOrUpdateFileByBatch).toBeCalledWith({ files: [file1, file2] });
     });
   });
 
@@ -268,7 +277,7 @@ describe('RemoteSyncManager', () => {
       );
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
       const errorHandlerInstance = sut['errorHandler'];
-      const errorHandlerSpy = jest.spyOn(errorHandlerInstance, 'handleSyncError');
+      const errorHandlerSpy = vi.spyOn(errorHandlerInstance, 'handleSyncError');
 
       await sut.startRemoteSync();
 
@@ -294,7 +303,7 @@ describe('RemoteSyncManager', () => {
 
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
       const errorHandlerInstance = sut['errorHandler'];
-      const errorHandlerSpy = jest.spyOn(errorHandlerInstance, 'handleSyncError');
+      const errorHandlerSpy = vi.spyOn(errorHandlerInstance, 'handleSyncError');
 
       await sut.startRemoteSync();
 

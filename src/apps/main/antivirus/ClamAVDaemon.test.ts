@@ -1,83 +1,103 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import clamAVServer from './ClamAVDaemon';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import net from 'net';
-import fs from 'fs';
-import { Readable } from 'stream';
+import net from 'node:net';
+import fs from 'node:fs';
+import { Readable } from 'node:stream';
+import { Mock } from 'vitest';
 
-jest.mock('child_process', () => ({
-  spawn: jest.fn(),
+vi.mock('child_process', () => ({
+  spawn: vi.fn(),
 }));
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getName: jest.fn(() => 'drive-desktop-linux'),
-    getPath: jest.fn(() => '/mock/path'),
-    getVersion: jest.fn(() => '1.0.0'),
+    getName: vi.fn(() => 'drive-desktop-linux'),
+    getPath: vi.fn(() => '/mock/path'),
+    getVersion: vi.fn(() => '1.0.0'),
   },
 }));
-jest.mock('net');
-jest.mock('fs');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('net');
+vi.mock('fs');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
-jest.mock('path', () => ({
-  join: jest.fn((...args) => args.join('/')),
+vi.mock('path', () => ({
+  default: {
+    join: vi.fn((...args) => args.join('/')),
+  },
 }));
-jest.mock('os', () => ({
-  homedir: jest.fn(() => '/home/user'),
+vi.mock('os', () => ({
+  default: {
+    homedir: vi.fn(() => '/home/user'),
+  },
 }));
 
 describe('ClamAVDaemon', () => {
   let mockChildProcess: Partial<ChildProcessWithoutNullStreams>;
   let mockSocket: any;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    vi.clearAllMocks();
 
     const createMockStream = () => {
       const mockStream = new Readable();
-      mockStream._read = jest.fn();
+      mockStream._read = vi.fn();
       return mockStream;
     };
 
     mockChildProcess = {
       stdout: createMockStream(),
       stderr: createMockStream(),
-      on: jest.fn(),
-      kill: jest.fn(),
+      on: vi.fn(),
+      kill: vi.fn(),
     };
 
     if (mockChildProcess.stdout) {
-      (mockChildProcess.stdout.on as any) = jest.fn();
+      (mockChildProcess.stdout.on as any) = vi.fn();
     }
     if (mockChildProcess.stderr) {
-      (mockChildProcess.stderr.on as any) = jest.fn();
+      (mockChildProcess.stderr.on as any) = vi.fn();
     }
 
-    const childProcess = jest.requireMock('child_process');
-    childProcess.spawn.mockReturnValue(mockChildProcess);
+    const { spawn } = await import('child_process');
+    vi.mocked(spawn).mockReturnValue(mockChildProcess as any);
 
     mockSocket = {
-      connect: jest.fn((_port: number, _host: string, callback: () => void) => {
-        if (callback) callback();
+      connect: vi.fn((_port: number, _host: string, callback: () => void) => {
+        // Simulate async connection
+        setImmediate(() => {
+          if (callback) callback();
+        });
+        return mockSocket;
       }),
-      on: jest.fn(),
-      end: jest.fn(),
-      destroy: jest.fn(),
+      on: vi.fn((event: string, callback: (data: Buffer) => void) => {
+        if (event === 'data') {
+          // Simulate PONG response after a brief delay
+          setImmediate(() => {
+            callback(Buffer.from('PONG\n'));
+          });
+        }
+        return mockSocket;
+      }),
+      end: vi.fn(),
+      destroy: vi.fn(),
+      write: vi.fn(),
     };
 
-    (net.Socket as unknown as jest.Mock) = jest.fn(() => mockSocket);
+    (net.Socket as unknown as Mock) = vi.fn(() => mockSocket);
 
-    (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.mkdirSync as jest.Mock).mockImplementation(() => undefined);
-    (fs.writeFileSync as jest.Mock).mockImplementation(() => undefined);
-    (fs.readdirSync as jest.Mock).mockReturnValue(['main.cvd', 'daily.cvd']);
-    (fs.copyFileSync as jest.Mock).mockImplementation(() => undefined);
+    (fs.existsSync as Mock).mockReturnValue(true);
+    (fs.mkdirSync as Mock).mockImplementation(() => undefined);
+    (fs.writeFileSync as Mock).mockImplementation(() => undefined);
+    (fs.readFileSync as Mock).mockReturnValue('LOGFILE_PATH\nDATABASE_DIRECTORY\nFRESHCLAM_LOG_PATH');
+    (fs.readdirSync as Mock).mockReturnValue(['main.cvd', 'daily.cvd']);
+    (fs.copyFileSync as Mock).mockImplementation(() => undefined);
   });
 
   describe('checkClamdAvailability', () => {
@@ -90,51 +110,90 @@ describe('ClamAVDaemon', () => {
     });
 
     it('should resolve false when connection fails', async () => {
-      mockSocket.connect = jest.fn(
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (_port: number, _host: string, _callback: () => void) => {
-          mockSocket.on.mockImplementation((eventName: string, handler: (err: Error) => void) => {
-            if (eventName === 'error') {
-              handler(new Error('Connection refused'));
-            }
-          });
-        },
-      );
+      // Create a new mock socket for this test with error behavior
+      const errorSocket = {
+        connect: vi.fn(() => {
+          // Don't call the callback, trigger error instead
+          return errorSocket;
+        }),
+        on: vi.fn((event: string, callback: (err?: Error) => void) => {
+          if (event === 'error') {
+            // Trigger error immediately
+            setImmediate(() => {
+              callback(new Error('Connection refused'));
+            });
+          }
+          return errorSocket;
+        }),
+        end: vi.fn(),
+        destroy: vi.fn(),
+        write: vi.fn(),
+      };
+
+      (net.Socket as unknown as Mock) = vi.fn(() => errorSocket);
 
       const result = await clamAVServer.checkClamdAvailability();
 
       expect(result).toBe(false);
-      expect(mockSocket.destroy).toHaveBeenCalled();
+      expect(errorSocket.destroy).toHaveBeenCalled();
     });
   });
 
   describe('startClamdServer', () => {
     it('should start the clamd server successfully', async () => {
+      // Set up process.on mock (for 'close' event)
+      mockChildProcess.on = vi.fn(() => {
+        // Don't trigger close event in success case
+        return mockChildProcess;
+      }) as any;
+
+      // Set up stdout mock to immediately call the data callback
       if (mockChildProcess.stdout) {
-        (mockChildProcess.stdout.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+        (mockChildProcess.stdout.on as any) = vi.fn((eventName: string, callback: (data: Buffer) => void) => {
           if (eventName === 'data') {
-            callback(Buffer.from('Listening daemon'));
+            // Immediately trigger the callback with success message
+            setImmediate(() => callback(Buffer.from('Listening daemon')));
           }
           return mockChildProcess.stdout;
         });
       }
 
-      const startPromise = clamAVServer.startClamdServer();
+      // Set up stderr mock to not trigger any errors
+      if (mockChildProcess.stderr) {
+        (mockChildProcess.stderr.on as any) = vi.fn(() => {
+          // Don't trigger any errors in success case
+          return mockChildProcess.stderr;
+        });
+      }
 
-      await startPromise;
+      await clamAVServer.startClamdServer();
 
-      const childProcess = jest.requireMock('child_process');
-      expect(childProcess.spawn).toHaveBeenCalledWith(
+      const { spawn } = await import('child_process');
+      expect(spawn).toHaveBeenCalledWith(
         expect.stringContaining('/bin/clamd'),
         expect.arrayContaining(['--config-file', expect.any(String), '--foreground', '--debug']),
+        expect.objectContaining({ env: expect.any(Object) }),
       );
     });
 
     it('should handle server startup errors', async () => {
+      // Set up process.on mock (for 'close' event)
+      mockChildProcess.on = vi.fn(() => {
+        return mockChildProcess;
+      }) as any;
+
+      // Set up stdout mock to not trigger success
+      if (mockChildProcess.stdout) {
+        (mockChildProcess.stdout.on as any) = vi.fn(() => {
+          return mockChildProcess.stdout;
+        });
+      }
+
       if (mockChildProcess.stderr) {
-        (mockChildProcess.stderr.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+        (mockChildProcess.stderr.on as any) = vi.fn((eventName: string, callback: (data: Buffer) => void) => {
           if (eventName === 'data') {
-            callback(Buffer.from('ERROR: Can not open/parse the config file'));
+            // Immediately trigger the callback with error message
+            setImmediate(() => callback(Buffer.from('ERROR: Can not open/parse the config file')));
           }
           return mockChildProcess.stderr;
         });

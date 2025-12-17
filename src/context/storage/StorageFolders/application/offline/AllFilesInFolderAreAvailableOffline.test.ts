@@ -1,85 +1,133 @@
-import { FilesByPartialSearcher } from '../../../../virtual-drive/files/application/search/FilesByPartialSearcher';
-import { SingleFolderMatchingFinder } from '../../../../virtual-drive/folders/application/SingleFolderMatchingFinder';
+import { FoldersSearcherByPartialTestClass } from './../../../../virtual-drive/folders/__test-helpers__/FoldersSearcherByPartialTestClass';
 import { AllFilesInFolderAreAvailableOffline } from './AllFilesInFolderAreAvailableOffline';
-import { StorageFilesRepository } from '../../../StorageFiles/domain/StorageFilesRepository';
-import { Folder } from '../../../../virtual-drive/folders/domain/Folder';
-import { FoldersSearcherByPartial } from '../../../../virtual-drive/folders/application/search/FoldersSearcherByPartial';
+import { StorageFileId } from '../../../StorageFiles/domain/StorageFileId';
+import { FileMother } from '../../../../virtual-drive/files/domain/__test-helpers__/FileMother';
+import { SingleFolderMatchingFinderTestClass } from '../../../../virtual-drive/folders/__test-helpers__/SingleFolderMatchingFinderTestClass';
 
-describe('AllFilesInFolderAreAvailableOffline', () => {
-  let singleFolderFinderMock: jest.Mocked<SingleFolderMatchingFinder>;
-  let filesByPartialSearcherMock: jest.Mocked<FilesByPartialSearcher>;
-  let repositoryMock: jest.Mocked<StorageFilesRepository>;
-  let foldersSearcherByPartialMock: jest.Mocked<FoldersSearcherByPartial>;
-  let sut: AllFilesInFolderAreAvailableOffline;
+import { StorageFilesRepositoryMock } from '../../../StorageFiles/__mocks__/StorageFilesRepositoryMock';
+import { FilesByPartialSearcherTestClass } from 'src/context/virtual-drive/files/__test-helpers__/FilesByPartialSearcherTestClass';
+import { FolderMother } from '../../../../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
 
-  const mockFolder = (id: number): Folder =>
-    ({
-      id,
-    }) as unknown as Folder;
+describe('All Files In Folder Are Available Offline', () => {
+  let SUT: AllFilesInFolderAreAvailableOffline;
 
-  const mockFile = (contentsId: string): File => {
-    return Object.create({
-      _contentsId: contentsId,
-      contentsId,
-    }) as File;
-  };
+  let singleFolderFinder: SingleFolderMatchingFinderTestClass;
+  let filesByPartialSearcher: FilesByPartialSearcherTestClass;
+  let repository: StorageFilesRepositoryMock;
+  let foldersSearcherByPartial: FoldersSearcherByPartialTestClass;
 
   beforeEach(() => {
-    singleFolderFinderMock = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<SingleFolderMatchingFinder>;
+    singleFolderFinder = new SingleFolderMatchingFinderTestClass();
+    filesByPartialSearcher = new FilesByPartialSearcherTestClass();
+    repository = new StorageFilesRepositoryMock();
+    foldersSearcherByPartial = new FoldersSearcherByPartialTestClass();
 
-    foldersSearcherByPartialMock = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<FoldersSearcherByPartial>;
-
-    filesByPartialSearcherMock = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<FilesByPartialSearcher>;
-
-    repositoryMock = {
-      exists: jest.fn(),
-    } as unknown as jest.Mocked<StorageFilesRepository>;
-
-    sut = new AllFilesInFolderAreAvailableOffline(
-      singleFolderFinderMock,
-      filesByPartialSearcherMock,
-      repositoryMock,
-      foldersSearcherByPartialMock,
+    SUT = new AllFilesInFolderAreAvailableOffline(
+      singleFolderFinder,
+      filesByPartialSearcher,
+      repository,
+      foldersSearcherByPartial,
     );
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it('returns false if the folder is empty', async () => {
+    const folderFound = FolderMother.any();
+    singleFolderFinder.finds([folderFound]);
+    filesByPartialSearcher.findsOnce([]);
+    foldersSearcherByPartial.doesNotFindAny();
+
+    const result = await SUT.run(folderFound.path);
+
+    expect(result).toBe(false);
   });
 
-  it('should return true when all files and subfolders are available offline', async () => {
-    const folder = mockFolder(1);
-    const file = mockFile('d75fdf14-c3c9-4ab2-970ds');
+  it('returns false if the file is not avaliable offline', async () => {
+    const fileFound = FileMother.any();
+    const folderFound = FolderMother.any();
+    singleFolderFinder.finds([folderFound]);
+    filesByPartialSearcher.findsOnce([fileFound]);
+    foldersSearcherByPartial.doesNotFindAny();
+    const id = new StorageFileId(fileFound.contentsId);
 
-    singleFolderFinderMock.run.mockResolvedValue(folder);
-    foldersSearcherByPartialMock.run.mockResolvedValue([]);
-    // @ts-ignore
-    filesByPartialSearcherMock.run.mockResolvedValue([file]);
+    repository.shouldExists([{ id, value: false }]);
 
-    repositoryMock.exists.mockResolvedValue(true);
+    const result = await SUT.run(folderFound.path);
 
-    const result = await sut.run(folder.path);
+    expect(result).toBe(false);
+  });
+
+  it('returns false if any file is not avaliable offline', async () => {
+    const filesFound = [FileMother.any(), FileMother.any(), FileMother.any()];
+    const ids = filesFound.map((file) => new StorageFileId(file.contentsId));
+
+    const lastDoesNotExits = ids.map((id, i, arr) => {
+      if (i == arr.length - 1) return { id, value: false };
+
+      return { id, value: true };
+    });
+
+    const folderFound = FolderMother.any();
+    singleFolderFinder.finds([folderFound]);
+
+    filesByPartialSearcher.findsOnce(filesFound);
+    foldersSearcherByPartial.doesNotFindAny();
+    repository.shouldExists(lastDoesNotExits);
+
+    const result = await SUT.run(folderFound.path);
+
+    expect(result).toBe(false);
+  });
+
+  it('returns true if all files are avaliable offline', async () => {
+    const filesFound = [FileMother.any(), FileMother.any(), FileMother.any()];
+    const ids = filesFound.map((file) => new StorageFileId(file.contentsId));
+    const allExists = ids.map((id) => ({ id, value: true }));
+    const folderFound = FolderMother.any();
+
+    singleFolderFinder.finds([folderFound]);
+
+    filesByPartialSearcher.findsOnce(filesFound);
+    repository.shouldExists(allExists);
+    foldersSearcherByPartial.doesNotFindAny();
+
+    const result = await SUT.run(folderFound.path);
 
     expect(result).toBe(true);
   });
 
-  it('should return false when not all files are available offline', () => {
-    const folder = mockFolder(1);
-    const file = mockFile('d75fdf14-c3c9-4ab2-970ds');
+  it('searches for subfolders files in a second level', async () => {
+    const folderFound = FolderMother.any();
 
-    singleFolderFinderMock.run.mockResolvedValue(folder);
-    foldersSearcherByPartialMock.run.mockResolvedValue([]);
-    // @ts-ignore
-    filesByPartialSearcherMock.run.mockResolvedValue([file]);
+    singleFolderFinder.finds([folderFound]);
 
-    repositoryMock.exists.mockResolvedValue(false);
+    // firsts level
+    foldersSearcherByPartial.findsOnce([FolderMother.any(), FolderMother.any()]);
+    // second level - only first subfolder is checked before returning false
+    foldersSearcherByPartial.findsOnce([]);
 
-    expect(sut.run(folder.path)).resolves.toBe(false);
+    filesByPartialSearcher.finds([]);
+
+    await SUT.run(folderFound.path);
+
+    // Only 2 calls: root folder + first subfolder (exits early when filesExists returns false)
+    foldersSearcherByPartial.assertHasBeenCalledTimes(2);
+  });
+
+  it.each([0, 1, 20, 50, 100])('searches for subfolders files in a %s level', async (level: number) => {
+    const folderFound = FolderMother.any();
+
+    singleFolderFinder.finds([folderFound]);
+
+    for (let i = 0; i < level; i++) {
+      foldersSearcherByPartial.findsOnce([FolderMother.any()]);
+    }
+
+    foldersSearcherByPartial.findsOnce([]);
+
+    filesByPartialSearcher.finds([]);
+
+    await SUT.run(folderFound.path);
+
+    foldersSearcherByPartial.assertHasBeenCalledTimes(level + 1);
   });
 });

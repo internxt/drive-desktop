@@ -1,34 +1,45 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Antivirus } from './Antivirus';
 import NodeClam from '@internxt/scan';
 import clamAVServer from './ClamAVDaemon';
+import { Mock } from 'vitest';
 
-jest.mock('@internxt/scan');
-jest.mock('./ClamAVDaemon');
-jest.mock('electron', () => ({
+vi.mock('@internxt/scan');
+vi.mock('./ClamAVDaemon');
+vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getName: jest.fn(() => 'drive-desktop-linux'),
-    getPath: jest.fn(() => '/mock/path'),
-    getVersion: jest.fn(() => '1.0.0'),
+    getName: vi.fn(() => 'drive-desktop-linux'),
+    getPath: vi.fn(() => '/mock/path'),
+    getVersion: vi.fn(() => '1.0.0'),
   },
 }));
-jest.mock('path', () => ({
-  join: jest.fn((...args) => args.join('/')),
+vi.mock('path', () => ({
+  default: {
+    join: vi.fn((...args) => args.join('/')),
+  },
 }));
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('os', () => ({
+  default: {
+    homedir: vi.fn(() => '/mock/home'),
+  },
+}));
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
-jest.mock('fs', () => ({
-  promises: {
-    access: jest.fn().mockResolvedValue(undefined),
-  },
-  constants: {
-    R_OK: 4,
+vi.mock('fs', () => ({
+  default: {
+    promises: {
+      access: vi.fn().mockResolvedValue(undefined),
+    },
+    constants: {
+      R_OK: 4,
+    },
   },
 }));
 
@@ -42,21 +53,21 @@ describe('Antivirus', () => {
   let mockNodeClam: any;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockNodeClam = {
-      init: jest.fn().mockReturnThis(),
-      isInfected: jest.fn(),
-      ping: jest.fn().mockResolvedValue(true),
-      closeAllSockets: jest.fn().mockResolvedValue(undefined),
+      init: vi.fn().mockReturnThis(),
+      isInfected: vi.fn(),
+      ping: vi.fn().mockResolvedValue(true),
+      closeAllSockets: vi.fn().mockResolvedValue(undefined),
     };
 
-    (NodeClam as jest.Mock).mockImplementation(() => mockNodeClam);
+    (NodeClam as Mock).mockImplementation(() => mockNodeClam);
 
-    (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(true);
-    (clamAVServer.startClamdServer as jest.Mock).mockResolvedValue(undefined);
-    (clamAVServer.waitForClamd as jest.Mock).mockResolvedValue(undefined);
-    (clamAVServer.stopClamdServer as jest.Mock).mockReturnValue(undefined);
+    (clamAVServer.checkClamdAvailability as Mock).mockResolvedValue(true);
+    (clamAVServer.startClamdServer as Mock).mockResolvedValue(undefined);
+    (clamAVServer.waitForClamd as Mock).mockResolvedValue(undefined);
+    (clamAVServer.stopClamdServer as Mock).mockReturnValue(undefined);
   });
 
   describe('createInstance', () => {
@@ -77,8 +88,8 @@ describe('Antivirus', () => {
     });
 
     it('should throw an error if initialization fails', async () => {
-      (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(false);
-      (clamAVServer.startClamdServer as jest.Mock).mockRejectedValue(new Error('Failed to start ClamAV daemon'));
+      (clamAVServer.checkClamdAvailability as Mock).mockResolvedValue(false);
+      (clamAVServer.startClamdServer as Mock).mockRejectedValue(new Error('Failed to start ClamAV daemon'));
 
       await expect(Antivirus.createInstance()).rejects.toThrow('Failed to start ClamAV daemon');
     });
@@ -109,7 +120,7 @@ describe('Antivirus', () => {
 
       (antivirus as any).isInitialized = false;
       (antivirus as any).connectionRetries = 3;
-      (antivirus as any).ensureConnection = jest.fn().mockResolvedValue(false);
+      (antivirus as any).ensureConnection = vi.fn().mockResolvedValue(false);
 
       await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow('ClamAV is not initialized');
     });

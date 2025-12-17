@@ -1,12 +1,12 @@
 import { getAppCachePaths } from './get-app-cache-paths';
-import os from 'os';
-import path from 'path';
+import os from 'node:os';
+import path from 'node:path';
 
-jest.mock('os');
-jest.mock('path');
+vi.mock('node:os');
+vi.mock('node:path');
 
-const mockedOs = jest.mocked(os);
-const mockedPath = jest.mocked(path);
+const mockedOs = vi.mocked(os);
+const mockedPath = vi.mocked(path);
 
 describe('getAppCachePaths', () => {
   const mockHomeDir = '/home/testuser';
@@ -18,7 +18,7 @@ describe('getAppCachePaths', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return default paths when XDG_CACHE_HOME is not set', () => {

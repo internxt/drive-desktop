@@ -4,13 +4,14 @@ import { StorageFileAttributes } from '../../../../../domain/StorageFile';
 @Entity('storage_file')
 export class TypeOrmStorageFile implements StorageFileAttributes {
   @PrimaryColumn({
+    type: 'varchar',
     nullable: false,
   })
   id!: string;
 
-  @Column({ nullable: false, unique: false })
+  @Column({ type: 'integer', nullable: false, unique: false })
   size!: number;
 
-  @Column({ nullable: false, unique: false })
+  @Column({ type: 'varchar', nullable: false, unique: false })
   virtualId!: string;
 }

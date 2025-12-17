@@ -1,27 +1,27 @@
-import { Dirent, promises as fs } from 'fs';
-import path from 'path';
+import { Dirent, promises as fs } from 'node:fs';
+import path from 'node:path';
 import { isInternxtRelated } from './utils/is-file-internxt-related';
 import { scanDirectory } from './scan-directory';
 import { scanSubDirectory } from './scan-subdirectory';
 
-jest.mock('fs', () => ({
+vi.mock('fs', () => ({
   promises: {
-    readdir: jest.fn(),
+    readdir: vi.fn(),
   },
 }));
-jest.mock('path');
-jest.mock('./utils/is-file-internxt-related');
-jest.mock('./scan-directory');
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('path');
+vi.mock('./utils/is-file-internxt-related');
+vi.mock('./scan-directory');
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    warn: jest.fn(),
+    warn: vi.fn(),
   },
 }));
 describe('scanSubDirectory', () => {
-  const mockedFs = jest.mocked(fs);
-  const mockedPath = jest.mocked(path);
-  const mockedIsInternxtRelated = jest.mocked(isInternxtRelated);
-  const mockedScanDirectory = jest.mocked(scanDirectory);
+  const mockedFs = vi.mocked(fs);
+  const mockedPath = vi.mocked(path);
+  const mockedIsInternxtRelated = vi.mocked(isInternxtRelated);
+  const mockedScanDirectory = vi.mocked(scanDirectory);
 
   const createMockDirent = (name: string, isDirectory = true) =>
     ({
@@ -40,7 +40,7 @@ describe('scanSubDirectory', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockedPath.join.mockImplementation((...args) => args.join('/'));
     mockedIsInternxtRelated.mockReturnValue(false);
   });

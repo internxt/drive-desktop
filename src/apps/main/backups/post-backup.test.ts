@@ -4,15 +4,10 @@ import { createBackupFolder } from '../../../infra/drive-server/services/backup/
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { components } from '../../../infra/schemas';
 
-jest.mock('../../../infra/drive-server/services/backup/services/create-backup-folder');
+vi.mock('../../../infra/drive-server/services/backup/services/create-backup-folder');
 
-const mockCreateBackupFolder = createBackupFolder as jest.MockedFunction<
-  (
-    deviceUuid: string,
-    plainName: string,
-  ) => Promise<{ data: components['schemas']['FolderDto'] } | { error: BackupError }>
->;
-const mockLogger = jest.mocked(logger);
+const mockCreateBackupFolder = vi.mocked(createBackupFolder);
+const mockLogger = vi.mocked(logger);
 
 describe('postBackup', () => {
   const mockDevice = {
@@ -25,7 +20,7 @@ describe('postBackup', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should create backup successfully', async () => {

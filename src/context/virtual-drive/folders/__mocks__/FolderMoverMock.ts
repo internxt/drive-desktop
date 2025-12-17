@@ -1,0 +1,18 @@
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { FolderMover } from '../application/FolderMover';
+import { FolderRepository } from '../domain/FolderRepository';
+import { FolderPath } from '../domain/FolderPath';
+import { Folder } from '../domain/Folder';
+import { ParentFolderFinder } from '../application/ParentFolderFinder';
+
+export class FolderMoverMock extends FolderMover {
+  constructor() {
+    super({} as FolderRepository, {} as RemoteFileSystem, {} as ParentFolderFinder);
+  }
+
+  public readonly mock = vi.fn();
+
+  run(folder: Folder, destination: FolderPath) {
+    return this.mock(folder, destination);
+  }
+}

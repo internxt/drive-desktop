@@ -5,16 +5,16 @@ import { createBackup } from './create-backup';
 import { migrateBackupEntryIfNeeded } from '../device/migrate-backup-entry-if-needed';
 import { app } from 'electron';
 
-jest.mock('../config');
-jest.mock('../../../infra/drive-server/services/backup/services/fetch-folder');
-jest.mock('./create-backup');
-jest.mock('../device/migrate-backup-entry-if-needed');
+vi.mock('../config');
+vi.mock('../../../infra/drive-server/services/backup/services/fetch-folder');
+vi.mock('./create-backup');
+vi.mock('../device/migrate-backup-entry-if-needed');
 
-const mockedConfigStore = jest.mocked(configStore);
-const mockedFetchFolder = jest.mocked(fetchFolder);
-const mockedCreateBackup = jest.mocked(createBackup);
-const mockedMigrateBackupEntryIfNeeded = jest.mocked(migrateBackupEntryIfNeeded);
-const mockedApp = jest.mocked(app);
+const mockedConfigStore = vi.mocked(configStore);
+const mockedFetchFolder = vi.mocked(fetchFolder);
+const mockedCreateBackup = vi.mocked(createBackup);
+const mockedMigrateBackupEntryIfNeeded = vi.mocked(migrateBackupEntryIfNeeded);
+const mockedApp = vi.mocked(app);
 
 describe('enableExistingBackup', () => {
   const mockDevice = {
@@ -34,7 +34,7 @@ describe('enableExistingBackup', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should create new backup when folder no longer exists', async () => {

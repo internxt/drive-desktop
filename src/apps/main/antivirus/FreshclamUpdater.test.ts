@@ -1,63 +1,81 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as FreshclamUpdater from './FreshclamUpdater';
 import { ChildProcessWithoutNullStreams } from 'child_process';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 
-jest.mock('child_process', () => ({
-  spawn: jest.fn(),
+vi.mock('child_process', () => ({
+  spawn: vi.fn(),
 }));
-jest.mock('electron', () => ({
+vi.mock('electron', () => ({
   app: {
     isPackaged: false,
-    getName: jest.fn(() => 'drive-desktop-linux'),
-    getPath: jest.fn(() => '/mock/path'),
-    getVersion: jest.fn(() => '1.0.0'),
+    getName: vi.fn(() => 'drive-desktop-linux'),
+    getPath: vi.fn(() => '/mock/path'),
+    getVersion: vi.fn(() => '1.0.0'),
   },
 }));
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
   },
 }));
-jest.mock('path', () => ({
-  join: jest.fn((...args) => args.join('/')),
+vi.mock('path', () => ({
+  default: {
+    join: vi.fn((...args) => args.join('/')),
+  },
+}));
+vi.mock('os', () => ({
+  default: {
+    homedir: vi.fn(() => '/home/user'),
+  },
+}));
+vi.mock('fs', () => ({
+  default: {
+    existsSync: vi.fn(() => true),
+    mkdirSync: vi.fn(),
+    writeFileSync: vi.fn(),
+    readFileSync: vi.fn(() => 'LOGFILE_PATH\nDATABASE_DIRECTORY\nFRESHCLAM_LOG_PATH'),
+    readdirSync: vi.fn(() => ['main.cvd', 'daily.cvd']),
+    copyFileSync: vi.fn(),
+  },
 }));
 
 describe('FreshclamUpdater', () => {
   let mockChildProcess: Partial<ChildProcessWithoutNullStreams>;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
+    vi.clearAllMocks();
 
     const createMockStream = () => {
       const mockStream = new Readable();
-      mockStream._read = jest.fn();
+      mockStream._read = vi.fn();
       return mockStream;
     };
 
     mockChildProcess = {
       stdout: createMockStream(),
       stderr: createMockStream(),
-      on: jest.fn(),
+      on: vi.fn(),
     };
 
     if (mockChildProcess.stdout) {
-      (mockChildProcess.stdout.on as any) = jest.fn();
+      (mockChildProcess.stdout.on as any) = vi.fn();
     }
     if (mockChildProcess.stderr) {
-      (mockChildProcess.stderr.on as any) = jest.fn();
+      (mockChildProcess.stderr.on as any) = vi.fn();
     }
 
-    const mockSpawn = jest.requireMock('child_process').spawn;
-    mockSpawn.mockReturnValue(mockChildProcess);
+    const { spawn } = await import('child_process');
+    vi.mocked(spawn).mockReturnValue(mockChildProcess as ChildProcessWithoutNullStreams);
   });
 
   describe('runFreshclam', () => {
     it('should update the database successfully', async () => {
       if (mockChildProcess.stdout) {
-        (mockChildProcess.stdout.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+        (mockChildProcess.stdout.on as any) = vi.fn((eventName: string, callback: (data: Buffer) => void) => {
           if (eventName === 'data') {
             callback(Buffer.from('Database updated'));
           }
@@ -66,7 +84,7 @@ describe('FreshclamUpdater', () => {
       }
 
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+        (mockChildProcess.on as any) = vi.fn((eventName: string, callback: any) => {
           if (eventName === 'close') {
             callback(0); // Exit code 0 means success
           }
@@ -77,15 +95,18 @@ describe('FreshclamUpdater', () => {
       const result = FreshclamUpdater.runFreshclam();
 
       await expect(result).resolves.toBeUndefined();
-      expect(jest.requireMock('child_process').spawn).toHaveBeenCalledWith(
+
+      const { spawn } = await import('child_process');
+      expect(spawn).toHaveBeenCalledWith(
         expect.stringContaining('/bin/freshclam'),
         expect.arrayContaining(['--config-file', expect.any(String), '--foreground']),
+        expect.objectContaining({ env: expect.any(Object) }),
       );
     });
 
     it('should handle update failure', async () => {
       if (mockChildProcess.stderr) {
-        (mockChildProcess.stderr.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+        (mockChildProcess.stderr.on as any) = vi.fn((eventName: string, callback: (data: Buffer) => void) => {
           if (eventName === 'data') {
             callback(Buffer.from('ERROR: Update failed'));
           }
@@ -94,7 +115,7 @@ describe('FreshclamUpdater', () => {
       }
 
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+        (mockChildProcess.on as any) = vi.fn((eventName: string, callback: any) => {
           if (eventName === 'close') {
             callback(1);
           }
@@ -109,7 +130,7 @@ describe('FreshclamUpdater', () => {
 
     it('should handle process errors', async () => {
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+        (mockChildProcess.on as any) = vi.fn((eventName: string, callback: any) => {
           if (eventName === 'error') {
             callback(new Error('Process error'));
           }
@@ -119,7 +140,7 @@ describe('FreshclamUpdater', () => {
 
       const result = FreshclamUpdater.runFreshclam();
 
-      await expect(result).rejects.toThrow('Process error');
+      await expect(result).rejects.toThrow('Failed to start update process');
     });
   });
 });

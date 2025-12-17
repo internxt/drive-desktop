@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /** Default is 5 minutes that is equal to 300000 ms  */
 const DEFAULT_INTERVAL = 300000;
 
 export const useOnlineStatus = (INTERVAL = DEFAULT_INTERVAL) => {
   const [online, setOnline] = useState(true);
+  const isMountedRef = useRef(true);
 
   async function checkInternetConnection(): Promise<boolean> {
     try {
@@ -17,6 +18,8 @@ export const useOnlineStatus = (INTERVAL = DEFAULT_INTERVAL) => {
   useEffect(() => {
     const updateOnlineStatus = async () => {
       const onlineStatus = await checkInternetConnection();
+
+      if (!isMountedRef.current) return;
       setOnline(onlineStatus);
     };
 
@@ -28,6 +31,7 @@ export const useOnlineStatus = (INTERVAL = DEFAULT_INTERVAL) => {
     const statusInterval = setInterval(updateOnlineStatus, INTERVAL);
 
     return () => {
+      isMountedRef.current = false;
       window.removeEventListener('online', updateOnlineStatus);
       window.removeEventListener('offline', updateOnlineStatus);
       clearInterval(statusInterval);

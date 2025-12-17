@@ -15,7 +15,13 @@ const configuration: webpack.Configuration = {
     rules: [
       {
         test: /\.[jt]sx?$/,
-        exclude: /node_modules/,
+        exclude: [
+          /node_modules/,
+          /__mocks__/,
+          /__mock__/,
+          /__test-helpers__/,
+          /\.(test|spec)\.[jt]sx?$/,
+        ],
         use: {
           loader: 'ts-loader',
           options: {

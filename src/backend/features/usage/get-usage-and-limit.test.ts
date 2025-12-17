@@ -3,28 +3,28 @@ import { driveServerModule } from '../../../infra/drive-server/drive-server.modu
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { left, right } from '../../../context/shared/domain/Either';
 
-jest.mock('../../../infra/drive-server/drive-server.module', () => ({
+vi.mock('../../../infra/drive-server/drive-server.module', () => ({
   driveServerModule: {
     user: {
-      getUsage: jest.fn(),
-      getLimit: jest.fn(),
+      getUsage: vi.fn(),
+      getLimit: vi.fn(),
     },
   },
 }));
 
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    error: jest.fn(),
+    error: vi.fn(),
   },
 }));
 
-const mockGetUsage = driveServerModule.user.getUsage as jest.MockedFunction<typeof driveServerModule.user.getUsage>;
-const mockGetLimit = driveServerModule.user.getLimit as jest.MockedFunction<typeof driveServerModule.user.getLimit>;
-const mockLogger = logger as jest.Mocked<typeof logger>;
+const mockGetUsage = vi.mocked(driveServerModule.user.getUsage);
+const mockGetLimit = vi.mocked(driveServerModule.user.getLimit);
+const mockLogger = vi.mocked(logger);
 
 describe('getUsageAndLimit', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return error when getUsage returns an error', async () => {

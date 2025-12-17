@@ -3,7 +3,7 @@ import { Container, Identifier } from 'diod';
 export class ContainerMock implements Partial<Container> {
   private services = new Map();
 
-  get = jest.fn((service) => this.services.get(service));
+  get = vi.fn((service) => this.services.get(service));
 
   set<T>(service: any, implementation: T): void {
     this.services.set(service, implementation);

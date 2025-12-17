@@ -1,11 +1,11 @@
 import { isPermissionError } from './isPermissionError';
 import NodeClamError from '@internxt/scan/lib/NodeClamError';
 
-jest.mock('@internxt/scan/lib/NodeClamError');
+vi.mock('@internxt/scan/lib/NodeClamError');
 
 describe('isPermissionError', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return false for null or undefined', () => {

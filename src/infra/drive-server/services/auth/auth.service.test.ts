@@ -3,25 +3,34 @@ import { authClient } from './auth.client';
 import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
 import { LoginAccessRequest, LoginAccessResponse, LoginResponse } from './auth.types';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { Mock } from 'vitest';
+vi.mock('axios', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('axios')>();
+  return {
+    ...actual,
+    isAxiosError: vi.fn(),
+  };
+});
 
-jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+
+vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
-    error: jest.fn(),
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
   },
 }));
 
-jest.mock('../../../../apps/main/auth/service', () => ({
-  getNewApiHeaders: jest.fn(),
-  getBaseApiHeaders: jest.fn(),
+vi.mock('../../../../apps/main/auth/service', () => ({
+  getNewApiHeaders: vi.fn(),
+  getBaseApiHeaders: vi.fn(),
 }));
 
-jest.mock('./auth.client', () => ({
+vi.mock('./auth.client', () => ({
   authClient: {
-    GET: jest.fn(),
-    POST: jest.fn(),
+    GET: vi.fn(),
+    POST: vi.fn(),
   },
 }));
 
@@ -30,13 +39,13 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     sut = new AuthService();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('refresh', () => {
     it('should return token and newToken when response is succesful', async () => {
       const data = { token: 'token', newToken: 'newToken' };
-      (authClient.GET as jest.Mock).mockResolvedValue({ data });
+      (authClient.GET as Mock).mockResolvedValue({ data });
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer newToken',
         'content-type': 'application/json; charset=utf-8',
@@ -44,7 +53,7 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getNewApiHeaders as jest.Mock).mockResolvedValue(mockedHeaders);
+      (getNewApiHeaders as Mock).mockResolvedValue(mockedHeaders);
       const result = await sut.refresh();
 
       expect(result.isRight()).toEqual(true);
@@ -55,7 +64,7 @@ describe('AuthService', () => {
     });
 
     it('should return error when response is not successful', async () => {
-      (authClient.GET as jest.Mock).mockResolvedValue({ data: undefined });
+      (authClient.GET as Mock).mockResolvedValue({ data: undefined });
 
       const result = await sut.refresh();
 
@@ -78,7 +87,7 @@ describe('AuthService', () => {
 
     it('should return error when request throws an exception', async () => {
       const error = new Error('Request failed');
-      (authClient.GET as jest.Mock).mockRejectedValue(error);
+      (authClient.GET as Mock).mockRejectedValue(error);
 
       const result = await sut.refresh();
 
@@ -89,7 +98,7 @@ describe('AuthService', () => {
         expect.objectContaining({
           msg: 'Login request threw an exception',
           tag: 'AUTH',
-          error: error,
+          error: 'Request failed',
           attributes: expect.objectContaining({
             endpoint: '/auth/login',
           }),
@@ -108,7 +117,7 @@ describe('AuthService', () => {
         hasKyberKeys: false,
         hasEccKeys: false,
       };
-      (authClient.POST as jest.Mock).mockResolvedValue({ data });
+      (authClient.POST as Mock).mockResolvedValue({ data });
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer token',
         'content-type': 'application/json; charset=utf-8',
@@ -116,7 +125,7 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getBaseApiHeaders as jest.Mock).mockReturnValue(mockedHeaders);
+      (getBaseApiHeaders as Mock).mockReturnValue(mockedHeaders);
 
       const result = await sut.login(email);
 
@@ -130,8 +139,8 @@ describe('AuthService', () => {
 
     it('should return error when request is not successful', async () => {
       const email = 'test@example.com';
-      (authClient.POST as jest.Mock).mockResolvedValue({ data: undefined });
-      (getBaseApiHeaders as jest.Mock).mockReturnValue({});
+      (authClient.POST as Mock).mockResolvedValue({ data: undefined });
+      (getBaseApiHeaders as Mock).mockReturnValue({});
 
       const result = await sut.login(email);
 
@@ -154,8 +163,8 @@ describe('AuthService', () => {
     it('should return error when request throws an exception', async () => {
       const email = 'test@example.com';
       const error = new Error('Network error');
-      (authClient.POST as jest.Mock).mockRejectedValue(error);
-      (getBaseApiHeaders as jest.Mock).mockReturnValue({});
+      (authClient.POST as Mock).mockRejectedValue(error);
+      (getBaseApiHeaders as Mock).mockReturnValue({});
 
       const result = await sut.login(email);
 
@@ -166,7 +175,7 @@ describe('AuthService', () => {
         expect.objectContaining({
           msg: 'Login request threw an exception',
           tag: 'AUTH',
-          error: error,
+          error: 'Network error',
           attributes: {
             endpoint: '/auth/login',
           },
@@ -194,7 +203,7 @@ describe('AuthService', () => {
         newToken: 'refresh-jwt',
       };
 
-      (authClient.POST as jest.Mock).mockResolvedValue({ data });
+      (authClient.POST as Mock).mockResolvedValue({ data });
 
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer token',
@@ -203,7 +212,7 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getBaseApiHeaders as jest.Mock).mockReturnValue(mockedHeaders);
+      (getBaseApiHeaders as Mock).mockReturnValue(mockedHeaders);
 
       const result = await sut.access(credentials);
 
@@ -222,8 +231,8 @@ describe('AuthService', () => {
         tfa: '123456',
       };
 
-      (authClient.POST as jest.Mock).mockResolvedValue({ data: undefined });
-      (getBaseApiHeaders as jest.Mock).mockReturnValue({});
+      (authClient.POST as Mock).mockResolvedValue({ data: undefined });
+      (getBaseApiHeaders as Mock).mockReturnValue({});
 
       const result = await sut.access(credentials);
 
@@ -251,8 +260,8 @@ describe('AuthService', () => {
       };
 
       const error = new Error('Network error');
-      (authClient.POST as jest.Mock).mockRejectedValue(error);
-      (getBaseApiHeaders as jest.Mock).mockReturnValue({});
+      (authClient.POST as Mock).mockRejectedValue(error);
+      (getBaseApiHeaders as Mock).mockReturnValue({});
 
       const result = await sut.access(credentials);
 
@@ -263,7 +272,7 @@ describe('AuthService', () => {
         expect.objectContaining({
           msg: 'Access request threw an exception',
           tag: 'AUTH',
-          error,
+          error: 'Network error',
           attributes: expect.objectContaining({
             endpoint: '/auth/login/access',
           }),

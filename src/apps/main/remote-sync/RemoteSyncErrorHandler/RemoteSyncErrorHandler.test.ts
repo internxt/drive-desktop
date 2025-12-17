@@ -1,20 +1,20 @@
+vi.mock('@internxt/drive-desktop-core/build/backend');
+
+vi.mock('../../issues/virtual-drive', () => ({
+  addVirtualDriveIssue: vi.fn(),
+}));
+
 import { RemoteSyncErrorHandler, syncItemType } from './RemoteSyncErrorHandler';
 import { RemoteSyncError, RemoteSyncNetworkError, RemoteSyncServerError } from '../errors';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
-
-jest.mock('@internxt/drive-desktop-core/build/backend');
-
-jest.mock('../../issues/virtual-drive', () => ({
-  addVirtualDriveIssue: jest.fn(),
-}));
 
 describe('RemoteSyncErrorHandler', () => {
   let sut: RemoteSyncErrorHandler;
 
   beforeEach(() => {
     sut = new RemoteSyncErrorHandler();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('handleSyncError ', () => {
@@ -23,7 +23,7 @@ describe('RemoteSyncErrorHandler', () => {
       const syncType: syncItemType = 'files';
       const itemName = 'Test File';
       const checkpoint = new Date('2025-02-24');
-      const handleNetworkErrorSpy = jest.spyOn(sut, 'handleNetworkError');
+      const handleNetworkErrorSpy = vi.spyOn(sut, 'handleNetworkError');
 
       sut.handleSyncError(networkError, syncType, itemName, checkpoint);
 
@@ -38,7 +38,7 @@ describe('RemoteSyncErrorHandler', () => {
       const syncType: syncItemType = 'folders';
       const itemName = 'Test Folder';
       const checkpoint = new Date('2025-02-24');
-      const handleServerErrorSpy = jest.spyOn(sut, 'handleServerError');
+      const handleServerErrorSpy = vi.spyOn(sut, 'handleServerError');
 
       sut.handleSyncError(serverError, syncType, itemName, checkpoint);
 
@@ -51,7 +51,7 @@ describe('RemoteSyncErrorHandler', () => {
       const syncType: syncItemType = 'files';
       const itemName = 'Test File';
       const checkpoint = new Date('2025-02-24');
-      const handleRemoteSyncErrorSpy = jest.spyOn(sut, 'handleRemoteSyncError');
+      const handleRemoteSyncErrorSpy = vi.spyOn(sut, 'handleRemoteSyncError');
 
       sut.handleSyncError(genericError, syncType, itemName, checkpoint);
 

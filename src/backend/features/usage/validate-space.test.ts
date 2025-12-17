@@ -3,9 +3,9 @@ import { AccountIpcRenderer } from '../../../apps/shared/IPC/events/account/Acco
 import { Result } from '../../../context/shared/domain/Result';
 import { RawUsage } from './usage.types';
 
-jest.mock('../../../apps/shared/IPC/events/account/AccountIpcRenderer', () => ({
+vi.mock('../../../apps/shared/IPC/events/account/AccountIpcRenderer', () => ({
   AccountIpcRenderer: {
-    invoke: jest.fn(),
+    invoke: vi.fn(),
   },
 }));
 
@@ -13,7 +13,7 @@ const mockInvoke = AccountIpcRenderer.invoke as any;
 
 describe('validateSpace', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return hasSpace as true when enough space is available', async () => {

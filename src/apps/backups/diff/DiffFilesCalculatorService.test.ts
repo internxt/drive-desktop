@@ -1,19 +1,22 @@
 import { DiffFilesCalculatorService } from './DiffFilesCalculatorService';
-import { RemoteTreeMother } from '../../../../tests/context/virtual-drive/tree/domain/RemoteTreeMother';
-import { LocalTreeMother } from '../../../../tests/context/local/tree/domain/LocalTreeMother';
-import { DateMother } from '../../../../tests/context/shared/domain/DateMother';
-import { LocalFileMother } from '../../../../tests/context/local/localFile/domain/LocalFileMother';
-import path, { relative } from 'path';
+import { RemoteTreeMother } from '../../../context/virtual-drive/remoteTree/domain/__test-helpers__/RemoteTreeMother';
+import { LocalTreeMother } from '../../../context/local/localTree/domain/__test-helpers__/LocalTreeMother';
+import { DateMother } from '../../../context/shared/domain/__test-helpers__/DateMother';
+import { LocalFileMother } from '../../../context/local/localFile/domain/__test-helpers__/LocalFileMother';
+import path, { relative } from 'node:path';
 import { AbsolutePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
-import { AbsolutePathMother } from '../../../../tests/context/shared/infrastructure/AbsolutePathMother';
-import { FileMother } from '../../../../tests/context/virtual-drive/files/domain/FileMother';
+import { AbsolutePathMother } from '../../../context/shared/infrastructure/__test-helpers__/AbsolutePathMother';
+import { FileMother } from '../../../context/virtual-drive/files/domain/__test-helpers__/FileMother';
 import configStore from '../../main/config';
-import { FileNameMother } from '../../../../tests/context/shared/domain/FileNameMother';
-import { FolderMother } from '../../../../tests/context/virtual-drive/folders/domain/FolderMother';
-import { FolderNameMother } from '../../../../tests/context/shared/domain/FolderNameMother';
+import { FileNameMother } from '../../../context/shared/domain/__test-helpers__/FileNameMother';
+import { FolderMother } from '../../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
+import { FolderNameMother } from '../../../context/shared/domain/__test-helpers__/FolderNameMother';
+import { vi, Mock } from 'vitest';
 
-jest.mock('../../main/config', () => ({
-  get: jest.fn(),
+vi.mock('../../main/config', () => ({
+  default: {
+    get: vi.fn(),
+  },
 }));
 
 function generateLocalFiles(count: number) {
@@ -168,12 +171,12 @@ describe('DiffFilesCalculatorService', () => {
   });
   describe('isDangledFile', () => {
     beforeEach(() => {
-      (configStore as jest.Mocked<typeof configStore>).get.mockReset();
+      (configStore.get as Mock).mockReset();
     });
 
     it('should return true when the file is dangled', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockImplementation((key: string) => {
+      (configStore.get as Mock).mockImplementation((key: string) => {
         if (key === 'storageMigrationDate') return '2025-02-19T12:00:00Z';
         if (key === 'fixDeploymentDate') return '2025-03-04T15:30:00Z';
       });
@@ -185,7 +188,7 @@ describe('DiffFilesCalculatorService', () => {
 
     it('should return false when the file was created before the migration date', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockImplementation((key: string) => {
+      (configStore.get as Mock).mockImplementation((key: string) => {
         if (key === 'storageMigrationDate') return '2025-02-19T12:00:00Z';
         if (key === 'fixDeploymentDate') return '2025-03-04T15:30:00Z';
       });
@@ -197,7 +200,7 @@ describe('DiffFilesCalculatorService', () => {
 
     it('should return false when the file was created after the fix date', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockImplementation((key: string) => {
+      (configStore.get as Mock).mockImplementation((key: string) => {
         if (key === 'storageMigrationDate') return '2025-02-19T12:00:00Z';
         if (key === 'fixDeploymentDate') return '2025-03-04T15:30:00Z';
       });
@@ -209,7 +212,7 @@ describe('DiffFilesCalculatorService', () => {
 
     it('should return false when the storageMigrationDate is not found', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockImplementation((key: string) => {
+      (configStore.get as Mock).mockImplementation((key: string) => {
         if (key === 'storageMigrationDate') return undefined;
         if (key === 'fixDeploymentDate') return '2025-03-04T15:30:00Z';
       });
@@ -221,7 +224,7 @@ describe('DiffFilesCalculatorService', () => {
 
     it('should return false when the fixDeploymentDate is not found', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockImplementation((key: string) => {
+      (configStore.get as Mock).mockImplementation((key: string) => {
         if (key === 'storageMigrationDate') return '2025-02-19T12:00:00Z';
         if (key === 'fixDeploymentDate') return undefined;
       });
@@ -233,7 +236,7 @@ describe('DiffFilesCalculatorService', () => {
 
     it('should return false when both dates are not found', () => {
       // @ts-ignore
-      (configStore.get as jest.Mock).mockReturnValue(undefined);
+      (configStore.get as Mock).mockReturnValue(undefined);
 
       const createdAt = new Date('2025-02-20');
       const result = DiffFilesCalculatorService.isDangledFile(createdAt);
