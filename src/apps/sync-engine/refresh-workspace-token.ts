@@ -6,6 +6,8 @@ type Props = {
 };
 
 export function refreshWorkspaceToken({ ctx }: Props) {
+  if (!ctx.workspaceToken) return undefined;
+
   return setInterval(
     async () => {
       ctx.logger.debug({ msg: 'Refreshing workspace token' });

@@ -10,6 +10,12 @@ template <typename T>
 T napi_extract_value(napi_env env, napi_value value);
 
 template <>
+inline napi_value napi_extract_value<napi_value>(napi_env env, napi_value value)
+{
+    return value;
+}
+
+template <>
 inline std::wstring napi_extract_value<std::wstring>(napi_env env, napi_value value)
 {
     size_t length;
@@ -45,6 +51,15 @@ inline CF_PIN_STATE napi_extract_value<CF_PIN_STATE>(napi_env env, napi_value va
     int32_t result;
     napi_get_value_int32(env, value, &result);
     return static_cast<CF_PIN_STATE>(result);
+}
+
+template <>
+inline CF_CONNECTION_KEY napi_extract_value<CF_CONNECTION_KEY>(napi_env env, napi_value value)
+{
+    int64_t result;
+    bool lossless;
+    napi_get_value_bigint_int64(env, value, &result, &lossless);
+    return static_cast<CF_CONNECTION_KEY>(result);
 }
 
 template <typename... Types>

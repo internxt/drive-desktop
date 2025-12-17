@@ -1,8 +1,7 @@
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { workers } from '@/apps/main/remote-sync/store';
-import { monitorHealth } from './monitor-health';
-import { scheduleSync } from './schedule-sync';
+import * as scheduleSync from './schedule-sync';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import * as addSyncIssue from '../../issues';
@@ -11,16 +10,12 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import * as initWatcher from '@/node-win/watcher/watcher';
 import * as addPendingItems from '@/apps/sync-engine/in/add-pending-items';
 
-vi.mock(import('./stop-sync-engine-worker'));
-vi.mock(import('./monitor-health'));
-vi.mock(import('./schedule-sync'));
-
 describe('spawn-sync-engine-worker', () => {
   const createSyncRootFolderMock = partialSpyOn(VirtualDrive, 'createSyncRootFolder');
   const registerSyncRootMock = partialSpyOn(Addon, 'registerSyncRoot');
+  const connectSyncRootMock = partialSpyOn(Addon, 'connectSyncRoot');
   const addSyncIssueMock = partialSpyOn(addSyncIssue, 'addSyncIssue');
-  const monitorHealthMock = vi.mocked(monitorHealth);
-  const scheduleSyncMock = vi.mocked(scheduleSync);
+  const scheduleSyncMock = partialSpyOn(scheduleSync, 'scheduleSync');
   const recoverySyncMock = partialSpyOn(RecoverySyncModule, 'recoverySync');
   const refreshItemPlaceholdersMock = partialSpyOn(refreshItemPlaceholders, 'refreshItemPlaceholders');
   const initWatcherMock = partialSpyOn(initWatcher, 'initWatcher');
@@ -50,8 +45,9 @@ describe('spawn-sync-engine-worker', () => {
     // Then
     calls(addSyncIssueMock).toHaveLength(0);
     calls(createSyncRootFolderMock).toHaveLength(1);
+    calls(registerSyncRootMock).toHaveLength(1);
+    calls(connectSyncRootMock).toHaveLength(1);
     calls(refreshItemPlaceholdersMock).toHaveLength(1);
-    calls(monitorHealthMock).toHaveLength(1);
     calls(scheduleSyncMock).toHaveLength(1);
     calls(recoverySyncMock).toHaveLength(1);
     calls(initWatcherMock).toHaveLength(1);
