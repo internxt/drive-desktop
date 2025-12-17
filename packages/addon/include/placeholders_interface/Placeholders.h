@@ -10,7 +10,7 @@ struct FileState {
     std::string placeholderId;
     CF_PIN_STATE pinState;
     CF_IN_SYNC_STATE inSyncState;
-    LONGLONG onDiskDataSize;
+    LONGLONG onDiskSize;
 };
 
 template <>
@@ -32,9 +32,9 @@ struct NapiSerializer<FileState> {
         napi_create_uint32(env, static_cast<uint32_t>(fileState.inSyncState), &inSyncState);
         napi_set_named_property(env, obj, "inSyncState", inSyncState);
 
-        napi_value onDiskDataSize;
-        napi_create_int64(env, fileState.onDiskDataSize, &onDiskDataSize);
-        napi_set_named_property(env, obj, "onDiskDataSize", onDiskDataSize);
+        napi_value onDiskSize;
+        napi_create_int64(env, fileState.onDiskSize, &onDiskSize);
+        napi_set_named_property(env, obj, "onDiskSize", onDiskSize);
 
         return obj;
     }

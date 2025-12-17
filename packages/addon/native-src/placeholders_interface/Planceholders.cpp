@@ -73,6 +73,6 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
     result.placeholderId = placeholderId;
     result.pinState = info->PinState;
     result.inSyncState = info->InSyncState;
-    result.onDiskDataSize = info->OnDiskDataSize.QuadPart;
+    result.onDiskSize = info->OnDiskDataSize.QuadPart;
     return result;
 }

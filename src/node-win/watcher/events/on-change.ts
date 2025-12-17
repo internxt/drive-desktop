@@ -32,7 +32,7 @@ export async function onChange({ ctx, path }: Props) {
       pinState: fileInfo.pinState,
       inSyncState: fileInfo.inSyncState,
       size: stats.size,
-      onDiskSize: fileInfo.onDiskDataSize,
+      onDiskSize: fileInfo.onDiskSize,
       isChanged,
       isModified,
     });
@@ -42,12 +42,12 @@ export async function onChange({ ctx, path }: Props) {
     }
 
     if (isChanged) {
-      if (fileInfo.pinState === PinState.AlwaysLocal && fileInfo.onDiskDataSize === 0) {
+      if (fileInfo.pinState === PinState.AlwaysLocal && fileInfo.onDiskSize === 0) {
         await throttleHydrate({ ctx, path });
       }
 
       if (fileInfo.pinState === PinState.OnlineOnly) {
-        if (stats.size === 0 || fileInfo.onDiskDataSize !== 0) {
+        if (stats.size === 0 || fileInfo.onDiskSize !== 0) {
           await handleDehydrate({ ctx, path });
         }
       }

@@ -48,7 +48,7 @@ describe('on-change', () => {
   it('should hydrate when ctime is modified and disk size is 0', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskDataSize: 0 } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskSize: 0 } });
     // When
     await onChange(props);
     // Then
@@ -60,7 +60,7 @@ describe('on-change', () => {
   it('should dehydrate when ctime is modified and disk size is not 0', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, ctimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly, onDiskDataSize: 1 } });
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly, onDiskSize: 1 } });
     // When
     await onChange(props);
     // Then

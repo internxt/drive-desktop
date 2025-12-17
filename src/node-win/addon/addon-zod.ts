@@ -8,7 +8,7 @@ export const addonZod = {
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
     pinState: z.enum(PinState),
     inSyncState: z.enum(InSyncState),
-    onDiskDataSize: z.number(),
+    onDiskSize: z.number(),
   }),
   getRegisteredSyncRoots: z.array(
     z.object({
