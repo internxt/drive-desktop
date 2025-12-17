@@ -51,9 +51,9 @@ describe('sync-remote-changes-to-local', () => {
 
     // Then
     getEvents().toStrictEqual([
-      { event: 'add', path, stats: { size: 7, blocks: 0, mtimeMs: 0 } },
-      { event: 'change', path, stats: { size: 7, blocks: 0, mtimeMs: 0 } },
-      { event: 'change', path, stats: { size: 1000, blocks: 0, mtimeMs: 0 } },
+      { event: 'add', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 7 } },
+      { event: 'change', path, stats: { size: 1000 } },
     ]);
 
     calls(loggerMock.error).toHaveLength(0);

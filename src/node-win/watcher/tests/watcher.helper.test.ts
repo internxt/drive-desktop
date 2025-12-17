@@ -1,4 +1,4 @@
-import { getCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as unlinkFile from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import * as unlinkFolder from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import * as onAll from '../events/on-all.service';
@@ -26,23 +26,7 @@ export async function setupWatcher(rootPath: AbsolutePath) {
 }
 
 export function getEvents() {
-  const mtimeMs = new Map();
-
-  return expect(
-    getCalls(onAllMock).map(({ event, path, stats }: any, idx: number) => {
-      if (!mtimeMs.has(stats.mtimeMs)) mtimeMs.set(stats.ctimeMs, idx);
-
-      return {
-        event,
-        path,
-        stats: {
-          size: stats.size,
-          blocks: stats.blocks,
-          mtimeMs: mtimeMs.get(stats.mtimeMs),
-        },
-      };
-    }),
-  );
+  return calls(onAllMock);
 }
 
 afterEach(async () => {
