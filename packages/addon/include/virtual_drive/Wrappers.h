@@ -12,6 +12,7 @@ napi_value GetPlaceholderStateWrapper(napi_env env, napi_callback_info info);
 napi_value GetRegisteredSyncRootsWrapper(napi_env env, napi_callback_info info);
 napi_value HydrateFileWrapper(napi_env env, napi_callback_info info);
 napi_value RegisterSyncRootWrapper(napi_env env, napi_callback_info info);
+napi_value RevertPlaceholderWrapper(napi_env env, napi_callback_info info);
 napi_value SetPinStateWrapper(napi_env env, napi_callback_info info);
 napi_value UnregisterSyncRootWrapper(napi_env env, napi_callback_info info);
 napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info info);

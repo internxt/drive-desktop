@@ -4,19 +4,10 @@ import { PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
   connectSyncRoot: z.undefined(),
-  convertToPlaceholder: z.undefined(),
-  createFolderPlaceholder: z.undefined(),
-  createFilePlaceholder: z.undefined(),
-  dehydrateFile: z.undefined(),
-  disconnectSyncRoot: z.undefined(),
   getPlaceholderState: z.object({
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
     pinState: z.enum(PinState),
   }),
-  hydrateFile: z.undefined(),
-  registerSyncRoot: z.undefined(),
-  updateSyncStatus: z.undefined(),
-  unregisterSyncRoot: z.undefined(),
   getRegisteredSyncRoots: z.array(
     z.object({
       id: z.string(),

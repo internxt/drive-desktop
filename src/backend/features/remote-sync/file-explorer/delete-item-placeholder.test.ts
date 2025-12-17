@@ -41,7 +41,7 @@ describe('delete-item-placeholder', () => {
     // Then
     calls(rmMock).toHaveLength(0);
     call(loggerMock.error).toStrictEqual({
-      msg: 'Cannot delete placeholder, path does not match',
+      msg: 'Path does not match when removing placeholder',
       localPath: '/drive/other',
       remotePath: '/drive/folder',
       type: 'folder',
