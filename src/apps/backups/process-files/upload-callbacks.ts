@@ -11,9 +11,6 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
     onProgress({ progress }: { progress: number }) {
       LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
     },
-    onFinish() {
-      LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
-    },
     onError() {
       LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
     },

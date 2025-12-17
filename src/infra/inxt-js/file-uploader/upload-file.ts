@@ -37,7 +37,6 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
           readable.close();
 
           if (contentsId) {
-            callbacks.onFinish();
             return resolve({ data: contentsId as ContentsId });
           }
 

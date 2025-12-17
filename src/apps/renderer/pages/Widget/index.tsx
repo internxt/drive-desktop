@@ -1,13 +1,13 @@
 import Header from './Header';
 import SyncAction from './SyncAction';
-import SyncInfo from './SyncInfo';
+import { SyncInfo } from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
 import ModalLogout from './Logout';
 import { useState } from 'react';
 import { InfoBanners } from './InfoBanners/InfoBanners';
 
-export default function Widget() {
+export function Widget() {
   const { syncStatus } = useSyncStatus();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
@@ -25,7 +25,7 @@ export default function Widget() {
           onClose={() => setIsLogoutModalOpen(false)}
           onLogout={() => {
             setIsLogoutModalOpen(false);
-            window.electron.logout();
+            globalThis.window.electron.logout();
           }}
         />
       )}

@@ -34,10 +34,9 @@ describe('on-change', () => {
     calls(getFileInfoMock).toHaveLength(0);
   });
 
-  it('should update contents id when file is modified and hydrated', async () => {
+  it('should update contents id when file is modified', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, mtimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal } });
     // When
     await onChange(props);
     // Then
