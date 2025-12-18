@@ -45,7 +45,7 @@ describe('get-file-info', () => {
     expect(data).toStrictEqual({
       pinState: PinState.Unspecified,
       inSyncState: InSyncState.Sync,
-      onDiskDataSize: 0,
+      onDiskSize: 0,
       placeholderId,
       uuid,
     });

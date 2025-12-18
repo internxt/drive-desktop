@@ -19,14 +19,13 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     if (local.path !== remote.absolutePath) {
       /**
        * v2.6.4 Daniel Jiménez
-       * This is a temporary migration. Previously, we didn't remove items with mismatched paths, but
-       * we are unsure how many users have been affected. For now, we will revert the placeholder
-       * so the items reupload. In a few months, we will remove this and simply delete the items,
-       * regardless of the path, so the remote version's state prevails.
+       * If we reach this point, it means we had an inconsistency between remote and local,
+       * so instead of deleting the placeholder, we are going to send the item to the trash
+       * so the user can decide whether to delete it or retrieve it.
        */
 
       ctx.logger.error({
-        msg: 'Path does not match when removing placeholder',
+        msg: 'Path does not match when deleting placeholder',
         remotePath: remote.absolutePath,
         localPath: local.path,
         type,

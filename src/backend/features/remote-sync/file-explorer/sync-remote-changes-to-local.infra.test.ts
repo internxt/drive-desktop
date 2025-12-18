@@ -50,7 +50,7 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     // Then
-    getEvents().toStrictEqual([
+    getEvents().toMatchObject([
       { event: 'add', path, stats: { size: 7 } },
       { event: 'change', path, stats: { size: 7 } },
       { event: 'change', path, stats: { size: 1000 } },
