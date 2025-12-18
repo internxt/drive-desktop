@@ -2,12 +2,15 @@ name: SonarCloud code analysis
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches: ['main']
 jobs:
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -16,14 +19,31 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libdrm2 libgbm1 libasound2t64
+
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Install Electron
+        run: cd node_modules/electron && node install.js
+
+      - name: Install app dependencies
+        run: cd release/app && npm ci
+
+      - name: Build main process
+        run: npm run build:main
 
       - name: Test and coverage
-        run: npm run test:cov
+        run: npm run test:coverage
+
+      - name: Merge coverage reports
+        run: npm run coverage:merge
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
