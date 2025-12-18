@@ -1,12 +1,12 @@
 import { LocalFile } from '../../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { uploadFile } from '../upload-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 import { persistReplaceFile } from '@/infra/drive-server-wip/out/ipc-main';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type Props = {
   self: Backup;
@@ -27,7 +27,12 @@ export async function replaceFiles({ self, context, tracker, modified }: Props) 
 
 async function replaceFile({ context, localFile, file }: { context: BackupsContext; localFile: LocalFile; file: ExtendedDriveFile }) {
   try {
-    const contentsId = await uploadFile({ context, localFile });
+    const contentsId = await EnvironmentFileUploader.run({
+      ctx: context,
+      path: localFile.absolutePath,
+      size: localFile.size,
+      abortSignal: context.abortController.signal,
+    });
 
     if (!contentsId) return;
 

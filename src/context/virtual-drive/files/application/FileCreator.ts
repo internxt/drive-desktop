@@ -1,9 +1,9 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { getParentUuid } from './get-parent-uuid';
 import { Addon } from '@/node-win/addon-wrapper';
 import { persistFile } from '@/infra/drive-server-wip/out/ipc-main';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -13,7 +13,14 @@ type Props = {
 
 export class FileCreator {
   static async run({ ctx, path, size }: Props) {
-    const contentsId = await ContentsUploader.run({ ctx, path, size });
+    const contentsId = await EnvironmentFileUploader.run({
+      ctx,
+      size,
+      path,
+      abortSignal: new AbortController().signal,
+    });
+
+    if (!contentsId) return;
 
     ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 

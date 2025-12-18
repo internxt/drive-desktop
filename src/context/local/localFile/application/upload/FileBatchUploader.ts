@@ -2,11 +2,11 @@ import { LocalFile } from '../../domain/LocalFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { uploadFile } from '../upload-file';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { dirname } from '../../infrastructure/AbsolutePath';
 import { persistFile } from '@/infra/drive-server-wip/out/ipc-main';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type Props = {
   self: Backup;
@@ -28,7 +28,12 @@ export async function createFiles({ self, context, tracker, remoteTree, added }:
 
 async function createFile({ context, localFile, remoteTree }: { context: BackupsContext; localFile: LocalFile; remoteTree: RemoteTree }) {
   try {
-    const contentsId = await uploadFile({ context, localFile });
+    const contentsId = await EnvironmentFileUploader.run({
+      ctx: context,
+      path: localFile.absolutePath,
+      size: localFile.size,
+      abortSignal: context.abortController.signal,
+    });
 
     if (!contentsId) return;
 

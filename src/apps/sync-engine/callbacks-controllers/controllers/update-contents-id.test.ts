@@ -2,15 +2,15 @@ import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test'
 import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as persistReplaceFile from '@/infra/drive-server-wip/out/ipc-main';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 describe('update-contents-id', () => {
   const persistReplaceFileMock = partialSpyOn(persistReplaceFile, 'persistReplaceFile');
-  const contentsUploaderMock = partialSpyOn(ContentsUploader, 'run');
+  const contentsUploaderMock = partialSpyOn(EnvironmentFileUploader, 'run');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
   const path = abs('/folder/file.txt');

@@ -1,5 +1,4 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
@@ -7,6 +6,7 @@ import { Addon } from '@/node-win/addon-wrapper';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { persistReplaceFile } from '@/infra/drive-server-wip/out/ipc-main';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -30,7 +30,14 @@ export async function updateContentsId({ ctx, stats, path, uuid }: TProps) {
       return;
     }
 
-    const contentsId = await ContentsUploader.run({ ctx, path, size });
+    const contentsId = await EnvironmentFileUploader.run({
+      ctx,
+      size,
+      path,
+      abortSignal: new AbortController().signal,
+    });
+
+    if (!contentsId) return;
 
     const { error } = await persistReplaceFile({
       ctx,
