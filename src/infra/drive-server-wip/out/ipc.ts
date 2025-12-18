@@ -11,9 +11,17 @@ export type DeleteFolderByUuidProps = Parameters<typeof driveServerWip.storage.d
 export type PersistFileProps = Parameters<typeof HttpRemoteFileSystem.persist>[0];
 export type PersistFolderProps = Parameters<typeof HttpRemoteFolderSystem.persist>[0];
 export type ReplaceFileProps = Parameters<typeof driveServerWip.files.replaceFile>[0] & { ctx: CommonContext };
-export type PersistMoveFileProps = { uuid: FileUuid; workspaceToken: string; parentUuid: FolderUuid; path: AbsolutePath };
-export type PersistMoveFolderProps = { uuid: FolderUuid; workspaceToken: string; parentUuid: FolderUuid; path: AbsolutePath };
-
-export type FromProcess = {};
-
-export type FromMain = {};
+export type PersistMoveFileProps = {
+  ctx: CommonContext;
+  uuid: FileUuid;
+  workspaceToken: string;
+  parentUuid: FolderUuid;
+  path: AbsolutePath;
+};
+export type PersistMoveFolderProps = {
+  ctx: CommonContext;
+  uuid: FolderUuid;
+  workspaceToken: string;
+  parentUuid: FolderUuid;
+  path: AbsolutePath;
+};

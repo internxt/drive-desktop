@@ -1,5 +1,5 @@
 import { moveItem } from './move-item';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -56,7 +56,7 @@ describe('move-item', () => {
     // When
     await moveItem(props);
     // Then
-    expect(persistMoveFileMock).toBeCalledWith({
+    call(persistMoveFileMock).toMatchObject({
       path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',
@@ -71,7 +71,7 @@ describe('move-item', () => {
     // When
     await moveItem(props);
     // Then
-    expect(persistMoveFolderMock).toBeCalledWith({
+    call(persistMoveFolderMock).toMatchObject({
       path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',

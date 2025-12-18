@@ -4,22 +4,11 @@ import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
-import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 
 const widgetConfig: { width: number; height: number; placeUnderTray: boolean } = { width: 330, height: 392, placeUnderTray: true };
 
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
-
-ipcMainSyncEngine.on('FILE_DOWNLOADING', () => {
-  const widget = getWidget();
-  if (widget && !widget.isVisible()) {
-    //  Windows 11 is not focusing the app on .show(), so it is not moving the app to top.
-    widget.setAlwaysOnTop(true);
-    widget.show();
-    widget.setAlwaysOnTop(false);
-  }
-});
 
 const createWidget = async () => {
   widget = new BrowserWindow({

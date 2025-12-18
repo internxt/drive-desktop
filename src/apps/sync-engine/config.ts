@@ -71,10 +71,6 @@ const defaultValues = (): Config => {
   };
 };
 
-export function setConfig(newConfig: Config) {
-  config = newConfig;
-}
-
 export function setDefaultConfig(newConfig: Partial<Config>) {
   config = { ...defaultValues(), ...newConfig };
 }
