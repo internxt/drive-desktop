@@ -6,22 +6,13 @@ import { SingleItemError } from '../common/single-item-error';
 type Props = {
   uuid: FolderUuid;
   payload: {
-    name?: string;
-    parentUuid?: FolderUuid;
     status?: DriveFolder['status'];
   };
 };
 
 export async function updateByUuid({ uuid, payload }: Props) {
   try {
-    const match = await folderRepository.update(
-      { uuid },
-      {
-        plainName: payload.name,
-        parentUuid: payload.parentUuid,
-        status: payload.status,
-      },
-    );
+    const match = await folderRepository.update({ uuid }, { status: payload.status });
 
     if (!match.affected) {
       return { error: new SingleItemError('NOT_FOUND') };

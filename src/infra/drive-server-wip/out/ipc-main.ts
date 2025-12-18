@@ -70,7 +70,7 @@ export async function persistReplaceFile({ ctx, path, uuid, size, contentsId, mo
   return await createOrUpdateFile({ ctx, fileDto: res.data });
 }
 
-export async function persistMoveFile({ path, uuid, parentUuid, workspaceToken }: PersistMoveFileProps) {
+export async function persistMoveFile({ ctx, path, uuid, parentUuid, workspaceToken }: PersistMoveFileProps) {
   const { name, extension } = getNameAndExtension({ path });
   const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });
 
@@ -78,12 +78,11 @@ export async function persistMoveFile({ path, uuid, parentUuid, workspaceToken }
     LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });
   } else {
     LocalSync.SyncState.addItem({ action: 'MOVED', path });
-    await SqliteModule.FileModule.updateByUuid({ uuid, payload: { parentUuid, name, extension, status: 'EXISTS' } });
+    await createOrUpdateFile({ ctx, fileDto: res.data });
   }
-
-  return res;
 }
-export async function persistMoveFolder({ path, uuid, parentUuid, workspaceToken }: PersistMoveFolderProps) {
+
+export async function persistMoveFolder({ ctx, path, uuid, parentUuid, workspaceToken }: PersistMoveFolderProps) {
   const name = basename(path);
   const res = await driveServerWip.folders.move({ uuid, parentUuid, name, workspaceToken });
 
@@ -91,8 +90,6 @@ export async function persistMoveFolder({ path, uuid, parentUuid, workspaceToken
     LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });
   } else {
     LocalSync.SyncState.addItem({ action: 'MOVED', path });
-    await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { parentUuid, name, status: 'EXISTS' } });
+    await createOrUpdateFolder({ ctx, folderDto: res.data });
   }
-
-  return res;
 }
