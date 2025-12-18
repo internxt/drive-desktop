@@ -2,6 +2,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { getUploadCallbacks } from '@/apps/backups/process-files/upload-callbacks';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -11,7 +12,8 @@ type Props = {
 
 export class ContentsUploader {
   static async run({ ctx, path, size }: Props) {
-    const { data: contentsId, error } = await ctx.fileUploader.run({
+    const { data: contentsId, error } = await EnvironmentFileUploader.run({
+      ctx,
       size,
       path,
       abortSignal: new AbortController().signal,

@@ -66,14 +66,14 @@ export async function launchBackupProcesses(
       break;
     }
 
-    const { fileUploader } = buildUserEnvironment({ user });
+    const { environment } = buildUserEnvironment({ user });
     const context: BackupsContext = {
       ...backupInfo,
       userUuid: user.uuid,
       bucket: backupInfo.backupsBucket,
       workspaceId: '',
       workspaceToken: '',
-      fileUploader,
+      environment,
       abortController,
       addIssue: (issue) => {
         addBackupsIssue({

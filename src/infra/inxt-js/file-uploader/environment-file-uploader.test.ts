@@ -13,25 +13,22 @@ describe('environment-file-uploader', () => {
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
 
   const environment = mockDeep<Environment>();
-  const bucket = 'bucket';
-  const service = new EnvironmentFileUploader(environment, bucket);
-
   const callbacks = mockDeep<FileUploaderCallbacks>();
   const readable = mockDeep<ReadStream>();
 
-  let props: Parameters<typeof service.upload>[0];
+  let props: Parameters<typeof EnvironmentFileUploader.run>[0];
 
   beforeEach(() => {
     createReadStreamMock.mockReturnValue(readable);
 
-    props = mockProps<typeof service.upload>({ size: 100, callbacks });
+    props = mockProps<typeof EnvironmentFileUploader.run>({ ctx: { environment }, callbacks });
   });
 
   it('should use upload if file is small than 100MB', () => {
     // Given
     props.size = 100 * 1024 * 1024 - 1;
     // When
-    void service.upload(props);
+    void EnvironmentFileUploader.run(props);
     // Then
     expect(callbacks.onProgress).toBeCalledWith({ progress: 0 });
     expect(uploadFileMock)
@@ -43,7 +40,7 @@ describe('environment-file-uploader', () => {
     // Given
     props.size = 100 * 1024 * 1024 + 1;
     // When
-    void service.upload(props);
+    void EnvironmentFileUploader.run(props);
     // Then
     expect(callbacks.onProgress).toBeCalledWith({ progress: 0 });
     expect(uploadFileMock)

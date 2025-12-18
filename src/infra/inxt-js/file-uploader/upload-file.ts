@@ -8,10 +8,11 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { FileUploaderCallbacks } from './file-uploader';
 import type { TResolve } from './environment-file-uploader';
 import { ActionState } from '@internxt/inxt-js/build/api';
+import { CommonContext } from '@/apps/sync-engine/config';
 
 type Props = {
+  ctx: CommonContext;
   fn: UploadStrategyFunction;
-  bucket: string;
   readable: ReadStream;
   size: number;
   path: AbsolutePath;
@@ -19,7 +20,7 @@ type Props = {
   callbacks: FileUploaderCallbacks;
 };
 
-export function uploadFile({ fn, bucket, readable, size, abortSignal, path, callbacks }: Props) {
+export function uploadFile({ ctx, fn, readable, size, abortSignal, path, callbacks }: Props) {
   function stopUpload(state: ActionState) {
     state.stop();
     readable.destroy();
@@ -29,7 +30,7 @@ export function uploadFile({ fn, bucket, readable, size, abortSignal, path, call
     let interval: NodeJS.Timeout | undefined;
 
     try {
-      const state = fn(bucket, {
+      const state = fn(ctx.bucket, {
         source: readable,
         fileSize: size,
         finishedCallback: (err, contentsId) => {

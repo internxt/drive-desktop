@@ -4,7 +4,6 @@ import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as persistFile from '@/infra/drive-server-wip/out/ipc-main';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
@@ -19,7 +18,7 @@ vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
 describe('create-placeholder', () => {
   const onAllMock = partialSpyOn(onAll, 'onAll');
   const persistFileMock = partialSpyOn(persistFile, 'persistFile');
-  const fileUploader = mockDeep<EnvironmentFileUploader>();
+  const uploadContentsMock = partialSpyOn(EnvironmentFileUploader, 'run');
 
   const providerName = 'Internxt Drive';
   const providerId = v4();
@@ -27,7 +26,7 @@ describe('create-placeholder', () => {
   const file = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
-    fileUploader.run.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
+    uploadContentsMock.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
 
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
@@ -40,7 +39,7 @@ describe('create-placeholder', () => {
   it('should create placeholder', async () => {
     // Given
     persistFileMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
-    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath, fileUploader } });
+    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
     initWatcher(watcherProps);
     await sleep(100);
 

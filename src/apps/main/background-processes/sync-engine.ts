@@ -14,7 +14,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const { fileUploader, contentsDownloader } = buildUserEnvironment({ user });
+  const { environment, contentsDownloader } = buildUserEnvironment({ user });
 
   const syncContext: SyncContext = {
     ...context,
@@ -30,7 +30,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     bridgePass: user.userId,
     workspaceToken: '',
     logger: createLogger({ tag: 'SYNC-ENGINE' }),
-    fileUploader,
+    environment,
     contentsDownloader,
   };
 
