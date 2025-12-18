@@ -17,6 +17,7 @@ export async function getFileExplorerState({ ctx }: TProps) {
   const state: FileExplorerState = {
     createFiles: [],
     createFolders: [],
+    hydrateFiles: [],
     modifiedFiles: [],
   };
 
@@ -37,6 +38,7 @@ export async function getFileExplorerState({ ctx }: TProps) {
     msg: 'File explorer state',
     createFiles: state.createFiles.map((file) => file.path),
     createFolders: state.createFolders.map((folder) => folder.path),
+    hydrateFiles: state.hydrateFiles.map((file) => file.path),
     modifiedFiles: state.modifiedFiles.map((file) => file.path),
   });
 

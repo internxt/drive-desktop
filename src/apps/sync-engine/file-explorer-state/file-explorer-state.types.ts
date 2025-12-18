@@ -7,6 +7,7 @@ export type FileExplorerFile = PendingFileExplorerItem & { uuid: FileUuid };
 export type FileExplorerState = {
   createFiles: PendingFileExplorerItem[];
   createFolders: PendingFileExplorerItem[];
+  hydrateFiles: FileExplorerFile[];
   modifiedFiles: FileExplorerFile[];
 };
 
