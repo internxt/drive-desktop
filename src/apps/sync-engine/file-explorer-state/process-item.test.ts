@@ -7,7 +7,6 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { PinState } from '@/node-win/types/placeholder.type';
 import * as isModified from './is-modified';
-import * as isHydrationPending from './is-hydration-pending';
 import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -16,14 +15,13 @@ describe('process-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const isModifiedMock = partialSpyOn(isModified, 'isModified');
-  const isHydrationPendingMock = partialSpyOn(isHydrationPending, 'isHydrationPending');
 
   let props: Parameters<typeof processItem>[0];
 
   beforeEach(() => {
     props = mockProps<typeof processItem>({
       localItem: { path: abs('/item'), stats: { isDirectory: () => false, isFile: () => false } },
-      state: { createFolders: [], createFiles: [], modifiedFiles: [], hydrateFiles: [] },
+      state: { createFolders: [], createFiles: [], modifiedFiles: [] },
     });
   });
 
@@ -42,7 +40,6 @@ describe('process-item', () => {
         createFolders: [expect.objectContaining({ path: '/item' })],
         createFiles: [],
         modifiedFiles: [],
-        hydrateFiles: [],
       });
     });
 
@@ -56,7 +53,6 @@ describe('process-item', () => {
         createFolders: [],
         createFiles: [],
         modifiedFiles: [],
-        hydrateFiles: [],
       });
     });
   });
@@ -77,7 +73,6 @@ describe('process-item', () => {
         createFolders: [],
         createFiles: [expect.objectContaining({ path: '/item' })],
         modifiedFiles: [],
-        hydrateFiles: [],
       });
     });
 
@@ -91,21 +86,6 @@ describe('process-item', () => {
         createFolders: [],
         createFiles: [],
         modifiedFiles: [expect.objectContaining({ path: '/item' })],
-        hydrateFiles: [],
-      });
-    });
-
-    it('should be added to hydrate files if hydration is pending', async () => {
-      // Given
-      isHydrationPendingMock.mockReturnValue(true);
-      // When
-      await processItem(props);
-      // Then
-      expect(props.state).toStrictEqual({
-        createFolders: [],
-        createFiles: [],
-        modifiedFiles: [],
-        hydrateFiles: [expect.objectContaining({ path: '/item' })],
       });
     });
   });
