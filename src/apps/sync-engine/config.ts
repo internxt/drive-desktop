@@ -18,7 +18,6 @@ export type Config = {
   workspaceId: string;
   workspaceToken: string;
   bucket: string;
-
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
