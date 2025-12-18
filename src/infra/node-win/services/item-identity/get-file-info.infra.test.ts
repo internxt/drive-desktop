@@ -39,8 +39,9 @@ describe('get-file-info', () => {
 
     await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { data } = await getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
+    expect(error).toStrictEqual(undefined);
     expect(data).toStrictEqual({
       pinState: PinState.Unspecified,
       inSyncState: InSyncState.Sync,
@@ -59,8 +60,9 @@ describe('get-file-info', () => {
 
     await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
-    const { error } = await getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
+    expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFileInfoError('NOT_A_FILE'));
   });
 
@@ -69,8 +71,9 @@ describe('get-file-info', () => {
     props.path = join(rootPath, v4());
     await writeFile(props.path, 'content');
     // When
-    const { error } = await getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
+    expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(
       new GetFileInfoError(
         'NOT_A_PLACEHOLDER',
@@ -83,8 +86,9 @@ describe('get-file-info', () => {
     // Given
     props.path = join(rootPath, v4());
     // When
-    const { error } = await getFileInfo(props);
+    const { data, error } = await getFileInfo(props);
     // Then
+    expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
   });
 });

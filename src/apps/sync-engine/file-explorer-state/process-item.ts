@@ -1,6 +1,7 @@
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ProcessSyncContext } from '../config';
 import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
+import { isHydrationPending } from './is-hydration-pending';
 import { isModified } from './is-modified';
 import { FileExplorerState, RemoteFilesMap } from './file-explorer-state.types';
 
@@ -19,7 +20,7 @@ export async function processItem(props: Props) {
 }
 
 async function processFile({ ctx, localItem, state, remoteFilesMap }: Props) {
-  const { path } = localItem;
+  const { path, stats } = localItem;
 
   const { data: fileInfo, error } = await NodeWin.getFileInfo({ path });
 
@@ -27,7 +28,9 @@ async function processFile({ ctx, localItem, state, remoteFilesMap }: Props) {
     const { uuid, pinState } = fileInfo;
     const localFile = { ...localItem, uuid };
 
-    if (isModified({ localFile, remoteFilesMap, pinState })) {
+    if (isHydrationPending({ stats, pinState })) {
+      state.hydrateFiles.push(localFile);
+    } else if (isModified({ localFile, remoteFilesMap, pinState })) {
       state.modifiedFiles.push(localFile);
     }
   }
