@@ -4,7 +4,7 @@ import { rm } from 'node:fs/promises';
 import { InMemoryFiles, InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import trash from 'trash';
+// import trash from 'trash';
 
 type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: InMemoryFiles };
 type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: InMemoryFolders };
@@ -21,7 +21,7 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
        * v2.6.4 Daniel Jiménez
        * If we reach this point, it means we had an inconsistency between remote and local,
        * so instead of deleting the placeholder, we are going to send the item to the trash
-       * so the user can decide whether to delete it or retrieve it.
+       * so the user can decide whether to delete it or recover it.
        */
 
       ctx.logger.error({
@@ -31,7 +31,7 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
         type,
       });
 
-      await trash(local.path);
+      // await trash(local.path);
       return;
     }
 
