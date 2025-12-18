@@ -6,7 +6,7 @@ import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/cont
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { stat } from 'node:fs/promises';
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 
 vi.mock(import('node:fs/promises'));
 
@@ -33,10 +33,10 @@ describe('on-change', () => {
     calls(getFileInfoMock).toHaveLength(0);
   });
 
-  it('should update contents id when file is modified', async () => {
+  it('should update contents id when file is modified and not in sync', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, mtimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: {} });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.Sync } });
     // When
     await onChange(props);
     // Then
