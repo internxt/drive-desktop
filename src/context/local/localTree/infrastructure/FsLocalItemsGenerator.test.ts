@@ -5,6 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { execSync } from 'node:child_process';
 import { join } from '../../localFile/infrastructure/AbsolutePath';
 
 describe('CLSFsLocalItemsGenerator', () => {
@@ -43,6 +44,25 @@ describe('CLSFsLocalItemsGenerator', () => {
         { path: file1, modificationTime: expect.any(Date), size: 7 },
         { path: file2, modificationTime: expect.any(Date), size: 7 },
         { path: file3, modificationTime: expect.any(Date), size: 7 },
+        { path: file4, modificationTime: expect.any(Date), size: 7 },
+      ],
+      folders: [{ path: folder1 }, { path: folder2 }, { path: folder3 }],
+    });
+  });
+
+  it('If stat returns an error it should add an issue and continue', async () => {
+    // Given
+    execSync(`icacls "${file3}" /deny "${process.env.USERNAME}":F`);
+
+    // When
+    const res = await CLSFsLocalItemsGenerator.getAll(props);
+
+    // Then
+    expect(context.addIssue).toHaveBeenCalledWith({ name: file3, error: 'FOLDER_ACCESS_DENIED' });
+    expect(res).toStrictEqual({
+      files: [
+        { path: file1, modificationTime: expect.any(Date), size: 7 },
+        { path: file2, modificationTime: expect.any(Date), size: 7 },
         { path: file4, modificationTime: expect.any(Date), size: 7 },
       ],
       folders: [{ path: folder1 }, { path: folder2 }, { path: folder3 }],
