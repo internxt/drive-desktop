@@ -6,9 +6,9 @@ import { createFolderStructure, removeFolderStructure } from './__test-helpers__
 const TEST_FOLDER = path.join(__dirname, 'FsLocalFileRepositoryTestFolder') as AbsolutePath;
 /** I need to skip this test as is giving this error:
  *  FAIL   main  src/context/local/localFile/infrastructure/FsLocalFileRepository.test.ts > FsLocalFileRepository
-* Error: EEXIST: file already exists,
-* mkdir 'drive-desktop-linux/src/context/local/localFile/infrastructure/FsLocalFileRepositoryTestFolder'
-  */
+ * Error: EEXIST: file already exists,
+ * mkdir 'drive-desktop-linux/src/context/local/localFile/infrastructure/FsLocalFileRepositoryTestFolder'
+ */
 describe.skip('FsLocalFileRepository', () => {
   let SUT: FsLocalFileRepository;
 

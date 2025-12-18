@@ -89,7 +89,7 @@ describe('UserService', () => {
           msg: 'Get usage request threw an exception',
           attributes: { endpoint: '/users/usage' },
           error: 'Mapped network error',
-        })
+        }),
       );
     });
   });
@@ -149,7 +149,7 @@ describe('UserService', () => {
           msg: 'Get limit request threw an exception',
           attributes: { endpoint: '/users/limit' },
           error: 'Mapped network error',
-        })
+        }),
       );
     });
   });

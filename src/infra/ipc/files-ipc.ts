@@ -68,9 +68,8 @@ export async function deleteFileContentIPC(params: {
   fileId: string;
 }): Promise<Result<boolean, Error>> {
   if (isMainProcess) {
-    const { deleteFileFromStorageByFileId } = await import(
-      '../drive-server/services/files/services/delete-file-content-from-bucket'
-    );
+    const { deleteFileFromStorageByFileId } =
+      await import('../drive-server/services/files/services/delete-file-content-from-bucket');
     return await deleteFileFromStorageByFileId(params);
   } else {
     const { ipcRenderer } = await import('electron');

@@ -42,14 +42,14 @@ export default function Login() {
             size="lg"
             disabled={isLoading}
             onClick={handleSignInWithBrowser}
-            className="bg-blue-500 hover:bg-blue-600 flex items-center justify-center rounded-lg px-6 py-3 text-center text-base font-medium text-white mb-6"
+            className="bg-blue-500 hover:bg-blue-600 mb-6 flex items-center justify-center rounded-lg px-6 py-3 text-center text-base font-medium text-white"
             data-automation-id="buttonSignInBrowser">
             {translate('login.action.login-in-browser') || 'Inicia sesión con el navegador'}
           </Button>
 
           <div className="border-gray-300 w-full border-t" />
 
-          <div className="text-center mt-6">
+          <div className="mt-6 text-center">
             <span className="text-gray-700 text-base">{translate('login.no-account') || '¿No tienes cuenta?'}</span>{' '}
             <button
               type="button"

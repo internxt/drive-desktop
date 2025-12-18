@@ -15,7 +15,7 @@ interface BackupInfo {
 }
 
 // Hoist the mock service variable before the mocks
-const { mockBackupService, setMockBackupService, getBackupInfo, } = vi.hoisted(() => {
+const { mockBackupService, setMockBackupService, getBackupInfo } = vi.hoisted(() => {
   const backupInfo = {
     folderId: 123,
     path: 'test/path',
@@ -70,9 +70,10 @@ vi.mock('./BackupsIPCRenderer', () => ({
 function createMockBackupService() {
   return {
     run: vi.fn<(info: BackupInfo, controller: AbortController) => Promise<DriveDesktopError | undefined>>(),
-    runWithRetry: vi.fn<
-      (info: BackupInfo, controller: AbortController) => Promise<Either<RetryError, DriveDesktopError | undefined>>
-    >(),
+    runWithRetry:
+      vi.fn<
+        (info: BackupInfo, controller: AbortController) => Promise<Either<RetryError, DriveDesktopError | undefined>>
+      >(),
     getBackupInfo: vi.fn<() => Promise<Either<Error, BackupInfo>>>(),
   } as unknown as {
     run: Mock;
@@ -103,7 +104,7 @@ describe.skip('Backup Functionality', () => {
 
   beforeEach(() => {
     // Set up global window object at module level to avoid "window is not defined" errors
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     globalThis.window = {
       addEventListener: vi.fn(),
       dispatchEvent: vi.fn(),

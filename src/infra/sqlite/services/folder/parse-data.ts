@@ -3,7 +3,7 @@ import { FolderUuid, SimpleDriveFolder } from '../../../../apps/main/database/en
 import { folderDecryptName } from '../../../../context/virtual-drive/folders/domain/folder-decrypt-name';
 
 type TProps = {
-  data:  RemoteSyncedFolder;
+  data: RemoteSyncedFolder;
 };
 
 export function parseData({ data }: TProps): SimpleDriveFolder {

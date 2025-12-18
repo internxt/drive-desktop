@@ -38,22 +38,18 @@ remoteSyncManager.onStatusChange(async (newStatus) => {
 });
 
 export async function getUpdatedRemoteItems() {
-  try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll(),
-      driveFoldersCollection.getAll(),
-    ]);
+  const [allDriveFiles, allDriveFolders] = await Promise.all([
+    driveFilesCollection.getAll(),
+    driveFoldersCollection.getAll(),
+  ]);
 
-    if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
+  if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
 
-    if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
-    return {
-      files: allDriveFiles.result,
-      folders: allDriveFolders.result,
-    };
-  } catch (error) {
-    throw error;
-  }
+  if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
+  return {
+    files: allDriveFiles.result,
+    folders: allDriveFolders.result,
+  };
 }
 
 export async function startRemoteSync(): Promise<void> {

@@ -2,11 +2,7 @@ import { Either, right } from '../../../shared/domain/Either';
 import { Folder } from '../domain/Folder';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
-import {
-  FolderPersistedDto,
-  RemoteFileSystem,
-  RemoteFileSystemErrors,
-} from '../domain/file-systems/RemoteFileSystem';
+import { FolderPersistedDto, RemoteFileSystem, RemoteFileSystemErrors } from '../domain/file-systems/RemoteFileSystem';
 
 export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   private readonly persistMock = vi.fn();
@@ -19,10 +15,7 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
     return this.searchWithMock(parentId, folderPath);
   }
 
-  persist(
-    plainName: string,
-    parentFolderUuid: string,
-  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
+  persist(plainName: string, parentFolderUuid: string): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     expect(this.persistMock).toHaveBeenCalledWith(plainName, parentFolderUuid);
 
     return this.persistMock();

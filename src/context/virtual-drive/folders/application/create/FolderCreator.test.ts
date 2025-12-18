@@ -64,10 +64,7 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, true); // Pass parent's UUID
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
   });
@@ -83,10 +80,7 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, true);
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
 
@@ -104,10 +98,7 @@ describe('Folder Creator', () => {
 
     remote.shouldPersists(createdFolder, true);
 
-    repository.matchingPartialMock
-      .mockReturnValueOnce([])
-      .mockReturnValueOnce([parent])
-      .mockReturnValueOnce([parent]);
+    repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parent]).mockReturnValueOnce([parent]);
 
     await SUT.run(path.value);
 

@@ -5,7 +5,6 @@ import { FoldersDiffCalculator } from './FoldersDiffCalculator';
 import { LocalTreeMother } from '../../../context/local/localTree/domain/__test-helpers__/LocalTreeMother';
 import { LocalFolderMother } from '../../../context/local/localFolder/domain/__test-helpers__/LocalFolderMother';
 
-
 describe('FoldersDiffCalculator', () => {
   it('groups folders as added when not found on the remote tree', () => {
     const expectedNumberOfFoldersToAdd = 24;

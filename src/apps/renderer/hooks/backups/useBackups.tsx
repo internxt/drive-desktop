@@ -59,10 +59,8 @@ export function useBackups(): BackupContextProps {
     const newBackup = await window.electron.addBackup();
     if (!newBackup) return;
 
-    setBackups(prevBackups => {
-      const existingIndex = prevBackups.findIndex(
-        backup => backup.folderId === newBackup.folderId
-      );
+    setBackups((prevBackups) => {
+      const existingIndex = prevBackups.findIndex((backup) => backup.folderId === newBackup.folderId);
 
       if (existingIndex === -1) {
         return [...prevBackups, newBackup];
@@ -76,9 +74,7 @@ export function useBackups(): BackupContextProps {
 
   async function disableBackup(backup: BackupInfo) {
     await window.electron.disableBackup(backup);
-    setBackups(prevBackups =>
-      prevBackups.filter(b => b.folderUuid !== backup.folderUuid)
-    );
+    setBackups((prevBackups) => prevBackups.filter((b) => b.folderUuid !== backup.folderUuid));
   }
 
   async function deleteBackups(device: Device, isCurrent?: boolean): Promise<boolean> {

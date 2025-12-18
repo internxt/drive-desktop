@@ -121,7 +121,7 @@ app
      * .AppImage users may experience login issues because the deeplink protocol
      * is not registered automatically, unlike with .deb packages.
      * This function manually registers the protocol handler for .AppImage installations.
-    */
+     */
     await setupAppImageDeeplink();
     await installNautilusExtension();
 
@@ -140,7 +140,7 @@ app
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
 app.on('second-instance', async (_, argv) => {
-  logger.debug({tag: 'AUTH', msg: 'Deeplink received on second instance, processing...'});
+  logger.debug({ tag: 'AUTH', msg: 'Deeplink received on second instance, processing...' });
   const deeplinkArg = argv.find((arg) => arg.startsWith('internxt://'));
   if (!deeplinkArg) return;
 

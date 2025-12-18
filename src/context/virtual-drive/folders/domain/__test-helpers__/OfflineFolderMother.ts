@@ -1,9 +1,6 @@
 import { FolderStatuses } from '../FolderStatus';
 import { FolderUuid } from '../FolderUuid';
-import {
-  OfflineFolder,
-  OfflineFolderAttributes,
-} from '../OfflineFolder';
+import { OfflineFolder, OfflineFolderAttributes } from '../OfflineFolder';
 
 import Chance from 'chance';
 const chance = new Chance();

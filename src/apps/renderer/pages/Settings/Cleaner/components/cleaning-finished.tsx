@@ -19,7 +19,9 @@ export default function CleaningFinished({ deletedFiles, skippedFiles, freeSpace
           <Sparkle color="#0066ff" weight="fill" size={64} />
         </div>
         <h3 className="text-lg font-semibold">{translate('settings.cleaner.cleaningView.cleaningFinished.title')}</h3>
-        <p className="text-base text-gray-70">{translate(`settings.cleaner.cleaningView.cleaningFinished.${translateActionKey}`)}</p>
+        <p className="text-base text-gray-70">
+          {translate(`settings.cleaner.cleaningView.cleaningFinished.${translateActionKey}`)}
+        </p>
       </div>
       <CleanedFilesContainer
         deletedFiles={deletedFiles}

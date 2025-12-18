@@ -27,7 +27,6 @@ import configStore from '../../main/config';
 
 import Fuse from '@gcas/fuse';
 
-
 const STORAGE_MIGRATION_DATE = new Date(configStore.get('storageMigrationDate'));
 const FIX_DEPLOYMENT_DATE = new Date(configStore.get('fixDeploymentDate'));
 
@@ -186,7 +185,7 @@ export class FuseApp extends EventEmitter {
 
       if (attempt < FuseApp.MAX_RETRIES) {
         const delay = Math.min(1000 * attempt, 3000);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 

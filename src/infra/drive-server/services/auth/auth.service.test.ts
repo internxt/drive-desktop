@@ -12,7 +12,6 @@ vi.mock('axios', async (importOriginal) => {
   };
 });
 
-
 vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
     error: vi.fn(),

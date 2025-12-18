@@ -19,7 +19,6 @@ import { DiffFilesCalculatorService } from './diff/DiffFilesCalculatorService';
 import { UsageModule } from '../../backend/features/usage/usage.module';
 import { FolderMother } from '../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
 
-
 // Mock the BackupsIPCRenderer module
 vi.mock('./BackupsIPCRenderer', () => ({
   BackupsIPCRenderer: {

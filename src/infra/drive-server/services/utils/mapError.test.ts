@@ -3,7 +3,7 @@ import { mapError } from './mapError';
 import { vi } from 'vitest';
 
 vi.mock('axios', () => ({
-  isAxiosError: vi.fn()
+  isAxiosError: vi.fn(),
 }));
 
 describe('mapError', () => {

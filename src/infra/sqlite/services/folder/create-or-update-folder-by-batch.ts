@@ -7,7 +7,7 @@ import { RemoteSyncedFolder } from 'src/apps/main/remote-sync/helpers';
 const BATCH_SIZE = 500;
 
 type Props = {
-  folders:  RemoteSyncedFolder[];
+  folders: RemoteSyncedFolder[];
 };
 
 export async function createOrUpdateFolderByBatch({ folders }: Props) {

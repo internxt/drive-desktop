@@ -14,8 +14,7 @@ describe('useOnlineStatus', () => {
   });
 
   it('should return true when online', async () => {
-
-     vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
 
     const { result } = renderHook(() => useOnlineStatus(1000));
 
@@ -52,7 +51,7 @@ describe('useOnlineStatus', () => {
     await waitForNextUpdate();
     expect(result.current).toBe(false);
 
-     vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
+    vi.mocked(window.electron.checkInternetConnection).mockResolvedValue(true);
     rerender();
 
     act(() => {

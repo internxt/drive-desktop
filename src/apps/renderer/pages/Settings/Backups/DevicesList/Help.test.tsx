@@ -8,7 +8,6 @@ vi.mock('../../../../context/LocalContext', () => ({
 }));
 
 describe('Help', () => {
-
   afterEach(() => {
     vi.clearAllMocks();
   });

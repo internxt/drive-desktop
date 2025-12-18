@@ -1,4 +1,4 @@
-import { logger } from "@internxt/drive-desktop-core/build/backend";
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const httpRequest: typeof fetch = (...args) => {
   return fetch(...args).then((res) => {

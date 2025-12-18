@@ -1,11 +1,7 @@
 import { Either } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { File } from '../domain/File';
-import {
-  FileDataToPersist,
-  PersistedFileData,
-  RemoteFileSystem,
-} from '../domain/file-systems/RemoteFileSystem';
+import { FileDataToPersist, PersistedFileData, RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 
 export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly persistMock = vi.fn();

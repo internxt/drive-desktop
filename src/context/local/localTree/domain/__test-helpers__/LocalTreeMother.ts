@@ -6,9 +6,6 @@ import { LocalFolderMother } from '../../../localFolder/domain/__test-helpers__/
 import { FileNameMother } from '../../../../../context/shared/domain/__test-helpers__/FileNameMother';
 import { FolderNameMother } from '../../../../../context/shared/domain/__test-helpers__/FolderNameMother';
 
-
-
-
 export class LocalTreeMother {
   static onlyRoot(): LocalTree {
     const root = LocalFolderMother.any();

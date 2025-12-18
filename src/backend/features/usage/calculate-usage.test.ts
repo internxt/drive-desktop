@@ -4,7 +4,7 @@ import { INFINITE_SPACE_TRHESHOLD, OFFER_UPGRADE_TRHESHOLD } from './usage.types
 
 vi.mock('./get-usage-and-limit');
 
-const mockGetUsageAndLimit =vi.mocked(getUsageAndLimit);
+const mockGetUsageAndLimit = vi.mocked(getUsageAndLimit);
 
 describe('calculateUsage', () => {
   beforeEach(() => {

@@ -166,22 +166,30 @@ describe('setUpBackups', () => {
     expect(ipcMain.on).toHaveBeenCalledWith('start-backups-process', expect.any(Function));
 
     // Verify logging
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Setting up backups',
-      tag: 'BACKUPS'
-    }));
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Start service',
-      tag: 'BACKUPS'
-    }));
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Backups schedule is set',
-      tag: 'BACKUPS'
-    }));
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Backups ready',
-      tag: 'BACKUPS'
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Setting up backups',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Start service',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Backups schedule is set',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Backups ready',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should not start scheduler when user does not have backups feature', async () => {
@@ -202,26 +210,36 @@ describe('setUpBackups', () => {
     expect(mockScheduler.start).not.toHaveBeenCalled();
 
     // Verify logging
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Setting up backups',
-      tag: 'BACKUPS',
-    }));
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'User does not have the backup feature available',
-      tag: 'BACKUPS',
-    }));
-    expect(logger.debug).not.toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Start Service',
-       tag: 'BACKUPS',
-    }));
-    expect(logger.debug).not.toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Backups schedule is set',
-      tag: 'BACKUPS',
-    }));
-    expect(logger.debug).not.toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Backups ready',
-      tag: 'BACKUPS',
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Setting up backups',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'User does not have the backup feature available',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Start Service',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Backups schedule is set',
+        tag: 'BACKUPS',
+      }),
+    );
+    expect(logger.debug).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Backups ready',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should stop scheduler when backup interval is set to -1', async () => {
@@ -234,10 +252,12 @@ describe('setUpBackups', () => {
     setterCall.onBackupIntervalChanged(-1);
 
     expect(mockScheduler.stop).toHaveBeenCalled();
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'The backups schedule stopped',
-      tag: 'BACKUPS',
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'The backups schedule stopped',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should reschedule backups when interval changes and user has backups feature', async () => {
@@ -251,10 +271,12 @@ describe('setUpBackups', () => {
     setterCall.onBackupIntervalChanged(30000); // 30 seconds
 
     expect(mockScheduler.reschedule).toHaveBeenCalled();
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'The backups has been rescheduled',
-      tag: 'BACKUPS'
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'The backups has been rescheduled',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should handle USER_LOGGED_OUT event by stopping backups', async () => {
@@ -263,9 +285,7 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the USER_LOGGED_OUT handler
-    const userLoggedOutHandler = (eventBus.on as Mock).mock.calls.find(
-      ([event]) => event === 'USER_LOGGED_OUT',
-    )![1];
+    const userLoggedOutHandler = (eventBus.on as Mock).mock.calls.find(([event]) => event === 'USER_LOGGED_OUT')![1];
 
     // Call the handler
     userLoggedOutHandler();
@@ -287,10 +307,12 @@ describe('setUpBackups', () => {
 
     productsUpdatedHandler({ backups: true });
 
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-     msg: 'User now has the backup feature available, setting up backups',
-     tag: 'BACKUPS'
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'User now has the backup feature available, setting up backups',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should handle USER_AVAILABLE_PRODUCTS_UPDATED event with removed backups access', async () => {
@@ -311,10 +333,12 @@ describe('setUpBackups', () => {
     expect(mockScheduler.stop).toHaveBeenCalled();
     expect(mockErrors.clear).toHaveBeenCalled();
     expect(mockTracker.reset).toHaveBeenCalled();
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'User no longer has the backup feature available',
-      tag: 'BACKUPS'
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'User no longer has the backup feature available',
+        tag: 'BACKUPS',
+      }),
+    );
   });
 
   it('should handle start-backups-process event when user has backups feature', async () => {
@@ -331,9 +355,11 @@ describe('setUpBackups', () => {
 
     // Verify launchBackupProcesses was called with the right parameters
     expect(launchBackupProcesses).toHaveBeenCalledWith(false, mockTracker, mockStatus, mockErrors, mockStopController);
-    expect(logger.debug).toHaveBeenCalledWith(expect.objectContaining({
-      msg: 'Backups started manually'
-    }));
+    expect(logger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        msg: 'Backups started manually',
+      }),
+    );
   });
 
   it('should not launch backup processes when user does not have backups feature', async () => {

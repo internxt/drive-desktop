@@ -1,6 +1,5 @@
 import { DateValueObject } from './DateValueObject';
 
-
 describe('Date Value Object', () => {
   describe('creation', () => {
     it('creates DateValueObject from string', () => {

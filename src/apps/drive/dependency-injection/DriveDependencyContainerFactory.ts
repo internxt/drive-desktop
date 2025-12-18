@@ -34,7 +34,6 @@ export class DriveDependencyContainerFactory {
 
     await DriveDependencyContainerFactory.addEventSubscribers(container);
 
-
     return container;
   }
 }

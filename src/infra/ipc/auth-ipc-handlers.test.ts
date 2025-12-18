@@ -87,9 +87,7 @@ describe('registerAuthIPCHandlers', () => {
         fold: (_onLeft: any, onRight: any) => onRight(mockAccessData),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:access',
-      )![1];
+      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:access')![1];
 
       const result = await handler({}, { email: 'test@example.com', code: '123456' });
 
@@ -106,9 +104,7 @@ describe('registerAuthIPCHandlers', () => {
         fold: (onLeft: any, _onRight: any) => onLeft(new Error('Access denied')),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:access',
-      )![1];
+      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:access')![1];
 
       const result = await handler({}, { email: 'test@example.com', code: '123456' });
 

@@ -16,7 +16,6 @@ class FakeNameDecryptMock implements NameDecrypt {
   }
 }
 
-
 describe('Traverser', () => {
   const nameDecrypt = new FakeNameDecryptMock();
 

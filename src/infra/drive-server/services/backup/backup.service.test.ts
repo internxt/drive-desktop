@@ -44,9 +44,7 @@ describe('BackupService', () => {
     sut = new BackupService();
     vi.clearAllMocks();
     // Default mock behavior: mapError returns the error as an Error instance
-    vi.mocked(mapError).mockImplementation((error) =>
-      error instanceof Error ? error : new Error(String(error))
-    );
+    vi.mocked(mapError).mockImplementation((error) => (error instanceof Error ? error : new Error(String(error))));
   });
 
   describe('getDevices', () => {

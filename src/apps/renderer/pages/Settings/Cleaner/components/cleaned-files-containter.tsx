@@ -7,7 +7,12 @@ type Props = {
   freeSpaceGained: string;
   hideSkippedFiles?: boolean;
 };
-export default function CleanedFilesContainer({ deletedFiles, skippedFiles, freeSpaceGained, hideSkippedFiles = false }: Props) {
+export default function CleanedFilesContainer({
+  deletedFiles,
+  skippedFiles,
+  freeSpaceGained,
+  hideSkippedFiles = false,
+}: Props) {
   const { translate } = useTranslationContext();
   const showSkippedFiles = hideSkippedFiles && skippedFiles > 0;
 
