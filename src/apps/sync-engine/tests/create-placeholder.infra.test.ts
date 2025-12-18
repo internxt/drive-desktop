@@ -16,7 +16,7 @@ import { ipcRenderer } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { InxtJs } from '@/infra';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -131,9 +131,9 @@ describe('create-placeholder', () => {
         msg: 'On change event',
         path: file,
         pinState: PinState.Unspecified,
-        blocks: 0,
-        ctime: expect.any(Date),
-        mtime: expect.any(Date),
+        inSyncState: InSyncState.Sync,
+        size: 7,
+        onDiskSize: 7,
         isChanged: true,
         isModified: true,
       },

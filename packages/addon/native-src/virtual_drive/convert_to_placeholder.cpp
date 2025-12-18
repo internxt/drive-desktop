@@ -11,14 +11,16 @@ void convert_to_placeholder(const std::wstring& path, const std::wstring& placeh
 {
     auto fileHandle = Placeholders::OpenFileHandle(path, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, false);
 
-    CF_CONVERT_FLAGS convertFlags = CF_CONVERT_FLAG_MARK_IN_SYNC;
-    USN convertUsn;
-    OVERLAPPED overlapped = {};
+    LPCVOID fileIdentity = static_cast<LPCVOID>(placeholderId.c_str());
+    DWORD fileIdentityLength = static_cast<DWORD>(placeholderId.size() * sizeof(wchar_t));
 
-    LPCVOID idStrLPCVOID = static_cast<LPCVOID>(placeholderId.c_str());
-    DWORD idStrByteLength = static_cast<DWORD>(placeholderId.size() * sizeof(wchar_t));
-
-    HRESULT hr = CfConvertToPlaceholder(fileHandle.get(), idStrLPCVOID, idStrByteLength, convertFlags, &convertUsn, &overlapped);
+    HRESULT hr = CfConvertToPlaceholder(
+        fileHandle.get(),
+        fileIdentity,
+        fileIdentityLength,
+        CF_CONVERT_FLAG_MARK_IN_SYNC,
+        nullptr,
+        nullptr);
 
     if (hr != 0x8007017C)  // Already a placeholder
     {

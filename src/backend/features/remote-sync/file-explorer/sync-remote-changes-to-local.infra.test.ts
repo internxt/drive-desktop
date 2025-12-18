@@ -2,22 +2,15 @@ import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
-import * as onAll from '@/node-win/watcher/events/on-all.service';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as onAdd from '@/node-win/watcher/events/on-add.service';
-import * as debounceOnRaw from '@/node-win/watcher/events/debounce-on-raw';
 import { Addon } from '@/node-win/addon-wrapper';
-import { initWatcher } from '@/node-win/watcher/watcher';
+import { getEvents, setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
 
 describe('sync-remote-changes-to-local', () => {
-  partialSpyOn(onAdd, 'onAdd');
-  partialSpyOn(debounceOnRaw, 'debounceOnRaw');
-  const onAllMock = partialSpyOn(onAll, 'onAll');
-
   const providerName = 'Internxt Drive';
   const providerId = v4();
   const rootPath = join(TEST_FILES, v4());
@@ -34,10 +27,7 @@ describe('sync-remote-changes-to-local', () => {
 
   it('should sync remote changes to local', async () => {
     // Given
-    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(watcherProps);
-    await sleep(100);
-
+    await setupWatcher(rootPath);
     await writeFile(path, 'content');
     await Addon.convertToPlaceholder({ path, placeholderId: 'FILE:uuid' });
 
@@ -60,7 +50,7 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(100);
 
     // Then
-    calls(onAllMock).toMatchObject([
+    getEvents().toMatchObject([
       { event: 'add', path, stats: { size: 7 } },
       { event: 'change', path, stats: { size: 7 } },
       { event: 'change', path, stats: { size: 1000 } },

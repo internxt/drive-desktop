@@ -10,7 +10,7 @@ import { initWatcher } from '../watcher';
 import { FSWatcher } from 'chokidar';
 import { sleep } from '@/apps/main/util';
 
-const onAllMock = partialSpyOn(onAll, 'onAll');
+export const onAllMock = partialSpyOn(onAll, 'onAll');
 partialSpyOn(onAdd, 'onAdd');
 partialSpyOn(onAddDir, 'onAddDir');
 partialSpyOn(unlinkFile, 'unlinkFile');

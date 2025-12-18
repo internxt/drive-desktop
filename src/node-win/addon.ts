@@ -9,6 +9,7 @@ import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/bra
 import { PinState } from './types/placeholder.type';
 
 export type Win32Path = Brand<string, 'Win32Path'>;
+export type PlaceholderInfo = z.infer<typeof addonZod.getPlaceholderState>;
 
 type TAddon = {
   createFilePlaceholder(
