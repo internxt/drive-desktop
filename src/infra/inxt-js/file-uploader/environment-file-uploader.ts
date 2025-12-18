@@ -1,12 +1,12 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentFileUploaderError } from './process-error';
-import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import Bottleneck from 'bottleneck';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
@@ -19,11 +19,10 @@ type TProps = {
   path: AbsolutePath;
   size: number;
   abortSignal: AbortSignal;
-  callbacks: FileUploaderCallbacks;
 };
 
 export class EnvironmentFileUploader {
-  static upload({ ctx, path, size, abortSignal, callbacks }: TProps) {
+  static async upload({ ctx, path, size, abortSignal }: TProps) {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -37,15 +36,14 @@ export class EnvironmentFileUploader {
     const readable = createReadStream(path);
     const fn = useMultipartUpload ? ctx.environment.uploadMultipartFile.bind(ctx.environment) : ctx.environment.upload;
 
-    callbacks.onProgress({ progress: 0 });
+    LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
 
-    return uploadFile({
+    return await uploadFile({
       ctx,
       fn,
       readable,
       size,
       path,
-      callbacks,
       abortSignal,
     });
   }

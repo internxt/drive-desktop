@@ -5,10 +5,10 @@ import { abortOnChangeSize } from './abort-on-change-size';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { EnvironmentFileUploaderError, processError } from './process-error';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { FileUploaderCallbacks } from './file-uploader';
 import type { TResolve } from './environment-file-uploader';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
 
 type Props = {
   ctx: CommonContext;
@@ -17,10 +17,9 @@ type Props = {
   size: number;
   path: AbsolutePath;
   abortSignal: AbortSignal;
-  callbacks: FileUploaderCallbacks;
 };
 
-export function uploadFile({ ctx, fn, readable, size, abortSignal, path, callbacks }: Props) {
+export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props) {
   function stopUpload(state: ActionState) {
     state.stop();
     readable.destroy();
@@ -38,14 +37,14 @@ export function uploadFile({ ctx, fn, readable, size, abortSignal, path, callbac
           readable.close();
 
           if (contentsId) {
-            callbacks.onFinish();
+            LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
             return resolve({ data: contentsId as ContentsId });
           }
 
-          return resolve({ error: processError({ path, err, callbacks }) });
+          return resolve({ error: processError({ path, err }) });
         },
         progressCallback: (progress) => {
-          callbacks.onProgress({ progress });
+          LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
         },
       });
 
