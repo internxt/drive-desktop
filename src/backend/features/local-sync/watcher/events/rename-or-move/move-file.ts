@@ -1,8 +1,8 @@
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { moveItem } from './move-item';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -12,7 +12,7 @@ type TProps = {
 
 export async function moveFile({ ctx, path, uuid }: TProps) {
   try {
-    const { data: item, error } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
+    const { data: item, error } = await SqliteModule.FileModule.getByUuid({ uuid });
 
     if (error) throw error;
 

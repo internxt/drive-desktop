@@ -1,18 +1,23 @@
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
+import { Environment } from '@internxt/inxt-js';
 
 export type CommonContext = {
   userUuid: string;
   workspaceId: string;
   workspaceToken: string;
   bucket: string;
+  environment: Environment;
 };
 
-export type Config = CommonContext & {
+export type Config = {
+  userUuid: string;
+  workspaceId: string;
+  workspaceToken: string;
+  bucket: string;
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
@@ -22,12 +27,14 @@ export type Config = CommonContext & {
   bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config & { logger: typeof logger };
+export type SyncContext = AuthContext &
+  Config &
+  CommonContext & {
+    logger: typeof logger;
+    contentsDownloader: InxtJs.ContentsDownloader;
+  };
 
-export type ProcessSyncContext = SyncContext & {
-  fileUploader: EnvironmentFileUploader;
-  contentsDownloader: InxtJs.ContentsDownloader;
-};
+export type ProcessSyncContext = SyncContext;
 
 const emptyValues = (): Config => {
   return {
@@ -68,10 +75,6 @@ const defaultValues = (): Config => {
     workspaceToken: config.workspaceToken,
   };
 };
-
-export function setConfig(newConfig: Config) {
-  config = newConfig;
-}
 
 export function setDefaultConfig(newConfig: Partial<Config>) {
   config = { ...defaultValues(), ...newConfig };

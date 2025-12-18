@@ -1,8 +1,8 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
+import { LocalSync } from '@/backend/features';
+import { CallbackDownload } from '@/node-win/addon';
 
 export async function downloadContents({
   ctx,
@@ -15,14 +15,14 @@ export async function downloadContents({
   path: AbsolutePath;
   callback: CallbackDownload;
 }) {
-  ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
+  LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress: 0 });
 
   try {
     const { data: readable, error } = await ctx.contentsDownloader.download({
       path,
       contentsId: file.contentsId,
       onProgress: (progress) => {
-        ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
+        LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress });
       },
     });
 
@@ -50,12 +50,12 @@ export async function downloadContents({
 
     ctx.logger.debug({ msg: 'File downloaded', path });
 
-    ipcRendererSyncEngine.send('FILE_DOWNLOADED', { path });
+    LocalSync.SyncState.addItem({ action: 'DOWNLOADED', path });
   } catch (error) {
     if (error instanceof Error && error.message !== 'The operation was aborted') {
       ctx.logger.error({ msg: 'Error downloading file', path, error });
 
-      ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', { path });
+      LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
 
       ctx.contentsDownloader.forceStop({ path });
     }

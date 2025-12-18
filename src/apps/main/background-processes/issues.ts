@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
 import { showNotEnoughSpaceNotification } from './process-issues';
-import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import eventBus from '../event-bus';
 
 export type SyncIssue = {
@@ -74,8 +73,6 @@ export function clearBackupsIssues() {
 }
 
 export function setupIssueHandlers() {
-  ipcMainSyncEngine.on('ADD_SYNC_ISSUE', (_, issue) => addSyncIssue(issue));
-  ipcMainSyncEngine.on('ADD_GENERAL_ISSUE', (_, issue) => addGeneralIssue(issue));
   ipcMain.handle('get-issues', () => issues);
 }
 

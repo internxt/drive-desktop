@@ -1,4 +1,3 @@
-import { workers } from '../remote-sync/store';
 import { getUserOrThrow } from '../auth/service';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
@@ -9,18 +8,14 @@ import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
-
-export function updateSyncEngine(workspaceId: string) {
-  const worker = workers.get(workspaceId);
-  if (worker) {
-    worker.browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
-  }
-}
+import { buildUserEnvironment } from './backups/build-environment';
 
 export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
+  const { environment, contentsDownloader } = buildUserEnvironment({ user });
+
   const syncContext: SyncContext = {
     ...context,
     userUuid: user.uuid,
@@ -35,6 +30,8 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     bridgePass: user.userId,
     workspaceToken: '',
     logger: createLogger({ tag: 'SYNC-ENGINE' }),
+    environment,
+    contentsDownloader,
   };
 
   const workspaces = await getWorkspaces();

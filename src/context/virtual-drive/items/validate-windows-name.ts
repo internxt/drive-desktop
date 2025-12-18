@@ -1,5 +1,5 @@
+import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { logger } from '@/apps/shared/logger/logger';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type TProps = {
   path: string;
@@ -20,10 +20,7 @@ export function validateWindowsName({ path, name }: TProps) {
       path,
     });
 
-    ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
-      name: path,
-      error: 'INVALID_WINDOWS_NAME',
-    });
+    addSyncIssue({ name: path, error: 'INVALID_WINDOWS_NAME' });
   }
 
   return { isValid };

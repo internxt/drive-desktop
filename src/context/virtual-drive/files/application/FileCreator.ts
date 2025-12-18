@@ -1,9 +1,9 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { getParentUuid } from './get-parent-uuid';
 import { Addon } from '@/node-win/addon-wrapper';
+import { persistFile } from '@/infra/drive-server-wip/out/ipc-main';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -19,18 +19,7 @@ export class FileCreator {
 
     const parentUuid = await getParentUuid({ ctx, path });
 
-    const { data: file, error } = await ipcRendererDriveServerWip.invoke('persistFile', {
-      ctx: {
-        bucket: ctx.bucket,
-        userUuid: ctx.userUuid,
-        workspaceId: ctx.workspaceId,
-        workspaceToken: ctx.workspaceToken,
-      },
-      path,
-      parentUuid,
-      contentsId,
-      size,
-    });
+    const { data: file, error } = await persistFile({ ctx, path, parentUuid, contentsId, size });
 
     if (error) throw error;
 
