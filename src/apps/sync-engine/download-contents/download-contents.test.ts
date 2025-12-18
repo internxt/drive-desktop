@@ -1,13 +1,13 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { Readable } from 'node:stream';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
 import { downloadContents } from './download-contents';
+import { LocalSync } from '@/backend/features';
 
 describe('download-contents', () => {
-  const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');
+  const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
 
   const contentsDownloader = mockDeep<InxtJs.ContentsDownloader>();
 
@@ -26,9 +26,9 @@ describe('download-contents', () => {
     // When
     await downloadContents(props);
     // Then
-    calls(sendMock).toStrictEqual([
-      ['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }],
-      ['FILE_DOWNLOADED', { path: 'file.txt' }],
+    calls(addItemMock).toStrictEqual([
+      { action: 'DOWNLOADING', path: 'file.txt', progress: 0 },
+      { action: 'DOWNLOADED', path: 'file.txt' },
     ]);
 
     calls(props.callback).toStrictEqual([
@@ -50,9 +50,9 @@ describe('download-contents', () => {
     // Then
     call(props.ctx.logger.error).toMatchObject({ msg: 'Error downloading file', path: 'file.txt' });
     calls(contentsDownloader.forceStop).toHaveLength(1);
-    calls(sendMock).toStrictEqual([
-      ['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }],
-      ['FILE_DOWNLOAD_ERROR', { path: 'file.txt' }],
+    calls(addItemMock).toStrictEqual([
+      { action: 'DOWNLOADING', path: 'file.txt', progress: 0 },
+      { action: 'DOWNLOAD_ERROR', path: 'file.txt' },
     ]);
   });
 
@@ -62,6 +62,6 @@ describe('download-contents', () => {
     // When
     await downloadContents(props);
     // Then
-    call(sendMock).toStrictEqual(['FILE_DOWNLOADING', { path: 'file.txt', progress: 0 }]);
+    call(addItemMock).toStrictEqual({ action: 'DOWNLOADING', path: 'file.txt', progress: 0 });
   });
 });

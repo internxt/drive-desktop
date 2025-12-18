@@ -6,9 +6,9 @@ import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTra
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { buildFileUploader } from './build-file-uploader';
 import { getAvailableProducts } from '../../payments/get-available-products';
 import { getUser } from '../../auth/service';
+import { buildUserEnvironment } from './build-environment';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -66,14 +66,14 @@ export async function launchBackupProcesses(
       break;
     }
 
-    const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
+    const { environment } = buildUserEnvironment({ user });
     const context: BackupsContext = {
       ...backupInfo,
       userUuid: user.uuid,
       bucket: backupInfo.backupsBucket,
       workspaceId: '',
       workspaceToken: '',
-      fileUploader,
+      environment,
       abortController,
       addIssue: (issue) => {
         addBackupsIssue({

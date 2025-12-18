@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { addSyncIssue } from '@/apps/main/background-processes/issues';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -11,20 +11,17 @@ type Props = {
 
 export class ContentsUploader {
   static async run({ ctx, path, size }: Props) {
-    const { data: contentsId, error } = await ctx.fileUploader.run({
+    const { data: contentsId, error } = await EnvironmentFileUploader.run({
+      ctx,
       size,
       path,
       abortSignal: new AbortController().signal,
-      callbacks: getUploadCallbacks({ path }),
     });
 
     if (contentsId) return contentsId;
 
     if (error && error.code === 'NOT_ENOUGH_SPACE') {
-      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
-        error: error.code,
-        name: path,
-      });
+      addSyncIssue({ error: error.code, name: path });
     }
 
     throw error;

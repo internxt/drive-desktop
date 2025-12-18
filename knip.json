@@ -1,5 +1,5 @@
 {
-  "entry": ["src/apps/main/main.ts", "src/apps/sync-engine/index.ts", "src/apps/renderer/index.tsx"],
+  "entry": ["src/apps/main/main.ts", "src/apps/renderer/index.tsx"],
   "exclude": ["devDependencies"],
   "ignore": ["**/*.test.{ts,tsx}", "src/apps/shared/HttpClient/schema.ts", "src/migrations/v2.5.6/move-checkpoint-to-lokijs.ts"],
   "ignoreBinaries": ["powershell", "esbuild"],

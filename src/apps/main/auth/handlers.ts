@@ -5,8 +5,6 @@ import { refreshToken } from './refresh-token';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
-import { getAuthHeaders } from './headers';
-import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
@@ -50,11 +48,6 @@ export async function checkIfUserIsLoggedIn() {
 export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
-  ipcMain.handle('GET_HEADERS', getAuthHeaders);
-
-  ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
-    eventBus.emit('USER_LOGGED_OUT');
-  });
 }
 
 export async function emitUserLoggedIn() {

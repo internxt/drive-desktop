@@ -1,9 +1,10 @@
-import { mockProps } from 'tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { validateWindowsName } from './validate-windows-name';
-
-vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
+import * as addSyncIssue from '@/apps/main/background-processes/issues';
 
 describe('validate-windows-name', () => {
+  partialSpyOn(addSyncIssue, 'addSyncIssue');
+
   function getProps({ name }: { name: string }) {
     return mockProps<typeof validateWindowsName>({ name });
   }

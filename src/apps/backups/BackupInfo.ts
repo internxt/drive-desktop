@@ -1,6 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupsIssue } from '../main/background-processes/issues';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { CommonContext } from '../sync-engine/config';
 
 export type BackupInfo = {
@@ -17,6 +16,5 @@ export type BackupsContext = CommonContext &
     workspaceId: '';
     workspaceToken: '';
     abortController: AbortController;
-    fileUploader: EnvironmentFileUploader;
     addIssue: (issue: Omit<BackupsIssue, 'tab' | 'folderUuid'>) => void;
   };

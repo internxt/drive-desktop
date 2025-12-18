@@ -16,8 +16,6 @@ type Props = {
 };
 
 export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
-  const { bucket } = ctx;
-
   try {
     const image = nativeImage.createFromPath(path);
 
@@ -27,7 +25,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
 
     logger.debug({ msg: 'Upload thumbnail', path });
 
-    const contentsId = await uploadThumbnail({ bucket, buffer });
+    const contentsId = await uploadThumbnail({ ctx, buffer });
 
     await driveServerWip.files.createThumbnail({
       body: {
@@ -36,7 +34,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
         maxHeight: SIZE,
         type: 'png',
         size: buffer.byteLength,
-        bucketId: bucket,
+        bucketId: ctx.bucket,
         bucketFile: contentsId,
         encryptVersion: StorageTypes.EncryptionVersion.Aes03,
       },

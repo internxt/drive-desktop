@@ -3,13 +3,13 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import * as updateContentsId from '../callbacks-controllers/controllers/update-contents-id';
-import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { checkDangledFile } from './check-dangled-file';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-describe('overwrite-dangled-file', () => {
+describe('check-dangled-file', () => {
   const contentsDownloader = mockDeep<ContentsDownloader>();
   const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
-  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const updateByUuidMock = partialSpyOn(SqliteModule.FileModule, 'updateByUuid');
 
   const props = mockProps<typeof checkDangledFile>({
     ctx: { contentsDownloader },
@@ -23,7 +23,7 @@ describe('overwrite-dangled-file', () => {
     await checkDangledFile(props);
     // Then
     calls(props.ctx.logger.debug).toMatchObject([{ msg: 'Checking possible dangled file' }, { msg: 'Not dangled file' }]);
-    call(invokeMock).toMatchObject(['fileUpdateByUuid', { payload: { isDangledStatus: false } }]);
+    call(updateByUuidMock).toMatchObject({ payload: { isDangledStatus: false } });
   });
 
   it('should update contents id if contents not found', async () => {

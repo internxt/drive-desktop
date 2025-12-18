@@ -1,5 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FileUploaderCallbacks } from './file-uploader';
+import { LocalSync } from '@/backend/features';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class EnvironmentFileUploaderError extends Error {
   constructor(
@@ -11,18 +12,17 @@ export class EnvironmentFileUploaderError extends Error {
 }
 
 type TProps = {
-  path: string;
+  path: AbsolutePath;
   err: Error | null;
-  callbacks: FileUploaderCallbacks;
 };
 
-export function processError({ path, err, callbacks }: TProps) {
+export function processError({ path, err }: TProps) {
   if (err) {
     if (err.message === 'Process killed by user') {
       return new EnvironmentFileUploaderError('ABORTED', err);
     }
 
-    callbacks.onError();
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
     if (err.message === 'Max space used') {
       logger.warn({

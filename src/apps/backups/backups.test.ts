@@ -26,6 +26,7 @@ describe('backups', () => {
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
+  const uploadContentsMock = partialSpyOn(EnvironmentFileUploader, 'run');
 
   const testPath = join(TEST_FILES, v4());
   const folder = join(testPath, 'folder');
@@ -36,7 +37,6 @@ describe('backups', () => {
   const rootUuid = v4();
 
   const tracker = mockDeep<BackupsProcessTracker>();
-  const fileUploader = mockDeep<EnvironmentFileUploader>();
 
   const service = new Backup();
   const props = mockProps<typeof service.run>({
@@ -46,7 +46,6 @@ describe('backups', () => {
       folderUuid: rootUuid,
       pathname: testPath,
       abortController: new AbortController(),
-      fileUploader,
     },
   });
 
@@ -78,7 +77,7 @@ describe('backups', () => {
       ],
     });
 
-    fileUploader.run.mockResolvedValue({ data: 'contentsId' as ContentsId });
+    uploadContentsMock.mockResolvedValue({ data: 'contentsId' as ContentsId });
     persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
     replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });
@@ -87,7 +86,7 @@ describe('backups', () => {
     await service.run(props);
 
     // Then
-    calls(fileUploader.run).toMatchObject([
+    calls(uploadContentsMock).toMatchObject([
       { path: expect.stringContaining('modifiedFile'), size: 7 },
       { path: expect.stringContaining('addedFile'), size: 7 },
     ]);

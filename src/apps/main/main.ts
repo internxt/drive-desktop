@@ -24,7 +24,6 @@ import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
 import './realtime';
-import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './remote-sync/handlers';
 
@@ -41,8 +40,6 @@ import { setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
-import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
-import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
@@ -83,8 +80,6 @@ setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
-setupIpcDriveServerWip();
-setupIpcSqlite();
 
 logger.debug({
   msg: 'Starting app',
