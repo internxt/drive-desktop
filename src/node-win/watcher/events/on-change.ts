@@ -4,7 +4,7 @@ import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
@@ -37,7 +37,7 @@ export async function onChange({ ctx, path }: Props) {
       isModified,
     });
 
-    if (isModified) {
+    if (isModified && fileInfo.inSyncState === InSyncState.NotSync) {
       await updateContentsId({ ctx, stats, path, uuid: fileInfo.uuid });
     }
 
