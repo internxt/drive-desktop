@@ -2,7 +2,7 @@ import { useSyncInfoSubscriber } from '../../hooks/useSyncInfoSubscriber';
 import { Item } from './Item';
 import { NoInfoToShow } from './NoInfoToShow';
 
-export default function SyncInfo() {
+export function SyncInfo() {
   const { processInfoUpdatedPayload } = useSyncInfoSubscriber();
 
   return (

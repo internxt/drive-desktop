@@ -5,7 +5,6 @@ import { Traverser } from '@/apps/backups/remote-tree/traverser';
 import * as downloadFile from './download-file';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { Effect } from 'effect/index';
 import { sleep } from '@/apps/main/util';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { mkdir } from 'node:fs/promises';
@@ -45,7 +44,7 @@ describe('download-folder', () => {
 
   it('should update progress when we download files', async () => {
     // Given
-    downloadFileMock.mockReturnValue(Effect.void);
+    downloadFileMock.mockResolvedValue();
     // When
     await downloadFolder(props);
     // Then
@@ -62,10 +61,10 @@ describe('download-folder', () => {
   it('should close the limiter and clean all running downloads if aborted', async () => {
     // Given
     downloadFileMock
-      .mockImplementationOnce(() => Effect.promise(() => sleep(50)))
+      .mockImplementationOnce(() => sleep(50))
       .mockImplementationOnce(() => {
         props.abortController.abort();
-        return Effect.void;
+        return Promise.resolve();
       });
     // When
     await downloadFolder(props);

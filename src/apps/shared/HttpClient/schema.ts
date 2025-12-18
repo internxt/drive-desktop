@@ -37,6 +37,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/files/limits': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get file limits based on user tier */
+    get: operations['FileController_getLimits'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/files/{uuid}/meta': {
     parameters: {
       query?: never;
@@ -48,6 +65,57 @@ export interface paths {
     /** Update File data */
     put: operations['FileController_updateFileMetadata'];
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get file versions */
+    get: operations['FileController_getFileVersions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions/{versionId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a file version */
+    delete: operations['FileController_deleteFileVersion'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions/{versionId}/restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Restore a file version */
+    post: operations['FileController_restoreFileVersion'];
     delete?: never;
     options?: never;
     head?: never;
@@ -2994,10 +3062,10 @@ export interface components {
        */
       bucket: string;
       /**
-       * @description The ID of the file
+       * @description The ID of the file (required when size > 0)
        * @example file12345
        */
-      fileId: string;
+      fileId?: string;
       /**
        * @description The encryption version used for the file
        * @example 03-aes
@@ -3047,7 +3115,7 @@ export interface components {
     FileDto: {
       id: number;
       uuid: string;
-      fileId: string;
+      fileId: string | null;
       name: string;
       type: string;
       size: string;
@@ -3068,12 +3136,42 @@ export interface components {
       /** @enum {string} */
       status: 'EXISTS' | 'TRASHED' | 'DELETED';
     };
+    VersioningLimitsDto: {
+      /** @description Whether file versioning is enabled for this tier */
+      enabled: boolean;
+      /** @description Maximum file size in bytes that can be versioned */
+      maxFileSize: number;
+      /** @description Number of days versions are retained */
+      retentionDays: number;
+      /** @description Maximum number of versions kept per file */
+      maxVersions: number;
+    };
+    GetFileLimitsDto: {
+      versioning: components['schemas']['VersioningLimitsDto'];
+    };
+    FileVersionDto: {
+      id: string;
+      fileId: string | null;
+      networkFileId: string;
+      size: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'DELETED';
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * Format: date-time
+       * @description Date when this version expires based on retention policy
+       */
+      expiresAt: string;
+    };
     ReplaceFileDto: {
       /**
-       * @description File id
+       * @description File id (required when size > 0)
        * @example 651300a2da9b27001f63f384
        */
-      fileId: string;
+      fileId?: string;
       /**
        * Format: int64
        * @description New file size
@@ -3561,7 +3659,7 @@ export interface components {
     FileInSharedFolderDto: {
       id: number;
       uuid: string;
-      fileId: string;
+      fileId: string | null;
       name: string;
       type: string;
       size: string;
@@ -3806,10 +3904,10 @@ export interface components {
        */
       bucket: string;
       /**
-       * @description The ID of the file
+       * @description The ID of the file (required when size > 0)
        * @example file12345
        */
-      fileId: string;
+      fileId?: string;
       /**
        * @description The encryption version used for the file
        * @example 03-aes
@@ -4412,6 +4510,16 @@ export interface components {
        * @example https://drive.internxt.com/checkout/complete
        */
       completeCheckoutUrl: string;
+      /**
+       * @description Name of the plan being purchased
+       * @example Premium
+       */
+      planName?: string;
+      /**
+       * @description Price of the plan in euros
+       * @example 320
+       */
+      price?: number;
     };
     FuzzySearchResult: {
       id: string;
@@ -5072,6 +5180,25 @@ export interface operations {
       };
     };
   };
+  FileController_getLimits: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetFileLimitsDto'];
+        };
+      };
+    };
+  };
   FileController_getFileMetadata: {
     parameters: {
       query?: never;
@@ -5108,6 +5235,69 @@ export interface operations {
         'application/json': components['schemas']['UpdateFileMetaDto'];
       };
     };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_getFileVersions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileVersionDto'][];
+        };
+      };
+    };
+  };
+  FileController_deleteFileVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+        versionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_restoreFileVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+        versionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -5876,7 +6066,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Remove  */
+      /** @description Remove */
       200: {
         headers: {
           [name: string]: unknown;

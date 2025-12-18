@@ -82,12 +82,6 @@ napi_value response_callback_fn_fetch_data(napi_env env, napi_callback_info info
 
     size_t completed = offset + length;
 
-    wprintf(L"Bytes completed: %d. Total bytes: %d. Required offset: %d. Required length: %d.\n",
-            completed,
-            ctx->fileSize.QuadPart,
-            ctx->requiredOffset.QuadPart,
-            ctx->requiredLength.QuadPart);
-
     winrt::com_ptr<IShellItem2> shellItem;
     winrt::com_ptr<IPropertyStore> propStoreVolatile;
 

@@ -1,4 +1,4 @@
-import { LocalFile } from '../../domain/LocalFile';
+import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { Backup } from '@/apps/backups/Backups';
@@ -44,12 +44,12 @@ async function replaceFile({ context, localFile, file }: { context: BackupsConte
       size: localFile.size,
       modificationTime: localFile.modificationTime.toISOString(),
     });
-  } catch (exc) {
+  } catch (error) {
     logger.error({
       tag: 'BACKUPS',
       msg: 'Error updating file',
       path: localFile.absolutePath,
-      exc,
+      error,
     });
   }
 }

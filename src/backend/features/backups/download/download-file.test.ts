@@ -1,7 +1,6 @@
 import { downloadFile } from './download-file';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Effect } from 'effect/index';
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import * as pipeline from '@/core/utils/pipeline';
@@ -24,14 +23,14 @@ describe('download-file', () => {
 
   beforeEach(() => {
     contentsDownloader.downloadThrow.mockResolvedValue('content' as any);
-    pipelineMock.mockReturnValue(Effect.void);
+    pipelineMock.mockResolvedValue();
   });
 
   it('should not log error if aborted', async () => {
     // Given
-    pipelineMock.mockReturnValue(Effect.fail(new pipeline.PipelineAborted({ error: new Error() })));
+    pipelineMock.mockResolvedValue(new pipeline.PipelineError('ABORTED'));
     // When
-    await Effect.runPromise(downloadFile(props));
+    await downloadFile(props);
     // Then
     calls(loggerMock.error).toHaveLength(0);
   });
@@ -40,7 +39,7 @@ describe('download-file', () => {
     // Given
     contentsDownloader.downloadThrow.mockRejectedValue(new Error());
     // When
-    await Effect.runPromise(downloadFile(props));
+    await downloadFile(props);
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Error downloading file' });
   });
