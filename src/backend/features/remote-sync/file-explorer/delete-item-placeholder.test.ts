@@ -4,14 +4,17 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { rm } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import trash from 'trash';
 
 vi.mock(import('node:fs/promises'));
+vi.mock(import('trash'));
 
 describe('delete-item-placeholder', () => {
   const rmMock = vi.mocked(rm);
+  const trashMock = vi.mocked(trash);
 
   const uuid = 'uuid' as FolderUuid;
-  const path = abs('/drive/folder');
+  const path = abs('/local');
 
   let props: Parameters<typeof deleteItemPlaceholder>[0];
 
@@ -30,20 +33,22 @@ describe('delete-item-placeholder', () => {
     await deleteItemPlaceholder(props);
     // Then
     calls(rmMock).toHaveLength(0);
+    calls(trashMock).toHaveLength(0);
     calls(loggerMock.error).toHaveLength(0);
   });
 
-  it('should skip if paths do not match', async () => {
+  it('should trash item if paths do not match', async () => {
     // Given
-    props.locals = new Map([[uuid, { path: abs('/drive/other') }]]);
+    props.remote.absolutePath = abs('/remote');
     // When
     await deleteItemPlaceholder(props);
     // Then
     calls(rmMock).toHaveLength(0);
+    call(trashMock).toStrictEqual('/local');
     call(loggerMock.error).toStrictEqual({
       msg: 'Path does not match when removing placeholder',
-      localPath: '/drive/other',
-      remotePath: '/drive/folder',
+      localPath: '/local',
+      remotePath: '/remote',
       type: 'folder',
     });
   });
@@ -53,6 +58,7 @@ describe('delete-item-placeholder', () => {
     await deleteItemPlaceholder(props);
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    call(rmMock).toStrictEqual([path, { recursive: true, force: true }]);
+    calls(trashMock).toHaveLength(0);
+    call(rmMock).toStrictEqual(['/local', { recursive: true, force: true }]);
   });
 });

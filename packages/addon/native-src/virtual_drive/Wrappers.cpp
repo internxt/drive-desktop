@@ -82,8 +82,3 @@ napi_value SetPinStateWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, set_pin_state_wrapper);
 }
-
-napi_value RevertPlaceholderWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, revert_placeholder_wrapper);
-}

@@ -42,7 +42,8 @@ export class Addon {
     providerId: string;
   }) {
     logger.debug({ msg: 'Register sync root', rootPath });
-    await addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
+    const result = await addon.registerSyncRoot(toWin32(rootPath), providerName, INTERNXT_VERSION, providerId, iconPath);
+    return parseAddonZod('registerSyncRoot', result);
   }
 
   static getRegisteredSyncRoots() {
@@ -57,11 +58,13 @@ export class Addon {
 
   static async unregisterSyncRoot({ providerId }: { providerId: string }) {
     logger.debug({ msg: 'Unregister sync root', providerId });
-    await addon.unregisterSyncRoot(providerId);
+    const result = await addon.unregisterSyncRoot(providerId);
+    return parseAddonZod('unregisterSyncRoot', result);
   }
 
   static async disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
-    await addon.disconnectSyncRoot(toWin32(rootPath));
+    const result = await addon.disconnectSyncRoot(toWin32(rootPath));
+    return parseAddonZod('disconnectSyncRoot', result);
   }
 
   static async getPlaceholderState({ path }: { path: AbsolutePath }) {
@@ -90,7 +93,8 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    await addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
+    const result = await addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
+    return parseAddonZod('createFilePlaceholder', result);
   }
 
   static async createFolderPlaceholder({
@@ -104,11 +108,13 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    await addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
+    const result = await addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
+    return parseAddonZod('createFolderPlaceholder', result);
   }
 
   static async updateSyncStatus({ path }: { path: AbsolutePath }) {
-    await addon.updateSyncStatus(toWin32(path));
+    const result = await addon.updateSyncStatus(toWin32(path));
+    return parseAddonZod('updateSyncStatus', result);
   }
 
   static async convertToPlaceholder({
@@ -118,18 +124,17 @@ export class Addon {
     path: AbsolutePath;
     placeholderId: FilePlaceholderId | FolderPlaceholderId;
   }) {
-    await addon.convertToPlaceholder(toWin32(path), placeholderId);
-  }
-
-  static async revertPlaceholder({ path }: { path: AbsolutePath }) {
-    await addon.revertPlaceholder(toWin32(path));
+    const result = await addon.convertToPlaceholder(toWin32(path), placeholderId);
+    return parseAddonZod('convertToPlaceholder', result);
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.dehydrateFile(toWin32(path));
+    const result = await addon.dehydrateFile(toWin32(path));
+    return parseAddonZod('dehydrateFile', result);
   }
 
   static async hydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.hydrateFile(toWin32(path));
+    const result = await addon.hydrateFile(toWin32(path));
+    return parseAddonZod('hydrateFile', result);
   }
 }
