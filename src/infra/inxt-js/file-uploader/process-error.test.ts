@@ -1,14 +1,14 @@
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processError } from './process-error';
-import { mockDeep } from 'vitest-mock-extended';
-import { FileUploaderCallbacks } from './file-uploader';
+import { LocalSync } from '@/backend/features';
 
 describe('process-error', () => {
-  const callbacks = mockDeep<FileUploaderCallbacks>();
+  const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
+
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processError>({ callbacks });
+    props = mockProps<typeof processError>({});
   });
 
   it('should return ABORTED', () => {
@@ -18,7 +18,7 @@ describe('process-error', () => {
     const error = processError(props);
     // Then
     expect(error.code).toBe('ABORTED');
-    expect(callbacks.onError).toBeCalledTimes(0);
+    expect(addItemMock).toBeCalledTimes(0);
   });
 
   it('should return NOT_ENOUGH_SPACE', () => {
@@ -28,7 +28,7 @@ describe('process-error', () => {
     const error = processError(props);
     // Then
     expect(error.code).toBe('NOT_ENOUGH_SPACE');
-    expect(callbacks.onError).toBeCalledTimes(1);
+    expect(addItemMock).toBeCalledTimes(1);
   });
 
   it('should return UNKNOWN', () => {
@@ -38,6 +38,6 @@ describe('process-error', () => {
     const error = processError(props);
     // Then
     expect(error.code).toBe('UNKNOWN');
-    expect(callbacks.onError).toBeCalledTimes(1);
+    expect(addItemMock).toBeCalledTimes(1);
   });
 });
