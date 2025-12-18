@@ -36,7 +36,7 @@ describe('on-change', () => {
   it('should update contents id when file is modified and not in sync', async () => {
     // Given
     statMock.mockResolvedValue({ isDirectory: () => false, mtimeMs: Date.now() });
-    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.Sync } });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
     // When
     await onChange(props);
     // Then
