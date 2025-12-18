@@ -1,19 +1,19 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { Environment } from '@internxt/inxt-js';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
-import { FileUploaderCallbacks } from './file-uploader';
 import * as processError from './process-error';
 import * as abortOnChangeSize from './abort-on-change-size';
 import { ReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
+import { LocalSync } from '@/backend/features';
 
 describe('upload-file', () => {
   const abortOnChangeSizeMock = partialSpyOn(abortOnChangeSize, 'abortOnChangeSize');
   const processErrorMock = partialSpyOn(processError, 'processError');
+  const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
 
   const environment = mockDeep<Environment>();
-  const callbacks = mockDeep<FileUploaderCallbacks>();
   const readable = mockDeep<ReadStream>();
   let abortController: AbortController;
   let props: Parameters<typeof uploadFile>[0];
@@ -25,7 +25,6 @@ describe('upload-file', () => {
     props = mockProps<typeof uploadFile>({
       fn: environment.upload,
       readable,
-      callbacks,
       abortSignal: abortController.signal,
     });
   });
@@ -44,7 +43,7 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    expect(callbacks.onFinish).toBeCalledTimes(1);
+    call(addItemMock).toMatchObject({ action: 'UPLOADED' });
     expect(processErrorMock).toBeCalledTimes(0);
   });
 
@@ -58,8 +57,7 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    expect(callbacks.onProgress).toBeCalledWith({ progress: 50 });
-    expect(callbacks.onFinish).toBeCalledTimes(1);
+    calls(addItemMock).toMatchObject([{ action: 'UPLOADING', progress: 50 }, { action: 'UPLOADED' }]);
     expect(processErrorMock).toBeCalledTimes(0);
   });
 
@@ -72,7 +70,7 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    expect(callbacks.onFinish).toBeCalledTimes(0);
+    calls(addItemMock).toHaveLength(0);
     expect(processErrorMock).toBeCalledTimes(1);
   });
 

@@ -1,18 +1,23 @@
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
+import { Environment } from '@internxt/inxt-js';
 
 export type CommonContext = {
   userUuid: string;
   workspaceId: string;
   workspaceToken: string;
   bucket: string;
+  environment: Environment;
 };
 
-export type Config = CommonContext & {
+export type Config = {
+  userUuid: string;
+  workspaceId: string;
+  workspaceToken: string;
+  bucket: string;
   providerId: string;
   rootPath: AbsolutePath;
   rootUuid: FolderUuid;
@@ -23,9 +28,9 @@ export type Config = CommonContext & {
 };
 
 export type SyncContext = AuthContext &
-  Config & {
+  Config &
+  CommonContext & {
     logger: typeof logger;
-    fileUploader: EnvironmentFileUploader;
     contentsDownloader: InxtJs.ContentsDownloader;
   };
 

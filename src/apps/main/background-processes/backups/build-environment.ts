@@ -1,6 +1,5 @@
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { Environment } from '@internxt/inxt-js';
 import { User } from '../../types';
 
@@ -24,10 +23,9 @@ export function buildEnvironment({ bridgeUser, bridgePass, mnemonic, bucket }: P
     },
   });
 
-  const fileUploader = new EnvironmentFileUploader(environment, bucket);
   const contentsDownloader = new InxtJs.ContentsDownloader(environment, bucket);
 
-  return { fileUploader, contentsDownloader };
+  return { environment, contentsDownloader };
 }
 
 export function buildUserEnvironment({ user }: { user: User }) {
