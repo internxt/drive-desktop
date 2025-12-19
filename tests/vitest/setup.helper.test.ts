@@ -37,6 +37,7 @@ vi.mock(import('electron'), () => {
       handle: vi.fn(),
       invoke: vi.fn(),
       removeListener: vi.fn(),
+      removeAllListeners: vi.fn(),
     },
     BrowserWindow: vi.fn().mockImplementation(() => ({
       loadFile: vi.fn(),
