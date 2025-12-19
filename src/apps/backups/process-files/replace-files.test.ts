@@ -13,6 +13,7 @@ describe('replace-files', () => {
 
   beforeEach(() => {
     props = mockProps<typeof replaceFiles>({
+      context: { abortController: new AbortController() },
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
       modified: [

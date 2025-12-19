@@ -21,7 +21,7 @@ describe('create-files', () => {
   beforeEach(() => {
     props = mockProps<typeof createFiles>({
       self: { backed: 0 },
-      context: { backupsBucket: 'bucket' },
+      context: { backupsBucket: 'bucket', abortController: new AbortController() },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: new Map([[parentPath, { uuid: 'parentUuid' as FolderUuid }]]) },
       added: [{ absolutePath: path, size: 1024 }],

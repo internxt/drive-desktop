@@ -52,6 +52,7 @@ export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props
     abortSignal.addEventListener('abort', () => {
       logger.debug({ msg: 'Aborting upload', path });
       stopUpload(state);
+      resolve();
     });
   });
 }

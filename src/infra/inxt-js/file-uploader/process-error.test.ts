@@ -1,4 +1,4 @@
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processError } from './process-error';
 import { LocalSync } from '@/backend/features';
 import * as addGeneralIssue from '@/apps/main/background-processes/issues';
@@ -14,16 +14,16 @@ describe('process-error', () => {
     props = mockProps<typeof processError>({});
   });
 
-  it('should return ABORTED', () => {
+  it('should not do anything if aborted', () => {
     // Given
     props.error = new Error('Process killed by user');
     // When
     processError(props);
     // Then
-    expect(addItemMock).toBeCalledTimes(0);
+    calls(addItemMock).toHaveLength(0);
   });
 
-  it('should return NOT_ENOUGH_SPACE', () => {
+  it('should add general issue if max space used', () => {
     // Given
     props.error = new Error('Max space used');
     // When
@@ -31,7 +31,7 @@ describe('process-error', () => {
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Failed to upload file to the bucket. Not enough space' });
     call(addGeneralIssueMock).toMatchObject({ error: 'NOT_ENOUGH_SPACE' });
-    expect(addItemMock).toBeCalledTimes(1);
+    calls(addItemMock).toHaveLength(1);
   });
 
   it('should return UNKNOWN', () => {
@@ -41,6 +41,6 @@ describe('process-error', () => {
     processError(props);
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Failed to upload file to the bucket' });
-    expect(addItemMock).toBeCalledTimes(1);
+    calls(addItemMock).toHaveLength(1);
   });
 });

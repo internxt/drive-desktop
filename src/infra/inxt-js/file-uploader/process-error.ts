@@ -22,6 +22,7 @@ export function processError({ path, error }: TProps) {
       });
 
       addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
+      return;
     }
 
     logger.error({
