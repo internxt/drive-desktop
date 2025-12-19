@@ -9,7 +9,6 @@ describe('resetConfig', () => {
     resetConfig();
 
     calls(configSetMock).toStrictEqual([
-      ['backupsEnabled', false],
       ['backupInterval', 86400000],
       ['lastBackup', -1],
       ['syncRoot', ''],

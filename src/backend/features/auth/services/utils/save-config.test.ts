@@ -33,7 +33,6 @@ describe('saveConfig', () => {
     getUserMock.mockReturnValue({ uuid: 'current-user-uuid' });
 
     const currentUserConfigs = {
-      backupsEnabled: true,
       backupInterval: 3600,
       lastBackup: '2024-01-15',
       syncRoot: '/Users/john/Internxt',

@@ -17,7 +17,7 @@ declare interface EventBus {
   emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean;
 }
 
-const eventBus = new EventBus();
+export const eventBus = new EventBus();
 
 eventBus.setMaxListeners(20);
 

@@ -1,87 +1,28 @@
-import { getIsLoggedIn } from '../../../auth/handlers';
-import configStore from '../../../config';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { launchBackupProcesses } from '../launchBackupProcesses';
+import { electronStore } from '@/apps/main/config';
 
 export class BackupScheduler {
-  private static schedule: null | ReturnType<typeof setTimeout> = null;
+  private static interval: NodeJS.Timeout | undefined;
 
-  constructor(
-    private readonly lastBackup: () => number,
-    private readonly interval: () => number,
-    private readonly task: () => Promise<void>,
-  ) {}
-
-  async start(): Promise<void> {
-    if (!this.lastBackupIsSet()) {
-      return;
-    }
-
-    if (!this.intervalIsSet()) {
-      return;
-    }
-
-    const millisecondsToNextBackup = this.millisecondsToNextBackup();
-
-    if (millisecondsToNextBackup <= 0) {
-      await this.runAndScheduleNext();
-      return;
-    }
-
-    BackupScheduler.schedule = setTimeout(() => {
-      this.runAndScheduleNext();
-    }, millisecondsToNextBackup);
-  }
-
-  private millisecondsToNextBackup(): number {
-    const currentTimestamp = new Date().valueOf();
-
-    return this.lastBackup() + this.interval() - currentTimestamp;
-  }
-
-  private async runAndScheduleNext(): Promise<void> {
-    await this.task();
-    this.updateLastBackup();
-
-    if (!this.lastBackupIsSet()) {
-      return;
-    }
-
-    if (!this.intervalIsSet()) {
-      return;
-    }
-
-    if (!getIsLoggedIn()) {
-      return;
-    }
-
-    BackupScheduler.schedule = setTimeout(() => this.runAndScheduleNext(), this.interval());
-  }
-
-  private lastBackupIsSet(): boolean {
-    return this.lastBackup() !== -1;
-  }
-
-  private intervalIsSet(): boolean {
-    return this.interval() !== -1;
-  }
-
-  private updateLastBackup() {
-    const currentTimestamp = Date.now();
-
-    configStore.set('lastBackup', currentTimestamp);
-  }
-
-  stop(): void {
-    if (!BackupScheduler.schedule) return;
-
-    clearTimeout(BackupScheduler.schedule);
-  }
-
-  isScheduled(): boolean {
-    return BackupScheduler.schedule !== null;
-  }
-
-  reschedule(): void {
+  static start() {
     this.stop();
-    this.start();
+
+    const lastBackup = electronStore.get('lastBackup');
+    const backupInterval = electronStore.get('backupInterval');
+
+    if (lastBackup === -1 || backupInterval === -1) {
+      logger.debug({ msg: 'There is no last backup or interval set', lastBackup, backupInterval });
+      return;
+    }
+
+    this.interval = setInterval(async () => {
+      logger.debug({ msg: 'Scheduled backup started' });
+      await launchBackupProcesses();
+    }, backupInterval);
+  }
+
+  static stop() {
+    clearInterval(this.interval);
   }
 }

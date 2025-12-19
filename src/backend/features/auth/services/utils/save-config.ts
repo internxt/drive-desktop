@@ -14,7 +14,6 @@ export function saveConfig() {
   const configToSave: SavedConfig = {
     backupInterval: electronStore.get('backupInterval'),
     backupList: electronStore.get('backupList'),
-    backupsEnabled: electronStore.get('backupsEnabled'),
     deviceUuid: electronStore.get('deviceUuid'),
     lastBackup: electronStore.get('lastBackup'),
     syncRoot: electronStore.get('syncRoot'),
