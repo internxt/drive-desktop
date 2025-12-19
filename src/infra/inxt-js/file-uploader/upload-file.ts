@@ -42,8 +42,7 @@ export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props
         if (stats && stats.size !== size) {
           logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
           stopUpload(state);
-          resolve();
-          return;
+          return resolve();
         }
 
         LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
