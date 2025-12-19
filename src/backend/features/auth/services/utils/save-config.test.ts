@@ -66,7 +66,6 @@ describe('saveConfig', () => {
     getUserMock.mockReturnValue({ uuid: 'new-user-uuid' });
 
     const firstTimeUserConfigs = {
-      backupsEnabled: false,
       backupInterval: 1800,
       lastBackup: null,
       syncRoot: undefined,
@@ -90,7 +89,6 @@ describe('saveConfig', () => {
     getUserMock.mockReturnValue({ uuid: 'returning-user-uuid' });
     const outdatedConfigs = {
       'returning-user-uuid': {
-        backupsEnabled: false,
         backupInterval: 1800,
         syncRoot: '/old/path',
       },
@@ -98,7 +96,6 @@ describe('saveConfig', () => {
     };
 
     const updatedUserConfigs = {
-      backupsEnabled: true,
       backupInterval: 7200,
       lastBackup: '2024-01-20',
       syncRoot: '/Users/jane/Internxt',
