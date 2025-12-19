@@ -259,9 +259,9 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
   await Promise.all(deletionPromises);
 }
 
-export async function disableBackup(backup: BackupInfo): Promise<void> {
+export async function disableBackup(folderId: number): Promise<void> {
   const backupsList = electronStore.get('backupList');
-  const pathname = findBackupPathnameFromId(backup.folderId)!;
+  const pathname = findBackupPathnameFromId(folderId)!;
 
   backupsList[pathname].enabled = false;
 

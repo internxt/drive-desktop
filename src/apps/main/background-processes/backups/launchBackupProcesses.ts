@@ -64,7 +64,7 @@ export async function launchBackupProcesses(): Promise<void> {
     const context: BackupsContext = {
       ...backupInfo,
       userUuid: user.uuid,
-      bucket: backupInfo.backupsBucket,
+      bucket: user.backupsBucket,
       workspaceId: '',
       workspaceToken: '',
       environment,

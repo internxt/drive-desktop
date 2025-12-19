@@ -39,7 +39,6 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     uuid: selected?.uuid || '',
     plainName: selected?.name || '',
     pathname: '' as AbsolutePath,
-    backupsBucket: '',
   });
 
   const { data: items, status: itemsStatus } = useGetBackupFolders({ folderUuid: folder.uuid });

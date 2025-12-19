@@ -17,7 +17,6 @@ class BackupConfiguration {
       folderUuid: backup.folderUuid,
       pathname: backup.pathname,
       folderId: backup.folderId,
-      backupsBucket: device.bucket,
       plainName: backup.plainName,
     }));
 

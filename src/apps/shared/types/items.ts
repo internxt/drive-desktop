@@ -4,6 +4,5 @@ export type ItemBackup = {
   id: number;
   uuid: string;
   plainName: string;
-  backupsBucket: string;
   pathname: AbsolutePath;
 };

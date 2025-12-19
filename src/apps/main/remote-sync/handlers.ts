@@ -67,6 +67,5 @@ ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBac
     uuid: folder.uuid,
     plainName: folder.plainName,
     pathname: '' as AbsolutePath,
-    backupsBucket: folder.bucket,
   }));
 });

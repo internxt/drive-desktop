@@ -30,7 +30,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
           pathname: abs(backup.pathname as string),
           folderId: backup.id,
           folderUuid: backup.uuid,
-          backupsBucket: device.bucket,
         }));
 
       logger.debug({ tag: 'BACKUPS', msg: `Found enabled backups`, length: backups.length });
@@ -42,7 +41,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
       ...backup,
       folderId: backup.id,
       folderUuid: backup.uuid,
-      backupsBucket: device.bucket,
       pathname: '' as AbsolutePath,
     }));
   } catch (error) {

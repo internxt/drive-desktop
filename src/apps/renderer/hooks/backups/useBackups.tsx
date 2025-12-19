@@ -9,7 +9,7 @@ export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 export interface BackupContextProps {
   backupsState: BackupsState;
   backups: BackupInfo[];
-  disableBackup: (backup: BackupInfo) => Promise<void>;
+  disableBackup: (folderId: number) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
   refreshBackups: () => Promise<void>;
@@ -75,8 +75,8 @@ export function useBackups(): BackupContextProps {
     }
   }
 
-  async function disableBackup(backup: BackupInfo) {
-    await window.electron.disableBackup(backup);
+  async function disableBackup(folderId: number) {
+    await window.electron.disableBackup(folderId);
     await loadBackups();
   }
 
