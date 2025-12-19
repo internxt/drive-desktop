@@ -12,7 +12,7 @@ describe('download-backup', () => {
   const getPathFromDialogMock = partialSpyOn(getPathFromDialog, 'getPathFromDialog');
   const downloadFolderMock = partialSpyOn(downloadFolder, 'downloadFolder');
   const onMock = partialSpyOn(ipcMain, 'on');
-  const removeListenerMock = partialSpyOn(ipcMain, 'removeListener');
+  const removeAllListenersMock = partialSpyOn(ipcMain, 'removeAllListeners');
   const broadcastToWindowsMock = partialSpyOn(broadcastToWindows, 'broadcastToWindows');
 
   const props = mockProps<typeof downloadBackup>({
@@ -50,7 +50,7 @@ describe('download-backup', () => {
     await downloadBackup(props);
     // Then
     call(onMock).toStrictEqual(['abort-download-backups-deviceUuid', expect.any(Function)]);
-    call(removeListenerMock).toStrictEqual(['abort-download-backups-deviceUuid', expect.any(Function)]);
+    call(removeAllListenersMock).toStrictEqual('abort-download-backups-deviceUuid');
   });
 
   it('should use the device uuid as the root uuid if no folder uuids are provided', async () => {
@@ -59,7 +59,7 @@ describe('download-backup', () => {
     // Then
     call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
-      device: { name: 'device', uuid: 'deviceUuid' },
+      device: { plainName: 'device', uuid: 'deviceUuid' },
       rootPath: '/backup/Backup_20250101120000/device',
       rootUuid: 'deviceUuid',
     });
@@ -73,7 +73,7 @@ describe('download-backup', () => {
     // Then
     call(broadcastToWindowsMock).toMatchObject({ name: 'backup-download-progress', data: { progress: 0 } });
     call(downloadFolderMock).toMatchObject({
-      device: { name: 'device', uuid: 'deviceUuid' },
+      device: { plainName: 'device', uuid: 'deviceUuid' },
       rootPath: '/backup/Backup_20250101120000/device',
       rootUuid: 'folderUuid',
     });
