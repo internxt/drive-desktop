@@ -1,18 +1,19 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as uploadFile from './upload-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { replaceFiles } from './replace-files';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 describe('replace-files', () => {
-  const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
+  const uploadFileMock = partialSpyOn(EnvironmentFileUploader, 'run');
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
 
   let props: Parameters<typeof replaceFiles>[0];
 
   beforeEach(() => {
     props = mockProps<typeof replaceFiles>({
+      context: { abortController: new AbortController() },
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
       modified: [

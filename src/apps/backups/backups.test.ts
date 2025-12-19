@@ -77,7 +77,7 @@ describe('backups', () => {
       ],
     });
 
-    uploadContentsMock.mockResolvedValue({ data: 'contentsId' as ContentsId });
+    uploadContentsMock.mockResolvedValue('contentsId' as ContentsId);
     persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
     replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });

@@ -1,5 +1,4 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as uploadFile from './upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
@@ -7,10 +6,11 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createFiles } from './create-files';
 import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 describe('create-files', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
-  const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
+  const uploadFileMock = partialSpyOn(EnvironmentFileUploader, 'run');
   const persistMock = partialSpyOn(HttpRemoteFileSystem, 'persist');
 
   let props: Parameters<typeof createFiles>[0];
@@ -21,7 +21,7 @@ describe('create-files', () => {
   beforeEach(() => {
     props = mockProps<typeof createFiles>({
       self: { backed: 0 },
-      context: { backupsBucket: 'bucket' },
+      context: { backupsBucket: 'bucket', abortController: new AbortController() },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: new Map([[parentPath, { uuid: 'parentUuid' as FolderUuid }]]) },
       added: [{ absolutePath: path, size: 1024 }],
