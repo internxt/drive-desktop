@@ -1,6 +1,5 @@
 import configStore from '../config';
 import { Device, findBackupPathnameFromId } from './service';
-import { BackupFolderUuid } from './backup-folder-uuid';
 import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -19,8 +18,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
 
     if (isCurrent) {
       const backupsList = configStore.get('backupList');
-
-      await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
 
       const backups = folder.children
         .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
