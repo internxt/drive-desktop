@@ -6,3 +6,9 @@ export enum PinState {
   Excluded = 3,
   Inherit = 4,
 }
+
+// https://learn.microsoft.com/en-us/windows/win32/api/cfapi/ne-cfapi-cf_in_sync_state
+export enum InSyncState {
+  NotSync = 0,
+  Sync = 1,
+}

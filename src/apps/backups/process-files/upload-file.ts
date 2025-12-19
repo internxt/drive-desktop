@@ -1,4 +1,4 @@
-import { LocalFile } from '../domain/LocalFile';
+import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';

@@ -47,27 +47,38 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
 export async function persistFile({ ctx, path, parentUuid, contentsId, size }: PersistFileProps) {
   const res = await HttpRemoteFileSystem.persist({ ctx, path, parentUuid, contentsId, size });
 
-  if (res.error) return res;
-
-  void createAndUploadThumbnail({ ctx, path, fileUuid: res.data.uuid });
-
-  return await createOrUpdateFile({ ctx, fileDto: res.data });
+  if (res.error) {
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    return res;
+  } else {
+    LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
+    void createAndUploadThumbnail({ ctx, path, fileUuid: res.data.uuid });
+    return await createOrUpdateFile({ ctx, fileDto: res.data });
+  }
 }
 
 export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProps) {
   const res = await HttpRemoteFolderSystem.persist({ ctx, parentUuid, path });
 
-  if (res.error) return res;
-
-  return await createOrUpdateFolder({ ctx, folderDto: res.data });
+  if (res.error) {
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    return res;
+  } else {
+    LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
+    return await createOrUpdateFolder({ ctx, folderDto: res.data });
+  }
 }
 
 export async function persistReplaceFile({ ctx, path, uuid, size, contentsId, modificationTime }: ReplaceFileProps) {
   const res = await driveServerWip.files.replaceFile({ path, uuid, contentsId, size, modificationTime });
 
-  if (res.error) return res;
-
-  return await createOrUpdateFile({ ctx, fileDto: res.data });
+  if (res.error) {
+    LocalSync.SyncState.addItem({ action: 'MODIFY_ERROR', path });
+    return res;
+  } else {
+    LocalSync.SyncState.addItem({ action: 'MODIFIED', path });
+    return await createOrUpdateFile({ ctx, fileDto: res.data });
+  }
 }
 
 export async function persistMoveFile({ ctx, path, uuid, parentUuid, workspaceToken }: PersistMoveFileProps) {

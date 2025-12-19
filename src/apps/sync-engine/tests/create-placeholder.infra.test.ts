@@ -7,7 +7,7 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as persistFile from '@/infra/drive-server-wip/out/ipc-main';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Addon } from '@/node-win/addon-wrapper';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { VirtualDrive } from '@/node-win/virtual-drive';
@@ -45,14 +45,9 @@ describe('create-placeholder', () => {
 
     // When
     await writeFile(file, 'content');
-    await sleep(5000);
+    await sleep(3000);
 
     // Then
-    calls(onAllMock).toMatchObject([
-      { event: 'add', path: file, stats: { size: 7 } },
-      { event: 'change', path: file, stats: { size: 7 } },
-    ]);
-
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
@@ -64,12 +59,17 @@ describe('create-placeholder', () => {
         msg: 'On change event',
         path: file,
         pinState: PinState.Unspecified,
-        blocks: 0,
-        ctime: expect.any(Date),
-        mtime: expect.any(Date),
+        inSyncState: InSyncState.Sync,
+        size: 7,
+        onDiskSize: 7,
         isChanged: true,
         isModified: true,
       },
+    ]);
+
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path: file, stats: { size: 7 } },
+      { event: 'change', path: file, stats: { size: 7 } },
     ]);
   });
 });

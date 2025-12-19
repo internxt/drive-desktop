@@ -1,7 +1,6 @@
 import { Readable } from 'node:stream';
-import { pipeline, PipelineAborted, PipelineError } from './pipeline';
+import { pipeline } from './pipeline';
 import { WriteStream } from 'node:fs';
-import { Effect } from 'effect/index';
 import { calls } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('node:fs'));
@@ -20,29 +19,27 @@ describe('pipeline', () => {
     // Given
     writable.write = vi.fn();
     // When
-    await Effect.runPromise(pipeline({ readable, writable }));
+    const error = await pipeline({ readable, writable });
     // Then
+    expect(error).toBeUndefined();
     calls(writable.write).toStrictEqual(chunks);
   });
 
-  it('should return PipelineAborted if readable is aborted', async () => {
+  it('should return ABORTED if readable is aborted', async () => {
     // Given
     readable.destroy(new Error('The operation was aborted'));
     // When
-    const result = await Effect.runPromiseExit(pipeline({ readable, writable }));
+    const error = await pipeline({ readable, writable });
     // Then
-    const error = result.toString();
-    expect(error).toContain(PipelineAborted.name);
+    expect(error?.code).toBe('ABORTED');
   });
 
-  it('should return PipelineError in case of other error', async () => {
+  it('should return UNKNOWN in case of other error', async () => {
     // Given
     readable.destroy();
     // When
-    const result = await Effect.runPromiseExit(pipeline({ readable, writable }));
+    const error = await pipeline({ readable, writable });
     // Then
-    const error = result.toString();
-    expect(error).toContain(PipelineError.name);
-    expect(error).toContain('ERR_STREAM_PREMATURE_CLOSE');
+    expect(error?.code).toContain('UNKNOWN');
   });
 });

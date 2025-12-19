@@ -10,23 +10,32 @@ type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: InMemo
 type Props = { ctx: SyncContext } & (FileProps | FolderProps);
 
 export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props) {
-  const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
-
-  if (!local) return;
-
-  if (local.path !== remote.absolutePath) {
-    ctx.logger.error({
-      msg: 'Cannot delete placeholder, path does not match',
-      remotePath: remote.absolutePath,
-      localPath: local.path,
-      type,
-    });
-
-    return;
-  }
-
   try {
-    ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath });
+    const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
+
+    if (!local) return;
+
+    if (local.path !== remote.absolutePath) {
+      /**
+       * v2.6.4 Daniel Jiménez
+       * If we reach this point, it means we had an inconsistency between remote and local,
+       * so instead of deleting the placeholder, we are going to send the item to the trash
+       * so the user can decide whether to delete it or recover it.
+       */
+
+      ctx.logger.error({
+        msg: 'Path does not match when deleting placeholder',
+        remotePath: remote.absolutePath,
+        localPath: local.path,
+        type,
+      });
+
+      const { default: trash } = await import('trash');
+      await trash(local.path);
+      return;
+    }
+
+    ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath, type });
     await rm(remote.absolutePath, { recursive: true, force: true });
   } catch (error) {
     ctx.logger.error({

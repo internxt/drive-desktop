@@ -2,7 +2,6 @@ import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { pipeline } from '@/core/utils/pipeline';
 import { InxtJs } from '@/infra';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { Effect } from 'effect/index';
 import { createWriteStream } from 'node:fs';
 
 type Props = {
@@ -10,25 +9,24 @@ type Props = {
   contentsDownloader: InxtJs.ContentsDownloader;
 };
 
-export function downloadFile({ file, contentsDownloader }: Props) {
-  return Effect.gen(function* () {
+export async function downloadFile({ file, contentsDownloader }: Props) {
+  try {
     logger.debug({ tag: 'BACKUPS', msg: 'Download file', path: file.absolutePath });
 
     const writable = createWriteStream(file.absolutePath);
 
-    const readable = yield* Effect.promise(() =>
-      contentsDownloader.downloadThrow({
-        path: file.absolutePath,
-        contentsId: file.contentsId,
-      }),
-    );
+    const readable = await contentsDownloader.downloadThrow({
+      path: file.absolutePath,
+      contentsId: file.contentsId,
+    });
 
-    yield* pipeline({ readable, writable });
-  }).pipe(
-    Effect.catchTag('PipelineAborted', () => Effect.void),
-    Effect.catchAllCause((error) => {
-      logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
-      return Effect.void;
-    }),
-  );
+    const error = await pipeline({ readable, writable });
+
+    if (error) {
+      if (error.code === 'ABORTED') return;
+      throw error;
+    }
+  } catch (error) {
+    logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
+  }
 }

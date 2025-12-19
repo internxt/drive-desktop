@@ -37,7 +37,6 @@ export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props
           readable.close();
 
           if (contentsId) {
-            LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
             return resolve({ data: contentsId as ContentsId });
           }
 
