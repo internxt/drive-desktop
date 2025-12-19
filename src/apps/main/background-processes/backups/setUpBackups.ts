@@ -20,7 +20,6 @@ export function setUpBackups() {
 
   function stopAndClearBackups() {
     ipcMain.emit('stop-backups-process');
-    BackupScheduler.stop();
     tracker.reset();
   }
 
@@ -30,6 +29,4 @@ export function setUpBackups() {
     logger.debug({ msg: 'Backups started manually' });
     await launchBackupProcesses();
   });
-
-  BackupScheduler.start();
 }

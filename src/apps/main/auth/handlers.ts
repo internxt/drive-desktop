@@ -61,6 +61,7 @@ export async function emitUserLoggedIn() {
 
   eventBus.once('USER_LOGGED_OUT', async () => {
     scheduler.stop();
+    BackupScheduler.stop();
     await logout({ ctx: context });
   });
 

@@ -18,6 +18,8 @@ export class BackupScheduler {
 
     const nextBackup = lastBackup + backupInterval - Date.now();
 
+    logger.debug({ msg: 'Scheduling backup', lastBackup: new Date(lastBackup), nextBackup });
+
     this.timeout = setTimeout(async () => {
       logger.debug({ msg: 'Scheduled backup started' });
       await launchBackupProcesses();
