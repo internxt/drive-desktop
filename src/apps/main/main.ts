@@ -106,11 +106,6 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-if (process.env.NODE_ENV === 'development') {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('electron-debug')({ showDevTools: false });
-}
-
 app
   .whenReady()
   .then(async () => {

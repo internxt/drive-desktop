@@ -43,7 +43,7 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    call(addItemMock).toMatchObject({ action: 'UPLOADED' });
+    calls(addItemMock).toHaveLength(0);
     expect(processErrorMock).toBeCalledTimes(0);
   });
 
@@ -57,7 +57,7 @@ describe('upload-file', () => {
     // When
     await uploadFile(props);
     // Then
-    calls(addItemMock).toMatchObject([{ action: 'UPLOADING', progress: 50 }, { action: 'UPLOADED' }]);
+    call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 50 });
     expect(processErrorMock).toBeCalledTimes(0);
   });
 

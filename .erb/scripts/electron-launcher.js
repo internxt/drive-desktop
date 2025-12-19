@@ -1,3 +1,3 @@
-require('ts-node').register({ transpileOnly: true });
+require('tsx/cjs');
 require('tsconfig-paths').register();
 require('../../src/apps/main/main.ts');

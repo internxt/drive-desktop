@@ -45,14 +45,9 @@ describe('create-placeholder', () => {
 
     // When
     await writeFile(file, 'content');
-    await sleep(5000);
+    await sleep(3000);
 
     // Then
-    calls(onAllMock).toMatchObject([
-      { event: 'add', path: file, stats: { size: 7 } },
-      { event: 'change', path: file, stats: { size: 7 } },
-    ]);
-
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
@@ -70,6 +65,11 @@ describe('create-placeholder', () => {
         isChanged: true,
         isModified: true,
       },
+    ]);
+
+    calls(onAllMock).toMatchObject([
+      { event: 'add', path: file, stats: { size: 7 } },
+      { event: 'change', path: file, stats: { size: 7 } },
     ]);
   });
 });
