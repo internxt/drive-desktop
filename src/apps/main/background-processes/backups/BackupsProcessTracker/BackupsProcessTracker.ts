@@ -5,8 +5,8 @@ import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
 import { logger } from '@/apps/shared/logger/logger';
 
 export class BackupsProcessTracker {
-  processed = 0;
-  total = 0;
+  private processed = 0;
+  private total = 0;
 
   private current: IndividualBackupProgress = {
     total: 0,
@@ -15,7 +15,7 @@ export class BackupsProcessTracker {
 
   private abortController: AbortController | undefined;
 
-  notify() {
+  private notify() {
     if (this.abortController && !this.abortController.signal.aborted) {
       logger.debug({ tag: 'BACKUPS', msg: 'Progress', progress: this.progress() });
       broadcastToWindows({ name: 'backup-progress', data: this.progress() });
@@ -24,10 +24,14 @@ export class BackupsProcessTracker {
 
   progress(): BackupsProgress {
     return {
-      currentFolder: this.processed,
-      totalFolders: this.total,
+      currentFolder: this.currentIndex(),
+      totalFolders: this.totalBackups(),
       partial: this.current,
     };
+  }
+
+  notifyLastProgress() {
+    this.notify();
   }
 
   track(backups: Array<BackupInfo>, abortController: AbortController): void {
@@ -56,6 +60,14 @@ export class BackupsProcessTracker {
     this.notify();
   }
 
+  currentIndex(): number {
+    return this.processed;
+  }
+
+  totalBackups(): number {
+    return this.total;
+  }
+
   reset() {
     this.processed = 0;
     this.total = 0;
@@ -71,7 +83,7 @@ export class BackupsProcessTracker {
 export const tracker = new BackupsProcessTracker();
 
 export function getLastBackupProgress() {
-  if (tracker.processed > 0) {
-    tracker.notify();
+  if (tracker.currentIndex() > 0) {
+    tracker.notifyLastProgress();
   }
 }
