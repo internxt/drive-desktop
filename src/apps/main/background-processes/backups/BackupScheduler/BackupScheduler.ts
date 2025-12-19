@@ -3,7 +3,7 @@ import { launchBackupProcesses } from '../launchBackupProcesses';
 import { electronStore } from '@/apps/main/config';
 
 export class BackupScheduler {
-  private static interval: NodeJS.Timeout | undefined;
+  static interval: NodeJS.Timeout | undefined;
 
   static start() {
     this.stop();
