@@ -28,7 +28,7 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
   const { contentsDownloader } = buildUserEnvironment({ user, type: 'backups' });
 
   function eventListener() {
-    logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.name });
+    logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.plainName });
     abortController.abort();
   }
 
@@ -36,13 +36,13 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
   ipcMain.on(listenerName, eventListener);
 
   const now = new Date().toISOString().replace('T', '').replaceAll('-', '').replaceAll(':', '').slice(0, 14);
-  const rootPath = join(chosenPath, 'Backup_' + now, device.name);
+  const rootPath = join(chosenPath, 'Backup_' + now, device.plainName);
   const rootUuids = folderUuids.length === 0 ? [device.uuid as FolderUuid] : folderUuids;
 
   logger.debug({
     tag: 'BACKUPS',
     msg: 'Download backup',
-    name: device.name,
+    name: device.plainName,
     rootPath,
     rootUuids,
   });

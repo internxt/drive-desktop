@@ -17,7 +17,7 @@ describe('download-backup', () => {
 
   const props = mockProps<typeof downloadBackup>({
     device: {
-      name: 'device',
+      plainName: 'device',
       uuid: 'deviceUuid',
     },
   });

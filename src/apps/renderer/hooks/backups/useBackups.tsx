@@ -42,7 +42,7 @@ export function useBackups(): BackupContextProps {
     const existsBackup = devices.some((device) => device.hasBackups);
     window.electron.logger.debug({
       msg: 'Backup exists',
-      devices: devices.map((d) => d.name),
+      devices: devices.map((d) => d.plainName),
       existsBackup,
     });
     setExistsBackup(existsBackup);

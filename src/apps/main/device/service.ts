@@ -11,13 +11,11 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getBackupsFromDevice } from './get-backups-from-device';
-import { decryptDeviceName } from '@/backend/features/device/services/decrypt-device-name';
 
 export type Device = {
-  name: string;
+  plainName: string;
   id: number;
   uuid: string;
-  bucket: string;
   removed: boolean;
   hasBackups: boolean;
   lastBackupAt: string;
@@ -39,7 +37,7 @@ export const addUnknownDeviceIssue = (error: Error) => {
 export async function getDevices(): Promise<Array<Device>> {
   const { data } = await driveServerWipModule.backup.getDevices();
   const devices = data ?? [];
-  return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
+  return devices.filter(({ removed, hasBackups }) => !removed && hasBackups);
 }
 
 /**
@@ -52,9 +50,8 @@ export async function fetchDevice(deviceUuid: string) {
   const { data, error } = await driveServerWipModule.backup.getDevice({ deviceUuid });
 
   if (data) {
-    const device = decryptDeviceName(data);
-    logger.debug({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
-    return { data: device };
+    logger.debug({ tag: 'BACKUPS', msg: 'Found device', device: data.plainName });
+    return { data };
   }
 
   if (error?.code === 'NOT_FOUND') {
@@ -116,7 +113,7 @@ async function createNewDevice() {
   const { data, error } = await createUniqueDevice();
   if (data) {
     saveDeviceToConfig(data);
-    return { data: decryptDeviceName(data) };
+    return { data };
   }
   return { error };
 }
@@ -153,7 +150,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   const res = await driveServerWipModule.backup.updateDevice({ deviceUuid, deviceName });
 
   if (res.data) {
-    return decryptDeviceName(res.data);
+    return res.data;
   }
 
   throw new Error('Error in the request to rename a device');
