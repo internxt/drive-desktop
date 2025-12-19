@@ -9,6 +9,8 @@ import { getUser } from '../../auth/service';
 import { buildUserEnvironment } from './build-environment';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { status } from './BackupsProcessStatus/BackupsProcessStatus';
+import electronStore from '../../config';
+import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 
 export async function launchBackupProcesses(): Promise<void> {
   const user = getUser();
@@ -83,7 +85,8 @@ export async function launchBackupProcesses(): Promise<void> {
   status.set('STANDBY');
 
   tracker.reset();
-  backupsConfig.backupFinished();
+  electronStore.set('lastBackup', Date.now());
+  BackupScheduler.start();
 
   ipcMain.removeAllListeners('stop-backups-process');
 

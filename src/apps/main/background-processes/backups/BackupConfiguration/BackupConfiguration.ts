@@ -6,10 +6,6 @@ import { getBackupsFromDevice } from '@/apps/main/device/get-backups-from-device
 import { status } from '../BackupsProcessStatus/BackupsProcessStatus';
 
 class BackupConfiguration {
-  backupFinished() {
-    configStore.set('lastBackup', Date.now());
-  }
-
   async obtainBackupsInfo(): Promise<Array<BackupInfo>> {
     const { data: device } = await getOrCreateDevice();
 
