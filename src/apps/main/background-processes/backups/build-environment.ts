@@ -28,9 +28,9 @@ export function buildEnvironment({ bridgeUser, bridgePass, mnemonic, bucket }: P
   return { environment, contentsDownloader };
 }
 
-export function buildUserEnvironment({ user }: { user: User }) {
+export function buildUserEnvironment({ user, type }: { user: User; type: 'drive' | 'backups' }) {
   return buildEnvironment({
-    bucket: user.bucket,
+    bucket: type === 'drive' ? user.bucket : user.backupsBucket,
     mnemonic: user.mnemonic,
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,

@@ -34,7 +34,6 @@ describe('getBackupsFromDevice', () => {
         pathname: '/path/to/backup1',
         folderId: 1,
         folderUuid: 'folder-uuid',
-        tmpPath: '/tmp',
         backupsBucket: 'bucket-1',
       },
     ]);
@@ -49,7 +48,6 @@ describe('getBackupsFromDevice', () => {
         folderId: 1,
         folderUuid: 'folder-uuid',
         backupsBucket: 'bucket-1',
-        tmpPath: '',
         pathname: '',
       },
     ]);

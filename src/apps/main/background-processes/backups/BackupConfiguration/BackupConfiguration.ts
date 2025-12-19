@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { getOrCreateDevice } from '../../../device/service';
@@ -17,7 +17,6 @@ class BackupConfiguration {
       folderUuid: backup.folderUuid,
       pathname: backup.pathname,
       folderId: backup.folderId,
-      tmpPath: app.getPath('temp'),
       backupsBucket: device.bucket,
       plainName: backup.plainName,
     }));

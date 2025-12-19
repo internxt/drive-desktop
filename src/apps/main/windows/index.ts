@@ -25,8 +25,6 @@ export function broadcastToWindows({ name, data }: BroadcastToWindows) {
   renderers.forEach((r) => r?.webContents.send(name, data));
 }
 
-eventBus.on('BROADCAST_TO_WINDOWS', broadcastToWindows);
-
 export function setUpCommonWindowHandlers(window: BrowserWindow) {
   // Open urls in the user's browser
   window.webContents.on('ipc-message', (_, channel) => {

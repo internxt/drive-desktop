@@ -5,11 +5,8 @@ import { ipcMain, shell } from 'electron';
 import { downloadFolder } from './download-folder';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { getConfig } from '@/apps/sync-engine/config';
-import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
-import { InxtJs } from '@/infra';
-import { Environment } from '@internxt/inxt-js';
 import { broadcastToWindows } from '@/apps/main/windows';
+import { buildUserEnvironment } from '@/apps/main/background-processes/backups/build-environment';
 
 type Props = {
   device: Device;
@@ -28,19 +25,7 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
 
   const abortController = new AbortController();
 
-  const environment = new Environment({
-    bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: getConfig().bridgeUser,
-    bridgePass: getConfig().bridgePass,
-    encryptionKey: getConfig().mnemonic,
-    appDetails: {
-      clientName: INTERNXT_CLIENT,
-      clientVersion: INTERNXT_VERSION,
-      desktopHeader: process.env.DESKTOP_HEADER,
-    },
-  });
-
-  const contentsDownloader = new InxtJs.ContentsDownloader(environment, device.bucket);
+  const { contentsDownloader } = buildUserEnvironment({ user, type: 'backups' });
 
   function eventListener() {
     logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.name });
@@ -85,7 +70,7 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
 
   broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 0 } });
 
-  ipcMain.removeListener(listenerName, eventListener);
+  ipcMain.removeAllListeners(listenerName);
 
   void shell.openPath(rootPath);
 }
