@@ -4,7 +4,6 @@ import { rm } from 'node:fs/promises';
 import { InMemoryFiles, InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-// import trash from 'trash';
 
 type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: InMemoryFiles };
 type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: InMemoryFolders };
@@ -31,7 +30,8 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
         type,
       });
 
-      // await trash(local.path);
+      const { default: trash } = await import('trash');
+      await trash(local.path);
       return;
     }
 
