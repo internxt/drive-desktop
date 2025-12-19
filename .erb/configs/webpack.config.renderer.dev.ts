@@ -11,8 +11,6 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 interface Configuration extends webpack.Configuration {
   devServer?: webpackDevServer.Configuration;
@@ -81,7 +79,7 @@ const configuration: Configuration = {
             loader: 'postcss-loader',
             options: {
               postcssOptions: {
-                plugins: [tailwindcss, autoprefixer],
+                plugins: [require('tailwindcss'), require('autoprefixer')],
               },
             },
           },
