@@ -18,7 +18,12 @@ export function setUpBackups() {
     BackupScheduler.start();
   });
 
-  eventBus.on('USER_LOGGED_OUT', () => tracker.reset());
+  function stopAndClearBackups() {
+    ipcMain.emit('stop-backups-process');
+    tracker.reset();
+  }
+
+  eventBus.on('USER_LOGGED_OUT', stopAndClearBackups);
 
   ipcMain.on('start-backups-process', async () => {
     logger.debug({ msg: 'Backups started manually' });
