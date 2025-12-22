@@ -3,7 +3,7 @@ import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { logger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { getAvailableProducts } from '../../payments/get-available-products';
@@ -75,6 +75,7 @@ export async function launchBackupProcesses(
       workspaceToken: '',
       environment,
       abortController,
+      logger: createLogger({ tag: 'BACKUPS' }),
       addIssue: (issue) => {
         addBackupsIssue({
           ...issue,
