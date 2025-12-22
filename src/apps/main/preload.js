@@ -157,12 +157,6 @@ var api = {
   disableBackup(backup) {
     return import_electron2.ipcRenderer.invoke("disable-backup", backup);
   },
-  getBackupsEnabled() {
-    return import_electron2.ipcRenderer.invoke("get-backups-enabled");
-  },
-  toggleBackupsEnabled() {
-    return import_electron2.ipcRenderer.invoke("toggle-backups-enabled");
-  },
   getLastBackupTimestamp() {
     return import_electron2.ipcRenderer.invoke("get-last-backup-timestamp");
   },
@@ -201,14 +195,6 @@ var api = {
   },
   getUnsycFileInSyncEngine() {
     return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
-  },
-  user: {
-    hasDiscoveredBackups() {
-      return import_electron2.ipcRenderer.invoke("user.get-has-discovered-backups");
-    },
-    discoveredBackups() {
-      import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
-    }
   },
   antivirus: {
     isAvailable() {

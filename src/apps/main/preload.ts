@@ -143,12 +143,6 @@ const api = {
   disableBackup(backup: BackupInfo): Promise<void> {
     return ipcRenderer.invoke('disable-backup', backup);
   },
-  getBackupsEnabled(): Promise<boolean> {
-    return ipcRenderer.invoke('get-backups-enabled');
-  },
-  toggleBackupsEnabled(): Promise<void> {
-    return ipcRenderer.invoke('toggle-backups-enabled');
-  },
   getLastBackupTimestamp(): Promise<number> {
     return ipcRenderer.invoke('get-last-backup-timestamp');
   },
@@ -187,14 +181,6 @@ const api = {
   },
   getUnsycFileInSyncEngine(): Promise<string[]> {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
-  },
-  user: {
-    hasDiscoveredBackups(): Promise<boolean> {
-      return ipcRenderer.invoke('user.get-has-discovered-backups');
-    },
-    discoveredBackups() {
-      ipcRenderer.send('user.set-has-discovered-backups');
-    },
   },
   antivirus: {
     isAvailable(): Promise<boolean> {

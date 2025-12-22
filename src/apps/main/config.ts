@@ -3,7 +3,6 @@ import { AppStore } from '@/core/electron/store/app-store.interface';
 import { defaults } from '@/core/electron/store/defaults';
 
 const schema: Schema<AppStore> = {
-  backupsEnabled: { type: 'boolean' },
   backupInterval: { type: 'number' },
   lastBackup: { type: 'number' },
   syncRoot: { type: 'string' },
@@ -17,7 +16,6 @@ const schema: Schema<AppStore> = {
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },
-  discoveredBackup: { type: 'number' },
   preferedLanguage: { type: 'string' },
   preferedTheme: { type: 'string' },
   'patch-executed-2-5-1': { type: 'boolean' },
