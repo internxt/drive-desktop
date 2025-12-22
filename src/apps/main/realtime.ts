@@ -7,7 +7,6 @@ import { RemoteNotificationsModule } from '@/backend/features/remote-notificatio
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
 };
-// REMOTE TRIGGER
 
 let socket: Socket | undefined;
 

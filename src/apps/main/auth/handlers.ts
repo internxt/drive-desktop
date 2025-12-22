@@ -9,6 +9,7 @@ import { AuthContext } from '@/backend/features/auth/utils/context';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
+import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 
 let isLoggedIn: boolean;
 
@@ -60,10 +61,12 @@ export async function emitUserLoggedIn() {
 
   eventBus.once('USER_LOGGED_OUT', async () => {
     scheduler.stop();
+    BackupScheduler.stop();
     await logout({ ctx: context });
   });
 
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
+  BackupScheduler.start();
   await spawnSyncEngineWorkers({ context });
 }

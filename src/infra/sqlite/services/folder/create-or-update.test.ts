@@ -18,7 +18,7 @@ describe('create-or-update', () => {
     expect(res).toBeUndefined();
   });
 
-  it('should return folder', async () => {
+  it('should return file', async () => {
     // Given
     upsertMock.mockResolvedValue({});
     // When

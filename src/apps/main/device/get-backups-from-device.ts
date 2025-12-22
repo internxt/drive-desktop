@@ -1,10 +1,7 @@
 import configStore from '../config';
 import { Device, findBackupPathnameFromId } from './service';
-import { getUser, setUser } from '../auth/service';
-import { BackupFolderUuid } from './backup-folder-uuid';
 import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
-import { app } from 'electron';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -22,15 +19,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
     if (isCurrent) {
       const backupsList = configStore.get('backupList');
 
-      await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
-
-      const user = getUser();
-
-      if (user && !user?.backupsBucket) {
-        user.backupsBucket = device.bucket;
-        setUser(user);
-      }
-
       const backups = folder.children
         .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
         .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
@@ -39,8 +27,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
           pathname: abs(backup.pathname as string),
           folderId: backup.id,
           folderUuid: backup.uuid,
-          tmpPath: app.getPath('temp'),
-          backupsBucket: device.bucket,
         }));
 
       logger.debug({ tag: 'BACKUPS', msg: `Found enabled backups`, length: backups.length });
@@ -52,8 +38,6 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
       ...backup,
       folderId: backup.id,
       folderUuid: backup.uuid,
-      backupsBucket: device.bucket,
-      tmpPath: '',
       pathname: '' as AbsolutePath,
     }));
   } catch (error) {

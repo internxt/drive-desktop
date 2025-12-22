@@ -9,7 +9,6 @@ import { move } from './folders/move';
 
 export const folders = {
   createFolder,
-  getMetadata,
   getFolders,
   move,
   checkExistence,
@@ -17,30 +16,6 @@ export const folders = {
 export const FolderModule = folders;
 
 export type GetFoldersQuery = paths['/folders']['get']['parameters']['query'];
-
-async function getMetadata(context: { folderId: number }) {
-  const method = 'GET';
-  const endpoint = '/folders/{id}/metadata';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.GET(endpoint, {
-      params: { path: { id: context.folderId } },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Get folder metadata request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
 
 async function getFolders(context: { query: GetFoldersQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';

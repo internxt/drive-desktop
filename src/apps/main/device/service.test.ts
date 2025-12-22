@@ -1,5 +1,4 @@
 import os from 'node:os';
-import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
@@ -13,12 +12,8 @@ vi.mock('@/apps/main/config');
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('Device Service', () => {
-  const decryptMock = deepMocked(aes.decrypt);
-
-  const decryptedName = 'decrypted-name';
-
   const deviceMock = {
-    name: 'encrypted-name',
+    plainName: 'name',
     id: 1,
     uuid: 'test-uuid',
     bucket: 'test-bucket',
@@ -27,31 +22,15 @@ describe('Device Service', () => {
     lastBackupAt: '2023-01-01',
   };
 
-  beforeAll(() => {
-    vi.stubEnv('NEW_CRYPTO_KEY', 'test-key');
-  });
-
-  afterAll(() => {
-    vi.unstubAllEnvs();
-  });
-
-  beforeEach(() => {
-    process.env.NEW_CRYPTO_KEY = 'test-key';
-  });
-
   describe('fetchDevice', () => {
     const getDeviceMock = deepMocked(driveServerWipModule.backup.getDevice);
 
     it('should return the decrypted device when we find the the device in the API', async () => {
       getDeviceMock.mockResolvedValueOnce({ data: deviceMock });
-      decryptMock.mockReturnValue(decryptedName);
 
       const { data, error } = await fetchDevice(deviceMock.uuid);
       expect(getDeviceMock).toHaveBeenCalledWith({ deviceUuid: deviceMock.uuid });
-      expect(data).toStrictEqual({
-        ...deviceMock,
-        name: decryptedName,
-      });
+      expect(data).toStrictEqual(deviceMock);
       expect(error).toBe(undefined);
     });
 

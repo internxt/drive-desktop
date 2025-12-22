@@ -3,22 +3,18 @@ import { v4 } from 'uuid';
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as persistFile from '@/infra/drive-server-wip/out/ipc-main';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Addon } from '@/node-win/addon-wrapper';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-
-vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
+import { Sync } from '@/backend/features/sync';
 
 describe('create-placeholder', () => {
   const onAllMock = partialSpyOn(onAll, 'onAll');
-  const persistFileMock = partialSpyOn(persistFile, 'persistFile');
-  const uploadContentsMock = partialSpyOn(EnvironmentFileUploader, 'run');
+  const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
 
   const providerName = 'Internxt Drive';
   const providerId = v4();
@@ -26,7 +22,7 @@ describe('create-placeholder', () => {
   const file = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
-    uploadContentsMock.mockResolvedValueOnce('contentsId' as ContentsId);
+    createFileMock.mockResolvedValue({ uuid: 'uuid' as FileUuid });
 
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
@@ -38,7 +34,6 @@ describe('create-placeholder', () => {
 
   it('should create placeholder', async () => {
     // Given
-    persistFileMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
     initWatcher(watcherProps);
     await sleep(100);
@@ -53,8 +48,6 @@ describe('create-placeholder', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
       { msg: 'onReady' },
-      { msg: 'Create file', path: file },
-      { msg: 'File uploaded', path: file, contentsId: 'contentsId', size: 7 },
       {
         msg: 'On change event',
         path: file,

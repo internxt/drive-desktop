@@ -23,13 +23,7 @@ async function getDevices() {
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get devices as folder request',
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Get devices as folder request' },
   });
 }
 
@@ -47,13 +41,6 @@ async function updateDevice(context: { deviceUuid: string; deviceName: string })
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Update device as folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Update device as folder request', context },
   });
 }
