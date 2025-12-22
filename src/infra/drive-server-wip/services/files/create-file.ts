@@ -5,7 +5,7 @@ import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
 import { FileDto, parseFileDto } from '../../out/dto';
 
-type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
+export type CreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 
 class CreateFileError extends DriveServerWipError {
   constructor(
@@ -16,7 +16,7 @@ class CreateFileError extends DriveServerWipError {
   }
 }
 
-export async function createFile(context: { path: string; body: TCreateFileBody }) {
+export async function createFile(context: { path: string; body: CreateFileBody }) {
   const method = 'POST';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });

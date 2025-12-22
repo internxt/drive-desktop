@@ -13,8 +13,6 @@ type Props = {
 };
 
 export async function createFolder({ ctx, path, parentUuid }: Props) {
-  ctx.logger.debug({ msg: 'Create folder', path });
-
   const name = basename(path);
 
   const body = {
