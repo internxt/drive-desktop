@@ -48,7 +48,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
     <div className="rounded-lg border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
       <div className="flex w-full items-center">
         <div className="grow">
-          {selected?.name}
+          {selected?.plainName}
           <br />
           {selected?.id === current?.id && thereIsProgress ? <BackingUp backupStatus={backupStatus} /> : <LastBackupMade />}
         </div>
