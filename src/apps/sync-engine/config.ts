@@ -10,6 +10,7 @@ export type CommonContext = {
   workspaceToken: string;
   bucket: string;
   environment: Environment;
+  logger: typeof logger;
 };
 
 export type SyncContext = AuthContext &
