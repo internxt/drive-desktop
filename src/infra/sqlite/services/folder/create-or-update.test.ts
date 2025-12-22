@@ -13,17 +13,17 @@ describe('create-or-update', () => {
     // Given
     upsertMock.mockRejectedValue(new Error());
     // When
-    const { error } = await createOrUpdate(props);
+    const res = await createOrUpdate(props);
     // Then
-    expect(error?.code).toBe('UNKNOWN');
+    expect(res).toBeUndefined();
   });
 
-  it('should return folder', async () => {
+  it('should return file', async () => {
     // Given
     upsertMock.mockResolvedValue({});
     // When
-    const { data } = await createOrUpdate(props);
+    const res = await createOrUpdate(props);
     // Then
-    expect(data).toBeDefined();
+    expect(res).toBeDefined();
   });
 });
