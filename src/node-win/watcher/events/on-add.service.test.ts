@@ -32,8 +32,8 @@ describe('on-add', () => {
 
   it('should create file if it is new and parent is already a placeholder', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NOT_A_PLACEHOLDER') });
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     // When
     await onAdd(props);
     // Then
@@ -42,8 +42,8 @@ describe('on-add', () => {
 
   it('should ignore if file is new and parent is not a placeholder', async () => {
     // Given
-    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
     getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NOT_A_PLACEHOLDER') });
+    getFolderInfoMock.mockResolvedValue({ error: new GetFolderInfoError('NOT_A_PLACEHOLDER') });
     // When
     await onAdd(props);
     // Then
