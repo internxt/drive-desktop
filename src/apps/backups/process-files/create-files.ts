@@ -18,19 +18,20 @@ export async function createFiles({ self, ctx, tracker, remoteTree, added }: Pro
   await Promise.all(
     added.map(async (local) => {
       const path = local.path;
-      const parentPath = dirname(path);
-      const parent = remoteTree.folders.get(parentPath);
-
-      if (!parent) return;
 
       try {
+        const parentPath = dirname(path);
+        const parent = remoteTree.folders.get(parentPath);
+
+        if (!parent) return;
+
         await Sync.Actions.createFile({ ctx, path, stats: local.stats, parentUuid: parent.uuid });
       } catch (error) {
         ctx.logger.error({ msg: 'Error creating file', path, error });
+      } finally {
+        self.backed++;
+        tracker.currentProcessed(self.backed);
       }
-
-      self.backed++;
-      tracker.currentProcessed(self.backed);
     }),
   );
 }

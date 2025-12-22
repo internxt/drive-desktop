@@ -17,13 +17,13 @@ export async function replaceFiles({ self, ctx, tracker, modified }: Props) {
       const path = local.path;
 
       try {
-        await Sync.Actions.replaceFile({ ctx, uuid: remote.uuid, path, stats: local.stats });
+        await Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid, stats: local.stats });
       } catch (error) {
         ctx.logger.error({ msg: 'Error creating file', path, error });
+      } finally {
+        self.backed++;
+        tracker.currentProcessed(self.backed);
       }
-
-      self.backed++;
-      tracker.currentProcessed(self.backed);
     }),
   );
 }

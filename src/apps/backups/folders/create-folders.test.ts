@@ -3,149 +3,86 @@ import { createFolders } from './create-folders';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as persistFolder from '@/infra/drive-server-wip/out/ipc-main';
+import { Sync } from '@/backend/features/sync';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-folders', () => {
-  const persistFolderMock = partialSpyOn(persistFolder, 'persistFolder');
+  const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
 
   const rootUuid = v4() as FolderUuid;
   const rootPath = abs('/backup');
 
-  const baseProps = mockProps<typeof createFolders>({
-    self: { backed: 0 },
-    tracker: {
-      currentProcessed: vi.fn(),
-    },
-    context: {
-      pathname: rootPath,
-      addIssue: vi.fn(),
-      abortController: {
-        signal: {
-          aborted: false,
-        },
-      },
-    },
-    tree: {
-      folders: new Map([[rootPath, { uuid: rootUuid, absolutePath: rootPath }]]),
-    },
-  });
+  let props: Parameters<typeof createFolders>[0];
 
   beforeEach(() => {
-    baseProps.self.backed = 0;
+    props = mockProps<typeof createFolders>({
+      self: { backed: 0 },
+      tracker: { currentProcessed: vi.fn() },
+      ctx: { abortController: new AbortController() },
+      tree: { folders: new Map([[rootPath, { uuid: rootUuid, absolutePath: rootPath }]]) },
+      added: [{ absolutePath: join(rootPath, 'folder') }],
+    });
   });
 
-  it('If signal is aborted then do nothing', async () => {
+  it('should do nothing if signal is aborted', async () => {
     // Given
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [],
-      context: {
-        abortController: {
-          signal: {
-            aborted: true,
-          },
-        },
-      },
-    });
-
+    props.ctx.abortController.abort();
     // When
     await createFolders(props);
-
     // Then
-    expect(persistFolderMock).not.toHaveBeenCalled();
+    calls(createFolderMock).toHaveLength(0);
   });
 
-  it('If root folder then do nothing', async () => {
+  it('should increase backed if parent is not found', async () => {
     // Given
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [{ absolutePath: rootPath }],
-    });
-
+    props.tree.folders = new Map();
     // When
     await createFolders(props);
-
     // Then
-    calls(persistFolderMock).toHaveLength(0);
-  });
-
-  it('If parent does not exist then do nothing', async () => {
-    // Given
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [{ absolutePath: join(rootPath, '/parent/folder') }],
-    });
-
-    // When
-    await createFolders(props);
-
-    // Then
-    calls(persistFolderMock).toHaveLength(0);
-  });
-
-  it('If create folder fails then add issue', async () => {
-    // Given
-    persistFolderMock.mockResolvedValueOnce({ error: new Error() });
-
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [{ absolutePath: join(rootPath, '/folder') }],
-    });
-
-    // When
-    await createFolders(props);
-
-    // Then
-    calls(persistFolderMock).toHaveLength(1);
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
-    call(props.context.addIssue).toMatchObject({ error: 'CREATE_FOLDER_FAILED' });
-  });
-
-  it('If create folder success then add to the remote tree', async () => {
-    // Given
-    persistFolderMock.mockResolvedValueOnce({ data: {} });
-
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [{ absolutePath: join(rootPath, '/folder') }],
-    });
-
-    // When
-    await createFolders(props);
-
-    // Then
-    call(persistFolderMock).toMatchObject({
-      parentUuid: rootUuid,
-      path: '/backup/folder',
-    });
     expect(props.self.backed).toBe(1);
     calls(props.tracker.currentProcessed).toHaveLength(1);
   });
 
-  it('Sort folders before processing them', async () => {
+  it('should increase backed if there is an error', async () => {
     // Given
-    persistFolderMock.mockResolvedValue({ data: {} });
-
-    const props = mockProps<typeof createFolders>({
-      ...baseProps,
-      added: [
-        { absolutePath: join(rootPath, '/folder1') },
-        { absolutePath: join(rootPath, '/folder1/folder2') },
-        { absolutePath: join(rootPath, '/folder3/folder4') },
-        { absolutePath: join(rootPath, '/folder3') },
-        { absolutePath: rootPath },
-        { absolutePath: join(rootPath, '/folder5') },
-        { absolutePath: join(rootPath, '/folder6/folder7') },
-      ],
-    });
-
+    createFolderMock.mockRejectedValue(new Error());
     // When
     await createFolders(props);
+    // Then
+    expect(props.self.backed).toBe(1);
+    calls(props.tracker.currentProcessed).toHaveLength(1);
+    calls(loggerMock.error).toHaveLength(1);
+  });
 
+  it('should add folder to the tree if it is created', async () => {
+    // Given
+    createFolderMock.mockResolvedValueOnce({});
+    // When
+    await createFolders(props);
+    // Then
+    expect(props.self.backed).toBe(1);
+    calls(props.tracker.currentProcessed).toHaveLength(1);
+    call(createFolderMock).toMatchObject({ parentUuid: rootUuid, path: '/backup/folder' });
+    expect(props.tree.folders.size).toBe(2);
+  });
+
+  it('should sort folders before processing them', async () => {
+    // Given
+    createFolderMock.mockResolvedValue({});
+    props.added = [
+      { absolutePath: join(rootPath, '/folder1') },
+      { absolutePath: join(rootPath, '/folder1/folder2') },
+      { absolutePath: join(rootPath, '/folder3/folder4') },
+      { absolutePath: join(rootPath, '/folder3') },
+      { absolutePath: rootPath },
+      { absolutePath: join(rootPath, '/folder5') },
+      { absolutePath: join(rootPath, '/folder6/folder7') },
+    ];
+    // When
+    await createFolders(props);
     // Then
     expect(props.self.backed).toBe(7);
-    calls(persistFolderMock).toMatchObject([
+    calls(createFolderMock).toMatchObject([
       { path: '/backup/folder1' },
       { path: '/backup/folder1/folder2' },
       { path: '/backup/folder3' },

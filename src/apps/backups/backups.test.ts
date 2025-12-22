@@ -41,7 +41,7 @@ describe('backups', () => {
   const service = new Backup();
   const props = mockProps<typeof service.run>({
     tracker,
-    context: {
+    ctx: {
       folderId: 1,
       folderUuid: rootUuid,
       pathname: testPath,
@@ -78,7 +78,7 @@ describe('backups', () => {
     });
 
     uploadContentsMock.mockResolvedValue('contentsId' as ContentsId);
-    persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
+    persistFolderMock.mockResolvedValue({ uuid: 'createFolder' as FolderUuid });
     createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
     replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });
 
