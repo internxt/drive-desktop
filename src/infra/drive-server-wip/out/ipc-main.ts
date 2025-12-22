@@ -17,6 +17,7 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
 
 export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFileByUuidProps) {
   const res = await driveServerWip.storage.deleteFileByUuid({ path, uuid, workspaceToken });
@@ -53,7 +54,9 @@ export async function persistFile({ ctx, path, parentUuid, contentsId, size }: P
   } else {
     LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
     void createAndUploadThumbnail({ ctx, path, fileUuid: res.data.uuid });
-    return await createOrUpdateFile({ ctx, fileDto: res.data });
+    const data = await createOrUpdateFile({ ctx, fileDto: res.data });
+    if (data) return { data };
+    return { error: new SqliteError('UNKNOWN') };
   }
 }
 
@@ -65,7 +68,9 @@ export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProp
     return res;
   } else {
     LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
-    return await createOrUpdateFolder({ ctx, folderDto: res.data });
+    const data = await createOrUpdateFolder({ ctx, folderDto: res.data });
+    if (data) return { data };
+    return { error: new SqliteError('UNKNOWN') };
   }
 }
 
@@ -77,7 +82,9 @@ export async function persistReplaceFile({ ctx, path, uuid, size, contentsId, mo
     return res;
   } else {
     LocalSync.SyncState.addItem({ action: 'MODIFIED', path });
-    return await createOrUpdateFile({ ctx, fileDto: res.data });
+    const data = await createOrUpdateFile({ ctx, fileDto: res.data });
+    if (data) return { data };
+    return { error: new SqliteError('UNKNOWN') };
   }
 }
 
