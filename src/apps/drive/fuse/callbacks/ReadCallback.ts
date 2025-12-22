@@ -5,23 +5,47 @@ import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/appl
 import { Optional } from '../../../../shared/types/Optional';
 import { TemporalFileChunkReader } from '../../../../context/storage/TemporalFiles/application/read/TemporalFileChunkReader';
 import { StorageFileChunkReader } from '../../../../context/storage/StorageFiles/application/read/StorageFileChunkReader';
+import { CacheStorageFile } from '../../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
+import { shouldDownload } from './open-flags-tracker';
 
 import Fuse from '@gcas/fuse';
 
 export class ReadCallback {
   constructor(private readonly container: Container) {}
 
-  private async read(contentsId: string, buffer: Buffer, length: number, position: number): Promise<number> {
-    const readResult = await this.container.get(StorageFileChunkReader).run(contentsId, length, position);
+  private async read(path: string, contentsId: string, buffer: Buffer, length: number, position: number) {
+    try {
+      const readResult = await this.container.get(StorageFileChunkReader).run(contentsId, length, position);
 
-    if (!readResult.isPresent()) {
+      if (readResult.isPresent()) {
+        const chunk = readResult.get();
+        chunk.copy(buffer);
+        logger.debug({ msg: '[ReadCallback] Read from cache:', path, length });
+        return chunk.length;
+      }
+    } catch (error) {
+      logger.debug({ msg: '[ReadCallback] File not in cache:', path });
+    }
+
+    if (!shouldDownload(path)) {
+      logger.debug({ msg: '[ReadCallback] Download blocked - system open (thumbnail):', path });
       return 0;
     }
 
-    const chunk = readResult.get();
+    logger.debug({ msg: '[ReadCallback] Downloading file on-demand:', path });
+    await this.container.get(CacheStorageFile).run(path);
 
-    chunk.copy(buffer); // write the result of the read to the result buffer
-    return chunk.length; // number of bytes read
+    const readResultAfterDownload = await this.container.get(StorageFileChunkReader).run(contentsId, length, position);
+
+    if (!readResultAfterDownload.isPresent()) {
+      logger.error({ msg: '[ReadCallback] File not available after download:', path });
+      return 0;
+    }
+
+    const chunk = readResultAfterDownload.get();
+    chunk.copy(buffer);
+    logger.debug({ msg: '[ReadCallback] Read after download:', path, length });
+    return chunk.length;
   }
 
   private async copyToBuffer(buffer: Buffer, bufferOptional: Optional<Buffer>) {
@@ -31,8 +55,8 @@ export class ReadCallback {
 
     const chunk = bufferOptional.get();
 
-    chunk.copy(buffer); // write the result of the read to the result buffer
-    return chunk.length; // number of bytes read
+    chunk.copy(buffer);
+    return chunk.length;
   }
 
   async execute(
@@ -65,10 +89,10 @@ export class ReadCallback {
         return;
       }
 
-      const bytesRead = await this.read(virtualFile.contentsId, buf, len, pos);
+      const bytesRead = await this.read(path, virtualFile.contentsId, buf, len, pos);
       cb(bytesRead);
     } catch (err) {
-      logger.error({ msg: 'Error reading file:', error: err });
+      logger.error({ msg: '[ReadCallback] Error reading file:', error: err, path });
       cb(Fuse.EIO);
     }
   }

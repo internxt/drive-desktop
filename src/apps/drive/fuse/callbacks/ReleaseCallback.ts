@@ -1,12 +1,11 @@
 import { Container } from 'diod';
 import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { TemporalFileUploader } from '../../../../context/storage/TemporalFiles/application/upload/TemporalFileUploader';
-import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError } from './FuseErrors';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { StorageCacheDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageCacheDeleter';
 import { TemporalFileDeleter } from '../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
+import { onRelease } from './open-flags-tracker';
 
 export class ReleaseCallback extends NotifyFuseCallback {
   constructor(private readonly container: Container) {
@@ -14,15 +13,12 @@ export class ReleaseCallback extends NotifyFuseCallback {
   }
 
   async execute(path: string, _fd: number) {
+    onRelease(path);
+
     try {
       const document = await this.findDocument(path);
       if (document) {
         return await this.handleDocument(document, path);
-      }
-
-      const virtualFile = await this.findVirtualFile(path);
-      if (virtualFile) {
-        return await this.handleVirtualFile(virtualFile);
       }
 
       this.logDebugMessage(`File with ${path} not found`);
@@ -56,15 +52,5 @@ export class ReleaseCallback extends NotifyFuseCallback {
       await this.container.get(TemporalFileDeleter).run(path);
       return this.left(new FuseIOError('Upload failed due to insufficient storage or network issues.'));
     }
-  }
-
-  private async findVirtualFile(path: string) {
-    return this.container.get(FirstsFileSearcher).run({ path });
-  }
-
-  private async handleVirtualFile(virtualFile: any) {
-    await this.container.get(StorageCacheDeleter).run(virtualFile.contentsId);
-    this.logDebugMessage(`${virtualFile.path} removed from local file cache`);
-    return this.right();
   }
 }
