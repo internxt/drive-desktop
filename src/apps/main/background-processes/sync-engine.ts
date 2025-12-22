@@ -14,7 +14,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const { environment, contentsDownloader } = buildUserEnvironment({ user });
+  const { environment, contentsDownloader } = buildUserEnvironment({ user, type: 'drive' });
 
   const syncContext: SyncContext = {
     ...context,

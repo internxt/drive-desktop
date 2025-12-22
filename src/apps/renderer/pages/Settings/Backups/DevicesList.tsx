@@ -20,7 +20,7 @@ function DevicePill({ device, current, selected, setSelected }: DevicePillProps)
   return (
     <div className={styles} onClick={() => setSelected(device)}>
       {current && <div className="text-xs text-primary">This device</div>}
-      {device.name}
+      {device.plainName}
     </div>
   );
 }

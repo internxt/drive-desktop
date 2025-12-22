@@ -3,12 +3,11 @@ import { app } from 'electron';
 import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-
 // Only effective during development
-// the variables are injectedif (process.env.NODE_ENV === 'production') {
-
+// the variables are injected if process.env.NODE_ENV === 'production'
 // via webpack in prod
 import 'dotenv/config';
+
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
@@ -19,11 +18,7 @@ import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
-import './windows';
-import './background-processes/sync-engine';
-import './background-processes/process-issues';
 import './device/handlers';
-import './realtime';
 import './ipcs/ipcMainAntivirus';
 import './remote-sync/handlers';
 
@@ -36,7 +31,6 @@ import { electronStore } from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { setupQuitHandlers } from './quit';
-import { setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
@@ -111,11 +105,7 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    setDefaultConfig({});
-
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
+    await AppDataSource.initialize();
 
     setupTrayIcon();
 
@@ -139,8 +129,6 @@ app
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
-    setDefaultConfig({});
-
     getAuthWindow()?.hide();
 
     const widget = await getOrCreateWidged();

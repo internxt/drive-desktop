@@ -154,8 +154,8 @@ var api = {
   deleteBackupsFromDevice(device, isCurrent) {
     return import_electron2.ipcRenderer.invoke("delete-backups-from-device", device, isCurrent);
   },
-  disableBackup(backup) {
-    return import_electron2.ipcRenderer.invoke("disable-backup", backup);
+  disableBackup(folderId) {
+    return import_electron2.ipcRenderer.invoke("disable-backup", folderId);
   },
   getLastBackupTimestamp() {
     return import_electron2.ipcRenderer.invoke("get-last-backup-timestamp");

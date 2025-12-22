@@ -1,18 +1,18 @@
 import { ipcMain } from 'electron';
 import { showNotEnoughSpaceNotification } from './process-issues';
-import eventBus from '../event-bus';
+import { broadcastToWindows } from '../windows';
 
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
+  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
 };
 
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST' | 'FILE_MODIFIED';
+  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST';
 };
 
 export type GeneralIssue = {
@@ -26,7 +26,7 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 export let issues: Issue[] = [];
 
 function onIssuesChanged() {
-  eventBus.emit('BROADCAST_TO_WINDOWS', { name: 'issues-changed', data: issues });
+  broadcastToWindows({ name: 'issues-changed', data: issues });
 }
 
 function addIssue(issue: Issue) {
