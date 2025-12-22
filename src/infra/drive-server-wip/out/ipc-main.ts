@@ -65,7 +65,9 @@ export async function persistFolder({ ctx, parentUuid, path }: PersistFolderProp
     return res;
   } else {
     LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
-    return await createOrUpdateFolder({ ctx, folderDto: res.data });
+    const data = await createOrUpdateFolder({ ctx, folderDto: res.data });
+    if (data) return { data };
+    else return { error: new Error() };
   }
 }
 

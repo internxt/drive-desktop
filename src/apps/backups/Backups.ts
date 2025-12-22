@@ -1,6 +1,5 @@
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { BackupsContext } from './BackupInfo';
-import { logger } from '@/apps/shared/logger/logger';
 import { Traverser } from './remote-tree/traverser';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { calculateFilesDiff } from './diff/calculate-files-diff';
@@ -31,8 +30,7 @@ export class Backup {
     const foldersDiff = calculateFoldersDiff({ local, remote });
     const filesDiff = calculateFilesDiff({ local, remote });
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Files diff',
       added: filesDiff.added.length,
       modified: filesDiff.modified.length,
@@ -41,8 +39,7 @@ export class Backup {
       total: filesDiff.total,
     });
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Folders diff',
       added: foldersDiff.added.length,
       deleted: foldersDiff.deleted.length,
@@ -54,8 +51,7 @@ export class Backup {
 
     this.backed = alreadyBacked;
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Total items to backup',
       total: filesDiff.total + foldersDiff.total,
       alreadyBacked,
