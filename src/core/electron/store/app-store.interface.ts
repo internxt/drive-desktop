@@ -4,7 +4,6 @@ import { Language } from '@/apps/main/config/language.types';
 
 type BackupList = Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
 export type SavedConfig = {
-  backupsEnabled: boolean;
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
@@ -13,7 +12,6 @@ export type SavedConfig = {
 };
 
 export type AppStore = {
-  backupsEnabled: boolean;
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
@@ -27,7 +25,6 @@ export type AppStore = {
 
   savedConfigs: Record<string, SavedConfig>;
   lastOnboardingShown: string;
-  discoveredBackup: number;
   preferedLanguage: Language;
   preferedTheme: ConfigTheme;
   'patch-executed-2-5-1': boolean;
