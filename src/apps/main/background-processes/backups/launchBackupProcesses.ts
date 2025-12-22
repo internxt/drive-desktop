@@ -1,7 +1,7 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
-import { logger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { getAvailableProducts } from '../../payments/get-available-products';
@@ -69,6 +69,7 @@ export async function launchBackupProcesses(): Promise<void> {
       workspaceToken: '',
       environment,
       abortController,
+      logger: createLogger({ tag: 'BACKUPS' }),
       addIssue: (issue) => {
         addBackupsIssue({
           ...issue,
