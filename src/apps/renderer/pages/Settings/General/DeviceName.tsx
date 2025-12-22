@@ -18,7 +18,7 @@ export default function DeviceName({ onChangeView }: { onChangeView: boolean }) 
   }, [onChangeView]);
 
   const validateName = (name: string) =>
-    deviceState.status === 'SUCCESS' && deviceState.device.name !== newName && name.replace(/\s/g, '').length > 0;
+    deviceState.status === 'SUCCESS' && deviceState.device.plainName !== newName && name.replace(/\s/g, '').length > 0;
 
   const setDeviceName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,7 +29,7 @@ export default function DeviceName({ onChangeView }: { onChangeView: boolean }) 
     setNewName(undefined);
   };
 
-  const currentDeviceName = deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
+  const currentDeviceName = deviceState.status === 'SUCCESS' ? deviceState.device.plainName : '';
 
   return (
     <form onSubmitCapture={setDeviceName} className="flex flex-col items-center space-y-1.5 truncate" data-automation-id="deviceNameForm">

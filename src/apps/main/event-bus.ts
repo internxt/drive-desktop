@@ -1,6 +1,5 @@
 import { EventEmitter } from 'node:events';
 import { ProgressData } from './antivirus/ManualSystemScan';
-import { BroadcastToWindows } from './windows/broadcast-to-windows';
 
 class EventBus extends EventEmitter {}
 
@@ -8,7 +7,6 @@ type Events = {
   USER_LOGGED_IN: () => void;
   USER_LOGGED_OUT: () => void;
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
-  BROADCAST_TO_WINDOWS: (_: BroadcastToWindows) => void;
 };
 
 declare interface EventBus {

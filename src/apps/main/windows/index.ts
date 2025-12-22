@@ -1,6 +1,5 @@
 import { BrowserWindow } from 'electron';
 
-import eventBus from '../event-bus';
 import { getOnboardingWindow } from './onboarding';
 import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
@@ -24,8 +23,6 @@ export function broadcastToWindows({ name, data }: BroadcastToWindows) {
 
   renderers.forEach((r) => r?.webContents.send(name, data));
 }
-
-eventBus.on('BROADCAST_TO_WINDOWS', broadcastToWindows);
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {
   // Open urls in the user's browser

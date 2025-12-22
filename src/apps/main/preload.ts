@@ -140,8 +140,8 @@ const api = {
   deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
     return ipcRenderer.invoke('delete-backups-from-device', device, isCurrent);
   },
-  disableBackup(backup: BackupInfo): Promise<void> {
-    return ipcRenderer.invoke('disable-backup', backup);
+  disableBackup(folderId: number): Promise<void> {
+    return ipcRenderer.invoke('disable-backup', folderId);
   },
   getLastBackupTimestamp(): Promise<number> {
     return ipcRenderer.invoke('get-last-backup-timestamp');
