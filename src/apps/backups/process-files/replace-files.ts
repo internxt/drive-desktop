@@ -19,7 +19,7 @@ export async function replaceFiles({ self, ctx, tracker, modified }: Props) {
       try {
         await Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid, stats: local.stats });
       } catch (error) {
-        ctx.logger.error({ msg: 'Error creating file', path, error });
+        ctx.logger.error({ msg: 'Error replacing file', path, error });
       } finally {
         self.backed++;
         tracker.currentProcessed(self.backed);

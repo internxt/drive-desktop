@@ -17,21 +17,24 @@ type Props = {
 export async function createFiles({ self, ctx, tracker, remoteTree, added }: Props) {
   await Promise.all(
     added.map(async (local) => {
-      const path = local.path;
-
-      try {
-        const parentPath = dirname(path);
-        const parent = remoteTree.folders.get(parentPath);
-
-        if (!parent) return;
-
-        await Sync.Actions.createFile({ ctx, path, stats: local.stats, parentUuid: parent.uuid });
-      } catch (error) {
-        ctx.logger.error({ msg: 'Error creating file', path, error });
-      } finally {
-        self.backed++;
-        tracker.currentProcessed(self.backed);
-      }
+      await createFile({ ctx, local, remoteTree });
+      self.backed++;
+      tracker.currentProcessed(self.backed);
     }),
   );
+}
+
+async function createFile({ ctx, local, remoteTree }: { ctx: BackupsContext; local: SyncWalkItem; remoteTree: RemoteTree }) {
+  const path = local.path;
+
+  try {
+    const parentPath = dirname(path);
+    const parent = remoteTree.folders.get(parentPath);
+
+    if (!parent) return;
+
+    await Sync.Actions.createFile({ ctx, path, stats: local.stats, parentUuid: parent.uuid });
+  } catch (error) {
+    ctx.logger.error({ msg: 'Error uploading file', path, error });
+  }
 }

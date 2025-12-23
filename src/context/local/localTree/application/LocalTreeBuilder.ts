@@ -1,8 +1,9 @@
-import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
+import { syncWalk, SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
-import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
+import { parseStatError } from './parse-stat-error';
+import { stat } from '@/infra/file-system/services/stat';
 
 export type LocalTree = {
   files: Record<AbsolutePath, SyncWalkItem>;
@@ -10,8 +11,14 @@ export type LocalTree = {
 };
 
 export default class LocalTreeBuilder {
-  static async traverse({ context, tree, currentFolder }: { context: BackupsContext; tree: LocalTree; currentFolder: LocalFolder }) {
-    const items = await CLSFsLocalItemsGenerator.getAll({ context, dir: currentFolder.absolutePath });
+  static async traverse({ context, tree }: { context: BackupsContext; tree: LocalTree }) {
+    const items = await syncWalk({
+      rootFolder: context.pathname,
+      onError: ({ path, error }) => {
+        parseStatError({ context, path, error });
+        logger.error({ tag: 'BACKUPS', msg: 'Error getting item stats', path, error });
+      },
+    });
 
     for (const item of items) {
       if (item.stats.isFile()) {
@@ -23,20 +30,23 @@ export default class LocalTreeBuilder {
   }
 
   static async run({ context }: { context: BackupsContext }) {
-    const absolutePath = await CLSFsLocalItemsGenerator.root({ context, absolutePath: context.pathname });
+    const rootPath = context.pathname;
 
-    const rootFolder: LocalFolder = {
-      absolutePath,
-    };
+    const { error } = await stat({ absolutePath: rootPath });
+
+    if (error) {
+      parseStatError({ context, path: rootPath, error });
+      throw error;
+    }
 
     const tree: LocalTree = {
       files: {},
       folders: {
-        [rootFolder.absolutePath]: rootFolder,
+        [rootPath]: { absolutePath: rootPath },
       },
     };
 
-    await this.traverse({ context, tree, currentFolder: rootFolder });
+    await this.traverse({ context, tree });
 
     return tree;
   }
