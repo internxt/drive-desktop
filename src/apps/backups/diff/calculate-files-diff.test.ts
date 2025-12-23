@@ -12,10 +12,10 @@ describe('calculate-files-diff', () => {
   const props = mockProps<typeof calculateFilesDiff>({
     local: {
       files: {
-        [abs('/file1')]: { path: abs('/file1') },
-        [abs('/file2')]: { path: abs('/file2') },
+        [abs('/file1')]: { path: abs('/file1'), stats: {} },
+        [abs('/file2')]: { path: abs('/file2'), stats: {} },
         [abs('/file6')]: { path: abs('/file6'), stats: { size: 12 } },
-        [abs('/file7')]: { path: abs('/file7') },
+        [abs('/file7')]: { path: abs('/file7'), stats: {} },
       },
       folders: {},
     },
