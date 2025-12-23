@@ -1,55 +1,29 @@
-import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { logger } from '@/apps/shared/logger/logger';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
-import { persistReplaceFile } from '@/infra/drive-server-wip/out/ipc-main';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { Sync } from '@/backend/features/sync';
 
 type Props = {
   self: Backup;
-  context: BackupsContext;
+  ctx: BackupsContext;
   tracker: BackupsProcessTracker;
   modified: FilesDiff['modified'];
 };
 
-export async function replaceFiles({ self, context, tracker, modified }: Props) {
+export async function replaceFiles({ self, ctx, tracker, modified }: Props) {
   await Promise.all(
     modified.map(async ({ local, remote }) => {
-      await replaceFile({ context, localFile: local, file: remote });
-      self.backed++;
-      tracker.currentProcessed(self.backed);
+      const path = local.path;
+
+      try {
+        await Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid, stats: local.stats });
+      } catch (error) {
+        ctx.logger.error({ msg: 'Error replacing file', path, error });
+      } finally {
+        self.backed++;
+        tracker.currentProcessed(self.backed);
+      }
     }),
   );
-}
-
-async function replaceFile({ context, localFile, file }: { context: BackupsContext; localFile: LocalFile; file: ExtendedDriveFile }) {
-  try {
-    const contentsId = await EnvironmentFileUploader.run({
-      ctx: context,
-      path: localFile.absolutePath,
-      size: localFile.size,
-      abortSignal: context.abortController.signal,
-    });
-
-    if (!contentsId) return;
-
-    await persistReplaceFile({
-      ctx: context,
-      path: localFile.absolutePath,
-      uuid: file.uuid,
-      contentsId,
-      size: localFile.size,
-      modificationTime: localFile.modificationTime.toISOString(),
-    });
-  } catch (error) {
-    logger.error({
-      tag: 'BACKUPS',
-      msg: 'Error updating file',
-      path: localFile.absolutePath,
-      error,
-    });
-  }
 }
