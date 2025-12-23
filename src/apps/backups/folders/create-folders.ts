@@ -29,14 +29,18 @@ export async function createFolders({ self, ctx, added, tree, tracker }: TProps)
 async function createFolder({ ctx, local, tree }: { ctx: BackupsContext; local: LocalFolder; tree: RemoteTree }) {
   const path = local.absolutePath;
 
-  const parentPath = pathUtils.dirname(local.absolutePath);
-  const parent = tree.folders.get(parentPath);
+  try {
+    const parentPath = pathUtils.dirname(local.absolutePath);
+    const parent = tree.folders.get(parentPath);
 
-  if (!parent) return;
+    if (!parent) return;
 
-  const folder = await Sync.Actions.createFolder({ ctx, path, parentUuid: parent.uuid });
+    const folder = await Sync.Actions.createFolder({ ctx, path, parentUuid: parent.uuid });
 
-  if (!folder) return;
+    if (!folder) return;
 
-  tree.folders.set(path, { ...folder, absolutePath: path });
+    tree.folders.set(path, { ...folder, absolutePath: path });
+  } catch (error) {
+    ctx.logger.error({ msg: 'Error creating folder', path, error });
+  }
 }
