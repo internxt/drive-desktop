@@ -31,8 +31,6 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
 
   if (!contentsId) return;
 
-  ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
-
   const { name, extension } = getNameAndExtension({ path });
 
   const body: CreateFileBody = {

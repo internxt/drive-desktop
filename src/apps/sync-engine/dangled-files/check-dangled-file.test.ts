@@ -2,13 +2,13 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '@/infra/inxt-js';
-import * as updateContentsId from '../callbacks-controllers/controllers/update-contents-id';
 import { checkDangledFile } from './check-dangled-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Drive } from '@/backend/features/drive';
 
 describe('check-dangled-file', () => {
   const contentsDownloader = mockDeep<ContentsDownloader>();
-  const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
+  const replaceFileMock = partialSpyOn(Drive.Actions, 'replaceFile');
   const updateByUuidMock = partialSpyOn(SqliteModule.FileModule, 'updateByUuid');
 
   const props = mockProps<typeof checkDangledFile>({
@@ -34,7 +34,7 @@ describe('check-dangled-file', () => {
     // Then
     call(props.ctx.logger.debug).toMatchObject({ msg: 'Checking possible dangled file' });
     call(props.ctx.logger.warn).toMatchObject({ msg: 'Dangled file found' });
-    call(updateContentsIdMock).toMatchObject({ path: '/file.txt' });
+    call(replaceFileMock).toMatchObject({ path: '/file.txt' });
   });
 
   it('should ignore update contents id if download gives an unknown error', async () => {
@@ -45,6 +45,6 @@ describe('check-dangled-file', () => {
     // Then
     call(props.ctx.logger.debug).toMatchObject({ msg: 'Checking possible dangled file' });
     call(props.ctx.logger.warn).toMatchObject({ msg: 'Error downloading dangled file' });
-    calls(updateContentsIdMock).toHaveLength(0);
+    calls(replaceFileMock).toHaveLength(0);
   });
 });

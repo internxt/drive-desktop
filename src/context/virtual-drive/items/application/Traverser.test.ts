@@ -115,10 +115,10 @@ describe('Traverser', () => {
     ]);
   });
 
-  it('should run dangled files if set to true', async () => {
+  it('should run dangled files if first iteration', async () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValue(true);
-    props.runDangledFiles = true;
+    props.isFirstExecution = true;
     // When
     await Traverser.run(props);
     // Then

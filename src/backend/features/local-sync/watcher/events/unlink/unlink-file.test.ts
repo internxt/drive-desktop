@@ -89,7 +89,7 @@ describe('unlink-file', () => {
 
   it('should catch error in case unlink returns error', async () => {
     // Given
-    deleteFileByUuidMock.mockResolvedValue({ error: new Error() });
+    deleteFileByUuidMock.mockRejectedValue(new Error());
     // When
     await unlinkFile(props);
     // Then

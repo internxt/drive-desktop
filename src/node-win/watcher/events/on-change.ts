@@ -1,7 +1,7 @@
-import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { Drive } from '@/backend/features/drive';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
@@ -38,7 +38,7 @@ export async function onChange({ ctx, path }: Props) {
     });
 
     if (isModified && fileInfo.inSyncState === InSyncState.NotSync) {
-      await updateContentsId({ ctx, stats, path, uuid: fileInfo.uuid });
+      await Drive.Actions.replaceFile({ ctx, stats, path, uuid: fileInfo.uuid });
     }
 
     if (isChanged) {
