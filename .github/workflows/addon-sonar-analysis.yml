@@ -1,7 +1,6 @@
 name: Addon sonar analysis
 
 on:
-  workflow_dispatch:
   pull_request:
     paths: ['packages/addon/**']
     types: [opened, synchronize, reopened]
