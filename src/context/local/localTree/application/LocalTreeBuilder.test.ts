@@ -1,45 +1,53 @@
-import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
+import { mkdir, writeFile } from 'node:fs/promises';
 import LocalTreeBuilder from './LocalTreeBuilder';
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
-import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
-
-vi.mock(import('../infrastructure/FsLocalItemsGenerator'));
+import { v4 } from 'uuid';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { call, mockProps } from 'tests/vitest/utils.helper.test';
+import { join } from '../../localFile/infrastructure/AbsolutePath';
+import { execSync } from 'node:child_process';
 
 describe('LocalTreeBuilder', () => {
-  const getAllLocalItemsMock = deepMocked(CLSFsLocalItemsGenerator.getAll);
+  const folder = join(TEST_FILES, v4());
+
+  const folder1 = join(folder, 'folder1');
+  const folder2 = join(folder, 'folder2');
+  const folder3 = join(folder, 'folder1', 'folder3');
+
+  const file1 = join(folder, 'file1');
+  const file2 = join(folder, 'file2');
+  const file3 = join(folder1, 'file3');
+  const file4 = join(folder3, 'file4');
+
   const addIssue = vi.fn();
+  const props = mockProps<typeof LocalTreeBuilder.run>({ context: { pathname: folder, addIssue } });
 
-  const props = mockProps<typeof LocalTreeBuilder.traverse>({
-    context: { addIssue },
-    currentFolder: { absolutePath: '' as AbsolutePath },
+  beforeAll(async () => {
+    await mkdir(folder);
+    await mkdir(folder1);
+    await mkdir(folder2);
+    await mkdir(folder3);
+    await writeFile(file1, 'content');
+    await writeFile(file2, 'content');
+    await writeFile(file3, 'content');
+    await writeFile(file4, 'content');
   });
 
-  it('If file size is 0 it should skip it', async () => {
-    // Given
-    getAllLocalItemsMock.mockResolvedValueOnce({ files: [{ size: 0 }], folders: [] });
-
+  it('should add files and folders', async () => {
     // When
-    await LocalTreeBuilder.traverse(props);
-
+    const tree = await LocalTreeBuilder.run(props);
     // Then
-    expect(addIssue).not.toHaveBeenCalled();
+    expect(Object.keys(tree.files)).toStrictEqual([file1, file2, file3, file4]);
+    expect(Object.keys(tree.folders)).toStrictEqual([folder, folder1, folder2, folder3]);
   });
 
-  it('If file size is too big it should add an issue', async () => {
+  it('should add an issue if stat gives error and continue', async () => {
     // Given
-    getAllLocalItemsMock.mockResolvedValueOnce({
-      files: [{ size: SyncModule.MAX_FILE_SIZE + 1, path: 'file.txt' as AbsolutePath }],
-      folders: [],
-    });
-
+    execSync(`icacls "${file3}" /deny "${process.env.USERNAME}":F`);
     // When
-    await LocalTreeBuilder.traverse(props);
-
+    const tree = await LocalTreeBuilder.run(props);
     // Then
-    expect(addIssue).toHaveBeenCalledWith({
-      error: 'FILE_SIZE_TOO_BIG',
-      name: 'file.txt',
-    });
+    call(addIssue).toMatchObject({ name: file3, error: 'FOLDER_ACCESS_DENIED' });
+    expect(Object.keys(tree.files)).toStrictEqual([file1, file2, file4]);
+    expect(Object.keys(tree.folders)).toStrictEqual([folder, folder1, folder2, folder3]);
   });
 });

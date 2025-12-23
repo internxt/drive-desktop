@@ -1,4 +1,3 @@
-import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { Backup } from '@/apps/backups/Backups';
@@ -7,6 +6,7 @@ import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 import { persistReplaceFile } from '@/infra/drive-server-wip/out/ipc-main';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 
 type Props = {
   self: Backup;
@@ -25,12 +25,12 @@ export async function replaceFiles({ self, context, tracker, modified }: Props) 
   );
 }
 
-async function replaceFile({ context, localFile, file }: { context: BackupsContext; localFile: LocalFile; file: ExtendedDriveFile }) {
+async function replaceFile({ context, localFile, file }: { context: BackupsContext; localFile: SyncWalkItem; file: ExtendedDriveFile }) {
   try {
     const contentsId = await EnvironmentFileUploader.run({
       ctx: context,
-      path: localFile.absolutePath,
-      size: localFile.size,
+      path: localFile.path,
+      size: localFile.stats.size,
       abortSignal: context.abortController.signal,
     });
 
@@ -38,17 +38,17 @@ async function replaceFile({ context, localFile, file }: { context: BackupsConte
 
     await persistReplaceFile({
       ctx: context,
-      path: localFile.absolutePath,
+      path: localFile.path,
       uuid: file.uuid,
       contentsId,
-      size: localFile.size,
-      modificationTime: localFile.modificationTime.toISOString(),
+      size: localFile.stats.size,
+      modificationTime: localFile.stats.mtime.toISOString(),
     });
   } catch (error) {
     logger.error({
       tag: 'BACKUPS',
       msg: 'Error updating file',
-      path: localFile.absolutePath,
+      path: localFile.path,
       error,
     });
   }

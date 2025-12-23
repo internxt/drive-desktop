@@ -1,4 +1,3 @@
-import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
@@ -7,13 +6,14 @@ import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { persistFile } from '@/infra/drive-server-wip/out/ipc-main';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 
 type Props = {
   self: Backup;
   context: BackupsContext;
   tracker: BackupsProcessTracker;
   remoteTree: RemoteTree;
-  added: LocalFile[];
+  added: SyncWalkItem[];
 };
 
 export async function createFiles({ self, context, tracker, remoteTree, added }: Props) {
@@ -26,34 +26,42 @@ export async function createFiles({ self, context, tracker, remoteTree, added }:
   );
 }
 
-async function createFile({ context, localFile, remoteTree }: { context: BackupsContext; localFile: LocalFile; remoteTree: RemoteTree }) {
+async function createFile({
+  context,
+  localFile,
+  remoteTree,
+}: {
+  context: BackupsContext;
+  localFile: SyncWalkItem;
+  remoteTree: RemoteTree;
+}) {
   try {
     const contentsId = await EnvironmentFileUploader.run({
       ctx: context,
-      path: localFile.absolutePath,
-      size: localFile.size,
+      path: localFile.path,
+      size: localFile.stats.size,
       abortSignal: context.abortController.signal,
     });
 
     if (!contentsId) return;
 
-    const parentPath = dirname(localFile.absolutePath);
+    const parentPath = dirname(localFile.path);
     const parent = remoteTree.folders.get(parentPath);
 
     if (!parent) return;
 
     await persistFile({
       ctx: context,
-      path: localFile.absolutePath,
+      path: localFile.path,
       contentsId,
       parentUuid: parent.uuid,
-      size: localFile.size,
+      size: localFile.stats.size,
     });
   } catch (error) {
     logger.error({
       tag: 'BACKUPS',
       msg: 'Error uploading file',
-      path: localFile.absolutePath,
+      path: localFile.path,
       error,
     });
   }
