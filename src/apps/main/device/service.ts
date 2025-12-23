@@ -11,6 +11,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getBackupsFromDevice } from './get-backups-from-device';
+import { FolderUuid } from '../database/entities/DriveFolder';
 
 export type Device = {
   plainName: string;
@@ -232,7 +233,11 @@ export async function addBackup(): Promise<void> {
 }
 
 export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
-  const res = await driveServerWipModule.storage.deleteFolder({ folderId: backup.folderId });
+  const res = await driveServerWipModule.storage.deleteFolderByUuid({
+    path: backup.pathname,
+    uuid: backup.folderUuid as FolderUuid,
+    workspaceToken: '',
+  });
 
   if (res.error) {
     throw new Error('Request to delete backup wasnt succesful');

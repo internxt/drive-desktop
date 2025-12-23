@@ -21,8 +21,6 @@ type TProps = {
 };
 
 export async function spawnWorkspace({ context, workspace }: TProps) {
-  logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
-
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
 
   if (error) return;

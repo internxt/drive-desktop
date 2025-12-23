@@ -1,39 +1,33 @@
-import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
-import { readdir } from 'node:fs/promises';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as statReaddir from '@/infra/file-system/services/stat-readdir';
 
 vi.mock(import('node:fs/promises'));
 
 describe('load-in-memory-paths', () => {
-  const readdirMock = deepMocked(readdir);
-  const statMock = partialSpyOn(fileSystem, 'stat');
+  const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
-  const props = mockProps<typeof loadInMemoryPaths>({
-    ctx: { rootPath: '/drive' as AbsolutePath },
-  });
+  const props = mockProps<typeof loadInMemoryPaths>({ parentPath: abs('/drive') });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
-    readdirMock.mockResolvedValueOnce(['folder', 'file1'] as any).mockResolvedValueOnce(['file2'] as any);
+    statReaddirMock.mockResolvedValue({
+      files: [{ path: abs('/file1.txt') }, { path: abs('/file2.txt') }],
+      folders: [{ path: abs('/folder1') }, { path: abs('/folder2') }],
+    });
 
-    statMock
-      .mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } })
-      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
-      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
-
-    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'folderUuid' as FolderUuid } });
-    getFileInfoMock.mockResolvedValueOnce({}).mockResolvedValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } });
+    getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'folderUuid' as FolderUuid } }).mockResolvedValueOnce({});
+    getFileInfoMock.mockResolvedValueOnce({}).mockResolvedValueOnce({ data: { uuid: 'fileUuid' as FileUuid } });
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/drive/folder' }]]));
-    expect(files).toMatchObject(new Map([['fileUuid2', { path: '/drive/folder/file2' }]]));
+    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1' }]]));
+    expect(files).toMatchObject(new Map([['fileUuid', { path: '/file2.txt' }]]));
   });
 });

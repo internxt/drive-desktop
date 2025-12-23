@@ -15,7 +15,7 @@ export class RemoteSyncManager {
   ) {}
 
   async startRemoteSync() {
-    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
+    logger.debug({ msg: 'Starting sync by checkpoint', workspaceId: this.workspaceId });
 
     const syncFilesPromise = syncRemoteFiles({
       self: this,

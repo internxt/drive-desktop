@@ -2,11 +2,11 @@ import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
-import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { stat } from 'node:fs/promises';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { Drive } from '@/backend/features/drive';
 
 vi.mock(import('node:fs/promises'));
 
@@ -15,7 +15,7 @@ describe('on-change', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
-  const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
+  const replaceFileMock = partialSpyOn(Drive.Actions, 'replaceFile');
 
   const path = abs('/file.txt');
   let props: Parameters<typeof onChange>[0];
@@ -40,7 +40,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    call(updateContentsIdMock).toMatchObject({ path });
+    call(replaceFileMock).toMatchObject({ path });
     calls(throttleHydrateMock).toHaveLength(0);
     calls(handleDehydrateMock).toHaveLength(0);
   });
@@ -52,7 +52,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    calls(updateContentsIdMock).toHaveLength(0);
+    calls(replaceFileMock).toHaveLength(0);
     call(throttleHydrateMock).toMatchObject({ path });
     calls(handleDehydrateMock).toHaveLength(0);
   });
@@ -64,7 +64,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    calls(updateContentsIdMock).toHaveLength(0);
+    calls(replaceFileMock).toHaveLength(0);
     calls(throttleHydrateMock).toHaveLength(0);
     call(handleDehydrateMock).toMatchObject({ path });
   });
@@ -76,7 +76,7 @@ describe('on-change', () => {
     // When
     await onChange(props);
     // Then
-    calls(updateContentsIdMock).toHaveLength(0);
+    calls(replaceFileMock).toHaveLength(0);
     calls(throttleHydrateMock).toHaveLength(0);
     call(handleDehydrateMock).toMatchObject({ path });
   });

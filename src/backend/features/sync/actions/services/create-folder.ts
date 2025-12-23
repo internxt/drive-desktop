@@ -15,6 +15,8 @@ type Props = {
 export async function createFolder({ ctx, path, parentUuid }: Props) {
   const name = basename(path);
 
+  LocalSync.SyncState.addItem({ action: 'UPLOADING', path });
+
   const body = {
     name,
     plainName: name,

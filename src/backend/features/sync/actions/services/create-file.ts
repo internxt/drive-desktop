@@ -20,7 +20,7 @@ type Props = {
 };
 
 export async function createFile({ ctx, path, stats: { size }, parentUuid }: Props) {
-  const tempFile = isTemporaryFile(path);
+  const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
     ctx.logger.debug({ msg: 'File is temporary, skipping', path });
@@ -30,8 +30,6 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
   const contentsId = await uploadFile({ ctx, size, path });
 
   if (!contentsId) return;
-
-  ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 
   const { name, extension } = getNameAndExtension({ path });
 

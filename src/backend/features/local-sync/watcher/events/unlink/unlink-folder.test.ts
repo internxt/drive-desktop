@@ -88,7 +88,7 @@ describe('unlink-folder', () => {
 
   it('should catch error in case unlink returns error', async () => {
     // Given
-    deleteFolderByUuidMock.mockResolvedValue({ error: new Error() });
+    deleteFolderByUuidMock.mockRejectedValue(new Error());
     // When
     await unlinkFolder(props);
     // Then

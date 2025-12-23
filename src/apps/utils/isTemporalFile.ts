@@ -1,22 +1,19 @@
-import * as path from 'node:path';
-import { logger } from '../shared/logger/logger';
+import { basename, extname } from 'node:path';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-export const isTemporaryFile = (filePath: string): boolean => {
-  try {
-    // Check if the file name starts with a common temporary prefix
-    if (path.basename(filePath).startsWith('~$')) {
-      return true;
-    }
-
-    // // Check if the file has common temporary file extensions
-    const tempExtensions = ['.tmp', '.temp', '.swp'];
-    if (tempExtensions.includes(path.extname(filePath).toLowerCase())) {
-      return true;
-    }
-
-    return false;
-  } catch (error) {
-    logger.error({ msg: `Failed to check if the file is temporary`, error });
-    return false;
-  }
+type Props = {
+  path: AbsolutePath;
 };
+
+export function isTemporaryFile({ path }: Props) {
+  const name = basename(path);
+  const extension = extname(path).toLowerCase();
+
+  if (name.startsWith('.')) return true;
+  if (name.startsWith('~$')) return true;
+
+  const tempExtensions = ['.tmp', '.temp', '.swp'];
+  if (tempExtensions.includes(extension)) return true;
+
+  return false;
+}

@@ -1,8 +1,8 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Drive } from '@/backend/features/drive';
 
 type Props = { ctx: ProcessSyncContext; file: ExtendedDriveFile };
 
@@ -30,7 +30,7 @@ export async function checkDangledFile({ ctx, file }: Props) {
 
       const stats = await FileSystemModule.statThrow({ absolutePath: file.absolutePath });
 
-      await updateContentsId({
+      await Drive.Actions.replaceFile({
         ctx,
         path: file.absolutePath,
         uuid: file.uuid,
