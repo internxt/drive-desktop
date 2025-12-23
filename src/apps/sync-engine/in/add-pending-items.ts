@@ -6,20 +6,18 @@ type Props = {
 };
 
 export async function addPendingItems({ ctx }: Props) {
-  try {
-    const startTime = performance.now();
+  const startTime = performance.now();
 
-    await Drive.Actions.createPendingItems({
-      ctx,
-      parentPath: ctx.rootPath,
-      parentUuid: ctx.rootUuid,
-      isFirstExecution: true,
-    });
+  ctx.logger.debug({ msg: 'Add pending items' });
 
-    const endTime = performance.now();
+  await Drive.Actions.createPendingItems({
+    ctx,
+    parentPath: ctx.rootPath,
+    parentUuid: ctx.rootUuid,
+    isFirstExecution: true,
+  });
 
-    ctx.logger.debug({ msg: 'Finish pending items in seconds', time: (endTime - startTime) / 1000 });
-  } catch (error) {
-    ctx.logger.error({ msg: 'Error adding pending items', error });
-  }
+  const endTime = performance.now();
+
+  ctx.logger.debug({ msg: 'Finish pending items in seconds', time: (endTime - startTime) / 1000 });
 }
