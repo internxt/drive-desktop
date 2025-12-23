@@ -18,7 +18,7 @@ describe('replace-files', () => {
       tracker: { currentProcessed: vi.fn() },
       modified: [
         {
-          local: { size: 1024, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
+          local: { stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') } },
           remote: { uuid: 'uuid' as FileUuid },
         },
       ],

@@ -24,7 +24,7 @@ describe('create-files', () => {
       context: { abortController: new AbortController() },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: new Map([[parentPath, { uuid: 'parentUuid' as FolderUuid }]]) },
-      added: [{ absolutePath: path, size: 1024 }],
+      added: [{ path, stats: { size: 1024 } }],
     });
   });
 

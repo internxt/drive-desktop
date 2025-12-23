@@ -1,15 +1,15 @@
-import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 
 export type FilesDiff = {
-  added: Array<LocalFile>;
+  added: Array<SyncWalkItem>;
   deleted: Array<ExtendedDriveFile>;
-  modified: Array<{ local: LocalFile; remote: ExtendedDriveFile }>;
-  unmodified: Array<LocalFile>;
+  modified: Array<{ local: SyncWalkItem; remote: ExtendedDriveFile }>;
+  unmodified: Array<SyncWalkItem>;
   total: number;
 };
 
@@ -27,7 +27,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
   const { isApplied } = isDangledApplied();
 
   Object.values(local.files).forEach((local) => {
-    const remoteFile = remote.files.get(local.absolutePath);
+    const remoteFile = remote.files.get(local.path);
 
     if (!remoteFile) {
       added.push(local);
@@ -42,7 +42,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       logger.debug({
         tag: 'BACKUPS',
         msg: 'Dangled file found',
-        localPath: local.absolutePath,
+        localPath: local.path,
         remoteId: remoteFile.contentsId,
       });
 
@@ -50,7 +50,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       return;
     }
 
-    if (remoteFile.size !== local.size) {
+    if (remoteFile.size !== local.stats.size) {
       modified.push({ local, remote: remoteFile });
       return;
     }
