@@ -4,14 +4,12 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFolderDto } from '../out/dto';
-import { checkExistence } from './folders/check-existence';
 import { move } from './folders/move';
 
 export const folders = {
   createFolder,
   getFolders,
   move,
-  checkExistence,
 };
 export const FolderModule = folders;
 

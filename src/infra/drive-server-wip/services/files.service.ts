@@ -3,7 +3,6 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { createFile } from './files/create-file';
-import { checkExistence } from './files/check-existance';
 import { parseFileDto } from '../out/dto';
 import { move } from './files/move';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -15,7 +14,6 @@ export const files = {
   move,
   replaceFile,
   createThumbnail,
-  checkExistence,
 };
 export const FileModule = files;
 
