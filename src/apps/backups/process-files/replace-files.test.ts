@@ -30,7 +30,7 @@ describe('replace-files', () => {
 
   it('should increase backed if file is replaced', async () => {
     // Given
-    replaceFileMock.mockResolvedValue({ data: {} });
+    replaceFileMock.mockResolvedValue({});
     // When
     await replaceFiles(props);
     // Then

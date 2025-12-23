@@ -71,8 +71,8 @@ describe('backups', () => {
       ],
     });
 
-    createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
-    replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });
+    createFileMock.mockResolvedValue({ uuid: 'createFile' as FileUuid });
+    replaceFileMock.mockResolvedValueOnce({ uuid: 'replaceFile' as FileUuid });
 
     // When
     await service.run(props);

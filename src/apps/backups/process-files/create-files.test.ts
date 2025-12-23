@@ -45,7 +45,7 @@ describe('create-files', () => {
 
   it('should increase backed if file is created', async () => {
     // Given
-    createFileMock.mockResolvedValue({ data: {} });
+    createFileMock.mockResolvedValue({});
     // When
     await createFiles(props);
     // Then
