@@ -1,6 +1,5 @@
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { BackupsContext } from './BackupInfo';
-import { logger } from '@/apps/shared/logger/logger';
 import { Traverser } from './remote-tree/traverser';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { calculateFilesDiff } from './diff/calculate-files-diff';
@@ -14,25 +13,24 @@ import { deleteFolders } from './folders/delete-folders';
 
 type Props = {
   tracker: BackupsProcessTracker;
-  context: BackupsContext;
+  ctx: BackupsContext;
 };
 
 export class Backup {
   backed = 0;
 
-  async run({ tracker, context }: Props) {
-    const local = await LocalTreeBuilder.run({ context });
+  async run({ tracker, ctx }: Props) {
+    const local = await LocalTreeBuilder.run({ context: ctx });
     const remote = await Traverser.run({
-      userUuid: context.userUuid,
-      rootPath: context.pathname,
-      rootUuid: context.folderUuid as FolderUuid,
+      userUuid: ctx.userUuid,
+      rootPath: ctx.pathname,
+      rootUuid: ctx.folderUuid as FolderUuid,
     });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
     const filesDiff = calculateFilesDiff({ local, remote });
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Files diff',
       added: filesDiff.added.length,
       modified: filesDiff.modified.length,
@@ -41,8 +39,7 @@ export class Backup {
       total: filesDiff.total,
     });
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Folders diff',
       added: foldersDiff.added.length,
       deleted: foldersDiff.deleted.length,
@@ -54,14 +51,13 @@ export class Backup {
 
     this.backed = alreadyBacked;
 
-    logger.debug({
-      tag: 'BACKUPS',
+    ctx.logger.debug({
       msg: 'Total items to backup',
       total: filesDiff.total + foldersDiff.total,
       alreadyBacked,
     });
 
-    if (context.abortController.signal.aborted) return;
+    if (ctx.abortController.signal.aborted) return;
 
     tracker.currentTotal(filesDiff.total + foldersDiff.total);
     tracker.currentProcessed(alreadyBacked);
@@ -69,9 +65,9 @@ export class Backup {
     await Promise.all([
       deleteFolders({ self: this, deleted: foldersDiff.deleted }),
       deleteFiles({ self: this, deleted: filesDiff.deleted }),
-      replaceFiles({ self: this, tracker, context, modified: filesDiff.modified }),
-      createFolders({ self: this, context, tracker, added: foldersDiff.added, tree: remote }).then(() => {
-        return createFiles({ self: this, tracker, context, remoteTree: remote, added: filesDiff.added });
+      replaceFiles({ self: this, tracker, ctx, modified: filesDiff.modified }),
+      createFolders({ self: this, ctx, tracker, added: foldersDiff.added, tree: remote }).then(() => {
+        return createFiles({ self: this, tracker, ctx, remoteTree: remote, added: filesDiff.added });
       }),
     ]);
   }

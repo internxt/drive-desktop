@@ -1,23 +1,14 @@
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsContext } from '../../../../backups/BackupInfo';
 import { BackupsProcessTracker } from '../BackupsProcessTracker/BackupsProcessTracker';
-import { logger } from '@/apps/shared/logger/logger';
 
-export async function executeBackupWorker(tracker: BackupsProcessTracker, context: BackupsContext) {
+export async function executeBackupWorker(tracker: BackupsProcessTracker, ctx: BackupsContext) {
   try {
     const backup = new Backup();
-    await backup.run({ tracker, context });
+    await backup.run({ tracker, ctx });
 
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Backup completed',
-      folderUuid: context.folderUuid,
-    });
+    ctx.logger.debug({ msg: 'Backup completed', folderUuid: ctx.folderUuid });
   } catch (error) {
-    logger.error({
-      tag: 'BACKUPS',
-      msg: 'Error executing backup folder',
-      error,
-    });
+    ctx.logger.error({ msg: 'Error executing backup folder', error });
   }
 }

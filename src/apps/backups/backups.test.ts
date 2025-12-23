@@ -4,36 +4,30 @@ import { beforeAll } from 'vitest';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { ContentsId, FileUuid } from '../main/database/entities/DriveFile';
+import { FileUuid } from '../main/database/entities/DriveFile';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as createAndUploadThumbnail from '../main/thumbnail/create-and-upload-thumbnail';
+import { Sync } from '@/backend/features/sync';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
   const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
-  const persistFolderMock = partialSpyOn(ipcMain, 'persistFolder');
-  const createFileMock = partialSpyOn(driveServerWip.files, 'createFile');
-  const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
+  const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
+  const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
+  const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
-  const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
-  const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
-  const uploadContentsMock = partialSpyOn(EnvironmentFileUploader, 'run');
 
   const testPath = join(TEST_FILES, v4());
   const folder = join(testPath, 'folder');
   const addedFolder = join(testPath, 'addedFolder');
   const unmodifiedFile = join(testPath, 'unmodifiedFile');
   const modifiedFile = join(testPath, 'modifiedFile');
-  const addedFile = join(folder, 'addedFile.txt');
+  const addedFile = join(folder, 'addedFile');
   const rootUuid = v4();
 
   const tracker = mockDeep<BackupsProcessTracker>();
@@ -41,7 +35,7 @@ describe('backups', () => {
   const service = new Backup();
   const props = mockProps<typeof service.run>({
     tracker,
-    context: {
+    ctx: {
       folderId: 1,
       folderUuid: rootUuid,
       pathname: testPath,
@@ -77,46 +71,27 @@ describe('backups', () => {
       ],
     });
 
-    uploadContentsMock.mockResolvedValue('contentsId' as ContentsId);
-    persistFolderMock.mockResolvedValue({ data: { uuid: 'createFolder' as FolderUuid } });
-    createFileMock.mockResolvedValue({ data: { uuid: 'createFile' as FileUuid } });
-    replaceFileMock.mockResolvedValueOnce({ data: { uuid: 'replaceFile' as FileUuid } });
+    createFileMock.mockResolvedValue({ uuid: 'createFile' as FileUuid });
+    replaceFileMock.mockResolvedValueOnce({ uuid: 'replaceFile' as FileUuid });
 
     // When
     await service.run(props);
 
     // Then
-    calls(uploadContentsMock).toMatchObject([
-      { path: expect.stringContaining('modifiedFile'), size: 7 },
-      { path: expect.stringContaining('addedFile'), size: 7 },
-    ]);
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
-    call(persistFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
-    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', contentsId: 'contentsId', size: 7 });
-    calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'replaceFile' } }, { fileDto: { uuid: 'createFile' } }]);
-    call(createAndUploadThumbnailMock).toMatchObject({ fileUuid: 'createFile' });
-    call(createFileMock).toStrictEqual({
-      path: addedFile,
-      body: {
-        bucket: undefined,
-        encryptVersion: '03-aes',
-        fileId: 'contentsId',
-        folderUuid: 'folder',
-        plainName: 'addedFile',
-        size: 7,
-        type: 'txt',
-      },
-    });
+    call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
+    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', stats: { size: 7 } });
+    call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder', stats: { size: 7 } });
 
     expect(service.backed).toBe(8);
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);
     calls(loggerMock.debug).toStrictEqual([
-      { tag: 'BACKUPS', msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
-      { tag: 'BACKUPS', msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
-      { tag: 'BACKUPS', msg: 'Total items to backup', total: 8, alreadyBacked: 3 },
+      { msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
+      { msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
+      { msg: 'Total items to backup', total: 8, alreadyBacked: 3 },
     ]);
   });
 });
