@@ -20,24 +20,23 @@ export async function createFolders({ self, ctx, added, tree, tracker }: TProps)
   for (const local of sortedAdded) {
     if (ctx.abortController.signal.aborted) return;
 
-    const path = local.absolutePath;
-
-    try {
-      const parentPath = pathUtils.dirname(local.absolutePath);
-      const parent = tree.folders.get(parentPath);
-
-      if (!parent) continue;
-
-      const folder = await Sync.Actions.createFolder({ ctx, path, parentUuid: parent.uuid });
-
-      if (!folder) continue;
-
-      tree.folders.set(local.absolutePath, { ...folder, absolutePath: local.absolutePath });
-    } catch (error) {
-      ctx.logger.error({ msg: 'Error creating folder', path, error });
-    } finally {
-      self.backed++;
-      tracker.currentProcessed(self.backed);
-    }
+    await createFolder({ ctx, local, tree });
+    self.backed++;
+    tracker.currentProcessed(self.backed);
   }
+}
+
+async function createFolder({ ctx, local, tree }: { ctx: BackupsContext; local: LocalFolder; tree: RemoteTree }) {
+  const path = local.absolutePath;
+
+  const parentPath = pathUtils.dirname(local.absolutePath);
+  const parent = tree.folders.get(parentPath);
+
+  if (!parent) return;
+
+  const folder = await Sync.Actions.createFolder({ ctx, path, parentUuid: parent.uuid });
+
+  if (!folder) return;
+
+  tree.folders.set(path, { ...folder, absolutePath: path });
 }

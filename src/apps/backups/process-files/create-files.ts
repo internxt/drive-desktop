@@ -35,6 +35,6 @@ async function createFile({ ctx, local, remoteTree }: { ctx: BackupsContext; loc
 
     await Sync.Actions.createFile({ ctx, path, stats: local.stats, parentUuid: parent.uuid });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error uploading file', path, error });
+    ctx.logger.error({ msg: 'Error creating file', path, error });
   }
 }
