@@ -1,4 +1,4 @@
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolder } from './create-folder';
 import { LocalSync } from '@/backend/features';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -24,7 +24,10 @@ describe('create-folder', () => {
     // When
     await createFolder(props);
     // Given
-    call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR', path });
+    calls(addItemMock).toMatchObject([
+      { action: 'UPLOADING', path },
+      { action: 'UPLOAD_ERROR', path },
+    ]);
   });
 
   it('should create the folder successfully', async () => {
@@ -34,7 +37,10 @@ describe('create-folder', () => {
     await createFolder(props);
     // Given
     call(persistMock).toMatchObject({ path, body: { plainName: 'folder' } });
-    call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
     call(createOrUpdateFolderMock).toMatchObject({ folderDto: { uuid: 'uuid' } });
+    calls(addItemMock).toMatchObject([
+      { action: 'UPLOADING', path },
+      { action: 'UPLOADED', path },
+    ]);
   });
 });

@@ -20,7 +20,7 @@ type Props = {
 };
 
 export async function createFile({ ctx, path, stats: { size }, parentUuid }: Props) {
-  const tempFile = isTemporaryFile(path);
+  const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
     ctx.logger.debug({ msg: 'File is temporary, skipping', path });

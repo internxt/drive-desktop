@@ -34,7 +34,7 @@ export class Traverser {
       if (file.status === 'DELETED' || file.status === 'TRASHED') {
         await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: files });
       } else {
-        await FilePlaceholderUpdater.update({ ctx, remote, files, isFirstExecution });
+        await FilePlaceholderUpdater.update({ ctx, remote, files });
         if (isFirstExecution) {
           void checkDangledFiles({ ctx, file: remote });
         }
