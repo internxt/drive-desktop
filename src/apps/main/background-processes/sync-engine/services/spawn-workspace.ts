@@ -1,10 +1,9 @@
-import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { AuthContext } from '@/apps/sync-engine/config';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { buildEnvironment } from '../../backups/build-environment';
