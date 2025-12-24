@@ -35,9 +35,6 @@ const api = {
   onUserLoggedInChanged(func: (_: boolean) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
-  logout() {
-    ipcRenderer.send('USER_LOGGED_OUT');
-  },
   closeWindow() {
     ipcRenderer.send('user-closed-window');
   },
@@ -220,6 +217,7 @@ const api = {
   path,
   shellOpenExternal: shell.openExternal,
   shellOpenPath: shell.openPath,
+  logout: async () => await ipcPreloadRenderer.invoke('logout'),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),

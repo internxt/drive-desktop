@@ -14,10 +14,12 @@ import { downloadBackup } from '@/backend/features/backups/download/download-bac
 import { openLoginUrl } from '../auth/open-login-url';
 import { deleteBackupsFromDevice } from '../device/service';
 import { AuthContext } from '@/apps/sync-engine/config';
+import eventBus from '../event-bus';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupPreloadIpc() {
+  ipcPreloadMain.handle('logout', () => Promise.resolve(eventBus.emit('USER_LOGGED_OUT')));
   ipcPreloadMain.handle('getLastBackupProgress', () => Promise.resolve(getLastBackupProgress()));
   ipcPreloadMain.handle('getUsage', () => calculateUsage());
   ipcPreloadMain.handle('getAvailableProducts', () => getAvailableProducts());

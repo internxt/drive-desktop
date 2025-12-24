@@ -62,6 +62,7 @@ export async function emitUserLoggedIn() {
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {
+    logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
     scheduler.stop();
     BackupScheduler.stop();
