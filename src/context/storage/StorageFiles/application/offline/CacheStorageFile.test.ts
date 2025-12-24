@@ -45,4 +45,15 @@ describe('Cache Storage File', () => {
     downloader.assertHasBeenCalled();
     cache.assertPipeHasBeenCalledWith(new StorageFileId(found.contentsId));
   });
+
+  it('should skip download for files with size 0', async () => {
+    const emptyFile = FileMother.fromPartial({ size: 0 });
+    finder.finds(emptyFile);
+    cache.beingEmpty();
+
+    await SUT.run(emptyFile.path);
+
+    downloader.assertHasNotBeenCalled();
+    cache.assertPipeHasNotBeenCalled();
+  });
 });

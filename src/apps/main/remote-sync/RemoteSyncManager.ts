@@ -451,6 +451,7 @@ export class RemoteSyncManager {
   private patchDriveFileResponseItem = (payload: any): RemoteSyncedFile => {
     return {
       ...payload,
+      fileId: payload.fileId ?? '',
       size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
     };
   };

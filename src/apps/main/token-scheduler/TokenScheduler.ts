@@ -9,11 +9,13 @@ export class TokenScheduler {
 
   constructor(
     private daysBefore: number,
-    private tokens: Array<string>,
+    private tokens: Array<string | undefined>,
     private unauthorized: () => void,
   ) {}
 
-  private getExpiration(token: string): number {
+  private getExpiration(token?: string): number {
+    if (!token) return TokenScheduler.MAX_TIME;
+
     try {
       const decoded = jwtDecode<JwtPayload>(token);
 

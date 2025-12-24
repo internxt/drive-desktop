@@ -9,10 +9,10 @@ export type User = {
   lastname: string;
   mnemonic: string;
   name: string;
-  privateKey: string;
-  publicKey: string;
+  privateKey: string | Record<string, never>;
+  publicKey: string | Record<string, never>;
   registerCompleted: boolean;
-  revocateKey: string;
+  revocateKey: string | Record<string, never>;
   root_folder_id: number;
   /** the uuid of the root folder */
   rootFolderId: string;
@@ -21,4 +21,18 @@ export type User = {
   userId: string;
   username: string;
   uuid: string;
+  avatar?: string;
+  emailVerified?: boolean;
+  lastPasswordChangedAt?: string;
+  keys?: {
+    ecc: {
+      publicKey: string;
+      privateKey: string;
+      revocationKey: string;
+    };
+    kyber: {
+      publicKey: string;
+      privateKey: string;
+    };
+  };
 };

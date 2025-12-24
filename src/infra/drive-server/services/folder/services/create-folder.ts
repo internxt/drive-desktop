@@ -1,5 +1,5 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
-import { components } from '@internxt/drive-desktop-core/build/backend/infra/drive-server-wip/schema';
+import { FolderDto } from '../../../../drive-server/out/dto';
 import { Result } from './../../../../../context/shared/domain/Result';
 import { FolderError } from '../folder.error';
 import fetch, { Response } from 'electron-fetch';
@@ -30,10 +30,7 @@ function errorHandler(response: Response): { error: FolderError } {
   return { error: new FolderError('UNKNOWN') };
 }
 
-export async function createFolder(
-  deviceUuid: string,
-  plainName: string,
-): Promise<Result<components['schemas']['FolderDto'], FolderError>> {
+export async function createFolder(deviceUuid: string, plainName: string): Promise<Result<FolderDto, FolderError>> {
   try {
     const headers = await getNewApiHeadersIPC();
     const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders`, {
@@ -45,7 +42,7 @@ export async function createFolder(
       }),
     });
     if (response.ok) {
-      const data: components['schemas']['FolderDto'] = await response.json();
+      const data: FolderDto = await response.json();
       return { data };
     }
     return errorHandler(response);

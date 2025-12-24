@@ -21,6 +21,13 @@ export class CacheStorageFile {
       status: FileStatuses.EXISTS,
     });
 
+    if (virtual.size === 0) {
+      logger.debug({
+        msg: `File "${virtual.nameWithExtension}" has size 0, skipping download`,
+      });
+      return;
+    }
+
     const id = new StorageFileId(virtual.contentsId);
 
     const alreadyExists = await this.cache.has(id);

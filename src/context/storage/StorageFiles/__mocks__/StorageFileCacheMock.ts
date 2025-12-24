@@ -34,6 +34,10 @@ export class StorageFileCacheMock implements StorageFileCache {
     expect(this.pipeMock).toHaveBeenCalledWith(id, expect.any(Object));
   }
 
+  assertPipeHasNotBeenCalled() {
+    expect(this.pipeMock).not.toBeCalled();
+  }
+
   read(id: StorageFileId): Promise<Buffer> {
     return this.readMock(id);
   }

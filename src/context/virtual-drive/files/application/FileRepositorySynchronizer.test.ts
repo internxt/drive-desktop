@@ -85,5 +85,23 @@ describe('FileRepositorySynchronizer', () => {
       expect(remoteFileSystemMock.hardDelete).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
+
+    it('should skip files with size 0', async () => {
+      const files = [
+        { contentsId: 'file1', size: 0 },
+        { contentsId: 'file2', size: 100 },
+        { contentsId: 'file3', size: 0 },
+      ] as unknown as File[];
+
+      fileRepositoryMock.searchByArrayOfContentsId.mockResolvedValue(files);
+      storageFileServiceMock.isFileDownloadable.mockResolvedValue(right(true));
+
+      const result = await sut.fixDanglingFiles(['file1', 'file2', 'file3']);
+
+      expect(storageFileServiceMock.isFileDownloadable).toBeCalledTimes(1);
+      expect(storageFileServiceMock.isFileDownloadable).toBeCalledWith('file2');
+      expect(remoteFileSystemMock.hardDelete).not.toBeCalled();
+      expect(result).toBe(true);
+    });
   });
 });

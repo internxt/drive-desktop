@@ -2,7 +2,7 @@ import { postBackup } from './post-backup';
 import { BackupError } from '../../backups/BackupError';
 import { createBackupFolder } from '../../../infra/drive-server/services/backup/services/create-backup-folder';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { components } from '../../../infra/schemas';
+import { FolderDto } from '../../../infra/drive-server/out/dto';
 
 vi.mock('../../../infra/drive-server/services/backup/services/create-backup-folder');
 
@@ -31,7 +31,7 @@ describe('postBackup', () => {
     };
 
     mockCreateBackupFolder.mockResolvedValue({
-      data: mockFolderData as components['schemas']['FolderDto'],
+      data: mockFolderData as FolderDto,
     });
 
     const result = await postBackup({

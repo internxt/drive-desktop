@@ -1,6 +1,6 @@
 import { BackupError } from '../../../../../apps/backups/BackupError';
 import { Result } from '../../../../../context/shared/domain/Result';
-import { components } from '../../../../schemas';
+import { FolderDto } from '../../../../drive-server/out/dto';
 import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
 import fetch, { Response } from 'electron-fetch';
@@ -33,7 +33,7 @@ function errorHandler(response: Response): { error: BackupError } {
 export async function createBackupFolder(
   deviceUuid: string,
   plainName: string,
-): Promise<Result<components['schemas']['FolderDto'], BackupError>> {
+): Promise<Result<FolderDto, BackupError>> {
   try {
     const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders`, {
       method: 'POST',
@@ -44,7 +44,7 @@ export async function createBackupFolder(
       }),
     });
     if (response.ok) {
-      const data: components['schemas']['FolderDto'] = await response.json();
+      const data: FolderDto = await response.json();
       return { data };
     }
     return errorHandler(response);

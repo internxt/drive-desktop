@@ -71,6 +71,24 @@ describe('refresh-token', () => {
           avatar: 'avatar-url',
           emailVerified: true,
           lastPasswordChangedAt: new Date().toISOString(),
+          bucket: 'user-bucket',
+          sharedWorkspace: false,
+          hasReferralsProgram: false,
+          teams: false,
+          revocateKey: {},
+          keys: {
+            ecc: {
+              publicKey: 'ecc-public-key',
+              privateKey: 'ecc-private-key',
+              revocationKey: 'ecc-revocation-key',
+            },
+            kyber: {
+              publicKey: 'kyber-public-key',
+              privateKey: 'kyber-private-key',
+            },
+          },
+          privateKey: {},
+          publicKey: {},
         },
       });
       (driveServerModule.auth.refresh as Mock).mockResolvedValue(refreshResult);

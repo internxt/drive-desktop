@@ -28,6 +28,10 @@ export class FileRepositorySynchronizer {
 
       for (const file of files) {
         try {
+          if (file.size === 0) {
+            continue;
+          }
+
           const resultEither = await this.storageFileService.isFileDownloadable(file.contentsId);
           if (resultEither.isRight()) {
             const isFileDownloadable = resultEither.getRight();

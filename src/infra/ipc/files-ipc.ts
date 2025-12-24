@@ -1,6 +1,6 @@
-import { components } from '../schemas.d';
 import { Result } from '../../context/shared/domain/Result';
 import { FileError } from '../drive-server/services/files/file.error';
+import { FileDto, CreateFileDto } from '../drive-server/out/dto';
 
 const isMainProcess = process.type === 'browser';
 
@@ -9,9 +9,7 @@ const isMainProcess = process.type === 'browser';
  * @param body - The file creation data including bucket, fileId, folderUuid, etc.
  * @returns Promise resolving to the created file data or error
  */
-export async function createFileIPC(
-  body: components['schemas']['CreateFileDto'],
-): Promise<Result<components['schemas']['FileDto'], FileError>> {
+export async function createFileIPC(body: CreateFileDto): Promise<Result<FileDto, FileError>> {
   if (isMainProcess) {
     const { createFile } = await import('../drive-server/services/files/services/create-file');
     return await createFile(body);
@@ -48,7 +46,7 @@ export async function renameFileIPC(params: {
   plainName: string;
   type: string;
   fileUuid: string;
-}): Promise<Result<components['schemas']['FileDto'], FileError>> {
+}): Promise<Result<FileDto, FileError>> {
   if (isMainProcess) {
     const { renameFile } = await import('../drive-server/services/files/services/rename-file');
     return await renameFile(params);

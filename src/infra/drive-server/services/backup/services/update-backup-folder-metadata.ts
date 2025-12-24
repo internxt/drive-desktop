@@ -1,4 +1,4 @@
-import { components } from '../../../../schemas';
+import { FolderDto } from '../../../../drive-server/out/dto';
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
 import { Result } from '../../../../../context/shared/domain/Result';
 import fetch from 'electron-fetch';
@@ -8,7 +8,7 @@ import { mapError } from '../../utils/mapError';
 export async function updateBackupFolderName(
   folderUuid: string,
   newFolderName: string,
-): Promise<Result<components['schemas']['FolderDto'], Error>> {
+): Promise<Result<FolderDto, Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
     const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/meta`, {
@@ -27,7 +27,7 @@ export async function updateBackupFolderName(
         }),
       };
     }
-    const data: components['schemas']['FolderDto'] = await response.json();
+    const data: FolderDto = await response.json();
     return { data };
   } catch (error) {
     const mappedError = mapError(error);

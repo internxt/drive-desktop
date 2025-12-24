@@ -1,4 +1,4 @@
-import { components } from '../../../../schemas';
+import { FolderDto } from '../../../../drive-server/out/dto';
 import { Result } from '../../../../../context/shared/domain/Result';
 import fetch from 'electron-fetch';
 import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
@@ -24,7 +24,7 @@ export async function getBackupFolderUuid(backup: {
         }),
       };
     }
-    const data: components['schemas']['FolderDto'] = await response.json();
+    const data: FolderDto = await response.json();
     return { data: data.uuid };
   } catch (error) {
     const mappedError = mapError(error);

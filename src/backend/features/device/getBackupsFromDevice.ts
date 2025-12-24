@@ -3,7 +3,7 @@ import { fetchFolder } from '../../../infra/drive-server/services/backup/service
 import configStore from '../../../apps/main/config';
 import { BackupInfo } from './../../../apps/backups/BackupInfo';
 import { Device, findBackupPathnameFromId } from './../../../apps/main/device/service';
-import { components } from '../../../infra/schemas';
+import { FolderDto } from '../../../infra/drive-server/out/dto';
 import { mapFolderDtoToBackupInfo } from './utils/mapFolderDtoToBackupInfo';
 
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
@@ -11,7 +11,7 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
     const result = folder.children
-      .map((backup: components['schemas']['FolderDto']) => ({
+      .map((backup: FolderDto) => ({
         ...backup,
         pathname: findBackupPathnameFromId(backup.id),
       }))

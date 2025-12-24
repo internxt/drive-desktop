@@ -1,14 +1,11 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
 import { Result } from '../../../../../context/shared/domain/Result';
-import { components } from '../../../../../infra/schemas';
+import { FolderDto } from '../../../../../infra/drive-server/out/dto';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 import { mapError } from '../../utils/mapError';
 
-export async function moveFolder(
-  uuid: string,
-  destinationFolderUuid: string,
-): Promise<Result<components['schemas']['FolderDto'], Error>> {
+export async function moveFolder(uuid: string, destinationFolderUuid: string): Promise<Result<FolderDto, Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
 
@@ -27,7 +24,7 @@ export async function moveFolder(
         }),
       };
     }
-    const data: components['schemas']['FolderDto'] = await response.json();
+    const data: FolderDto = await response.json();
     return { data };
   } catch (error) {
     const mappedError = mapError(error);

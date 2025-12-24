@@ -17,6 +17,10 @@ export class StorageFileIsAvailableOffline {
       status: FileStatuses.EXISTS,
     });
 
+    if (virtual.size === 0) {
+      return true;
+    }
+
     const id = new StorageFileId(virtual.contentsId);
 
     return await this.repository.exists(id);
