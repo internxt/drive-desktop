@@ -7,7 +7,7 @@ import { FolderDto, parseFolderDto } from '../../out/dto';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-export type CreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
+type CreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
 
 class CreateFolderError extends DriveServerWipError {
   constructor(
