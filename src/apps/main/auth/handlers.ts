@@ -5,7 +5,7 @@ import { refreshToken } from './refresh-token';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
-import { AuthContext } from '@/backend/features/auth/utils/context';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
@@ -57,6 +57,7 @@ export async function emitUserLoggedIn() {
 
   const context: AuthContext = {
     abortController: new AbortController(),
+    workspaceToken: '',
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {

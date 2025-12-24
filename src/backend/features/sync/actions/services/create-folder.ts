@@ -24,8 +24,8 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
   };
 
   const res = ctx.workspaceId
-    ? await driveServerWip.workspaces.createFolder({ path, body, workspaceId: ctx.workspaceId, workspaceToken: ctx.workspaceToken })
-    : await driveServerWip.folders.createFolder({ path, body });
+    ? await driveServerWip.workspaces.createFolder({ ctx, context: { path, body } })
+    : await driveServerWip.folders.createFolder({ ctx, context: { path, body } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
