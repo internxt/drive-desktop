@@ -10,28 +10,30 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 
 export function addRemoteSyncManager({ context }: { context: SyncContext }) {
-  const remoteSyncManager = new RemoteSyncManager(context, context.workspaceId);
+  const remoteSyncManager = new RemoteSyncManager(context);
   remoteSyncManagers.set(context.workspaceId, remoteSyncManager);
   return remoteSyncManager;
 }
 
 export async function updateRemoteSync({ manager }: { manager: RemoteSyncManager }) {
+  const { ctx } = manager;
+
   try {
     const isSyncing = manager.status === 'SYNCING';
 
     if (isSyncing) {
-      logger.debug({ msg: 'Remote sync is already running', workspaceId: manager.workspaceId });
+      ctx.logger.debug({ msg: 'Remote sync is already running' });
       return;
     }
 
     manager.changeStatus('SYNCING');
-    await manager.startRemoteSync();
+    await manager.startRemoteSync({ ctx });
     manager.changeStatus('SYNCED');
 
-    await refreshItemPlaceholders({ ctx: manager.context, isFirstExecution: false });
+    await refreshItemPlaceholders({ ctx, isFirstExecution: false });
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');
-    logger.error({
+    ctx.logger.error({
       msg: 'Error updating remote sync',
       exc,
     });

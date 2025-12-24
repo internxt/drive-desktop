@@ -23,11 +23,14 @@ export async function replaceFile({ ctx, path, stats: { size, mtime }, uuid }: P
   ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 
   const res = await driveServerWip.files.replaceFile({
-    path,
-    uuid,
-    contentsId,
-    size,
-    modificationTime: mtime.toISOString(),
+    ctx,
+    context: {
+      path,
+      uuid,
+      contentsId,
+      size,
+      modificationTime: mtime.toISOString(),
+    },
   });
 
   if (res.error) {

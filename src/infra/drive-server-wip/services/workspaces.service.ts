@@ -1,10 +1,11 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { createFile } from './workspaces/create-file';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { createFolder } from './workspaces/create-folder';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -12,8 +13,8 @@ type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']
 export const workspaces = {
   getWorkspaces,
   getCredentials,
-  getFilesInWorkspace,
-  getFoldersInWorkspace,
+  getFiles,
+  getFolders,
   createFile,
   createFolder,
 };
@@ -63,19 +64,17 @@ async function getCredentials(context: { workspaceId: string }) {
   });
 }
 
-async function getFilesInWorkspace(
-  context: { workspaceId: string; query: QueryFilesInWorkspace },
-  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
-) {
+async function getFiles({ ctx, context, skipLog }: { ctx: SyncContext; context: { query: QueryFilesInWorkspace }; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
-      signal: extra?.abortSignal,
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: {
-        path: { workspaceId: context.workspaceId },
+        path: { workspaceId: ctx.workspaceId },
         query: context.query,
       },
     });
@@ -83,7 +82,7 @@ async function getFilesInWorkspace(
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog,
     loggerBody: { msg: 'Get workspace files request', context },
   });
 
@@ -94,19 +93,17 @@ async function getFilesInWorkspace(
   }
 }
 
-async function getFoldersInWorkspace(
-  context: { workspaceId: string; query: QueryFoldersInWorkspace },
-  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
-) {
+async function getFolders({ ctx, context, skipLog }: { ctx: SyncContext; context: { query: QueryFoldersInWorkspace }; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/folders';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
-      signal: extra?.abortSignal,
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: {
-        path: { workspaceId: context.workspaceId },
+        path: { workspaceId: ctx.workspaceId },
         query: context.query,
       },
     });
@@ -114,7 +111,7 @@ async function getFoldersInWorkspace(
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog,
     loggerBody: { msg: 'Get workspace folders request', context },
   });
 

@@ -1,12 +1,13 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { createFile } from './files/create-file';
 import { parseFileDto } from '../out/dto';
 import { move } from './files/move';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { CommonContext } from '@/apps/sync-engine/config';
 
 export const files = {
   getFiles,
@@ -20,21 +21,22 @@ export const FileModule = files;
 export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
-async function getFiles(context: { query: GetFilesQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
+async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context: { query: GetFilesQuery }; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
-      signal: extra?.abortSignal,
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: { query: context.query },
     });
 
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog,
     loggerBody: { msg: 'Get files request', context },
   });
 
@@ -45,12 +47,18 @@ async function getFiles(context: { query: GetFilesQuery }, extra?: { abortSignal
   }
 }
 
-async function replaceFile(context: {
-  path: AbsolutePath;
-  uuid: FileUuid;
-  contentsId: ContentsId;
-  size: number;
-  modificationTime: string;
+async function replaceFile({
+  ctx,
+  context,
+}: {
+  ctx: CommonContext;
+  context: {
+    path: AbsolutePath;
+    uuid: FileUuid;
+    contentsId: ContentsId;
+    size: number;
+    modificationTime: string;
+  };
 }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
@@ -58,6 +66,8 @@ async function replaceFile(context: {
 
   const promiseFn = () =>
     client.PUT(endpoint, {
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: { path: { uuid: context.uuid } },
       body: {
         fileId: context.contentsId,
@@ -79,13 +89,15 @@ async function replaceFile(context: {
   }
 }
 
-async function createThumbnail(context: { body: TCreateThumnailBody }) {
+async function createThumbnail({ ctx, context }: { ctx: CommonContext; context: { body: TCreateThumnailBody } }) {
   const method = 'POST';
   const endpoint = '/files/thumbnail';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.POST(endpoint, {
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       body: context.body,
     });
 
