@@ -4,6 +4,8 @@ import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
 import { FileDto, parseFileDto } from '../../out/dto';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export type CreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 
@@ -16,13 +18,19 @@ class CreateFileError extends DriveServerWipError {
   }
 }
 
-export async function createFile(context: { path: string; body: CreateFileBody }) {
+type Props = {
+  ctx: CommonContext;
+  context: { path: AbsolutePath; body: CreateFileBody };
+};
+
+export async function createFile({ ctx, context }: Props) {
   const method = 'POST';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.POST(endpoint, {
+      signal: ctx.abortController.signal,
       body: context.body,
     });
 

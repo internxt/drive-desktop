@@ -1,5 +1,4 @@
 import { RemoteSyncStatus } from './helpers';
-import { logger } from '../../shared/logger/logger';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
 import { syncRemoteFiles } from './files/sync-remote-files';
 import { syncRemoteFolders } from './folders/sync-remote-folders';
@@ -9,28 +8,19 @@ import { SyncContext } from '@/apps/sync-engine/config';
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
 
-  constructor(
-    public readonly context: SyncContext,
-    public readonly workspaceId: string,
-  ) {}
+  constructor(public readonly ctx: SyncContext) {}
 
-  async startRemoteSync() {
-    logger.debug({ msg: 'Starting sync by checkpoint', workspaceId: this.workspaceId });
+  async startRemoteSync({ ctx }: { ctx: SyncContext }) {
+    ctx.logger.debug({ msg: 'Starting sync by checkpoint' });
 
     const syncFilesPromise = syncRemoteFiles({
-      self: this,
-      from: await RemoteSyncModule.getCheckpoint({
-        ctx: this.context,
-        type: 'file',
-      }),
+      ctx,
+      from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'file' }),
     });
 
     const syncFoldersPromise = syncRemoteFolders({
-      self: this,
-      from: await RemoteSyncModule.getCheckpoint({
-        ctx: this.context,
-        type: 'folder',
-      }),
+      ctx,
+      from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'folder' }),
     });
 
     await Promise.all([syncFilesPromise, syncFoldersPromise]);
@@ -39,9 +29,8 @@ export class RemoteSyncManager {
   changeStatus(newStatus: RemoteSyncStatus) {
     if (newStatus === this.status) return;
 
-    logger.debug({
+    this.ctx.logger.debug({
       msg: 'RemoteSyncManager change status',
-      workspaceId: this.workspaceId,
       current: this.status,
       newStatus,
     });

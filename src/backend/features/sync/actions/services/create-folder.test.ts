@@ -36,7 +36,7 @@ describe('create-folder', () => {
     // When
     await createFolder(props);
     // Given
-    call(persistMock).toMatchObject({ path, body: { plainName: 'folder' } });
+    call(persistMock).toMatchObject({ context: { path, body: { plainName: 'folder' } } });
     call(createOrUpdateFolderMock).toMatchObject({ folderDto: { uuid: 'uuid' } });
     calls(addItemMock).toMatchObject([
       { action: 'UPLOADING', path },

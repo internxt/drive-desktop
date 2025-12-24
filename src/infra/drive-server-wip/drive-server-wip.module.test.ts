@@ -18,10 +18,6 @@ describe('drive-server-wip', () => {
   for (const _service of Object.keys(driveServerWip)) {
     const service = _service as TService;
 
-    // TODO: we are throwing an error inside the auth service,
-    // we should return { data, error } instead
-    if (service === 'auth') continue;
-
     for (const _method of Object.keys(driveServerWip[service])) {
       const method = _method as TMethod;
       dataset.push({ service, method });
@@ -49,7 +45,7 @@ describe('drive-server-wip', () => {
 
     // When
     const fn: TFunction = driveServerWip[service][method];
-    await fn({}, {});
+    await fn({ ctx: { abortController: new AbortController() }, context: {} }, {});
 
     // Then
     const { promiseFn } = clientWrapperMock.mock.calls[0][0];
