@@ -1,4 +1,4 @@
-import { deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
 import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
@@ -19,10 +19,8 @@ describe('sync-remote-files.service', () => {
   it('If we fetch less than 1000 files, then do not fetch again', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
-
     // When
     await syncRemoteFiles({ ctx });
-
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(1);
   });
@@ -30,41 +28,27 @@ describe('sync-remote-files.service', () => {
   it('If from is undefined, fetch only EXISTS files', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
-
     // When
     await syncRemoteFiles({ ctx });
-
     // Then
-    expect(getFilesMock).toHaveBeenCalledWith({
-      query: expect.objectContaining({
-        status: 'EXISTS',
-      }),
-    });
+    call(getFilesMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
   });
 
   it('If from is provided, fetch ALL files', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
-
     // When
     await syncRemoteFiles({ ctx, from: new Date() });
-
     // Then
-    expect(getFilesMock).toHaveBeenCalledWith({
-      query: expect.objectContaining({
-        status: 'ALL',
-      }),
-    });
+    call(getFilesMock).toMatchObject({ context: { query: { status: 'ALL' } } });
   });
 
   it('If we fetch 1000 files, then fetch again', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
     getFilesMock.mockResolvedValueOnce({ data: [] });
-
     // When
     await syncRemoteFiles({ ctx });
-
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(2);
     expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(2);
@@ -73,10 +57,8 @@ describe('sync-remote-files.service', () => {
   it('If fetch fails, then throw error', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ error: new Error() });
-
     // When
     await expect(() => syncRemoteFiles({ ctx })).rejects.toThrowError();
-
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(1);
   });
@@ -85,10 +67,8 @@ describe('sync-remote-files.service', () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
     getFilesMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
-
     // When
     await syncRemoteFiles({ ctx });
-
     // Then
     const common = { userUuid: 'uuid', workspaceId: '', type: 'file' };
     expect(createOrUpdateCheckpointMock).toHaveBeenCalledTimes(2);

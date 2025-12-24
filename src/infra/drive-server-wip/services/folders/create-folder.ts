@@ -7,7 +7,7 @@ import { FolderDto, parseFolderDto } from '../../out/dto';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-type TCreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
+type CreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
 
 class CreateFolderError extends DriveServerWipError {
   constructor(
@@ -18,7 +18,7 @@ class CreateFolderError extends DriveServerWipError {
   }
 }
 
-export async function createFolder({ ctx, context }: { ctx: CommonContext; context: { path: AbsolutePath; body: TCreateFolderBody } }) {
+export async function createFolder({ ctx, context }: { ctx: CommonContext; context: { path: AbsolutePath; body: CreateFolderBody } }) {
   const method = 'POST';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });

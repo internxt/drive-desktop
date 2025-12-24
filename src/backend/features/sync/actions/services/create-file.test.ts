@@ -62,7 +62,7 @@ describe('create-file', () => {
     await createFile(props);
     // Given
     call(uploadMock).toMatchObject({ path, size });
-    call(persistMock).toMatchObject({ path, body: { fileId: 'contentsId', size, plainName: 'file', type: 'txt' } });
+    call(persistMock).toMatchObject({ context: { path, body: { fileId: 'contentsId', size, plainName: 'file', type: 'txt' } } });
     call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });
     call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });

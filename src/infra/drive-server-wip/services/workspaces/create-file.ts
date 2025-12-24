@@ -10,10 +10,7 @@ type Body = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['con
 
 type Props = {
   ctx: CommonContext;
-  context: {
-    path: AbsolutePath;
-    body: Body;
-  };
+  context: { path: AbsolutePath; body: Body };
 };
 
 export async function createFile({ ctx, context }: Props) {

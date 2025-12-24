@@ -11,6 +11,5 @@ export type BackupInfo = {
 
 export type BackupsContext = CommonContext &
   BackupInfo & {
-    workspaceId: '';
     addIssue: (issue: Omit<BackupsIssue, 'tab' | 'folderUuid'>) => void;
   };
