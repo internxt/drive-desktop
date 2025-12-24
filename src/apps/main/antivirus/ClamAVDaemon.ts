@@ -10,14 +10,12 @@ import {
   DIRECTORY_MODE,
   FILE_MODE,
   RESOURCES_PATH,
-  userHomeDir,
   configDir,
   logDir,
   dbDir,
   logFilePath,
   freshclamLogPath,
   clamdPath,
-  clamdConfigTemplatePath,
   DEFAULT_CLAMD_WAIT_TIMEOUT,
   DEFAULT_CLAMD_CHECK_INTERVAL,
 } from './constants';
@@ -151,86 +149,19 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
   }
 };
 
-const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT, retries = 3): Promise<boolean> => {
+export const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
   return new Promise((resolve) => {
-    let retryCount = 0;
+    const client = new net.Socket();
 
-    const tryConnect = () => {
-      const client = new net.Socket();
-      const timeout = setTimeout(() => {
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: `[CLAM_AVD] Connection to clamd timed out (${host}:${port})`,
-        });
-        client.destroy();
-        handleFailure('Connection timeout');
-      }, 5000); // 5 second connection timeout
+    client.connect(port, host, () => {
+      client.end();
+      resolve(true);
+    });
 
-      client.connect(port, host, () => {
-        clearTimeout(timeout);
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: `[CLAM_AVD] Successfully connected to clamd at ${host}:${port}`,
-        });
-
-        client.write('PING\n');
-
-        let responseData = '';
-        client.on('data', (data) => {
-          responseData += data.toString();
-
-          if (responseData.includes('PONG')) {
-            logger.debug({
-              tag: 'ANTIVIRUS',
-              msg: '[CLAM_AVD] Received PONG response from clamd',
-            });
-            client.end();
-            resolve(true);
-          }
-        });
-
-        setTimeout(() => {
-          if (!responseData.includes('PONG')) {
-            logger.debug({
-              tag: 'ANTIVIRUS',
-              msg: '[CLAM_AVD] Did not receive PONG response from clamd',
-            });
-            client.destroy();
-            handleFailure('No PONG response');
-          }
-        }, 3000);
-      });
-
-      client.on('error', (error) => {
-        clearTimeout(timeout);
-        client.destroy();
-        handleFailure(`Connection error: ${error.message}`);
-      });
-
-      const handleFailure = (reason: string) => {
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: `[CLAM_AVD] Connection to clamd failed: ${reason}`,
-        });
-
-        if (retryCount < retries) {
-          retryCount++;
-          logger.debug({
-            tag: 'ANTIVIRUS',
-            msg: `[CLAM_AVD] Retrying connection (${retryCount}/${retries})...`,
-          });
-          setTimeout(tryConnect, 1000);
-        } else {
-          logger.debug({
-            tag: 'ANTIVIRUS',
-            msg: '[CLAM_AVD] All connection attempts failed',
-          });
-          resolve(false);
-        }
-      };
-    };
-
-    tryConnect();
+    client.on('error', () => {
+      client.destroy();
+      resolve(false);
+    });
   });
 };
 

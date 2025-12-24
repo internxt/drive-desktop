@@ -3,6 +3,7 @@ import { Antivirus } from './Antivirus';
 import NodeClam from '@internxt/scan';
 import clamAVServer from './ClamAVDaemon';
 import { Mock } from 'vitest';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 vi.mock('@internxt/scan');
 vi.mock('./ClamAVDaemon');
@@ -74,7 +75,6 @@ describe('Antivirus', () => {
     it('should create and initialize an Antivirus instance', async () => {
       const antivirus = await Antivirus.createInstance();
 
-      expect(clamAVServer.checkClamdAvailability).toHaveBeenCalled();
       expect(NodeClam).toHaveBeenCalled();
       expect(mockNodeClam.init).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -87,11 +87,18 @@ describe('Antivirus', () => {
       expect(antivirus).toBeInstanceOf(Antivirus);
     });
 
-    it('should throw an error if initialization fails', async () => {
-      (clamAVServer.checkClamdAvailability as Mock).mockResolvedValue(false);
-      (clamAVServer.startClamdServer as Mock).mockRejectedValue(new Error('Failed to start ClamAV daemon'));
+    it('should log an error if initialization fails', async () => {
+      mockNodeClam.init.mockImplementationOnce(() => {
+        throw new Error('Failed to initialize NodeClam');
+      });
 
-      await expect(Antivirus.createInstance()).rejects.toThrow('Failed to start ClamAV daemon');
+      const antivirus = await Antivirus.createInstance();
+
+      expect(logger.error).toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'Error Initializing ClamAV:',
+        }),
+      );
     });
   });
 
@@ -122,7 +129,7 @@ describe('Antivirus', () => {
       (antivirus as any).connectionRetries = 3;
       (antivirus as any).ensureConnection = vi.fn().mockResolvedValue(false);
 
-      await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow('ClamAV is not initialized');
+      await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow('ClamAv instance is not initialized');
     });
 
     it('should retry scan if connection issues are encountered', async () => {
@@ -136,11 +143,13 @@ describe('Antivirus', () => {
       (antivirus as any).clamAv = mockNodeClam;
       (antivirus as any).isInitialized = true;
 
+      vi.spyOn(antivirus as any, 'checkFileAccessible').mockResolvedValue(true);
+
       mockNodeClam.isInfected
-        .mockRejectedValueOnce(new Error('connection error'))
+        .mockRejectedValueOnce(new Error('ECONNREFUSED: Connection refused'))
         .mockResolvedValueOnce(mockScanResult);
 
-      const result = await antivirus.scanFileWithRetry('/path/to/file.txt');
+      const result = await antivirus.scanFileWithRetry('/path/to/file.txt', 2);
 
       expect(mockNodeClam.isInfected).toHaveBeenCalledTimes(2);
       expect(result).toEqual(mockScanResult);

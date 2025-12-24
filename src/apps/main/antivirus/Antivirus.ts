@@ -22,122 +22,16 @@ const FILE_SIZE_LIMITS = {
 export class Antivirus {
   private clamAv: NodeClam | null = null;
   private isInitialized = false;
-  private connectionRetries = 0;
-  private static MAX_RETRIES = 3;
 
-  private constructor() {
-    //
-  }
-
-  static async createInstance(): Promise<Antivirus> {
+  static async createInstance() {
     const instance = new Antivirus();
-
-    try {
-      const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-      if (!isDaemonRunning) {
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: 'ClamAV daemon not running, starting it before initialization',
-        });
-        await clamAVServer.startClamdServer();
-        await clamAVServer.waitForClamd();
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: 'ClamAV daemon started successfully',
-        });
-      }
-    } catch (daemonError) {
-      logger.error({
-        tag: 'ANTIVIRUS',
-        msg: 'Error checking/starting ClamAV daemon:',
-        error: daemonError,
-      });
-      throw AntivirusError.clamdNotAvailable('Failed to start ClamAV daemon');
-    }
-
     await instance.initialize();
     return instance;
   }
 
-  private async ensureConnection(): Promise<boolean> {
-    if (this.clamAv && this.isInitialized) {
-      this.connectionRetries = 0;
-      return true;
-    }
-
-    if (this.connectionRetries >= Antivirus.MAX_RETRIES) {
-      logger.error({
-        tag: 'ANTIVIRUS',
-        msg: `Max reconnection attempts (${Antivirus.MAX_RETRIES}) reached. Giving up.`,
-      });
-      return false;
-    }
-
-    const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-
-    if (!isDaemonRunning) {
-      logger.warn({
-        tag: 'ANTIVIRUS',
-        msg: 'ClamAV daemon is not running, attempting to start it...',
-      });
-      try {
-        await clamAVServer.startClamdServer();
-        await clamAVServer.waitForClamd();
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: 'Successfully started ClamAV daemon',
-        });
-      } catch (daemonError) {
-        logger.error({
-          tag: 'ANTIVIRUS',
-          msg: 'Failed to start ClamAV daemon:',
-          error: daemonError,
-        });
-        this.connectionRetries++;
-        return false;
-      }
-    }
-
-    this.connectionRetries++;
-    logger.debug({
-      tag: 'ANTIVIRUS',
-      msg: `Attempting to reinitialize ClamAV client (attempt ${this.connectionRetries}/${Antivirus.MAX_RETRIES})`,
-    });
-
-    try {
-      await this.initialize();
-      this.connectionRetries = 0;
-      return true;
-    } catch (error) {
-      logger.error({
-        tag: 'ANTIVIRUS',
-        msg: `Failed to reinitialize ClamAV client (attempt ${this.connectionRetries}/${Antivirus.MAX_RETRIES})`,
-        error,
-      });
-      return false;
-    }
-  }
-
   async initialize(): Promise<void> {
     try {
-      const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-      if (!isDaemonRunning) {
-        logger.warn({
-          tag: 'ANTIVIRUS',
-          msg: 'ClamAV daemon not responding in initialize, attempting restart',
-        });
-        await clamAVServer.stopClamdServer();
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        await clamAVServer.startClamdServer();
-        await clamAVServer.waitForClamd();
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-
       const clamdConfigPath = path.join(RESOURCES_PATH, '/etc/clamd.conf');
-
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
         debugMode: true,
@@ -157,7 +51,6 @@ export class Antivirus {
       });
 
       this.isInitialized = true;
-      this.connectionRetries = 0;
       logger.debug({
         tag: 'ANTIVIRUS',
         msg: 'ClamAV initialized successfully',
@@ -169,35 +62,6 @@ export class Antivirus {
         msg: 'Error Initializing ClamAV:',
         error,
       });
-
-      if (
-        error instanceof Error &&
-        (error.message.includes('ECONNREFUSED') ||
-          error.message.includes('connect') ||
-          error.message.includes('socket'))
-      ) {
-        logger.warn({
-          tag: 'ANTIVIRUS',
-          msg: 'Connection error during initialization, trying emergency daemon restart',
-        });
-
-        try {
-          clamAVServer.stopClamdServer();
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          await clamAVServer.startClamdServer();
-          await clamAVServer.waitForClamd(60000); // Extended timeout
-
-          throw AntivirusError.initializationFailed('Connection failed, daemon restarted. Please try again.', error);
-        } catch (restartError) {
-          logger.error({
-            tag: 'ANTIVIRUS',
-            msg: 'Emergency daemon restart failed:',
-            error: restartError,
-          });
-        }
-      }
-
-      throw AntivirusError.initializationFailed('Initialization failed', error);
     }
   }
 
@@ -270,20 +134,26 @@ export class Antivirus {
    * @param maxRetries Maximum number of retries on connection failures (default 2)
    * @returns Scan result with infection status
    */
-  async scanFileWithRetry(
-    filePath: string,
-    maxRetries = 2,
-  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFileWithRetry(filePath: string, maxRetries = 2) {
     let retryCount = 0;
 
-    const attemptScan = async (): Promise<{
-      file: string;
-      isInfected: boolean;
-      viruses: [];
-    }> => {
+    const attemptScan = async () => {
       try {
         return await this.scanFile(filePath);
       } catch (error) {
+        if (error instanceof Error && error.message.includes('SCAN_TIMEOUT')) {
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: `Skipping file due to timeout: ${filePath}`,
+          });
+
+          return {
+            file: filePath,
+            isInfected: false,
+            viruses: [],
+          };
+        }
+
         if (
           retryCount >= maxRetries ||
           !(error instanceof Error) ||
@@ -292,8 +162,7 @@ export class Antivirus {
             error.message.includes('connection') ||
             error.message.includes('socket') ||
             error.message.includes('ECONNREFUSED') ||
-            error.message.toLowerCase().includes('clamd') ||
-            error.message.includes('timeout')
+            error.message.toLowerCase().includes('clamd')
           )
         ) {
           throw error;
@@ -313,161 +182,44 @@ export class Antivirus {
     return attemptScan();
   }
 
-  async scanFile(filePath: string): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
-    const isAccessible = await this.checkFileAccessible(filePath);
-    if (!isAccessible) {
-      throw AntivirusError.scanFailed(filePath, new Error('File not accessible or not found'));
+  async scanFile(filePath: string, timeout = 60000) {
+    if (!this.clamAv || !this.isInitialized) {
+      throw AntivirusError.clamAvNotInitialized();
     }
 
-    let isConnected = await this.ensureConnection();
-
-    if (!isConnected) {
-      logger.warn({
-        tag: 'ANTIVIRUS',
-        msg: `Connection failed for ${filePath}, trying with fresh connection attempt`,
-      });
-
-      try {
-        const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-        if (!isDaemonRunning) {
-          logger.warn({
-            tag: 'ANTIVIRUS',
-            msg: 'ClamAV daemon not running, attempting to restart',
-          });
-          await clamAVServer.startClamdServer();
-          await clamAVServer.waitForClamd();
-          logger.debug({
-            tag: 'ANTIVIRUS',
-            msg: 'Successfully restarted ClamAV daemon for scan',
-          });
-        }
-      } catch (daemonError) {
-        logger.error({
-          tag: 'ANTIVIRUS',
-          msg: 'Failed to restart ClamAV daemon for scan:',
-          error: daemonError,
-        });
-      }
-
-      this.connectionRetries = 0;
-      isConnected = await this.ensureConnection();
-
-      if (!isConnected) {
-        logger.error({
-          tag: 'ANTIVIRUS',
-          msg: `Could not establish ClamAV connection after reset attempt for ${filePath}`,
-        });
-        throw AntivirusError.notInitialized();
-      }
+    const isFileAccessible = await this.checkFileAccessible(filePath);
+    if (!isFileAccessible) {
+      throw AntivirusError.fileAccessError(filePath);
     }
+
+    const scanPromise = this.clamAv.isInfected(filePath);
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`SCAN_TIMEOUT: File scan exceeded ${timeout}ms`));
+      }, timeout);
+    });
 
     try {
-      const pingResult = await this.verifyConnection();
-      if (!pingResult) {
+      return await Promise.race([scanPromise, timeoutPromise]);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('SCAN_TIMEOUT')) {
         logger.warn({
           tag: 'ANTIVIRUS',
-          msg: 'ClamAV connection not responding to ping, attempting to reinitialize',
+          msg: `File scan exceeded timeout (${timeout}ms), skipping: ${filePath}`,
         });
 
-        const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-        if (!isDaemonRunning) {
-          logger.warn({
-            tag: 'ANTIVIRUS',
-            msg: 'ClamAV daemon not running, attempting to restart',
-          });
-          try {
-            await clamAVServer.startClamdServer();
-            await clamAVServer.waitForClamd();
-          } catch (daemonError) {
-            logger.error({
-              tag: 'ANTIVIRUS',
-              msg: 'Failed to restart daemon:',
-              error: daemonError,
-            });
-          }
-        }
-
-        this.connectionRetries = 0;
-        await this.initialize();
+        return {
+          file: filePath,
+          isInfected: false,
+          viruses: [],
+        };
       }
-
-      const scanPromise = this.clamAv!.isInfected(filePath);
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-          reject(new Error(`Scan timeout exceeded for file: ${filePath}`));
-        }, FILE_SIZE_LIMITS.SCAN_TIMEOUT);
-      });
-
-      const result = (await Promise.race([scanPromise, timeoutPromise])) as {
-        file: string;
-        isInfected: boolean;
-        viruses: [];
-      };
-
-      return result;
-    } catch (error) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: `Scan failed for file: ${filePath}`,
+        msg: `Error scanning file: ${filePath}`,
         error,
       });
-
-      if (
-        error instanceof Error &&
-        (error.message.includes('connection') ||
-          error.message.includes('socket') ||
-          error.message.includes('ECONNREFUSED') ||
-          error.message.toLowerCase().includes('not initialized') ||
-          error.message.toLowerCase().includes('clamd') ||
-          error.message.includes('timeout'))
-      ) {
-        logger.warn({
-          tag: 'ANTIVIRUS',
-          msg: 'Connection error detected, attempting to reinitialize ClamAV',
-        });
-        try {
-          const isDaemonRunning = await clamAVServer.checkClamdAvailability();
-          if (!isDaemonRunning) {
-            logger.warn({
-              tag: 'ANTIVIRUS',
-              msg: 'ClamAV daemon not running after error, attempting to restart',
-            });
-            try {
-              await clamAVServer.startClamdServer();
-              await clamAVServer.waitForClamd();
-            } catch (daemonError) {
-              logger.error({
-                tag: 'ANTIVIRUS',
-                msg: 'Failed to restart daemon after scan error:',
-                error: daemonError,
-              });
-              throw AntivirusError.scanFailed(filePath, error);
-            }
-          }
-
-          this.connectionRetries = 0;
-          await this.initialize();
-          logger.debug({
-            tag: 'ANTIVIRUS',
-            msg: 'Successfully reinitialized ClamAV, retrying scan',
-          });
-
-          return (await this.clamAv!.isInfected(filePath)) as {
-            file: string;
-            isInfected: boolean;
-            viruses: [];
-          };
-        } catch (reinitError) {
-          logger.error({
-            tag: 'ANTIVIRUS',
-            msg: 'Failed to reinitialize ClamAV after connection error',
-            error: reinitError,
-          });
-          throw AntivirusError.scanFailed(filePath, error);
-        }
-      }
-
-      throw AntivirusError.scanFailed(filePath, error);
+      throw error;
     }
   }
 

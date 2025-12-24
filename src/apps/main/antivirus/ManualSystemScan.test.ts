@@ -556,7 +556,6 @@ describe('ManualSystemScan', () => {
       expect((manualSystemScan as any).infectedFiles).toEqual([]);
       expect((manualSystemScan as any).progressEvents).toEqual([]);
       expect((manualSystemScan as any).totalItemsToScan).toBe(0);
-      expect((manualSystemScan as any).errorCount).toBe(0);
       expect((manualSystemScan as any).cancelled).toBe(false);
 
       expect((manualSystemScan as any).clearAllIntervals).toHaveBeenCalled();
@@ -615,14 +614,6 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).totalItemsToScan = 100;
       (manualSystemScan as any).totalScannedFiles = 96;
       (manualSystemScan as any).errorCount = 0;
-
-      expect(manualSystemScan['isNearlyScanComplete']()).toBe(true);
-    });
-
-    it('isNearlyScanComplete should count errors toward completion', () => {
-      (manualSystemScan as any).totalItemsToScan = 100;
-      (manualSystemScan as any).totalScannedFiles = 90;
-      (manualSystemScan as any).errorCount = 8;
 
       expect(manualSystemScan['isNearlyScanComplete']()).toBe(true);
     });
