@@ -9,7 +9,7 @@ export type AuthContext = {
 };
 
 export type CommonContext = AuthContext & {
-  userUuid: string;
+  readonly userUuid: string;
   readonly workspaceId: string;
   readonly bucket: string;
   readonly environment: Environment;
