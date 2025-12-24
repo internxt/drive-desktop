@@ -29,11 +29,7 @@ export async function unlinkFile({ ctx, path }: TProps) {
 
     ctx.logger.debug({ msg: 'File unlinked', path });
 
-    await deleteFileByUuid({
-      uuid: file.uuid,
-      workspaceToken: ctx.workspaceToken,
-      path,
-    });
+    await deleteFileByUuid({ ctx, uuid: file.uuid, path });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error on unlink file', path, exc });
   }

@@ -8,7 +8,6 @@ import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
-import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
@@ -134,12 +133,6 @@ const api = {
   addBackup(): Promise<void> {
     return ipcRenderer.invoke('add-backup');
   },
-  deleteBackup(backup: BackupInfo): Promise<void> {
-    return ipcRenderer.invoke('delete-backup', backup);
-  },
-  deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
-    return ipcRenderer.invoke('delete-backups-from-device', device, isCurrent);
-  },
   disableBackup(folderId: number): Promise<void> {
     return ipcRenderer.invoke('disable-backup', folderId);
   },
@@ -251,6 +244,8 @@ const api = {
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
+  deleteBackup: async (props) => await ipcPreloadRenderer.invoke('deleteBackup', props),
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

@@ -11,9 +11,10 @@ import { getLanguage } from '../config/language';
 import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { openLoginUrl } from '../auth/open-login-url';
+import { deleteBackup, deleteBackupsFromDevice } from '../device/service';
 
 type AsyncMirror<T extends (...args: any[]) => unknown> =
-  Parameters<T> extends [] ? () => ReturnType<T> : (props: Parameters<T>[0]) => ReturnType<T>;
+  Parameters<T> extends [] ? () => ReturnType<T> : (props: Omit<Parameters<T>[0], 'ctx'>) => ReturnType<T>;
 
 type Mirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => Promise<ReturnType<T>> : (props: Parameters<T>[0]) => Promise<ReturnType<T>>;
@@ -35,6 +36,8 @@ export type FromProcess = {
   driveOpenSyncRootFolder: AsyncMirror<typeof openVirtualDriveRootFolder>;
   downloadBackup: AsyncMirror<typeof downloadBackup>;
   openLoginUrl: Mirror<typeof openLoginUrl>;
+  deleteBackup: AsyncMirror<typeof deleteBackup>;
+  deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
 };
 
 export type FromMain = {};

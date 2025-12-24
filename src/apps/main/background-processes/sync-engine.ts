@@ -1,11 +1,10 @@
 import { getUserOrThrow } from '../auth/service';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
-import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
 import { buildUserEnvironment } from './backups/build-environment';
@@ -17,7 +16,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   const { environment, contentsDownloader } = buildUserEnvironment({ user, type: 'drive' });
 
   const syncContext: SyncContext = {
-    ...context,
+    abortController: context.abortController,
     userUuid: user.uuid,
     providerId,
     rootPath: await getRootVirtualDrive(),

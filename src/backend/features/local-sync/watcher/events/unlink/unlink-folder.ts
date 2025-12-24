@@ -29,11 +29,7 @@ export async function unlinkFolder({ ctx, path }: TProps) {
 
     ctx.logger.debug({ msg: 'Folder unlinked', path });
 
-    await deleteFolderByUuid({
-      uuid: folder.uuid,
-      workspaceToken: ctx.workspaceToken,
-      path,
-    });
+    await deleteFolderByUuid({ ctx, path, uuid: folder.uuid });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error on unlink folder', path, exc });
   }

@@ -1,4 +1,4 @@
-import { DeleteFileByUuidProps, DeleteFolderByUuidProps, PersistMoveFileProps, PersistMoveFolderProps } from './ipc';
+import { PersistMoveFileProps, PersistMoveFolderProps } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
@@ -6,9 +6,13 @@ import { LocalSync } from '@/backend/features';
 import { basename } from 'node:path';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
-export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFileByUuidProps) {
-  const res = await driveServerWip.storage.deleteFileByUuid({ path, uuid, workspaceToken });
+export async function deleteFileByUuid({ ctx, path, uuid }: { ctx: CommonContext; path: AbsolutePath; uuid: FileUuid }) {
+  const res = await driveServerWip.storage.deleteFileByUuid({ ctx, context: { path, uuid } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });
@@ -18,8 +22,8 @@ export async function deleteFileByUuid({ uuid, path, workspaceToken }: DeleteFil
   }
 }
 
-export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteFolderByUuidProps) {
-  const res = await driveServerWip.storage.deleteFolderByUuid({ path, uuid, workspaceToken });
+export async function deleteFolderByUuid({ ctx, path, uuid }: { ctx: CommonContext; path: AbsolutePath; uuid: FolderUuid }) {
+  const res = await driveServerWip.storage.deleteFolderByUuid({ ctx, context: { path, uuid } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });
@@ -29,9 +33,9 @@ export async function deleteFolderByUuid({ uuid, path, workspaceToken }: DeleteF
   }
 }
 
-export async function persistMoveFile({ ctx, path, uuid, parentUuid, workspaceToken }: PersistMoveFileProps) {
+export async function persistMoveFile({ ctx, path, uuid, parentUuid }: PersistMoveFileProps) {
   const { name, extension } = getNameAndExtension({ path });
-  const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });
+  const res = await driveServerWip.files.move({ ctx, context: { uuid, parentUuid, name, extension } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });
@@ -41,9 +45,9 @@ export async function persistMoveFile({ ctx, path, uuid, parentUuid, workspaceTo
   }
 }
 
-export async function persistMoveFolder({ ctx, path, uuid, parentUuid, workspaceToken }: PersistMoveFolderProps) {
+export async function persistMoveFolder({ ctx, path, uuid, parentUuid }: PersistMoveFolderProps) {
   const name = basename(path);
-  const res = await driveServerWip.folders.move({ uuid, parentUuid, name, workspaceToken });
+  const res = await driveServerWip.folders.move({ ctx, context: { uuid, parentUuid, name } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });

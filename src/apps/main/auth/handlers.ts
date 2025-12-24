@@ -5,11 +5,12 @@ import { refreshToken } from './refresh-token';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
-import { AuthContext } from '@/backend/features/auth/utils/context';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import { logout } from './logout';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
+import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 
 let isLoggedIn: boolean;
 
@@ -55,18 +56,21 @@ export async function emitUserLoggedIn() {
   const scheduler = new TokenScheduler();
   scheduler.schedule();
 
-  const context: AuthContext = {
+  const ctx: AuthContext = {
     abortController: new AbortController(),
+    workspaceToken: '',
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {
+    clearLoggedPreloadIpc();
     scheduler.stop();
     BackupScheduler.stop();
-    await logout({ ctx: context });
+    await logout({ ctx });
   });
 
+  setupLoggedPreloadIpc({ ctx });
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
   BackupScheduler.start();
-  await spawnSyncEngineWorkers({ context });
+  await spawnSyncEngineWorkers({ context: ctx });
 }

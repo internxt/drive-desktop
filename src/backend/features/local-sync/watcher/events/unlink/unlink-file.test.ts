@@ -17,10 +17,7 @@ describe('unlink-file', () => {
 
   const props = mockProps<typeof unlinkFile>({
     path: abs('/drive/folder/file.txt'),
-    ctx: {
-      workspaceToken: 'token',
-      rootPath: abs('/drive'),
-    },
+    ctx: { rootPath: abs('/drive') },
   });
 
   beforeEach(() => {
@@ -83,7 +80,6 @@ describe('unlink-file', () => {
     expect(deleteFileByUuidMock).toBeCalledWith({
       path: '/drive/folder/file.txt',
       uuid: 'uuid',
-      workspaceToken: 'token',
     });
   });
 
