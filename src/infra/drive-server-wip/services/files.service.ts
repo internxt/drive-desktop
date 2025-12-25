@@ -19,7 +19,7 @@ export const files = {
 export const FileModule = files;
 
 export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
-type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
+type CreateThumbnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context: { query: GetFilesQuery }; skipLog?: boolean }) {
   const method = 'GET';
@@ -89,7 +89,7 @@ async function replaceFile({
   }
 }
 
-async function createThumbnail({ ctx, context }: { ctx: CommonContext; context: { body: TCreateThumnailBody } }) {
+async function createThumbnail({ ctx, context }: { ctx: CommonContext; context: { body: CreateThumbnailBody } }) {
   const method = 'POST';
   const endpoint = '/files/thumbnail';
   const key = getRequestKey({ method, endpoint, context });

@@ -1,4 +1,4 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { unlinkFile } from './unlink-file';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -77,7 +77,7 @@ describe('unlink-file', () => {
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveFileEventMock).toBeCalledTimes(1);
     expect(getByNameMock).toBeCalledTimes(1);
-    expect(deleteFileByUuidMock).toBeCalledWith({
+    call(deleteFileByUuidMock).toMatchObject({
       path: '/drive/folder/file.txt',
       uuid: 'uuid',
     });
