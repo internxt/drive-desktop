@@ -4,6 +4,7 @@ import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { parseFolderDto } from '../../out/dto';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { CommonContext } from '@/apps/sync-engine/config';
 
 class MoveFolderError extends DriveServerWipError {
   constructor(
@@ -14,14 +15,24 @@ class MoveFolderError extends DriveServerWipError {
   }
 }
 
-export async function move(context: { uuid: FolderUuid; parentUuid: FolderUuid; name: string; workspaceToken: string }) {
+type Props = {
+  ctx: CommonContext;
+  context: {
+    uuid: FolderUuid;
+    parentUuid: FolderUuid;
+    name: string;
+  };
+};
+
+export async function move({ ctx, context }: Props) {
   const method = 'PATCH';
   const endpoint = '/folders/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PATCH(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       body: { destinationFolder: context.parentUuid, name: context.name },
       params: { path: { uuid: context.uuid } },
     });

@@ -28,15 +28,18 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
     const contentsId = await uploadThumbnail({ ctx, buffer });
 
     await driveServerWip.files.createThumbnail({
-      body: {
-        fileUuid,
-        maxWidth: SIZE,
-        maxHeight: SIZE,
-        type: 'png',
-        size: buffer.byteLength,
-        bucketId: ctx.bucket,
-        bucketFile: contentsId,
-        encryptVersion: StorageTypes.EncryptionVersion.Aes03,
+      ctx,
+      context: {
+        body: {
+          fileUuid,
+          maxWidth: SIZE,
+          maxHeight: SIZE,
+          type: 'png',
+          size: buffer.byteLength,
+          bucketId: ctx.bucket,
+          bucketFile: contentsId,
+          encryptVersion: StorageTypes.EncryptionVersion.Aes03,
+        },
       },
     });
   } catch (error) {

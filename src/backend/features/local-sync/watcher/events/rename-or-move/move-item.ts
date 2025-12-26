@@ -28,12 +28,10 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   // Neither move nor renamed
   if (item.parentUuid === parentUuid && itemName === name) return;
 
-  const workspaceToken = ctx.workspaceToken;
-
   if (type === 'file') {
-    await persistMoveFile({ ctx, uuid, parentUuid, path, workspaceToken });
+    await persistMoveFile({ ctx, uuid, parentUuid, path });
   } else {
-    await persistMoveFolder({ ctx, uuid, parentUuid, path, workspaceToken });
+    await persistMoveFolder({ ctx, uuid, parentUuid, path });
   }
 
   await Addon.updateSyncStatus({ path });

@@ -14,11 +14,10 @@ type TProps = {
   ctx: CommonContext;
   path: AbsolutePath;
   size: number;
-  abortSignal: AbortSignal;
 };
 
 export class EnvironmentFileUploader {
-  static upload({ ctx, path, size, abortSignal }: TProps) {
+  static upload({ ctx, path, size }: TProps) {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -34,7 +33,7 @@ export class EnvironmentFileUploader {
 
     LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
 
-    return uploadFile({ ctx, fn, readable, size, path, abortSignal });
+    return uploadFile({ ctx, fn, readable, size, path });
   }
 
   static async run(props: TProps) {

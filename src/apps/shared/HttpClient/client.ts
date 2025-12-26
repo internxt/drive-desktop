@@ -3,10 +3,11 @@ import { paths } from './schema';
 import eventBus from '@/apps/main/event-bus';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
 import { scheduleFetch } from './schedule-fetch';
+import { AuthContext } from '@/apps/sync-engine/config';
 
-export const getWorkspaceHeader = ({ workspaceToken }: { workspaceToken: string }) => {
-  return { 'x-internxt-workspace': workspaceToken };
-};
+export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
+  return { 'x-internxt-workspace': ctx.workspaceToken };
+}
 
 const middleware: Middleware = {
   onRequest({ request }) {

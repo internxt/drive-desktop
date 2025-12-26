@@ -15,10 +15,9 @@ type Props = {
   readable: ReadStream;
   size: number;
   path: AbsolutePath;
-  abortSignal: AbortSignal;
 };
 
-export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props) {
+export function uploadFile({ ctx, fn, readable, size, path }: Props) {
   function stopUpload(state: ActionState) {
     state.stop();
     readable.destroy();
@@ -49,7 +48,7 @@ export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props
       },
     });
 
-    abortSignal.addEventListener('abort', () => {
+    ctx.abortController.signal.addEventListener('abort', () => {
       logger.debug({ msg: 'Aborting upload', path });
       stopUpload(state);
       resolve();

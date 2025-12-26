@@ -21,7 +21,7 @@ export async function createFile({ ctx, context }: Props) {
   const promiseFn = () =>
     client.POST(endpoint, {
       signal: ctx.abortController.signal,
-      headers: getWorkspaceHeader({ workspaceToken: ctx.workspaceToken }),
+      headers: getWorkspaceHeader({ ctx }),
       params: { path: { workspaceId: ctx.workspaceId } },
       body: context.body,
     });

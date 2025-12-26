@@ -12,6 +12,8 @@ import { getTheme } from '../config/theme';
 import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { openLoginUrl } from '../auth/open-login-url';
+import { deleteBackupsFromDevice } from '../device/service';
+import { AuthContext } from '@/apps/sync-engine/config';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -32,4 +34,12 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
   ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup(props));
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
+}
+
+export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
+  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+}
+
+export function clearLoggedPreloadIpc() {
+  ipcMain.removeAllListeners('deleteBackupFromDevice');
 }

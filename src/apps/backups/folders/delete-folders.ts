@@ -2,16 +2,18 @@ import { tracker } from '@/apps/main/background-processes/backups/BackupsProcess
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { Backup } from '../Backups';
+import { BackupsContext } from '../BackupInfo';
 
 type TProps = {
+  ctx: BackupsContext;
   self: Backup;
   deleted: Array<ExtendedDriveFolder>;
 };
 
-export async function deleteFolders({ self, deleted }: TProps) {
+export async function deleteFolders({ ctx, self, deleted }: TProps) {
   await Promise.all(
     deleted.map(async (folder) => {
-      await deleteFolderByUuid({ uuid: folder.uuid, workspaceToken: '', path: folder.absolutePath });
+      await deleteFolderByUuid({ ctx, uuid: folder.uuid, path: folder.absolutePath });
       self.backed++;
       tracker.currentProcessed(self.backed);
     }),

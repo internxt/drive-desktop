@@ -60,7 +60,6 @@ describe('move-item', () => {
       path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',
-      workspaceToken: '',
     });
     expect(updateSyncStatusMock).toBeCalledTimes(1);
   });
@@ -75,7 +74,6 @@ describe('move-item', () => {
       path: '/folder/newName',
       uuid: 'uuid',
       parentUuid: 'newParentUuid',
-      workspaceToken: '',
     });
     expect(updateSyncStatusMock).toBeCalledTimes(1);
   });

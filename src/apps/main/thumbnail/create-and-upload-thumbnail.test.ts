@@ -34,6 +34,6 @@ describe('create-and-upload-thumbnail', () => {
     // When
     await createAndUploadThumbnail(props);
     // Then
-    call(createThumbnailMock).toMatchObject({ body: { bucketFile: 'contentsId', size: 7 } });
+    call(createThumbnailMock).toMatchObject({ context: { body: { bucketFile: 'contentsId', size: 7 } } });
   });
 });

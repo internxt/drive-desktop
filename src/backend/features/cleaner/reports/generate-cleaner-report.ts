@@ -25,8 +25,8 @@ function getCleanerSectionOrFallback(result: PromiseSettledResult<CleanerSection
   }
 }
 
-export async function generateCleanerReport(refreshReport = false) {
-  if (!refreshReport && storedCleanerReport) return storedCleanerReport;
+export async function generateCleanerReport({ force }: { force: boolean }) {
+  if (!force && storedCleanerReport) return storedCleanerReport;
 
   try {
     logger.debug({ msg: 'Starting cleaner report generation...' });

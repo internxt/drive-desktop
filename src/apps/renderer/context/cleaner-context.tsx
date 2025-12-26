@@ -32,7 +32,7 @@ export function CleanerProvider({ children }: Readonly<Props>) {
     setReport(null);
     setLoading(true);
     try {
-      const report = await globalThis.window.electron.cleanerGenerateReport(force);
+      const report = await globalThis.window.electron.cleanerGenerateReport({ force });
       const diskSpace = await globalThis.window.electron.cleanerGetDiskSpace();
       setReport(report as Partial<CleanerReport> as CleanerReport);
       setDiskSpace(diskSpace);

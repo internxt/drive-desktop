@@ -1,4 +1,4 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { unlinkFolder } from './unlink-folder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -16,10 +16,7 @@ describe('unlink-folder', () => {
 
   const props = mockProps<typeof unlinkFolder>({
     path: abs('/drive/folder/folder'),
-    ctx: {
-      workspaceToken: 'token',
-      rootPath: abs('/drive'),
-    },
+    ctx: { rootPath: abs('/drive') },
   });
 
   beforeEach(() => {
@@ -79,10 +76,9 @@ describe('unlink-folder', () => {
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveFolderEventMock).toBeCalledTimes(1);
     expect(getByNameMock).toBeCalledTimes(1);
-    expect(deleteFolderByUuidMock).toBeCalledWith({
+    call(deleteFolderByUuidMock).toMatchObject({
       path: '/drive/folder/folder',
       uuid: 'uuid',
-      workspaceToken: 'token',
     });
   });
 

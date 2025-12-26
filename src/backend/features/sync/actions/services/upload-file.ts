@@ -21,10 +21,5 @@ export async function uploadFile({ ctx, path, size }: Props) {
     return;
   }
 
-  return await EnvironmentFileUploader.run({
-    ctx,
-    size,
-    path,
-    abortSignal: new AbortController().signal,
-  });
+  return await EnvironmentFileUploader.run({ ctx, size, path });
 }

@@ -51,7 +51,7 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Given
     call(uploadMock).toMatchObject({ path, size });
-    call(persistMock).toMatchObject({ path, contentsId: 'contentsId', size, modificationTime: '2000-01-01T00:00:00.000Z' });
+    call(persistMock).toMatchObject({ context: { path, contentsId: 'contentsId', size, modificationTime: '2000-01-01T00:00:00.000Z' } });
     call(addItemMock).toMatchObject({ action: 'MODIFIED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });
     call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
