@@ -16,7 +16,6 @@
       "sources": [
         "native-src/main.cpp",
         "native-src/placeholders_interface/Planceholders.cpp",
-        "native-src/sync_root_interface/SyncRoot.cpp",
         "native-src/sync_root_interface/callbacks/CancelFetchData/CancelFetchDataCallback.cpp",
         "native-src/sync_root_interface/callbacks/FetchData/FetchData.cpp",
         "native-src/sync_root_interface/callbacks/FetchData/TransferContext.cpp",
@@ -32,7 +31,9 @@
         "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp",
         "native-src/virtual_drive/hydrate_file.cpp",
         "native-src/virtual_drive/register_sync_root/register_sync_root.cpp",
+        "native-src/virtual_drive/set_pin_state.cpp",
         "native-src/virtual_drive/unregister_sync_root_wrapper.cpp",
+        "native-src/virtual_drive/update_placeholder.cpp",
         "native-src/virtual_drive/update_sync_status/update_sync_status_wrapper.cpp"
       ],
       "include_dirs": [

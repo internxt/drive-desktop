@@ -39,28 +39,11 @@ winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD 
         nullptr)};
 
     if (!fileHandle) {
+        // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
         throw std::runtime_error("Failed to open file handle: " + std::to_string(GetLastError()));
     }
 
     return fileHandle;
-}
-
-void Placeholders::UpdateFileIdentity(const std::wstring& path, const std::wstring& placeholderId)
-{
-    auto fileHandle = OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
-
-    check_hresult(
-        "CfUpdatePlaceholder",
-        CfUpdatePlaceholder(
-            fileHandle.get(),
-            nullptr,
-            placeholderId.c_str(),
-            static_cast<DWORD>(placeholderId.size() * sizeof(wchar_t)),
-            nullptr,
-            0,
-            CF_UPDATE_FLAG_NONE,
-            nullptr,
-            nullptr));
 }
 
 FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
@@ -68,16 +51,16 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
     auto fileHandle = OpenFileHandle(path, FILE_READ_ATTRIBUTES, true);
 
     constexpr DWORD fileIdMaxLength = 400;
-    constexpr DWORD infoSize = sizeof(CF_PLACEHOLDER_BASIC_INFO) + fileIdMaxLength;
+    constexpr DWORD infoSize = sizeof(CF_PLACEHOLDER_STANDARD_INFO) + fileIdMaxLength;
 
-    std::vector<char> buffer(infoSize);
-    auto* info = reinterpret_cast<CF_PLACEHOLDER_BASIC_INFO*>(buffer.data());
+    std::vector<BYTE> buffer(infoSize);
+    auto* info = reinterpret_cast<CF_PLACEHOLDER_STANDARD_INFO*>(buffer.data());
 
     check_hresult(
         "CfGetPlaceholderInfo",
         CfGetPlaceholderInfo(
             fileHandle.get(),
-            CF_PLACEHOLDER_INFO_BASIC,
+            CF_PLACEHOLDER_INFO_STANDARD,
             info,
             infoSize,
             nullptr));
@@ -86,5 +69,10 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
 
     placeholderId.erase(std::remove(placeholderId.begin(), placeholderId.end(), '\0'), placeholderId.end());
 
-    return FileState{placeholderId, info->PinState};
+    FileState result;
+    result.placeholderId = placeholderId;
+    result.pinState = info->PinState;
+    result.inSyncState = info->InSyncState;
+    result.onDiskSize = info->OnDiskDataSize.QuadPart;
+    return result;
 }

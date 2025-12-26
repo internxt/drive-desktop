@@ -1,79 +1,30 @@
-import { AuthContext } from '@/backend/features/auth/utils/context';
-import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
+import { Environment } from '@internxt/inxt-js';
 
-export type Config = {
-  userUuid: string;
-  providerId: string;
-  rootPath: AbsolutePath;
-  rootUuid: FolderUuid;
-  providerName: string;
-  workspaceId: string;
+export type AuthContext = {
+  readonly abortController: AbortController;
   workspaceToken: string;
-  bucket: string;
-  mnemonic: string;
-  bridgeUser: string;
-  bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config & { logger: typeof logger };
-
-export type ProcessSyncContext = SyncContext & {
-  fileUploader: EnvironmentFileUploader;
-  contentsDownloader: InxtJs.ContentsDownloader;
+export type CommonContext = AuthContext & {
+  readonly userUuid: string;
+  readonly workspaceId: string;
+  readonly bucket: string;
+  readonly environment: Environment;
+  readonly logger: typeof logger;
 };
 
-const emptyValues = (): Config => {
-  return {
-    userUuid: '',
-    providerId: '',
-    rootPath: '' as AbsolutePath,
-    providerName: '',
-    workspaceId: '',
-    rootUuid: '' as FolderUuid,
-    bucket: '',
-    mnemonic: '',
-    bridgePass: '',
-    bridgeUser: '',
-    workspaceToken: '',
-  };
+export type SyncContext = CommonContext & {
+  readonly providerId: string;
+  rootPath: AbsolutePath;
+  readonly rootUuid: FolderUuid;
+  readonly providerName: string;
+  readonly mnemonic: string;
+  readonly bridgeUser: string;
+  readonly bridgePass: string;
+  readonly contentsDownloader: InxtJs.ContentsDownloader;
 };
 
-let config: Config = emptyValues();
-
-const defaultValues = (): Config => {
-  const user = getUser();
-
-  if (!user) {
-    return emptyValues();
-  }
-
-  return {
-    userUuid: user.uuid,
-    providerId: config.providerId,
-    rootPath: config.rootPath,
-    providerName: config.providerName,
-    workspaceId: config.workspaceId,
-    rootUuid: config.rootUuid,
-    bucket: user.bucket || config.bucket,
-    mnemonic: user.mnemonic || config.mnemonic,
-    bridgeUser: user.bridgeUser || config.bridgeUser,
-    bridgePass: user.userId || config.bridgePass,
-    workspaceToken: config.workspaceToken,
-  };
-};
-
-export function setConfig(newConfig: Config) {
-  config = newConfig;
-}
-
-export function setDefaultConfig(newConfig: Partial<Config>) {
-  config = { ...defaultValues(), ...newConfig };
-}
-
-export function getConfig(): Config {
-  return config;
-}
+export type ProcessSyncContext = SyncContext;

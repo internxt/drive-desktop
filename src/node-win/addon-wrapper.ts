@@ -1,13 +1,15 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { addon, Win32Path } from './addon';
 import { addonZod } from './addon/addon-zod';
-import { Callbacks } from './types/callbacks.type';
 import { logger } from '@/apps/shared/logger/logger';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { posix, win32 } from 'node:path';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
+import { PinState } from './types/placeholder.type';
+import { addConnectionKey, cancelFetchDataFn, fetchDataFn } from './callbacks';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -50,9 +52,11 @@ export class Addon {
     return parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  static connectSyncRoot({ rootPath, callbacks }: { rootPath: AbsolutePath; callbacks: Callbacks }) {
-    const result = addon.connectSyncRoot(toWin32(rootPath), callbacks);
-    return parseAddonZod('connectSyncRoot', result);
+  static connectSyncRoot({ ctx }: { ctx: SyncContext }) {
+    const result = addon.connectSyncRoot(toWin32(ctx.rootPath), fetchDataFn, cancelFetchDataFn);
+    const connectionKey = parseAddonZod('connectSyncRoot', result);
+    addConnectionKey(connectionKey, ctx);
+    return connectionKey;
   }
 
   static async unregisterSyncRoot({ providerId }: { providerId: string }) {
@@ -61,14 +65,22 @@ export class Addon {
     return parseAddonZod('unregisterSyncRoot', result);
   }
 
-  static async disconnectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
-    const result = await addon.disconnectSyncRoot(toWin32(rootPath));
+  static async disconnectSyncRoot({ connectionKey }: { connectionKey: bigint }) {
+    const result = await addon.disconnectSyncRoot(connectionKey);
     return parseAddonZod('disconnectSyncRoot', result);
   }
 
-  static getPlaceholderState({ path }: { path: AbsolutePath }) {
-    const result = addon.getPlaceholderState(toWin32(path));
+  static async getPlaceholderState({ path }: { path: AbsolutePath }) {
+    const result = await addon.getPlaceholderState(toWin32(path));
     return parseAddonZod('getPlaceholderState', result);
+  }
+
+  static async updatePlaceholder({ path, placeholderId, size }: { path: AbsolutePath; placeholderId: FilePlaceholderId; size: number }) {
+    await addon.updatePlaceholder(toWin32(path), placeholderId, size);
+  }
+
+  static async setPinState({ path, pinState }: { path: AbsolutePath; pinState: PinState }) {
+    await addon.setPinState(toWin32(path), pinState);
   }
 
   static async createFilePlaceholder({
@@ -84,7 +96,6 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create file placeholder', path });
     const result = await addon.createFilePlaceholder(toWin32(path), placeholderId, size, creationTime, lastWriteTime);
     return parseAddonZod('createFilePlaceholder', result);
   }
@@ -100,7 +111,6 @@ export class Addon {
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create folder placeholder', path });
     const result = await addon.createFolderPlaceholder(toWin32(path), placeholderId, creationTime, lastWriteTime);
     return parseAddonZod('createFolderPlaceholder', result);
   }
@@ -117,7 +127,6 @@ export class Addon {
     path: AbsolutePath;
     placeholderId: FilePlaceholderId | FolderPlaceholderId;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder', path, placeholderId });
     const result = await addon.convertToPlaceholder(toWin32(path), placeholderId);
     return parseAddonZod('convertToPlaceholder', result);
   }

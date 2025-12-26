@@ -21,7 +21,7 @@ describe('process-login', () => {
     // When
     const promise = processLogin({ search: '?mnemonic=bW5lbW9uaWM=&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==' });
     // Then
-    await expect(promise).rejects.toThrowError('Invalid mnemonic: mnemonic');
+    await expect(promise).rejects.toThrow(new Error('Invalid mnemonic: mnemonic'));
   });
 
   it('should process search params and login', async () => {

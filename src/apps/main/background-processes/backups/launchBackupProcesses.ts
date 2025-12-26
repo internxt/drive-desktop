@@ -1,29 +1,23 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
-import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
-import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { logger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { buildFileUploader } from './build-file-uploader';
 import { getAvailableProducts } from '../../payments/get-available-products';
 import { getUser } from '../../auth/service';
+import { buildUserEnvironment } from './build-environment';
+import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
+import { status } from './BackupsProcessStatus/BackupsProcessStatus';
+import electronStore from '../../config';
+import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 
-function backupsCanRun(status: BackupsProcessStatus) {
-  return status.isIn('STANDBY') && backupsConfig.enabled;
-}
-
-export async function launchBackupProcesses(
-  scheduled: boolean,
-  tracker: BackupsProcessTracker,
-  status: BackupsProcessStatus,
-): Promise<void> {
+export async function launchBackupProcesses(): Promise<void> {
   const user = getUser();
 
   if (!user) return;
 
-  if (!backupsCanRun(status)) {
+  if (!status.isIn('STANDBY')) {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
     return;
   }
@@ -50,7 +44,7 @@ export async function launchBackupProcesses(
 
   const backups = await backupsConfig.obtainBackupsInfo();
 
-  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
+  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
   clearBackupsIssues();
   tracker.track(backups, abortController);
@@ -66,13 +60,16 @@ export async function launchBackupProcesses(
       break;
     }
 
-    const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
+    const { environment } = buildUserEnvironment({ user, type: 'backups' });
     const context: BackupsContext = {
       ...backupInfo,
       userUuid: user.uuid,
+      bucket: user.backupsBucket,
       workspaceId: '',
-      fileUploader,
+      workspaceToken: '',
+      environment,
       abortController,
+      logger: createLogger({ tag: 'BACKUPS' }),
       addIssue: (issue) => {
         addBackupsIssue({
           ...issue,
@@ -89,7 +86,8 @@ export async function launchBackupProcesses(
   status.set('STANDBY');
 
   tracker.reset();
-  backupsConfig.backupFinished();
+  electronStore.set('lastBackup', Date.now());
+  BackupScheduler.start();
 
   ipcMain.removeAllListeners('stop-backups-process');
 

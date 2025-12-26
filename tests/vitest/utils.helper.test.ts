@@ -15,7 +15,7 @@ export function calls(object: any) {
 
 export function call(object: any) {
   const calls = getCalls(object);
-  if (calls.length !== 1) throw new Error(`Invalid length: ${calls.length} calls`);
+  if (calls.length !== 1) throw new Error(`Invalid length in ${object.getMockName()}: ${calls.length} calls`);
   return expect(calls[0]);
 }
 
@@ -27,6 +27,10 @@ export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPart
 
 export function deepMocked<T extends (...args: any[]) => unknown>(fn: T) {
   return vi.mocked(fn) as MockedFunction<(...args: Parameters<T>) => DeepPartial<ReturnType<T>>>;
+}
+
+export function testSleep(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }
 
 /**

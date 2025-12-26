@@ -1,61 +1,58 @@
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { ReadStream } from 'node:fs';
-import { abortOnChangeSize } from './abort-on-change-size';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { EnvironmentFileUploaderError, processError } from './process-error';
+import { processError } from './process-error';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { FileUploaderCallbacks } from './file-uploader';
-import type { TResolve } from './environment-file-uploader';
 import { ActionState } from '@internxt/inxt-js/build/api';
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { LocalSync } from '@/backend/features';
+import { CommonContext } from '@/apps/sync-engine/config';
 
 type Props = {
+  ctx: CommonContext;
   fn: UploadStrategyFunction;
-  bucket: string;
   readable: ReadStream;
   size: number;
   path: AbsolutePath;
   abortSignal: AbortSignal;
-  callbacks: FileUploaderCallbacks;
 };
 
-export function uploadFile({ fn, bucket, readable, size, abortSignal, path, callbacks }: Props) {
+export function uploadFile({ ctx, fn, readable, size, abortSignal, path }: Props) {
   function stopUpload(state: ActionState) {
     state.stop();
     readable.destroy();
   }
 
-  return new Promise((resolve: TResolve) => {
-    let interval: NodeJS.Timeout | undefined;
+  return new Promise<ContentsId | void>((resolve) => {
+    const state = fn(ctx.bucket, {
+      source: readable,
+      fileSize: size,
+      finishedCallback: (error, contentsId) => {
+        readable.close();
 
-    try {
-      const state = fn(bucket, {
-        source: readable,
-        fileSize: size,
-        finishedCallback: (err, contentsId) => {
-          readable.close();
-          clearInterval(interval);
-          if (contentsId) {
-            callbacks.onFinish();
-            return resolve({ data: contentsId as ContentsId });
-          }
-          return resolve({ error: processError({ path, err, callbacks }) });
-        },
-        progressCallback: (progress) => {
-          callbacks.onProgress({ progress });
-        },
-      });
+        if (contentsId) return resolve(contentsId as ContentsId);
 
-      interval = setInterval(() => abortOnChangeSize({ path, size, resolve, stopUpload, state }), 5000);
+        processError({ path, error });
+        return resolve();
+      },
+      progressCallback: async (progress) => {
+        const { data: stats } = await fileSystem.stat({ absolutePath: path });
 
-      abortSignal.addEventListener('abort', () => {
-        logger.debug({ msg: 'Aborting upload', path });
-        stopUpload(state);
-      });
-    } catch (err) {
-      clearInterval(interval);
-      readable.close();
-      return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
-    }
+        if (stats && stats.size !== size) {
+          logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
+          stopUpload(state);
+          return resolve();
+        }
+
+        LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
+      },
+    });
+
+    abortSignal.addEventListener('abort', () => {
+      logger.debug({ msg: 'Aborting upload', path });
+      stopUpload(state);
+      resolve();
+    });
   });
 }

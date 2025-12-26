@@ -1,33 +1,24 @@
 import { ipcMain } from 'electron';
 import { showNotEnoughSpaceNotification } from './process-issues';
-import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
-import eventBus from '../event-bus';
+import { broadcastToWindows } from '../windows';
 
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
+  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
 };
 
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error:
-    | 'CREATE_FOLDER_FAILED'
-    | 'FILE_SIZE_TOO_BIG'
-    | 'FOLDER_ACCESS_DENIED'
-    | 'FOLDER_DOES_NOT_EXIST'
-    | 'NOT_ENOUGH_SPACE'
-    | 'FILE_MODIFIED'
-    | 'PARENT_FOLDER_DOES_NOT_EXIST'
-    | 'ROOT_FOLDER_DOES_NOT_EXIST';
+  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST';
 };
 
 export type GeneralIssue = {
   tab: 'general';
   name: string;
-  error: 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
+  error: 'NOT_ENOUGH_SPACE' | 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
 };
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
@@ -35,7 +26,7 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 export let issues: Issue[] = [];
 
 function onIssuesChanged() {
-  eventBus.emit('BROADCAST_TO_WINDOWS', { name: 'issues-changed', data: issues });
+  broadcastToWindows({ name: 'issues-changed', data: issues });
 }
 
 function addIssue(issue: Issue) {
@@ -76,8 +67,6 @@ export function clearBackupsIssues() {
 }
 
 export function setupIssueHandlers() {
-  ipcMainSyncEngine.on('ADD_SYNC_ISSUE', (_, issue) => addSyncIssue(issue));
-  ipcMainSyncEngine.on('ADD_GENERAL_ISSUE', (_, issue) => addGeneralIssue(issue));
   ipcMain.handle('get-issues', () => issues);
 }
 

@@ -3,7 +3,7 @@ import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test'
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as hasToBeMoved from './has-to-be-moved';
+import * as needsToBeMoved from './needs-to-be-moved';
 import { rename } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -14,7 +14,7 @@ describe('update-file-placeholder', () => {
   const createFilePlaceholderMock = partialSpyOn(Addon, 'createFilePlaceholder');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
-  const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');
+  const needsToBeMovedMock = partialSpyOn(needsToBeMoved, 'needsToBeMoved');
   const renameMock = vi.mocked(rename);
 
   const date = '2000-01-01T00:00:00.000Z';
@@ -25,7 +25,7 @@ describe('update-file-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof FilePlaceholderUpdater.update>({
-      files: { ['uuid' as FileUuid]: { path: 'localPath' as AbsolutePath } },
+      files: new Map([['uuid' as FileUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
@@ -42,16 +42,16 @@ describe('update-file-placeholder', () => {
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
-    expect(hasToBeMovedMock).toBeCalledTimes(0);
+    expect(needsToBeMovedMock).toBeCalledTimes(0);
   });
 
   it('should create placeholder if file does not exist locally', async () => {
     // Given
-    props.files = {};
+    props.files = new Map();
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
-    expect(hasToBeMovedMock).toBeCalledTimes(0);
+    expect(needsToBeMovedMock).toBeCalledTimes(0);
     expect(createFilePlaceholderMock).toBeCalledTimes(1);
     expect(createFilePlaceholderMock).toBeCalledWith({
       path: 'remotePath',
@@ -64,7 +64,7 @@ describe('update-file-placeholder', () => {
 
   it('should move placeholder if it has been moved', async () => {
     // Given
-    hasToBeMovedMock.mockReturnValue(true);
+    needsToBeMovedMock.mockResolvedValue(true);
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
@@ -76,7 +76,7 @@ describe('update-file-placeholder', () => {
 
   it('should do nothing if not moved', async () => {
     // Given
-    hasToBeMovedMock.mockReturnValue(false);
+    needsToBeMovedMock.mockResolvedValue(false);
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
@@ -92,7 +92,7 @@ describe('update-file-placeholder', () => {
     // When
     await FilePlaceholderUpdater.update(props);
     // Then
-    expect(hasToBeMovedMock).toBeCalledTimes(0);
+    expect(needsToBeMovedMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 });

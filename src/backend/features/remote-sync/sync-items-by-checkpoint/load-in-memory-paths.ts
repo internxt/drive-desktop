@@ -1,44 +1,40 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Stats } from 'node:fs';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { statReaddir } from '@/infra/file-system/services/stat-readdir';
 
-export type InMemoryFiles = Record<FileUuid, { path: AbsolutePath; stats: Stats }>;
-export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
+export type InMemoryFiles = Map<FileUuid, { path: AbsolutePath; stats: Stats }>;
+export type InMemoryFolders = Map<FolderUuid, { path: AbsolutePath }>;
 
-export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
-  const files: InMemoryFiles = {};
-  const folders: InMemoryFolders = {};
+type Props = {
+  ctx: SyncContext;
+  parentPath: AbsolutePath;
+};
 
-  const { rootPath } = ctx;
+export async function loadInMemoryPaths({ ctx, parentPath }: Props) {
+  const files: InMemoryFiles = new Map();
+  const folders: InMemoryFolders = new Map();
 
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
+  const items = await statReaddir({ folder: parentPath });
 
-  const items = await fileSystem.syncWalk({ rootFolder: rootPath });
-
-  for (const item of items) {
-    const { path, stats } = item;
-
-    if (!stats) continue;
-
-    if (stats.isDirectory()) {
-      const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path });
-      if (folderInfo) {
-        folders[folderInfo.uuid] = path;
-      }
+  const filePromises = items.files.map(async ({ path, stats }) => {
+    const { data: fileInfo } = await NodeWin.getFileInfo({ path });
+    if (fileInfo) {
+      files.set(fileInfo.uuid, { stats, path });
     }
+  });
 
-    if (stats.isFile()) {
-      const { data: fileInfo } = NodeWin.getFileInfo({ path });
-      if (fileInfo) {
-        files[fileInfo.uuid] = { stats, path };
-      }
+  const folderPromises = items.folders.map(async ({ path }) => {
+    const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
+    if (folderInfo) {
+      folders.set(folderInfo.uuid, { path });
     }
-  }
+  });
+
+  await Promise.all([...filePromises, ...folderPromises]);
 
   return { files, folders };
 }

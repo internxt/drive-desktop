@@ -1,11 +1,19 @@
 #pragma once
 
 #include <node_api.h>
+#include <stdafx.h>
+
 #include <string>
 #include <tuple>
 
 template <typename T>
 T napi_extract_value(napi_env env, napi_value value);
+
+template <>
+inline napi_value napi_extract_value<napi_value>(napi_env env, napi_value value)
+{
+    return value;
+}
 
 template <>
 inline std::wstring napi_extract_value<std::wstring>(napi_env env, napi_value value)
@@ -15,7 +23,7 @@ inline std::wstring napi_extract_value<std::wstring>(napi_env env, napi_value va
 
     std::wstring result(length + 1, L'\0');
     size_t actualLength;
-    napi_get_value_string_utf16(env, value, reinterpret_cast<char16_t *>(result.data()), length + 1, &actualLength);
+    napi_get_value_string_utf16(env, value, reinterpret_cast<char16_t*>(result.data()), length + 1, &actualLength);
     result.resize(actualLength);
 
     return result;
@@ -37,10 +45,21 @@ inline bool napi_extract_value<bool>(napi_env env, napi_value value)
     return result;
 }
 
-template <typename... Types, std::size_t... Is>
-inline std::tuple<Types...> napi_extract_args_impl(napi_env env, napi_value *argv, std::index_sequence<Is...>)
+template <>
+inline CF_PIN_STATE napi_extract_value<CF_PIN_STATE>(napi_env env, napi_value value)
 {
-    return std::make_tuple(napi_extract_value<Types>(env, argv[Is])...);
+    int32_t result;
+    napi_get_value_int32(env, value, &result);
+    return static_cast<CF_PIN_STATE>(result);
+}
+
+template <>
+inline CF_CONNECTION_KEY napi_extract_value<CF_CONNECTION_KEY>(napi_env env, napi_value value)
+{
+    int64_t result;
+    bool lossless;
+    napi_get_value_bigint_int64(env, value, &result, &lossless);
+    return static_cast<CF_CONNECTION_KEY>(result);
 }
 
 template <typename... Types>
@@ -51,5 +70,7 @@ inline std::tuple<Types...> napi_extract_args(napi_env env, napi_callback_info i
     napi_value argv[N];
     napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
 
-    return napi_extract_args_impl<Types...>(env, argv, std::make_index_sequence<N>{});
+    return [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return std::make_tuple(napi_extract_value<Types>(env, argv[Is])...);
+    }(std::make_index_sequence<N>{});
 }

@@ -7,8 +7,7 @@
 
 #include <filesystem>
 
-void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId,
-                             int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
+void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);
@@ -36,7 +35,7 @@ void create_file_placeholder(const std::wstring& path, const std::wstring& place
 
     check_hresult(
         "CfCreatePlaceholders",
-        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_NONE, nullptr));
+        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_STOP_ON_ERROR, nullptr));
 }
 
 napi_value create_file_placeholder_wrapper(napi_env env, napi_callback_info info)

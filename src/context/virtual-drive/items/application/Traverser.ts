@@ -1,77 +1,60 @@
-import { getAllItems } from './RemoteItemsGenerator';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
+import { checkDangledFiles } from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
 type Items = {
   files: Array<SimpleDriveFile>;
   folders: Array<SimpleDriveFolder>;
 };
 
-export type Tree = {
-  files: Array<ExtendedDriveFile>;
-  folders: Array<ExtendedDriveFolder>;
-  trashedFiles: Array<ExtendedDriveFile>;
-  trashedFolders: Array<ExtendedDriveFolder>;
+type Props = {
+  ctx: ProcessSyncContext;
+  items: Items;
+  currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
+  isFirstExecution: boolean;
 };
 
 export class Traverser {
-  private static createRootFolder({ ctx }: { ctx: ProcessSyncContext }): ExtendedDriveFolder {
-    return {
-      uuid: ctx.rootUuid,
-      parentUuid: undefined,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      absolutePath: ctx.rootPath,
-      status: 'EXISTS',
-      name: '',
-    };
-  }
-
-  private static traverse(ctx: ProcessSyncContext, tree: Tree, items: Items, currentFolder: ExtendedDriveFolder) {
-    if (!items) return;
+  static async run({ ctx, items, currentFolder, isFirstExecution }: Props) {
+    const { files, folders } = await loadInMemoryPaths({ ctx, parentPath: currentFolder.absolutePath });
 
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
-    filesInThisFolder.forEach((file) => {
+    const filePromises = filesInThisFolder.map(async (file) => {
       const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
-      const extendedFile = { ...file, absolutePath };
+      const remote = { ...file, absolutePath };
 
       if (file.status === 'DELETED' || file.status === 'TRASHED') {
-        tree.trashedFiles.push(extendedFile);
+        await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: files });
       } else {
-        tree.files.push(extendedFile);
+        await FilePlaceholderUpdater.update({ ctx, remote, files });
+        if (isFirstExecution) {
+          void checkDangledFiles({ ctx, file: remote });
+        }
       }
     });
 
-    foldersInThisFolder.forEach((folder) => {
+    const folderPromises = foldersInThisFolder.map(async (folder) => {
       const absolutePath = join(currentFolder.absolutePath, folder.name);
-      const extendedFolder = { ...folder, absolutePath };
+      const remote = { ...folder, absolutePath };
 
       if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
-        tree.trashedFolders.push(extendedFolder);
+        await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: folders });
       } else {
-        tree.folders.push(extendedFolder);
-        this.traverse(ctx, tree, items, extendedFolder);
+        const success = await FolderPlaceholderUpdater.update({ ctx, remote, folders });
+        if (success) {
+          await this.run({ ctx, items, currentFolder: remote, isFirstExecution });
+        }
       }
     });
-  }
 
-  static async run({ ctx }: { ctx: ProcessSyncContext }) {
-    const rootFolder = this.createRootFolder({ ctx });
-    const items = await getAllItems({ ctx });
-
-    const tree: Tree = {
-      files: [],
-      folders: [rootFolder],
-      trashedFiles: [],
-      trashedFolders: [],
-    };
-
-    this.traverse(ctx, tree, items, rootFolder);
-
-    return tree;
+    await Promise.all([...filePromises, ...folderPromises]);
   }
 }

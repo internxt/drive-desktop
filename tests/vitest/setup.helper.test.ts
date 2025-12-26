@@ -23,6 +23,9 @@ vi.mock(import('electron'), () => {
       }),
       on: vi.fn(),
     },
+    nativeImage: {
+      createFromPath: vi.fn(),
+    },
     shell: {
       openPath: vi.fn(),
       openExternal: vi.fn(),
@@ -33,6 +36,7 @@ vi.mock(import('electron'), () => {
       handle: vi.fn(),
       invoke: vi.fn(),
       removeListener: vi.fn(),
+      removeAllListeners: vi.fn(),
     },
     BrowserWindow: vi.fn().mockImplementation(() => ({
       loadFile: vi.fn(),

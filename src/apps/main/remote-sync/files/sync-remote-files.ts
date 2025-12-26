@@ -1,17 +1,17 @@
 import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
-  self: RemoteSyncManager;
+  ctx: SyncContext;
   from?: Date;
   offset?: number;
 };
 
-export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
+export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
   let hasMore = true;
 
   while (hasMore) {
@@ -31,9 +31,9 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
       order: 'ASC',
     };
 
-    const promise = self.workspaceId
-      ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
-      : driveServerWip.files.getFiles({ query });
+    const promise = ctx.workspaceId
+      ? driveServerWip.workspaces.getFiles({ ctx, context: { query } })
+      : driveServerWip.files.getFiles({ ctx, context: { query } });
 
     const { data: fileDtos, error } = await promise;
 
@@ -42,13 +42,13 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
     hasMore = fileDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    await createOrUpdateFiles({ context: self.context, fileDtos });
+    await createOrUpdateFiles({ ctx, fileDtos });
 
     const lastFile = fileDtos.at(-1);
     if (lastFile) {
       await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: self.context.userUuid,
-        workspaceId: self.workspaceId,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
         type: 'file',
         name: lastFile.plainName,
         updatedAt: lastFile.updatedAt,

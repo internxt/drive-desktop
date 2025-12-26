@@ -1,17 +1,17 @@
 import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
-import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFoldersQuery } from '@/infra/drive-server-wip/services/folders.service';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
-  self: RemoteSyncManager;
+  ctx: SyncContext;
   from?: Date;
   offset?: number;
 };
 
-export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
+export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
   let hasMore = true;
 
   while (hasMore) {
@@ -31,9 +31,9 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
       order: 'ASC',
     };
 
-    const promise = self.workspaceId
-      ? driveServerWip.workspaces.getFoldersInWorkspace({ workspaceId: self.workspaceId, query })
-      : driveServerWip.folders.getFolders({ query });
+    const promise = ctx.workspaceId
+      ? driveServerWip.workspaces.getFolders({ ctx, context: { query } })
+      : driveServerWip.folders.getFolders({ ctx, context: { query } });
 
     const { data: folderDtos, error } = await promise;
 
@@ -42,13 +42,13 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
     hasMore = folderDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    await createOrUpdateFolders({ context: self.context, folderDtos });
+    await createOrUpdateFolders({ ctx, folderDtos });
 
     const lastFolder = folderDtos.at(-1);
     if (lastFolder) {
       await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: self.context.userUuid,
-        workspaceId: self.workspaceId,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
         type: 'folder',
         name: lastFolder.plainName,
         updatedAt: lastFolder.updatedAt,

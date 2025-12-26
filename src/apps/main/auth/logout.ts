@@ -8,7 +8,7 @@ import { closeAuxWindows } from '../windows';
 import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { AuthContext } from '@/backend/features/auth/utils/context';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { createAuthWindow } from '../windows/auth';
 import { setIsLoggedIn } from './handlers';
 

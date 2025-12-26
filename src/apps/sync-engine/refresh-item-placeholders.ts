@@ -1,42 +1,35 @@
-import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
-import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { ProcessSyncContext } from './config';
-import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import { SyncContext } from './config';
 import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
-import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
+  isFirstExecution: boolean;
 };
 
-export async function refreshItemPlaceholders({ ctx }: Props) {
+export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
   try {
-    const tree = await Traverser.run({ ctx });
+    const startTime = performance.now();
 
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Tree built',
-      workspaceId: ctx.workspaceId,
-      files: tree.files.length,
-      folders: tree.folders.length,
-      trashedFiles: tree.trashedFiles.length,
-      trashedFolders: tree.trashedFolders.length,
-    });
+    ctx.logger.debug({ msg: 'Refresh item placeholders', isFirstExecution });
 
-    const { files, folders } = await loadInMemoryPaths({ ctx });
-    await Promise.all([
-      deleteItemPlaceholders({ ctx, remotes: tree.trashedFolders, type: 'folder' }),
-      deleteItemPlaceholders({ ctx, remotes: tree.trashedFiles, type: 'file' }),
-      FolderPlaceholderUpdater.run({ ctx, remotes: tree.folders, folders }),
-      FilePlaceholderUpdater.run({ ctx, remotes: tree.files, files }),
-    ]);
-  } catch (exc) {
-    logger.error({
-      tag: 'SYNC-ENGINE',
-      msg: 'Error refreshing item placeholders',
-      workspaceId: ctx.workspaceId,
-      exc,
-    });
+    const items = await getAllItems({ ctx });
+    const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
+    await Traverser.run({ ctx, currentFolder, items, isFirstExecution });
+
+    const endTime = performance.now();
+
+    ctx.logger.debug({ msg: 'Finish refreshing placeholders in seconds', time: (endTime - startTime) / 1000 });
+  } catch (error) {
+    ctx.logger.error({ msg: 'Error refreshing item placeholders', error });
   }
+}
+
+async function getAllItems({ ctx }: { ctx: SyncContext }) {
+  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+    SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
+    SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),
+  ]);
+
+  return { files, folders };
 }

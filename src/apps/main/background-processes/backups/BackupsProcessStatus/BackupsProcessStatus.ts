@@ -17,3 +17,5 @@ export class BackupsProcessStatus {
     return this.status;
   }
 }
+
+export const status = new BackupsProcessStatus('STANDBY');

@@ -1,12 +1,12 @@
-import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { buildEnvironment } from '../../backups/build-environment';
 
 type TProps = {
   context: AuthContext;
@@ -20,8 +20,6 @@ type TProps = {
 };
 
 export async function spawnWorkspace({ context, workspace }: TProps) {
-  logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
-
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
 
   if (error) return;
@@ -34,8 +32,15 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       privateKeyInBase64: user.privateKey,
     });
 
+    const { environment, contentsDownloader } = buildEnvironment({
+      bucket: credentials.bucket,
+      mnemonic,
+      bridgeUser: credentials.credentials.networkUser,
+      bridgePass: credentials.credentials.networkPass,
+    });
+
     const syncCtx: SyncContext = {
-      ...context,
+      abortController: context.abortController,
       userUuid: user.uuid,
       mnemonic,
       providerId: workspace.providerId,
@@ -48,6 +53,8 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       bridgeUser: credentials.credentials.networkUser,
       bridgePass: credentials.credentials.networkPass,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: workspace.id }),
+      environment,
+      contentsDownloader,
     };
 
     await spawnSyncEngineWorker({ ctx: syncCtx });

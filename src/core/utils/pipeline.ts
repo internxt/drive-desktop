@@ -1,24 +1,28 @@
-import { Data, Effect } from 'effect/index';
 import { WriteStream } from 'node:fs';
 import { pipeline as rawPipeline } from 'node:stream/promises';
 
-export class PipelineAborted extends Data.TaggedError('PipelineAborted')<{ error: unknown }> {}
-export class PipelineError extends Data.TaggedError('PipelineError')<{ error: unknown }> {}
+export class PipelineError extends Error {
+  constructor(
+    public readonly code: 'ABORTED' | 'UNKNOWN',
+    cause?: unknown,
+  ) {
+    super(code, { cause });
+  }
+}
 
 type Props = {
   readable: AsyncIterable<unknown>;
   writable: WriteStream;
 };
 
-export function pipeline({ readable, writable }: Props) {
-  return Effect.tryPromise({
-    try: () => rawPipeline(readable, writable),
-    catch: (error) => {
-      if (error instanceof Error && error.message === 'The operation was aborted') {
-        return new PipelineAborted({ error });
-      }
+export async function pipeline({ readable, writable }: Props) {
+  try {
+    return await rawPipeline(readable, writable);
+  } catch (error) {
+    if (error instanceof Error && error.message === 'The operation was aborted') {
+      return new PipelineError('ABORTED', error);
+    }
 
-      return new PipelineError({ error });
-    },
-  });
+    return new PipelineError('UNKNOWN', error);
+  }
 }

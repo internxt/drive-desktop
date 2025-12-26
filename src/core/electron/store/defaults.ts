@@ -3,8 +3,7 @@ import { AppStore } from './app-store.interface';
 import { DEFAULT_LANGUAGE } from '@/apps/main/config/language.types';
 
 export const defaults: AppStore = {
-  backupsEnabled: false,
-  backupInterval: 86_400_000, // 24h
+  backupInterval: 24 * 60 * 60 * 1000,
   lastBackup: -1,
   syncRoot: '',
   deviceUuid: '',
@@ -17,7 +16,6 @@ export const defaults: AppStore = {
 
   savedConfigs: {},
   lastOnboardingShown: '',
-  discoveredBackup: 0,
   preferedLanguage: DEFAULT_LANGUAGE,
   preferedTheme: 'system',
   'patch-executed-2-5-1': false,
@@ -26,13 +24,5 @@ export const defaults: AppStore = {
   'migrations.v2-6-3-move-checkpoint-to-sqlite': false,
 };
 
-export const fieldsToSave: Array<keyof AppStore> = [
-  'backupsEnabled',
-  'backupInterval',
-  'lastBackup',
-  'syncRoot',
-  'deviceUuid',
-  'backupList',
-];
-
+export const fieldsToSave: Array<keyof AppStore> = ['backupInterval', 'lastBackup', 'syncRoot', 'deviceUuid', 'backupList'];
 export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'newTokenEncrypted', 'userData', 'mnemonic'];

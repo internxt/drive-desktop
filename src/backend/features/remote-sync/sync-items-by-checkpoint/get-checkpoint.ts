@@ -1,9 +1,9 @@
 import { rewind, TWO_MINUTES_IN_MILLISECONDS } from '@/apps/main/remote-sync/helpers';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
-  ctx: Config;
+  ctx: SyncContext;
   type: 'file' | 'folder';
 };
 

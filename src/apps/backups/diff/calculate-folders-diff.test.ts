@@ -18,11 +18,11 @@ describe('calculate-folders-diff', () => {
         },
       },
       remote: {
-        files: {},
-        folders: {
-          [folder1]: { absolutePath: folder1 },
-          [folder3]: { absolutePath: folder3 },
-        },
+        files: new Map(),
+        folders: new Map([
+          [folder1, { absolutePath: folder1 }],
+          [folder3, { absolutePath: folder3 }],
+        ]),
       },
     });
 

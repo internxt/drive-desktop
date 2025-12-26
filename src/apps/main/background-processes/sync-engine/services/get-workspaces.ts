@@ -1,14 +1,8 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export async function getWorkspaces() {
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'Get workspaces',
-  });
-
   const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces();
 
   if (error) return [];

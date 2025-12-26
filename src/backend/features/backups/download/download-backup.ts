@@ -1,22 +1,19 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Device, getPathFromDialog } from '@/apps/main/device/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { ipcMain } from 'electron';
+import { ipcMain, shell } from 'electron';
 import { downloadFolder } from './download-folder';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { getConfig } from '@/apps/sync-engine/config';
-import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
-import { InxtJs } from '@/infra';
-import { Environment } from '@internxt/inxt-js';
 import { broadcastToWindows } from '@/apps/main/windows';
+import { buildUserEnvironment } from '@/apps/main/background-processes/backups/build-environment';
 
 type Props = {
   device: Device;
   folderUuids?: FolderUuid[];
 };
 
-export async function downloadBackup({ device, folderUuids }: Props) {
+export async function downloadBackup({ device, folderUuids = [] }: Props) {
   const user = getUserOrThrow();
   const chosenItem = await getPathFromDialog();
 
@@ -28,22 +25,10 @@ export async function downloadBackup({ device, folderUuids }: Props) {
 
   const abortController = new AbortController();
 
-  const environment = new Environment({
-    bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: getConfig().bridgeUser,
-    bridgePass: getConfig().bridgePass,
-    encryptionKey: getConfig().mnemonic,
-    appDetails: {
-      clientName: INTERNXT_CLIENT,
-      clientVersion: INTERNXT_VERSION,
-      desktopHeader: process.env.DESKTOP_HEADER,
-    },
-  });
-
-  const contentsDownloader = new InxtJs.ContentsDownloader(environment, device.bucket);
+  const { contentsDownloader } = buildUserEnvironment({ user, type: 'backups' });
 
   function eventListener() {
-    logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.name });
+    logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.plainName });
     abortController.abort();
   }
 
@@ -51,13 +36,13 @@ export async function downloadBackup({ device, folderUuids }: Props) {
   ipcMain.on(listenerName, eventListener);
 
   const now = new Date().toISOString().replace('T', '').replaceAll('-', '').replaceAll(':', '').slice(0, 14);
-  const rootPath = join(chosenPath, 'Backup_' + now, device.name);
-  const rootUuids = folderUuids ?? [device.uuid as FolderUuid];
+  const rootPath = join(chosenPath, 'Backup_' + now, device.plainName);
+  const rootUuids = folderUuids.length === 0 ? [device.uuid as FolderUuid] : folderUuids;
 
   logger.debug({
     tag: 'BACKUPS',
     msg: 'Download backup',
-    name: device.name,
+    name: device.plainName,
     rootPath,
     rootUuids,
   });
@@ -85,5 +70,7 @@ export async function downloadBackup({ device, folderUuids }: Props) {
 
   broadcastToWindows({ name: 'backup-download-progress', data: { id: device.uuid, progress: 0 } });
 
-  ipcMain.removeListener(listenerName, eventListener);
+  ipcMain.removeAllListeners(listenerName);
+
+  void shell.openPath(rootPath);
 }

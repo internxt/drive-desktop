@@ -47,8 +47,6 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
               id: backup.folderId,
               uuid: backup.folderUuid,
               plainName: backup.plainName,
-              tmpPath: backup.tmpPath,
-              backupsBucket: backup.backupsBucket,
               pathname: backup.pathname,
             }))}
             selected={selectedBackup}
@@ -70,14 +68,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
               if (selectedBackup.length === 0) {
                 return;
               }
-              disableBackup({
-                folderId: selectedBackup[0].id,
-                plainName: selectedBackup[0].plainName,
-                pathname: selectedBackup[0].pathname,
-                tmpPath: selectedBackup[0].tmpPath,
-                backupsBucket: selectedBackup[0].backupsBucket,
-                folderUuid: selectedBackup[0].uuid,
-              });
+              disableBackup(selectedBackup[0].id);
             }}
             variant="secondary">
             <UilMinus size="17" />

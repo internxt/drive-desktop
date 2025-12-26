@@ -4,12 +4,10 @@
 #include <check_hresult.h>
 #include <convert_to_placeholder.h>
 #include <napi_extract_args.h>
-#include <update_sync_status_wrapper.h>
 
 #include <filesystem>
 
-void create_folder_placeholder(const std::wstring& path, const std::wstring& placeholderId,
-                               int64_t creationTimeMs, int64_t lastWriteTimeMs)
+void create_folder_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);
@@ -27,7 +25,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
     cloudEntry.FileIdentity = placeholderId.c_str();
     cloudEntry.FileIdentityLength = static_cast<DWORD>((placeholderId.size() + 1) * sizeof(WCHAR));
     cloudEntry.RelativeFileName = name.c_str();
-    cloudEntry.Flags = CF_PLACEHOLDER_CREATE_FLAG_DISABLE_ON_DEMAND_POPULATION;  // Deactivate download on demand
+    cloudEntry.Flags = CF_PLACEHOLDER_CREATE_FLAG_DISABLE_ON_DEMAND_POPULATION | CF_PLACEHOLDER_CREATE_FLAG_MARK_IN_SYNC;
     cloudEntry.FsMetadata.BasicInfo.FileAttributes = FILE_ATTRIBUTE_DIRECTORY;
     cloudEntry.FsMetadata.BasicInfo.CreationTime = creationTime;
     cloudEntry.FsMetadata.BasicInfo.LastWriteTime = lastWriteTime;
@@ -35,9 +33,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
 
     check_hresult(
         "CfCreatePlaceholders",
-        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_NONE, nullptr));
-
-    update_sync_status(path);
+        CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_STOP_ON_ERROR, nullptr));
 }
 
 napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info info)

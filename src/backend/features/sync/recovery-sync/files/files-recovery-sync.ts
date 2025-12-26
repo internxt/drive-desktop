@@ -14,8 +14,6 @@ type Props = {
 };
 
 export async function filesRecoverySync({ ctx, offset }: Props) {
-  const extra = { abortSignal: ctx.abortController.signal, skipLog: true };
-
   const query: GetFilesQuery = {
     limit: FETCH_LIMIT_1000,
     offset,
@@ -25,8 +23,8 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   };
 
   const { data: remotes } = ctx.workspaceId
-    ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query }, extra)
-    : await DriveServerWipModule.FileModule.getFiles({ query }, extra);
+    ? await DriveServerWipModule.WorkspaceModule.getFiles({ ctx, context: { query }, skipLog: true })
+    : await DriveServerWipModule.FileModule.getFiles({ ctx, context: { query }, skipLog: true });
 
   if (!remotes) {
     ctx.logger.debug({ msg: 'There are no remotes files to run the recovery sync' });
@@ -40,7 +38,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   const filesToSync = await getItemsToSync({ ctx, type: 'file', remotes, locals });
   const deletedFiles = getDeletedItems({ ctx, type: 'file', remotes, locals });
 
-  const filesToSyncPromises = createOrUpdateFiles({ context: ctx, fileDtos: filesToSync });
+  const filesToSyncPromises = createOrUpdateFiles({ ctx, fileDtos: filesToSync });
   const deletedFilesPromises = deletedFiles.map(async (file) => {
     return await SqliteModule.FileModule.updateByUuid({
       uuid: file.uuid,

@@ -14,8 +14,6 @@ type Props = {
 };
 
 export async function foldersRecoverySync({ ctx, offset }: Props) {
-  const extra = { abortSignal: ctx.abortController.signal, skipLog: true };
-
   const query: GetFoldersQuery = {
     limit: FETCH_LIMIT_1000,
     offset,
@@ -25,8 +23,8 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
   };
 
   const { data: remotes } = ctx.workspaceId
-    ? await DriveServerWipModule.WorkspaceModule.getFoldersInWorkspace({ workspaceId: ctx.workspaceId, query }, extra)
-    : await DriveServerWipModule.FolderModule.getFolders({ query }, extra);
+    ? await DriveServerWipModule.WorkspaceModule.getFolders({ ctx, context: { query }, skipLog: true })
+    : await DriveServerWipModule.FolderModule.getFolders({ ctx, context: { query }, skipLog: true });
 
   if (!remotes) {
     ctx.logger.debug({ msg: 'There are no remotes folders to run the recovery sync' });
@@ -40,7 +38,7 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
   const foldersToSync = await getItemsToSync({ ctx, type: 'folder', remotes, locals });
   const deletedFolders = getDeletedItems({ ctx, type: 'folder', remotes, locals });
 
-  const foldersToSyncPromises = createOrUpdateFolders({ context: ctx, folderDtos: foldersToSync });
+  const foldersToSyncPromises = createOrUpdateFolders({ ctx, folderDtos: foldersToSync });
   const deletedFoldersPromises = deletedFolders.map(async (folder) => {
     return await SqliteModule.FolderModule.updateByUuid({
       uuid: folder.uuid,

@@ -5,12 +5,14 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as isMoveFileEvent from './is-move-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { ipcRenderer } from 'electron';
 import * as getParentUuid from './get-parent-uuid';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import * as deleteFileByUuid from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('unlink-file', () => {
   const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
-  const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
+  const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const deleteFileByUuidMock = partialSpyOn(deleteFileByUuid, 'deleteFileByUuid');
   const isMoveFileEventMock = partialSpyOn(isMoveFileEvent, 'isMoveFileEvent');
 
   const props = mockProps<typeof unlinkFile>({
@@ -23,7 +25,7 @@ describe('unlink-file', () => {
 
   beforeEach(() => {
     getParentUuidMock.mockResolvedValue('parentUuid' as FolderUuid);
-    invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     isMoveFileEventMock.mockResolvedValue(false);
   });
 
@@ -46,18 +48,17 @@ describe('unlink-file', () => {
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ path: '/drive/folder/file.txt' }));
-    expect(invokeMock).toBeCalledTimes(0);
+    expect(getByNameMock).toBeCalledTimes(0);
   });
 
   it('should skip if file does not exist', async () => {
     // Given
-    invokeMock.mockResolvedValue({});
+    getByNameMock.mockResolvedValue({});
     // When
     await unlinkFile(props);
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
-    expect(invokeMock).toBeCalledTimes(1);
-    expect(invokeMock).toBeCalledWith('fileGetByName', { parentUuid: 'parentUuid', nameWithExtension: 'file.txt' });
+    expect(getByNameMock).toBeCalledWith({ nameWithExtension: 'file.txt', parentUuid: 'parentUuid' });
     expect(isMoveFileEventMock).toBeCalledTimes(0);
   });
 
@@ -68,8 +69,7 @@ describe('unlink-file', () => {
     await unlinkFile(props);
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
-    expect(invokeMock).toBeCalledTimes(1);
-    expect(isMoveFileEventMock).toBeCalledTimes(1);
+    expect(getByNameMock).toBeCalledTimes(1);
     expect(isMoveFileEventMock).toBeCalledWith({ uuid: 'uuid' });
   });
 
@@ -79,8 +79,8 @@ describe('unlink-file', () => {
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveFileEventMock).toBeCalledTimes(1);
-    expect(invokeMock).toBeCalledTimes(2);
-    expect(invokeMock).toBeCalledWith('storageDeleteFileByUuid', {
+    expect(getByNameMock).toBeCalledTimes(1);
+    expect(deleteFileByUuidMock).toBeCalledWith({
       path: '/drive/folder/file.txt',
       uuid: 'uuid',
       workspaceToken: 'token',
@@ -89,10 +89,7 @@ describe('unlink-file', () => {
 
   it('should catch error in case unlink returns error', async () => {
     // Given
-    invokeMock.mockImplementation((channel) => {
-      if (channel === 'storageDeleteFileByUuid') return Promise.resolve({ error: new Error() });
-      return Promise.resolve({ data: { uuid: 'uuid' as FileUuid } });
-    });
+    deleteFileByUuidMock.mockRejectedValue(new Error());
     // When
     await unlinkFile(props);
     // Then
