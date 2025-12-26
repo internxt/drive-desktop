@@ -37,7 +37,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await refreshItemPlaceholders({ ctx, runDangledFiles: true });
+    await refreshItemPlaceholders({ ctx, isFirstExecution: true });
 
     /**
      * v2.5.7 Daniel Jiménez

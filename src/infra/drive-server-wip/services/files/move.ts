@@ -3,6 +3,8 @@ import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { parseFileDto } from '../../out/dto';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 class MoveFileError extends DriveServerWipError {
   constructor(
@@ -13,7 +15,7 @@ class MoveFileError extends DriveServerWipError {
   }
 }
 
-export async function move(context: { uuid: string; parentUuid: string; name: string; extension: string; workspaceToken: string }) {
+export async function move(context: { uuid: FileUuid; parentUuid: FolderUuid; name: string; extension: string; workspaceToken: string }) {
   const method = 'PATCH';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });

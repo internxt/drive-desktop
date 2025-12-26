@@ -1,29 +1,30 @@
-import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { InxtJs } from '@/infra';
 import { Environment } from '@internxt/inxt-js';
 
-export type CommonContext = {
-  userUuid: string;
-  workspaceId: string;
+export type AuthContext = {
+  readonly abortController: AbortController;
   workspaceToken: string;
-  bucket: string;
-  environment: Environment;
-  logger: typeof logger;
 };
 
-export type SyncContext = AuthContext &
-  CommonContext & {
-    providerId: string;
-    rootPath: AbsolutePath;
-    rootUuid: FolderUuid;
-    providerName: string;
-    mnemonic: string;
-    bridgeUser: string;
-    bridgePass: string;
-    logger: typeof logger;
-    contentsDownloader: InxtJs.ContentsDownloader;
-  };
+export type CommonContext = AuthContext & {
+  readonly userUuid: string;
+  readonly workspaceId: string;
+  readonly bucket: string;
+  readonly environment: Environment;
+  readonly logger: typeof logger;
+};
+
+export type SyncContext = CommonContext & {
+  readonly providerId: string;
+  rootPath: AbsolutePath;
+  readonly rootUuid: FolderUuid;
+  readonly providerName: string;
+  readonly mnemonic: string;
+  readonly bridgeUser: string;
+  readonly bridgePass: string;
+  readonly contentsDownloader: InxtJs.ContentsDownloader;
+};
 
 export type ProcessSyncContext = SyncContext;

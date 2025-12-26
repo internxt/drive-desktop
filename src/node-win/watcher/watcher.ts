@@ -18,7 +18,6 @@ export function initWatcher({ ctx }: Props) {
     awaitWriteFinish: process.env.NODE_ENV !== 'test',
     depth: undefined,
     followSymlinks: true,
-    ignored: /(^|[/\\])\../,
     ignoreInitial: true,
     persistent: true,
     usePolling: false,

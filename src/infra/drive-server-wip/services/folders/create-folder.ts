@@ -4,8 +4,10 @@ import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { FolderDto, parseFolderDto } from '../../out/dto';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-type TCreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
+type CreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
 
 class CreateFolderError extends DriveServerWipError {
   constructor(
@@ -16,13 +18,19 @@ class CreateFolderError extends DriveServerWipError {
   }
 }
 
-export async function createFolder(context: { path: string; body: TCreateFolderBody }) {
+type Props = {
+  ctx: CommonContext;
+  context: { path: AbsolutePath; body: CreateFolderBody };
+};
+
+export async function createFolder({ ctx, context }: Props) {
   const method = 'POST';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.POST(endpoint, {
+      signal: ctx.abortController.signal,
       body: context.body,
     });
 

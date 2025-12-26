@@ -1,9 +1,6 @@
-import { mockDeep } from 'vitest-mock-extended';
-import { RemoteSyncManager } from '../RemoteSyncManager';
-import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
-import { SyncContext } from '@/apps/sync-engine/config';
 import * as createOrUpdateFoldersModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
@@ -15,17 +12,15 @@ describe('sync-remote-folders.service', () => {
   const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
   const getFoldersMock = deepMocked(driveServerWip.folders.getFolders);
 
-  const config = mockDeep<SyncContext>();
-  config.userUuid = 'uuid';
-  const remoteSyncManager = new RemoteSyncManager(config, '');
+  const { ctx } = mockProps<typeof syncRemoteFolders>({
+    ctx: { userUuid: 'uuid', workspaceId: '' },
+  });
 
   it('If we fetch less than 1000 files, then do not fetch again', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: [] });
-
     // When
-    await syncRemoteFolders({ self: remoteSyncManager });
-
+    await syncRemoteFolders({ ctx });
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(1);
   });
@@ -33,41 +28,27 @@ describe('sync-remote-folders.service', () => {
   it('If from is undefined, fetch only EXISTS files', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: [] });
-
     // When
-    await syncRemoteFolders({ self: remoteSyncManager });
-
+    await syncRemoteFolders({ ctx });
     // Then
-    expect(getFoldersMock).toBeCalledWith({
-      query: expect.objectContaining({
-        status: 'EXISTS',
-      }),
-    });
+    call(getFoldersMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
   });
 
   it('If from is provided, fetch ALL files', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: [] });
-
     // When
-    await syncRemoteFolders({ self: remoteSyncManager, from: new Date() });
-
+    await syncRemoteFolders({ ctx, from: new Date() });
     // Then
-    expect(getFoldersMock).toBeCalledWith({
-      query: expect.objectContaining({
-        status: 'ALL',
-      }),
-    });
+    call(getFoldersMock).toMatchObject({ context: { query: { status: 'ALL' } } });
   });
 
   it('If we fetch 1000 files, then fetch again', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
     getFoldersMock.mockResolvedValueOnce({ data: [] });
-
     // When
-    await syncRemoteFolders({ self: remoteSyncManager });
-
+    await syncRemoteFolders({ ctx });
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(2);
     expect(createOrUpdateFoldersMock).toHaveBeenCalledTimes(2);
@@ -76,10 +57,8 @@ describe('sync-remote-folders.service', () => {
   it('If fetch fails, then throw error', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ error: new Error() });
-
     // When
-    await expect(() => syncRemoteFolders({ self: remoteSyncManager })).rejects.toThrowError();
-
+    await expect(() => syncRemoteFolders({ ctx })).rejects.toThrowError();
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(1);
   });
@@ -88,10 +67,8 @@ describe('sync-remote-folders.service', () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
     getFoldersMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
-
     // When
-    await syncRemoteFolders({ self: remoteSyncManager });
-
+    await syncRemoteFolders({ ctx });
     // Then
     const common = { userUuid: 'uuid', workspaceId: '', type: 'folder' };
     expect(createOrUpdateCheckpointMock).toHaveBeenCalledTimes(2);

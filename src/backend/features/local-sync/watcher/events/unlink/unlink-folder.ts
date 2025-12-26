@@ -1,6 +1,5 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
-import { logger } from '@/apps/shared/logger/logger';
 import { getParentUuid } from './get-parent-uuid';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { isMoveFolderEvent } from './is-move-event';
@@ -20,27 +19,22 @@ export async function unlinkFolder({ ctx, path }: TProps) {
     const plainName = basename(path);
     const { data: folder } = await SqliteModule.FolderModule.getByName({ parentUuid, plainName });
 
-    if (!folder) {
-      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Cannot unlink folder, not found or does not exist', path, parentUuid, plainName });
-      return;
-    }
+    if (!folder) return;
 
     const isMove = await isMoveFolderEvent({ uuid: folder.uuid });
     if (isMove) {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Is move event', path });
+      ctx.logger.debug({ msg: 'Is move event', path });
       return;
     }
 
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Folder unlinked', path });
+    ctx.logger.debug({ msg: 'Folder unlinked', path });
 
-    const { error } = await deleteFolderByUuid({
+    await deleteFolderByUuid({
       uuid: folder.uuid,
       workspaceToken: ctx.workspaceToken,
       path,
     });
-
-    if (error) throw error;
   } catch (exc) {
-    logger.error({ tag: 'SYNC-ENGINE', msg: 'Error on unlink folder', path, exc });
+    ctx.logger.error({ msg: 'Error on unlink folder', path, exc });
   }
 }

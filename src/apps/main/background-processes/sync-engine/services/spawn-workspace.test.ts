@@ -20,6 +20,7 @@ describe('spawn-workspace.service', () => {
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const props = mockProps<typeof spawnWorkspace>({
+    context: { abortController: new AbortController() },
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',

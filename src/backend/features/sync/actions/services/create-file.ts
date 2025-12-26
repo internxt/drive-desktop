@@ -20,7 +20,7 @@ type Props = {
 };
 
 export async function createFile({ ctx, path, stats: { size }, parentUuid }: Props) {
-  const tempFile = isTemporaryFile(path);
+  const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
     ctx.logger.debug({ msg: 'File is temporary, skipping', path });
@@ -30,8 +30,6 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
   const contentsId = await uploadFile({ ctx, size, path });
 
   if (!contentsId) return;
-
-  ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
 
   const { name, extension } = getNameAndExtension({ path });
 
@@ -46,8 +44,8 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
   };
 
   const res = ctx.workspaceId
-    ? await driveServerWip.workspaces.createFile({ body, path, workspaceId: ctx.workspaceId, workspaceToken: ctx.workspaceToken })
-    : await driveServerWip.files.createFile({ body, path });
+    ? await driveServerWip.workspaces.createFile({ ctx, context: { path, body } })
+    : await driveServerWip.files.createFile({ ctx, context: { path, body } });
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
