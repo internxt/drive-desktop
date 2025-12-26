@@ -50,6 +50,9 @@ var api = {
   onUserLoggedInChanged(func) {
     import_electron2.ipcRenderer.on("user-logged-in-changed", (_, v) => func(v));
   },
+  logout() {
+    import_electron2.ipcRenderer.send("USER_LOGGED_OUT");
+  },
   closeWindow() {
     import_electron2.ipcRenderer.send("user-closed-window");
   },
@@ -213,7 +216,6 @@ var api = {
   path: import_node_path.default,
   shellOpenExternal: import_electron2.shell.openExternal,
   shellOpenPath: import_electron2.shell.openPath,
-  logout: async () => await ipcPreloadRenderer.invoke("logout"),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
