@@ -7,6 +7,8 @@ import { INTERNXT_LOGS } from '@/core/utils/utils';
 import archiver from 'archiver';
 import { mockDeep } from 'vitest-mock-extended';
 import { pipeline } from 'node:stream/promises';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:stream/promises'));
@@ -25,8 +27,8 @@ describe('open-logs', () => {
   });
 
   afterEach(() => {
-    call(createWriteStreamMock).toStrictEqual(`/mock/logs/internxt-drive/logs/${INTERNXT_LOGS}`);
-    call(openPathMock).toStrictEqual('/mock/logs/internxt-drive/logs');
+    call(createWriteStreamMock).toStrictEqual(join(PATHS.INTERNXT, 'logs', INTERNXT_LOGS));
+    call(openPathMock).toStrictEqual(join(PATHS.INTERNXT, 'logs'));
   });
 
   it('should catch file errors', async () => {
@@ -45,10 +47,10 @@ describe('open-logs', () => {
     await openLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(archive.file).toStrictEqual([
-      ['/mock/logs/internxt-drive/logs/drive.log', { name: 'drive.log' }],
-      ['/mock/logs/internxt-drive/logs/drive-important.log', { name: 'drive-important.log' }],
-      ['/mock/logs/internxt-drive/internxt_desktop.db', { name: 'internxt_desktop.db' }],
+    calls(archive.file).toMatchObject([
+      [join(PATHS.INTERNXT, 'logs/drive.log'), { name: 'drive.log' }],
+      [join(PATHS.INTERNXT, 'logs/drive-important.log'), { name: 'drive-important.log' }],
+      [join(PATHS.INTERNXT, 'internxt_desktop.db'), { name: 'internxt_desktop.db' }],
     ]);
   });
 });
