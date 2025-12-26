@@ -35,6 +35,9 @@ const api = {
   onUserLoggedInChanged(func: (_: boolean) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
+  logout() {
+    ipcRenderer.send('USER_LOGGED_OUT');
+  },
   closeWindow() {
     ipcRenderer.send('user-closed-window');
   },
