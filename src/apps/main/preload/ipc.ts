@@ -20,7 +20,6 @@ type Mirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => Promise<ReturnType<T>> : (props: Parameters<T>[0]) => Promise<ReturnType<T>>;
 
 export type FromProcess = {
-  logout: () => Promise<boolean>;
   getLastBackupProgress: Mirror<typeof getLastBackupProgress>;
   getUsage: AsyncMirror<typeof calculateUsage>;
   getAvailableProducts: AsyncMirror<typeof getAvailableProducts>;

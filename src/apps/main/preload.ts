@@ -217,7 +217,6 @@ const api = {
   path,
   shellOpenExternal: shell.openExternal,
   shellOpenPath: shell.openPath,
-  logout: async () => await ipcPreloadRenderer.invoke('logout'),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
