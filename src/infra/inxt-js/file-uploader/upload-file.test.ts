@@ -25,9 +25,9 @@ describe('upload-file', () => {
 
     abortController = new AbortController();
     props = mockProps<typeof uploadFile>({
+      ctx: { abortController },
       fn: environment.upload,
       readable,
-      abortSignal: abortController.signal,
       size: 10,
     });
   });

@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { getRequestKey } from '../../in/get-in-flight-request';
@@ -31,6 +31,7 @@ export async function createFile({ ctx, context }: Props) {
   const promiseFn = () =>
     client.POST(endpoint, {
       signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       body: context.body,
     });
 

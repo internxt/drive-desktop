@@ -53,6 +53,6 @@ describe('move-folder', () => {
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
     calls(loggerMock.debug).toMatchObject([{ msg: 'onReady' }, { msg: 'Is move event', path: folder1 }]);
-    call(persistMoveFolderMock).toMatchObject({ parentUuid: 'parentUuid', path: folder2, uuid: 'uuid', workspaceToken: undefined });
+    call(persistMoveFolderMock).toMatchObject({ parentUuid: 'parentUuid', path: folder2, uuid: 'uuid' });
   });
 });

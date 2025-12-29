@@ -12,6 +12,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getBackupsFromDevice } from './get-backups-from-device';
 import { FolderUuid } from '../database/entities/DriveFolder';
+import { AuthContext } from '@/apps/sync-engine/config';
 
 export type Device = {
   plainName: string;
@@ -232,11 +233,13 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
+export async function deleteBackup({ ctx, backup, isCurrent }: { ctx: AuthContext; backup: BackupInfo; isCurrent?: boolean }) {
   const res = await driveServerWipModule.storage.deleteFolderByUuid({
-    path: backup.pathname,
-    uuid: backup.folderUuid as FolderUuid,
-    workspaceToken: '',
+    ctx,
+    context: {
+      path: backup.pathname,
+      uuid: backup.folderUuid as FolderUuid,
+    },
   });
 
   if (res.error) {
@@ -254,10 +257,9 @@ export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Pro
   }
 }
 
-export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
+export async function deleteBackupsFromDevice({ ctx, device, isCurrent }: { ctx: AuthContext; device: Device; isCurrent?: boolean }) {
   const backups = await getBackupsFromDevice(device, isCurrent);
-
-  const deletionPromises = backups.map((backup) => deleteBackup(backup, isCurrent));
+  const deletionPromises = backups.map((backup) => deleteBackup({ ctx, backup, isCurrent }));
   await Promise.all(deletionPromises);
 }
 

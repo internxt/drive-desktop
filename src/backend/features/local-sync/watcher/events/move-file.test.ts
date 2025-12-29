@@ -50,6 +50,6 @@ describe('move-file', () => {
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
     calls(loggerMock.debug).toMatchObject([{ msg: 'onReady' }, { msg: 'Is move event', path: file1 }]);
-    call(persistMoveFileMock).toMatchObject({ parentUuid: 'parentUuid', path: file2, uuid: 'uuid', workspaceToken: undefined });
+    call(persistMoveFileMock).toMatchObject({ parentUuid: 'parentUuid', path: file2, uuid: 'uuid' });
   });
 });

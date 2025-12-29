@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
@@ -72,6 +72,7 @@ async function getFiles({ ctx, context, skipLog }: { ctx: SyncContext; context: 
   const promiseFn = () =>
     client.GET(endpoint, {
       signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: {
         path: { workspaceId: ctx.workspaceId },
         query: context.query,
@@ -100,6 +101,7 @@ async function getFolders({ ctx, context, skipLog }: { ctx: SyncContext; context
   const promiseFn = () =>
     client.GET(endpoint, {
       signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: {
         path: { workspaceId: ctx.workspaceId },
         query: context.query,

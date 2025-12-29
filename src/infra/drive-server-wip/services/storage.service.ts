@@ -5,13 +5,14 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AuthContext, CommonContext } from '@/apps/sync-engine/config';
 
 export const storage = {
   deleteFileByUuid,
   deleteFolderByUuid,
 };
 
-async function deleteFileByUuid(context: { path: AbsolutePath; uuid: FileUuid; workspaceToken: string }) {
+async function deleteFileByUuid({ ctx, context }: { ctx: CommonContext; context: { path: AbsolutePath; uuid: FileUuid } }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -19,7 +20,8 @@ async function deleteFileByUuid(context: { path: AbsolutePath; uuid: FileUuid; w
   const promiseFn = () =>
     noContentWrapper({
       request: client.POST(endpoint, {
-        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
+        signal: ctx.abortController.signal,
+        headers: getWorkspaceHeader({ ctx }),
         body: { items: [{ type: 'file', uuid: context.uuid }] },
       }),
     });
@@ -31,7 +33,7 @@ async function deleteFileByUuid(context: { path: AbsolutePath; uuid: FileUuid; w
   });
 }
 
-async function deleteFolderByUuid(context: { path: AbsolutePath; uuid: FolderUuid; workspaceToken: string }) {
+async function deleteFolderByUuid({ ctx, context }: { ctx: AuthContext; context: { path: AbsolutePath; uuid: FolderUuid } }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -39,7 +41,8 @@ async function deleteFolderByUuid(context: { path: AbsolutePath; uuid: FolderUui
   const promiseFn = () =>
     noContentWrapper({
       request: client.POST(endpoint, {
-        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
+        signal: ctx.abortController.signal,
+        headers: getWorkspaceHeader({ ctx }),
         body: { items: [{ type: 'folder', uuid: context.uuid }] },
       }),
     });

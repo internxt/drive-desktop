@@ -148,12 +148,6 @@ var api = {
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
   },
-  deleteBackup(backup) {
-    return import_electron2.ipcRenderer.invoke("delete-backup", backup);
-  },
-  deleteBackupsFromDevice(device, isCurrent) {
-    return import_electron2.ipcRenderer.invoke("delete-backups-from-device", device, isCurrent);
-  },
   disableBackup(folderId) {
     return import_electron2.ipcRenderer.invoke("disable-backup", folderId);
   },
@@ -245,6 +239,8 @@ var api = {
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
-  openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl")
+  openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
+  deleteBackup: async (props) => await ipcPreloadRenderer.invoke("deleteBackup", props),
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);
