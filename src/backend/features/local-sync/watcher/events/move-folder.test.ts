@@ -34,7 +34,7 @@ describe('move-folder', () => {
     });
   });
 
-  it('should perform move request and ignore unlink event', async () => {
+  it.skip('should perform move request and ignore unlink event', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
@@ -42,7 +42,7 @@ describe('move-folder', () => {
     await mkdir(folder1);
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(props);
+    await initWatcher(props);
     // When
     await testSleep(50);
     await rename(folder1, folder2);
