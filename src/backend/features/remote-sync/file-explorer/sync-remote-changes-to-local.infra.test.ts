@@ -54,7 +54,6 @@ describe('sync-remote-changes-to-local', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
-      { msg: 'onReady' },
       {
         msg: 'Sync remote changes to local',
         path,
@@ -66,9 +65,9 @@ describe('sync-remote-changes-to-local', () => {
     ]);
 
     getEvents().toMatchObject([
-      { event: 'add', path, stats: { size: 7 } },
-      { event: 'change', path, stats: { size: 7 } },
-      { event: 'change', path, stats: { size: 1000 } },
+      { event: 'create', path },
+      { event: 'update', path },
+      { event: 'update', path },
     ]);
   });
 });
