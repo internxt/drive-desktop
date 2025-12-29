@@ -25,7 +25,7 @@ export async function onUnlink({ ctx, path }: TProps) {
 
     if (file) await unlinkFile({ ctx, path, uuid: file.uuid });
     if (folder) await unlinkFolder({ ctx, path, uuid: folder.uuid });
-  } catch (exc) {
-    ctx.logger.error({ msg: 'Error on unlink event', path, exc });
+  } catch (error) {
+    ctx.logger.error({ msg: 'Error on unlink event', path, error });
   }
 }
