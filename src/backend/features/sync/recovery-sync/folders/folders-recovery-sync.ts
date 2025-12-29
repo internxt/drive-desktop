@@ -23,7 +23,7 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
   };
 
   const { data: remotes } = ctx.workspaceId
-    ? await DriveServerWipModule.WorkspaceModule.getFolders({ ctx, context: { query }, skipLog: true })
+    ? await DriveServerWipModule.WorkspaceModule.getFolders({ ctx, query, skipLog: true })
     : await DriveServerWipModule.FolderModule.getFolders({ ctx, context: { query }, skipLog: true });
 
   if (!remotes) {

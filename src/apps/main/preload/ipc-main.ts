@@ -37,9 +37,9 @@ export function setupPreloadIpc() {
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
-  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
 }
 
 export function clearLoggedPreloadIpc() {
-  ipcMain.removeAllListeners('deleteBackupFromDevice');
+  ipcMain.removeHandler('deleteBackupsFromDevice');
 }
