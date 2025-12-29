@@ -41,7 +41,7 @@ describe('move-file', () => {
     await writeFile(file1, 'content');
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(props);
+    await initWatcher(props);
     // When
     await testSleep(50);
     await rename(file1, file2);
