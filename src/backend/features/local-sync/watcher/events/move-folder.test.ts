@@ -42,7 +42,7 @@ describe('move-folder', () => {
     await mkdir(folder1);
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    await initWatcher(props);
+    initWatcher(props);
     // When
     await testSleep(50);
     await rename(folder1, folder2);
