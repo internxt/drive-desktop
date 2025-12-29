@@ -14,7 +14,7 @@ export async function unlinkFile({ ctx, path, uuid }: TProps) {
   const isMove = await isMoveFileEvent({ uuid });
 
   if (isMove) {
-    ctx.logger.debug({ msg: 'Is move folder event', path });
+    ctx.logger.debug({ msg: 'Is move file event', path });
     return;
   }
 

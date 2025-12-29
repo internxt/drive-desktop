@@ -17,7 +17,8 @@ describe('move-file', () => {
   partialSpyOn(sleep, 'sleep');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
-  const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const getFileByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const getFolderByNameMock = partialSpyOn(SqliteModule.FolderModule, 'getByName');
   const getByUuidMock = partialSpyOn(SqliteModule.FileModule, 'getByUuid');
   const persistMoveFileMock = partialSpyOn(persistMoveFile, 'persistMoveFile');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
@@ -25,7 +26,8 @@ describe('move-file', () => {
   const rootPath = join(TEST_FILES, v4());
 
   beforeEach(() => {
-    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, parentUuid: 'parentUuid' } });
+    getFolderByNameMock.mockResolvedValue({});
+    getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, parentUuid: 'parentUuid' } });
     getByUuidMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
@@ -39,7 +41,7 @@ describe('move-file', () => {
     await writeFile(file1, 'content');
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(props);
+    await initWatcher(props);
     // When
     await testSleep(50);
     await rename(file1, file2);
@@ -49,7 +51,7 @@ describe('move-file', () => {
     call(updateSyncStatusMock).toStrictEqual({ path: file2 });
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
-    calls(loggerMock.debug).toMatchObject([{ msg: 'onReady' }, { msg: 'Is move event', path: file1 }]);
+    call(loggerMock.debug).toMatchObject({ msg: 'Is move file event', path: file1 });
     call(persistMoveFileMock).toMatchObject({ parentUuid: 'parentUuid', path: file2, uuid: 'uuid' });
   });
 });

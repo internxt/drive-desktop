@@ -15,7 +15,7 @@ describe('watcher on unlink', () => {
     await mkdir(rootPath);
   });
 
-  it('should emit unlink event when delete file', async () => {
+  it('should emit delete event when delete file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await writeFile(file, 'content');
@@ -24,10 +24,10 @@ describe('watcher on unlink', () => {
     await rm(file, { force: true });
     await sleep(150);
     // Then
-    getEvents().toMatchObject([{ event: 'unlink', path: file }]);
+    getEvents().toMatchObject([{ event: 'delete', path: file }]);
   });
 
-  it('should emit unlinkDir event when delete folder', async () => {
+  it('should emit delete event when delete folder', async () => {
     // Given
     const folder = join(rootPath, 'folder');
     await mkdir(folder);
@@ -36,10 +36,10 @@ describe('watcher on unlink', () => {
     await rm(folder, { recursive: true, force: true });
     await sleep(150);
     // Then
-    getEvents().toMatchObject([{ event: 'unlinkDir', path: folder }]);
+    getEvents().toMatchObject([{ event: 'delete', path: folder }]);
   });
 
-  it('should emit unlinkDir and unlink events when delete folder with a file inside', async () => {
+  it('should emit delete events when delete folder with a file inside', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const file = join(parent, 'file');
@@ -51,12 +51,12 @@ describe('watcher on unlink', () => {
     await sleep(150);
     // Then
     getEvents().toMatchObject([
-      { event: 'unlinkDir', path: parent },
-      { event: 'unlink', path: file },
+      { event: 'delete', path: file },
+      { event: 'delete', path: parent },
     ]);
   });
 
-  it('should emit unlinkDir and unlink events when delete folder with a folder inside', async () => {
+  it('should emit delete events when delete folder with a folder inside', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
@@ -68,8 +68,8 @@ describe('watcher on unlink', () => {
     await sleep(150);
     // Then
     getEvents().toMatchObject([
-      { event: 'unlinkDir', path: folder },
-      { event: 'unlinkDir', path: parent },
+      { event: 'delete', path: folder },
+      { event: 'delete', path: parent },
     ]);
   });
 });

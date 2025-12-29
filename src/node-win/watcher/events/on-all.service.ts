@@ -1,7 +1,8 @@
-import ParcelWatcher from '@parcel/watcher';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
-  event: ParcelWatcher.Event;
+  event: string;
+  path: AbsolutePath;
 };
 
 // eslint-disable-next-line no-empty-pattern

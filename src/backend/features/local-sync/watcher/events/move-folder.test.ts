@@ -15,7 +15,8 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 describe('move-folder', () => {
   const sleepMock = partialSpyOn(sleep, 'sleep');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
-  const getByNameMock = partialSpyOn(SqliteModule.FolderModule, 'getByName');
+  const getFileByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const getFolderByNameMock = partialSpyOn(SqliteModule.FolderModule, 'getByName');
   const getByUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByUuid');
   const persistMoveFolderMock = partialSpyOn(persistMoveFolder, 'persistMoveFolder');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
@@ -25,7 +26,8 @@ describe('move-folder', () => {
   beforeEach(() => {
     sleepMock.mockImplementation(() => testSleep(50));
 
-    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid, parentUuid: 'parentUuid' } });
+    getFileByNameMock.mockResolvedValue({});
+    getFolderByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid, parentUuid: 'parentUuid' } });
     getByUuidMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
 
     getFolderInfoMock.mockImplementation(({ path }) => {
@@ -42,7 +44,7 @@ describe('move-folder', () => {
     await mkdir(folder1);
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(props);
+    await initWatcher(props);
     // When
     await testSleep(50);
     await rename(folder1, folder2);
@@ -52,7 +54,7 @@ describe('move-folder', () => {
     call(updateSyncStatusMock).toStrictEqual({ path: folder2 });
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
-    calls(loggerMock.debug).toMatchObject([{ msg: 'onReady' }, { msg: 'Is move event', path: folder1 }]);
+    call(loggerMock.debug).toMatchObject({ msg: 'Is move folder event', path: folder1 });
     call(persistMoveFolderMock).toMatchObject({ parentUuid: 'parentUuid', path: folder2, uuid: 'uuid' });
   });
 });

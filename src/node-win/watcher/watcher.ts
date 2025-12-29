@@ -2,6 +2,7 @@ import { subscribe } from '@parcel/watcher';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { processEvent } from './process-event';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Props = { ctx: ProcessSyncContext };
 
@@ -14,7 +15,7 @@ export async function initWatcher({ ctx }: Props) {
 
     await Promise.all(
       events.map(async (event) => {
-        onAll({ event });
+        onAll({ event: event.type, path: abs(event.path) });
         await processEvent({ ctx, event });
       }),
     );
