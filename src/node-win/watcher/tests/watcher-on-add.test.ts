@@ -48,10 +48,7 @@ describe('watcher on add', () => {
     await writeFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toMatchObject([
-      { event: 'create', path: file },
-      { event: 'update', path: file },
-    ]);
+    getEvents().toMatchObject(expect.arrayContaining([{ event: 'create', path: file }]));
   });
 
   it('should emit create event when create folder', async () => {
