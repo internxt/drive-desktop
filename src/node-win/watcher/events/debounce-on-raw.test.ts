@@ -12,7 +12,7 @@ describe('debounce-on-raw', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     timeouts.clear();
-    props = mockProps<typeof debounceOnRaw>({ event: 'change', details: { watchedPath: path } });
+    props = mockProps<typeof debounceOnRaw>({ path });
   });
 
   afterEach(() => {
@@ -50,7 +50,7 @@ describe('debounce-on-raw', () => {
   it('should call just twice if key is different', () => {
     // When
     debounceOnRaw(props);
-    props.details.watchedPath = 'anotherPath';
+    props.path = abs('anotherPath');
     debounceOnRaw(props);
     // Then
     vi.advanceTimersByTime(2000);

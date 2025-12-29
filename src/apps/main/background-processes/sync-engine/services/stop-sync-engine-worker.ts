@@ -8,7 +8,7 @@ async function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
 
   clearInterval(worker.syncSchedule);
   clearInterval(worker.workspaceTokenInterval);
-  await worker.watcher.close();
+  await worker.watcher.unsubscribe();
   workers.delete(ctx.workspaceId);
 }
 
