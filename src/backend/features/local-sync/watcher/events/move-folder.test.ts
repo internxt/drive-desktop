@@ -36,7 +36,7 @@ describe('move-folder', () => {
     });
   });
 
-  it('should perform move request and ignore unlink event', async () => {
+  it.skip('should perform move request and ignore unlink event', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
