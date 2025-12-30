@@ -9,7 +9,7 @@
 #include <filesystem>
 #include <vector>
 
-std::optional<std::string> GetParentPlaceholderId(const std::wstring& path, const std::wstring& rootPath, const std::string rootUuid)
+std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::wstring& rootPath, const std::string rootUuid)
 {
     std::wstring parentPath = std::filesystem::path(path).parent_path().wstring();
 
@@ -19,7 +19,7 @@ std::optional<std::string> GetParentPlaceholderId(const std::wstring& path, cons
 
     try {
         auto fileState = Placeholders::GetPlaceholderInfo(parentPath);
-        return fileState.placeholderId;
+        return fileState.uuid;
     } catch (...) {
         return std::nullopt;
     }
@@ -57,26 +57,19 @@ void watch_path(const std::wstring& rootPath, const std::wstring& rootUuid)
             std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
             std::wstring path = rootPath + L"\\" + filename;
 
-            switch (fni->Action) {
-                case FILE_ACTION_ADDED: {
-                    auto parentPlaceholderId = GetParentPlaceholderId(path, rootPath, rootUuidStr);
-                    if (parentPlaceholderId) {
-                        wprintf(L"ADDED: %s (parent placeholder: %S)\n", path.c_str(), parentPlaceholderId->c_str());
+            if (fni->Action == FILE_ACTION_MODIFIED) {
+                wprintf(L"MODIFIED: %s\n", path.c_str());
+            } else {
+                auto parentUuid = get_parent_uuid(path, rootPath, rootUuidStr);
+
+                if (parentUuid) {
+                    if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
+                        wprintf(L"ADDED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
+
+                    } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
+                        wprintf(L"REMOVED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
                     }
-                    break;
                 }
-                case FILE_ACTION_REMOVED:
-                    wprintf(L"REMOVED: %s\n", path.c_str());
-                    break;
-                case FILE_ACTION_MODIFIED:
-                    wprintf(L"MODIFIED: %s\n", path.c_str());
-                    break;
-                case FILE_ACTION_RENAMED_OLD_NAME:
-                    wprintf(L"RENAMED_FROM: %s\n", path.c_str());
-                    break;
-                case FILE_ACTION_RENAMED_NEW_NAME:
-                    wprintf(L"RENAMED_TO: %s\n", path.c_str());
-                    break;
             }
 
             if (fni->NextEntryOffset == 0) break;
