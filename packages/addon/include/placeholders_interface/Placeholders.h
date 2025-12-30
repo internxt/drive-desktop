@@ -7,6 +7,7 @@
 #include <vector>
 
 struct FileState {
+    std::string uuid;
     std::string placeholderId;
     CF_PIN_STATE pinState;
     CF_IN_SYNC_STATE inSyncState;

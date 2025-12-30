@@ -13,7 +13,7 @@ struct WatcherContext {
 };
 
 struct WatcherEvent {
-    std::string eventType;
-    std::wstring path;
+    std::string action;
+    std::string path;
     std::string parentUuid;
 };
