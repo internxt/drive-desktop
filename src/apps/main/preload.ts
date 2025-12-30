@@ -166,12 +166,6 @@ const api = {
     ipcRenderer.on(eventName, callbackWrapper);
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
-  getRemoteSyncStatus(): Promise<RemoteSyncStatus> {
-    return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  syncManually(): Promise<void> {
-    return ipcRenderer.invoke('SYNC_MANUALLY');
-  },
   getUnsycFileInSyncEngine(): Promise<string[]> {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
   },
@@ -244,7 +238,9 @@ const api = {
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
-  deleteBackup: async (props) => await ipcPreloadRenderer.invoke('deleteBackup', props),
+  getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke('getRemoteSyncStatus'),
+  syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
+
   deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
 } satisfies FromProcess & Record<string, unknown>;
 

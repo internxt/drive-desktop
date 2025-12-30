@@ -233,7 +233,7 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-export async function deleteBackup({ ctx, backup, isCurrent }: { ctx: AuthContext; backup: BackupInfo; isCurrent?: boolean }) {
+async function deleteBackup({ ctx, backup, isCurrent }: { ctx: AuthContext; backup: BackupInfo; isCurrent?: boolean }) {
   const res = await driveServerWipModule.storage.deleteFolderByUuid({
     ctx,
     context: {

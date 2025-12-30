@@ -181,12 +181,6 @@ var api = {
     import_electron2.ipcRenderer.on(eventName, callbackWrapper);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
   },
-  getRemoteSyncStatus() {
-    return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
-  },
-  syncManually() {
-    return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
-  },
   getUnsycFileInSyncEngine() {
     return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
   },
@@ -240,7 +234,8 @@ var api = {
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
-  deleteBackup: async (props) => await ipcPreloadRenderer.invoke("deleteBackup", props),
+  getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
+  syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
   deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);
