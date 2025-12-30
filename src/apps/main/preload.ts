@@ -7,7 +7,7 @@ import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
-import { Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
+import { Device, getOrCreateDevice, renameDevice } from './device/service';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
@@ -41,23 +41,11 @@ const api = {
   closeWindow() {
     ipcRenderer.send('user-closed-window');
   },
-  minimizeWindow() {
-    ipcRenderer.send('user-minimized-window');
-  },
   quit() {
     ipcRenderer.send('user-quit');
   },
   getUser(): Promise<ReturnType<typeof getUser>> {
     return ipcRenderer.invoke('get-user');
-  },
-  startSyncProcess() {
-    ipcRenderer.send('start-sync-process');
-  },
-  stopSyncProcess() {
-    ipcRenderer.send('stop-sync-process');
-  },
-  getSyncStatus() {
-    return ipcRenderer.invoke('get-sync-status');
   },
   onSyncInfoUpdate(func: (_: SyncStateItem[]) => void): () => void {
     const eventName = 'sync-info-update';
@@ -119,9 +107,6 @@ const api = {
   renameDevice(deviceName: Parameters<typeof renameDevice>[0]): ReturnType<typeof renameDevice> {
     return ipcRenderer.invoke('rename-device', deviceName);
   },
-  getBackups() {
-    return ipcRenderer.invoke('get-backups');
-  },
   devices: {
     getDevices: () => {
       return ipcRenderer.invoke('devices.get-all');
@@ -157,17 +142,11 @@ const api = {
   getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
-  getFolderPath(): ReturnType<typeof getPathFromDialog> {
-    return ipcRenderer.invoke('get-folder-path');
-  },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_: unknown, v: RemoteSyncStatus) => callback(v);
     ipcRenderer.on(eventName, callbackWrapper);
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
-  },
-  getUnsycFileInSyncEngine(): Promise<string[]> {
-    return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
   },
   antivirus: {
     isAvailable(): Promise<boolean> {
