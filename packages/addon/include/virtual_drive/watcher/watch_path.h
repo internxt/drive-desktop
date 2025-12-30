@@ -1,28 +1,18 @@
+#pragma once
+
 #include <Placeholders.h>
 #include <Windows.h>
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <napi_extract_args.h>
 #include <stdio.h>
-#include <windows.h>
 
 #include <filesystem>
 #include <vector>
 
-struct WatcherContext {
-    napi_threadsafe_function tsfn;
-    std::atomic<bool> shouldStop{false};
-};
-
-struct WatchEvent {
-    std::string eventType;
-    std::wstring path;
-    std::string parentUuid;
-};
-
-void CallJsCallback(napi_env env, napi_value js_callback, void* context, void* data)
+inline void CallJsCallback(napi_env env, napi_value js_callback, void* context, void* data)
 {
-    WatchEvent* event = static_cast<WatchEvent*>(data);
+    WatcherEvent* event = static_cast<WatcherEvent*>(data);
 
     napi_value argv[3];
     napi_value undefined;
@@ -48,7 +38,7 @@ void CallJsCallback(napi_env env, napi_value js_callback, void* context, void* d
     delete event;
 }
 
-std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::wstring& rootPath, const std::string rootUuid)
+inline std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::wstring& rootPath, const std::string rootUuid)
 {
     std::wstring parentPath = std::filesystem::path(path).parent_path().wstring();
 
@@ -64,9 +54,10 @@ std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::
     }
 }
 
-void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::wstring& rootUuid)
+inline void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::wstring& rootUuid)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
+
     BYTE buffer[64 * 1024];
     std::string rootUuidStr(rootUuid.begin(), rootUuid.end());
 
@@ -93,7 +84,7 @@ void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::ws
 
             if (fni->Action == FILE_ACTION_MODIFIED) {
                 wprintf(L"MODIFIED: %s\n", path.c_str());
-                auto event = new WatchEvent{"update", path, ""};
+                auto event = new WatcherEvent{"update", path, ""};
                 napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 
             } else {
@@ -102,18 +93,19 @@ void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::ws
                 if (parentUuid) {
                     if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
                         wprintf(L"ADDED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
-                        auto event = new WatchEvent{"create", path, *parentUuid};
+                        auto event = new WatcherEvent{"create", path, *parentUuid};
                         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 
                     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
                         wprintf(L"REMOVED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
-                        auto event = new WatchEvent{"delete", path, *parentUuid};
+                        auto event = new WatcherEvent{"delete", path, *parentUuid};
                         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
                     }
                 }
             }
 
             if (fni->NextEntryOffset == 0) break;
+
             fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
         }
     }
@@ -122,26 +114,11 @@ void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::ws
     delete ctx;
 }
 
-napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
+inline napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
 {
     auto [rootPath, rootUuid, onEventCallback] = napi_extract_args<std::wstring, std::wstring, napi_value>(env, info);
 
-    napi_value async_resource_name;
-    napi_create_string_utf8(env, "WatchPathCallback", NAPI_AUTO_LENGTH, &async_resource_name);
-
-    napi_threadsafe_function tsfn;
-    napi_create_threadsafe_function(
-        env,
-        onEventCallback,
-        nullptr,
-        async_resource_name,
-        0,
-        1,
-        nullptr,
-        nullptr,
-        nullptr,
-        CallJsCallback,
-        &tsfn);
+    auto tsfn = register_threadsafe_callback("WatchPathCallback", env, onEventCallback, CallJsCallback);
 
     auto ctx = new WatcherContext{tsfn, false};
 
@@ -152,18 +129,4 @@ napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
     napi_value external;
     napi_create_external(env, ctx, nullptr, nullptr, &external);
     return external;
-}
-
-napi_value unwatch_path_wrapper(napi_env env, napi_callback_info info)
-{
-    auto [handle] = napi_extract_args<napi_value>(env, info);
-
-    WatcherContext* ctx;
-    napi_get_value_external(env, handle, reinterpret_cast<void**>(&ctx));
-
-    if (ctx) {
-        ctx->shouldStop = true;
-    }
-
-    return nullptr;
 }
