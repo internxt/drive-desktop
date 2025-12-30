@@ -9,6 +9,11 @@
 #include <filesystem>
 #include <vector>
 
+struct WatcherContext {
+    napi_threadsafe_function tsfn;
+    std::atomic<bool> shouldStop{false};
+};
+
 struct WatchEvent {
     std::string eventType;
     std::wstring path;
@@ -59,13 +64,13 @@ std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::
     }
 }
 
-void watch_path(napi_threadsafe_function tsfn, const std::wstring& rootPath, const std::wstring& rootUuid)
+void watch_path(WatcherContext* ctx, const std::wstring& rootPath, const std::wstring& rootUuid)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
     BYTE buffer[64 * 1024];
     std::string rootUuidStr(rootUuid.begin(), rootUuid.end());
 
-    while (true) {
+    while (!ctx->shouldStop) {
         DWORD bytesReturned = 0;
 
         BOOL success = ReadDirectoryChangesW(
@@ -78,10 +83,7 @@ void watch_path(napi_threadsafe_function tsfn, const std::wstring& rootPath, con
             nullptr,
             nullptr);
 
-        if (!success) {
-            wprintf(L"ReadDirectoryChangesW failed: %lu\n", GetLastError());
-            break;
-        }
+        if (!success || ctx->shouldStop) break;
 
         FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)buffer;
 
@@ -91,35 +93,33 @@ void watch_path(napi_threadsafe_function tsfn, const std::wstring& rootPath, con
 
             if (fni->Action == FILE_ACTION_MODIFIED) {
                 wprintf(L"MODIFIED: %s\n", path.c_str());
-
                 auto event = new WatchEvent{"update", path, ""};
-                napi_call_threadsafe_function(tsfn, event, napi_tsfn_blocking);
+                napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+
             } else {
                 auto parentUuid = get_parent_uuid(path, rootPath, rootUuidStr);
 
                 if (parentUuid) {
                     if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
                         wprintf(L"ADDED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
-
                         auto event = new WatchEvent{"create", path, *parentUuid};
-                        napi_call_threadsafe_function(tsfn, event, napi_tsfn_blocking);
+                        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 
                     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
                         wprintf(L"REMOVED: %s (parent placeholder: %S)\n", path.c_str(), parentUuid->c_str());
-
                         auto event = new WatchEvent{"delete", path, *parentUuid};
-                        napi_call_threadsafe_function(tsfn, event, napi_tsfn_blocking);
+                        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
                     }
                 }
             }
 
             if (fni->NextEntryOffset == 0) break;
-
             fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
         }
     }
 
-    napi_release_threadsafe_function(tsfn, napi_tsfn_release);
+    napi_release_threadsafe_function(ctx->tsfn, napi_tsfn_release);
+    delete ctx;
 }
 
 napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
@@ -143,9 +143,27 @@ napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
         CallJsCallback,
         &tsfn);
 
-    std::thread([tsfn, rootPath = std::move(rootPath), rootUuid = std::move(rootUuid)]() {
-        watch_path(tsfn, rootPath, rootUuid);
+    auto ctx = new WatcherContext{tsfn, false};
+
+    std::thread([ctx, rootPath = std::move(rootPath), rootUuid = std::move(rootUuid)]() {
+        watch_path(ctx, rootPath, rootUuid);
     }).detach();
+
+    napi_value external;
+    napi_create_external(env, ctx, nullptr, nullptr, &external);
+    return external;
+}
+
+napi_value unwatch_path_wrapper(napi_env env, napi_callback_info info)
+{
+    auto [handle] = napi_extract_args<napi_value>(env, info);
+
+    WatcherContext* ctx;
+    napi_get_value_external(env, handle, reinterpret_cast<void**>(&ctx));
+
+    if (ctx) {
+        ctx->shouldStop = true;
+    }
 
     return nullptr;
 }
