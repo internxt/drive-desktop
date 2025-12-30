@@ -62,7 +62,7 @@ std::optional<std::string> get_parent_uuid(const std::wstring& path, const std::
 void watch_path(napi_threadsafe_function tsfn, const std::wstring& rootPath, const std::wstring& rootUuid)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
-    BYTE buffer[4096];
+    BYTE buffer[64 * 1024];
     std::string rootUuidStr(rootUuid.begin(), rootUuid.end());
 
     while (true) {
@@ -124,7 +124,7 @@ void watch_path(napi_threadsafe_function tsfn, const std::wstring& rootPath, con
 
 napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
 {
-    auto [rootPath, rootUuid, onEvent] = napi_extract_args<std::wstring, std::wstring, napi_value>(env, info);
+    auto [rootPath, rootUuid, onEventCallback] = napi_extract_args<std::wstring, std::wstring, napi_value>(env, info);
 
     napi_value async_resource_name;
     napi_create_string_utf8(env, "WatchPathCallback", NAPI_AUTO_LENGTH, &async_resource_name);
@@ -132,7 +132,7 @@ napi_value watch_path_wrapper(napi_env env, napi_callback_info info)
     napi_threadsafe_function tsfn;
     napi_create_threadsafe_function(
         env,
-        onEvent,
+        onEventCallback,
         nullptr,
         async_resource_name,
         0,
