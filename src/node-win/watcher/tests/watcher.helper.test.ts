@@ -7,8 +7,8 @@ import * as onAddDir from '../events/on-add-dir.service';
 import * as debounceOnRaw from '../events/debounce-on-raw';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { initWatcher } from '../watcher';
-import { FSWatcher } from 'chokidar';
 import { sleep } from '@/apps/main/util';
+import ParcelWatcher from '@parcel/watcher';
 
 export const onAllMock = partialSpyOn(onAll, 'onAll');
 partialSpyOn(onAdd, 'onAdd');
@@ -17,11 +17,11 @@ partialSpyOn(unlinkFile, 'unlinkFile');
 partialSpyOn(unlinkFolder, 'unlinkFolder');
 partialSpyOn(debounceOnRaw, 'debounceOnRaw');
 
-let watcher: FSWatcher | undefined;
+let watcher: ParcelWatcher.AsyncSubscription | undefined;
 
 export async function setupWatcher(rootPath: AbsolutePath) {
   const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-  watcher = initWatcher(props);
+  watcher = await initWatcher(props);
   await sleep(50);
 }
 
@@ -30,5 +30,5 @@ export function getEvents() {
 }
 
 afterEach(async () => {
-  await watcher?.close();
+  await watcher?.unsubscribe();
 });

@@ -35,7 +35,7 @@ describe('create-placeholder', () => {
   it('should create placeholder', async () => {
     // Given
     const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    initWatcher(watcherProps);
+    await initWatcher(watcherProps);
     await sleep(100);
 
     // When
@@ -47,7 +47,6 @@ describe('create-placeholder', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
-      { msg: 'onReady' },
       {
         msg: 'On change event',
         path: file,
@@ -61,8 +60,8 @@ describe('create-placeholder', () => {
     ]);
 
     calls(onAllMock).toMatchObject([
-      { event: 'add', path: file, stats: { size: 7 } },
-      { event: 'change', path: file, stats: { size: 7 } },
+      { event: 'create', path: file },
+      { event: 'update', path: file },
     ]);
   });
 });

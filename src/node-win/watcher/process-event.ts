@@ -5,7 +5,7 @@ import ParcelWatcher from '@parcel/watcher';
 import { stat } from 'node:fs/promises';
 import { onAdd } from './events/on-add.service';
 import { onAddDir } from './events/on-add-dir.service';
-// import { debounceOnRaw } from './events/debounce-on-raw';
+import { debounceOnRaw } from './events/debounce-on-raw';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -24,7 +24,7 @@ export async function processEvent({ ctx, event }: Props) {
     const stats = await stat(path);
 
     if (event.type === 'update') {
-      // if (stats.isFile()) debounceOnRaw({ ctx, path, stats });
+      if (stats.isFile()) debounceOnRaw({ ctx, path, stats });
       return;
     }
 

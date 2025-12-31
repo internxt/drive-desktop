@@ -2,22 +2,19 @@ import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Stats } from 'node:fs';
 
 type Props = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
+  stats: Stats;
 };
 
-export async function onChange({ ctx, path }: Props) {
+export async function onChange({ ctx, path, stats }: Props) {
   try {
-    const { data: stats } = await fileSystem.stat({ absolutePath: path });
-
-    if (!stats || stats.isDirectory()) return;
-
     const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
     if (!fileInfo) return;

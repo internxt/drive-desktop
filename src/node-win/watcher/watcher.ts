@@ -1,47 +1,25 @@
-import { watch } from 'chokidar';
-
-import { onAddDir } from './events/on-add-dir.service';
-import { onAdd } from './events/on-add.service';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { debounceOnRaw } from './events/debounce-on-raw';
+import { subscribe } from '@parcel/watcher';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { processEvent } from './process-event';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Props = { ctx: ProcessSyncContext };
 
-export function initWatcher({ ctx }: Props) {
-  const watcher = watch(ctx.rootPath, {
-    alwaysStat: true,
-    atomic: true,
-    awaitWriteFinish: process.env.NODE_ENV !== 'test',
-    depth: undefined,
-    followSymlinks: true,
-    ignoreInitial: true,
-    persistent: true,
-    usePolling: false,
+export async function initWatcher({ ctx }: Props) {
+  const subscription = await subscribe(ctx.rootPath, async (error, events) => {
+    if (error) {
+      ctx.logger.error({ msg: 'Error in watcher', error });
+      return;
+    }
+
+    await Promise.all(
+      events.map(async (event) => {
+        onAll({ event: event.type, path: abs(event.path) });
+        await processEvent({ ctx, event });
+      }),
+    );
   });
 
-  watcher
-    .on('all', (event, path, stats) => onAll({ event, path: abs(path), stats }))
-    /**
-     * v2.5.7 Daniel Jiménez
-     * add events are triggered when:
-     * - we create an item locally.
-     * - we move an item locally or when we move it using sync by checkpoint.
-     */
-    .on('add', (path, stats) => onAdd({ ctx, path: abs(path), stats: stats! }))
-    .on('addDir', (path) => onAddDir({ ctx, path: abs(path) }))
-    /**
-     * v2.5.6 Daniel Jiménez
-     * unlink events are triggered when:
-     * - we delete an item locally or when we delete it using sync by checkpoint.
-     * - we move an item locally or when we move it using sync by checkpoint.
-     */
-    // .on('unlink', (path) => unlinkFile({ ctx, path: abs(path) }))
-    // .on('unlinkDir', (path) => unlinkFolder({ ctx, path: abs(path) }))
-    .on('raw', (event, _, details) => debounceOnRaw({ ctx, event, details: details as { watchedPath: string } }))
-    .on('error', (error) => ctx.logger.error({ msg: 'onError', error }))
-    .on('ready', () => ctx.logger.debug({ msg: 'onReady' }));
-
-  return watcher;
+  return subscription;
 }
