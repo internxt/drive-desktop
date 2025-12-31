@@ -24,7 +24,7 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     delete event;
 }
 
-inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, const std::string& rootUuidStr, WatcherContext* ctx)
+inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
     std::wstring path = rootPath + L"\\" + filename;
@@ -42,12 +42,11 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
     }
 }
 
-inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath, const std::wstring& rootUuid)
+inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
 
     BYTE buffer[4 * 1024];
-    std::string rootUuidStr(rootUuid.begin(), rootUuid.end());
 
     while (!ctx->shouldStop) {
         try {
@@ -68,7 +67,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath, const s
             FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)buffer;
 
             while (true) {
-                processEvent(fni, rootPath, rootUuidStr, ctx);
+                processEvent(fni, rootPath, ctx);
 
                 if (fni->NextEntryOffset == 0) break;
 
@@ -83,19 +82,21 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath, const s
 
 inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
 {
-    auto [rootPath, rootUuid, onEventCallback] = napi_extract_args<std::wstring, std::wstring, napi_value>(env, info);
+    auto [rootPath, onEventCallback] = napi_extract_args<std::wstring, napi_value>(env, info);
 
     auto tsfn = registerThreadsafeCallback("WatchPathCallback", env, onEventCallback, callJsCallback);
 
     auto ctx = new WatcherContext{tsfn, false};
 
-    std::thread([ctx, rootPath = std::move(rootPath), rootUuid = std::move(rootUuid)]() {
+    std::thread([ctx, rootPath = std::move(rootPath)]() {
         try {
-            watchPath(ctx, rootPath, rootUuid);
+            watchPath(ctx, rootPath);
         } catch (...) {
             auto event = new WatcherEvent{"error", format_exception_message("WatchPathWrapper")};
             napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
         }
+
+        wprintf(L"Remove watcher context\n");
 
         napi_release_threadsafe_function(ctx->tsfn, napi_tsfn_release);
         delete ctx;
