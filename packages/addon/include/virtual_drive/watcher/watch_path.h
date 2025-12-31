@@ -13,7 +13,7 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &type);
     napi_create_string_utf8(env, event->path.c_str(), NAPI_AUTO_LENGTH, &path);
 
-    napi_set_named_property(env, eventObj, "type", type);
+    napi_set_named_property(env, eventObj, "event", type);
     napi_set_named_property(env, eventObj, "path", path);
     napi_set_named_property(env, eventObj, "parentUuid", parentUuid);
 
