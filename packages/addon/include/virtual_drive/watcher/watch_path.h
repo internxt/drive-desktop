@@ -74,8 +74,6 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath, const s
 
     while (!ctx->shouldStop) {
         try {
-            wprintf(L"Read directory\n");
-
             DWORD bytesReturned = 0;
 
             BOOL success = ReadDirectoryChangesW(
