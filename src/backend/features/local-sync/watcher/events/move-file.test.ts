@@ -33,7 +33,7 @@ describe('move-file', () => {
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
   });
 
-  it.skip('should perform move request and ignore unlink event', async () => {
+  it('should perform move request and ignore unlink event', async () => {
     // Given
     const file1 = join(rootPath, 'file1');
     const file2 = join(rootPath, 'file2');
