@@ -12,7 +12,6 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     napi_value type, path, parentUuid;
     napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &type);
     napi_create_string_utf8(env, event->path.c_str(), NAPI_AUTO_LENGTH, &path);
-    napi_create_string_utf8(env, event->parentUuid.c_str(), NAPI_AUTO_LENGTH, &parentUuid);
 
     napi_set_named_property(env, eventObj, "type", type);
     napi_set_named_property(env, eventObj, "path", path);
@@ -25,21 +24,6 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     delete event;
 }
 
-inline std::optional<std::string> getParentUuid(const std::wstring& path, const std::wstring& rootPath, const std::string rootUuid)
-{
-    std::wstring parentPath = std::filesystem::path(path).parent_path().wstring();
-
-    if (parentPath == rootPath) {
-        return rootUuid;
-    }
-
-    try {
-        return Placeholders::GetPlaceholderInfo(parentPath).uuid;
-    } catch (...) {
-        return std::nullopt;
-    }
-}
-
 inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, const std::string& rootUuidStr, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
@@ -47,20 +31,14 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
     std::string pathStr(path.begin(), path.end());
 
     if (fni->Action == FILE_ACTION_MODIFIED) {
-        auto event = new WatcherEvent{"update", pathStr, ""};
+        auto event = new WatcherEvent{"update", pathStr};
         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-        auto event = new WatcherEvent{"delete", pathStr, ""};
+        auto event = new WatcherEvent{"delete", pathStr};
         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
     } else {
-        auto parentUuid = getParentUuid(path, rootPath, rootUuidStr);
-
-        if (parentUuid) {
-            if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-                auto event = new WatcherEvent{"create", pathStr, *parentUuid};
-                napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
-            }
-        }
+        auto event = new WatcherEvent{"create", pathStr};
+        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
     }
 }
 
@@ -97,7 +75,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath, const s
                 fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
             }
         } catch (...) {
-            auto event = new WatcherEvent{"error", format_exception_message("WatchPath"), ""};
+            auto event = new WatcherEvent{"error", format_exception_message("WatchPath")};
             napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
         }
     }
@@ -115,7 +93,7 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
         try {
             watchPath(ctx, rootPath, rootUuid);
         } catch (...) {
-            auto event = new WatcherEvent{"error", format_exception_message("WatchPathWrapper"), ""};
+            auto event = new WatcherEvent{"error", format_exception_message("WatchPathWrapper")};
             napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
         }
 

@@ -8,5 +8,4 @@ struct WatcherContext {
 struct WatcherEvent {
     std::string type;
     std::string path;
-    std::string parentUuid;
 };
