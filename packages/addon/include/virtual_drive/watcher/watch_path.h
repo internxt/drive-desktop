@@ -49,16 +49,15 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
     if (fni->Action == FILE_ACTION_MODIFIED) {
         auto event = new WatcherEvent{"update", pathStr, ""};
         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+    } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
+        auto event = new WatcherEvent{"delete", pathStr, ""};
+        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
     } else {
         auto parentUuid = getParentUuid(path, rootPath, rootUuidStr);
 
         if (parentUuid) {
             if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
                 auto event = new WatcherEvent{"create", pathStr, *parentUuid};
-                napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
-
-            } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-                auto event = new WatcherEvent{"delete", pathStr, *parentUuid};
                 napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
             }
         }
