@@ -1,11 +1,4 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <stdio.h>
-
-#include <atomic>
-#include <filesystem>
-#include <string>
-#include <vector>
+#pragma once
 
 struct WatcherContext {
     napi_threadsafe_function tsfn;
