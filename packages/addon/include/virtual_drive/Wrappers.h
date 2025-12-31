@@ -14,5 +14,7 @@ napi_value HydrateFileWrapper(napi_env env, napi_callback_info info);
 napi_value RegisterSyncRootWrapper(napi_env env, napi_callback_info info);
 napi_value SetPinStateWrapper(napi_env env, napi_callback_info info);
 napi_value UnregisterSyncRootWrapper(napi_env env, napi_callback_info info);
+napi_value UnwatchPathWrapper(napi_env env, napi_callback_info info);
 napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info info);
 napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info info);
+napi_value WatchPathWrapper(napi_env env, napi_callback_info info);

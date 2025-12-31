@@ -1,6 +1,6 @@
 #pragma once
 
-inline napi_value unwatch_path_wrapper(napi_env env, napi_callback_info info)
+inline napi_value unwatchPathWrapper(napi_env env, napi_callback_info info)
 {
     auto [handle] = napi_extract_args<napi_value>(env, info);
 
