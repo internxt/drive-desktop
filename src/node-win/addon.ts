@@ -15,7 +15,7 @@ export type CancelFetchDataFn = (connectionKey: bigint, path: Win32Path) => void
 
 export namespace Watcher {
   export type Event = { event: 'create' | 'update' | 'delete'; path: Win32Path } | { event: 'error'; path: string };
-  export type OnEvent = (event: Event) => Promise<void>;
+  export type OnEvent = (event: Event) => void;
   export type Subscription = {
     unsubscribe: () => void;
   };
