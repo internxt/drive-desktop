@@ -76,6 +76,7 @@
   },
   "devDependencies": {
     "@internxt/eslint-config-internxt": "1.0.9",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@svgr/webpack": "^6.1.2",
     "@tanstack/eslint-plugin-query": "^4.39.1",
     "@testing-library/jest-dom": "^5.17.0",
