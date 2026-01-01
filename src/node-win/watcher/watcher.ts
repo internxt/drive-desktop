@@ -1,25 +1,26 @@
-import { subscribe } from '@parcel/watcher';
-import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { processEvent } from './process-event';
+import { Addon } from '../addon-wrapper';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Props = { ctx: ProcessSyncContext };
 
-export async function initWatcher({ ctx }: Props) {
-  const subscription = await subscribe(ctx.rootPath, async (error, events) => {
-    if (error) {
-      ctx.logger.error({ msg: 'Error in watcher', error });
-      return;
-    }
+export function initWatcher({ ctx }: Props) {
+  ctx.logger.debug({ msg: 'Setup watcher' });
 
-    await Promise.all(
-      events.map(async (event) => {
-        onAll({ event: event.type, path: abs(event.path) });
-        await processEvent({ ctx, event });
-      }),
-    );
+  const handle = Addon.watchPath({
+    ctx,
+    onEvent: async ({ event, path }) => {
+      if (event === 'error') {
+        ctx.logger.error({ msg: 'Error in watcher', event, error: path });
+        return;
+      }
+
+      await processEvent({ ctx, event, path: abs(path) });
+    },
   });
 
-  return subscription;
+  return {
+    unsubscribe: () => Addon.unwatchPath({ handle }),
+  };
 }

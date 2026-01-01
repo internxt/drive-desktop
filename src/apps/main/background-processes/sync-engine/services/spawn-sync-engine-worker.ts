@@ -53,7 +53,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       ctx,
       connectionKey,
       syncSchedule: scheduleSync({ ctx, manager }),
-      watcher: await initWatcher({ ctx }),
+      watcher: initWatcher({ ctx }),
       workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
     };
 

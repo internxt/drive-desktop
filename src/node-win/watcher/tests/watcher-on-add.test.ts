@@ -18,7 +18,7 @@ describe('watcher on add', () => {
     await mkdir(parent);
   });
 
-  it('should emit create event when create file', async () => {
+  it('should emit create and update events when create file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await setupWatcher(rootPath);
@@ -26,7 +26,10 @@ describe('watcher on add', () => {
     await writeFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: file }]);
+    getEvents().toMatchObject([
+      { event: 'create', path: file },
+      { event: 'update', path: file },
+    ]);
   });
 
   it('should emit create event when create empty file', async () => {
@@ -40,7 +43,7 @@ describe('watcher on add', () => {
     getEvents().toMatchObject([{ event: 'create', path: file }]);
   });
 
-  it('should emit create event when create file inside a folder', async () => {
+  it('should emit create and update events when create file inside a folder', async () => {
     // Given
     const file = join(parent, 'file');
     await setupWatcher(rootPath);
@@ -48,7 +51,10 @@ describe('watcher on add', () => {
     await writeFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toMatchObject(expect.arrayContaining([{ event: 'create', path: file }]));
+    getEvents().toMatchObject([
+      { event: 'create', path: file },
+      { event: 'update', path: file },
+    ]);
   });
 
   it('should emit create event when create folder', async () => {

@@ -14,7 +14,7 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import * as persistMoveFile from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('move-file', () => {
-  partialSpyOn(sleep, 'sleep');
+  const sleepMock = partialSpyOn(sleep, 'sleep');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const getFileByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
@@ -26,6 +26,8 @@ describe('move-file', () => {
   const rootPath = join(TEST_FILES, v4());
 
   beforeEach(() => {
+    sleepMock.mockImplementation(() => testSleep(50));
+
     getFolderByNameMock.mockResolvedValue({});
     getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid, parentUuid: 'parentUuid' } });
     getByUuidMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
@@ -41,17 +43,17 @@ describe('move-file', () => {
     await writeFile(file1, 'content');
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    await initWatcher(props);
+    initWatcher(props);
     // When
     await testSleep(50);
     await rename(file1, file2);
     await testSleep(150);
     // Then
-    expect(Array.from(store.addFileEvents.keys())).toStrictEqual(['uuid']);
+    expect(Array.from(store.addEvents.keys())).toStrictEqual(['uuid']);
     call(updateSyncStatusMock).toStrictEqual({ path: file2 });
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
-    call(loggerMock.debug).toMatchObject({ msg: 'Is move file event', path: file1 });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Setup watcher' }, { msg: 'Is move file event', path: file1 }]);
     call(persistMoveFileMock).toMatchObject({ parentUuid: 'parentUuid', path: file2, uuid: 'uuid' });
   });
 });
