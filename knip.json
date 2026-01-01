@@ -8,6 +8,7 @@
   "vitest": false,
   "webpack": false,
   "rules": {
-    "duplicates": "off"
+    "duplicates": "off",
+    "enumMembers": "off"
   }
 }

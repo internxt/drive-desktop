@@ -10,7 +10,6 @@ import { spawn, execSync } from 'node:child_process';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
-import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 
 interface Configuration extends webpack.Configuration {
   devServer?: webpackDevServer.Configuration;
@@ -132,8 +131,6 @@ const configuration: Configuration = {
     new webpack.LoaderOptionsPlugin({
       debug: true,
     }),
-
-    new ReactRefreshWebpackPlugin(),
 
     new HtmlWebpackPlugin({
       filename: path.join('index.html'),
