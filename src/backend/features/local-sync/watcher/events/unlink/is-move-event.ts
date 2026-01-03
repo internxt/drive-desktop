@@ -3,32 +3,22 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 
 export const store = {
-  addFileEvents: new Map<FileUuid, NodeJS.Timeout>(),
-  addFolderEvents: new Map<FolderUuid, NodeJS.Timeout>(),
+  addEvents: new Map<FileUuid | FolderUuid, NodeJS.Timeout>(),
 };
 
-function trackAddEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
-  let timeoutId = map.get(uuid);
+type Props = {
+  uuid: FileUuid | FolderUuid;
+};
+
+export function trackAddEvent({ uuid }: Props) {
+  let timeoutId = store.addEvents.get(uuid);
   if (timeoutId) clearTimeout(timeoutId);
 
-  timeoutId = setTimeout(() => map.delete(uuid), 10_000);
-  map.set(uuid, timeoutId);
+  timeoutId = setTimeout(() => store.addEvents.delete(uuid), 10_000);
+  store.addEvents.set(uuid, timeoutId);
 }
 
-async function isMoveEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
-  await sleep(4_000);
-  return map.has(uuid);
-}
-
-export function trackAddFileEvent({ uuid }: { uuid: FileUuid }) {
-  trackAddEvent(store.addFileEvents, uuid);
-}
-export function trackAddFolderEvent({ uuid }: { uuid: FolderUuid }) {
-  trackAddEvent(store.addFolderEvents, uuid);
-}
-export function isMoveFileEvent({ uuid }: { uuid: FileUuid }) {
-  return isMoveEvent(store.addFileEvents, uuid);
-}
-export function isMoveFolderEvent({ uuid }: { uuid: FolderUuid }) {
-  return isMoveEvent(store.addFolderEvents, uuid);
+export async function isMoveEvent({ uuid }: Props) {
+  await sleep(2_000);
+  return store.addEvents.has(uuid);
 }

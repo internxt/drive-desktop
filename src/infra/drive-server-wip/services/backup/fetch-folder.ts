@@ -22,7 +22,7 @@ export async function fetchFolder(context: { folderUuid: string }) {
       params: { path: { uuid: context.folderUuid } },
     });
 
-  const result = await clientWrapper({
+  const { error, data } = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -35,12 +35,13 @@ export async function fetchFolder(context: { folderUuid: string }) {
     },
   });
 
-  if (result.error?.code === 'UNKNOWN') {
-    switch (true) {
-      case result.error.response?.status === 404:
-        return { error: new FetchFolderError('NOT_FOUND', result.error.cause) };
+  if (error) {
+    if (error.response?.status === 404) {
+      return { error: new FetchFolderError('NOT_FOUND', error.cause) };
+    } else {
+      return { error };
     }
   }
 
-  return result;
+  return { data };
 }

@@ -2,7 +2,7 @@ import { Stats } from 'node:fs';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
-import { trackAddFileEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { trackAddEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
 
@@ -17,7 +17,7 @@ export async function onAdd({ ctx, path, stats }: TProps) {
     const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
     if (fileInfo) {
-      trackAddFileEvent({ uuid: fileInfo.uuid });
+      trackAddEvent({ uuid: fileInfo.uuid });
       await moveFile({ ctx, path, uuid: fileInfo.uuid });
       return;
     }

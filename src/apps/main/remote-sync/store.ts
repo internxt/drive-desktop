@@ -1,12 +1,12 @@
+import { Watcher } from '@/node-win/addon';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { SyncContext } from '@/apps/sync-engine/config';
-import ParcelWatcher from '@parcel/watcher';
 
 export type WorkerConfig = {
   ctx: SyncContext;
   connectionKey: bigint;
   syncSchedule: NodeJS.Timeout;
-  watcher: ParcelWatcher.AsyncSubscription;
+  watcher: Watcher.Subscription;
   workspaceTokenInterval: NodeJS.Timeout | undefined;
 };
 

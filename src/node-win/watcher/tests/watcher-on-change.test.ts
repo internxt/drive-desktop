@@ -53,7 +53,7 @@ describe('watcher on change', () => {
     getEvents().toMatchObject([{ event: 'update', path: file }]);
   });
 
-  it('should not emit any event when pin a folder', async () => {
+  it('should emit update event when pin a folder', async () => {
     // Given
     const folder = join(rootPath, 'folder');
     await mkdir(folder);
@@ -62,10 +62,10 @@ describe('watcher on change', () => {
     execSync(`attrib +P ${folder}`);
     await sleep(100);
     // Then
-    getEvents().toStrictEqual([]);
+    getEvents().toMatchObject([{ event: 'update', path: folder }]);
   });
 
-  it('should not emit any event when unpin a folder', async () => {
+  it('should emit update event when unpin a folder', async () => {
     // Given
     const folder = join(rootPath, 'folder');
     await mkdir(folder);
@@ -75,6 +75,6 @@ describe('watcher on change', () => {
     execSync(`attrib -P ${folder}`);
     await sleep(50);
     // Then
-    getEvents().toStrictEqual([]);
+    getEvents().toMatchObject([{ event: 'update', path: folder }]);
   });
 });

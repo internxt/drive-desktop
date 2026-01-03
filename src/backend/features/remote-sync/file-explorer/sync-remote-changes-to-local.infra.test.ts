@@ -3,12 +3,12 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
-import { writeFile } from 'node:fs/promises';
+import { stat, writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Addon } from '@/node-win/addon-wrapper';
-import { getEvents, setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
+import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
 
 describe('sync-remote-changes-to-local', () => {
   const providerName = 'Internxt Drive';
@@ -54,6 +54,7 @@ describe('sync-remote-changes-to-local', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
+      { msg: 'Setup watcher' },
       {
         msg: 'Sync remote changes to local',
         path,
@@ -64,10 +65,9 @@ describe('sync-remote-changes-to-local', () => {
       },
     ]);
 
-    getEvents().toMatchObject([
-      { event: 'create', path },
-      { event: 'update', path },
-      { event: 'update', path },
-    ]);
+    const stats = await stat(path);
+    const fileInfo = await Addon.getPlaceholderState({ path });
+    expect(stats.size).toBe(1000);
+    expect(fileInfo.onDiskSize).toBe(0);
   });
 });

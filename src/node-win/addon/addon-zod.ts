@@ -19,6 +19,7 @@ export const addonZod = {
   registerSyncRoot: z.undefined(),
   updateSyncStatus: z.undefined(),
   unregisterSyncRoot: z.undefined(),
+  watchPath: z.object(),
   getRegisteredSyncRoots: z.array(
     z.object({
       id: z.string(),

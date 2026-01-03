@@ -1,6 +1,6 @@
+import { sleep } from '@/apps/main/util';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type Props = {
@@ -9,10 +9,6 @@ type Props = {
 };
 
 export async function getParentUuid({ ctx, path }: Props) {
-  const parentPath = dirname(path);
-  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
-  const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
-
   /**
    * v2.5.6 Daniel Jiménez
    * Here we have two possibilities:
@@ -21,9 +17,14 @@ export async function getParentUuid({ ctx, path }: Props) {
    * - if the parent doesn't exist it means that this item has been deleted because it's inside
    * of a folder that has been deleted and we need to find that folder to mark it as TRASHED.
    *
-   * Warning: Using just folderUuid is not going to work. There are some times in which we are
-   * getting the parentUuid even when the parent folder is deleted.
+   * Warning: events from C++ are too fast, so we need to wait before checking the parent folder.
+   * Otherwise we are going to get the parent info like if it still exists.
    */
-  if (parentInfo && stats) return parentInfo.uuid;
+  await sleep(2_000);
+
+  const parentPath = dirname(path);
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+
+  if (parentInfo) return parentInfo.uuid;
   return null;
 }
