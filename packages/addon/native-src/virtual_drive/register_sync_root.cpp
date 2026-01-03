@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include <async_wrapper.h>
 #include <napi_extract_args.h>
-#include <register_sync_root.h>
 #include <stdafx.h>
 
 #include <filesystem>
