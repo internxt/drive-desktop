@@ -16,7 +16,7 @@ describe('watcher on change', () => {
     await mkdir(rootPath);
   });
 
-  it('should emit change event when modify a file', async () => {
+  it('should emit update event when modify a file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await writeFile(file, 'content');
@@ -25,10 +25,10 @@ describe('watcher on change', () => {
     await appendFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'change', path: file, stats: { size: 14 } }]);
+    getEvents().toMatchObject([{ event: 'update', path: file }]);
   });
 
-  it('should emit change event when pin a file', async () => {
+  it('should emit update event when pin a file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await writeFile(file, 'content');
@@ -37,10 +37,10 @@ describe('watcher on change', () => {
     execSync(`attrib +P ${file}`);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'change', path: file, stats: { size: 7 } }]);
+    getEvents().toMatchObject([{ event: 'update', path: file }]);
   });
 
-  it('should emit change event when unpin a file', async () => {
+  it('should emit update event when unpin a file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await writeFile(file, 'content');
@@ -50,7 +50,7 @@ describe('watcher on change', () => {
     execSync(`attrib -P ${file}`);
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'change', path: file, stats: { size: 7 } }]);
+    getEvents().toMatchObject([{ event: 'update', path: file }]);
   });
 
   it('should not emit any event when pin a folder', async () => {

@@ -63,8 +63,8 @@ export class Backup {
     tracker.currentProcessed(alreadyBacked);
 
     await Promise.all([
-      deleteFolders({ self: this, deleted: foldersDiff.deleted }),
-      deleteFiles({ self: this, deleted: filesDiff.deleted }),
+      deleteFolders({ ctx, self: this, deleted: foldersDiff.deleted }),
+      deleteFiles({ ctx, self: this, deleted: filesDiff.deleted }),
       replaceFiles({ self: this, tracker, ctx, modified: filesDiff.modified }),
       createFolders({ self: this, ctx, tracker, added: foldersDiff.added, tree: remote }).then(() => {
         return createFiles({ self: this, tracker, ctx, remoteTree: remote, added: filesDiff.added });

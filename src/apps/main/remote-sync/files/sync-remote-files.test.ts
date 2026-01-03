@@ -54,13 +54,14 @@ describe('sync-remote-files.service', () => {
     expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, then throw error', async () => {
+  it('If fetch fails, then stop execution', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ error: new Error() });
     // When
-    await expect(() => syncRemoteFiles({ ctx })).rejects.toThrowError();
+    await syncRemoteFiles({ ctx });
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(1);
+    expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(0);
   });
 
   it('Update checkpoint after fetch', async () => {

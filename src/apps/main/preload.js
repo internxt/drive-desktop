@@ -56,23 +56,11 @@ var api = {
   closeWindow() {
     import_electron2.ipcRenderer.send("user-closed-window");
   },
-  minimizeWindow() {
-    import_electron2.ipcRenderer.send("user-minimized-window");
-  },
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
   },
   getUser() {
     return import_electron2.ipcRenderer.invoke("get-user");
-  },
-  startSyncProcess() {
-    import_electron2.ipcRenderer.send("start-sync-process");
-  },
-  stopSyncProcess() {
-    import_electron2.ipcRenderer.send("stop-sync-process");
-  },
-  getSyncStatus() {
-    return import_electron2.ipcRenderer.invoke("get-sync-status");
   },
   onSyncInfoUpdate(func) {
     const eventName = "sync-info-update";
@@ -134,9 +122,6 @@ var api = {
   renameDevice(deviceName) {
     return import_electron2.ipcRenderer.invoke("rename-device", deviceName);
   },
-  getBackups() {
-    return import_electron2.ipcRenderer.invoke("get-backups");
-  },
   devices: {
     getDevices: () => {
       return import_electron2.ipcRenderer.invoke("devices.get-all");
@@ -147,12 +132,6 @@ var api = {
   },
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
-  },
-  deleteBackup(backup) {
-    return import_electron2.ipcRenderer.invoke("delete-backup", backup);
-  },
-  deleteBackupsFromDevice(device, isCurrent) {
-    return import_electron2.ipcRenderer.invoke("delete-backups-from-device", device, isCurrent);
   },
   disableBackup(folderId) {
     return import_electron2.ipcRenderer.invoke("disable-backup", folderId);
@@ -178,23 +157,11 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  getFolderPath() {
-    return import_electron2.ipcRenderer.invoke("get-folder-path");
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
     const callbackWrapper = (_, v) => callback(v);
     import_electron2.ipcRenderer.on(eventName, callbackWrapper);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
-  },
-  getRemoteSyncStatus() {
-    return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
-  },
-  syncManually() {
-    return import_electron2.ipcRenderer.invoke("SYNC_MANUALLY");
-  },
-  getUnsycFileInSyncEngine() {
-    return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
   },
   antivirus: {
     isAvailable() {
@@ -245,6 +212,9 @@ var api = {
   driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
-  openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl")
+  openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
+  getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
+  syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

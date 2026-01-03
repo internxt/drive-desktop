@@ -83,7 +83,7 @@ export function useBackups(): BackupContextProps {
   async function deleteBackups(device: Device, isCurrent?: boolean) {
     setBackupsState('LOADING');
     try {
-      await window.electron.deleteBackupsFromDevice(device, isCurrent);
+      await window.electron.deleteBackupsFromDevice({ device, isCurrent });
       await fetchBackups();
       setBackupsState('SUCCESS');
     } catch {

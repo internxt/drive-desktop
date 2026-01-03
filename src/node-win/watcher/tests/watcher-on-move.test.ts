@@ -18,7 +18,7 @@ describe('watcher on move', () => {
     await mkdir(parent);
   });
 
-  it('should emit add and unlink events when rename file', async () => {
+  it('should emit create and delete events when rename file', async () => {
     // Given
     const file1 = join(rootPath, 'file1');
     const file2 = join(rootPath, 'file2');
@@ -29,12 +29,12 @@ describe('watcher on move', () => {
     await sleep(150);
     // Then
     getEvents().toMatchObject([
-      { event: 'add', path: file2 },
-      { event: 'unlink', path: file1 },
+      { event: 'delete', path: file1 },
+      { event: 'create', path: file2 },
     ]);
   });
 
-  it('should emit add and unlink events when move file', async () => {
+  it('should emit create and delete events when move file', async () => {
     // Given
     const file1 = join(rootPath, 'file');
     const file2 = join(parent, 'file');
@@ -45,12 +45,12 @@ describe('watcher on move', () => {
     await sleep(150);
     // Then
     getEvents().toMatchObject([
-      { event: 'add', path: file2 },
-      { event: 'unlink', path: file1 },
+      { event: 'delete', path: file1 },
+      { event: 'create', path: file2 },
     ]);
   });
 
-  it('should emit addDir and unlinkDir events when rename folder', async () => {
+  it('should emit create and delete events when rename folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
@@ -61,12 +61,12 @@ describe('watcher on move', () => {
     await sleep(100);
     // Then
     getEvents().toMatchObject([
-      { event: 'unlinkDir', path: folder1 },
-      { event: 'addDir', path: folder2 },
+      { event: 'delete', path: folder1 },
+      { event: 'create', path: folder2 },
     ]);
   });
 
-  it('should emit addDir and unlinkDir events when move folder', async () => {
+  it('should emit create and delete events when move folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder');
     const folder2 = join(parent, 'folder');
@@ -77,8 +77,8 @@ describe('watcher on move', () => {
     await sleep(100);
     // Then
     getEvents().toMatchObject([
-      { event: 'unlinkDir', path: folder1 },
-      { event: 'addDir', path: folder2 },
+      { event: 'delete', path: folder1 },
+      { event: 'create', path: folder2 },
     ]);
   });
 });

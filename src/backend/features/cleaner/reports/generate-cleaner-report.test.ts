@@ -16,7 +16,7 @@ describe('generateCleanerReport', () => {
 
   it('should generate a complete cleaner report when all sections succeed', async () => {
     // When
-    await generateCleanerReport(true);
+    await generateCleanerReport({ force: true });
     // Then
     calls(generateAppCacheReportMock).toHaveLength(1);
     calls(generateLogFilesReportMock).toHaveLength(1);
@@ -33,9 +33,9 @@ describe('generateCleanerReport', () => {
 
   it('should use cached report when refreshReport is false and report exists', async () => {
     // Given
-    await generateCleanerReport(true);
+    await generateCleanerReport({ force: true });
     // When
-    await generateCleanerReport(false);
+    await generateCleanerReport({ force: false });
     // Then
     calls(generateAppCacheReportMock).toHaveLength(1);
     calls(generateLogFilesReportMock).toHaveLength(1);
@@ -46,9 +46,9 @@ describe('generateCleanerReport', () => {
 
   it('should regenerate report when refreshReport is true even if cached report exists', async () => {
     // Given
-    await generateCleanerReport(true);
+    await generateCleanerReport({ force: true });
     // When
-    await generateCleanerReport(true);
+    await generateCleanerReport({ force: true });
     // Then
     calls(generateAppCacheReportMock).toHaveLength(2);
     calls(generateLogFilesReportMock).toHaveLength(2);
@@ -63,7 +63,7 @@ describe('generateCleanerReport', () => {
     generateAppCacheReportMock.mockRejectedValueOnce(error);
     generateWebCacheReportMock.mockRejectedValueOnce(error);
     // When
-    await generateCleanerReport(true);
+    await generateCleanerReport({ force: true });
     // Then
     calls(loggerMock.error).toHaveLength(2);
   });
@@ -77,7 +77,7 @@ describe('generateCleanerReport', () => {
     generateWebCacheReportMock.mockRejectedValueOnce(error);
     generateWindowsSpecificFileReportMock.mockRejectedValueOnce(error);
     // When
-    const result = await generateCleanerReport(true);
+    const result = await generateCleanerReport({ force: true });
     // Then
     expect(result).toStrictEqual({
       appCache: { totalSizeInBytes: 0, items: [] },

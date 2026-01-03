@@ -1,12 +1,12 @@
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { FSWatcher } from 'chokidar';
+import ParcelWatcher from '@parcel/watcher';
 
 export type WorkerConfig = {
   ctx: SyncContext;
   connectionKey: bigint;
   syncSchedule: NodeJS.Timeout;
-  watcher: FSWatcher;
+  watcher: ParcelWatcher.AsyncSubscription;
   workspaceTokenInterval: NodeJS.Timeout | undefined;
 };
 

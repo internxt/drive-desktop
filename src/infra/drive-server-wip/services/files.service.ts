@@ -1,6 +1,6 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { createFile } from './files/create-file';
 import { parseFileDto } from '../out/dto';
@@ -19,7 +19,7 @@ export const files = {
 export const FileModule = files;
 
 export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
-type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
+type CreateThumbnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context: { query: GetFilesQuery }; skipLog?: boolean }) {
   const method = 'GET';
@@ -46,12 +46,18 @@ async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context
   }
 }
 
-async function replaceFile(context: {
-  path: AbsolutePath;
-  uuid: FileUuid;
-  contentsId: ContentsId;
-  size: number;
-  modificationTime: string;
+async function replaceFile({
+  ctx,
+  context,
+}: {
+  ctx: CommonContext;
+  context: {
+    path: AbsolutePath;
+    uuid: FileUuid;
+    contentsId: ContentsId;
+    size: number;
+    modificationTime: string;
+  };
 }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
@@ -59,6 +65,8 @@ async function replaceFile(context: {
 
   const promiseFn = () =>
     client.PUT(endpoint, {
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       params: { path: { uuid: context.uuid } },
       body: {
         fileId: context.contentsId,
@@ -80,13 +88,15 @@ async function replaceFile(context: {
   }
 }
 
-async function createThumbnail(context: { body: TCreateThumnailBody }) {
+async function createThumbnail({ ctx, context }: { ctx: CommonContext; context: { body: CreateThumbnailBody } }) {
   const method = 'POST';
   const endpoint = '/files/thumbnail';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.POST(endpoint, {
+      signal: ctx.abortController.signal,
+      headers: getWorkspaceHeader({ ctx }),
       body: context.body,
     });
 
