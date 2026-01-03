@@ -1,8 +1,7 @@
+#include <Wrappers.h>
 #include <node_api.h>
 
 #include <iterator>
-
-#include "Wrappers.h"
 
 napi_value init(napi_env env, napi_value exports)
 {
@@ -19,8 +18,10 @@ napi_value init(napi_env env, napi_value exports)
         {"registerSyncRoot", nullptr, RegisterSyncRootWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"setPinState", nullptr, SetPinStateWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"unregisterSyncRoot", nullptr, UnregisterSyncRootWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"unwatchPath", nullptr, UnwatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updatePlaceholder", nullptr, UpdatePlaceholderWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updateSyncStatus", nullptr, UpdateSyncStatusWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"watchPath", nullptr, WatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
     };
 
     napi_define_properties(env, exports, std::size(properties), properties);
