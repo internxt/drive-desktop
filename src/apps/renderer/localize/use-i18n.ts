@@ -37,8 +37,3 @@ export function useI18n() {
 
   return { t, translate: t, language };
 }
-
-// export function t(path: TranslationPath, ...args: string[]) {
-//   const language = i18nStore.getState().language;
-//   return getI18nValue(language, path, ...args);
-// }
