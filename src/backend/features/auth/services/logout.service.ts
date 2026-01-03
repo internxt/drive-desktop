@@ -3,12 +3,12 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { saveConfig } from './utils/save-config';
 import { resetConfig } from './utils/reset-config';
 
-export async function logout() {
+export function logout() {
   logger.debug({ tag: 'AUTH', msg: 'Logging out' });
 
   saveConfig();
 
-  await driveServerWipModule.auth.logout();
+  void driveServerWipModule.auth.logout();
 
   resetConfig();
 

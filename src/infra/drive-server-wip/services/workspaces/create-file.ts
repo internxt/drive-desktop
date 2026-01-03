@@ -1,4 +1,4 @@
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
@@ -21,7 +21,6 @@ export async function createFile({ ctx, context }: Props) {
   const promiseFn = () =>
     client.POST(endpoint, {
       signal: ctx.abortController.signal,
-      headers: getWorkspaceHeader({ ctx }),
       params: { path: { workspaceId: ctx.workspaceId } },
       body: context.body,
     });

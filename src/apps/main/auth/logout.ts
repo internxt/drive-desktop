@@ -19,12 +19,12 @@ type Props = {
 export async function logout({ ctx }: Props) {
   try {
     ctx.abortController.abort();
-    setIsLoggedIn(false);
 
     setTrayStatus('IDLE');
 
-    closeAuxWindows();
     await createAuthWindow();
+    setIsLoggedIn(false);
+    closeAuxWindows();
 
     stopRemoteNotifications();
     LocalSync.SyncState.onLogout();
@@ -33,7 +33,7 @@ export async function logout({ ctx }: Props) {
     clearIssues();
 
     void cleanSyncEngineWorkers();
-    void AuthModule.logout();
+    AuthModule.logout();
   } catch (error) {
     logger.error({
       tag: 'AUTH',

@@ -3,7 +3,6 @@ import { ipcMain } from 'electron';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { remoteSyncManagers } from './store';
-import { getSyncStatus } from './services/broadcast-sync-status';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
@@ -47,15 +46,6 @@ export async function updateAllRemoteSync() {
     }),
   );
 }
-
-ipcMain.handle('get-remote-sync-status', () => {
-  return getSyncStatus();
-});
-
-ipcMain.handle('SYNC_MANUALLY', async () => {
-  logger.debug({ msg: '[Manual Sync] Received manual sync event' });
-  await updateAllRemoteSync();
-});
 
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
