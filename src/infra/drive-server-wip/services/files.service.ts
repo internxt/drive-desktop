@@ -29,7 +29,6 @@ async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context
   const promiseFn = () =>
     client.GET(endpoint, {
       signal: ctx.abortController.signal,
-      headers: getWorkspaceHeader({ ctx }),
       params: { query: context.query },
     });
 

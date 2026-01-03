@@ -14,6 +14,8 @@ import { downloadBackup } from '@/backend/features/backups/download/download-bac
 import { openLoginUrl } from '../auth/open-login-url';
 import { deleteBackupsFromDevice } from '../device/service';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
+import { updateAllRemoteSync } from '../remote-sync/handlers';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -34,12 +36,14 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
   ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup(props));
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
+  ipcPreloadMain.handle('getRemoteSyncStatus', () => Promise.resolve(getSyncStatus()));
+  ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
-  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
 }
 
 export function clearLoggedPreloadIpc() {
-  ipcMain.removeAllListeners('deleteBackupFromDevice');
+  ipcMain.removeHandler('deleteBackupsFromDevice');
 }

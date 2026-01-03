@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 
-import { addBackup, disableBackup, getPathFromDialog, getOrCreateDevice, getDevices, renameDevice } from './service';
+import { addBackup, disableBackup, getOrCreateDevice, getDevices, renameDevice } from './service';
 import { getBackupsFromDevice } from './get-backups-from-device';
 
 ipcMain.handle('get-or-create-device', getOrCreateDevice);
@@ -14,5 +14,3 @@ ipcMain.handle('get-backups-from-device', (_, d, c?) => getBackupsFromDevice(d, 
 ipcMain.handle('add-backup', addBackup);
 
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
-
-ipcMain.handle('get-folder-path', () => getPathFromDialog());

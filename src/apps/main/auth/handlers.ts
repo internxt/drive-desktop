@@ -50,9 +50,14 @@ export async function checkIfUserIsLoggedIn() {
 export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
+  ipcMain.on('USER_LOGGED_OUT', () => {
+    eventBus.emit('USER_LOGGED_OUT');
+  });
 }
 
 export async function emitUserLoggedIn() {
+  logger.debug({ tag: 'AUTH', msg: 'User logged in' });
+
   const scheduler = new TokenScheduler();
   scheduler.schedule();
 

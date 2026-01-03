@@ -30,9 +30,6 @@ export function setUpCommonWindowHandlers(window: BrowserWindow) {
     if (channel === 'user-closed-window') {
       window?.close();
     }
-    if (channel === 'user-minimized-window') {
-      window?.hide();
-    }
     if (channel === 'user-finished-onboarding') {
       window?.close();
       openVirtualDriveRootFolder();

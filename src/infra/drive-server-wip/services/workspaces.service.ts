@@ -1,4 +1,4 @@
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
@@ -30,13 +30,7 @@ async function getWorkspaces() {
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get workspaces request',
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Get workspaces request' },
   });
 }
 
@@ -53,28 +47,22 @@ async function getCredentials(context: { workspaceId: string }) {
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get workspace credentials request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Get workspace credentials request', context },
   });
 }
 
-async function getFiles({ ctx, context, skipLog }: { ctx: SyncContext; context: { query: QueryFilesInWorkspace }; skipLog?: boolean }) {
+async function getFiles({ ctx, query, skipLog }: { ctx: SyncContext; query: QueryFilesInWorkspace; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/files';
+
+  const context = { path: { workspaceId: ctx.workspaceId }, query };
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
       signal: ctx.abortController.signal,
-      headers: getWorkspaceHeader({ ctx }),
       params: {
-        path: { workspaceId: ctx.workspaceId },
+        path: context.path,
         query: context.query,
       },
     });
@@ -93,17 +81,18 @@ async function getFiles({ ctx, context, skipLog }: { ctx: SyncContext; context: 
   }
 }
 
-async function getFolders({ ctx, context, skipLog }: { ctx: SyncContext; context: { query: QueryFoldersInWorkspace }; skipLog?: boolean }) {
+async function getFolders({ ctx, query, skipLog }: { ctx: SyncContext; query: QueryFoldersInWorkspace; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/folders';
+
+  const context = { path: { workspaceId: ctx.workspaceId }, query };
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
       signal: ctx.abortController.signal,
-      headers: getWorkspaceHeader({ ctx }),
       params: {
-        path: { workspaceId: ctx.workspaceId },
+        path: context.path,
         query: context.query,
       },
     });
