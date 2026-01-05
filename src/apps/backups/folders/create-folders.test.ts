@@ -20,7 +20,7 @@ describe('create-folders', () => {
       tracker: { currentProcessed: vi.fn() },
       ctx: { abortController: new AbortController() },
       tree: { folders: new Map([[rootPath, { uuid: rootUuid, absolutePath: rootPath }]]) },
-      added: [{ absolutePath: join(rootPath, 'folder') }],
+      added: [join(rootPath, 'folder')],
     });
   });
 
@@ -70,13 +70,13 @@ describe('create-folders', () => {
     // Given
     createFolderMock.mockResolvedValue({});
     props.added = [
-      { absolutePath: join(rootPath, '/folder1') },
-      { absolutePath: join(rootPath, '/folder1/folder2') },
-      { absolutePath: join(rootPath, '/folder3/folder4') },
-      { absolutePath: join(rootPath, '/folder3') },
-      { absolutePath: rootPath },
-      { absolutePath: join(rootPath, '/folder5') },
-      { absolutePath: join(rootPath, '/folder6/folder7') },
+      join(rootPath, '/folder1'),
+      join(rootPath, '/folder1/folder2'),
+      join(rootPath, '/folder3/folder4'),
+      join(rootPath, '/folder3'),
+      rootPath,
+      join(rootPath, '/folder5'),
+      join(rootPath, '/folder6/folder7'),
     ];
     // When
     await createFolders(props);

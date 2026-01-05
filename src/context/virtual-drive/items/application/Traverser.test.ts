@@ -6,10 +6,8 @@ import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-expl
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import * as checkDangledFiles from '@/apps/sync-engine/dangled-files/check-dangled-files';
-import * as loadInMemoryPaths from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 
 describe('traverse', () => {
-  const loadInMemoryPathsMock = partialSpyOn(loadInMemoryPaths, 'loadInMemoryPaths');
   const deleteItemPlaceholderMock = partialSpyOn(deleteItemPlaceholder, 'deleteItemPlaceholder');
   const updateFilePlaceholderMock = partialSpyOn(FilePlaceholderUpdater, 'update');
   const updateFolderPlaceholderMock = partialSpyOn(FolderPlaceholderUpdater, 'update');
@@ -18,10 +16,9 @@ describe('traverse', () => {
   let props: Parameters<typeof traverse>[0];
 
   beforeEach(() => {
-    loadInMemoryPathsMock.mockResolvedValue({});
-
     props = mockProps<typeof traverse>({
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
+      fileExplorer: {},
       database: {
         files: [
           { parentUuid: 'root' as FolderUuid, nameWithExtension: 'deleted', status: 'DELETED' },

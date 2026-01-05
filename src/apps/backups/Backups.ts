@@ -20,7 +20,7 @@ export class Backup {
   backed = 0;
 
   async run({ tracker, ctx }: Props) {
-    const local = await LocalTreeBuilder.run({ context: ctx });
+    const local = await LocalTreeBuilder.run({ ctx });
     const remote = await Traverser.run({
       userUuid: ctx.userUuid,
       rootPath: ctx.pathname,

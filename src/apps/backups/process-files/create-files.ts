@@ -4,14 +4,14 @@ import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
-import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
+import { StatItem } from '@/infra/file-system/services/stat-readdir';
 
 type Props = {
   self: Backup;
   ctx: BackupsContext;
   tracker: BackupsProcessTracker;
   remoteTree: RemoteTree;
-  added: SyncWalkItem[];
+  added: StatItem[];
 };
 
 export async function createFiles({ self, ctx, tracker, remoteTree, added }: Props) {
@@ -24,7 +24,7 @@ export async function createFiles({ self, ctx, tracker, remoteTree, added }: Pro
   );
 }
 
-async function createFile({ ctx, local, remoteTree }: { ctx: BackupsContext; local: SyncWalkItem; remoteTree: RemoteTree }) {
+async function createFile({ ctx, local, remoteTree }: { ctx: BackupsContext; local: StatItem; remoteTree: RemoteTree }) {
   const path = local.path;
 
   try {

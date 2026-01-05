@@ -3,13 +3,13 @@ import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { SyncWalkItem } from '@/infra/file-system/services/sync-walk';
+import { StatItem } from '@/infra/file-system/services/stat-readdir';
 
 export type FilesDiff = {
-  added: Array<SyncWalkItem>;
+  added: Array<StatItem>;
   deleted: Array<ExtendedDriveFile>;
-  modified: Array<{ local: SyncWalkItem; remote: ExtendedDriveFile }>;
-  unmodified: Array<SyncWalkItem>;
+  modified: Array<{ local: StatItem; remote: ExtendedDriveFile }>;
+  unmodified: Array<StatItem>;
   total: number;
 };
 

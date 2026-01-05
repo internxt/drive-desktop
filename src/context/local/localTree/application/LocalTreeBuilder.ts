@@ -1,4 +1,3 @@
-import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { parseStatError } from './parse-stat-error';
@@ -7,7 +6,7 @@ import { StatItem, statReaddir } from '@/infra/file-system/services/stat-readdir
 
 export type LocalTree = {
   files: Record<AbsolutePath, StatItem>;
-  folders: Record<AbsolutePath, LocalFolder>;
+  folders: AbsolutePath[];
 };
 
 export default class LocalTreeBuilder {
@@ -23,9 +22,7 @@ export default class LocalTreeBuilder {
 
     const tree: LocalTree = {
       files: {},
-      folders: {
-        [rootPath]: { absolutePath: rootPath },
-      },
+      folders: [rootPath],
     };
 
     async function walk(parentPath: AbsolutePath) {
@@ -41,9 +38,7 @@ export default class LocalTreeBuilder {
         tree.files[file.path] = file;
       }
 
-      for (const folder of folders) {
-        tree.folders[folder.path] = { absolutePath: folder.path };
-      }
+      tree.folders.push(...folders.map((folder) => folder.path));
 
       await Promise.all(folders.map((folder) => walk(folder.path)));
     }
