@@ -38,6 +38,7 @@
       ],
       "include_dirs": [
         "include",
+        "include/filesystem",
         "include/helpers",
         "include/placeholders_interface",
         "include/sync_root_interface",
