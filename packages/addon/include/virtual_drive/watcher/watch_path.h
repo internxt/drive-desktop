@@ -36,7 +36,7 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
         auto event = new WatcherEvent{"delete", pathStr};
         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
-    } else {
+    } else if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
         auto event = new WatcherEvent{"create", pathStr};
         napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
     }
