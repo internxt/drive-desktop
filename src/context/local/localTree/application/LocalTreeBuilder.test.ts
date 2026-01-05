@@ -19,7 +19,7 @@ describe('LocalTreeBuilder', () => {
   const file4 = join(folder3, 'file4');
 
   const addIssue = vi.fn();
-  const props = mockProps<typeof LocalTreeBuilder.run>({ context: { pathname: folder, addIssue } });
+  const props = mockProps<typeof LocalTreeBuilder.run>({ ctx: { pathname: folder, addIssue } });
 
   beforeAll(async () => {
     await mkdir(folder);

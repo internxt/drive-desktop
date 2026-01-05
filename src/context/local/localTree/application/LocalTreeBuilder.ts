@@ -1,41 +1,23 @@
-import { syncWalk, SyncWalkItem } from '@/infra/file-system/services/sync-walk';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { parseStatError } from './parse-stat-error';
 import { stat } from '@/infra/file-system/services/stat';
+import { StatItem, statReaddir } from '@/infra/file-system/services/stat-readdir';
 
 export type LocalTree = {
-  files: Record<AbsolutePath, SyncWalkItem>;
+  files: Record<AbsolutePath, StatItem>;
   folders: Record<AbsolutePath, LocalFolder>;
 };
 
 export default class LocalTreeBuilder {
-  static async traverse({ context, tree }: { context: BackupsContext; tree: LocalTree }) {
-    const items = await syncWalk({
-      rootFolder: context.pathname,
-      onError: ({ path, error }) => {
-        parseStatError({ context, path, error });
-        logger.error({ tag: 'BACKUPS', msg: 'Error getting item stats', path, error });
-      },
-    });
-
-    for (const item of items) {
-      if (item.stats.isFile()) {
-        tree.files[item.path] = item;
-      } else if (item.stats.isDirectory()) {
-        tree.folders[item.path] = { absolutePath: item.path };
-      }
-    }
-  }
-
-  static async run({ context }: { context: BackupsContext }) {
-    const rootPath = context.pathname;
+  static async run({ ctx }: { ctx: BackupsContext }) {
+    const rootPath = ctx.pathname;
 
     const { error } = await stat({ absolutePath: rootPath });
 
     if (error) {
-      parseStatError({ context, path: rootPath, error });
+      parseStatError({ ctx, path: rootPath, error });
       throw error;
     }
 
@@ -46,7 +28,27 @@ export default class LocalTreeBuilder {
       },
     };
 
-    await this.traverse({ context, tree });
+    async function walk(parentPath: AbsolutePath) {
+      const { files, folders } = await statReaddir({
+        folder: parentPath,
+        onError: ({ path, error }) => {
+          parseStatError({ ctx, path, error });
+          ctx.logger.error({ msg: 'Error getting item stats', path, error });
+        },
+      });
+
+      for (const file of files) {
+        tree.files[file.path] = file;
+      }
+
+      for (const folder of folders) {
+        tree.folders[folder.path] = { absolutePath: folder.path };
+      }
+
+      await Promise.all(folders.map((folder) => walk(folder.path)));
+    }
+
+    await walk(rootPath);
 
     return tree;
   }

@@ -1,5 +1,6 @@
+import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from './config';
-import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
+import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
@@ -13,9 +14,10 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
 
     ctx.logger.debug({ msg: 'Refresh item placeholders', isFirstExecution });
 
-    const items = await getAllItems({ ctx });
+    const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
+
     const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
-    await Traverser.run({ ctx, currentFolder, items, isFirstExecution });
+    await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution });
 
     const endTime = performance.now();
 
@@ -25,7 +27,7 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
   }
 }
 
-async function getAllItems({ ctx }: { ctx: SyncContext }) {
+async function getDatabaseItems({ ctx }: { ctx: SyncContext }) {
   const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
     SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
     SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),
