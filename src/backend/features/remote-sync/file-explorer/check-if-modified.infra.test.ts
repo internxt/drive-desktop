@@ -1,4 +1,4 @@
-import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
+import { checkIfModified } from './check-if-modified';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
@@ -10,7 +10,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Addon } from '@/node-win/addon-wrapper';
 import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
 
-describe('sync-remote-changes-to-local', () => {
+describe('check-if-modified', () => {
   const providerName = 'Internxt Drive';
   const providerId = v4();
   const rootPath = join(TEST_FILES, v4());
@@ -31,7 +31,8 @@ describe('sync-remote-changes-to-local', () => {
     await writeFile(path, 'content');
     await Addon.convertToPlaceholder({ path, placeholderId: 'FILE:uuid' });
 
-    const props = mockProps<typeof syncRemoteChangesToLocal>({
+    const props = mockProps<typeof checkIfModified>({
+      isFirstExecution: false,
       remote: {
         uuid: 'uuid' as FileUuid,
         absolutePath: path,
@@ -46,7 +47,7 @@ describe('sync-remote-changes-to-local', () => {
 
     // When
     await sleep(100);
-    await syncRemoteChangesToLocal(props);
+    await checkIfModified(props);
     await sleep(100);
 
     // Then
