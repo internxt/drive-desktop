@@ -30,7 +30,7 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     if (file.status === 'DELETED' || file.status === 'TRASHED') {
       await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
     } else {
-      await FilePlaceholderUpdater.update({ ctx, remote, files: fileExplorer.files });
+      await FilePlaceholderUpdater.update({ ctx, remote, files: fileExplorer.files, isFirstExecution });
       if (isFirstExecution) {
         void checkDangledFiles({ ctx, file: remote });
       }
