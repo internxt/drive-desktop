@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { PinState } from '@/node-win/types/placeholder.type';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -37,8 +37,14 @@ describe('get-folder-info', () => {
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
-    expect(data).toStrictEqual({ pinState: PinState.Excluded, placeholderId: `FOLDER:${rootUuid}`, uuid: rootUuid });
-    expect(error).toStrictEqual(undefined);
+    expect(error).toBeUndefined();
+    expect(data).toStrictEqual({
+      pinState: PinState.Excluded,
+      inSyncState: InSyncState.Sync,
+      placeholderId: `FOLDER:${rootUuid}`,
+      uuid: rootUuid,
+      onDiskSize: 0,
+    });
   });
 
   it('should return data when path is a folder placeholder', async () => {
@@ -52,8 +58,8 @@ describe('get-folder-info', () => {
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
-    expect(data).toStrictEqual({ pinState: PinState.Unspecified, placeholderId, uuid });
-    expect(error).toStrictEqual(undefined);
+    expect(data).toStrictEqual({ pinState: PinState.Unspecified, inSyncState: InSyncState.Sync, placeholderId, uuid, onDiskSize: 0 });
+    expect(error).toBeUndefined();
   });
 
   it('should return error NOT_A_PLACEHOLDER when the path is not a placeholder', async () => {
@@ -63,7 +69,7 @@ describe('get-folder-info', () => {
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
-    expect(data).toStrictEqual(undefined);
+    expect(data).toBeUndefined();
     expect(error).toStrictEqual(
       new GetFolderInfoError(
         'NOT_A_PLACEHOLDER',
@@ -78,7 +84,7 @@ describe('get-folder-info', () => {
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
-    expect(data).toStrictEqual(undefined);
+    expect(data).toBeUndefined();
     expect(error).toStrictEqual(new GetFolderInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
   });
 });

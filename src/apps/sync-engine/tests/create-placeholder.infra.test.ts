@@ -22,7 +22,7 @@ describe('create-placeholder', () => {
   const file = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
-    createFileMock.mockResolvedValue({ uuid: 'uuid' as FileUuid });
+    createFileMock.mockResolvedValue({ uuid: v4() as FileUuid });
 
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
