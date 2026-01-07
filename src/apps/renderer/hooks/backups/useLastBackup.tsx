@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { WorkerExitCause } from '../../../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { isFatalError } from '../../../../shared/issues/SyncErrorCause';
 
 dayjs.extend(relativeTime);
 
 export interface LastBackupContextProps {
   lastBackupTimestamp: number | undefined;
-  lastExistReason: WorkerExitCause | undefined;
   fromNow: () => string;
   lastBackupHadIssues: boolean;
   refreshLastBackupTimestamp: () => void;
@@ -17,7 +15,6 @@ export interface LastBackupContextProps {
 export function useLastBackup(): LastBackupContextProps {
   const [lastBackupTimestamp, setLastBackupTimestamp] = useState<number | undefined>(undefined);
 
-  const [lastExistReason, setLastExistReason] = useState<WorkerExitCause>();
   const [lastBackupHadIssues, setLastBackupHadIssues] = useState<boolean>(false);
 
   function refreshLastBackupTimestamp() {
@@ -26,7 +23,6 @@ export function useLastBackup(): LastBackupContextProps {
 
   function refreshLastExitReason() {
     window.electron.getLastBackupExitReason().then((reason) => {
-      setLastExistReason(reason);
       setLastBackupHadIssues(isFatalError(reason));
     });
   }
@@ -45,7 +41,6 @@ export function useLastBackup(): LastBackupContextProps {
 
   return {
     lastBackupTimestamp,
-    lastExistReason,
     fromNow,
     lastBackupHadIssues,
     refreshLastBackupTimestamp,
