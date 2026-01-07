@@ -7,7 +7,6 @@ export type ContentsId = Brand<string, 'ContentsId'>;
 export type SimpleDriveFile = {
   uuid: FileUuid;
   name: string;
-  nameWithExtension: string;
   extension: string;
   parentId: number;
   parentUuid: string | undefined;

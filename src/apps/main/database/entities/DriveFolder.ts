@@ -53,7 +53,7 @@ export class DriveFolder {
   updatedAt!: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
+  plainName!: string;
 
   @Column({ nullable: false, type: 'varchar' })
   name!: string;

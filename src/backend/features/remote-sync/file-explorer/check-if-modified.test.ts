@@ -28,7 +28,6 @@ describe('check-if-modified', () => {
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
-        name: 'file2',
         size: 1024,
         updatedAt: remoteDate.toISOString(),
       },
