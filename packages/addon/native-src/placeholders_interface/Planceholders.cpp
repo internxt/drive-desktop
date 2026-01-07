@@ -27,12 +27,10 @@ winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD 
     if (isDirectory)
         dwFlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
 
-    DWORD dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-
     winrt::file_handle fileHandle{CreateFileW(
         path.c_str(),
         dwDesiredAccess,
-        dwShareMode,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         nullptr,
         OPEN_EXISTING,
         dwFlagsAndAttributes,
