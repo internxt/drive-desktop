@@ -59,7 +59,7 @@ describe('log-file-explorer', () => {
     expect(res).toBe(csvPath);
     call(writeFileMock).toMatchObject([
       csvPath,
-      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file1.txt",FILE:uuid,,,1024,\n"file2.txt"\nfolders\n"folder1",FOLDER:uuid,\n"folder2"',
+      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file1.txt",FILE:uuid,,,1024,\n"file2.txt"\nfolders\n"folder1",FOLDER:uuid,,\n"folder2"',
       'utf-8',
     ]);
   });
