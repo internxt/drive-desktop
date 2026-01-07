@@ -1,4 +1,5 @@
 #include <NAPI_SAFE_WRAP.h>
+#include <internal.h>
 #include <virtual_drive.h>
 
 napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
