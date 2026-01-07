@@ -17,26 +17,32 @@ export type ExtendedDriveFolder = SimpleDriveFolder & {
 
 @Entity('drive_folder')
 export class DriveFolder {
+  @Column({ nullable: false, unique: true, type: 'int' })
+  id!: number;
+
   @PrimaryColumn({ nullable: false, type: 'varchar' })
   uuid!: string;
 
-  @Column({ nullable: false, unique: true, type: 'int' })
-  id!: number;
+  @Column({ nullable: false, type: 'varchar' })
+  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
+
+  @Column({ nullable: true, type: 'varchar' })
+  plainName?: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  createdAt!: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  updatedAt!: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  parentUuid?: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
   workspaceId?: string;
 
   @Column({ nullable: true, type: 'int' })
   parentId?: number;
-
-  @Column({ nullable: true, type: 'varchar' })
-  parentUuid?: string;
-
-  @Column({ nullable: true, type: 'varchar' })
-  bucket?: string;
-
-  @Column({ nullable: false, type: 'int' })
-  userId!: number;
 
   /**
    * v2.5.1 Daniel Jiménez
@@ -47,17 +53,5 @@ export class DriveFolder {
   userUuid!: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  createdAt!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  updatedAt!: string;
-
-  @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
-
-  @Column({ nullable: false, type: 'varchar' })
   name!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 }

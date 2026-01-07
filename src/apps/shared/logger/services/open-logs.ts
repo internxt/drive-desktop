@@ -7,6 +7,7 @@ import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
 import { pipeline } from 'node:stream/promises';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { logFileExplorers } from './log-file-explorers';
 
 export async function openLogs() {
   logger.debug({ msg: 'Open logs' });
@@ -18,7 +19,9 @@ export async function openLogs() {
 
     const pipelinePromise = pipeline(archive, writeStream);
 
-    const paths = [join(PATHS.LOGS, 'drive.log'), join(PATHS.LOGS, 'drive-important.log'), PATHS.SQLITE_DB];
+    const csvPaths = await logFileExplorers();
+
+    const paths = [join(PATHS.LOGS, 'drive.log'), join(PATHS.LOGS, 'drive-important.log'), PATHS.SQLITE_DB, ...csvPaths];
 
     for (const path of paths) {
       try {

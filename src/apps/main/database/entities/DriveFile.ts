@@ -58,14 +58,8 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   size!: number;
 
-  @Column({ nullable: false, type: 'varchar' })
-  bucket!: string;
-
   @Column({ nullable: false, type: 'int' })
   folderId!: number;
-
-  @Column({ nullable: false, type: 'int' })
-  userId!: number;
 
   /**
    * v2.5.1 Daniel Jiménez
