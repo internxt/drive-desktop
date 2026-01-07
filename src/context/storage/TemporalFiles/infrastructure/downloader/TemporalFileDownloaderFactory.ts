@@ -7,6 +7,7 @@ import { EnvironmentTemporalFileUploader } from '../upload/EnvironmentTemporalFi
 import { TemporalFileUploaderFactory } from '../../domain/upload/TemporalFileUploaderFactory';
 import { Replaces } from '../../domain/upload/Replaces';
 import { TemporalFile } from '../../domain/TemporalFile';
+import { MULTIPART_UPLOAD_SIZE_THRESHOLD } from '../../../../shared/domain/UploadConstants';
 
 @Service()
 export class TemporalFileDownloaderFactory implements TemporalFileUploaderFactory {
@@ -14,8 +15,6 @@ export class TemporalFileDownloaderFactory implements TemporalFileUploaderFactor
   private _file: TemporalFile | undefined = undefined;
   private _replaces: Replaces | undefined = undefined;
   private _abortController: AbortController | undefined = undefined;
-
-  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024; // 100MB
 
   constructor(
     private readonly environment: Environment,
@@ -94,7 +93,7 @@ export class TemporalFileDownloaderFactory implements TemporalFileUploaderFactor
     }
 
     const fn =
-      document.size.value > TemporalFileDownloaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
+      document.size.value > MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 

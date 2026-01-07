@@ -9,11 +9,10 @@ import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { deleteFileContentIPC } from '../../../../infra/ipc/files-ipc';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { MULTIPART_UPLOAD_SIZE_THRESHOLD } from '../../../shared/domain/UploadConstants';
 
 @Service()
 export class EnvironmentLocalFileUploader implements LocalFileHandler {
-  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024; // 100MB
-
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
@@ -21,7 +20,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =
-      size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
+      size > MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
         : this.environment.upload.bind(this.environment);
 
@@ -35,7 +34,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
-        finishedCallback: (err: Error | null, contentsId: string) => {
+        finishedCallback: (err, contentsId) => {
           readable.close();
           stopwatch.finish();
 
@@ -44,6 +43,11 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
             if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
             }
+            return resolve(left(new DriveDesktopError('UNKNOWN')));
+          }
+
+          if (!contentsId) {
+            logger.error({ tag: 'SYNC-ENGINE', msg: '[ENVLFU UPLOAD ERROR] No contentsId returned' });
             return resolve(left(new DriveDesktopError('UNKNOWN')));
           }
 
