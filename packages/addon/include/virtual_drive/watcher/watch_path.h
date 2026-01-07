@@ -24,6 +24,12 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     delete event;
 }
 
+inline void sendEvent(WatcherContext* ctx, const std::string& type, const std::string& path)
+{
+    auto event = new WatcherEvent{type, path};
+    napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+}
+
 inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
@@ -31,14 +37,11 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
     std::string pathStr(path.begin(), path.end());
 
     if (fni->Action == FILE_ACTION_MODIFIED) {
-        auto event = new WatcherEvent{"update", pathStr};
-        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+        sendEvent(ctx, "update", pathStr);
     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-        auto event = new WatcherEvent{"delete", pathStr};
-        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+        sendEvent(ctx, "delete", pathStr);
     } else if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-        auto event = new WatcherEvent{"create", pathStr};
-        napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+        sendEvent(ctx, "create", pathStr);
     }
 }
 
@@ -62,7 +65,12 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
                 nullptr,
                 nullptr);
 
-            if (!success || ctx->shouldStop) break;
+            if (!success) {
+                sendEvent(ctx, "error", std::format("ReadDirectoryChangesW failed: {}", GetLastError()));
+                break;
+            }
+
+            if (ctx->shouldStop) break;
 
             FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)buffer;
 
@@ -74,8 +82,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
                 fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
             }
         } catch (...) {
-            auto event = new WatcherEvent{"error", format_exception_message("WatchPath")};
-            napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+            sendEvent(ctx, "error", format_exception_message("WatchPath"));
         }
     }
 }
@@ -90,16 +97,20 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
 
     std::thread([ctx, rootPath = std::move(rootPath)]() {
         try {
-            watchPath(ctx, rootPath);
+            try {
+                watchPath(ctx, rootPath);
+            } catch (...) {
+                sendEvent(ctx, "error", format_exception_message("WatchPathWrapper"));
+            }
+
+            wprintf(L"Remove watcher context\n");
+
+            napi_release_threadsafe_function(ctx->tsfn, napi_tsfn_release);
+            delete ctx;
         } catch (...) {
-            auto event = new WatcherEvent{"error", format_exception_message("WatchPathWrapper")};
-            napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+            auto error = format_exception_message("WatchPathThread");
+            wprintf(L"Error in watch path thread: %s\n", error.c_str());
         }
-
-        wprintf(L"Remove watcher context\n");
-
-        napi_release_threadsafe_function(ctx->tsfn, napi_tsfn_release);
-        delete ctx;
     }).detach();
 
     napi_value external;
