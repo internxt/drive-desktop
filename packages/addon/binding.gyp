@@ -38,6 +38,7 @@
       ],
       "include_dirs": [
         "include",
+        "include/filesystem",
         "include/helpers",
         "include/placeholders_interface",
         "include/sync_root_interface",
@@ -46,7 +47,8 @@
         "include/virtual_drive/get_placeholder_state",
         "include/virtual_drive/get_registered_sync_roots",
         "include/virtual_drive/register_sync_root",
-        "include/virtual_drive/update_sync_status"
+        "include/virtual_drive/update_sync_status",
+        "include/virtual_drive/watcher"
       ],
       "libraries": [
         "-lCldApi.lib",
