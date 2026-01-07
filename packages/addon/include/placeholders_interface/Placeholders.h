@@ -7,6 +7,7 @@
 #include <vector>
 
 struct FileState {
+    std::string uuid;
     std::string placeholderId;
     CF_PIN_STATE pinState;
     CF_IN_SYNC_STATE inSyncState;
@@ -19,6 +20,10 @@ struct NapiSerializer<FileState> {
     {
         napi_value obj;
         napi_create_object(env, &obj);
+
+        napi_value uuid;
+        napi_create_string_utf8(env, fileState.uuid.c_str(), NAPI_AUTO_LENGTH, &uuid);
+        napi_set_named_property(env, obj, "uuid", uuid);
 
         napi_value placeholderId;
         napi_create_string_utf8(env, fileState.placeholderId.c_str(), NAPI_AUTO_LENGTH, &placeholderId);

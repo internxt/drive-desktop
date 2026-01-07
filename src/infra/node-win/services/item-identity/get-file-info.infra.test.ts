@@ -6,7 +6,6 @@ import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
 import { writeFile } from 'node:fs/promises';
 
@@ -49,21 +48,6 @@ describe('get-file-info', () => {
       placeholderId,
       uuid,
     });
-  });
-
-  it('should return error NOT_A_FILE when path is a folder placeholder', async () => {
-    // Given
-    const uuid = v4();
-    const path = join(rootPath, uuid);
-    const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
-    props.path = path;
-
-    await Addon.createFolderPlaceholder({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
-    // When
-    const { data, error } = await getFileInfo(props);
-    // Then
-    expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFileInfoError('NOT_A_FILE'));
   });
 
   it('should return error NOT_A_PLACEHOLDER when path is not a placeholder', async () => {

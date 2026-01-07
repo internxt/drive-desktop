@@ -2,6 +2,7 @@ import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-
 import { SyncContext } from './config';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { measurePerfomance } from '@/core/utils/measure-performance';
 
 type Props = {
   ctx: SyncContext;
@@ -10,18 +11,17 @@ type Props = {
 
 export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
   try {
-    const startTime = performance.now();
-
     ctx.logger.debug({ msg: 'Refresh item placeholders', isFirstExecution });
 
-    const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
+    const time = await measurePerfomance(async () => {
+      const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
 
-    const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
-    await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution });
+      const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
 
-    const endTime = performance.now();
+      await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution });
+    });
 
-    ctx.logger.debug({ msg: 'Finish refreshing placeholders in seconds', time: (endTime - startTime) / 1000 });
+    ctx.logger.debug({ msg: 'Finish refresh placeholders in seconds', time });
   } catch (error) {
     ctx.logger.error({ msg: 'Error refreshing item placeholders', error });
   }

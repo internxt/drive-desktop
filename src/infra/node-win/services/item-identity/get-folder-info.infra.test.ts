@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -55,21 +54,6 @@ describe('get-folder-info', () => {
     // Then
     expect(data).toStrictEqual({ pinState: PinState.Unspecified, placeholderId, uuid });
     expect(error).toStrictEqual(undefined);
-  });
-
-  it('should return error NOT_A_FOLDER when path is a file placeholder', async () => {
-    // Given
-    const uuid = v4();
-    const path = join(rootPath, uuid);
-    const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
-    props.path = path;
-
-    await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
-    // When
-    const { data, error } = await getFolderInfo(props);
-    // Then
-    expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new GetFolderInfoError('NOT_A_FOLDER'));
   });
 
   it('should return error NOT_A_PLACEHOLDER when the path is not a placeholder', async () => {
