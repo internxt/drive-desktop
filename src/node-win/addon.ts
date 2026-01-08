@@ -8,9 +8,18 @@ import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/bra
 import { PinState } from './types/placeholder.type';
 
 export type Win32Path = Brand<string, 'Win32Path'>;
+
 export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 export type FetchDataFn = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => Promise<void>;
 export type CancelFetchDataFn = (connectionKey: bigint, path: Win32Path) => void;
+
+export namespace Watcher {
+  export type Event = { event: 'create' | 'update' | 'delete'; path: Win32Path } | { event: 'error'; path: string };
+  export type OnEvent = (event: Event) => void;
+  export type Subscription = {
+    unsubscribe: () => void;
+  };
+}
 
 type TAddon = {
   createFilePlaceholder(
@@ -47,6 +56,8 @@ type TAddon = {
   unregisterSyncRoot(providerId: string): Promise<z.infer<typeof addonZod.unregisterSyncRoot>>;
   updateSyncStatus(path: Win32Path): Promise<z.infer<typeof addonZod.updateSyncStatus>>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
+  watchPath(rootPath: Win32Path, onEvent: Watcher.OnEvent): z.infer<typeof addonZod.watchPath>;
+  unwatchPath(handle: object): void;
 };
 
 export const addon: TAddon = rawAddon;
