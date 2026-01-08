@@ -1,11 +1,9 @@
 import { folderRepository } from '../drive-folder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdate } from './create-or-update';
-import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('create-or-update', () => {
   const upsertMock = partialSpyOn(folderRepository, 'upsert');
-  partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const props = mockProps<typeof createOrUpdate>({ folder: {} });
 

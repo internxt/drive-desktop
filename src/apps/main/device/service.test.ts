@@ -6,7 +6,6 @@ import { createUniqueDevice, fetchDevice, saveDeviceToConfig } from './service';
 import { loggerMock } from '../../../../tests/vitest/mocks.helper.test';
 import { GetDeviceError } from '@/infra/drive-server-wip/services/backup/get-device';
 
-vi.mock('@internxt/lib');
 vi.mock('os');
 vi.mock('@/apps/main/config');
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));

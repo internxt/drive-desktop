@@ -21,8 +21,7 @@ describe('move-item', () => {
     props = mockProps<typeof moveItem>({
       type: 'file',
       uuid: 'uuid' as FileUuid,
-      item: { parentUuid: 'parentUuid' },
-      itemName: 'name',
+      item: { parentUuid: 'parentUuid', name: 'name' },
       path: '/folder/newName' as AbsolutePath,
       ctx: {
         workspaceToken: '',

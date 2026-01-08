@@ -28,7 +28,7 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     const filePromises = filesInThisFolder.map(async (file) => {
-      const absolutePath = join(currentFolder.absolutePath, file.nameWithExtension);
+      const absolutePath = join(currentFolder.absolutePath, file.name);
       const remote = { ...file, absolutePath };
 
       if (file.status === 'DELETED' || file.status === 'TRASHED') {
