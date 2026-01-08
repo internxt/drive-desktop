@@ -27,7 +27,7 @@ describe('get-by-name', () => {
 
   it('should return folder', async () => {
     // Given
-    findOneSpy.mockResolvedValue({ name: 'name' });
+    findOneSpy.mockResolvedValue({ plainName: 'name' });
     // When
     const { data } = await getByName(props);
     // Then

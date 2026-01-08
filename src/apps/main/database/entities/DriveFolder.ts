@@ -27,7 +27,7 @@ export class DriveFolder {
   status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
+  plainName!: string;
 
   @Column({ nullable: false, type: 'varchar' })
   createdAt!: string;
