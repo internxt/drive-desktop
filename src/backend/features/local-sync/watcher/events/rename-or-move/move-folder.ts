@@ -16,14 +16,7 @@ export async function moveFolder({ ctx, path, uuid }: TProps) {
 
     if (error) throw error;
 
-    await moveItem({
-      ctx,
-      path,
-      uuid,
-      item,
-      itemName: item.name,
-      type: 'folder',
-    });
+    await moveItem({ ctx, path, uuid, item, type: 'folder' });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error moving folder', path, uuid, exc });
   }

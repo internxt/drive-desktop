@@ -51,7 +51,4 @@ export class DriveFolder {
    */
   @Column({ nullable: false, default: '', type: 'varchar' })
   userUuid!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  name!: string;
 }
