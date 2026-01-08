@@ -5,7 +5,7 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { createFile } from './workspaces/create-file';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { createFolder } from './workspaces/create-folder';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -20,12 +20,12 @@ export const workspaces = {
 };
 export const WorkspaceModule = workspaces;
 
-async function getWorkspaces() {
+async function getWorkspaces({ ctx }: { ctx: AuthContext }) {
   const method = 'GET';
   const endpoint = '/workspaces';
   const key = getRequestKey({ method, endpoint });
 
-  const promiseFn = () => client.GET(endpoint);
+  const promiseFn = () => client.GET(endpoint, { signal: ctx.abortController.signal });
 
   return await clientWrapper({
     promiseFn,
@@ -34,13 +34,14 @@ async function getWorkspaces() {
   });
 }
 
-async function getCredentials(context: { workspaceId: string }) {
+async function getCredentials({ ctx, context }: { ctx: AuthContext; context: { workspaceId: string } }) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/credentials';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
+      signal: ctx.abortController.signal,
       params: { path: { workspaceId: context.workspaceId } },
     });
 

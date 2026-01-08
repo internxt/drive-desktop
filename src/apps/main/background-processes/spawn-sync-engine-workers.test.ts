@@ -14,7 +14,7 @@ describe('spawn-sync-engine-workers', () => {
   const spawnWorkspaceMock = partialSpyOn(spawnWorkspace, 'spawnWorkspace');
 
   const props = mockProps<typeof spawnSyncEngineWorkers>({
-    context: { abortController: new AbortController() },
+    ctx: { abortController: new AbortController() },
   });
 
   it('should unregister old virtual drives and spawn workers', async () => {
