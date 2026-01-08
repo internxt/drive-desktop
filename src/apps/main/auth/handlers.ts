@@ -11,6 +11,7 @@ import { logout } from './logout';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
+import { setMaxListeners } from 'node:events';
 
 let isLoggedIn: boolean;
 
@@ -61,8 +62,11 @@ export async function emitUserLoggedIn() {
   const scheduler = new TokenScheduler();
   scheduler.schedule();
 
+  const abortController = new AbortController();
+  setMaxListeners(0, abortController.signal);
+
   const ctx: AuthContext = {
-    abortController: new AbortController(),
+    abortController,
     workspaceToken: '',
   };
 
@@ -78,5 +82,5 @@ export async function emitUserLoggedIn() {
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
   BackupScheduler.start();
-  await spawnSyncEngineWorkers({ context: ctx });
+  await spawnSyncEngineWorkers({ ctx });
 }

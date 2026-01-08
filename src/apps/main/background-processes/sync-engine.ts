@@ -9,14 +9,14 @@ import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
 import { buildUserEnvironment } from './backups/build-environment';
 
-export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
+export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const { environment, contentsDownloader } = buildUserEnvironment({ user, type: 'drive' });
 
   const syncContext: SyncContext = {
-    abortController: context.abortController,
+    abortController: ctx.abortController,
     userUuid: user.uuid,
     providerId,
     rootPath: await getRootVirtualDrive(),
@@ -35,12 +35,12 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
 
   const promise = spawnSyncEngineWorker({ ctx: syncContext });
 
-  const workspaces = await getWorkspaces();
+  const workspaces = await getWorkspaces({ ctx });
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
   const currentProviderIds = workspaceProviderIds.concat([providerId]);
 
   await unregisterVirtualDrives({ currentProviderIds });
 
-  const promises = workspaces.map((workspace) => spawnWorkspace({ context, workspace }));
+  const promises = workspaces.map((workspace) => spawnWorkspace({ ctx, workspace }));
   await Promise.all([promise, ...promises]);
 }

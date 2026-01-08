@@ -64,9 +64,9 @@ describe('backups', () => {
 
     getFilesMock.mockResolvedValue({
       data: [
-        { uuid: 'unmodifiedFile' as FileUuid, parentUuid: rootUuid, nameWithExtension: 'unmodifiedFile', size: 7, status: 'EXISTS' },
-        { uuid: 'modifiedFile' as FileUuid, parentUuid: rootUuid, nameWithExtension: 'modifiedFile', size: 12, status: 'EXISTS' },
-        { uuid: 'deletedFile' as FileUuid, parentUuid: 'folder', nameWithExtension: 'deleted', status: 'EXISTS' },
+        { uuid: 'unmodifiedFile' as FileUuid, parentUuid: rootUuid, name: 'unmodifiedFile', size: 7, status: 'EXISTS' },
+        { uuid: 'modifiedFile' as FileUuid, parentUuid: rootUuid, name: 'modifiedFile', size: 12, status: 'EXISTS' },
+        { uuid: 'deletedFile' as FileUuid, parentUuid: 'folder', name: 'deleted', status: 'EXISTS' },
         { status: 'DELETED' },
       ],
     });

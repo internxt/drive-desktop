@@ -31,7 +31,7 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
 
     filesInThisFolder.forEach((file) => {
-      const absolutePath = join(parent.absolutePath, file.nameWithExtension);
+      const absolutePath = join(parent.absolutePath, file.name);
       const extendedFile = { ...file, absolutePath };
 
       tree.files.set(absolutePath, extendedFile);
