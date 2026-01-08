@@ -12,7 +12,10 @@ export function refreshWorkspaceToken({ ctx }: Props) {
     async () => {
       ctx.logger.debug({ msg: 'Refreshing workspace token' });
 
-      const { data: credentials } = await DriveServerWipModule.workspaces.getCredentials({ workspaceId: ctx.workspaceId });
+      const { data: credentials } = await DriveServerWipModule.workspaces.getCredentials({
+        ctx,
+        context: { workspaceId: ctx.workspaceId },
+      });
 
       if (credentials) {
         ctx.workspaceToken = credentials.tokenHeader;
