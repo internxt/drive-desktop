@@ -19,10 +19,10 @@ describe('traverser', () => {
   beforeEach(() => {
     getFilesMock.mockResolvedValue({
       data: [
-        { nameWithExtension: 'file1', parentUuid: folder, status: 'EXISTS' },
-        { nameWithExtension: 'file2', parentUuid: folder, status: 'EXISTS' },
-        { nameWithExtension: 'file3', parentUuid: folder1, status: 'EXISTS' },
-        { nameWithExtension: 'file4', parentUuid: folder3, status: 'EXISTS' },
+        { name: 'file1', parentUuid: folder, status: 'EXISTS' },
+        { name: 'file2', parentUuid: folder, status: 'EXISTS' },
+        { name: 'file3', parentUuid: folder1, status: 'EXISTS' },
+        { name: 'file4', parentUuid: folder3, status: 'EXISTS' },
         { status: 'DELETED' },
       ],
     });

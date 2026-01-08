@@ -11,11 +11,10 @@ import { persistMoveFile, persistMoveFolder } from '@/infra/drive-server-wip/out
 type TProps = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  itemName: string;
   item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps) {
+export async function moveItem({ ctx, path, uuid, item, type }: TProps) {
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
@@ -26,7 +25,7 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   const { uuid: parentUuid } = parentInfo;
 
   // Neither move nor renamed
-  if (item.parentUuid === parentUuid && itemName === name) return;
+  if (item.parentUuid === parentUuid && item.name === name) return;
 
   if (type === 'file') {
     await persistMoveFile({ ctx, uuid, parentUuid, path });

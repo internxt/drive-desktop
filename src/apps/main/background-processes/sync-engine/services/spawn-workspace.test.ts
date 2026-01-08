@@ -1,26 +1,20 @@
-import { call, deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { spawnWorkspace } from './spawn-workspace';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
-import { getUserOrThrow } from '@/apps/main/auth/service';
-import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import * as spawnSyncEngineWorker from './spawn-sync-engine-worker';
+import * as getUserOrThrow from '@/apps/main/auth/service';
+import * as decryptMessageWithPrivateKey from '@/apps/shared/crypto/service';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-vi.mock(import('./spawn-sync-engine-worker'));
-vi.mock(import('@/apps/main/auth/service'));
-vi.mock(import('@/apps/shared/crypto/service'));
-vi.mock(import('@/apps/main/util'));
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
-
 describe('spawn-workspace.service', () => {
-  const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);
-  const decryptMessageWithPrivateKeyMock = vi.mocked(decryptMessageWithPrivateKey);
-  const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
-  const getUserOrThrowMock = deepMocked(getUserOrThrow);
+  const getCredentialsMock = partialSpyOn(driveServerWipModule.workspaces, 'getCredentials');
+  const decryptMessageWithPrivateKeyMock = partialSpyOn(decryptMessageWithPrivateKey, 'decryptMessageWithPrivateKey');
+  const spawnSyncEngineWorkerMock = partialSpyOn(spawnSyncEngineWorker, 'spawnSyncEngineWorker');
+  const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');
 
   const props = mockProps<typeof spawnWorkspace>({
-    context: { abortController: new AbortController() },
+    ctx: { abortController: new AbortController() },
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',

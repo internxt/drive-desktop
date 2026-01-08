@@ -1,11 +1,9 @@
-import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
 import { fileRepository } from '../drive-file';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdateBatch } from './create-or-update-batch';
 
 describe('create-or-update-batch', () => {
   const upsertMock = partialSpyOn(fileRepository, 'upsert');
-  const fileDecryptNameMock = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
   const files = Array.from({ length: 450 }, () => ({}));
 
@@ -13,10 +11,6 @@ describe('create-or-update-batch', () => {
 
   beforeEach(() => {
     upsertMock.mockResolvedValue({});
-    fileDecryptNameMock.mockImplementation(({ encryptedName }) => ({
-      name: encryptedName,
-      nameWithExtension: encryptedName,
-    }));
 
     props = mockProps<typeof createOrUpdateBatch>({ files });
   });
