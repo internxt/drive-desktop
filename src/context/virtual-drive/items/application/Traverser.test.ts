@@ -24,11 +24,11 @@ describe('Traverser', () => {
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
       items: {
         files: [
-          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'deleted', status: 'DELETED' },
-          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'child1', status: 'EXISTS' },
-          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'trashed', status: 'TRASHED' },
-          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'child2', status: 'EXISTS' },
-          { parentUuid: 'parent2' as FolderUuid, nameWithExtension: 'child3', status: 'EXISTS' },
+          { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
+          { parentUuid: 'root' as FolderUuid, name: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'trashed', status: 'TRASHED' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'child2', status: 'EXISTS' },
+          { parentUuid: 'parent2' as FolderUuid, name: 'child3', status: 'EXISTS' },
         ],
         folders: [
           { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
