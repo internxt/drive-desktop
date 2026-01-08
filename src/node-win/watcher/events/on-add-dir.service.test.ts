@@ -3,7 +3,7 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import * as moveFolder from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
-import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { Drive } from '@/backend/features/drive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
@@ -12,7 +12,7 @@ describe('on-add-dir', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveFolderMock = partialSpyOn(moveFolder, 'moveFolder');
   const createFolderMock = partialSpyOn(Drive.Actions, 'createFolder');
-  const trackAddFolderEventMock = partialSpyOn(trackAddFolderEvent, 'trackAddFolderEvent');
+  const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
 
   const path = abs('/parent/folder');
   const props = mockProps<typeof onAddDir>({ path });
@@ -23,7 +23,7 @@ describe('on-add-dir', () => {
     // When
     await onAddDir(props);
     // Then
-    call(trackAddFolderEventMock).toStrictEqual({ uuid: 'uuid' });
+    call(trackAddEventMock).toStrictEqual({ uuid: 'uuid' });
     call(moveFolderMock).toMatchObject({ path, uuid: 'uuid' });
   });
 

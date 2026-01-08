@@ -20,12 +20,12 @@ describe('process-event', () => {
   let props: Parameters<typeof processEvent>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processEvent>({ event: { path } });
+    props = mockProps<typeof processEvent>({ path });
   });
 
   it('should unlink if delete event', async () => {
     // Given
-    props.event.type = 'delete';
+    props.event = 'delete';
     // When
     await processEvent(props);
     // Then
@@ -34,7 +34,7 @@ describe('process-event', () => {
 
   it('should update if update event and it is a file', async () => {
     // Given
-    props.event.type = 'update';
+    props.event = 'update';
     statMock.mockResolvedValue({ isFile: () => true });
     // When
     await processEvent(props);
@@ -44,7 +44,7 @@ describe('process-event', () => {
 
   it('should ignore if update event and it is a folder', async () => {
     // Given
-    props.event.type = 'update';
+    props.event = 'update';
     statMock.mockResolvedValue({ isFile: () => false });
     // When
     await processEvent(props);
@@ -54,7 +54,7 @@ describe('process-event', () => {
 
   it('should add if create event and it is a file', async () => {
     // Given
-    props.event.type = 'create';
+    props.event = 'create';
     statMock.mockResolvedValue({ isFile: () => true });
     // When
     await processEvent(props);
@@ -64,7 +64,7 @@ describe('process-event', () => {
 
   it('should add dir if create event and it is a folder', async () => {
     // Given
-    props.event.type = 'create';
+    props.event = 'create';
     statMock.mockResolvedValue({ isFile: () => false, isDirectory: () => true });
     // When
     await processEvent(props);

@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { isMoveFileEvent } from './is-move-event';
+import { isMoveEvent } from './is-move-event';
 import { deleteFileByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
@@ -11,7 +11,7 @@ type TProps = {
 };
 
 export async function unlinkFile({ ctx, path, uuid }: TProps) {
-  const isMove = await isMoveFileEvent({ uuid });
+  const isMove = await isMoveEvent({ uuid });
 
   if (isMove) {
     ctx.logger.debug({ msg: 'Is move file event', path });

@@ -1,5 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { addon, Win32Path } from './addon';
+import { addon, Watcher, Win32Path } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { logger } from '@/apps/shared/logger/logger';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
@@ -139,5 +139,14 @@ export class Addon {
   static async hydrateFile({ path }: { path: AbsolutePath }) {
     const result = await addon.hydrateFile(toWin32(path));
     return parseAddonZod('hydrateFile', result);
+  }
+
+  static watchPath({ ctx, onEvent }: { ctx: SyncContext; onEvent: Watcher.OnEvent }) {
+    const result = addon.watchPath(toWin32(ctx.rootPath), onEvent);
+    return parseAddonZod('watchPath', result);
+  }
+
+  static unwatchPath({ handle }: { handle: object }) {
+    addon.unwatchPath(handle);
   }
 }
