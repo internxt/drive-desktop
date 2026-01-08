@@ -44,17 +44,17 @@ describe('move-folder', () => {
     await mkdir(folder1);
 
     const props = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    await initWatcher(props);
+    initWatcher(props);
     // When
     await testSleep(50);
     await rename(folder1, folder2);
     await testSleep(150);
     // Then
-    expect(Array.from(store.addFolderEvents.keys())).toStrictEqual(['uuid']);
+    expect(Array.from(store.addEvents.keys())).toStrictEqual(['uuid']);
     call(updateSyncStatusMock).toStrictEqual({ path: folder2 });
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
-    call(loggerMock.debug).toMatchObject({ msg: 'Is move folder event', path: folder1 });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Setup watcher' }, { msg: 'Is move folder event', path: folder1 }]);
     call(persistMoveFolderMock).toMatchObject({ parentUuid: 'parentUuid', path: folder2, uuid: 'uuid' });
   });
 });
