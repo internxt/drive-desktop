@@ -23,6 +23,7 @@ export async function processEvent({ ctx, event, path }: Props) {
 
     if (event === 'update' && stats.isFile()) {
       debounceOnRaw({ ctx, path, stats });
+      return;
     }
 
     if (event === 'create') {
