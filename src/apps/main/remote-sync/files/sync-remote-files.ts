@@ -35,14 +35,16 @@ export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
       ? driveServerWip.workspaces.getFiles({ ctx, query })
       : driveServerWip.files.getFiles({ ctx, context: { query } });
 
-    const { data: fileDtos, error } = await promise;
+    const { data: fileDtos, error: error1 } = await promise;
 
-    if (error) return;
+    if (error1) return;
 
     hasMore = fileDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    await createOrUpdateFiles({ ctx, fileDtos });
+    const { error: error2 } = await createOrUpdateFiles({ ctx, fileDtos });
+
+    if (error2) return;
 
     const lastFile = fileDtos.at(-1);
     if (lastFile) {

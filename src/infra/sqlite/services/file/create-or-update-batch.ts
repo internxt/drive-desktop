@@ -17,10 +17,7 @@ export async function createOrUpdateBatch({ files }: Props) {
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const chunk = files.slice(i, i + BATCH_SIZE);
 
-      await fileRepository.upsert(chunk, {
-        conflictPaths: ['uuid'],
-        skipUpdateIfNoValuesChanged: true,
-      });
+      await fileRepository.upsert(chunk, { conflictPaths: ['uuid'] });
     }
 
     return { data: files.map((data) => parseData({ data })) };

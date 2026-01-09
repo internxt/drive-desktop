@@ -35,14 +35,16 @@ export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
       ? driveServerWip.workspaces.getFolders({ ctx, query })
       : driveServerWip.folders.getFolders({ ctx, context: { query } });
 
-    const { data: folderDtos, error } = await promise;
+    const { data: folderDtos, error: error1 } = await promise;
 
-    if (error) return;
+    if (error1) return;
 
     hasMore = folderDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    await createOrUpdateFolders({ ctx, folderDtos });
+    const { error: error2 } = await createOrUpdateFolders({ ctx, folderDtos });
+
+    if (error2) return;
 
     const lastFolder = folderDtos.at(-1);
     if (lastFolder) {

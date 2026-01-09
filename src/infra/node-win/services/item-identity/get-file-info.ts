@@ -1,12 +1,11 @@
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/controllers/placeholder-id';
-import { isFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFileInfoError extends Error {
   constructor(
-    public readonly code: 'NOT_A_PLACEHOLDER' | 'NOT_A_FILE' | 'UNKNOWN',
+    public readonly code: 'NOT_A_PLACEHOLDER' | 'UNKNOWN',
     cause?: unknown,
   ) {
     super(code, { cause });
@@ -19,17 +18,15 @@ type TProps = {
 
 export async function getFileInfo({ path }: TProps) {
   try {
-    const { placeholderId: rawPlaceholderId, ...data } = await Addon.getPlaceholderState({ path });
-    const isFile = isFilePlaceholderId(rawPlaceholderId);
+    const data = await Addon.getPlaceholderState({ path });
 
-    if (!isFile) {
-      return { error: new GetFileInfoError('NOT_A_FILE', rawPlaceholderId) };
-    }
-
-    const placeholderId = trimPlaceholderId({ placeholderId: rawPlaceholderId });
-    const uuid = placeholderId.split(':')[1] as FileUuid;
-
-    return { data: { placeholderId, uuid, ...data } };
+    return {
+      data: {
+        ...data,
+        uuid: data.uuid as FileUuid,
+        placeholderId: data.placeholderId as FilePlaceholderId,
+      },
+    };
   } catch (error) {
     if (typeof error === 'string' && error.includes('0x80070178')) {
       return { error: new GetFileInfoError('NOT_A_PLACEHOLDER', error) };

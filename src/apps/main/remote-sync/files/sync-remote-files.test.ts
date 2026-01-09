@@ -1,79 +1,85 @@
-import { call, deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
 import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-vi.mock(import('@/apps/main/util'));
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
-
-describe('sync-remote-files.service', () => {
+describe('sync-remote-files', () => {
   const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
   const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
-  const getFilesMock = deepMocked(driveServerWip.files.getFiles);
+  const getFilesMock = partialSpyOn(driveServerWip.files, 'getFiles');
 
-  const { ctx } = mockProps<typeof syncRemoteFiles>({
-    ctx: { userUuid: 'uuid', workspaceId: '' },
+  const { ctx } = mockProps<typeof syncRemoteFiles>({ ctx: {} });
+
+  beforeEach(() => {
+    getFilesMock.mockResolvedValue({ data: [] });
+    createOrUpdateFilesMock.mockResolvedValue({ data: [] });
   });
 
-  it('If we fetch less than 1000 files, then do not fetch again', async () => {
+  it('should not fetch again if we fetch less than 1000 files', async () => {
     // Given
-    getFilesMock.mockResolvedValueOnce({ data: [] });
+    getFilesMock.mockResolvedValue({ data: [] });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    expect(getFilesMock).toHaveBeenCalledTimes(1);
+    calls(getFilesMock).toHaveLength(1);
   });
 
-  it('If from is undefined, fetch only EXISTS files', async () => {
-    // Given
-    getFilesMock.mockResolvedValueOnce({ data: [] });
+  it('should fetch EXISTS files if from is not provided', async () => {
     // When
-    await syncRemoteFiles({ ctx });
+    await syncRemoteFiles({ ctx, from: undefined });
     // Then
     call(getFilesMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
   });
 
-  it('If from is provided, fetch ALL files', async () => {
-    // Given
-    getFilesMock.mockResolvedValueOnce({ data: [] });
+  it('should fetch ALL files if from is provided', async () => {
     // When
     await syncRemoteFiles({ ctx, from: new Date() });
     // Then
     call(getFilesMock).toMatchObject({ context: { query: { status: 'ALL' } } });
   });
 
-  it('If we fetch 1000 files, then fetch again', async () => {
+  it('should fetch again if we fetch 1000 files', async () => {
     // Given
-    getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
-    getFilesMock.mockResolvedValueOnce({ data: [] });
+    getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) }).mockResolvedValueOnce({ data: [] });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    expect(getFilesMock).toHaveBeenCalledTimes(2);
-    expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(2);
+    calls(getFilesMock).toHaveLength(2);
+    calls(createOrUpdateFilesMock).toHaveLength(2);
   });
 
-  it('If fetch fails, then stop execution', async () => {
+  it('should stop execution if fetch fails', async () => {
     // Given
-    getFilesMock.mockResolvedValueOnce({ error: new Error() });
+    getFilesMock.mockResolvedValue({ error: new Error() });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    expect(getFilesMock).toHaveBeenCalledTimes(1);
-    expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(0);
+    calls(getFilesMock).toHaveLength(1);
+    calls(createOrUpdateFilesMock).toHaveLength(0);
   });
 
-  it('Update checkpoint after fetch', async () => {
+  it('should not update checkpoint if save to database fails', async () => {
     // Given
-    getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
-    getFilesMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+    createOrUpdateFilesMock.mockResolvedValue({ error: new Error() });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    const common = { userUuid: 'uuid', workspaceId: '', type: 'file' };
-    expect(createOrUpdateCheckpointMock).toHaveBeenCalledTimes(2);
-    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, updatedAt: '2025-06-28T12:25:07.000Z' });
-    expect(createOrUpdateCheckpointMock).toBeCalledWith({ ...common, updatedAt: '2025-06-29T12:25:07.000Z' });
+    calls(createOrUpdateFilesMock).toHaveLength(1);
+    calls(createOrUpdateCheckpointMock).toHaveLength(0);
+  });
+
+  it('update checkpoint after save to database', async () => {
+    // Given
+    getFilesMock
+      .mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) })
+      .mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+    // When
+    await syncRemoteFiles({ ctx });
+    // Then
+    calls(createOrUpdateCheckpointMock).toMatchObject([
+      { updatedAt: '2025-06-28T12:25:07.000Z' },
+      { updatedAt: '2025-06-29T12:25:07.000Z' },
+    ]);
   });
 });
