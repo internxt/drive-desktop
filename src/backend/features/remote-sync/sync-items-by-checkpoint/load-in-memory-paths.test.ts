@@ -6,28 +6,39 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as statReaddir from '@/infra/file-system/services/stat-readdir';
 
-vi.mock(import('node:fs/promises'));
-
 describe('load-in-memory-paths', () => {
   const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
-  const props = mockProps<typeof loadInMemoryPaths>({ parentPath: abs('/drive') });
+  const props = mockProps<typeof loadInMemoryPaths>({ ctx: {} });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
-    statReaddirMock.mockResolvedValue({
-      files: [{ path: abs('/file1.txt') }, { path: abs('/file2.txt') }],
-      folders: [{ path: abs('/folder1') }, { path: abs('/folder2') }],
-    });
+    statReaddirMock
+      .mockResolvedValueOnce({
+        files: [{ path: abs('/file1') }, { path: abs('/file2') }],
+        folders: [{ path: abs('/folder1') }, { path: abs('/folder2') }],
+      })
+      .mockResolvedValueOnce({
+        files: [{ path: abs('/file3') }],
+        folders: [],
+      });
 
     getFolderInfoMock.mockResolvedValueOnce({ data: { uuid: 'folderUuid' as FolderUuid } }).mockResolvedValueOnce({});
-    getFileInfoMock.mockResolvedValueOnce({}).mockResolvedValueOnce({ data: { uuid: 'fileUuid' as FileUuid } });
+    getFileInfoMock
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } })
+      .mockResolvedValueOnce({ data: { uuid: 'fileUuid3' as FileUuid } });
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
     expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1' }]]));
-    expect(files).toMatchObject(new Map([['fileUuid', { path: '/file2.txt' }]]));
+    expect(files).toMatchObject(
+      new Map([
+        ['fileUuid2', { path: '/file2' }],
+        ['fileUuid3', { path: '/file3' }],
+      ]),
+    );
   });
 });

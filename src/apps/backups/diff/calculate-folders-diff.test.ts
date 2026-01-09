@@ -12,10 +12,7 @@ describe('calculate-folders-diff', () => {
     const props = mockProps<typeof calculateFoldersDiff>({
       local: {
         files: {},
-        folders: {
-          [folder1]: { absolutePath: folder1 },
-          [folder2]: { absolutePath: folder2 },
-        },
+        folders: [folder1, folder2],
       },
       remote: {
         files: new Map(),
@@ -30,8 +27,8 @@ describe('calculate-folders-diff', () => {
     const diff = calculateFoldersDiff(props);
 
     // Then
-    expect(diff.unmodified.map((folder) => folder.absolutePath)).toEqual(['/folder1']);
-    expect(diff.added.map((folder) => folder.absolutePath)).toEqual(['/folder2']);
-    expect(diff.deleted.map((folder) => folder.absolutePath)).toEqual(['/folder3']);
+    expect(diff.unmodified).toStrictEqual(['/folder1']);
+    expect(diff.added).toStrictEqual(['/folder2']);
+    expect(diff.deleted.map((folder) => folder.absolutePath)).toStrictEqual(['/folder3']);
   });
 });

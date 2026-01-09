@@ -1,36 +1,34 @@
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { BackupsContext } from '../BackupInfo';
-import { LocalFolder } from '@/context/local/localFolder/domain/LocalFolder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import type { Backup } from '../Backups';
 import { Sync } from '@/backend/features/sync';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   self: Backup;
   ctx: BackupsContext;
   tracker: BackupsProcessTracker;
-  added: Array<LocalFolder>;
+  added: Array<AbsolutePath>;
   tree: RemoteTree;
 };
 
 export async function createFolders({ self, ctx, added, tree, tracker }: TProps) {
-  const sortedAdded = added.toSorted((a, b) => a.absolutePath.localeCompare(b.absolutePath));
+  const sortedAdded = added.toSorted((a, b) => a.localeCompare(b));
 
-  for (const local of sortedAdded) {
+  for (const path of sortedAdded) {
     if (ctx.abortController.signal.aborted) return;
 
-    await createFolder({ ctx, local, tree });
+    await createFolder({ ctx, path, tree });
     self.backed++;
     tracker.currentProcessed(self.backed);
   }
 }
 
-async function createFolder({ ctx, local, tree }: { ctx: BackupsContext; local: LocalFolder; tree: RemoteTree }) {
-  const path = local.absolutePath;
-
+async function createFolder({ ctx, path, tree }: { ctx: BackupsContext; path: AbsolutePath; tree: RemoteTree }) {
   try {
-    const parentPath = pathUtils.dirname(local.absolutePath);
+    const parentPath = pathUtils.dirname(path);
     const parent = tree.folders.get(parentPath);
 
     if (!parent) return;

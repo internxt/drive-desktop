@@ -3,15 +3,15 @@ import { StatError } from '@/infra/file-system/services/stat';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
-  context: BackupsContext;
+  ctx: BackupsContext;
   path: AbsolutePath;
   error: StatError;
 };
 
-export function parseStatError({ context, path, error }: Props) {
+export function parseStatError({ ctx, path, error }: Props) {
   if (error.code === 'UNKNOWN') return;
 
-  context.addIssue({
+  ctx.addIssue({
     name: path,
     error: (() => {
       switch (error.code) {

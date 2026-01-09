@@ -17,7 +17,7 @@ describe('calculate-files-diff', () => {
         [abs('/file6')]: { path: abs('/file6'), stats: { size: 12 } },
         [abs('/file7')]: { path: abs('/file7'), stats: {} },
       },
-      folders: {},
+      folders: [],
     },
     remote: {
       files: new Map([

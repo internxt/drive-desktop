@@ -4,57 +4,52 @@ import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/ent
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
-import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { checkDangledFiles } from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
-type Items = {
-  files: Array<SimpleDriveFile>;
-  folders: Array<SimpleDriveFolder>;
-};
+type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
+type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
 
 type Props = {
   ctx: ProcessSyncContext;
-  items: Items;
+  database: Database;
+  fileExplorer: FileExplorer;
   currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
   isFirstExecution: boolean;
 };
 
-export class Traverser {
-  static async run({ ctx, items, currentFolder, isFirstExecution }: Props) {
-    const { files, folders } = await loadInMemoryPaths({ ctx, parentPath: currentFolder.absolutePath });
+export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution }: Props) {
+  const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
+  const foldersInThisFolder = database.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
-    const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
-    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
+  const filePromises = filesInThisFolder.map(async (file) => {
+    const absolutePath = join(currentFolder.absolutePath, file.name);
+    const remote = { ...file, absolutePath };
 
-    const filePromises = filesInThisFolder.map(async (file) => {
-      const absolutePath = join(currentFolder.absolutePath, file.name);
-      const remote = { ...file, absolutePath };
-
-      if (file.status === 'DELETED' || file.status === 'TRASHED') {
-        await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: files });
-      } else {
-        await FilePlaceholderUpdater.update({ ctx, remote, files, isFirstExecution });
-        if (isFirstExecution) {
-          void checkDangledFiles({ ctx, file: remote });
-        }
+    if (file.status === 'DELETED' || file.status === 'TRASHED') {
+      await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
+    } else {
+      await FilePlaceholderUpdater.update({ ctx, remote, files: fileExplorer.files, isFirstExecution });
+      if (isFirstExecution) {
+        void checkDangledFiles({ ctx, file: remote });
       }
-    });
+    }
+  });
 
-    const folderPromises = foldersInThisFolder.map(async (folder) => {
-      const absolutePath = join(currentFolder.absolutePath, folder.name);
-      const remote = { ...folder, absolutePath };
+  const folderPromises = foldersInThisFolder.map(async (folder) => {
+    const absolutePath = join(currentFolder.absolutePath, folder.name);
+    const remote = { ...folder, absolutePath };
 
-      if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
-        await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: folders });
-      } else {
-        const success = await FolderPlaceholderUpdater.update({ ctx, remote, folders });
-        if (success) {
-          await this.run({ ctx, items, currentFolder: remote, isFirstExecution });
-        }
+    if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
+      await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: fileExplorer.folders });
+    } else {
+      const success = await FolderPlaceholderUpdater.update({ ctx, remote, folders: fileExplorer.folders });
+      if (success) {
+        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution });
       }
-    });
+    }
+  });
 
-    await Promise.all([...filePromises, ...folderPromises]);
-  }
+  await Promise.all(filePromises.concat(folderPromises));
 }

@@ -1,12 +1,12 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 import { checkIfMoved } from './check-if-moved';
 
 export class FolderPlaceholderUpdater {
-  static async update({ ctx, remote, folders }: { ctx: SyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
+  static async update({ ctx, remote, folders }: { ctx: SyncContext; remote: ExtendedDriveFolder; folders: FileExplorerFolders }) {
     const path = remote.absolutePath;
 
     try {
