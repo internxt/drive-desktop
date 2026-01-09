@@ -34,7 +34,7 @@ export class DriveFile {
   status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
+  plainName!: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
   type!: string;
@@ -57,14 +57,8 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   size!: number;
 
-  @Column({ nullable: false, type: 'varchar' })
-  bucket!: string;
-
   @Column({ nullable: false, type: 'int' })
   folderId!: number;
-
-  @Column({ nullable: false, type: 'int' })
-  userId!: number;
 
   /**
    * v2.5.1 Daniel Jiménez
@@ -76,9 +70,6 @@ export class DriveFile {
 
   @Column({ nullable: false, type: 'varchar' })
   modificationTime!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  name!: string;
 
   @Column({ nullable: false, default: true, type: 'boolean' })
   isDangledStatus!: boolean;

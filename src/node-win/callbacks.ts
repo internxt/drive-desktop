@@ -7,6 +7,10 @@ import { LocalSync } from '@/backend/features';
 
 const ctxs = new Map<bigint, SyncContext>();
 
+export function getDriveContexts() {
+  return Array.from(ctxs.values());
+}
+
 export function addConnectionKey(connectionKey: bigint, ctx: SyncContext) {
   ctxs.set(connectionKey, ctx);
 }

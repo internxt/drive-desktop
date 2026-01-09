@@ -33,7 +33,7 @@ describe('get-by-uuid', () => {
 
   it('should return folder', async () => {
     // Given
-    findOneSpy.mockResolvedValue({ name: 'name' });
+    findOneSpy.mockResolvedValue({ plainName: 'name' });
     // When
     const { data } = await getByUuid(props);
     // Then
