@@ -258,7 +258,9 @@
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.1",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "vitest-mock-extended": "^3.1.0",
+    "ts-essentials": "^10.1.1"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",

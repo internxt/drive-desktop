@@ -52,7 +52,7 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getNewApiHeaders as Mock).mockResolvedValue(mockedHeaders);
+      (getNewApiHeaders as Mock).mockReturnValue(mockedHeaders);
       const result = await sut.refresh();
 
       expect(result.isRight()).toEqual(true);

@@ -70,7 +70,7 @@ export class AuthService {
   async refresh(): Promise<Either<Error, RefreshTokenResponse>> {
     try {
       const response = await authClient.GET('/users/refresh', {
-        headers: await getNewApiHeaders(),
+        headers: getNewApiHeaders(),
       });
 
       if (!response.data) {

@@ -19,7 +19,7 @@ export class TokenScheduler {
     try {
       const decoded = jwtDecode<JwtPayload>(token);
 
-      return decoded.exp || TokenScheduler.MAX_TIME;
+      return decoded.exp ? decoded.exp * 1000 : TokenScheduler.MAX_TIME;
     } catch (err) {
       logger.error({ msg: '[TOKEN] Token could be not decoded' });
 
@@ -34,18 +34,15 @@ export class TokenScheduler {
   }
 
   private calculateRenewDate(expiration: number): Date {
-    const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
+    const renewMillisBefore = this.daysBefore * 24 * 60 * 60 * 1000;
 
-    const renewDateInSeconds = expiration - renewSecondsBefore;
+    const renewDateInMillis = expiration - renewMillisBefore;
 
-    if (renewDateInSeconds >= Date.now()) {
+    if (renewDateInMillis <= Date.now()) {
       return new Date(Date.now() + FIVE_SECONDS);
     }
 
-    const date = new Date(0);
-    date.setUTCSeconds(renewDateInSeconds);
-
-    return date;
+    return new Date(renewDateInMillis);
   }
 
   public schedule(refreshCallback: () => void) {
@@ -57,7 +54,7 @@ export class TokenScheduler {
       return;
     }
 
-    if (expiration >= Date.now()) {
+    if (expiration <= Date.now()) {
       logger.warn({ msg: '[TOKEN] TOKEN IS EXPIRED' });
       this.unauthorized();
 

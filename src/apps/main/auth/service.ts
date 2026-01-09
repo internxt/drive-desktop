@@ -134,13 +134,27 @@ export function obtainToken(tokenName: TokenKey): string {
     return token;
   }
 
-  if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error('[AUTH] Safe Storage was not available when decrypting encrypted token');
+  try {
+    if (!safeStorage.isEncryptionAvailable()) {
+      logger.error({
+        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token',
+        tag: 'AUTH',
+      });
+
+      ConfigStore.set<EncryptedTokenKey>(`${tokenName}Encrypted`, false);
+      return token;
+    }
+
+    const buffer = Buffer.from(token, TOKEN_ENCODING);
+
+    return safeStorage.decryptString(buffer);
+  } catch (err) {
+    throw logger.error({
+      msg: '[AUTH] Failed to decrypt token',
+      tag: 'AUTH',
+      error: err,
+    });
   }
-
-  const buffer = Buffer.from(token, TOKEN_ENCODING);
-
-  return safeStorage.decryptString(buffer);
 }
 
 export function tokensArePresent(): boolean {

@@ -23,6 +23,7 @@ describe('driveServerClient instance', () => {
 
   beforeEach(() => {
     originalEnv = process.env.NEW_DRIVE_URL;
+    vi.resetModules();
   });
 
   afterEach(() => {
@@ -44,7 +45,8 @@ describe('driveServerClient instance', () => {
     );
   });
 
-  it('should call eventBus.emit and logout when onUnauthorized is triggered', () => {
+  it('should call eventBus.emit and logout when onUnauthorized is triggered', async () => {
+    await import('./drive-server.client.instance');
     const clientOptionsArg = (createClient as Mock).mock.calls[0][0];
 
     clientOptionsArg.onUnauthorized();
