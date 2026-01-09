@@ -197,6 +197,36 @@ export class File extends AggregateRoot {
     );
   }
 
+  update(attributes: Partial<FileAttributes>) {
+    if (attributes.path) {
+      this._path = new FilePath(attributes.path);
+    }
+
+    if (attributes.folderId) {
+      this._folderId = new FileFolderId(attributes.folderId);
+    }
+
+    if (attributes.size !== undefined) {
+      this._size = new FileSize(attributes.size);
+    }
+
+    if (attributes.contentsId) {
+      this._contentsId = new FileContentsId(attributes.contentsId);
+    }
+
+    if (attributes.status) {
+      this._status = FileStatus.fromValue(attributes.status);
+    }
+
+    if (attributes.updatedAt) {
+      this.updatedAt = new Date(attributes.updatedAt);
+    }
+
+    if (attributes.createdAt) {
+      this.createdAt = new Date(attributes.createdAt);
+    }
+  }
+
   hasParent(id: number): boolean {
     return this.folderId === id;
   }

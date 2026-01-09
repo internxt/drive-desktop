@@ -1,10 +1,12 @@
 import { vi } from 'vitest';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 
 export class FolderRepositoryMock implements FolderRepository {
   public readonly allMock = vi.fn();
   public readonly matchingPartialMock = vi.fn();
+  public readonly searchByPathPrefixMock = vi.fn();
   public readonly listByPartialMock = vi.fn();
   public readonly addMock = vi.fn();
   public readonly deleteMock = vi.fn();
@@ -27,6 +29,10 @@ export class FolderRepositoryMock implements FolderRepository {
 
   matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
     return this.matchingPartialMock(partial);
+  }
+
+  searchByPathPrefix(pathPrefix: string, status?: FolderStatuses): Array<Folder> {
+    return this.searchByPathPrefixMock(pathPrefix, status);
   }
 
   listByPartial(partial: Partial<FolderAttributes>): Promise<Array<Folder>> {

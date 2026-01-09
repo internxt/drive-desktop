@@ -11,6 +11,7 @@ import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import { OfflineFolderMother } from '../domain/__test-helpers__/OfflineFolderMother';
 import { EventRepositoryMock } from '../../shared/__mocks__/EventRepositoryMock';
 import { EventBusMock } from '../../shared/__mocks__/EventBusMock';
+import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
 
 describe('Synchronize Offline Modifications', () => {
   let offlineRepository: InMemoryOfflineFolderRepository;
@@ -28,7 +29,13 @@ describe('Synchronize Offline Modifications', () => {
     repository = new FolderRepositoryMock();
     messenger = new SyncFolderMessengerMock();
 
-    renamer = new FolderRenamer(repository, folderRemoteFileSystemMock, new EventBusMock(), messenger);
+    renamer = new FolderRenamer(
+      repository,
+      folderRemoteFileSystemMock,
+      new EventBusMock(),
+      messenger,
+      {} as FolderDescendantsPathUpdater,
+    );
     eventRepositoryMock = new EventRepositoryMock();
 
     SUT = new SynchronizeOfflineModifications(offlineRepository, repository, renamer, eventRepositoryMock);

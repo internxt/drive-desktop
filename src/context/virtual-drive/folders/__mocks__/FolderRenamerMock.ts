@@ -5,10 +5,17 @@ import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
+import { FolderDescendantsPathUpdater } from '../application/FolderDescendantsPathUpdater';
 
 export class FolderRenamerMock extends FolderRenamer {
   constructor() {
-    super({} as FolderRepository, {} as RemoteFileSystem, {} as EventBus, {} as SyncFolderMessenger);
+    super(
+      {} as FolderRepository,
+      {} as RemoteFileSystem,
+      {} as EventBus,
+      {} as SyncFolderMessenger,
+      {} as FolderDescendantsPathUpdater,
+    );
   }
 
   public readonly mock = vi.fn();

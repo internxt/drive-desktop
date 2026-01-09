@@ -5,11 +5,13 @@ import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemM
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import path from 'path';
 import { FolderMother } from '../domain/__test-helpers__/FolderMother';
+import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
   let folderFinder: ParentFolderFinder;
   let remote: FolderRemoteFileSystemMock;
+  let descendantsPathUpdater: FolderDescendantsPathUpdater;
   let SUT: FolderMover;
 
   const root = FolderMother.root();
@@ -19,7 +21,11 @@ describe('Folder Mover', () => {
     folderFinder = new ParentFolderFinder(repository);
     remote = new FolderRemoteFileSystemMock();
 
-    SUT = new FolderMover(repository, remote, folderFinder);
+    descendantsPathUpdater = {
+      syncDescendants: vi.fn().mockResolvedValue(undefined),
+    } as unknown as FolderDescendantsPathUpdater;
+
+    SUT = new FolderMover(repository, remote, folderFinder, descendantsPathUpdater);
   });
 
   it('Folders cannot be overwrite', async () => {

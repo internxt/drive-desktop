@@ -1,6 +1,7 @@
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { FileStatuses } from '../domain/FileStatus';
 import { Service } from 'diod';
 
 @Service()
@@ -73,6 +74,16 @@ export class InMemoryFileRepository implements FileRepository {
     if (!filesAttributes) {
       return [];
     }
+
+    return filesAttributes.map((attributes) => File.from(attributes));
+  }
+
+  searchByPathPrefix(pathPrefix: string, status?: FileStatuses): Array<File> {
+    const filesAttributes = this.values.filter((attributes) => {
+      const matchesPath = attributes.path.startsWith(pathPrefix);
+      const matchesStatus = status === undefined || attributes.status === status;
+      return matchesPath && matchesStatus;
+    });
 
     return filesAttributes.map((attributes) => File.from(attributes));
   }

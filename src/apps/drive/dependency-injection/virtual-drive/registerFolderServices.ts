@@ -6,6 +6,7 @@ import { FolderDeleter } from '../../../../context/virtual-drive/folders/applica
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
+import { FolderDescendantsPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderDescendantsPathUpdater';
 import { FolderRepositorySynchronizer } from '../../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer/FolderRepositorySynchronizer';
 import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { ParentFolderFinder } from '../../../../context/virtual-drive/folders/application/ParentFolderFinder';
@@ -52,6 +53,8 @@ export async function registerFolderServices(builder: ContainerBuilder): Promise
   builder.registerAndUse(SingleFolderMatchingSearcher);
 
   builder.registerAndUse(FoldersByParentPathLister);
+
+  builder.registerAndUse(FolderDescendantsPathUpdater);
 
   builder.registerAndUse(FolderMover);
 

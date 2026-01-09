@@ -7,11 +7,13 @@ import { Folder } from '../domain/Folder';
 import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import { EventBusMock } from '../../shared/__mocks__/EventBusMock';
+import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
 
 describe('Folder Renamer', () => {
   let repository: FolderRepositoryMock;
   let remote: FolderRemoteFileSystemMock;
   let syncFolderMessenger: SyncFolderMessengerMock;
+  let descendantsPathUpdater: FolderDescendantsPathUpdater;
   let renamer: FolderRenamer;
 
   beforeEach(() => {
@@ -23,7 +25,11 @@ describe('Folder Renamer', () => {
 
     syncFolderMessenger = new SyncFolderMessengerMock();
 
-    renamer = new FolderRenamer(repository, remote, eventBus, syncFolderMessenger);
+    descendantsPathUpdater = {
+      syncDescendants: vi.fn().mockResolvedValue(undefined),
+    } as unknown as FolderDescendantsPathUpdater;
+
+    renamer = new FolderRenamer(repository, remote, eventBus, syncFolderMessenger, descendantsPathUpdater);
   });
 
   const setUpHappyPath = (): {
@@ -85,6 +91,32 @@ describe('Folder Renamer', () => {
 
       expect(syncFolderMessenger.renamedMock).toBeCalledTimes(1);
       expect(syncFolderMessenger.renamedMock).toBeCalledWith(original, destination.name());
+    });
+  });
+
+  describe('Descendants path update', () => {
+    it('updates paths of all descendant folders and files asynchronously', async () => {
+      const { folder, destination } = setUpHappyPath();
+      const oldPath = folder.path;
+
+      const runMock = vi.fn().mockResolvedValue(undefined);
+      descendantsPathUpdater.syncDescendants = runMock;
+
+      await renamer.run(folder, destination);
+
+      expect(runMock).toHaveBeenCalledTimes(1);
+      expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ _path: destination }), oldPath);
+    });
+
+    it('does not block rename even if descendants update fails', async () => {
+      const { folder, destination } = setUpHappyPath();
+
+      const runMock = vi.fn().mockRejectedValue(new Error('Update failed'));
+      descendantsPathUpdater.syncDescendants = runMock;
+
+      await expect(renamer.run(folder, destination)).resolves.not.toThrow();
+
+      expect(repository.updateMock).toHaveBeenCalledTimes(1);
     });
   });
 });

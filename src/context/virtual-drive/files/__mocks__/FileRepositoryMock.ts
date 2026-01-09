@@ -1,9 +1,11 @@
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
+import { FileStatuses } from '../domain/FileStatus';
 
 export class FileRepositoryMock implements FileRepository {
   public readonly allMock = vi.fn();
   public readonly matchingPartialMock = vi.fn();
+  public readonly searchByPathPrefixMock = vi.fn();
   public readonly searchByUuidMock = vi.fn();
   public readonly searchByContentsIdMock = vi.fn();
   public readonly deleteMock = vi.fn();
@@ -17,6 +19,10 @@ export class FileRepositoryMock implements FileRepository {
 
   matchingPartial(partial: Partial<FileAttributes>): Array<File> {
     return this.matchingPartialMock(partial);
+  }
+
+  searchByPathPrefix(pathPrefix: string, status?: FileStatuses): Array<File> {
+    return this.searchByPathPrefixMock(pathPrefix, status);
   }
 
   searchByUuid(uuid: string): Promise<File | undefined> {

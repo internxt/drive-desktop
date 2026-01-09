@@ -1,5 +1,6 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderStatuses } from '../domain/FolderStatus';
 import { Service } from 'diod';
 
 @Service()
@@ -45,6 +46,16 @@ export class InMemoryFolderRepository implements FolderRepository {
 
     const foldersAttributes = this.values.filter((attributes) => {
       return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
+    });
+
+    return foldersAttributes.map((attributes) => Folder.from(attributes));
+  }
+
+  searchByPathPrefix(pathPrefix: string, status?: FolderStatuses): Array<Folder> {
+    const foldersAttributes = this.values.filter((attributes) => {
+      const matchesPath = attributes.path.startsWith(pathPrefix);
+      const matchesStatus = status === undefined || attributes.status === status;
+      return matchesPath && matchesStatus;
     });
 
     return foldersAttributes.map((attributes) => Folder.from(attributes));
