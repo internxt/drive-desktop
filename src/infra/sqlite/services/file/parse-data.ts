@@ -6,7 +6,7 @@ type TProps = {
 
 export function parseData({ data }: TProps): SimpleDriveFile {
   let name = data.plainName;
-  if (data.type) name = `${data.plainName}.${data.type}`;
+  if (data.type) name += `.${data.type}`;
 
   return {
     uuid: data.uuid as FileUuid,
