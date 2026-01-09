@@ -6,35 +6,39 @@ import { Stats } from 'node:fs';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
 
-export type InMemoryFiles = Map<FileUuid, { path: AbsolutePath; stats: Stats }>;
-export type InMemoryFolders = Map<FolderUuid, { path: AbsolutePath }>;
+export type FileExplorerFiles = Map<FileUuid, { path: AbsolutePath; stats: Stats }>;
+export type FileExplorerFolders = Map<FolderUuid, { path: AbsolutePath }>;
 
 type Props = {
   ctx: SyncContext;
-  parentPath: AbsolutePath;
 };
 
-export async function loadInMemoryPaths({ ctx, parentPath }: Props) {
-  const files: InMemoryFiles = new Map();
-  const folders: InMemoryFolders = new Map();
+export async function loadInMemoryPaths({ ctx }: Props) {
+  const files: FileExplorerFiles = new Map();
+  const folders: FileExplorerFolders = new Map();
 
-  const items = await statReaddir({ folder: parentPath });
+  async function walk(parentPath: AbsolutePath) {
+    const items = await statReaddir({ folder: parentPath });
 
-  const filePromises = items.files.map(async ({ path, stats }) => {
-    const { data: fileInfo } = await NodeWin.getFileInfo({ path });
-    if (fileInfo) {
-      files.set(fileInfo.uuid, { stats, path });
-    }
-  });
+    const filePromises = items.files.map(async ({ path, stats }) => {
+      const { data: fileInfo } = await NodeWin.getFileInfo({ path });
+      if (fileInfo) {
+        files.set(fileInfo.uuid, { stats, path });
+      }
+    });
 
-  const folderPromises = items.folders.map(async ({ path }) => {
-    const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
-    if (folderInfo) {
-      folders.set(folderInfo.uuid, { path });
-    }
-  });
+    const folderPromises = items.folders.map(async ({ path }) => {
+      const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
+      if (folderInfo) {
+        folders.set(folderInfo.uuid, { path });
+        await walk(path);
+      }
+    });
 
-  await Promise.all([...filePromises, ...folderPromises]);
+    await Promise.all(filePromises.concat(folderPromises));
+  }
+
+  await walk(ctx.rootPath);
 
   return { files, folders };
 }

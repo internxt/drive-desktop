@@ -19,7 +19,7 @@ describe('LocalTreeBuilder', () => {
   const file4 = join(folder3, 'file4');
 
   const addIssue = vi.fn();
-  const props = mockProps<typeof LocalTreeBuilder.run>({ context: { pathname: folder, addIssue } });
+  const props = mockProps<typeof LocalTreeBuilder.run>({ ctx: { pathname: folder, addIssue } });
 
   beforeAll(async () => {
     await mkdir(folder);
@@ -36,8 +36,8 @@ describe('LocalTreeBuilder', () => {
     // When
     const tree = await LocalTreeBuilder.run(props);
     // Then
-    expect(Object.keys(tree.files)).toStrictEqual([file1, file2, file3, file4]);
-    expect(Object.keys(tree.folders)).toStrictEqual([folder, folder1, folder2, folder3]);
+    expect(Object.keys(tree.files).toSorted()).toStrictEqual([file1, file2, file3, file4]);
+    expect(tree.folders.toSorted()).toStrictEqual([folder, folder1, folder3, folder2]);
   });
 
   it('should add an issue if stat gives error and continue', async () => {
@@ -47,7 +47,7 @@ describe('LocalTreeBuilder', () => {
     const tree = await LocalTreeBuilder.run(props);
     // Then
     call(addIssue).toMatchObject({ name: file3, error: 'FOLDER_ACCESS_DENIED' });
-    expect(Object.keys(tree.files)).toStrictEqual([file1, file2, file4]);
-    expect(Object.keys(tree.folders)).toStrictEqual([folder, folder1, folder2, folder3]);
+    expect(Object.keys(tree.files).toSorted()).toStrictEqual([file1, file2, file4]);
+    expect(tree.folders.toSorted()).toStrictEqual([folder, folder1, folder3, folder2]);
   });
 });

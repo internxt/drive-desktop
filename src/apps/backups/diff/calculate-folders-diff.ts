@@ -1,12 +1,12 @@
-import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFolder';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export type FoldersDiff = {
-  added: Array<LocalFolder>;
+  added: Array<AbsolutePath>;
   deleted: Array<ExtendedDriveFolder>;
-  unmodified: Array<LocalFolder>;
+  unmodified: Array<AbsolutePath>;
   total: number;
 };
 
@@ -20,16 +20,16 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   const unmodified: FoldersDiff['unmodified'] = [];
   const deleted: FoldersDiff['deleted'] = [];
 
-  Object.values(local.folders).forEach((folder) => {
-    if (remote.folders.has(folder.absolutePath)) {
+  for (const folder of local.folders) {
+    if (remote.folders.has(folder)) {
       unmodified.push(folder);
     } else {
       added.push(folder);
     }
-  });
+  }
 
   for (const folder of remote.folders.values()) {
-    if (!local.folders[folder.absolutePath]) {
+    if (!local.folders.includes(folder.absolutePath)) {
       deleted.push(folder);
     }
   }
