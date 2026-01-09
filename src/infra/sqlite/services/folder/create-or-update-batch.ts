@@ -17,10 +17,7 @@ export async function createOrUpdateBatch({ folders }: Props) {
     for (let i = 0; i < folders.length; i += BATCH_SIZE) {
       const chunk = folders.slice(i, i + BATCH_SIZE);
 
-      await folderRepository.upsert(chunk, {
-        conflictPaths: ['uuid'],
-        skipUpdateIfNoValuesChanged: true,
-      });
+      await folderRepository.upsert(chunk, { conflictPaths: ['uuid'] });
     }
 
     return { data: folders.map((data) => parseData({ data })) };
