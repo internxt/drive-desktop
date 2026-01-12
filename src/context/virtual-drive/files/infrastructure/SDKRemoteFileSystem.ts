@@ -8,6 +8,8 @@ import { Crypt } from '../../shared/domain/Crypt';
 import { File } from '../domain/File';
 import { FileDataToPersist, PersistedFileData, RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { createFileIPC, moveFileIPC, renameFileIPC } from '../../../../infra/ipc/files-ipc';
+import { CreateFileDto } from '../../../../infra/drive-server/out/dto';
+
 @Service()
 export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(
@@ -29,15 +31,20 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         ),
       );
     }
-    const body = {
+    const body: CreateFileDto = {
       bucket: this.bucket,
-      fileId: dataToPersists.contentsId.value,
+      fileId: undefined,
       encryptVersion: EncryptionVersion.Aes03,
       folderUuid: dataToPersists.folderUuid,
       size: dataToPersists.size.value,
       plainName: plainName,
       type: dataToPersists.path.extension(),
     };
+
+    if (dataToPersists.size.value > 0) {
+      body.fileId = dataToPersists.contentsId.value;
+    }
+
     const response = await createFileIPC(body);
     if (response.data) {
       const result: PersistedFileData = {

@@ -35,9 +35,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
 
   private async handleDocument(document: any, path: string) {
     this.logDebugMessage('Offline File found');
-    if (document.size.value === 0 || document.isAuxiliary()) {
-      return this.right();
-    }
+    if (document.isAuxiliary()) return this.right();
 
     return await this.uploadDocument(document, path);
   }
