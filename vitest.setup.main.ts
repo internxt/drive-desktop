@@ -100,3 +100,11 @@ vi.mock('axios', () => {
 vi.mock('@internxt/inxt-js', () => ({
   default: vi.fn(),
 }));
+
+// Mock event-bus with EventEmitter
+vi.mock('./src/apps/main/event-bus', async () => {
+  const { EventEmitter } = await import('events');
+  return {
+    default: new EventEmitter(),
+  };
+});

@@ -1,12 +1,12 @@
 import { Result } from '../../../context/shared/domain/Result';
-import { AccountIpcRenderer } from '../../../apps/shared/IPC/events/account/AccountIpcRenderer';
+import { getRawUsageAndLimit } from './get-raw-usage-and-limit';
 
 /**
  * Validates if there's enough space available for the requested amount
  */
 export async function validateSpace(desiredSpaceToUse: number): Promise<Result<{ hasSpace: boolean }, Error>> {
   try {
-    const usageResult = await AccountIpcRenderer.invoke('account.get-usage');
+    const usageResult = await getRawUsageAndLimit();
 
     if (usageResult.error) {
       return usageResult;

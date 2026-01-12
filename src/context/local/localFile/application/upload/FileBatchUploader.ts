@@ -4,16 +4,15 @@ import { LocalFileHandler } from '../../domain/LocalFileUploader';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
 import { relative } from '../../../../../apps/backups/utils/relative';
-import { LocalFileMessenger } from '../../domain/LocalFileMessenger';
 import { isFatalError } from '../../../../../shared/issues/SyncErrorCause';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { backupErrorsTracker } from '../../../../../backend/features/backup';
 
 @Service()
 export class FileBatchUploader {
   constructor(
     private readonly localHandler: LocalFileHandler,
     private readonly creator: SimpleFileCreator,
-    protected readonly messenger: LocalFileMessenger,
   ) {}
 
   async run(
@@ -39,9 +38,7 @@ export class FileBatchUploader {
         if (isFatalError(error.cause)) {
           throw error;
         }
-
-        // eslint-disable-next-line no-await-in-loop
-        await this.messenger.creationFailed(localFile, error);
+        backupErrorsTracker.add({ name: localFile.nameWithExtension(), error: error.cause });
         continue;
       }
 
@@ -68,8 +65,7 @@ export class FileBatchUploader {
         }
 
         if (error.cause === 'BAD_RESPONSE') {
-          // eslint-disable-next-line no-await-in-loop
-          await this.messenger.creationFailed(localFile, error);
+          backupErrorsTracker.add({ name: localFile.nameWithExtension(), error: error.cause });
           continue;
         }
 

@@ -16,44 +16,31 @@ type StopReasonPayloadHandlers = {
   [Property in keyof StopReasonPayload]: Array<StopReasonPayload[Property]>;
 };
 
-const listenerNotSet = () => {
-  // no-op
-};
-
 export class BackupsStopController {
   private controller = new AbortController();
   private stopReason: StopReason | undefined = undefined;
+  private abortListener: ((event: Event) => void) | null = null;
 
   private end: Array<(reason: StopReason) => void> = [];
-
-  private handlers: StopReasonPayloadHandlers = {
-    'forced-by-user': [() => listenerNotSet()],
-    'backup-completed': [() => listenerNotSet()],
-    failed: [() => listenerNotSet()],
+  private baseEmptyHandler: StopReasonPayloadHandlers = {
+    'forced-by-user': [() => {}],
+    'backup-completed': [() => {}],
+    failed: [() => {}],
   };
 
+  private handlers = this.baseEmptyHandler;
   constructor() {
     this.reset();
   }
 
   reset() {
     this.stopReason = undefined;
+    if (this.abortListener && this.controller.signal) {
+      this.controller.signal.removeEventListener('abort', this.abortListener);
+    }
     this.controller = new AbortController();
-
-    this.controller.signal.addEventListener('abort', () => {
-      const { reason, payload } = this.controller.signal.reason as {
-        reason: StopReason;
-        payload: { errorName: ProcessFatalErrorName };
-      };
-
-      const handlersForReason = this.handlers[reason];
-
-      handlersForReason.forEach((handler: (a: any) => void) => {
-        handler(payload);
-      });
-
-      this.end.forEach((fn) => fn(reason));
-    });
+    this.resetHandlers();
+    this.resetAbortListener();
   }
 
   hasStopped(): boolean {
@@ -64,8 +51,8 @@ export class BackupsStopController {
     this.stop('forced-by-user');
   }
 
-  backupCompleted() {
-    this.stop('backup-completed');
+  get signal(): AbortSignal {
+    return this.controller.signal;
   }
 
   private stop(reason: StopReason) {
@@ -82,11 +69,27 @@ export class BackupsStopController {
     });
   }
 
-  on<Reason extends StopReason>(reason: Reason, handler: StopReasonPayload[Reason]) {
-    this.handlers[reason].push(handler);
+  private resetHandlers() {
+    this.end = [];
+    this.handlers = this.baseEmptyHandler;
   }
 
-  onFinished(handler: (reason: StopReason) => void) {
-    this.end.push(handler);
+  private resetAbortListener() {
+    this.abortListener = () => {
+      const { reason, payload } = this.controller.signal.reason as {
+        reason: StopReason;
+        payload: { errorName: ProcessFatalErrorName };
+      };
+
+      const handlersForReason = this.handlers[reason];
+
+      handlersForReason.forEach((handler: (a: any) => void) => {
+        handler(payload);
+      });
+
+      this.end.forEach((fn) => fn(reason));
+    };
+
+    this.controller.signal.addEventListener('abort', this.abortListener);
   }
 }

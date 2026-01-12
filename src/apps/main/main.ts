@@ -53,7 +53,6 @@ import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
-import { setUpBackups } from './background-processes/backups/setUpBackups';
 import dns from 'node:dns';
 import { registerAvailableUserProductsHandlers } from '../../backend/features/payments/ipc/register-available-user-products-handlers';
 import { getAntivirusManager } from './antivirus/antivirusManager';
@@ -65,6 +64,7 @@ import { handleDeeplink } from './auth/deeplink/handle-deeplink';
 import { setupAppImageDeeplink } from './auth/deeplink/setup-appimage-deeplink';
 import { version, release } from 'node:os';
 import { INTERNXT_VERSION } from '../../core/utils/utils';
+import { setUpBackups } from '../../backend/features/backup/setup-backups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 app.setAsDefaultProtocolClient('internxt');

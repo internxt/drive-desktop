@@ -1,4 +1,5 @@
 import { SyncError } from '../../../../../shared/issues/SyncErrorCause';
+import { broadcastToWindows } from '../../../windows';
 
 export type ProcessFatalErrorName = SyncError;
 
@@ -17,8 +18,6 @@ export type BackupErrorsCollection = Array<BackupError>;
 export class BackupFatalErrors {
   private errors: BackupErrorsCollection = [];
 
-  constructor(private readonly onBackupFatalErrorsChanged: (errors: BackupErrorsCollection) => void) {}
-
   clear() {
     this.errors = [];
     this.onBackupFatalErrorsChanged(this.errors);
@@ -31,5 +30,8 @@ export class BackupFatalErrors {
 
   get(): BackupErrorsCollection {
     return this.errors;
+  }
+  onBackupFatalErrorsChanged(errors: BackupErrorsCollection) {
+    broadcastToWindows('backup-fatal-errors-changed', errors);
   }
 }

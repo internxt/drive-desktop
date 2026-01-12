@@ -1,14 +1,9 @@
-import { ipcMain } from 'electron';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
-import { BackupsIPCMain } from '../BackupsIpc';
 import { BackupCompleted, ForcedByUser } from '../BackupsStopController/BackupsStopController';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
 import { ProcessFatalErrorName } from '../BackupFatalErrors/BackupFatalErrors';
-import { isSyncError } from '../../../../../shared/issues/SyncErrorCause';
-
 export type WorkerExitCause = ForcedByUser | BackupCompleted | ProcessFatalErrorName;
 
 export class BackupsProcessTracker {
@@ -20,38 +15,41 @@ export class BackupsProcessTracker {
     processed: 0,
   };
 
-  private lastExistReason: WorkerExitCause | undefined;
+  private lastExitReason: WorkerExitCause | undefined;
   public exitReasons: Map<number, WorkerExitCause> = new Map();
-
-  constructor(private readonly notify: (progress: BackupsProgress) => void) {}
 
   progress(): BackupsProgress {
     return {
-      currentFolder: this.currentIndex(),
-      totalFolders: this.totalBackups(),
+      currentFolder: this.processed,
+      totalFolders: this.total,
       partial: this.current,
     };
   }
 
-  track(backups: Array<BackupInfo>): void {
-    this.total = backups.length;
+  track(totalBackups: number): void {
+    this.total = totalBackups;
   }
 
-  currentTotal(total: number) {
+  public getCurrentProcessed(): number {
+    return this.current.processed;
+  }
+
+  public updateCurrentProcessed(newProcessedCount: number): void {
+    this.current.processed = newProcessedCount;
+    this.updateProgress(this.progress());
+  }
+
+  public initializeCurrentBackup(total: number, processed: number): void {
     this.current.total = total;
-  }
-
-  currentProcessed(processed: number) {
     this.current.processed = processed;
-
-    this.notify(this.progress());
+    this.updateProgress(this.progress());
   }
 
-  getLastExistReason() {
-    return this.lastExistReason;
+  getLastExitReason() {
+    return this.lastExitReason;
   }
 
-  backing(_: BackupInfo) {
+  backing() {
     this.processed++;
 
     this.current = {
@@ -59,25 +57,12 @@ export class BackupsProcessTracker {
       processed: 0,
     };
 
-    this.notify(this.progress());
-  }
-
-  currentIndex(): number {
-    return this.processed;
-  }
-
-  totalBackups(): number {
-    return this.total;
+    this.updateProgress(this.progress());
   }
 
   backupFinished(id: number, reason: WorkerExitCause) {
     this.exitReasons.set(id, reason);
-    this.lastExistReason = reason;
-  }
-
-  getExitReason(id: number): WorkerExitCause | undefined {
-    logger.debug({ tag: 'BACKUPS', msg: 'Getting exit reason', exitReasons: Array.from(this.exitReasons.keys()), id });
-    return this.exitReasons.get(id);
+    this.lastExitReason = reason;
   }
 
   reset() {
@@ -89,38 +74,16 @@ export class BackupsProcessTracker {
       processed: 0,
     };
   }
-}
 
-export function initiateBackupsProcessTracker(): BackupsProcessTracker {
-  const notifyUI = (progress: BackupsProgress) => {
+  updateProgress(progress: BackupsProgress) {
     logger.debug({ tag: 'BACKUPS', msg: 'Progress update', progress });
+    /**
+     * TODO: Emit a percentage progress so that we move the whole calculation to the backend
+     * instead of the useBackupProgress.calculatePercentualProgress() in the renderer.
+     */
     broadcastToWindows('backup-progress', progress);
-  };
-
-  const tracker = new BackupsProcessTracker(notifyUI);
-
-  ipcMain.handle('get-last-backup-exit-reason', () => {
-    return tracker.getLastExistReason();
-  });
-
-  BackupsIPCMain.handle('backups.get-backup-issues', (_, id: number) => {
-    const reason = tracker.getExitReason(id);
-
-    if (reason !== undefined && isSyncError(reason)) {
-      return reason;
-    }
-
-    return undefined;
-  });
-
-  BackupsIPCMain.on('backups.total-items-calculated', (_, total: number, processed: number) => {
-    tracker.currentTotal(total);
-    tracker.currentProcessed(processed);
-  });
-
-  BackupsIPCMain.on('backups.progress-update', (_, processed: number) => {
-    tracker.currentProcessed(processed);
-  });
-
-  return tracker;
+  }
+  getExitReason(id: number): WorkerExitCause | undefined {
+    return this.exitReasons.get(id);
+  }
 }
