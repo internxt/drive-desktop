@@ -16,10 +16,13 @@ import { deleteBackupsFromDevice } from '../device/service';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getWorkArea, hideFrontend } from '../windows/widget';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupPreloadIpc() {
+  ipcPreloadMain.handle('getWorkArea', () => Promise.resolve(getWorkArea()));
+  ipcPreloadMain.handle('hideFrontend', () => Promise.resolve(hideFrontend()));
   ipcPreloadMain.handle('getLastBackupProgress', () => Promise.resolve(getLastBackupProgress()));
   ipcPreloadMain.handle('getUsage', () => calculateUsage());
   ipcPreloadMain.handle('getAvailableProducts', () => getAvailableProducts());

@@ -16,8 +16,6 @@ setupElectronLog({ logsPath: PATHS.LOGS });
 
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
-import './windows/settings';
-import './windows/process-issues';
 import './device/handlers';
 import './ipcs/ipcMainAntivirus';
 import './remote-sync/handlers';
@@ -25,10 +23,10 @@ import './remote-sync/handlers';
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
-import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
+import { getOrCreateWidged } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import { electronStore } from './config';
-import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
+import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { setupQuitHandlers } from './quit';
 import { migrate } from '@/migrations/migrate';
@@ -133,10 +131,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     getAuthWindow()?.hide();
 
     const widget = await getOrCreateWidged();
-    const tray = getTray();
-    if (widget && tray) {
-      setBoundsOfWidgetByPath(widget, tray);
-    }
 
     getAuthWindow()?.destroy();
 

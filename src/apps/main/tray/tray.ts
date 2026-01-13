@@ -1,7 +1,7 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'node:path';
 import PackageJson from '../../../../package.json';
-import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } from '../windows/widget';
+import { getOrCreateWidged, toggleWidgetVisibility } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
@@ -99,7 +99,6 @@ export class TrayMenu {
 }
 
 let tray: TrayMenu | null = null;
-export const getTray = () => tray;
 
 export const setTrayStatus = (status: TrayMenuState) => {
   tray?.setState(status);
@@ -118,9 +117,6 @@ export function setupTrayIcon() {
     }
 
     const widgetWindow = await getOrCreateWidged();
-    if (tray && widgetWindow) {
-      setBoundsOfWidgetByPath(widgetWindow, tray);
-    }
 
     if (widgetWindow) {
       toggleWidgetVisibility();

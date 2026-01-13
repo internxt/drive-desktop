@@ -1,25 +1,35 @@
 import { BrowserWindow, screen } from 'electron';
 
-import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
 
-const widgetConfig: { width: number; height: number; placeUnderTray: boolean } = { width: 330, height: 392, placeUnderTray: true };
-
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
 
+export function hideFrontend() {
+  widget?.hide();
+}
+
+export function getWorkArea() {
+  return screen.getPrimaryDisplay().workArea;
+}
+
 const createWidget = async () => {
+  const { x, y, width, height } = getWorkArea();
+
   widget = new BrowserWindow({
-    width: widgetConfig.width,
-    height: widgetConfig.height,
+    x,
+    y,
+    width,
+    height,
     show: false,
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
     },
     movable: false,
+    transparent: true,
     frame: false,
     resizable: false,
     maximizable: false,
@@ -47,7 +57,7 @@ const createWidget = async () => {
   await widgetLoaded;
 };
 
-export async function getOrCreateWidged(): Promise<BrowserWindow | null> {
+export async function getOrCreateWidged() {
   if (widget) return widget;
 
   await createWidget();
@@ -65,31 +75,5 @@ export function toggleWidgetVisibility() {
     widget.hide();
   } else {
     widget.show();
-  }
-}
-
-function getLocationUnderTray({ width, height }: { width: number; height: number }, bounds: Electron.Rectangle): { x: number; y: number } {
-  const display = screen.getDisplayMatching(bounds);
-  let x = Math.min(bounds.x - display.workArea.x - width / 2, display.workArea.width - width);
-  x += display.workArea.x;
-  x = Math.max(display.workArea.x, x);
-  let y = Math.min(bounds.y - display.workArea.y - height / 2, display.workArea.height - height);
-  y += display.workArea.y;
-  y = Math.max(display.workArea.y, y);
-
-  return {
-    x,
-    y,
-  };
-}
-
-export function setBoundsOfWidgetByPath(widgetWindow: BrowserWindow, tray: TrayMenu) {
-  const { ...size } = widgetConfig;
-
-  const bounds = tray.bounds;
-
-  if (bounds) {
-    const location = getLocationUnderTray(size, bounds);
-    widgetWindow.setBounds({ ...size, ...location });
   }
 }

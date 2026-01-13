@@ -14,6 +14,7 @@ import { openLoginUrl } from '../auth/open-login-url';
 import { deleteBackupsFromDevice } from '../device/service';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getWorkArea, hideFrontend } from '../windows/widget';
 
 type AsyncMirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => ReturnType<T> : (props: Omit<Parameters<T>[0], 'ctx'>) => ReturnType<T>;
@@ -22,6 +23,8 @@ type Mirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => Promise<ReturnType<T>> : (props: Parameters<T>[0]) => Promise<ReturnType<T>>;
 
 export type FromProcess = {
+  getWorkArea: Mirror<typeof getWorkArea>;
+  hideFrontend: Mirror<typeof hideFrontend>;
   getLastBackupProgress: Mirror<typeof getLastBackupProgress>;
   getUsage: AsyncMirror<typeof calculateUsage>;
   getAvailableProducts: AsyncMirror<typeof getAvailableProducts>;
