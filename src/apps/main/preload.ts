@@ -62,6 +62,9 @@ const api = {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  openProcessIssuesWindow() {
+    ipcRenderer.send('open-process-issues-window');
+  },
   finishOnboarding() {
     ipcRenderer.send('user-finished-onboarding');
   },

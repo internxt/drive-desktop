@@ -5,7 +5,6 @@ import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { Login } from './pages/Login';
 import Onboarding from './pages/Onboarding';
-import Settings from './pages/Settings';
 import { Widget } from './pages/Widget';
 import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
