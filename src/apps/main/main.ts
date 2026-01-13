@@ -98,6 +98,14 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error({ msg: 'Unhandled rejection', reason, promise });
+});
+
+process.on('uncaughtException', (error, origin) => {
+  logger.error({ msg: 'Uncaught exception', error, origin });
+});
+
 app
   .whenReady()
   .then(async () => {
