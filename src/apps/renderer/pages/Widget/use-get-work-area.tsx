@@ -25,8 +25,8 @@ export function useGetWorkArea() {
     };
 
     const bounds = {
-      left: workArea.x,
-      top: workArea.y,
+      left: 0,
+      top: 0,
       right: workArea.width - SETTINGS.width,
       bottom: workArea.height - SETTINGS.height,
     };

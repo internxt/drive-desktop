@@ -16,11 +16,11 @@ export function getWorkArea() {
 }
 
 const createWidget = async () => {
-  const { x, y, width, height } = getWorkArea();
+  const { width, height } = getWorkArea();
 
   widget = new BrowserWindow({
-    x,
-    y,
+    x: 0,
+    y: 0,
     width,
     height,
     show: false,
