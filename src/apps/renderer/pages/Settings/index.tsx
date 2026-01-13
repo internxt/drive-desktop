@@ -63,7 +63,6 @@ export default function Settings({ activeSection }: Props) {
                       isSectionLoading={isAvailableProductsLoading}
                       showBackedFolders={() => setSubsection('list')}
                       showDownloadFolers={() => setSubsection('download_list')}
-                      showIssues={() => window.electron.openProcessIssuesWindow()}
                       data-automation-id="itemSettingsBackups"
                     />
                     {SHOW_ANTIVIRUS_TOOL && (
