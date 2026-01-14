@@ -1,7 +1,7 @@
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
-import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { parseFolderDto } from '../../out/dto';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { CommonContext } from '@/apps/sync-engine/config';
