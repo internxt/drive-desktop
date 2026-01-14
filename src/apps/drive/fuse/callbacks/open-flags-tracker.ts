@@ -11,6 +11,16 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 const SYSTEM_OPEN_FLAG = 294912;
 const USER_OPEN_FLAG = 32768;
 
+/**
+ * v.2.5.1
+ * Esteban Galvis Triana
+ * Files in set trigger system verification to select the default application,
+ * causing a system-level open flag that crashes the file open.
+ * Added as an exception since user-initiated opens cannot be reliably
+ * distinguished from system checks.
+ */
+const DOWNLOAD_WHITELIST = new Set(['.png', '.json']);
+
 const fileFlags = new Map<string, number>();
 
 export function trackOpen(path: string, flag: number): void {
@@ -37,6 +47,17 @@ export function shouldDownload(path: string): boolean {
 
   if (!flag) {
     logger.debug({ msg: '[OpenFlagsTracker] No flag found, allowing download:', path });
+    return true;
+  }
+
+  const extension = path.substring(path.lastIndexOf('.')).toLowerCase();
+  if (DOWNLOAD_WHITELIST.has(extension)) {
+    logger.debug({
+      msg: '[OpenFlagsTracker] Extension whitelisted, allowing download:',
+      path,
+      extension,
+      flag,
+    });
     return true;
   }
 

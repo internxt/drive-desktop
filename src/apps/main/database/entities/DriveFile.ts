@@ -20,7 +20,7 @@ export type SimpleDriveFile = {
 
 @Entity('drive_file')
 export class DriveFile {
-  @Column({ type: 'varchar', nullable: false, unique: true })
+  @Column({ type: 'varchar', nullable: false })
   fileId!: string;
 
   @Column({ type: 'integer', nullable: false })
