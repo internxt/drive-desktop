@@ -1,5 +1,4 @@
 export type TDriveServerWipError = 'UNKNOWN' | 'NETWORK' | 'SERVER' | 'ABORTED' | (string & { readonly brand?: unique symbol });
-
 export class DriveServerWipError extends Error {
   constructor(
     public readonly code: TDriveServerWipError,
@@ -9,3 +8,7 @@ export class DriveServerWipError extends Error {
     super(code, { cause });
   }
 }
+
+export const EncryptionVersion = {
+  Aes03: '03-aes',
+};
