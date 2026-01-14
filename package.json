@@ -226,7 +226,6 @@
     "eslint-import-resolver-typescript": "^2.5.0",
     "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-plugin-import": "^2.27.5",
-    "happy-dom": "^17.6.1",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
     "identity-obj-proxy": "^3.0.0",
@@ -248,6 +247,7 @@
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^5.3.0",
+    "ts-essentials": "^10.1.1",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "ts-prune": "^0.10.3",
@@ -259,9 +259,7 @@
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.1",
-    "webpack-merge": "^5.8.0",
-    "vitest-mock-extended": "^3.1.0",
-    "ts-essentials": "^10.1.1"
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "@headlessui/react": "^1.4.2",
