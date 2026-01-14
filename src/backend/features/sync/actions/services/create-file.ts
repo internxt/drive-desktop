@@ -7,7 +7,7 @@ import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-uploa
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { LocalSync } from '@/backend/features';
 import { uploadFile } from './upload-file';
-import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
+import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-file';
