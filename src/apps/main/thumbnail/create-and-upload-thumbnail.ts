@@ -23,7 +23,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
 
     const buffer = image.resize({ width: SIZE }).toPNG();
 
-    logger.debug({ msg: 'Upload thumbnail', path });
+    ctx.logger.debug({ msg: 'Upload thumbnail', path });
 
     const contentsId = await uploadThumbnail({ ctx, buffer });
 

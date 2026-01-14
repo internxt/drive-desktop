@@ -27,15 +27,15 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
     return;
   }
 
-  const contentsId = await uploadFile({ ctx, size, path });
+  const upload = await uploadFile({ ctx, size, path });
 
-  if (!contentsId) return;
+  if (!upload) return;
 
   const { name, extension } = getNameAndExtension({ path });
 
   const body: CreateFileBody = {
     bucket: ctx.bucket,
-    fileId: contentsId,
+    fileId: upload.contentsId,
     encryptVersion: EncryptionVersion.Aes03,
     folderUuid: parentUuid,
     plainName: name,
