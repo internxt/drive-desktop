@@ -1,6 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
-import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { getRequestKey } from '../../in/get-in-flight-request';
 
 export class GetDeviceError extends DriveServerWipError {
