@@ -179,14 +179,20 @@ const configuration: webpack.Configuration = {
       verbose: true,
     },
     onBeforeSetupMiddleware() {
-      console.log('Starting Main Process...');
-      spawn('npm', ['run', 'start:main'], {
-        shell: true,
-        env: process.env,
-        stdio: 'inherit',
-      })
-        .on('close', (code: number) => process.exit(code!))
-        .on('error', (spawnError) => console.error(spawnError));
+      // Only auto-start main process if DEBUG_MODE is not set
+      if (process.env.DEBUG_MODE !== 'true') {
+        console.log('Starting Main Process...');
+        spawn('npm', ['run', 'start:main'], {
+          shell: true,
+          env: process.env,
+          stdio: 'inherit',
+        })
+          .on('close', (code: number) => process.exit(code!))
+          .on('error', (spawnError) => console.error(spawnError));
+      } else {
+        console.log('DEBUG_MODE enabled - skipping auto-start of main process');
+        console.log('Start main process manually with: npm run start:main:debug');
+      }
     },
   },
 };

@@ -79,7 +79,7 @@ export async function fetchDevice(props: FetchDeviceProps): Promise<Either<Error
       return right(null);
     }
 
-    logger.error({ tag: 'BACKUPS', msg: '[DEVICE] Error fetching device', error });
+    logger.error({ tag: 'BACKUPS', msg: '[DEVICE] Error fetching device', error: error.name });
     return left(error);
   }
 

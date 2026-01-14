@@ -2,9 +2,52 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Kill Existing Electron",
+      "type": "shell",
+      "command": "pkill -f 'electron' || true",
+      "presentation": {
+        "reveal": "never",
+        "echo": false,
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "Start Renderer (Debug Mode)",
       "type": "npm",
-      "label": "Start Webpack Dev",
       "script": "start:renderer",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "DEBUG_MODE": "true"
+        }
+      },
+      "isBackground": true,
+      "dependsOn": ["Kill Existing Electron"],
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "zzzzzzzzzzzzz"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Starting",
+          "endsPattern": "Project is running at:|Loopback:"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "group": "dev"
+      }
+    },
+    {
+      "label": "Start Main Process (Debug)",
+      "type": "npm",
+      "script": "start:main:debug",
       "options": {
         "cwd": "${workspaceFolder}"
       },
@@ -12,14 +55,29 @@
       "problemMatcher": {
         "owner": "custom",
         "pattern": {
-          "regexp": "____________"
+          "regexp": "zzzzzzzzzzzzz"
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": "Compiling\\.\\.\\.$",
-          "endsPattern": "(Compiled successfully|Failed to compile)\\.$"
+          "beginsPattern": ".",
+          "endsPattern": "Debugger listening on"
         }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "group": "dev"
       }
+    },
+    {
+      "label": "Start Dev Environment",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Start Renderer (Debug Mode)",
+        "Start Main Process (Debug)"
+      ],
+      "problemMatcher": []
     }
   ]
 }

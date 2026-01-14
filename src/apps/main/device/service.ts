@@ -193,7 +193,7 @@ async function downloadDeviceBackupZip(
   const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
-  const encryptionKey = user.mnemonic;
+  const encryptionKey = configStore.get('mnemonic');
 
   await downloadFolderAsZip(
     device.name,
