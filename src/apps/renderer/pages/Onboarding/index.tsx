@@ -8,7 +8,7 @@ export default function Onboarding() {
   const [slideIndex, setSlideIndex] = useState<number>(0);
 
   const finish = () => {
-    window.electron.finishOnboarding();
+    globalThis.window.electron.finishOnboarding();
   };
   const nextSlide = () => {
     const nextSlide = slideIndex + 1;
