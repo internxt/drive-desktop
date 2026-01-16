@@ -39,7 +39,7 @@ export class TrayMenu {
     this.tray.setContextMenu(
       Menu.buildFromTemplate([
         { label: 'Show/Hide', click: toggleWidgetVisibility },
-        { label: 'Quit', click: quitApp },
+        { label: 'Quit', click: () => void quitApp() },
       ]),
     );
   }
