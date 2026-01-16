@@ -25,7 +25,7 @@ describe('create-file', () => {
     props = mockProps<typeof createFile>({ path, stats: { size } });
 
     isTemporaryFileMock.mockReturnValue(false);
-    uploadMock.mockResolvedValue('contentsId' as ContentsId);
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId });
   });
 
   it('should not upload if the file is temporary', async () => {
