@@ -173,7 +173,7 @@ var api = {
   shellOpenPath: import_electron2.shell.openPath,
   getWorkArea: async () => await ipcPreloadRenderer.invoke("getWorkArea"),
   hideFrontend: async () => await ipcPreloadRenderer.invoke("hideFrontend"),
-  getIsLoggedIn: async () => await ipcPreloadRenderer.invoke("getIsLoggedIn"),
+  isUserLoggedIn: async () => await ipcPreloadRenderer.invoke("isUserLoggedIn"),
   finishOnboarding: async () => await ipcPreloadRenderer.invoke("finishOnboarding"),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),

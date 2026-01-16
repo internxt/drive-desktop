@@ -1,18 +1,16 @@
 import { useI18n } from '../../localize/use-i18n';
 
-interface ModalLogoutProps {
+type Props = {
   onClose: () => void;
   onLogout: () => void;
-}
+};
 
-const ModalLogout: React.FC<ModalLogoutProps> = ({ onClose, onLogout }) => {
+export function ModalLogout({ onClose, onLogout }: Props) {
   const { translate } = useI18n();
 
   return (
-    <div className="fixed inset-0 z-50 flex h-full w-screen overflow-auto bg-gray-20 bg-opacity-50" onClick={onClose}>
-      <div
-        className="z-100 relative m-auto flex w-11/12 max-w-md flex-col rounded-lg bg-white p-4 shadow-lg dark:bg-surface"
-        onClick={(e) => e.stopPropagation()}>
+    <div className="z-100 absolute flex h-full w-full bg-gray-20 bg-opacity-50" onClick={onClose}>
+      <div className="mx-4 my-auto flex flex-col rounded-lg bg-white p-4 shadow-lg dark:bg-surface" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-lg leading-snug text-gray-80">{translate('widget.header.dropdown.logout-confirmation.title')}</h2>
         <p className="my-3 text-supporting-3 leading-5 text-gray-70">{translate('widget.header.dropdown.logout-confirmation.message')}</p>
         <div className="flex justify-center space-x-4">
@@ -28,6 +26,4 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({ onClose, onLogout }) => {
       </div>
     </div>
   );
-};
-
-export default ModalLogout;
+}

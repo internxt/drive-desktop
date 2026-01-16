@@ -1,6 +1,6 @@
 export type Dimensions = { width: number; height: number };
 
-export const SETTINGS: Dimensions = { width: 750, height: 575 };
+export const SETTINGS: Dimensions = { width: 750, height: 600 };
 export const ISSUES: Dimensions = { width: 600, height: 484 };
 export const AUTH: Dimensions = { width: 520, height: 320 };
 
