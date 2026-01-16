@@ -33,26 +33,34 @@ export async function deleteFolderByUuid({ ctx, path, uuid }: { ctx: CommonConte
   }
 }
 
-export async function persistMoveFile({ ctx, path, uuid, parentUuid }: PersistMoveFileProps) {
+export async function persistMoveFile({ ctx, path, uuid, parentUuid, action }: PersistMoveFileProps) {
   const { name, extension } = getNameAndExtension({ path });
   const res = await driveServerWip.files.move({ ctx, context: { uuid, parentUuid, name, extension } });
 
   if (res.error) {
-    LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });
+    addMoveEvent(false, action, path);
   } else {
-    LocalSync.SyncState.addItem({ action: 'MOVED', path });
+    addMoveEvent(true, action, path);
     await createOrUpdateFile({ ctx, fileDto: res.data });
   }
 }
 
-export async function persistMoveFolder({ ctx, path, uuid, parentUuid }: PersistMoveFolderProps) {
+export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }: PersistMoveFolderProps) {
   const name = basename(path);
   const res = await driveServerWip.folders.move({ ctx, context: { uuid, parentUuid, name } });
 
   if (res.error) {
-    LocalSync.SyncState.addItem({ action: 'MOVE_ERROR', path });
+    addMoveEvent(false, action, path);
   } else {
-    LocalSync.SyncState.addItem({ action: 'MOVED', path });
+    addMoveEvent(true, action, path);
     await createOrUpdateFolder({ ctx, folderDto: res.data });
+  }
+}
+
+function addMoveEvent(success: boolean, action: 'move' | 'rename', path: AbsolutePath) {
+  if (success) {
+    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVE_ERROR' : 'RENAME_ERROR', path });
+  } else {
+    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVED' : 'RENAMED', path });
   }
 }

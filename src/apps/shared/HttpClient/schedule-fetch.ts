@@ -8,7 +8,7 @@ const PRIORITIES: Array<{ method: Method; path: keyof paths; priority: number }>
   { method: 'POST', path: '/folders', priority: 8 },
 ];
 
-const limiter = new Bottleneck({ minTime: 250 });
+const limiter = new Bottleneck({ maxConcurrent: 3, minTime: 333 });
 
 export function getRequestPriority(method: string, url: string) {
   const path = url.replace(process.env.DRIVE_URL, '');
