@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { StorageTypes } from '@internxt/sdk/dist/drive';
+import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { uploadThumbnail } from './upload-thumnail';
 import { FileUuid } from '../database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
@@ -23,7 +23,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
 
     const buffer = image.resize({ width: SIZE }).toPNG();
 
-    logger.debug({ msg: 'Upload thumbnail', path });
+    ctx.logger.debug({ msg: 'Upload thumbnail', path });
 
     const contentsId = await uploadThumbnail({ ctx, buffer });
 
@@ -38,7 +38,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
           size: buffer.byteLength,
           bucketId: ctx.bucket,
           bucketFile: contentsId,
-          encryptVersion: StorageTypes.EncryptionVersion.Aes03,
+          encryptVersion: EncryptionVersion.Aes03,
         },
       },
     });
