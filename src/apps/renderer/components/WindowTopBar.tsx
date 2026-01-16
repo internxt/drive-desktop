@@ -4,10 +4,10 @@ import { clsx } from 'clsx';
 type Props = {
   title?: string;
   className?: string;
-  onClose?: () => void;
+  onClose: () => void;
 };
 
-export default function WindowTopBar({ title, className, onClose = globalThis.window.electron.closeWindow }: Props) {
+export default function WindowTopBar({ title, className, onClose }: Props) {
   return (
     <div className={clsx('draggable-handle relative h-10 rounded-t', className)}>
       <div

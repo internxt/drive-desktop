@@ -83,7 +83,7 @@
 
 body {
   font-family: 'Instrument Sans', sans-serif;
-  @apply select-none overflow-hidden bg-surface text-highlight dark:bg-gray-1;
+  @apply select-none overflow-hidden text-highlight;
 }
 
 .no-scrollbar::-webkit-scrollbar {

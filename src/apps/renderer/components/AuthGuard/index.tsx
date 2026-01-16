@@ -1,48 +1,45 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { WidgetSkeleton } from '../WidgetSkeleton';
+import { Login } from '../../pages/Login';
+import { DraggableModal } from './draggable-modal';
+import { AUTH, Dimensions } from './get-dimensions';
+import { LoggedPage } from './logged-page';
 
-interface AuthGuardProps {
-  children: JSX.Element;
-}
-
-export function AuthGuard({ children }: AuthGuardProps) {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const intendedRoute = useRef<null | string>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [showContent, setShowContent] = useState(pathname !== '/');
-
-  function onUserLoggedInChanged(isLoggedIn: boolean) {
-    setIsAuthLoading(false);
-    if (!isLoggedIn) {
-      intendedRoute.current = pathname;
-      navigate('/login');
-    } else if (intendedRoute.current) {
-      navigate(intendedRoute.current);
-      intendedRoute.current = null;
-    }
-
-    // Add delay only for the main widget route
-    if (pathname === '/') {
-      setTimeout(() => setShowContent(true), 1000);
-    } else {
-      setShowContent(true);
-    }
-  }
+export function AuthGuard() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [workArea, setWorkArea] = useState<Dimensions | undefined>(undefined);
 
   useEffect(() => {
-    window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
-    window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
+    globalThis.window.electron.onUserLoggedInChanged(setIsLoggedIn);
+    void globalThis.window.electron.isUserLoggedIn().then(setIsLoggedIn);
+    void globalThis.window.electron.getWorkArea().then((wa) => setWorkArea(wa));
   }, []);
 
-  if (isAuthLoading) {
-    return pathname === '/' ? <WidgetSkeleton /> : <></>;
+  function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    if (e.target === e.currentTarget) {
+      void globalThis.window.electron.hideFrontend();
+    }
   }
 
-  if (!showContent && pathname === '/') {
-    return <WidgetSkeleton />;
+  function renderContent() {
+    if (isLoggedIn === null) {
+      return <WidgetSkeleton />;
+    }
+
+    if (isLoggedIn === false) {
+      return (
+        <DraggableModal workArea={workArea} dimensions={AUTH}>
+          <Login />
+        </DraggableModal>
+      );
+    }
+
+    return <LoggedPage workArea={workArea} />;
   }
 
-  return children;
+  return (
+    <div className="relative h-screen w-screen bg-transparent" onMouseDown={onMouseDown}>
+      {renderContent()}
+    </div>
+  );
 }
