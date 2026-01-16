@@ -69,7 +69,7 @@ export class BackupManager {
   }
 
   public stopAndClearBackups() {
-    this.scheduler.stop();
+    if (this.scheduler) this.scheduler.stop();
     this.errors.clear();
     this.tracker.reset();
     this.stopController.reset();
