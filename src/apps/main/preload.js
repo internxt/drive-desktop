@@ -44,17 +44,11 @@ var api = {
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
   },
-  isUserLoggedIn() {
-    return import_electron2.ipcRenderer.invoke("is-user-logged-in");
-  },
   onUserLoggedInChanged(func) {
     import_electron2.ipcRenderer.on("user-logged-in-changed", (_, v) => func(v));
   },
   logout() {
     import_electron2.ipcRenderer.send("USER_LOGGED_OUT");
-  },
-  closeWindow() {
-    import_electron2.ipcRenderer.send("user-closed-window");
   },
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
@@ -76,9 +70,6 @@ var api = {
     const callback = (_, v) => func(v);
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
-  },
-  finishOnboarding() {
-    import_electron2.ipcRenderer.send("user-finished-onboarding");
   },
   isAutoLaunchEnabled() {
     return import_electron2.ipcRenderer.invoke("is-auto-launch-enabled");
@@ -182,6 +173,8 @@ var api = {
   shellOpenPath: import_electron2.shell.openPath,
   getWorkArea: async () => await ipcPreloadRenderer.invoke("getWorkArea"),
   hideFrontend: async () => await ipcPreloadRenderer.invoke("hideFrontend"),
+  getIsLoggedIn: async () => await ipcPreloadRenderer.invoke("getIsLoggedIn"),
+  finishOnboarding: async () => await ipcPreloadRenderer.invoke("finishOnboarding"),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
