@@ -6,6 +6,7 @@ import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
 import { useI18n } from '../../localize/use-i18n';
+import { useSettingsStore } from '../Settings/settings-store';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
@@ -13,6 +14,7 @@ interface HeadersProps {
 
 const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { translate } = useI18n();
+  const { setActiveSection: setSettingsSection } = useSettingsStore();
 
   const { issues } = useIssues();
 
@@ -138,7 +140,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={() => window.electron.openSettingsWindow()}>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('GENERAL')}>
                         <span>{translate('widget.header.dropdown.preferences')}</span>
                       </DropdownItem>
                     </div>
@@ -185,7 +187,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                       <div>
                         <DropdownItem
                           active={active}
-                          onClick={() => window.electron.openSettingsWindow('ANTIVIRUS')}
+                          onClick={() => setSettingsSection('ANTIVIRUS')}
                           data-automation-id="menuItemAntivirus">
                           <span>{translate('widget.header.dropdown.antivirus')}</span>
                         </DropdownItem>
@@ -196,10 +198,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={() => window.electron.openSettingsWindow('CLEANER')}
-                        data-automation-id="menuItemCleaner">
+                      <DropdownItem active={active} onClick={() => setSettingsSection('CLEANER')} data-automation-id="menuItemCleaner">
                         <div className="flex flex-row items-center justify-between">
                           <span>{translate('widget.header.dropdown.cleaner')}</span>
                           <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
@@ -237,7 +236,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   );
 
   return (
-    <div className="flex h-14 shrink-0 items-center justify-between space-x-6 border-b border-b-gray-10 bg-gray-1 px-2.5 dark:bg-gray-5">
+    <div className="flex h-14 shrink-0 items-center justify-between space-x-6 rounded-t border-b border-b-gray-10 bg-gray-1 px-2.5 dark:bg-gray-5">
       <AccountSection />
       <ItemsSection />
     </div>

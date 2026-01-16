@@ -80,12 +80,6 @@ var api = {
   openProcessIssuesWindow() {
     import_electron2.ipcRenderer.send("open-process-issues-window");
   },
-  openSettingsWindow(section) {
-    import_electron2.ipcRenderer.send("open-settings-window", section);
-  },
-  settingsWindowResized(payload) {
-    import_electron2.ipcRenderer.send("settings-window-resized", payload);
-  },
   finishOnboarding() {
     import_electron2.ipcRenderer.send("user-finished-onboarding");
   },
@@ -189,6 +183,8 @@ var api = {
   path: import_node_path.default,
   shellOpenExternal: import_electron2.shell.openExternal,
   shellOpenPath: import_electron2.shell.openPath,
+  getWorkArea: async () => await ipcPreloadRenderer.invoke("getWorkArea"),
+  hideFrontend: async () => await ipcPreloadRenderer.invoke("hideFrontend"),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),

@@ -4,9 +4,7 @@ import { motion } from 'framer-motion';
 import { UilHistory } from '@iconscout/react-unicons';
 import { Shield } from 'phosphor-react';
 import { useI18n } from '../../localize/use-i18n';
-
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS', 'CLEANER'] as const;
-export type Section = (typeof sectionValues)[number];
+import { Section, sectionValues } from './settings-store';
 
 function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
   return (
@@ -46,8 +44,8 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
   );
 
   return (
-    <div className="draggable border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
-      <div className="non-draggable relative mx-auto flex w-max">
+    <div className="border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
+      <div className="relative mx-auto flex w-max">
         <motion.div
           animate={active}
           variants={animationVariants}

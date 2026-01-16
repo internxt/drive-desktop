@@ -65,12 +65,6 @@ const api = {
   openProcessIssuesWindow() {
     ipcRenderer.send('open-process-issues-window');
   },
-  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
-    ipcRenderer.send('open-settings-window', section);
-  },
-  settingsWindowResized(payload: { width: number; height: number }) {
-    ipcRenderer.send('settings-window-resized', payload);
-  },
   finishOnboarding() {
     ipcRenderer.send('user-finished-onboarding');
   },
@@ -193,6 +187,8 @@ const api = {
   path,
   shellOpenExternal: shell.openExternal,
   shellOpenPath: shell.openPath,
+  getWorkArea: async () => await ipcPreloadRenderer.invoke('getWorkArea'),
+  hideFrontend: async () => await ipcPreloadRenderer.invoke('hideFrontend'),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
