@@ -54,7 +54,7 @@ async function replaceFile({
   context: {
     path: AbsolutePath;
     uuid: FileUuid;
-    contentsId: ContentsId;
+    contentsId: ContentsId | undefined;
     size: number;
     modificationTime: string;
   };

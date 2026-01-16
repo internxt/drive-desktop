@@ -1,6 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
-import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { FolderDto, parseFolderDto } from '../../out/dto';

@@ -30,11 +30,21 @@ inline void sendEvent(WatcherContext* ctx, const std::string& type, const std::s
     napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
+inline std::string wstringToUtf8(const std::wstring& wstr)
+{
+    if (wstr.empty()) return {};
+
+    int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), nullptr, 0, nullptr, nullptr);
+    std::string result(size, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), result.data(), size, nullptr, nullptr);
+    return result;
+}
+
 inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
     std::wstring path = rootPath + L"\\" + filename;
-    std::string pathStr(path.begin(), path.end());
+    std::string pathStr = wstringToUtf8(path);
 
     if (fni->Action == FILE_ACTION_MODIFIED) {
         sendEvent(ctx, "update", pathStr);

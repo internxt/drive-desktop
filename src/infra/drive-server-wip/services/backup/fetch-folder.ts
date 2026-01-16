@@ -1,7 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
-import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 
 class FetchFolderError extends DriveServerWipError {
   constructor(

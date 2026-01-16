@@ -1,5 +1,5 @@
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
-import { DriveServerWipError } from '../out/error.types';
+import { DriveServerWipError } from '../defs';
 import { isServerError, serverErrorIssue } from './helpers/error-helpers';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 

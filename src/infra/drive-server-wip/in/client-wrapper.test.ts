@@ -2,7 +2,7 @@ import { mockProps } from 'tests/vitest/utils.helper.test';
 import { clientWrapper } from './client-wrapper.service';
 import { handleRemoveErrors } from './helpers/error-helpers';
 import { errorWrapper } from './error-wrapper';
-import { DriveServerWipError } from '../out/error.types';
+import { DriveServerWipError } from '../defs';
 import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
 import { getInFlightRequest } from './get-in-flight-request';
