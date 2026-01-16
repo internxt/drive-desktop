@@ -28,7 +28,7 @@ export function getIsLoggedIn() {
 }
 
 export function onUserUnauthorized() {
-  logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
+  logger.error({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   eventBus.emit('USER_LOGGED_OUT');
 }
 
