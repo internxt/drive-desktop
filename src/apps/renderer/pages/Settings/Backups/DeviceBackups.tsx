@@ -10,10 +10,10 @@ import { DownloadBackups } from './DownloadBackups';
 
 interface DeviceBackupsProps {
   onGoToList: () => void;
-  showDownloadFolers: () => void;
+  showDownloadFolders: () => void;
 }
 
-export function DeviceBackups({ onGoToList, showDownloadFolers }: DeviceBackupsProps) {
+export function DeviceBackups({ onGoToList, showDownloadFolders }: DeviceBackupsProps) {
   const { current, selected } = useContext(DeviceContext);
 
   return (
@@ -29,7 +29,7 @@ export function DeviceBackups({ onGoToList, showDownloadFolers }: DeviceBackupsP
         ) : (
           <>
             <DownloadBackups className="w-full" />
-            <ViewBackups className="w-full" showDownloadFolers={showDownloadFolers} />
+            <ViewBackups className="w-full" showDownloadFolders={showDownloadFolders} />
           </>
         )}
       </div>

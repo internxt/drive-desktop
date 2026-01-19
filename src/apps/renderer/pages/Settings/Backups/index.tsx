@@ -38,7 +38,7 @@ export default function BackupsSection({ active, showBackedFolders, showDownload
             <DevicesList className="w-1/3" />
             <div className="mx-4 border-l border-gray-10"></div>
             <ScrollableContent className="w-2/3">
-              <DeviceSettings onGoToList={showBackedFolders} showDownloadFolers={showDownloadFolers} />
+              <DeviceSettings onGoToList={showBackedFolders} showDownloadFolders={showDownloadFolers} />
             </ScrollableContent>
           </section>
         )}
