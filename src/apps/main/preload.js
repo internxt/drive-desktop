@@ -77,9 +77,6 @@ var api = {
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
   },
-  openProcessIssuesWindow() {
-    import_electron2.ipcRenderer.send("open-process-issues-window");
-  },
   finishOnboarding() {
     import_electron2.ipcRenderer.send("user-finished-onboarding");
   },

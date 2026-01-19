@@ -8,12 +8,15 @@ import { useState } from 'react';
 import Settings from '../Settings';
 import { useSettingsStore } from '../Settings/settings-store';
 import Draggable from 'react-draggable';
-import { SETTINGS, useGetWorkArea } from './use-get-work-area';
+import { ISSUES, SETTINGS, useGetWorkArea } from './use-get-work-area';
+import { useIssuesStore } from '../Issues/issues-store';
+import { IssuesPage } from '../Issues';
 
 export function Widget() {
   const { activeSection: settingsSection } = useSettingsStore();
+  const { activeSection: issuesSection } = useIssuesStore();
   const { syncStatus } = useSyncStatus();
-  const { settings } = useGetWorkArea();
+  const { settings, issues } = useGetWorkArea();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
   function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
@@ -25,9 +28,17 @@ export function Widget() {
   return (
     <div className="relative h-screen w-screen bg-transparent" onMouseDown={onMouseDown}>
       {settingsSection && (
-        <Draggable handle=".draggable-handle" defaultPosition={settings?.positions} bounds={settings?.bounds}>
-          <div className="rounded-shadow-white" style={{ width: SETTINGS.width, height: SETTINGS.height }}>
+        <Draggable handle=".draggable-handle" defaultPosition={settings?.positions} bounds={settings?.bounds} defaultClassName="absolute">
+          <div className="rounded-shadow-white" style={{ width: SETTINGS.width }}>
             <Settings activeSection={settingsSection} />
+          </div>
+        </Draggable>
+      )}
+
+      {issuesSection && (
+        <Draggable handle=".draggable-handle" defaultPosition={issues?.positions} bounds={issues?.bounds} defaultClassName="absolute">
+          <div className="rounded-shadow-white" style={{ width: ISSUES.width }}>
+            <IssuesPage activeSection={issuesSection} />
           </div>
         </Draggable>
       )}

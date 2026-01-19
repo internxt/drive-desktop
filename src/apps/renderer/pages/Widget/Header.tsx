@@ -7,6 +7,7 @@ import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
 import { useI18n } from '../../localize/use-i18n';
 import { useSettingsStore } from '../Settings/settings-store';
+import { useIssuesStore } from '../Issues/issues-store';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
@@ -15,6 +16,7 @@ interface HeadersProps {
 const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { translate } = useI18n();
   const { setActiveSection: setSettingsSection } = useSettingsStore();
+  const { setActiveSection: setIssuesSection } = useIssuesStore();
 
   const { issues } = useIssues();
 
@@ -160,7 +162,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={window.electron.openProcessIssuesWindow} data-automation-id="menuItemIssues">
+                      <DropdownItem active={active} onClick={() => setIssuesSection('virtualDrive')} data-automation-id="menuItemIssues">
                         <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
                           {numberOfIssues > 0 && <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>}

@@ -1,16 +1,12 @@
 import { BrowserWindow } from 'electron';
 
 import { getOnboardingWindow } from './onboarding';
-import { getProcessIssuesWindow } from './process-issues';
-import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
 
 export function closeAuxWindows() {
   getWidget()?.destroy();
-  getProcessIssuesWindow()?.destroy();
-  getSettingsWindow()?.destroy();
   getOnboardingWindow()?.destroy();
 }
 
@@ -19,7 +15,7 @@ export function broadcastToWidget({ name, data }: BroadcastToWidget) {
 }
 
 export function broadcastToWindows({ name, data }: BroadcastToWindows) {
-  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow()];
+  const renderers = [getWidget(), getOnboardingWindow()];
 
   renderers.forEach((r) => r?.webContents.send(name, data));
 }

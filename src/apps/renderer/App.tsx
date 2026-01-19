@@ -6,7 +6,6 @@ import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import { Login } from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import { Widget } from './pages/Widget';
-import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
 import { AuthGuard } from './components/AuthGuard';
@@ -24,7 +23,6 @@ export default function App() {
           <AuthGuard>
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/process-issues" element={<IssuesPage />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/" element={<Widget />} />
             </Routes>
