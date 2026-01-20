@@ -10,10 +10,10 @@ export function Login() {
   const { t } = useI18n();
 
   return (
-    <div className="relative flex h-screen flex-col">
-      <WindowTopBar />
+    <div className="flex h-full flex-col rounded">
+      <WindowTopBar onClose={globalThis.window.electron.quit} />
 
-      <div className="flex h-screen flex-col items-center justify-center gap-6">
+      <div className="flex h-full flex-col items-center justify-center gap-6">
         <div className="flex w-full flex-col items-center gap-3">
           <h1 className="text-xl font-semibold text-gray-100">{t('login.welcome')}</h1>
 
