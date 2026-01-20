@@ -5,7 +5,7 @@ type Props = {
   onLogout: () => void;
 };
 
-export function ModalLogout({ onClose, onLogout }: Props) {
+export function ModalLogout({ onClose, onLogout }: Readonly<Props>) {
   const { translate } = useI18n();
 
   return (
