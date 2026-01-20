@@ -38,7 +38,7 @@ export function AuthGuard() {
   }
 
   return (
-    <div className="relative h-screen w-screen bg-transparent" role="button" onMouseDown={onMouseDown}>
+    <div className="relative h-screen w-screen bg-transparent" onMouseDown={onMouseDown}>
       {renderContent()}
     </div>
   );
