@@ -1,6 +1,7 @@
 import { useI18n } from '../../localize/use-i18n';
 import Button from '../../components/Button';
 import WindowTopBar from '../../components/WindowTopBar';
+import { AUTH } from '../../components/AuthGuard/get-dimensions';
 
 function openUrl(url: string) {
   void globalThis.window.electron.shellOpenExternal(url).catch(reportError);
@@ -10,7 +11,11 @@ export function Login() {
   const { t } = useI18n();
 
   return (
-    <div className="flex h-full flex-col rounded">
+    <div
+      className="flex h-full flex-col rounded"
+      style={{
+        height: AUTH.height,
+      }}>
       <WindowTopBar onClose={globalThis.window.electron.quit} />
 
       <div className="flex h-full flex-col items-center justify-center gap-6">

@@ -3,7 +3,7 @@ import SyncAction from './SyncAction';
 import { SyncInfo } from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
-import ModalLogout from './Logout';
+import { ModalLogout } from './Logout';
 import { useState } from 'react';
 
 export function Widget() {

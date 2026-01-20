@@ -23,8 +23,7 @@ import './remote-sync/handlers';
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
-import { getOrCreateWidged } from './windows/widget';
-import { createAuthWindow, getAuthWindow } from './windows/auth';
+import { createWidget } from './windows/widget';
 import { electronStore } from './config';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
@@ -116,16 +115,17 @@ app
     setupTrayIcon();
 
     await migrate();
+    await createWidget();
 
     setUpBackups();
 
     const isLoggedIn = await checkIfUserIsLoggedIn();
 
     if (isLoggedIn) {
+      setIsLoggedIn(true);
       await emitUserLoggedIn();
     } else {
       setIsLoggedIn(false);
-      await createAuthWindow();
       setTrayStatus('IDLE');
     }
 
@@ -134,20 +134,12 @@ app
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
-eventBus.on('USER_LOGGED_IN', async () => {
+eventBus.on('USER_LOGGED_IN', () => {
   try {
-    getAuthWindow()?.hide();
-
-    const widget = await getOrCreateWidged();
-
-    getAuthWindow()?.destroy();
-
     const lastOnboardingShown = electronStore.get('lastOnboardingShown');
 
     if (!lastOnboardingShown) {
-      openOnboardingWindow();
-    } else if (widget) {
-      widget.show();
+      void openOnboardingWindow();
     }
 
     void Marketing.showNotifications();

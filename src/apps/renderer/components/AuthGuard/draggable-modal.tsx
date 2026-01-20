@@ -19,7 +19,6 @@ export function DraggableModal({ workArea, dimensions, children }: Props) {
         className="rounded-shadow-white bg-surface dark:bg-gray-1"
         style={{
           width: dimensions.width,
-          height: dimensions.height,
         }}>
         {children}
       </div>

@@ -1,25 +1,18 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow } from 'electron';
 
-import configStore from '../config';
 import { preloadPath, resolveHtmlPath } from '../util';
-import { setUpCommonWindowHandlers } from '.';
 
 let onboardingWindow: BrowserWindow | null = null;
-export const getOnboardingWindow = () => (onboardingWindow?.isDestroyed() ? null : onboardingWindow);
 
-ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
+export function getOnboardingWindow() {
+  return onboardingWindow?.isDestroyed() ? null : onboardingWindow;
+}
 
-export const openOnboardingWindow = () => {
-  if (onboardingWindow) {
-    onboardingWindow.focus();
-
-    return;
-  }
-
+export async function openOnboardingWindow() {
   onboardingWindow = new BrowserWindow({
     width: 800,
     height: 470,
-    show: false,
+    show: true,
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
@@ -30,16 +23,5 @@ export const openOnboardingWindow = () => {
     maximizable: false,
   });
 
-  onboardingWindow.loadURL(resolveHtmlPath('onboarding'));
-
-  onboardingWindow.on('ready-to-show', () => {
-    onboardingWindow?.show();
-  });
-
-  onboardingWindow.on('closed', () => {
-    configStore.set('lastOnboardingShown', Date.now().toLocaleString());
-    onboardingWindow = null;
-  });
-
-  setUpCommonWindowHandlers(onboardingWindow);
-};
+  await onboardingWindow.loadURL(resolveHtmlPath('onboarding'));
+}
