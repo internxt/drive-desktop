@@ -60,11 +60,11 @@ export class DriveFile {
   @Column({ type: 'varchar', nullable: false })
   updatedAt!: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  plainName?: string;
-
   @Column({ type: 'varchar', nullable: false })
-  name!: string;
+  plainName!: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  name?: string;
 
   @Column({ type: 'varchar', nullable: false })
   status!: string;

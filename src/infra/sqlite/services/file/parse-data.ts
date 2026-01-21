@@ -1,22 +1,16 @@
 import { RemoteSyncedFile } from 'src/apps/main/remote-sync/helpers';
 import { FileUuid, SimpleDriveFile, ContentsId } from '../../../../apps/main/database/entities/DriveFile';
-import { fileDecryptName } from '../../../../context/virtual-drive/files/domain/file-decrypt-name';
 
 type TProps = {
   data: RemoteSyncedFile;
 };
 
 export function parseData({ data }: TProps): SimpleDriveFile {
-  const { name, nameWithExtension } = fileDecryptName({
-    encryptedName: data.name,
-    parentId: data.folderId,
-    extension: data.type,
-    plainName: data.plainName,
-  });
+  const nameWithExtension = data.type ? `${data.plainName}.${data.type}` : data.plainName;
 
   return {
     uuid: data.uuid as FileUuid,
-    name,
+    name: data.plainName,
     nameWithExtension,
     extension: data.type,
     parentId: data.folderId,

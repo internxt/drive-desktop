@@ -445,6 +445,7 @@ export class RemoteSyncManager {
     return {
       ...payload,
       status,
+      name: payload.name ?? undefined,
     };
   };
 
@@ -453,6 +454,7 @@ export class RemoteSyncManager {
       ...payload,
       fileId: payload.fileId ?? '',
       size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
+      name: payload.name ?? undefined,
     };
   };
 }
