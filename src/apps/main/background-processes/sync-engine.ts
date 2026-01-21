@@ -17,6 +17,8 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
 
   const syncContext: SyncContext = {
     abortController: ctx.abortController,
+    bottleneck: ctx.bottleneck,
+    client: ctx.client,
     userUuid: user.uuid,
     providerId,
     rootPath: await getRootVirtualDrive(),

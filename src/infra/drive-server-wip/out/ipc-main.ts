@@ -59,8 +59,8 @@ export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }:
 
 function addMoveEvent(success: boolean, action: 'move' | 'rename', path: AbsolutePath) {
   if (success) {
-    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVE_ERROR' : 'RENAME_ERROR', path });
-  } else {
     LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVED' : 'RENAMED', path });
+  } else {
+    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVE_ERROR' : 'RENAME_ERROR', path });
   }
 }

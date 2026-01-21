@@ -12,6 +12,7 @@ import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
+import { createWipClient } from '@/apps/shared/HttpClient/client';
 
 let isLoggedIn: boolean;
 
@@ -65,8 +66,11 @@ export async function emitUserLoggedIn() {
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
 
+  const { bottleneck, client } = createWipClient();
   const ctx: AuthContext = {
     abortController,
+    bottleneck,
+    client,
     workspaceToken: '',
   };
 
@@ -81,6 +85,6 @@ export async function emitUserLoggedIn() {
   setupLoggedPreloadIpc({ ctx });
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  BackupScheduler.start();
+  BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
 }

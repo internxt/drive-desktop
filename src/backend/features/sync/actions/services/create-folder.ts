@@ -28,7 +28,9 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
     : await driveServerWip.folders.createFolder({ ctx, context: { path, body } });
 
   if (res.error) {
-    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    if (res.error.code !== 'ABORTED') {
+      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    }
     return;
   }
 

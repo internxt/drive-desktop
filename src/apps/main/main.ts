@@ -42,6 +42,7 @@ import { release, version } from 'node:os';
 import { Marketing } from '@/backend/features';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
+import { isAbortError, isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -100,8 +101,11 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error({ msg: 'Unhandled rejection', reason, promise });
+process.on('unhandledRejection', (error, promise) => {
+  if (isAbortError({ exc: error })) return;
+  if (isBottleneckStop({ error })) return;
+
+  logger.error({ msg: 'Unhandled rejection', error, promise });
 });
 
 process.on('uncaughtException', (error, origin) => {

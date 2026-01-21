@@ -48,7 +48,9 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
     : await driveServerWip.files.createFile({ ctx, context: { path, body } });
 
   if (res.error) {
-    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    if (res.error.code !== 'ABORTED') {
+      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    }
     return;
   }
 

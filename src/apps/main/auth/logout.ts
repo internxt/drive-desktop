@@ -18,6 +18,8 @@ type Props = {
 
 export async function logout({ ctx }: Props) {
   try {
+    logger.debug({ tag: 'AUTH', msg: 'Bottleneck jobs', jobs: ctx.bottleneck.counts() });
+    void ctx.bottleneck.stop({ dropWaitingJobs: true });
     ctx.abortController.abort();
 
     setTrayStatus('IDLE');

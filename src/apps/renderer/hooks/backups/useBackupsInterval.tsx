@@ -4,11 +4,11 @@ export function useBackupsInterval() {
   const [backupsInterval, setBackupsInterval] = useState(-1);
 
   function refreshBackupsInterval() {
-    window.electron.getBackupsInterval().then(setBackupsInterval);
+    void globalThis.window.electron.getBackupsInterval().then(setBackupsInterval);
   }
 
   async function updateBackupsInterval(interval: number) {
-    await window.electron.setBackupsInterval(interval);
+    await globalThis.window.electron.backupsSetInterval({ interval });
     refreshBackupsInterval();
   }
 
