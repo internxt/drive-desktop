@@ -11,6 +11,7 @@ import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFi
 import { TemporalFile } from '../../../../context/storage/TemporalFiles/domain/TemporalFile';
 import { TemporalFileByteByByteComparator } from '../../../../context/storage/TemporalFiles/application/comparation/TemporalFileByteByByteComparator';
 import { TemporalFilePath } from '../../../../context/storage/TemporalFiles/domain/TemporalFilePath';
+import { TemporalFileDeleter } from '../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
 
 type Result = 'no-op' | 'success';
 
@@ -62,6 +63,7 @@ export class UploadOnRename {
     const differs = await this.differs(fileToOverride, document);
 
     if (!differs) {
+      await this.container.get(TemporalFileDeleter).run(src);
       return right(UploadOnRename.SUCCESS);
     }
 
@@ -71,6 +73,7 @@ export class UploadOnRename {
       extension: fileToOverride.type,
     });
 
+    await this.container.get(TemporalFileDeleter).run(src);
     return right(UploadOnRename.SUCCESS);
   }
 }

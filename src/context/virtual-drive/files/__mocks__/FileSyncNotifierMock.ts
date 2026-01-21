@@ -2,12 +2,12 @@ import { SyncFileMessenger } from '../domain/SyncFileMessenger';
 import { VirtualDriveFileIssue } from '../../../../shared/issues/VirtualDriveIssue';
 
 export class FileSyncNotifierMock implements SyncFileMessenger {
-  public createdMock = vi.fn();
-  public trashingMock = vi.fn();
-  public trashedMock = vi.fn();
-  public renamingMock = vi.fn();
-  public renamedMock = vi.fn();
-  public issueMock = vi.fn();
+  public createdMock = vi.fn().mockResolvedValue(undefined);
+  public trashingMock = vi.fn().mockResolvedValue(undefined);
+  public trashedMock = vi.fn().mockResolvedValue(undefined);
+  public renamingMock = vi.fn().mockResolvedValue(undefined);
+  public renamedMock = vi.fn().mockResolvedValue(undefined);
+  public issuesMock = vi.fn().mockResolvedValue(undefined);
 
   created(name: string, extension: string): Promise<void> {
     return this.createdMock(name, extension);
@@ -30,6 +30,6 @@ export class FileSyncNotifierMock implements SyncFileMessenger {
   }
 
   issues(issue: VirtualDriveFileIssue): Promise<void> {
-    return this.issueMock(issue);
+    return this.issuesMock(issue);
   }
 }

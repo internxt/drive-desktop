@@ -3,16 +3,13 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'path';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
 import { ParentFolderFinder } from '../../../folders/application/ParentFolderFinder';
-import { PlatformPathConverter } from '../../../shared/application/PlatformPathConverter';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
 import { FilePath } from '../../domain/FilePath';
 import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
-import { FileStatuses } from '../../domain/FileStatus';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
-import { FileTrasher } from '../trash/FileTrasher';
 import { FileContentsId } from '../../domain/FileContentsId';
 import { FileFolderId } from '../../domain/FileFolderId';
 
@@ -22,22 +19,12 @@ export class FileCreator {
     private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly parentFolderFinder: ParentFolderFinder,
-    private readonly fileDeleter: FileTrasher,
     private readonly eventBus: EventBus,
     private readonly notifier: SyncFileMessenger,
   ) {}
 
   async run(path: string, contentsId: string, size: number): Promise<File> {
     try {
-      const existingFiles = this.repository.matchingPartial({
-        path: PlatformPathConverter.winToPosix(path),
-        status: FileStatuses.EXISTS,
-      });
-
-      if (existingFiles) {
-        await Promise.all(existingFiles.map((existingFile) => this.fileDeleter.run(existingFile.contentsId)));
-      }
-
       const fileSize = new FileSize(size);
       const fileContentsId = new FileContentsId(contentsId);
       const filePath = new FilePath(path);
