@@ -16,18 +16,16 @@ type Props = {
 };
 
 export async function replaceFile({ ctx, path, stats: { size, mtime }, uuid }: Props) {
-  const contentsId = await uploadFile({ ctx, size, path });
+  const upload = await uploadFile({ ctx, size, path });
 
-  if (!contentsId) return;
-
-  ctx.logger.debug({ msg: 'File uploaded', path, contentsId, size });
+  if (!upload) return;
 
   const res = await driveServerWip.files.replaceFile({
     ctx,
     context: {
       path,
       uuid,
-      contentsId,
+      contentsId: upload.contentsId,
       size,
       modificationTime: mtime.toISOString(),
     },

@@ -9,7 +9,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { buildEnvironment } from '../../backups/build-environment';
 
 type TProps = {
-  context: AuthContext;
+  ctx: AuthContext;
   workspace: {
     id: string;
     key: string;
@@ -19,8 +19,11 @@ type TProps = {
   };
 };
 
-export async function spawnWorkspace({ context, workspace }: TProps) {
-  const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
+export async function spawnWorkspace({ ctx, workspace }: TProps) {
+  const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({
+    ctx,
+    context: { workspaceId: workspace.id },
+  });
 
   if (error) return;
 
@@ -40,7 +43,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
     });
 
     const syncCtx: SyncContext = {
-      abortController: context.abortController,
+      abortController: ctx.abortController,
       userUuid: user.uuid,
       mnemonic,
       providerId: workspace.providerId,

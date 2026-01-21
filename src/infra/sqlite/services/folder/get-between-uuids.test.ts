@@ -3,10 +3,8 @@ import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test'
 import { getBetweenUuids } from './get-between-uuids';
 import { Between } from 'typeorm';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as folderDecryptNameModule from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('get-between-uuids', () => {
-  partialSpyOn(folderDecryptNameModule, 'folderDecryptName');
   const findMock = partialSpyOn(folderRepository, 'find');
 
   const props = mockProps<typeof getBetweenUuids>({

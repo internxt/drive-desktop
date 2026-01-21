@@ -68,6 +68,7 @@ FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
     placeholderId.erase(std::remove(placeholderId.begin(), placeholderId.end(), '\0'), placeholderId.end());
 
     FileState result;
+    result.uuid = placeholderId.substr(placeholderId.find(':') + 1);
     result.placeholderId = placeholderId;
     result.pinState = info->PinState;
     result.inSyncState = info->InSyncState;

@@ -4,16 +4,16 @@ import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as onAll from '@/node-win/watcher/events/on-all.service';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Addon } from '@/node-win/addon-wrapper';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
+import * as processEvent from '@/node-win/watcher/process-event';
 
 describe('create-placeholder', () => {
-  const onAllMock = partialSpyOn(onAll, 'onAll');
+  const processEventSpy = partialSpyOn(processEvent, 'processEvent', false);
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
 
   const providerName = 'Internxt Drive';
@@ -22,7 +22,7 @@ describe('create-placeholder', () => {
   const file = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
-    createFileMock.mockResolvedValue({ uuid: 'uuid' as FileUuid });
+    createFileMock.mockResolvedValue({ uuid: v4() as FileUuid });
 
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
@@ -35,7 +35,7 @@ describe('create-placeholder', () => {
   it('should create placeholder', async () => {
     // Given
     const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
-    await initWatcher(watcherProps);
+    initWatcher(watcherProps);
     await sleep(100);
 
     // When
@@ -47,6 +47,7 @@ describe('create-placeholder', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', rootPath },
+      { msg: 'Setup watcher' },
       {
         msg: 'On change event',
         path: file,
@@ -59,8 +60,9 @@ describe('create-placeholder', () => {
       },
     ]);
 
-    calls(onAllMock).toMatchObject([
+    calls(processEventSpy).toMatchObject([
       { event: 'create', path: file },
+      { event: 'update', path: file },
       { event: 'update', path: file },
     ]);
   });

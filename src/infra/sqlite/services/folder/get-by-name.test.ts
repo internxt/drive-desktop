@@ -1,11 +1,9 @@
 import { folderRepository } from '../drive-folder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByName } from './get-by-name';
-import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('get-by-name', () => {
   const findOneSpy = partialSpyOn(folderRepository, 'findOne');
-  partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const props = mockProps<typeof getByName>({ plainName: 'folder' });
 
@@ -29,7 +27,7 @@ describe('get-by-name', () => {
 
   it('should return folder', async () => {
     // Given
-    findOneSpy.mockResolvedValue({ name: 'name' });
+    findOneSpy.mockResolvedValue({ plainName: 'name' });
     // When
     const { data } = await getByName(props);
     // Then

@@ -3,15 +3,11 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { CommonContext } from '@/apps/sync-engine/config';
 
-export type PersistMoveFileProps = {
+type PersistMoveProps = {
   ctx: CommonContext;
-  uuid: FileUuid;
   parentUuid: FolderUuid;
   path: AbsolutePath;
+  action: 'move' | 'rename';
 };
-export type PersistMoveFolderProps = {
-  ctx: CommonContext;
-  uuid: FolderUuid;
-  parentUuid: FolderUuid;
-  path: AbsolutePath;
-};
+export type PersistMoveFileProps = PersistMoveProps & { uuid: FileUuid };
+export type PersistMoveFolderProps = PersistMoveProps & { uuid: FolderUuid };

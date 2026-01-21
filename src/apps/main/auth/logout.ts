@@ -9,20 +9,18 @@ import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/serv
 import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
-import { createAuthWindow } from '../windows/auth';
 import { setIsLoggedIn } from './handlers';
 
 type Props = {
   ctx: AuthContext;
 };
 
-export async function logout({ ctx }: Props) {
+export function logout({ ctx }: Props) {
   try {
     ctx.abortController.abort();
 
     setTrayStatus('IDLE');
 
-    await createAuthWindow();
     setIsLoggedIn(false);
     closeAuxWindows();
 

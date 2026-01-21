@@ -32,12 +32,6 @@ export class DriveFolder {
   @Column({ nullable: true, type: 'varchar' })
   parentUuid?: string;
 
-  @Column({ nullable: true, type: 'varchar' })
-  bucket?: string;
-
-  @Column({ nullable: false, type: 'int' })
-  userId!: number;
-
   /**
    * v2.5.1 Daniel Jiménez
    * We mark this field as empty to allow the migration to complete.
@@ -53,10 +47,7 @@ export class DriveFolder {
   updatedAt!: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  name!: string;
+  plainName!: string;
 
   @Column({ nullable: false, type: 'varchar' })
   status!: 'EXISTS' | 'TRASHED' | 'DELETED';

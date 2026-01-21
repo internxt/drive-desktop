@@ -23,7 +23,7 @@ describe('replace-file', () => {
   beforeEach(() => {
     props = mockProps<typeof replaceFile>({ path, stats: { size, mtime } });
 
-    uploadMock.mockResolvedValue('contentsId' as ContentsId);
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId });
   });
 
   it('should not persist if the file upload fails', async () => {

@@ -4,7 +4,7 @@ import { errorWrapper } from './error-wrapper';
 import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
 import { getInFlightRequest } from './get-in-flight-request';
-import { DriveServerWipError } from '../out/error.types';
+import { DriveServerWipError } from '../defs';
 
 const MAX_RETRIES = 3;
 

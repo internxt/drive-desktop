@@ -1,4 +1,4 @@
-import { Traverser } from './Traverser';
+import { traverse } from './Traverser';
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -6,29 +6,26 @@ import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-expl
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import * as checkDangledFiles from '@/apps/sync-engine/dangled-files/check-dangled-files';
-import * as loadInMemoryPaths from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 
-describe('Traverser', () => {
-  const loadInMemoryPathsMock = partialSpyOn(loadInMemoryPaths, 'loadInMemoryPaths');
+describe('traverse', () => {
   const deleteItemPlaceholderMock = partialSpyOn(deleteItemPlaceholder, 'deleteItemPlaceholder');
   const updateFilePlaceholderMock = partialSpyOn(FilePlaceholderUpdater, 'update');
   const updateFolderPlaceholderMock = partialSpyOn(FolderPlaceholderUpdater, 'update');
   const checkDangledFilesMock = partialSpyOn(checkDangledFiles, 'checkDangledFiles');
 
-  let props: Parameters<typeof Traverser.run>[0];
+  let props: Parameters<typeof traverse>[0];
 
   beforeEach(() => {
-    loadInMemoryPathsMock.mockResolvedValue({});
-
-    props = mockProps<typeof Traverser.run>({
+    props = mockProps<typeof traverse>({
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
-      items: {
+      fileExplorer: {},
+      database: {
         files: [
-          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'deleted', status: 'DELETED' },
-          { parentUuid: 'root' as FolderUuid, nameWithExtension: 'child1', status: 'EXISTS' },
-          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'trashed', status: 'TRASHED' },
-          { parentUuid: 'parent1' as FolderUuid, nameWithExtension: 'child2', status: 'EXISTS' },
-          { parentUuid: 'parent2' as FolderUuid, nameWithExtension: 'child3', status: 'EXISTS' },
+          { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
+          { parentUuid: 'root' as FolderUuid, name: 'child1', status: 'EXISTS' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'trashed', status: 'TRASHED' },
+          { parentUuid: 'parent1' as FolderUuid, name: 'child2', status: 'EXISTS' },
+          { parentUuid: 'parent2' as FolderUuid, name: 'child3', status: 'EXISTS' },
         ],
         folders: [
           { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
@@ -47,7 +44,7 @@ describe('Traverser', () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValue(false);
     // When
-    await Traverser.run(props);
+    await traverse(props);
     // Then
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
@@ -67,7 +64,7 @@ describe('Traverser', () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     // When
-    await Traverser.run(props);
+    await traverse(props);
     // Then
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
@@ -94,7 +91,7 @@ describe('Traverser', () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValue(true);
     // When
-    await Traverser.run(props);
+    await traverse(props);
     // Then
     calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
@@ -124,7 +121,7 @@ describe('Traverser', () => {
     updateFolderPlaceholderMock.mockResolvedValue(true);
     props.isFirstExecution = true;
     // When
-    await Traverser.run(props);
+    await traverse(props);
     // Then
     calls(checkDangledFilesMock).toMatchObject([
       { file: { absolutePath: '/drive/child1' } },

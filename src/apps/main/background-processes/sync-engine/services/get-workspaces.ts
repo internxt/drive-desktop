@@ -1,9 +1,14 @@
+import { AuthContext } from '@/apps/sync-engine/config';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-export async function getWorkspaces() {
-  const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces();
+type Props = {
+  ctx: AuthContext;
+};
+
+export async function getWorkspaces({ ctx }: Props) {
+  const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces({ ctx });
 
   if (error) return [];
 

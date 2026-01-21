@@ -11,27 +11,29 @@ import { persistMoveFile, persistMoveFolder } from '@/infra/drive-server-wip/out
 type TProps = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  itemName: string;
   item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps) {
+export async function moveItem({ ctx, path, uuid, item, type }: TProps) {
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
-  const { data: parentInfo, error } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
 
-  if (error) throw error;
+  if (!parentInfo) return;
 
   const { uuid: parentUuid } = parentInfo;
 
-  // Neither move nor renamed
-  if (item.parentUuid === parentUuid && itemName === name) return;
+  let action: 'move' | 'rename' | undefined;
+  if (item.parentUuid !== parentUuid) action = 'move';
+  else if (item.name !== name) action = 'rename';
+
+  if (!action) return;
 
   if (type === 'file') {
-    await persistMoveFile({ ctx, uuid, parentUuid, path });
+    await persistMoveFile({ ctx, uuid, parentUuid, path, action });
   } else {
-    await persistMoveFolder({ ctx, uuid, parentUuid, path });
+    await persistMoveFolder({ ctx, uuid, parentUuid, path, action });
   }
 
   await Addon.updateSyncStatus({ path });

@@ -1,11 +1,9 @@
-import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 import { folderRepository } from '../drive-folder';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdateBatch } from './create-or-update-batch';
 
 describe('create-or-update-batch', () => {
   const upsertMock = partialSpyOn(folderRepository, 'upsert');
-  partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const folders = Array.from({ length: 450 }, () => ({}));
 
