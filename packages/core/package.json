@@ -1,0 +1,70 @@
+{
+  "name": "@internxt/drive-desktop-core",
+  "version": "0.1.13",
+  "author": "Internxt <hello@internxt.com>",
+  "license": "MIT",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "start": "nodemon",
+    "init:dev": "npm install && node node_modules/electron/install.js",
+    "========== Code style ==========": "",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier . --check",
+    "format:fix": "prettier . --write",
+    "type-check": "tsc",
+    "find-deadcode": "ts-prune -i index.ts -e",
+    "========== Testing ==========": "",
+    "test": "vitest",
+    "test:once": "npm run test -- --run",
+    "test:one": "npm run test -- related x",
+    "test:cov": "npm run test:once -- --coverage",
+    "========== Other ==========": "",
+    "depcheck": "depcheck"
+  },
+  "devDependencies": {
+    "@tanstack/eslint-plugin-query": "^5.81.2",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^20.19.9",
+    "@types/react": "17.0.38",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "depcheck": "^1.4.7",
+    "electron": "^37.2.3",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.3",
+    "eslint-plugin-sonarjs": "^3.0.5",
+    "eslint-plugin-unicorn": "^56.0.1",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.7.0",
+    "rimraf": "^6.0.1",
+    "ts-essentials": "^10.1.1",
+    "ts-prune": "^0.10.3",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4",
+    "vitest-mock-extended": "^3.1.0"
+  },
+  "dependencies": {
+    "@internxt/sdk": "^1.11.10",
+    "@phosphor-icons/react": "2.0.9",
+    "@tanstack/react-virtual": "^3.13.12",
+    "check-disk-space": "^3.4.0",
+    "electron-log": "^5.4.1",
+    "react": "^17.0.2",
+    "uuid": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18.20.8",
+    "npm": ">=10.0.0"
+  }
+}
