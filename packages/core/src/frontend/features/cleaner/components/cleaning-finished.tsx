@@ -22,7 +22,7 @@ export function CleaningFinished({ deletedFiles, freeSpaceGained, onFinish, useT
           <Sparkle color="#0066ff" weight="fill" size={64} />
         </div>
         <h3 className="text-lg font-semibold">{translate('settings.cleaner.cleaningView.cleaningFinished.title')}</h3>
-        <p className="text-base text-gray-70">{translate('settings.cleaner.cleaningView.cleaningFinished.subtitle')}</p>
+        <p className="text-gray-70 text-base">{translate('settings.cleaner.cleaningView.cleaningFinished.subtitle')}</p>
       </div>
       <CleanedFilesContainer deletedFiles={deletedFiles} freeSpaceGained={freeSpaceGained} useTranslationContext={useTranslationContext} />
       <Button className={'hover:cursor-pointer'} variant={'primary'} size="lg" onClick={onFinish}>

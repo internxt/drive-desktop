@@ -22,7 +22,7 @@ export function LockedState({ useTranslationContext, openUrl }: Readonly<Props>)
       <div className="flex flex-col items-center gap-4 text-center" data-testid="locked-state-content">
         <div className="flex flex-col">
           <p className="font-medium text-gray-100">{translate('settings.antivirus.featureLocked.title')}</p>
-          <p className="text-sm text-gray-80">{translate('settings.antivirus.featureLocked.subtitle')}</p>
+          <p className="text-gray-80 text-sm">{translate('settings.antivirus.featureLocked.subtitle')}</p>
         </div>
         <Button
           onClick={() => {
