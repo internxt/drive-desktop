@@ -18,18 +18,18 @@ export function CleanupConfirmDialog({ isVisible, onConfirm, onCancel, useTransl
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div className="bg-opacity-50 absolute inset-0 bg-black backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
 
       {/* Dialog */}
-      <div className="bg-surface relative mx-4 w-full max-w-md rounded-lg p-6 shadow-xl dark:bg-gray-800">
+      <div className="dark:bg-gray-800 relative mx-4 w-full max-w-md rounded-lg bg-surface p-6 shadow-xl">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="text-gray-900 text-lg font-semibold dark:text-gray-100">
               {translate('settings.cleaner.cleanupConfirmDialogView.title')}
             </h3>
           </div>
-          <button onClick={onCancel} className="text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300">
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             <X />
           </button>
         </div>

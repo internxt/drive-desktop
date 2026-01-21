@@ -12,7 +12,7 @@ export function Checkbox({ disabled = false, checked, label, customClassName = '
   return (
     <label
       className={`group flex items-start space-x-2 text-base leading-5 ${
-        disabled ? 'text-gray-40 cursor-not-allowed' : 'text-gray-100'
+        disabled ? 'cursor-not-allowed text-gray-40' : 'text-gray-100'
       } ${customClassName}`}>
       <div className="relative h-5 w-5">
         <input
@@ -21,8 +21,8 @@ export function Checkbox({ disabled = false, checked, label, customClassName = '
           tabIndex={-1}
           checked={checked}
           disabled={disabled}
-          className={`border-gray-30 h-5 w-5 shrink-0 appearance-none rounded-md border shadow-sm transition-all duration-75 ease-in-out ${
-            disabled ? 'bg-gray-10 border-gray-20 cursor-not-allowed opacity-50' : `cursor-pointer ${checkedClasses}`
+          className={`h-5 w-5 shrink-0 appearance-none rounded-md border border-gray-30 shadow-sm transition-all duration-75 ease-in-out ${
+            disabled ? 'cursor-not-allowed border-gray-20 bg-gray-10 opacity-50' : `cursor-pointer ${checkedClasses}`
           }`}
           onClick={(e) => {
             e.preventDefault();

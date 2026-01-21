@@ -29,12 +29,12 @@ export function SectionDetailHeader({
 }: Readonly<Props>) {
   const { translate } = useTranslationContext();
   return (
-    <div className="dark:bg-gray-5 flex items-center justify-between p-4">
+    <div className="flex items-center justify-between p-4 dark:bg-gray-5">
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1 text-blue-600 hover:cursor-pointer dark:text-blue-400" onClick={onClose} aria-hidden="true">
+        <div className="text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:cursor-pointer" onClick={onClose} aria-hidden="true">
           <CaretDoubleRight color="#0066ff" weight="bold" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{sectionConfig[sectionName].name}</h3>
+        <h3 className="text-gray-900 text-lg font-semibold dark:text-gray-100">{sectionConfig[sectionName].name}</h3>
       </div>
       <Checkbox
         checked={isAllSelected || isPartiallySelected}
