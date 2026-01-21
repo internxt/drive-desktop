@@ -1,4 +1,3 @@
-import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { getRequestKey } from '../../in/get-in-flight-request';
@@ -29,7 +28,7 @@ export async function createFile({ ctx, context }: Props) {
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.POST(endpoint, {
+    ctx.client.POST(endpoint, {
       signal: ctx.abortController.signal,
       body: context.body,
     });

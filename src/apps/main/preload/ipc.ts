@@ -14,12 +14,13 @@ import { openLoginUrl } from '../auth/open-login-url';
 import { deleteBackupsFromDevice } from '../device/service';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
 
-type AsyncMirror<T extends (...args: any[]) => unknown> =
-  Parameters<T> extends [] ? () => ReturnType<T> : (props: Omit<Parameters<T>[0], 'ctx'>) => ReturnType<T>;
-
-type Mirror<T extends (...args: any[]) => unknown> =
-  Parameters<T> extends [] ? () => Promise<ReturnType<T>> : (props: Parameters<T>[0]) => Promise<ReturnType<T>>;
+type OmitCtx<T> = 'ctx' extends keyof T ? Omit<T, 'ctx'> : T;
+type BuildSignature<T extends (...args: any[]) => unknown, R> =
+  Parameters<T> extends [] ? () => R : (props: OmitCtx<Parameters<T>[0]>) => R;
+type AsyncMirror<T extends (...args: any[]) => unknown> = BuildSignature<T, ReturnType<T>>;
+type Mirror<T extends (...args: any[]) => unknown> = BuildSignature<T, Promise<ReturnType<T>>>;
 
 export type FromProcess = {
   getLastBackupProgress: Mirror<typeof getLastBackupProgress>;
@@ -42,6 +43,8 @@ export type FromProcess = {
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
 
   deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
+  backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
+  backupsSetInterval: Mirror<typeof backupsSetInterval>;
 };
 
 export type FromMain = {};

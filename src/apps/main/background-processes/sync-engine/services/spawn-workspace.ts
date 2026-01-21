@@ -44,6 +44,8 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
 
     const syncCtx: SyncContext = {
       abortController: ctx.abortController,
+      bottleneck: ctx.bottleneck,
+      client: ctx.client,
       userUuid: user.uuid,
       mnemonic,
       providerId: workspace.providerId,

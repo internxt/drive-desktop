@@ -1,12 +1,14 @@
 import { electronStore } from '@/apps/main/config';
 import { BackupScheduler } from './BackupScheduler';
-import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as launchBackupProcesses from '../launchBackupProcesses';
 
 describe('backup-scheduler', () => {
   const getMock = partialSpyOn(electronStore, 'get');
   const lanunchBackupProcessesMock = partialSpyOn(launchBackupProcesses, 'launchBackupProcesses');
+
+  const props = mockProps<typeof BackupScheduler.start>({});
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -23,7 +25,7 @@ describe('backup-scheduler', () => {
     // Given
     getMock.mockReturnValueOnce(-1);
     // When
-    BackupScheduler.start();
+    BackupScheduler.start(props);
     // Then
     call(loggerMock.debug).toMatchObject({ msg: 'There is no last backup or interval set' });
   });
@@ -32,7 +34,7 @@ describe('backup-scheduler', () => {
     // Given
     getMock.mockReturnValueOnce(50).mockReturnValueOnce(49);
     // When
-    BackupScheduler.start();
+    BackupScheduler.start(props);
     // Then
     calls(lanunchBackupProcessesMock).toHaveLength(0);
     vi.runAllTimers();
@@ -43,7 +45,7 @@ describe('backup-scheduler', () => {
     // Given
     getMock.mockReturnValueOnce(50).mockReturnValueOnce(100);
     // When
-    BackupScheduler.start();
+    BackupScheduler.start(props);
     // Then
     vi.advanceTimersByTime(49);
     calls(lanunchBackupProcessesMock).toHaveLength(0);

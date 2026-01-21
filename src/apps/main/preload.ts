@@ -83,12 +83,6 @@ const api = {
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
   },
-  setBackupsInterval(value: number): Promise<void> {
-    return ipcRenderer.invoke('set-backups-interval', value);
-  },
-  startBackupsProcess() {
-    ipcRenderer.send('start-backups-process');
-  },
   stopBackupsProcess() {
     ipcRenderer.send('stop-backups-process');
   },
@@ -221,6 +215,8 @@ const api = {
   syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
 
   deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
+  backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke('backupsSetInterval', props),
+  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke('backupsStartProcess', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

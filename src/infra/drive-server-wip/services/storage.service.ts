@@ -1,4 +1,4 @@
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
@@ -19,7 +19,7 @@ async function deleteFileByUuid({ ctx, context }: { ctx: CommonContext; context:
 
   const promiseFn = () =>
     noContentWrapper({
-      request: client.POST(endpoint, {
+      request: ctx.client.POST(endpoint, {
         signal: ctx.abortController.signal,
         headers: getWorkspaceHeader({ ctx }),
         body: { items: [{ type: 'file', uuid: context.uuid }] },
@@ -40,7 +40,7 @@ async function deleteFolderByUuid({ ctx, context }: { ctx: AuthContext; context:
 
   const promiseFn = () =>
     noContentWrapper({
-      request: client.POST(endpoint, {
+      request: ctx.client.POST(endpoint, {
         signal: ctx.abortController.signal,
         headers: getWorkspaceHeader({ ctx }),
         body: { items: [{ type: 'folder', uuid: context.uuid }] },

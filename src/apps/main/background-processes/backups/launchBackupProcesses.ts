@@ -11,8 +11,13 @@ import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { status } from './BackupsProcessStatus/BackupsProcessStatus';
 import electronStore from '../../config';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
+import { AuthContext } from '@/apps/sync-engine/config';
 
-export async function launchBackupProcesses(): Promise<void> {
+type Props = {
+  ctx: AuthContext;
+};
+
+export async function launchBackupProcesses({ ctx }: Props) {
   const user = getUser();
 
   if (!user) return;
@@ -31,6 +36,10 @@ export async function launchBackupProcesses(): Promise<void> {
   }
 
   const abortController = new AbortController();
+
+  ctx.abortController.signal.addEventListener('abort', () => {
+    abortController.abort();
+  });
 
   ipcMain.once('stop-backups-process', () => {
     logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
@@ -63,6 +72,8 @@ export async function launchBackupProcesses(): Promise<void> {
     const { environment } = buildUserEnvironment({ user, type: 'backups' });
     const context: BackupsContext = {
       ...backupInfo,
+      bottleneck: ctx.bottleneck,
+      client: ctx.client,
       userUuid: user.uuid,
       bucket: user.backupsBucket,
       workspaceId: '',
@@ -87,7 +98,7 @@ export async function launchBackupProcesses(): Promise<void> {
 
   tracker.reset();
   electronStore.set('lastBackup', Date.now());
-  BackupScheduler.start();
+  BackupScheduler.start({ ctx });
 
   ipcMain.removeAllListeners('stop-backups-process');
 

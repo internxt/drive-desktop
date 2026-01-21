@@ -1,6 +1,12 @@
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { DriveServerWipError } from '../defs';
-import { fetchExceptionSchema, isAbortError, isNetworkConnectivityError, networkErrorIssue } from './helpers/error-helpers';
+import {
+  fetchExceptionSchema,
+  isAbortError,
+  isBottleneckStop,
+  isNetworkConnectivityError,
+  networkErrorIssue,
+} from './helpers/error-helpers';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 
 type TProps = {
@@ -10,7 +16,7 @@ type TProps = {
 };
 
 export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
-  const { excMessage, isAbort, isNetwork } = parseException({ exc });
+  const { type, excMessage } = parseException({ exc });
 
   const loggedError = logger.error({
     ...loggerBody,
@@ -19,28 +25,27 @@ export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
     exc: excMessage,
   });
 
-  switch (true) {
-    case isNetwork:
+  switch (type) {
+    case 'network':
       addGeneralIssue(networkErrorIssue);
       return new DriveServerWipError('NETWORK', loggedError);
-    case isAbort:
+    case 'abort':
       return new DriveServerWipError('ABORTED', loggedError);
-    default:
+    case 'bottleneck':
+      return new DriveServerWipError('ABORTED', loggedError);
+    case 'unknown':
       return new DriveServerWipError('UNKNOWN', loggedError);
   }
 }
 
 function parseException({ exc }: { exc: unknown }) {
-  const isAbort = isAbortError({ exc });
-  const isNetwork = isNetworkConnectivityError({ exc });
-  const res = { isAbort, isNetwork };
-
-  switch (true) {
-    case isNetwork:
-      return { ...res, excMessage: fetchExceptionSchema.safeParse(exc).data };
-    case isAbort:
-      return { ...res, excMessage: 'Aborted' };
-    default:
-      return { ...res, excMessage: exc };
+  if (isNetworkConnectivityError({ exc })) {
+    return { type: 'network' as const, excMessage: fetchExceptionSchema.safeParse(exc).data };
+  } else if (isAbortError({ exc })) {
+    return { type: 'abort' as const, excMessage: 'Aborted' };
+  } else if (isBottleneckStop({ error: exc })) {
+    return { type: 'bottleneck' as const, excMessage: 'Bottleneck stopped' };
+  } else {
+    return { type: 'unknown' as const, excMessage: exc };
   }
 }

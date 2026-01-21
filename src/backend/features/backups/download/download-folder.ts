@@ -8,6 +8,7 @@ import { broadcastToWindows } from '@/apps/main/windows';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import Bottleneck from 'bottleneck';
 import { mkdir } from 'node:fs/promises';
+import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type Props = {
   user: User;
@@ -59,7 +60,7 @@ export async function downloadFolder({ user, device, rootUuid, rootPath, abortCo
   try {
     await Promise.all(promises);
   } catch (error) {
-    if (error instanceof Bottleneck.BottleneckError && error.message === 'This limiter has been stopped.') {
+    if (isBottleneckStop({ error })) {
       for (const path of runningFiles) {
         contentsDownloader.forceStop({ path });
       }
