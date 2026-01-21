@@ -6,7 +6,6 @@
 /.vscode
 /build
 /clamAV/*
-/CLAUDE.md
 /coverage
 /dist
 /node_modules
