@@ -36,6 +36,7 @@ jobs:
       - name: Run build wrapper
         run: build-wrapper-win-x86-64.exe --out-dir build_wrapper_output_directory cmd /c "node-gyp configure build"
 
+      # The sonar analysis does not work because the sonar project points to the node-win repo so it cannot find the PR
       # - name: SonarQube Scan
       #   uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
       #   env:
