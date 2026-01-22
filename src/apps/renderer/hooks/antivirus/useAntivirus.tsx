@@ -42,13 +42,13 @@ export const useAntivirus = (): UseAntivirusReturn => {
   }, []);
 
   useEffect(() => {
-    isUserElegible();
+    void isUserElegible();
   }, []);
 
   async function isUserElegible() {
     try {
       setView('loading');
-      const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
+      const isAntivirusAvailable = await globalThis.window.electron.antivirus.isAvailable();
 
       if (!isAntivirusAvailable) {
         setView('locked');
