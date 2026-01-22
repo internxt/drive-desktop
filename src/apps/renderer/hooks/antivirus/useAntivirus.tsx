@@ -16,8 +16,8 @@ export type UseAntivirusReturn = {
   showErrorState: boolean;
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
-  onCancelScan: () => void;
-  isUserElegible: () => void;
+  onCancelScan: () => Promise<void>;
+  isUserElegible: () => Promise<void>;
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
 };
@@ -31,13 +31,13 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [isScanning, setIsScanning] = useState(false);
   const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
-  const [countFiles, setIsCountFiles] = useState(true);
+  const [countFiles, setCountFiles] = useState(true);
   const [view, setView] = useState<Views>('locked');
 
   useEffect(() => {
-    window.electron.antivirus.onScanProgress(handleProgress);
+    globalThis.window.electron.antivirus.onScanProgress(handleProgress);
     return () => {
-      window.electron.antivirus.removeScanProgressListener();
+      globalThis.window.electron.antivirus.removeScanProgressListener();
     };
   }, []);
 
@@ -45,7 +45,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isUserElegible();
   }, []);
 
-  const isUserElegible = async () => {
+  async function isUserElegible() {
     try {
       setView('loading');
       const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
@@ -61,18 +61,18 @@ export const useAntivirus = (): UseAntivirusReturn => {
       setIsAntivirusAvailable(false);
       setView('locked');
     }
-  };
+  }
 
-  const handleProgress = (progress: {
+  function handleProgress(progress: {
     scanId: string;
     currentScanPath: string;
     infectedFiles: string[];
     progress: number;
     totalScannedFiles: number;
     done?: boolean;
-  }) => {
+  }) {
     if (!progress) return;
-    setIsCountFiles(false);
+    setCountFiles(false);
     setIsScanning(true);
 
     setCurrentScanPath(progress.currentScanPath);
@@ -84,9 +84,9 @@ export const useAntivirus = (): UseAntivirusReturn => {
       setIsScanning(false);
       setIsScanCompleted(true);
     }
-  };
+  }
 
-  const resetStates = () => {
+  function resetStates() {
     setCurrentScanPath('');
     setCountScannedFiles(0);
     setProgressRatio(0);
@@ -94,23 +94,23 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setIsScanning(false);
     setIsScanCompleted(false);
     setShowErrorState(false);
-    setIsCountFiles(true);
-  };
+    setCountFiles(true);
+  }
 
-  const onScanAgainButtonClicked = () => {
+  function onScanAgainButtonClicked() {
     setView('chooseItems');
     resetStates();
-  };
+  }
 
-  const onSelectItemsButtonClicked = async (scanType: ScanType) => {
+  async function onSelectItemsButtonClicked(scanType: ScanType) {
     const getFiles = scanType === 'files';
-    const items = await window.electron.antivirus.addItemsToScan(getFiles);
+    const items = await globalThis.window.electron.antivirus.addItemsToScan(getFiles);
     if (!items || items.length === 0) return;
 
     return items;
-  };
+  }
 
-  const onCustomScanButtonClicked = async (scanType: ScanType) => {
+  async function onCustomScanButtonClicked(scanType: ScanType) {
     resetStates();
 
     const items = await onSelectItemsButtonClicked(scanType);
@@ -118,49 +118,49 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setView('scan');
 
     try {
-      await window.electron.antivirus.scanItems(items);
+      await globalThis.window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
     } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
     }
-  };
+  }
 
-  const onScanUserSystemButtonClicked = async () => {
+  async function onScanUserSystemButtonClicked() {
     resetStates();
 
     setView('scan');
 
     try {
-      await window.electron.antivirus.scanItems();
+      await globalThis.window.electron.antivirus.scanItems();
       setIsScanCompleted(true);
     } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
     }
-  };
+  }
 
-  const onRemoveInfectedItems = async (infectedFiles: string[]) => {
+  async function onRemoveInfectedItems(infectedFiles: string[]) {
     setView('chooseItems');
     resetStates();
     try {
-      await window.electron.antivirus.removeInfectedFiles(infectedFiles);
+      await globalThis.window.electron.antivirus.removeInfectedFiles(infectedFiles);
     } catch (error) {
       console.log('ERROR WHILE REMOVING INFECTED ITEMS:', error);
     }
-  };
+  }
 
-  const onCancelScan = async () => {
+  async function onCancelScan() {
     try {
       resetStates();
-      await window.electron.antivirus.cancelScan();
+      await globalThis.window.electron.antivirus.cancelScan();
       setView('chooseItems');
     } catch (error) {
       console.log('ERROR CANCELING SCAN: ', error);
     }
-  };
+  }
 
   return {
     infectedFiles,
