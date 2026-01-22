@@ -1,6 +1,7 @@
 import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 import { AuthLoginResponseViewModel } from '../../infra/drive-server/services/auth/auth.types';
 import { CleanerReport } from '../../backend/features/cleaner/cleaner.types';
+import { BackupErrorRecord } from '../../backend/features/backup/backup.types';
 
 declare interface Window {
   electron: {
@@ -88,21 +89,17 @@ declare interface Window {
       import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
     >;
 
-    getBackupFatalIssue(id: number): Promise<import('../../shared/issues/SyncErrorCause').SyncError>;
-
     onBackupsStatusChanged(
       func: (value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus) => void,
     ): () => void;
 
-    onBackupProgress(
-      func: (value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress) => void,
-    ): () => void;
+    onBackupProgress(func: (value: number) => void): () => void;
 
     onBackupDownloadProgress(func: (value: { id: string; progress: number }) => void): () => void;
 
-    getBackupFatalErrors(): Promise<
-      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
-    >;
+    getBackupFatalErrors(): Promise<Array<BackupErrorRecord>>;
+
+    getBackupErrorByFolder(folderId: number): Promise<BackupErrorRecord | undefined>;
 
     getVirtualDriveRoot(): Promise<string>;
 
@@ -142,17 +139,11 @@ declare interface Window {
 
     getLastBackupTimestamp: () => Promise<number>;
 
-    getLastBackupExitReason: () => Promise<
-      import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
-    >;
+    getLastBackupHadIssues: () => Promise<boolean>;
 
     deleteBackupError(folderId: number): Promise<void>;
 
-    onBackupFatalErrorsChanged(
-      fn: (
-        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection,
-      ) => void,
-    ): () => void;
+    onBackupFatalErrorsChanged(fn: (backupErrors: Array<BackupErrorRecord>) => void): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 

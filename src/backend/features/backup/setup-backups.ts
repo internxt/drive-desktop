@@ -1,7 +1,6 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { userHasBackupsEnabled } from './utils/user-has-backups-enabled';
-import { backupErrorsTracker, tracker, status, backupManager } from '.';
-import { registerBackupProcessTrackerIpcHandlers } from './ipc/register-backup-process-tracker-ipc-handlers';
+import { backupErrorsTracker, status, backupManager } from '.';
 import { registerBackupConfigurationIpcHandlers } from './ipc/register-backup-configuration-ipc-handlers';
 import { registerBackupFatalErrorsIpcHandler } from './ipc/register-backup-fatal-errors-ipc-handler';
 import { registerBackupProcessStatusIpcHandler } from './ipc/register-backup-process-status-ipc-handler';
@@ -17,7 +16,6 @@ export async function setUpBackups() {
     return;
   }
 
-  registerBackupProcessTrackerIpcHandlers(tracker);
   registerBackupFatalErrorsIpcHandler(backupErrorsTracker);
   registerBackupProcessStatusIpcHandler(status);
   registerBackupConfigurationIpcHandlers(backupManager);

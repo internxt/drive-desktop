@@ -23,7 +23,7 @@ import { RetryHandler } from '../shared/retry/RetryHandler';
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 import { UsageModule } from '../../backend/features/usage/usage.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { BackupProgressTracker } from '../../backend/features/backup/backup-progress-tracker';
 import { RetryError } from '../shared/retry/RetryError';
 import { Either, left, right } from '../../context/shared/domain/Either';
 
@@ -43,7 +43,7 @@ export class BackupService {
   async run(
     info: BackupInfo,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ): Promise<DriveDesktopError | undefined> {
     logger.debug({ tag: 'BACKUPS', msg: 'Starting backup for:', pathname: info.pathname });
 
@@ -87,11 +87,8 @@ export class BackupService {
       logger.debug({ tag: 'BACKUPS', msg: 'Space check completed' });
 
       const itemsAlreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
-
-      tracker.initializeCurrentBackup(
-        filesDiff.total + foldersDiff.total,
-        tracker.getCurrentProcessed() + itemsAlreadyBacked,
-      );
+      tracker.addToTotal(filesDiff.total + foldersDiff.total);
+      tracker.incrementProcessed(itemsAlreadyBacked);
 
       logger.debug({ tag: 'BACKUPS', msg: 'Starting folder backup' });
       await this.backupFolders(foldersDiff, local, remote, tracker);
@@ -119,7 +116,7 @@ export class BackupService {
   async runWithRetry(
     info: BackupInfo,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ): Promise<Either<RetryError | DriveDesktopError, undefined>> {
     const options: RetryOptions = {
       maxRetries: 3,
@@ -167,11 +164,10 @@ export class BackupService {
     }
   }
 
-  private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, tracker: BackupsProcessTracker) {
+  private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, tracker: BackupProgressTracker) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backing folders' });
 
     logger.debug({ tag: 'BACKUPS', msg: 'Folders added', count: diff.added.length });
-
     for (const localFolder of diff.added) {
       const remoteParentPath = relative(local.root.path, localFolder.basedir());
 
@@ -191,7 +187,7 @@ export class BackupService {
       );
 
       remote.addFolder(parent, folder);
-      tracker.updateCurrentProcessed(tracker.getCurrentProcessed() + 1);
+      tracker.incrementProcessed(1);
     }
   }
 
@@ -200,7 +196,7 @@ export class BackupService {
     local: LocalTree,
     remote: RemoteTree,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backing files' });
 
@@ -221,7 +217,7 @@ export class BackupService {
     added: Array<LocalFile>,
     tree: RemoteTree,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ): Promise<void> {
     const batches = AddedFilesBatchCreator.run(added);
 
@@ -231,7 +227,7 @@ export class BackupService {
       }
       // eslint-disable-next-line no-await-in-loop
       await this.fileBatchUploader.run(localRootPath, tree, batch, stopController.signal);
-      tracker.updateCurrentProcessed(tracker.getCurrentProcessed() + batch.length);
+      tracker.incrementProcessed(batch.length);
     }
   }
 
@@ -240,7 +236,7 @@ export class BackupService {
     localTree: LocalTree,
     remoteTree: RemoteTree,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ): Promise<void> {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
@@ -251,15 +247,14 @@ export class BackupService {
       }
       // eslint-disable-next-line no-await-in-loop
       await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), stopController.signal);
-
-      tracker.updateCurrentProcessed(tracker.getCurrentProcessed() + batch.size);
+      tracker.incrementProcessed(batch.size);
     }
   }
 
   private async deleteRemoteFiles(
     deleted: Array<File>,
     stopController: BackupsStopController,
-    tracker: BackupsProcessTracker,
+    tracker: BackupProgressTracker,
   ): Promise<void> {
     for (const file of deleted) {
       if (stopController.signal.aborted) {
@@ -269,6 +264,6 @@ export class BackupService {
       // eslint-disable-next-line no-await-in-loop
       await this.remoteFileDeleter.run(file);
     }
-    tracker.updateCurrentProcessed(tracker.getCurrentProcessed() + deleted.length);
+    tracker.incrementProcessed(deleted.length);
   }
 }

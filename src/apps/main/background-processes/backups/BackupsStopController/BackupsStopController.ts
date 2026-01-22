@@ -1,4 +1,4 @@
-import { ProcessFatalErrorName } from '../BackupFatalErrors/BackupFatalErrors';
+import { SyncError } from '../../../../../shared/issues/SyncErrorCause';
 
 export type ForcedByUser = 'forced-by-user';
 export type BackupCompleted = 'backup-completed';
@@ -9,7 +9,7 @@ export type StopReason = ForcedByUser | BackupCompleted | BackupFailed;
 type StopReasonPayload = {
   'forced-by-user': (payload: undefined) => void;
   'backup-completed': (payload: undefined) => void;
-  failed: ({ errorName }: { errorName: ProcessFatalErrorName }) => void;
+  failed: ({ errorName }: { errorName: SyncError }) => void;
 };
 
 type StopReasonPayloadHandlers = {
@@ -60,15 +60,6 @@ export class BackupsStopController {
     this.controller.abort({ reason });
   }
 
-  failed(cause: ProcessFatalErrorName) {
-    this.stopReason = 'failed';
-
-    this.controller.abort({
-      reason: 'failed',
-      payload: { errorName: cause },
-    });
-  }
-
   private resetHandlers() {
     this.end = [];
     this.handlers = this.baseEmptyHandler;
@@ -78,7 +69,7 @@ export class BackupsStopController {
     this.abortListener = () => {
       const { reason, payload } = this.controller.signal.reason as {
         reason: StopReason;
-        payload: { errorName: ProcessFatalErrorName };
+        payload: { errorName: SyncError };
       };
 
       const handlersForReason = this.handlers[reason];

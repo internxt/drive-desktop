@@ -2,11 +2,8 @@ import { DeviceModule } from './../../../../../backend/features/device/device.mo
 import { app } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
-type OnIntervalChangedListener = (interval: number) => void;
 
 export class BackupConfiguration {
-  public onBackupIntervalChanged: OnIntervalChangedListener | undefined = undefined;
-
   get backupInterval(): number {
     return configStore.get('backupInterval');
   }
@@ -49,14 +46,6 @@ export class BackupConfiguration {
 
   backupsDiscovered(): void {
     configStore.set('discoveredBackup', Date.now());
-  }
-
-  get shouldFixBackupDanglingFiles(): boolean {
-    return configStore.get('shouldFixBackupDanglingFiles');
-  }
-
-  set shouldFixBackupDanglingFiles(value: boolean) {
-    configStore.set('shouldFixBackupDanglingFiles', value);
   }
 
   map(backups: Array<BackupInfo>, deviceBucket: string): Array<BackupInfo> {

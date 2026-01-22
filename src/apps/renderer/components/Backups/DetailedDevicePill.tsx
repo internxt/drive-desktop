@@ -32,7 +32,7 @@ function DownloadingBackup() {
 
 export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { usage } = useUsage();
-  const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
+  const { percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
   const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } =
     useContext(BackupContext);
@@ -51,15 +51,15 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
         <div className="grow">
           {selected?.name}
           <br />
-          {selected === current && thereIsProgress ? <BackingUp /> : <LastBackupMade />}
+          {selected === current && backupStatus === 'RUNNING' ? <BackingUp /> : <LastBackupMade />}
         </div>
-        {selected === current && thereIsProgress ? (
+        {selected === current && backupStatus === 'RUNNING' ? (
           <BackupsProgressPercentage progress={percentualProgress} />
         ) : (
           <SizePill size={usage?.limitInBytes ?? 0} />
         )}
       </div>
-      {selected === current && thereIsProgress && <BackupsProgressBar progress={percentualProgress} />}
+      {selected === current && backupStatus === 'RUNNING' && <BackupsProgressBar progress={percentualProgress} />}
       {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}
 
       {thereIsDownloadProgress && (

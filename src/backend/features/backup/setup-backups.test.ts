@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setUpBackups } from './setup-backups';
 import { userHasBackupsEnabled } from './utils/user-has-backups-enabled';
 import { backupErrorsTracker, tracker, status, backupManager } from '.';
-import { registerBackupProcessTrackerIpcHandlers } from './ipc/register-backup-process-tracker-ipc-handlers';
 import { registerBackupConfigurationIpcHandlers } from './ipc/register-backup-configuration-ipc-handlers';
 import { registerBackupFatalErrorsIpcHandler } from './ipc/register-backup-fatal-errors-ipc-handler';
 import { registerBackupProcessStatusIpcHandler } from './ipc/register-backup-process-status-ipc-handler';
@@ -22,10 +21,6 @@ vi.mock('.', () => ({
     startScheduler: vi.fn(),
     isScheduled: vi.fn(),
   },
-}));
-
-vi.mock('./ipc/register-backup-process-tracker-ipc-handlers', () => ({
-  registerBackupProcessTrackerIpcHandlers: vi.fn(),
 }));
 
 vi.mock('./ipc/register-backup-configuration-ipc-handlers', () => ({
@@ -62,7 +57,6 @@ describe('setupBackups', () => {
       tag: 'BACKUPS',
       msg: 'User does not have the backup feature available',
     });
-    expect(registerBackupProcessTrackerIpcHandlers).not.toHaveBeenCalled();
     expect(registerBackupFatalErrorsIpcHandler).not.toHaveBeenCalled();
     expect(registerBackupProcessStatusIpcHandler).not.toHaveBeenCalled();
     expect(registerBackupConfigurationIpcHandlers).not.toHaveBeenCalled();
@@ -86,7 +80,6 @@ describe('setupBackups', () => {
 
     await setUpBackups();
 
-    expect(registerBackupProcessTrackerIpcHandlers).toHaveBeenCalledWith(tracker);
     expect(registerBackupFatalErrorsIpcHandler).toHaveBeenCalledWith(backupErrorsTracker);
     expect(registerBackupProcessStatusIpcHandler).toHaveBeenCalledWith(status);
     expect(registerBackupConfigurationIpcHandlers).toHaveBeenCalledWith(backupManager);

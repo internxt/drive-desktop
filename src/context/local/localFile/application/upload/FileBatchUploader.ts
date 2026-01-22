@@ -22,6 +22,9 @@ export class FileBatchUploader {
     signal: AbortSignal,
   ): Promise<void> {
     for (const localFile of batch) {
+      const remotePath = relative(localRootPath, localFile.path);
+      const parent = remoteTree.getParent(remotePath);
+
       let uploadEither;
       try {
         // eslint-disable-next-line no-await-in-loop
@@ -38,15 +41,11 @@ export class FileBatchUploader {
         if (isFatalError(error.cause)) {
           throw error;
         }
-        backupErrorsTracker.add({ name: localFile.nameWithExtension(), error: error.cause });
+        backupErrorsTracker.add(parent.id, { name: localFile.nameWithExtension(), error: error.cause });
         continue;
       }
 
       const contentsId = uploadEither.getRight();
-
-      const remotePath = relative(localRootPath, localFile.path);
-
-      const parent = remoteTree.getParent(remotePath);
 
       // eslint-disable-next-line no-await-in-loop
       const either = await this.creator.run(contentsId, localFile.path, localFile.size, parent.id, parent.uuid);
@@ -65,7 +64,7 @@ export class FileBatchUploader {
         }
 
         if (error.cause === 'BAD_RESPONSE') {
-          backupErrorsTracker.add({ name: localFile.nameWithExtension(), error: error.cause });
+          backupErrorsTracker.add(parent.id, { name: localFile.nameWithExtension(), error: error.cause });
           continue;
         }
 
