@@ -1,4 +1,3 @@
-import { trackError, trackEvent } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { DownloadProgressTracker } from '../../domain/DownloadProgressTracker';
@@ -9,13 +8,6 @@ import { Service } from 'diod';
 export class MainProcessDownloadProgressTracker extends SyncMessenger implements DownloadProgressTracker {
   async downloadStarted(name: string, extension: string, size: number): Promise<void> {
     setTrayStatus('SYNCING');
-
-    trackEvent('Download Started', {
-      file_name: name,
-      file_extension: extension,
-      file_size: size,
-      elapsedTimeMs: 0,
-    });
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
@@ -48,13 +40,6 @@ export class MainProcessDownloadProgressTracker extends SyncMessenger implements
 
     setTrayStatus('IDLE');
 
-    trackEvent('Download Completed', {
-      file_name: name,
-      file_extension: extension,
-      file_size: size,
-      elapsedTimeMs: progress.elapsedTime,
-    });
-
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADED',
       name: nameWithExtension,
@@ -63,14 +48,6 @@ export class MainProcessDownloadProgressTracker extends SyncMessenger implements
 
   async error(name: string, extension: string): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);
-
-    // TODO: finish this
-    trackError('Download Error', new Error(), {
-      itemType: 'File',
-      root: '',
-      from: name,
-      action: 'Upload',
-    });
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOAD_ERROR',

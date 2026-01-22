@@ -174,20 +174,6 @@ export default function Header() {
                     </div>
                   )}
                 </Menu.Item>
-                {/*<Menu.Item>
-                  {({ active }) => (
-                    <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={() => window.electron.openFeedbackWindow()}
-                      >
-                        <span>
-                          {translate('widget.header.dropdown.send-feedback')}
-                        </span>
-                      </DropdownItem>
-                    </div>
-                  )}
-                </Menu.Item>*/}
                 <Menu.Item>
                   {({ active }) => (
                     <div>

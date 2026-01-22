@@ -43,8 +43,6 @@ jobs:
           echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
           echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
           echo "LOCK_REFRESH_INTERVAL=20000" >> .env
-          echo "RUDDERSTACK_KEY=${{ secrets.RUDDERSTACK_KEY }}" >> .env
-          echo "RUDDERSTACK_DATA_PLANE_URL=${{ secrets.RUDDERSTACK_DATA_PLANE_URL }}" >> .env
 
       - name: Build app
         run: npm run build

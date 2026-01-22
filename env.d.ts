@@ -13,8 +13,6 @@ declare global {
       platform: string;
       NOTIFICATIONS_URL: string;
       LOCK_REFRESH_INTERVAL: string;
-      RUDDERSTACK_KEY: string;
-      RUDDERSTACK_DATA_PLANE_URL: string;
       DRIVE_API_URL: string;
     }
   }

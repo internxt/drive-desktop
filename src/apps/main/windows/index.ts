@@ -2,10 +2,8 @@ import { BrowserWindow } from 'electron';
 
 import eventBus from '../event-bus';
 import { getOnboardingWindow } from './onboarding';
-import { getMigrationWindow } from './migration';
 import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
-import { getFeedbackWindow } from './feedback';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { DriveOperationInfo } from '../../shared/types';
@@ -14,21 +12,13 @@ function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
   getOnboardingWindow()?.close();
-  getMigrationWindow()?.close();
 }
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
 eventBus.on('USER_WAS_UNAUTHORIZED', closeAuxWindows);
 
 export function broadcastToWindows(eventName: string, data: any) {
-  const renderers = [
-    getWidget(),
-    getProcessIssuesWindow(),
-    getSettingsWindow(),
-    getOnboardingWindow(),
-    getMigrationWindow(),
-    getFeedbackWindow(),
-  ];
+  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow()];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));
 }

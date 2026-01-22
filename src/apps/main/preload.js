@@ -32,9 +32,6 @@ contextBridge.exposeInMainWorld('electron', {
   onUserLoggedInChanged(func) {
     return ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
-  userLogginFailed(email) {
-    ipcRenderer.send('USER_LOGIN_FAILED', email);
-  },
   logout() {
     return ipcRenderer.send('user-logged-out');
   },
@@ -152,14 +149,6 @@ contextBridge.exposeInMainWorld('electron', {
   openVirtualDrive() {
     return ipcRenderer.invoke('open-virtual-drive');
   },
-  moveSyncFolderToDesktop() {
-    return ipcRenderer.invoke('move-sync-folder-to-desktop');
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder() {
-    return ipcRenderer.invoke('open-migration-failed-folder');
-  },
   onBackupsStatusChanged(func) {
     const eventName = 'backups-status-changed';
     const callback = (_, v) => func(v);
@@ -268,9 +257,6 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  startMigration() {
-    return ipcRenderer.invoke('open-migration-window');
-  },
   getUsage() {
     return ipcRenderer.invoke('get-usage');
   },
@@ -282,12 +268,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   addFakeIssues(errorsName, process) {
     return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
-  },
-  sendFeedback(feedback) {
-    return ipcRenderer.invoke('send-feedback', feedback);
-  },
-  openFeedbackWindow() {
-    return ipcRenderer.invoke('open-feedback-window');
   },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';

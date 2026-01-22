@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
 import { getWidget } from '../windows/widget';
 import { createTokenScheduleWithRetry } from './refresh-token/create-token-schedule-with-retry';
@@ -60,7 +59,6 @@ ipcMain.on('user-logged-out', () => {
 eventBus.on('APP_IS_READY', async (): Promise<void> => {
   if (isLoggedIn) {
     encryptToken();
-    applicationOpened();
     await createTokenScheduleWithRetry();
     eventBus.emit('USER_LOGGED_IN');
   }

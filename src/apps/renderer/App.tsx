@@ -9,8 +9,6 @@ import Onboarding from './pages/Onboarding';
 import IssuesPage from './pages/Issues/IssuesPage';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
-import Migration from './pages/Migration';
-import Feedback from './pages/Feedback';
 import { useBackupNotifications } from './hooks/useBackupNotifications';
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -61,8 +59,6 @@ export default function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/process-issues" element={<IssuesPage />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/migration" element={<Migration />} />
-                <Route path="/feedback" element={<Feedback />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/" element={<Widget />} />
               </Routes>

@@ -1,4 +1,3 @@
-import { trackVirtualDriveError } from '../../../../../apps/main/analytics/service';
 import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
 import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { virtualDriveUpdate } from '../../../../../apps/main/windows';
@@ -54,8 +53,6 @@ export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
 
   async issue(issue: VirtualDriveFolderIssue): Promise<void> {
     setTrayStatus('ALERT');
-
-    trackVirtualDriveError(issue);
 
     addVirtualDriveIssue(issue);
   }

@@ -10,7 +10,6 @@ export class AuthorizedHttpClient {
   constructor(
     private readonly headersProvider: HeadersProvider,
     private readonly unauthorizedNotifier: UnauthorizedNotifier,
-    private readonly syncBlockedTracker: SyncBlockedTracker,
   ) {
     this.client = axios.create();
 
@@ -25,10 +24,6 @@ export class AuthorizedHttpClient {
     if (error?.response?.status === 401) {
       logger.warn({ msg: '[AUTH] Request unauthorized', url: error.config?.url });
       if (this.unauthorizedNotifier) this.unauthorizedNotifier();
-    }
-
-    if (error?.response?.status !== undefined && error?.response?.status >= 500) {
-      this.syncBlockedTracker();
     }
 
     // Prevent the token from being displayed in the logs
