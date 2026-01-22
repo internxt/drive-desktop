@@ -17,7 +17,6 @@ import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 import { DiffFilesCalculatorService } from './diff/DiffFilesCalculatorService';
 import { UsageModule } from '../../backend/features/usage/usage.module';
 import { FolderMother } from '../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
-import { BackupsStopController } from '../main/background-processes/backups/BackupsStopController/BackupsStopController';
 import { BackupProgressTracker } from '../../backend/features/backup/backup-progress-tracker';
 
 // Mock the UsageModule
@@ -44,7 +43,7 @@ describe('BackupService', () => {
   let simpleFolderCreator: SimpleFolderCreator;
   let backupsDanglingFilesService: BackupsDanglingFilesService;
   let mockValidateSpace: Mock;
-  let stopController: BackupsStopController;
+  let abortController: AbortController;
   let tracker: BackupProgressTracker;
 
   beforeEach(() => {
@@ -58,7 +57,7 @@ describe('BackupService', () => {
     tracker = mockDeep<BackupProgressTracker>();
 
     mockValidateSpace = UsageModule.validateSpace as Mock;
-    stopController = new BackupsStopController();
+    abortController = new AbortController();
 
     // Setup default mock implementations
     vi.mocked(simpleFolderCreator.run).mockResolvedValue(FolderMother.any());
@@ -92,7 +91,7 @@ describe('BackupService', () => {
     vi.mocked(remoteTreeBuilder.run).mockResolvedValueOnce(remoteTree);
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     expect(result).toBeUndefined();
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
@@ -114,7 +113,7 @@ describe('BackupService', () => {
 
     vi.mocked(localTreeBuilder.run).mockResolvedValueOnce(left(error));
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     expect(result).toBe(error);
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
@@ -135,7 +134,7 @@ describe('BackupService', () => {
     vi.mocked(localTreeBuilder.run).mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
     vi.mocked(remoteTreeBuilder.run).mockResolvedValueOnce(left(error) as unknown as RemoteTree);
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     expect(result).toStrictEqual(new DriveDesktopError('UNKNOWN', 'An unknown error occurred'));
     expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId, info.folderUuid);
@@ -155,7 +154,7 @@ describe('BackupService', () => {
     (remoteTreeBuilder.run as Mock).mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: false } });
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     expect(result).toBeDefined();
   });
@@ -174,7 +173,7 @@ describe('BackupService', () => {
       throw new Error('Unexpected error');
     });
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     expect(result).toBeInstanceOf(DriveDesktopError);
     expect(result?.message).toBe('An unknown error occurred');
@@ -214,7 +213,7 @@ describe('BackupService', () => {
     const originalCalculate = DiffFilesCalculatorService.calculate;
     DiffFilesCalculatorService.calculate = vi.fn(() => fakeDiff);
 
-    const result = await backupService.run(info, stopController, tracker);
+    const result = await backupService.run(info, abortController.signal, tracker);
 
     DiffFilesCalculatorService.calculate = originalCalculate;
 
@@ -224,7 +223,7 @@ describe('BackupService', () => {
       localTree.root,
       remoteTree,
       [danglingFile],
-      stopController.signal,
+      abortController.signal,
     );
   });
 });

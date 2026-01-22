@@ -3,15 +3,15 @@ import { BackupErrorsTracker } from './backup-errors-tracker';
 import { BackupScheduler } from '../../../apps/main/background-processes/backups/BackupScheduler/BackupScheduler';
 import { BackupsProcessStatus } from '../../../apps/main/background-processes/backups/BackupsProcessStatus/BackupsProcessStatus';
 import { BackupProgressTracker } from './backup-progress-tracker';
-import { BackupsStopController } from '../../../apps/main/background-processes/backups/BackupsStopController/BackupsStopController';
 import { launchBackupProcesses } from './launch-backup-processes';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupsStatus } from '../../../apps/main/background-processes/backups/BackupsProcessStatus/BackupsStatus';
 
 export class BackupManager {
   private scheduler: BackupScheduler;
+  private abortController = new AbortController();
+
   constructor(
-    private stopController: BackupsStopController,
     private status: BackupsProcessStatus,
     private tracker: BackupProgressTracker,
     private errors: BackupErrorsTracker,
@@ -35,12 +35,12 @@ export class BackupManager {
       return;
     }
 
-    this.stopController.reset();
+    this.abortController = new AbortController();
     this.errors.clear();
     this.changeBackupStatus('RUNNING');
 
     try {
-      await launchBackupProcesses(this.tracker, this.errors, this.stopController);
+      await launchBackupProcesses(this.tracker, this.errors, this.abortController.signal);
     } finally {
       this.changeBackupStatus('STANDBY');
       this.tracker.reset();
@@ -53,7 +53,7 @@ export class BackupManager {
       return;
     }
 
-    this.stopController.userCancelledBackup();
+    this.abortController.abort();
   }
 
   public startScheduler(): Promise<void> {
@@ -72,7 +72,7 @@ export class BackupManager {
     if (this.scheduler) this.scheduler.stop();
     this.errors.clear();
     this.tracker.reset();
-    this.stopController.reset();
+    this.abortController = new AbortController();
     this.changeBackupStatus('STANDBY');
   }
 

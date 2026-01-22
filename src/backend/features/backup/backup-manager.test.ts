@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupManager } from './backup-manager';
-import type { BackupsStopController } from '../../../apps/main/background-processes/backups/BackupsStopController/BackupsStopController';
 import type { BackupsProcessStatus } from '../../../apps/main/background-processes/backups/BackupsProcessStatus/BackupsProcessStatus';
 import type { BackupProgressTracker } from './backup-progress-tracker';
 import type { BackupErrorsTracker } from './backup-errors-tracker';
@@ -24,7 +23,6 @@ vi.mock('../../../apps/main/background-processes/backups/BackupScheduler/BackupS
 
 describe('BackupManager', () => {
   let backupManager: BackupManager;
-  let mockStopController: BackupsStopController;
   let mockStatus: BackupsProcessStatus;
   let mockTracker: BackupProgressTracker;
   let mockErrors: BackupErrorsTracker;
@@ -33,7 +31,6 @@ describe('BackupManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockStopController = mockDeep<BackupsStopController>();
     mockStatus = mockDeep<BackupsProcessStatus>();
     mockTracker = mockDeep<BackupProgressTracker>();
     mockErrors = mockDeep<BackupErrorsTracker>();
@@ -58,7 +55,7 @@ describe('BackupManager', () => {
 
     vi.mocked(mockStatus.isIn).mockReturnValue(false);
 
-    backupManager = new BackupManager(mockStopController, mockStatus, mockTracker, mockErrors, mockConfig);
+    backupManager = new BackupManager(mockStatus, mockTracker, mockErrors, mockConfig);
   });
 
   describe('startBackup', () => {
@@ -89,15 +86,28 @@ describe('BackupManager', () => {
       expect(launchBackupProcesses).not.toHaveBeenCalled();
     });
 
-    it('should reset stop controller and errors before starting backup', async () => {
+    it('should clear errors before starting backup', async () => {
       vi.mocked(mockStatus.isIn).mockReturnValue(false);
 
       await backupManager.startBackup();
 
-      expect(mockStopController.reset).toHaveBeenCalled();
       expect(mockErrors.clear).toHaveBeenCalled();
     });
 
+    it('should create a new abortController before starting backup', async () => {
+      vi.mocked(mockStatus.isIn).mockReturnValue(false);
+
+      const mockAbortController = vi.fn(() => ({
+        signal: { aborted: false },
+        abort: vi.fn(),
+      }));
+      vi.stubGlobal('AbortController', mockAbortController);
+
+      await backupManager.startBackup();
+
+      expect(mockAbortController).toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
     it('should change status to RUNNING before starting backup', async () => {
       vi.mocked(mockStatus.isIn).mockReturnValue(false);
 
@@ -106,12 +116,12 @@ describe('BackupManager', () => {
       expect(mockStatus.set).toHaveBeenCalledWith('RUNNING');
     });
 
-    it('should launch backup processes', async () => {
+    it('should launch backup processes with abort signal', async () => {
       vi.mocked(mockStatus.isIn).mockReturnValue(false);
 
       await backupManager.startBackup();
 
-      expect(launchBackupProcesses).toHaveBeenCalledWith(mockTracker, mockErrors, mockStopController);
+      expect(launchBackupProcesses).toHaveBeenCalledWith(mockTracker, mockErrors, expect.any(AbortSignal));
     });
 
     it('should change status to STANDBY and reset tracker after backup completes', async () => {
@@ -144,15 +154,12 @@ describe('BackupManager', () => {
         tag: 'BACKUPS',
         msg: 'No backup running to stop',
       });
-      expect(mockStopController.userCancelledBackup).not.toHaveBeenCalled();
     });
 
-    it('should call userCancelledBackup on stop controller when backup is running', () => {
+    it('should abort when backup is running', () => {
       vi.mocked(mockStatus.isIn).mockReturnValue(true);
 
-      backupManager.stopBackup();
-
-      expect(mockStopController.userCancelledBackup).toHaveBeenCalled();
+      expect(() => backupManager.stopBackup()).not.toThrow();
     });
   });
 
@@ -181,13 +188,25 @@ describe('BackupManager', () => {
   });
 
   describe('stopAndClearBackups', () => {
-    it('should stop scheduler, clear errors, reset tracker and stop controller, and set status to STANDBY', () => {
+    it('should stop scheduler, clear errors, reset tracker, and set status to STANDBY', () => {
       backupManager.stopAndClearBackups();
 
       expect(mockErrors.clear).toHaveBeenCalled();
       expect(mockTracker.reset).toHaveBeenCalled();
-      expect(mockStopController.reset).toHaveBeenCalled();
       expect(mockStatus.set).toHaveBeenCalledWith('STANDBY');
+    });
+
+    it('should create a new abortController when stopping and clearing backups', () => {
+      const mockAbortController = vi.fn(() => ({
+        signal: { aborted: false },
+        abort: vi.fn(),
+      }));
+      vi.stubGlobal('AbortController', mockAbortController);
+
+      backupManager.stopAndClearBackups();
+
+      expect(mockAbortController).toHaveBeenCalled();
+      vi.unstubAllGlobals();
     });
   });
 

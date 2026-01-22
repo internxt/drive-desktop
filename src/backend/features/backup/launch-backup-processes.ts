@@ -2,8 +2,6 @@ import { powerSaveBlocker } from 'electron';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupErrorsTracker } from './backup-errors-tracker';
 import { BackupProgressTracker } from './backup-progress-tracker';
-import { BackupsStopController } from '../../../apps/main/background-processes/backups/BackupsStopController/BackupsStopController';
-
 import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { backupsConfig } from '.';
 import { BackupService } from '../../../apps/backups/BackupService';
@@ -13,7 +11,7 @@ import { DriveDesktopError } from '../../../context/shared/domain/errors/DriveDe
 export async function launchBackupProcesses(
   tracker: BackupProgressTracker,
   errors: BackupErrorsTracker,
-  stopController: BackupsStopController,
+  signal: AbortSignal,
 ): Promise<void> {
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
@@ -23,13 +21,13 @@ export async function launchBackupProcesses(
 
   for (const backupInfo of backups) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backup info obtained:', backupInfo });
-    if (stopController.hasStopped()) {
-      logger.debug({ tag: 'BACKUPS', msg: 'Stop controller stopped' });
+    if (signal.aborted) {
+      logger.debug({ tag: 'BACKUPS', msg: 'Backup aborted' });
       break;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const result = await backupService.runWithRetry(backupInfo, stopController, tracker);
+    const result = await backupService.runWithRetry(backupInfo, signal, tracker);
     if (result.isLeft()) {
       const error = result.getLeft();
       logger.debug({ tag: 'BACKUPS', msg: 'failed', error: error.cause });
