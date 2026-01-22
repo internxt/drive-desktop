@@ -32,11 +32,6 @@ export async function startVirtualDrive() {
   await fuseApp.start();
 }
 
-export async function stopSyncEngineWatcher() {
-  await fuseApp.stop();
-  await hydrationApi.stop();
-}
-
 export async function stopAndClearFuseApp() {
   if (!fuseApp || !hydrationApi) {
     logger.debug({ msg: 'FuseApp or HydrationApi not initialized, skipping stop and clear.' });

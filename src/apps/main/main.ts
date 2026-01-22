@@ -48,8 +48,6 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { setCleanUpFunction } from './quit';
-import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
@@ -187,8 +185,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-
-    setCleanUpFunction(stopSyncEngineWatcher);
 
     await trySetupAntivirusIpcAndInitialize();
   } catch (error) {

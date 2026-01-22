@@ -5,7 +5,6 @@ import eventBus from '../event-bus';
 import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
-import { quitApp } from '../quit';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
@@ -137,7 +136,7 @@ export function setupTrayIcon() {
   }
 
   async function onQuitClick() {
-    quitApp();
+    app.quit();
   }
 
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
