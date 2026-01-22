@@ -1,6 +1,5 @@
 import { Device } from '../../../apps/main/device/service';
 import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
-import { decryptDeviceName } from '../../../apps/main/device/service';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 
 export async function renameDevice(deviceName: string): Promise<Device> {
@@ -11,8 +10,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
 
   const response = await driveServerModule.backup.updateDeviceByIdentifier(deviceIdentifier.getRight().key, deviceName);
   if (response.isRight()) {
-    const device = response.getRight();
-    return decryptDeviceName(device);
+    return response.getRight();
   } else {
     throw new Error('Error in the request to rename a device');
   }

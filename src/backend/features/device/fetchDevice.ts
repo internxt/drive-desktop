@@ -1,6 +1,6 @@
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
 import { Either, left, right } from '../../../context/shared/domain/Either';
-import { decryptDeviceName, Device } from '../../../apps/main/device/service';
+import { Device } from '../../../apps/main/device/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
@@ -52,13 +52,12 @@ export async function fetchDevice(props: FetchDeviceProps): Promise<Either<Error
   if (getDeviceEither.isRight()) {
     const device = getDeviceEither.getRight();
     if (device && !device.removed) {
-      const decryptedDevice = decryptDeviceName(device);
       logger.debug({
         tag: 'BACKUPS',
         msg: '[DEVICE] Found device',
-        device: decryptedDevice.name,
+        device: device.name,
       });
-      return right(decryptedDevice);
+      return right(device);
     }
   }
 

@@ -10,7 +10,7 @@ export function mapDeviceAsFolderToDevice(deviceAsFolder: components['schemas'][
   return {
     id: deviceAsFolder.id,
     uuid: deviceAsFolder.uuid,
-    name: deviceAsFolder.name,
+    name: deviceAsFolder.plainName,
     bucket: deviceAsFolder.bucket,
     removed: deviceAsFolder.removed,
     hasBackups: deviceAsFolder.hasBackups,
