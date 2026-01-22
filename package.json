@@ -36,7 +36,7 @@
     "prepare": "husky install",
     "generate_schema": "openapi-typescript http://localhost:3005/api-json -o ./src/infra/schemas.d.ts",
     "generate_schema:prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/infra/schemas.d.ts",
-    "find-deadcode": "ts-prune"
+    "find-deadcode": "knip --max-issues=284"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -230,6 +230,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^26.1.0",
     "jsonwebtoken": "^9.0.2",
+    "knip": "^5.80.0",
     "lcov-result-merger": "^5.0.1",
     "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",

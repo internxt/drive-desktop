@@ -1,0 +1,13 @@
+{
+  "entry": ["src/apps/main/main.ts", "src/apps/renderer/index.tsx"],
+  "exclude": ["devDependencies"],
+  "ignore": ["**/*.test.{ts,tsx}"],
+  "ignoreBinaries": ["esbuild"],
+  "ignoreExportsUsedInFile": true,
+  "project": ["src/**/*.{ts,tsx}"],
+  "vitest": false,
+  "webpack": false,
+  "rules": {
+    "duplicates": "off"
+  }
+}
