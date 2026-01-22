@@ -13,22 +13,20 @@ import { BackupScheduler } from '../background-processes/backups/BackupScheduler
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
 
-let isLoggedIn: boolean;
+let isLoggedIn: boolean | null = null;
 
-export function setIsLoggedIn(value: boolean) {
+export function setIsLoggedIn(value: boolean | null) {
   isLoggedIn = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
-setIsLoggedIn(!!getUser());
-
-export function getIsLoggedIn() {
+export function isUserLoggedIn() {
   return isLoggedIn;
 }
 
 export function onUserUnauthorized() {
-  logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
+  logger.error({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   eventBus.emit('USER_LOGGED_OUT');
 }
 
@@ -49,7 +47,6 @@ export async function checkIfUserIsLoggedIn() {
 }
 
 export function setupAuthIpcHandlers() {
-  ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
@@ -70,12 +67,12 @@ export async function emitUserLoggedIn() {
     workspaceToken: '',
   };
 
-  eventBus.once('USER_LOGGED_OUT', async () => {
+  eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
     scheduler.stop();
     BackupScheduler.stop();
-    await logout({ ctx });
+    logout({ ctx });
   });
 
   setupLoggedPreloadIpc({ ctx });

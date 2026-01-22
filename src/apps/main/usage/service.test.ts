@@ -1,4 +1,4 @@
-import { DriveServerWipError } from '@/infra/drive-server-wip/out/error.types';
+import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { calculateUsage } from './service';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 

@@ -28,7 +28,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
 
   return (
     <div className="flex flex-col gap-3 p-4">
-      <div className="draggable flex">
+      <div className="flex">
         <h1 className="text-lg font-normal">{translate('settings.backups.title')}</h1>
         <div className="ml-auto text-gray-50">
           {backupsState === 'SUCCESS' &&

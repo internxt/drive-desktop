@@ -21,17 +21,17 @@ describe('upload-file', () => {
     uploadMock.mockResolvedValue('contentsId' as ContentsId);
   });
 
-  it('should not upload if the file is empty', async () => {
+  it('should return empty contents id if the file is empty', async () => {
     // Given
     props.size = 0;
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBeUndefined();
+    expect(res).toStrictEqual({ contentsId: undefined });
     calls(uploadMock).toHaveLength(0);
   });
 
-  it('should not upload if the file is larger than MAX_SIZE', async () => {
+  it('should return undefined if the file is larger than MAX_SIZE', async () => {
     // Given
     props.size = SyncModule.MAX_FILE_SIZE + 1;
     // When
@@ -41,13 +41,23 @@ describe('upload-file', () => {
     calls(uploadMock).toHaveLength(0);
   });
 
-  it('should upload successfully', async () => {
+  it('should return undefined if upload fails', async () => {
+    // Given
+    uploadMock.mockResolvedValue(undefined);
+    // When
+    const res = await uploadFile(props);
+    // Then
+    expect(res).toBeUndefined();
+    call(uploadMock).toMatchObject({ path, size });
+  });
+
+  it('should return contents id if upload success', async () => {
     // Given
     uploadMock.mockResolvedValue('contentsId' as ContentsId);
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBe('contentsId');
+    expect(res).toStrictEqual({ contentsId: 'contentsId' });
     call(uploadMock).toMatchObject({ path, size });
   });
 });

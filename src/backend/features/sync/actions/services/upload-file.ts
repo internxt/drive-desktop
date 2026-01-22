@@ -11,8 +11,7 @@ type Props = {
 
 export async function uploadFile({ ctx, path, size }: Props) {
   if (size === 0) {
-    ctx.logger.warn({ msg: 'File is empty', path });
-    return;
+    return { contentsId: undefined };
   }
 
   if (size > SyncModule.MAX_FILE_SIZE) {
@@ -21,5 +20,9 @@ export async function uploadFile({ ctx, path, size }: Props) {
     return;
   }
 
-  return await EnvironmentFileUploader.run({ ctx, size, path });
+  const contentsId = await EnvironmentFileUploader.run({ ctx, size, path });
+
+  if (!contentsId) return;
+
+  return { contentsId };
 }

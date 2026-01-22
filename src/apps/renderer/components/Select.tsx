@@ -42,7 +42,7 @@ export default function Select(props: SelectProps) {
         </RadixSelect.Icon>
       </RadixSelect.Trigger>
 
-      <RadixSelect.Portal container={(props.container as HTMLElement) ?? document.body} className="non-draggable">
+      <RadixSelect.Portal container={(props.container as HTMLElement) ?? document.body}>
         <RadixSelect.Content className="z-50 rounded-lg border border-gray-20 bg-surface/75 p-1.5 shadow-2xl backdrop-blur-3xl dark:bg-gray-5/75">
           <RadixSelect.ScrollUpButton className="flex h-7 items-center justify-center">
             <CaretUp size={16} weight="bold" />
