@@ -1,6 +1,6 @@
 // import 'reflect-metadata';
 // import path from 'node:path';
-// import { DataSource } from '../../../../../../../apps/node_modules/typeorm';
+// import { DataSource } from 'typeorm';
 // import { TypeOrmAndNodeFsStorageFilesRepository } from './TypeOrmAndNodeFsStorageFilesRepository';
 // import { obtainSqliteDataSource } from './__test-helpers__/sqlDataSource';
 // import { StorageFileMother } from '../../../../../__test-helpers__/StorageFileMother';

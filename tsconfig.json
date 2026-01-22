@@ -29,7 +29,7 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "release/app/dist",
+    "outDir": "dist",
     "types": [
       "vitest/globals",
       "node"
@@ -37,7 +37,9 @@
   },
   "exclude": [
     "release/build",
+    "build",
     "release/app/dist",
+    "dist",
     ".erb/dll",
     "src/workers/backups/process.ts",
     "src/workers/backups",

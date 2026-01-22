@@ -30,9 +30,6 @@ jobs:
       - name: Install Electron
         run: cd node_modules/electron && node install.js
 
-      - name: Install app dependencies
-        run: cd release/app && npm ci
-
       - name: Build main process
         run: npm run build:main
 

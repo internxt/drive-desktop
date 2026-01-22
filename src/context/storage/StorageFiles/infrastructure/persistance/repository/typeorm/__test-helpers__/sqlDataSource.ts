@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { DataSource } from '../../../../../../../../apps/node_modules/typeorm';
+import { DataSource } from 'typeorm';
 import { TypeOrmStorageFile } from '../entities/TypeOrmStorageFile';
 
 export function obtainSqliteDataSource(directory: string): Promise<DataSource> {

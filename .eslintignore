@@ -18,8 +18,14 @@ node_modules
 # OSX
 .DS_Store
 
+# Build outputs (new flattened structure)
+dist
+build
+
+# Build outputs (legacy structure - keep for transition)
 release/app/dist
 release/build
+
 .erb/dll
 
 .idea

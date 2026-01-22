@@ -3,6 +3,7 @@
   "version": "2.5.2",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
+  "main": "./dist/main/main.js",
   "license": "AGPL-3.0",
   "repository": {
     "url": "https://github.com/internxt/drive-desktop-linux"
@@ -11,7 +12,7 @@
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.prod.ts",
-    "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
+    "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir .",
     "reinstall:nautilus-extension": "NODE_ENV=development ts-node src/apps/nautilus-extension/reload.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx --max-warnings=227",
     "lint:fix": "npm run lint --fix",
@@ -19,7 +20,7 @@
     "format:fix": "prettier src --write",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
-    "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
+    "postinstall": "electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/apps/main/main.ts",
     "start:main:debug": "cross-env NODE_ENV=development electron --inspect=5858 -r ts-node/register/transpile-only ./src/apps/main/main.ts",
@@ -37,20 +38,6 @@
     "generate_schema": "openapi-typescript http://localhost:3005/api-json -o ./src/infra/schemas.d.ts",
     "generate_schema:prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/infra/schemas.d.ts",
     "find-deadcode": "knip --max-issues=284"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "cross-env NODE_ENV=development eslint --cache"
-    ],
-    "*.json,.{eslintrc,prettierrc}": [
-      "prettier --ignore-path .eslintignore --parser json --write"
-    ],
-    "*.{css,scss}": [
-      "prettier --ignore-path .eslintignore --single-quote --write"
-    ],
-    "*.{html,md,yml}": [
-      "prettier --ignore-path .eslintignore --single-quote --write"
-    ]
   },
   "build": {
     "productName": "Internxt",
@@ -74,45 +61,6 @@
         ]
       }
     ],
-    "afterSign": ".erb/scripts/notarize.js",
-    "mac": {
-      "target": {
-        "target": "default",
-        "arch": [
-          "arm64",
-          "x64"
-        ]
-      },
-      "type": "distribution",
-      "hardenedRuntime": true,
-      "entitlements": "assets/entitlements.mac.plist",
-      "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 137,
-          "y": 152
-        },
-        {
-          "x": 337,
-          "y": 152,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ],
-      "window": {
-        "width": 470,
-        "height": 370
-      }
-    },
-    "win": {
-      "target": [
-        "nsis"
-      ],
-      "certificateSubjectName": "Internxt Universal Technologies SL"
-    },
     "linux": {
       "target": [
         "AppImage",
@@ -127,9 +75,8 @@
       ]
     },
     "directories": {
-      "app": "release/app",
       "buildResources": "assets",
-      "output": "release/build"
+      "output": "build"
     },
     "extraResources": [
       "./assets/**",
@@ -139,46 +86,6 @@
     "publish": {
       "provider": "github"
     }
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "jest-extended/all",
-      "<rootDir>/jest.setup.js"
-    ],
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "tsconfig.json"
-      }
-    },
-    "testURL": "http://localhost/",
-    "transformIgnorePatterns": [
-      "node_modules/(?!axios)"
-    ],
-    "testEnvironment": "jsdom",
-    "transform": {
-      "\\.(ts|tsx|js|jsx)$": "ts-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "ts",
-      "tsx",
-      "json"
-    ],
-    "moduleDirectories": [
-      "node_modules",
-      "release/app/node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "release/app/dist"
-    ],
-    "setupFiles": [
-      "./.erb/scripts/check-build-exists.ts"
-    ]
   },
   "devDependencies": {
     "@internxt/eslint-config-internxt": "^1.0.9",
@@ -232,7 +139,6 @@
     "jsonwebtoken": "^9.0.2",
     "knip": "^5.80.0",
     "lcov-result-merger": "^5.0.1",
-    "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
     "ms": "^2.1.3",
     "openapi-typescript": "^7.6.1",
@@ -262,6 +168,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "@gcas/fuse": "^2.4.2",
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/drive-desktop-core": "0.1.7",
@@ -274,6 +181,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "async": "^3.2.4",
     "axios": "^1.1.3",
+    "better-sqlite3": "^11.10.0",
     "bottleneck": "^2.19.5",
     "bytes": "^3.1.1",
     "chance": "^1.1.11",
@@ -303,6 +211,7 @@
     "reflect-metadata": "^0.2.2",
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
+    "typeorm": "^0.3.26",
     "uuid": "^8.3.2"
   },
   "devEngines": {

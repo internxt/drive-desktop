@@ -2,7 +2,7 @@ import { Service } from 'diod';
 import { Readable } from 'form-data';
 import { readFile, unlink } from 'fs/promises';
 import path from 'path';
-import { DataSource, Repository } from '../../../../../../../apps/node_modules/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ensureFolderExists } from '../../../../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
 import { StorageFile } from '../../../../domain/StorageFile';

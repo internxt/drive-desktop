@@ -1,4 +1,4 @@
-import { DataSource } from '../../../../../../../apps/node_modules/typeorm';
+import { DataSource } from 'typeorm';
 import { TypeOrmStorageFile } from './entities/TypeOrmStorageFile';
 import { app } from 'electron';
 
