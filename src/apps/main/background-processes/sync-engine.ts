@@ -17,7 +17,8 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
 
   const syncContext: SyncContext = {
     abortController: ctx.abortController,
-    bottleneck: ctx.bottleneck,
+    wipBottleneck: ctx.wipBottleneck,
+    uploadBottleneck: ctx.uploadBottleneck,
     client: ctx.client,
     userUuid: user.uuid,
     providerId,

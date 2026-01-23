@@ -35,17 +35,17 @@ export const client = createClient<paths>({
 client.use(middleware);
 
 export function createWipClient() {
-  const bottleneck = new Bottleneck({ maxConcurrent: 2, minTime: 500 });
+  const wipBottleneck = new Bottleneck({ maxConcurrent: 2, minTime: 500 });
 
   const client = createClient<paths>({
     baseUrl: process.env.DRIVE_URL,
     fetch: (input) => {
       const priority = getRequestPriority(input.method, input.url);
-      return bottleneck.schedule({ priority }, () => fetch(input));
+      return wipBottleneck.schedule({ priority }, () => fetch(input));
     },
   });
 
   client.use(middleware);
 
-  return { bottleneck, client };
+  return { wipBottleneck, client };
 }

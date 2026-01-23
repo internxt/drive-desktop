@@ -13,6 +13,7 @@ import { BackupScheduler } from '../background-processes/backups/BackupScheduler
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
+import Bottleneck from 'bottleneck';
 
 let isLoggedIn: boolean;
 
@@ -66,10 +67,13 @@ export async function emitUserLoggedIn() {
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
 
-  const { bottleneck, client } = createWipClient();
+  const { wipBottleneck, client } = createWipClient();
+  const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
+
   const ctx: AuthContext = {
     abortController,
-    bottleneck,
+    wipBottleneck,
+    uploadBottleneck,
     client,
     workspaceToken: '',
   };
