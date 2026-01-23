@@ -1,4 +1,4 @@
-name: Publish
+name: Core publish
 
 on:
   workflow_dispatch:

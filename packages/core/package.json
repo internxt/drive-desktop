@@ -7,9 +7,12 @@
     "build"
   ],
   "scripts": {
-    "build": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "start": "nodemon",
     "init:dev": "npm install && node node_modules/electron/install.js",
+    "========== Build ==========": "",
+    "compile": "rimraf build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "refresh": "npm pack && cd ../.. && npm update @internxt/drive-desktop-core",
+    "build": "npm run compile && npm run refresh",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",

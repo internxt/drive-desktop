@@ -160,7 +160,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/drive-desktop-core": "^0.1.13",
+    "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-0.1.13.tgz",
     "@internxt/inxt-js": "2.2.9",
     "@internxt/scan": "1.0.7",
     "@packages/addon": "file:packages/addon/packages-addon-1.0.0.tgz",
