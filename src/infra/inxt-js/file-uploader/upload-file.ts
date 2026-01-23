@@ -27,6 +27,7 @@ export function uploadFile({ ctx, fn, readable, size, path }: Props) {
     const state = fn(ctx.bucket, {
       source: readable,
       fileSize: size,
+      progressCallback: (progress) => void progressCallback(progress),
       finishedCallback: (error, contentsId) => {
         readable.close();
 
@@ -35,18 +36,19 @@ export function uploadFile({ ctx, fn, readable, size, path }: Props) {
         processError({ path, error });
         return resolve();
       },
-      progressCallback: async (progress) => {
-        const { data: stats } = await fileSystem.stat({ absolutePath: path });
-
-        if (stats && stats.size !== size) {
-          logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
-          stopUpload(state);
-          return resolve();
-        }
-
-        LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
-      },
     });
+
+    async function progressCallback(progress: number) {
+      const { data: stats } = await fileSystem.stat({ absolutePath: path });
+
+      if (stats && stats.size !== size) {
+        logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
+        stopUpload(state);
+        return resolve();
+      }
+
+      LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
+    }
 
     ctx.abortController.signal.addEventListener('abort', () => {
       logger.debug({ msg: 'Aborting upload', path });
