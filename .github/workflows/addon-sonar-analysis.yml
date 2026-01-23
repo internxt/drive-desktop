@@ -2,7 +2,7 @@ name: Addon sonar analysis
 
 on:
   pull_request:
-    paths: ['packages/addon/**']
+    paths: ['packages/addon/**', '.github/workflows']
     types: [opened, synchronize, reopened]
   push:
     paths: ['packages/addon/**']
