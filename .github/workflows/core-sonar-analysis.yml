@@ -2,7 +2,7 @@ name: Core sonar analysis
 
 on:
   pull_request:
-    paths: ['packages/core/**', '.github/workflows']
+    paths: ['packages/core/**', '.github/workflows/**']
     types: [opened, synchronize, reopened]
   push:
     paths: ['packages/core/**']
