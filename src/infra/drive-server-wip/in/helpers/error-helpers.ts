@@ -77,7 +77,7 @@ export function isServerError({ response: { status } }: { response: Response }):
 }
 
 export function isAbortError({ exc }: { exc: unknown }): boolean {
-  return exc instanceof DOMException && exc.name === 'AbortError';
+  return typeof exc === 'object' && exc !== null && 'name' in exc && exc.name === 'AbortError';
 }
 
 export function isBottleneckStop({ error }: { error: unknown }): boolean {

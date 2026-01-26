@@ -5,11 +5,13 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFolderDto } from '../out/dto';
 import { move } from './folders/move';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { checkExistence } from './folders/check-existence';
 
 export const folders = {
   createFolder,
   getFolders,
   move,
+  checkExistence,
 };
 export const FolderModule = folders;
 

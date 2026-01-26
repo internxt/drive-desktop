@@ -5,6 +5,7 @@ import { onAdd } from './events/on-add.service';
 import { onAddDir } from './events/on-add-dir.service';
 import { debounceOnRaw } from './events/debounce-on-raw';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -16,6 +17,17 @@ export async function processEvent({ ctx, event, path }: Props) {
   try {
     if (event === 'delete') {
       await onUnlink({ ctx, path });
+      return;
+    }
+
+    /**
+     * v2.6.5 Daniel Jiménez
+     * This is a bit flaky because it relies on a timeout, probably we should explore
+     * better alternatives.
+     */
+    const isReady = await waitUntilReady({ path });
+    if (!isReady) {
+      ctx.logger.error({ msg: 'Wait until ready, timeout', path });
       return;
     }
 

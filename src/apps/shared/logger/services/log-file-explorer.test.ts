@@ -31,14 +31,17 @@ describe('log-file-explorer', () => {
     // Given
     getFileInfoMock.mockResolvedValue({});
     getFolderInfoMock.mockResolvedValue({});
-    statReaddirMock.mockResolvedValue({ files: [{ path: abs('/drive/file.txt') }], folders: [{ path: abs('/drive/folder') }] });
+    statReaddirMock.mockResolvedValue({
+      files: [{ path: abs('/drive/file.txt'), stats: { size: 1024 } }],
+      folders: [{ path: abs('/drive/folder') }],
+    });
     // When
     const res = await logFileExplorer(props);
     // Then
     expect(res).toBe(csvPath);
     call(writeFileMock).toMatchObject([
       csvPath,
-      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file.txt"\nfolders\n"folder"',
+      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file.txt",,,,1024\nfolders\n"folder"',
       'utf-8',
     ]);
   });
@@ -52,14 +55,17 @@ describe('log-file-explorer', () => {
         files: [{ path: abs('/drive/file1.txt'), stats: { size: 1024 } }],
         folders: [{ path: abs('/drive/folder1') }],
       })
-      .mockResolvedValueOnce({ files: [{ path: abs('/drive/file2.txt') }], folders: [{ path: abs('/drive/folder2') }] });
+      .mockResolvedValueOnce({
+        files: [{ path: abs('/drive/file2.txt'), stats: { size: 2048 } }],
+        folders: [{ path: abs('/drive/folder2') }],
+      });
     // When
     const res = await logFileExplorer(props);
     // Then
     expect(res).toBe(csvPath);
     call(writeFileMock).toMatchObject([
       csvPath,
-      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file1.txt",FILE:uuid,,,1024,\n"file2.txt"\nfolders\n"folder1",FOLDER:uuid,,\n"folder2"',
+      'path,uuid,pinState,inSyncState,size,onDiskSize\nfiles\n"file1.txt",FILE:uuid,,,1024,\n"file2.txt",,,,2048\nfolders\n"folder1",FOLDER:uuid,,\n"folder2"',
       'utf-8',
     ]);
   });

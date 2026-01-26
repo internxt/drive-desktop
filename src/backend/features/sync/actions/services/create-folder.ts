@@ -23,14 +23,18 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
     parentFolderUuid: parentUuid,
   };
 
-  const res = ctx.workspaceId
+  let res = ctx.workspaceId
     ? await driveServerWip.workspaces.createFolder({ ctx, context: { path, body } })
     : await driveServerWip.folders.createFolder({ ctx, context: { path, body } });
 
+  if (res.error?.code === 'FOLDER_ALREADY_EXISTS') {
+    res = await driveServerWip.folders.checkExistence({ ctx, context: { parentUuid, name } });
+  }
+
+  if (res.error?.code === 'ABORTED') return;
+
   if (res.error) {
-    if (res.error.code !== 'ABORTED') {
-      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
-    }
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
     return;
   }
 

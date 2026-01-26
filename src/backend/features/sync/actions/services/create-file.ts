@@ -43,14 +43,18 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
     type: extension,
   };
 
-  const res = ctx.workspaceId
+  let res = ctx.workspaceId
     ? await driveServerWip.workspaces.createFile({ ctx, context: { path, body } })
     : await driveServerWip.files.createFile({ ctx, context: { path, body } });
 
+  if (res.error?.code === 'FILE_ALREADY_EXISTS') {
+    res = await driveServerWip.files.checkExistence({ ctx, context: { parentUuid, name, extension } });
+  }
+
+  if (res.error?.code === 'ABORTED') return;
+
   if (res.error) {
-    if (res.error.code !== 'ABORTED') {
-      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
-    }
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
     return;
   }
 
