@@ -54,6 +54,7 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
+    logger.debug({ msg: 'Manual logout' });
     eventBus.emit('USER_LOGGED_OUT');
   });
 }
