@@ -390,7 +390,7 @@ export const en = {
       FILE_SIZE_TOO_BIG: 'File size too big (max 40GB)',
       FOLDER_ACCESS_DENIED: 'The app does not have permission to access this folder',
       FOLDER_DOES_NOT_EXIST: 'Folder does not exist',
-      INVALID_WINDOWS_NAME: String.raw`Windows does not allow names that include the characters \ / : * ? " < > |`,
+      INVALID_WINDOWS_NAME: String.raw`Windows does not allow names that include \ / : * ? " < > | or start/end with spaces`,
       NETWORK_CONNECTIVITY_ERROR: 'Network connectivity error.',
       NOT_ENOUGH_SPACE: 'You have not enough space to complete the operation',
       PARENT_FOLDER_DOES_NOT_EXIST: 'Parent folder does not exist',
