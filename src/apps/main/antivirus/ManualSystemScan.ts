@@ -25,15 +25,6 @@ interface IntervalHandle {
   name: string;
 }
 
-let fileSystemMonitorInstanceManual: ManualSystemScan | null = null;
-
-export async function getManualScanMonitorInstance() {
-  if (!fileSystemMonitorInstanceManual) {
-    fileSystemMonitorInstanceManual = new ManualSystemScan();
-  }
-  return fileSystemMonitorInstanceManual;
-}
-
 export class ManualSystemScan {
   private dbConnection: DBScannerConnection;
   private manualQueue: QueueObject<string> | null;
@@ -895,4 +886,13 @@ export class ManualSystemScan {
       currentSession,
     );
   }
+}
+
+let fileSystemMonitorInstanceManual: ManualSystemScan | null = null;
+
+export async function getManualScanMonitorInstance() {
+  if (!fileSystemMonitorInstanceManual) {
+    fileSystemMonitorInstanceManual = new ManualSystemScan();
+  }
+  return fileSystemMonitorInstanceManual;
 }

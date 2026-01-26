@@ -7,35 +7,12 @@ import { DBScannerConnection } from './db/DBScannerConnection';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { measurePerformance } from '../../../../src/core/utils/measure-execution-time';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
 
 let dailyScanInterval: NodeJS.Timeout | null = null;
-
-export function scheduleDailyScan() {
-  async function startBackgroundScan() {
-    logger.debug({ tag: 'ANTIVIRUS', msg: 'Starting user system scan (BACKGROUND)...' });
-    await scanInBackground();
-  }
-
-  startBackgroundScan().catch((err) => {
-    logger.error({ tag: 'ANTIVIRUS', msg: 'Error in initial background scan:', err });
-  });
-
-  dailyScanInterval = setInterval(() => {
-    startBackgroundScan().catch((err) => {
-      logger.error({ tag: 'ANTIVIRUS', msg: 'Error in scheduled background scan:', err });
-    });
-  }, ONE_DAY_MS);
-}
-
-export function clearDailyScan() {
-  if (dailyScanInterval) {
-    clearInterval(dailyScanInterval);
-    dailyScanInterval = null;
-  }
-}
 
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new ScannedItemCollection();
@@ -44,8 +21,6 @@ const scanInBackground = async (): Promise<void> => {
 
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;
-
-  console.time('scan-background');
 
   const scan = async (filePath: string) => {
     try {
@@ -96,7 +71,40 @@ const scanInBackground = async (): Promise<void> => {
     if (!isPermissionError(error)) {
       throw error;
     }
-  } finally {
-    console.timeEnd('scan-background');
   }
 };
+
+export function scheduleDailyScan() {
+  async function startBackgroundScan() {
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Starting user system scan (BACKGROUND)...' });
+    const time = await measurePerformance(scanInBackground);
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'User system scan completed in seconds',
+      time,
+    });
+  }
+
+  startBackgroundScan().catch((err) => {
+    logger.error({ tag: 'ANTIVIRUS', msg: 'Error in initial background scan:', err });
+  });
+
+  dailyScanInterval = setInterval(() => {
+    const time = measurePerformance(startBackgroundScan).catch((err) => {
+      logger.error({ tag: 'ANTIVIRUS', msg: 'Error in scheduled background scan:', err });
+    });
+
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'User system scan completed in seconds',
+      time,
+    });
+  }, ONE_DAY_MS);
+}
+
+export function clearDailyScan() {
+  if (dailyScanInterval) {
+    clearInterval(dailyScanInterval);
+    dailyScanInterval = null;
+  }
+}

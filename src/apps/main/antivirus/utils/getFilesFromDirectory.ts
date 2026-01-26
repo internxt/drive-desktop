@@ -3,12 +3,8 @@ import { readdir } from 'fs/promises';
 import { resolve } from 'path';
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from './isPermissionError';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getErrorMessage } from './errorUtils';
-
-const execAsync = promisify(exec);
 
 const isNonTempItem = (item: Dirent, dir: string): boolean => {
   const fullPath = resolve(dir, item.name);

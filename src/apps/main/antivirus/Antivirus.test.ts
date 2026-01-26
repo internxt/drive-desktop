@@ -92,7 +92,7 @@ describe('Antivirus', () => {
         throw new Error('Failed to initialize NodeClam');
       });
 
-      const antivirus = await Antivirus.createInstance();
+      await Antivirus.createInstance();
 
       expect(logger.error).toHaveBeenCalledWith(
         expect.objectContaining({
