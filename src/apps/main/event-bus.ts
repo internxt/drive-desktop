@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ProgressData } from './antivirus/ManualSystemScan';
+import { ProgressData } from './antivirus/types';
 import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
 class EventBus extends EventEmitter {}

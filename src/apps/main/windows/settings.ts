@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
-import { ProgressData } from '../antivirus/ManualSystemScan';
+import { ProgressData } from '../antivirus/types';
 import isDev from '../../../core/isDev/isDev';
 
 let settingsWindow: BrowserWindow | null = null;
