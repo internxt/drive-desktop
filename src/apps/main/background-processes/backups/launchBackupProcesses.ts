@@ -72,7 +72,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
     const { environment } = buildUserEnvironment({ user, type: 'backups' });
     const context: BackupsContext = {
       ...backupInfo,
-      wipBottleneck: ctx.wipBottleneck,
+      driveApiBottleneck: ctx.driveApiBottleneck,
       uploadBottleneck: ctx.uploadBottleneck,
       client: ctx.client,
       userUuid: user.uuid,

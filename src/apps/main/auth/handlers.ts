@@ -67,12 +67,12 @@ export async function emitUserLoggedIn() {
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
 
-  const { wipBottleneck, client } = createWipClient();
+  const { driveApiBottleneck, client } = createWipClient();
   const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
 
   const ctx: AuthContext = {
     abortController,
-    wipBottleneck,
+    driveApiBottleneck,
     uploadBottleneck,
     client,
     workspaceToken: '',
