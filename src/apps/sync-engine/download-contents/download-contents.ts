@@ -52,12 +52,19 @@ export async function downloadContents({
 
     LocalSync.SyncState.addItem({ action: 'DOWNLOADED', path });
   } catch (error) {
-    if (error instanceof Error && error.message !== 'The operation was aborted') {
-      ctx.logger.error({ msg: 'Error downloading file', path, error });
+    ctx.contentsDownloader.forceStop({ path });
 
-      LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
-
-      ctx.contentsDownloader.forceStop({ path });
+    /**
+     * v2.6.5 Daniel Jiménez
+     * WinRT error: [transfer_data] The cloud operation was canceled by user. (HRESULT: 0x8007018e)
+     */
+    if (error instanceof Error && error.message.includes('0x8007018e')) {
+      ctx.logger.debug({ msg: 'Fetch data cancelled by user', path });
+      LocalSync.SyncState.addItem({ action: 'DOWNLOAD_CANCEL', path });
+      return;
     }
+
+    ctx.logger.error({ msg: 'Error downloading file', path, error });
+    LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
   }
 }

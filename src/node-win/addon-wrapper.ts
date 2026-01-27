@@ -8,7 +8,7 @@ import { posix, win32 } from 'node:path';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
 import { PinState } from './types/placeholder.type';
-import { addConnectionKey, cancelFetchDataFn, fetchDataFn } from './callbacks';
+import { addConnectionKey, fetchDataFn } from './callbacks';
 import { SyncContext } from '@/apps/sync-engine/config';
 
 function toWin32(path: AbsolutePath) {
@@ -52,7 +52,7 @@ export class Addon {
   }
 
   static connectSyncRoot({ ctx }: { ctx: SyncContext }) {
-    const result = addon.connectSyncRoot(toWin32(ctx.rootPath), fetchDataFn, cancelFetchDataFn);
+    const result = addon.connectSyncRoot(toWin32(ctx.rootPath), fetchDataFn);
     const connectionKey = parseAddonZod('connectSyncRoot', result);
     addConnectionKey(connectionKey, ctx);
     return connectionKey;
