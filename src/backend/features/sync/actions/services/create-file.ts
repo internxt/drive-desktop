@@ -39,7 +39,7 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
     encryptVersion: EncryptionVersion.Aes03,
     folderUuid: parentUuid,
     plainName: name,
-    size,
+    size: upload.size,
     type: extension,
   };
 

@@ -1,4 +1,4 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { uploadFile } from './upload-file';
@@ -6,8 +6,14 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import Bottleneck from 'bottleneck';
+import * as waitUntilReady from './wait-until-ready';
+import { stat } from 'node:fs/promises';
+
+vi.mock(import('node:fs/promises'));
 
 describe('upload-file', () => {
+  const statMock = deepMocked(stat);
+  const waitUntilReadyMock = partialSpyOn(waitUntilReady, 'waitUntilReady');
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
   const uploadMock = partialSpyOn(EnvironmentFileUploader, 'run');
 
@@ -16,29 +22,41 @@ describe('upload-file', () => {
   let props: Parameters<typeof uploadFile>[0];
 
   beforeEach(() => {
+    statMock.mockResolvedValue({ size });
+    isTemporaryFileMock.mockReturnValue(false);
+    waitUntilReadyMock.mockResolvedValue(true);
+    uploadMock.mockResolvedValue('contentsId' as ContentsId);
+
     props = mockProps<typeof uploadFile>({
       ctx: { uploadBottleneck: new Bottleneck() },
       path,
       size,
     });
+  });
 
-    isTemporaryFileMock.mockReturnValue(false);
-    uploadMock.mockResolvedValue('contentsId' as ContentsId);
+  it('should return undefined if file is locked', async () => {
+    // Given
+    waitUntilReadyMock.mockResolvedValue(false);
+    // When
+    const res = await uploadFile(props);
+    // Then
+    expect(res).toBeUndefined();
+    calls(uploadMock).toHaveLength(0);
   });
 
   it('should return empty contents id if the file is empty', async () => {
     // Given
-    props.size = 0;
+    statMock.mockResolvedValue({ size: 0 });
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toStrictEqual({ contentsId: undefined });
+    expect(res).toStrictEqual({ contentsId: undefined, size: 0 });
     calls(uploadMock).toHaveLength(0);
   });
 
   it('should return undefined if the file is larger than MAX_SIZE', async () => {
     // Given
-    props.size = SyncModule.MAX_FILE_SIZE + 1;
+    statMock.mockResolvedValue({ size: SyncModule.MAX_FILE_SIZE + 1 });
     // When
     const res = await uploadFile(props);
     // Then
@@ -72,7 +90,7 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toStrictEqual({ contentsId: 'contentsId' });
+    expect(res).toStrictEqual({ contentsId: 'contentsId', size });
     call(uploadMock).toMatchObject({ path, size });
   });
 });

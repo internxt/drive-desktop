@@ -26,7 +26,7 @@ export async function replaceFile({ ctx, path, stats: { size, mtime }, uuid }: P
       path,
       uuid,
       contentsId: upload.contentsId,
-      size,
+      size: upload.size,
       modificationTime: mtime.toISOString(),
     },
   });
