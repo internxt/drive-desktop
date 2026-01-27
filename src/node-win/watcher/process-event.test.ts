@@ -6,14 +6,11 @@ import { stat } from 'node:fs/promises';
 import * as debounceOnRaw from './events/debounce-on-raw';
 import * as onAdd from './events/on-add.service';
 import * as onAddDir from './events/on-add-dir.service';
-import * as waitUntilReady from './wait-until-ready';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('node:fs/promises'));
 
 describe('process-event', () => {
   const statMock = deepMocked(stat);
-  const waitUntilReadyMock = partialSpyOn(waitUntilReady, 'waitUntilReady');
   const onUnlinkMock = partialSpyOn(onUnlink, 'onUnlink');
   const debounceOnRawMock = partialSpyOn(debounceOnRaw, 'debounceOnRaw');
   const onAddMock = partialSpyOn(onAdd, 'onAdd');
@@ -23,8 +20,6 @@ describe('process-event', () => {
   let props: Parameters<typeof processEvent>[0];
 
   beforeEach(() => {
-    waitUntilReadyMock.mockResolvedValue(true);
-
     props = mockProps<typeof processEvent>({ path });
   });
 
@@ -35,16 +30,6 @@ describe('process-event', () => {
     await processEvent(props);
     // Then
     call(onUnlinkMock).toMatchObject({ path });
-  });
-
-  it('should log error if item is not ready', async () => {
-    // Given
-    waitUntilReadyMock.mockResolvedValue(false);
-    props.event = 'update';
-    // When
-    await processEvent(props);
-    // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Wait until ready, timeout', path });
   });
 
   it('should update if update event and it is a file', async () => {
