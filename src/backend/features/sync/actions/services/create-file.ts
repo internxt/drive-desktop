@@ -2,7 +2,6 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { Stats } from 'node:fs';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { LocalSync } from '@/backend/features';
@@ -15,11 +14,10 @@ import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-f
 type Props = {
   ctx: CommonContext;
   path: AbsolutePath;
-  stats: Stats;
   parentUuid: FolderUuid;
 };
 
-export async function createFile({ ctx, path, stats: { size }, parentUuid }: Props) {
+export async function createFile({ ctx, path, parentUuid }: Props) {
   const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
@@ -27,7 +25,7 @@ export async function createFile({ ctx, path, stats: { size }, parentUuid }: Pro
     return;
   }
 
-  const upload = await uploadFile({ ctx, size, path });
+  const upload = await uploadFile({ ctx, path });
 
   if (!upload) return;
 

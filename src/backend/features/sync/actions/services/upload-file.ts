@@ -9,30 +9,19 @@ import { stat } from 'node:fs/promises';
 type Props = {
   ctx: CommonContext;
   path: AbsolutePath;
-  /**
-   * v2.6.5 Daniel Jiménez
-   * Keep the prop so we don't have to remove everywhere since the `waitUntilReady`
-   * is just a patch for now.
-   */
-  size: number;
 };
 
 export async function uploadFile({ ctx, path }: Props) {
-  /**
-   * v2.6.5 Daniel Jiménez
-   * This is a bit flaky because it relies on a timeout, probably we should explore
-   * better alternatives.
-   */
   const isReady = await waitUntilReady({ path });
   if (!isReady) {
     ctx.logger.error({ msg: 'Wait until ready, timeout', path });
     return;
   }
 
-  const { size } = await stat(path);
+  const { size, mtime } = await stat(path);
 
   if (size === 0) {
-    return { contentsId: undefined, size };
+    return { contentsId: undefined, size, mtime };
   }
 
   if (size > SyncModule.MAX_FILE_SIZE) {
@@ -46,7 +35,7 @@ export async function uploadFile({ ctx, path }: Props) {
 
     if (!contentsId) return;
 
-    return { contentsId, size };
+    return { contentsId, size, mtime };
   } catch (error) {
     if (isBottleneckStop({ error })) return;
 

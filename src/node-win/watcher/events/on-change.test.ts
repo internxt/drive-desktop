@@ -1,4 +1,4 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
@@ -6,8 +6,12 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { onChange } from './on-change';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Drive } from '@/backend/features/drive';
+import { stat } from 'node:fs/promises';
+
+vi.mock(import('node:fs/promises'));
 
 describe('on-change', () => {
+  const statMock = deepMocked(stat);
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
@@ -17,12 +21,12 @@ describe('on-change', () => {
   let props: Parameters<typeof onChange>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof onChange>({ path, stats: {} });
+    props = mockProps<typeof onChange>({ path });
   });
 
   it('should update contents id when file is modified and not in sync', async () => {
     // Given
-    props.stats.mtimeMs = Date.now();
+    statMock.mockResolvedValue({ mtimeMs: Date.now() });
     getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
     // When
     await onChange(props);
@@ -34,7 +38,7 @@ describe('on-change', () => {
 
   it('should hydrate when ctime is modified and disk size is 0', async () => {
     // Given
-    props.stats.ctimeMs = Date.now();
+    statMock.mockResolvedValue({ ctimeMs: Date.now() });
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskSize: 0 } });
     // When
     await onChange(props);
@@ -46,7 +50,7 @@ describe('on-change', () => {
 
   it('should dehydrate when ctime is modified and disk size is not 0', async () => {
     // Given
-    props.stats.ctimeMs = Date.now();
+    statMock.mockResolvedValue({ ctimeMs: Date.now() });
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly, onDiskSize: 1 } });
     // When
     await onChange(props);
@@ -58,8 +62,8 @@ describe('on-change', () => {
 
   it('should dehydrate when ctime is modified and size is 0', async () => {
     // Given
-    props.stats.ctimeMs = Date.now();
-    props.stats.size = 0;
+    statMock.mockResolvedValue({ ctimeMs: Date.now() });
+    statMock.mockResolvedValue({ size: 0 });
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
     // When
     await onChange(props);

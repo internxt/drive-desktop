@@ -30,7 +30,6 @@ describe('upload-file', () => {
     props = mockProps<typeof uploadFile>({
       ctx: { uploadBottleneck: new Bottleneck() },
       path,
-      size,
     });
   });
 
@@ -50,7 +49,7 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toStrictEqual({ contentsId: undefined, size: 0 });
+    expect(res).toMatchObject({ contentsId: undefined, size: 0 });
     calls(uploadMock).toHaveLength(0);
   });
 
@@ -90,7 +89,7 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toStrictEqual({ contentsId: 'contentsId', size });
+    expect(res).toMatchObject({ contentsId: 'contentsId', size });
     call(uploadMock).toMatchObject({ path, size });
   });
 });

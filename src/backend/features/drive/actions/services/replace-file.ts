@@ -3,18 +3,16 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
 import { Addon } from '@/node-win/addon-wrapper';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { Stats } from 'node:fs';
 
 type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   uuid: FileUuid;
-  stats: Stats;
 };
 
-export async function replaceFile({ ctx, path, uuid, stats }: Props) {
+export async function replaceFile({ ctx, path, uuid }: Props) {
   try {
-    const file = await Sync.Actions.replaceFile({ ctx, path, uuid, stats });
+    const file = await Sync.Actions.replaceFile({ ctx, path, uuid });
 
     if (!file) return;
 
