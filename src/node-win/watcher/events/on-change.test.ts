@@ -62,8 +62,7 @@ describe('on-change', () => {
 
   it('should dehydrate when ctime is modified and size is 0', async () => {
     // Given
-    statMock.mockResolvedValue({ ctimeMs: Date.now() });
-    statMock.mockResolvedValue({ size: 0 });
+    statMock.mockResolvedValue({ ctimeMs: Date.now(), size: 0 });
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.OnlineOnly } });
     // When
     await onChange(props);

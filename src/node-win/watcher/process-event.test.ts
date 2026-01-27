@@ -35,7 +35,7 @@ describe('process-event', () => {
   it('should update if update event and it is a file', async () => {
     // Given
     props.event = 'update';
-    statMock.mockResolvedValue({ isFile: () => true });
+    props.type = 'file';
     // When
     await processEvent(props);
     // Then
@@ -45,7 +45,7 @@ describe('process-event', () => {
   it('should ignore if update event and it is a folder', async () => {
     // Given
     props.event = 'update';
-    statMock.mockResolvedValue({ isFile: () => false });
+    props.type = 'folder';
     // When
     await processEvent(props);
     // Then
@@ -55,7 +55,7 @@ describe('process-event', () => {
   it('should add if create event and it is a file', async () => {
     // Given
     props.event = 'create';
-    statMock.mockResolvedValue({ isFile: () => true });
+    props.type = 'file';
     // When
     await processEvent(props);
     // Then
@@ -65,6 +65,7 @@ describe('process-event', () => {
   it('should add dir if create event and it is a folder', async () => {
     // Given
     props.event = 'create';
+    props.type = 'folder';
     statMock.mockResolvedValue({ isFile: () => false, isDirectory: () => true });
     // When
     await processEvent(props);
