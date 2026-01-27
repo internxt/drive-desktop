@@ -9,9 +9,14 @@
 
 napi_threadsafe_function g_cancel_fetch_data_threadsafe_callback = nullptr;
 
+struct CallbackContext {
+    CF_CONNECTION_KEY connectionKey;
+    std::wstring path;
+};
+
 void notify_cancel_fetch_data_call(napi_env env, napi_value js_callback, void *, void *data)
 {
-    TransferContext *ctx = static_cast<TransferContext *>(data);
+    CallbackContext *ctx = static_cast<CallbackContext *>(data);
 
     napi_value js_connection_key;
     napi_create_bigint_int64(env, ctx->connectionKey.Internal, &js_connection_key);
@@ -25,12 +30,7 @@ void notify_cancel_fetch_data_call(napi_env env, napi_value js_callback, void *,
     napi_get_undefined(env, &undefined);
     napi_call_function(env, undefined, js_callback, js_args.size(), js_args.data(), nullptr);
 
-    {
-        std::scoped_lock lock(ctx->mtx);
-        ctx->ready = true;
-    }
-
-    ctx->cv.notify_one();
+    delete ctx;
 }
 
 void CALLBACK cancel_fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO *callbackInfo, _In_ CONST CF_CALLBACK_PARAMETERS *)
@@ -46,7 +46,16 @@ void CALLBACK cancel_fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO *ca
 
     wprintf(L"Cancel fetch data path: %s\n", ctx->path.c_str());
 
-    napi_call_threadsafe_function(g_cancel_fetch_data_threadsafe_callback, ctx.get(), napi_tsfn_blocking);
+    auto *callbackContext = new CallbackContext{ctx->connectionKey.Internal, ctx->path};
+    
+    {
+        std::scoped_lock lock(ctx->mtx);
+        ctx->ready = true;
+    }
+
+    ctx->cv.notify_one();
+
+    napi_call_threadsafe_function(g_cancel_fetch_data_threadsafe_callback, callbackContext, napi_tsfn_blocking);
 }
 
 void register_threadsafe_cancel_fetch_data_callback(const std::string &resource_name, napi_env env, napi_value callback)
