@@ -16,8 +16,8 @@ export function NoInfoToShow() {
         transition={{ duration: 0.5, ease: 'easeInOut' }}>
         <div className="trasform absolute left-1/2 top-1/2 flex w-full -translate-x-1/2 -translate-y-1/2 flex-col items-center space-y-6 text-center">
           <div>
-            <img src={syncedStackLight} className="dark:hidden" width={128} />
-            <img src={syncedStackDark} className="hidden dark:flex" width={128} />
+            <img src={syncedStackLight} className="dark:hidden" width={128} draggable={false} />
+            <img src={syncedStackDark} className="hidden dark:flex" width={128} draggable={false} />
           </div>
 
           <div className="flex flex-col">

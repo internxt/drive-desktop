@@ -10,6 +10,10 @@ import { BackupContext } from '../../context/BackupContext';
 import { useIssues } from '../../hooks/useIssues';
 import { BackupsStatus } from '@/apps/main/background-processes/backups/BackupsProcessStatus/BackupsStatus';
 
+interface DetailedDevicePillProps {
+  showIssues: () => void;
+}
+
 function BackingUp({ backupStatus }: { backupStatus: BackupsStatus }) {
   return (
     <span className="flex flex-row items-center text-primary">
@@ -26,7 +30,7 @@ function DownloadingBackup() {
   );
 }
 
-export function DetailedDevicePill() {
+export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
   const { backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
@@ -51,7 +55,7 @@ export function DetailedDevicePill() {
         {selected === current && thereIsProgress && <BackupsProgressPercentage progress={percentualProgress} />}
       </div>
       {selected === current && thereIsProgress && <BackupsProgressBar progress={percentualProgress} />}
-      {selected === current && displayIssues && <ShowBackupsIssues />}
+      {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}
 
       {thereIsDownloadProgress && (
         <>

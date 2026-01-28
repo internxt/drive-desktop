@@ -2,13 +2,14 @@ import { DeviceBackups } from './DeviceBackups';
 
 interface DeviceSettingsProps extends React.HTMLAttributes<HTMLBaseElement> {
   onGoToList: () => void;
-  showDownloadFolders: () => void;
+  showIssues: () => void;
+  showDownloadFolers: () => void;
 }
 
-export function DeviceSettings({ onGoToList, className, showDownloadFolders }: DeviceSettingsProps) {
+export function DeviceSettings({ onGoToList, className, showIssues, showDownloadFolers }: DeviceSettingsProps) {
   return (
     <section className={className}>
-      <DeviceBackups onGoToList={onGoToList} showDownloadFolders={showDownloadFolders} />
+      <DeviceBackups onGoToList={onGoToList} showIssues={showIssues} showDownloadFolers={showDownloadFolers} />
     </section>
   );
 }

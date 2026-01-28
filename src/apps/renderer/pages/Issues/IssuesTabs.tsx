@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Section } from './issues-store';
+import { Section } from './Section';
 import { useI18n } from '../../localize/use-i18n';
 
 function TabPill({ value, name, active, setAsActive }: { value: Section; name: string; active: boolean; setAsActive: () => void }) {
@@ -43,7 +43,7 @@ export function IssuesTabs({ active, onChangeTab }: { active: Section; onChangeT
   ];
 
   return (
-    <div className="flex h-10 items-stretch rounded-xl bg-gray-5 p-1">
+    <div className="non-draggable flex h-10 items-stretch rounded-xl bg-gray-5 p-1">
       <div className="relative flex items-stretch">
         <motion.div
           variants={{

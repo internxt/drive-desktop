@@ -17,17 +17,10 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
 import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
-import { getWorkArea, hideFrontend } from '../windows/widget';
-import { isUserLoggedIn } from '../auth/handlers';
-import { finishOnboarding } from '../windows';
 
 export const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupPreloadIpc() {
-  ipcPreloadMain.handle('getWorkArea', () => Promise.resolve(getWorkArea()));
-  ipcPreloadMain.handle('hideFrontend', () => Promise.resolve(hideFrontend()));
-  ipcPreloadMain.handle('isUserLoggedIn', () => Promise.resolve(isUserLoggedIn()));
-  ipcPreloadMain.handle('finishOnboarding', () => finishOnboarding());
   ipcPreloadMain.handle('getLastBackupProgress', () => Promise.resolve(getLastBackupProgress()));
   ipcPreloadMain.handle('getUsage', () => calculateUsage());
   ipcPreloadMain.handle('getAvailableProducts', () => getAvailableProducts());

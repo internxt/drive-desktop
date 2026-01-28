@@ -10,16 +10,17 @@ import { DownloadBackups } from './DownloadBackups';
 
 interface DeviceBackupsProps {
   onGoToList: () => void;
-  showDownloadFolders: () => void;
+  showIssues: () => void;
+  showDownloadFolers: () => void;
 }
 
-export function DeviceBackups({ onGoToList, showDownloadFolders }: DeviceBackupsProps) {
+export function DeviceBackups({ onGoToList, showIssues, showDownloadFolers }: DeviceBackupsProps) {
   const { current, selected } = useContext(DeviceContext);
 
   return (
     <div className="flex flex-col gap-2">
       <p className="text-neutral-500">Backup</p>
-      <DetailedDevicePill />
+      <DetailedDevicePill showIssues={showIssues} />
       <div className="grid grid-cols-2 gap-2">
         {selected === current ? (
           <>
@@ -29,7 +30,7 @@ export function DeviceBackups({ onGoToList, showDownloadFolders }: DeviceBackups
         ) : (
           <>
             <DownloadBackups className="w-full" />
-            <ViewBackups className="w-full" showDownloadFolders={showDownloadFolders} />
+            <ViewBackups className="w-full" showDownloadFolers={showDownloadFolers} />
           </>
         )}
       </div>

@@ -15,15 +15,17 @@ import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import Bottleneck from 'bottleneck';
 
-let isLoggedIn: boolean | null = null;
+let isLoggedIn: boolean;
 
-export function setIsLoggedIn(value: boolean | null) {
+export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
-export function isUserLoggedIn() {
+setIsLoggedIn(!!getUser());
+
+export function getIsLoggedIn() {
   return isLoggedIn;
 }
 
@@ -49,6 +51,7 @@ export async function checkIfUserIsLoggedIn() {
 }
 
 export function setupAuthIpcHandlers() {
+  ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
     logger.debug({ msg: 'Manual logout' });
@@ -76,12 +79,12 @@ export async function emitUserLoggedIn() {
     workspaceToken: '',
   };
 
-  eventBus.once('USER_LOGGED_OUT', () => {
+  eventBus.once('USER_LOGGED_OUT', async () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
     scheduler.stop();
     BackupScheduler.stop();
-    logout({ ctx });
+    await logout({ ctx });
   });
 
   setupLoggedPreloadIpc({ ctx });

@@ -1,5 +1,4 @@
 module.exports = {
-  root: true,
   plugins: ['import', 'unicorn', '@tanstack/query', 'sonarjs'],
   extends: [
     '@internxt/eslint-config-internxt',

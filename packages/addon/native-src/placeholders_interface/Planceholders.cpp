@@ -1,10 +1,10 @@
 #include <Placeholders.h>
 #include <Utilities.h>
 #include <check_hresult.h>
+#include <convert_to_placeholder.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <stdafx.h>
-#include <virtual_drive.h>
 #include <winbase.h>
 #include <windows.h>
 #include <winrt/base.h>

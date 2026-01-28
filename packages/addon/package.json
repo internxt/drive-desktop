@@ -9,7 +9,6 @@
     "dist"
   ],
   "scripts": {
-    "========== Build ==========": "",
     "compile": "node gyp.config.js && node-gyp clean && node-gyp configure build",
     "refresh": "npm pack && cd ../.. && npm update @packages/addon",
     "build": "npm run compile && npm run refresh"

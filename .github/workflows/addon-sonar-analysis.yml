@@ -1,6 +1,7 @@
 name: Addon sonar analysis
 
 on:
+  workflow_dispatch:
   pull_request:
     paths: ['packages/addon/**']
     types: [opened, synchronize, reopened]
@@ -15,6 +16,9 @@ jobs:
     defaults:
       run:
         working-directory: packages/addon
+
+    env:
+      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory
 
     steps:
       - name: Checkout code
@@ -34,12 +38,13 @@ jobs:
         uses: SonarSource/sonarqube-scan-action/install-build-wrapper@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
 
       - name: Run build wrapper
-        run: build-wrapper-win-x86-64.exe --out-dir build_wrapper_output_directory cmd /c "node-gyp configure build"
+        run: build-wrapper-win-x86-64.exe --out-dir ${{ env.BUILD_WRAPPER_OUT_DIR }} cmd /c "node-gyp configure build"
 
-      # The sonar analysis does not work because the sonar project points to the node-win repo so it cannot find the PR
-      # - name: SonarQube Scan
-      #   uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   with:
-      #     projectBaseDir: packages/addon
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            --define sonar.cfamily.compile-commands=${{ env.BUILD_WRAPPER_OUT_DIR }}/compile_commands.json
+

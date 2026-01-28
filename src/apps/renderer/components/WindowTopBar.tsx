@@ -1,20 +1,13 @@
 import { X } from '@phosphor-icons/react';
-import { clsx } from 'clsx';
 
-type Props = {
-  title?: string;
-  className?: string;
-  onClose: () => void;
-};
-
-export default function WindowTopBar({ title, className, onClose }: Props) {
+export default function WindowTopBar({ title, className }: { title?: string; className?: string }) {
   return (
-    <div className={clsx('draggable-handle relative h-10 rounded-t', className)}>
+    <div className={`draggable relative h-10 flex-shrink-0 flex-grow-0 truncate px-1 ${className ?? ''}`}>
       <div
         role="button"
         tabIndex={0}
-        onClick={onClose}
-        className="absolute right-0 top-0 flex h-10 items-center justify-center rounded-tr px-3 text-gray-60 hover:bg-red hover:text-white">
+        onClick={globalThis.window.electron.closeWindow}
+        className="non-draggable absolute right-0 top-0 flex h-10 items-center justify-center px-3 text-gray-60 hover:bg-red hover:text-white">
         <X size={20} />
       </div>
       <p

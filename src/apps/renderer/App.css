@@ -81,16 +81,38 @@
   }
 }
 
-body {
+body,
+html {
   font-family: 'Instrument Sans', sans-serif;
-  @apply select-none overflow-hidden text-highlight;
+  @apply select-none bg-surface text-highlight dark:bg-gray-1;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
-.rounded-shadow-white {
-  box-shadow: 0 0 0 0.2px white;
-  @apply rounded;
+.draggable {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-app-region: drag;
+}
+
+.non-draggable {
+  -webkit-app-region: no-drag;
+}
+
+body {
+  overflow: hidden;
+}
+
+/** Backups animation **/
+
+.backups-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.backups-modal-shadow {
+  box-shadow:
+    0px 1px 2px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 3px rgba(0, 0, 0, 0.1);
 }

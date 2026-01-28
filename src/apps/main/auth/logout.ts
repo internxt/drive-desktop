@@ -9,13 +9,14 @@ import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/serv
 import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { createAuthWindow } from '../windows/auth';
 import { setIsLoggedIn } from './handlers';
 
 type Props = {
   ctx: AuthContext;
 };
 
-export function logout({ ctx }: Props) {
+export async function logout({ ctx }: Props) {
   try {
     logger.debug({ tag: 'AUTH', msg: 'Drive API bottleneck jobs', jobs: ctx.driveApiBottleneck.counts() });
     logger.debug({ tag: 'AUTH', msg: 'Upload bottleneck jobs', jobs: ctx.uploadBottleneck.counts() });
@@ -25,6 +26,7 @@ export function logout({ ctx }: Props) {
 
     setTrayStatus('IDLE');
 
+    await createAuthWindow();
     setIsLoggedIn(false);
     closeAuxWindows();
 

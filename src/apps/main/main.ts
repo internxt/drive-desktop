@@ -16,6 +16,8 @@ setupElectronLog({ logsPath: PATHS.LOGS });
 
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
+import './windows/settings';
+import './windows/process-issues';
 import './device/handlers';
 import './ipcs/ipcMainAntivirus';
 import './remote-sync/handlers';
@@ -23,9 +25,10 @@ import './remote-sync/handlers';
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
-import { createWidget } from './windows/widget';
+import { getOrCreateWidged, setBoundsOfWidgetByPath } from './windows/widget';
+import { createAuthWindow, getAuthWindow } from './windows/auth';
 import { electronStore } from './config';
-import { setTrayStatus, setupTrayIcon } from './tray/tray';
+import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { setupQuitHandlers } from './quit';
 import { migrate } from '@/migrations/migrate';
@@ -115,17 +118,16 @@ app
     setupTrayIcon();
 
     await migrate();
-    await createWidget();
 
     setUpBackups();
 
     const isLoggedIn = await checkIfUserIsLoggedIn();
 
     if (isLoggedIn) {
-      setIsLoggedIn(true);
       await emitUserLoggedIn();
     } else {
       setIsLoggedIn(false);
+      await createAuthWindow();
       setTrayStatus('IDLE');
     }
 
@@ -134,12 +136,24 @@ app
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
-eventBus.on('USER_LOGGED_IN', () => {
+eventBus.on('USER_LOGGED_IN', async () => {
   try {
+    getAuthWindow()?.hide();
+
+    const widget = await getOrCreateWidged();
+    const tray = getTray();
+    if (widget && tray) {
+      setBoundsOfWidgetByPath(widget, tray);
+    }
+
+    getAuthWindow()?.destroy();
+
     const lastOnboardingShown = electronStore.get('lastOnboardingShown');
 
     if (!lastOnboardingShown) {
-      void openOnboardingWindow();
+      openOnboardingWindow();
+    } else if (widget) {
+      widget.show();
     }
 
     void Marketing.showNotifications();
