@@ -20,6 +20,7 @@ export function uploadFile({ ctx, fn, readable, size, path }: Props) {
     const state = fn(ctx.bucket, {
       source: readable,
       fileSize: size,
+      progressCallback: (progress) => void progressCallback(progress),
       finishedCallback: (error, contentsId) => {
         readable.close();
 
@@ -30,17 +31,18 @@ export function uploadFile({ ctx, fn, readable, size, path }: Props) {
         processError({ path, error });
         return resolve();
       },
-      progressCallback: async (progress) => {
-        const { data: stats } = await fileSystem.stat({ absolutePath: path });
-
-        if (stats && stats.size !== size) {
-          ctx.logger.debug({ msg: 'File size changed during upload', path, oldSize: size, newSize: stats.size });
-          return abortHandler();
-        }
-
-        LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
-      },
     });
+
+    async function progressCallback(progress: number) {
+      const { data: stats } = await fileSystem.stat({ absolutePath: path });
+
+      if (stats && stats.size !== size) {
+        ctx.logger.debug({ msg: 'File size changed during upload', path, oldSize: size, newSize: stats.size });
+        return abortHandler();
+      }
+
+      LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
+    }
 
     function abortHandler() {
       ctx.logger.debug({ msg: 'Aborting upload', path });

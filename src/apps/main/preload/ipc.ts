@@ -15,6 +15,9 @@ import { deleteBackupsFromDevice } from '../device/service';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
 import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
+import { getWorkArea, hideFrontend } from '../windows/widget';
+import { isUserLoggedIn } from '../auth/handlers';
+import { finishOnboarding } from '../windows';
 
 type OmitCtx<T> = 'ctx' extends keyof T ? Omit<T, 'ctx'> : T;
 type BuildSignature<T extends (...args: any[]) => unknown, R> =
@@ -23,6 +26,10 @@ type AsyncMirror<T extends (...args: any[]) => unknown> = BuildSignature<T, Retu
 type Mirror<T extends (...args: any[]) => unknown> = BuildSignature<T, Promise<ReturnType<T>>>;
 
 export type FromProcess = {
+  getWorkArea: Mirror<typeof getWorkArea>;
+  hideFrontend: Mirror<typeof hideFrontend>;
+  isUserLoggedIn: Mirror<typeof isUserLoggedIn>;
+  finishOnboarding: AsyncMirror<typeof finishOnboarding>;
   getLastBackupProgress: Mirror<typeof getLastBackupProgress>;
   getUsage: AsyncMirror<typeof calculateUsage>;
   getAvailableProducts: AsyncMirror<typeof getAvailableProducts>;

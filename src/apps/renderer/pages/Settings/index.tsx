@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import WindowTopBar from '../../components/WindowTopBar';
 import AccountSection from './Account';
 import GeneralSection from './General';
 import BackupsSection from './Backups';
-import Header, { Section } from './Header';
+import Header from './Header';
 import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
@@ -18,39 +18,20 @@ import { useCleaner } from './cleaner/context/use-cleaner';
 import { sectionConfig } from './cleaner/cleaner.config';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import { useI18n } from '../../localize/use-i18n';
+import { Section, useSettingsStore } from './settings-store';
 
 export const SHOW_ANTIVIRUS_TOOL = true;
 
-export default function Settings() {
-  const [activeSection, setActiveSection] = useState<Section>('GENERAL');
+type Props = {
+  activeSection: Section;
+};
+
+export default function Settings({ activeSection }: Props) {
+  const { setActiveSection } = useSettingsStore();
   const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
   const { data: availableProducts, isLoading: isAvailableProductsLoading } = useGetAvailableProducts();
 
   const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(([rootElement]) =>
-      window.electron.settingsWindowResized({
-        width: rootElement.borderBoxSize[0].inlineSize,
-        height: rootElement.borderBoxSize[0].blockSize,
-      }),
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    resizeObserver.observe(rootRef.current!);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const section = url.searchParams.get('section');
-    if (section && ['BACKUPS', 'GENERAL', 'ACCOUNT', 'ANTIVIRUS', 'CLEANER'].includes(section)) {
-      setActiveSection(section as Section);
-    }
-  }, []);
 
   return (
     <DeviceProvider>
@@ -58,7 +39,7 @@ export default function Settings() {
         <AntivirusProvider>
           <CleanerProvider>
             <div
-              className="flex flex-col bg-gray-1"
+              className="flex flex-col rounded bg-gray-1"
               ref={rootRef}
               style={{
                 minWidth: subsection === 'list' ? 'auto' : 400,
@@ -71,7 +52,7 @@ export default function Settings() {
               )}
               {subsection === 'panel' && (
                 <>
-                  <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
+                  <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" onClose={() => setActiveSection(null)} />
                   <Header active={activeSection} onClick={setActiveSection} />
                   <div className="flex flex-grow flex-col justify-center p-5">
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
@@ -82,7 +63,6 @@ export default function Settings() {
                       isSectionLoading={isAvailableProductsLoading}
                       showBackedFolders={() => setSubsection('list')}
                       showDownloadFolers={() => setSubsection('download_list')}
-                      showIssues={() => window.electron.openProcessIssuesWindow()}
                       data-automation-id="itemSettingsBackups"
                     />
                     {SHOW_ANTIVIRUS_TOOL && (

@@ -1,0 +1,42 @@
+name: Core sonar analysis
+
+on:
+  pull_request:
+    paths: ['packages/core/**']
+    types: [opened, synchronize, reopened]
+  push:
+    paths: ['packages/core/**']
+    branches: ['master']
+
+jobs:
+  sonar_analysis:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: packages/core
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:cov
+
+      # The sonar analysis does not work because the sonar project points to the node-win repo so it cannot find the PR
+      # - name: SonarQube Scan
+      #   uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   with:
+      #     projectBaseDir: packages/core
