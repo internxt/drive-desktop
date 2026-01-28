@@ -1,0 +1,37 @@
+name: Core pull request
+
+on:
+  pull_request:
+    paths: ['packages/core/**']
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pull_request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: packages/core
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript compiler
+        run: npm run type-check
+
+      - name: Run Prettier
+        run: npm run format
+
+      - name: Run Eslint
+        run: npm run lint

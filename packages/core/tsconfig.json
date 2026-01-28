@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "ESNext",
+    "module": "commonjs",
+    "lib": ["dom", "esnext"],
+    "declaration": true,
+    "declarationMap": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "pretty": true,
+    "sourceMap": true,
+    "rootDir": ".",
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["vitest/globals"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/tests/*": ["./tests/*"]
+    }
+  },
+  "include": ["src", "tests"]
+}
