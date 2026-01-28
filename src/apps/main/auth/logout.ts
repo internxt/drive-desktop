@@ -18,8 +18,10 @@ type Props = {
 
 export async function logout({ ctx }: Props) {
   try {
-    logger.debug({ tag: 'AUTH', msg: 'Bottleneck jobs', jobs: ctx.bottleneck.counts() });
-    void ctx.bottleneck.stop({ dropWaitingJobs: true });
+    logger.debug({ tag: 'AUTH', msg: 'Drive API bottleneck jobs', jobs: ctx.driveApiBottleneck.counts() });
+    logger.debug({ tag: 'AUTH', msg: 'Upload bottleneck jobs', jobs: ctx.uploadBottleneck.counts() });
+    void ctx.driveApiBottleneck.stop({ dropWaitingJobs: true });
+    void ctx.uploadBottleneck.stop({ dropWaitingJobs: true });
     ctx.abortController.abort();
 
     setTrayStatus('IDLE');

@@ -3,8 +3,6 @@ import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { ReadStream } from 'node:fs';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { processError } from './process-error';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { ActionState } from '@internxt/inxt-js/build/api';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { LocalSync } from '@/backend/features';
 import { CommonContext } from '@/apps/sync-engine/config';
@@ -18,17 +16,14 @@ type Props = {
 };
 
 export function uploadFile({ ctx, fn, readable, size, path }: Props) {
-  function stopUpload(state: ActionState) {
-    state.stop();
-    readable.destroy();
-  }
-
   return new Promise<ContentsId | void>((resolve) => {
     const state = fn(ctx.bucket, {
       source: readable,
       fileSize: size,
       finishedCallback: (error, contentsId) => {
         readable.close();
+
+        ctx.abortController.signal.removeEventListener('abort', abortHandler);
 
         if (contentsId) return resolve(contentsId as ContentsId);
 
@@ -39,19 +34,19 @@ export function uploadFile({ ctx, fn, readable, size, path }: Props) {
         const { data: stats } = await fileSystem.stat({ absolutePath: path });
 
         if (stats && stats.size !== size) {
-          logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
-          stopUpload(state);
-          return resolve();
+          ctx.logger.debug({ msg: 'File size changed during upload', path, oldSize: size, newSize: stats.size });
+          return abortHandler();
         }
 
         LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
       },
     });
 
-    ctx.abortController.signal.addEventListener('abort', () => {
-      logger.debug({ msg: 'Aborting upload', path });
-      stopUpload(state);
-      resolve();
-    });
+    function abortHandler() {
+      ctx.logger.debug({ msg: 'Aborting upload', path });
+      state.stop();
+    }
+
+    ctx.abortController.signal.addEventListener('abort', abortHandler);
   });
 }

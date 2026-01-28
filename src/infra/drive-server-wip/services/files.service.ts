@@ -8,12 +8,14 @@ import { move } from './files/move';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { checkExistence } from './files/check-existence';
 
 export const files = {
   getFiles,
   createFile,
   move,
   replaceFile,
+  checkExistence,
   createThumbnail,
 };
 export const FileModule = files;

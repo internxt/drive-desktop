@@ -39,7 +39,7 @@ describe('process-event', () => {
     // When
     await processEvent(props);
     // Then
-    // call(debounceOnRawMock).toMatchObject({ path });
+    call(debounceOnRawMock).toMatchObject({ path });
   });
 
   it('should ignore if update event and it is a folder', async () => {

@@ -8,7 +8,8 @@ import { paths } from '../shared/HttpClient/schema';
 
 export type AuthContext = {
   readonly abortController: AbortController;
-  readonly bottleneck: Bottleneck;
+  readonly driveApiBottleneck: Bottleneck;
+  readonly uploadBottleneck: Bottleneck;
   readonly client: Client<paths, `${string}/${string}`>;
   workspaceToken: string;
 };

@@ -18,6 +18,10 @@ type TProps = {
 export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
   const { type, excMessage } = parseException({ exc });
 
+  if (type === 'bottleneck') {
+    return new DriveServerWipError('ABORTED', excMessage);
+  }
+
   const loggedError = logger.error({
     ...loggerBody,
     msg: `${loggerBody.msg} was not successful`,
@@ -30,8 +34,6 @@ export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
       addGeneralIssue(networkErrorIssue);
       return new DriveServerWipError('NETWORK', loggedError);
     case 'abort':
-      return new DriveServerWipError('ABORTED', loggedError);
-    case 'bottleneck':
       return new DriveServerWipError('ABORTED', loggedError);
     case 'unknown':
       return new DriveServerWipError('UNKNOWN', loggedError);

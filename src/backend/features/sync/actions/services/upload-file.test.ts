@@ -5,6 +5,7 @@ import { uploadFile } from './upload-file';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import Bottleneck from 'bottleneck';
 
 describe('upload-file', () => {
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
@@ -15,7 +16,11 @@ describe('upload-file', () => {
   let props: Parameters<typeof uploadFile>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof uploadFile>({ path, size });
+    props = mockProps<typeof uploadFile>({
+      ctx: { uploadBottleneck: new Bottleneck() },
+      path,
+      size,
+    });
 
     isTemporaryFileMock.mockReturnValue(false);
     uploadMock.mockResolvedValue('contentsId' as ContentsId);
@@ -49,6 +54,16 @@ describe('upload-file', () => {
     // Then
     expect(res).toBeUndefined();
     call(uploadMock).toMatchObject({ path, size });
+  });
+
+  it('should return undefined if bottleneck stops', async () => {
+    // Given
+    await props.ctx.uploadBottleneck.stop();
+    // When
+    const res = await uploadFile(props);
+    // Then
+    expect(res).toBeUndefined();
+    calls(uploadMock).toHaveLength(0);
   });
 
   it('should return contents id if upload success', async () => {

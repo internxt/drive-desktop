@@ -17,6 +17,7 @@ describe('traverse', () => {
 
   beforeEach(() => {
     props = mockProps<typeof traverse>({
+      ctx: { abortController: new AbortController() },
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
       fileExplorer: {},
       database: {

@@ -20,6 +20,8 @@ type Props = {
 };
 
 export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution }: Props) {
+  if (ctx.abortController.signal.aborted) return;
+
   const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
   const foldersInThisFolder = database.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 

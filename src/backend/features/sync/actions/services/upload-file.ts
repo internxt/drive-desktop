@@ -1,5 +1,6 @@
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
@@ -20,9 +21,15 @@ export async function uploadFile({ ctx, path, size }: Props) {
     return;
   }
 
-  const contentsId = await EnvironmentFileUploader.run({ ctx, size, path });
+  try {
+    const contentsId = await ctx.uploadBottleneck.schedule(() => EnvironmentFileUploader.run({ ctx, path, size }));
 
-  if (!contentsId) return;
+    if (!contentsId) return;
 
-  return { contentsId };
+    return { contentsId };
+  } catch (error) {
+    if (isBottleneckStop({ error })) return;
+
+    throw error;
+  }
 }
