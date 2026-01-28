@@ -19,6 +19,7 @@ export async function uploadFile({ ctx, path }: Props) {
   }
 
   const { size, mtime } = await stat(path);
+
   if (size === 0) {
     return { contentsId: undefined, size, mtime };
   }
