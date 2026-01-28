@@ -11,7 +11,6 @@ export type Win32Path = Brand<string, 'Win32Path'>;
 
 export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 export type FetchDataFn = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => Promise<void>;
-export type CancelFetchDataFn = (connectionKey: bigint, path: Win32Path) => void;
 
 export namespace Watcher {
   export type Event = { event: 'create' | 'update' | 'delete'; path: Win32Path } | { event: 'error'; path: string };
@@ -29,7 +28,7 @@ type TAddon = {
     creationTime: number,
     lastWriteTime: number,
   ): Promise<void>;
-  connectSyncRoot(path: Win32Path, fetchData: FetchDataFn, cancelFetchData: CancelFetchDataFn): z.infer<typeof addonZod.connectSyncRoot>;
+  connectSyncRoot(path: Win32Path, fetchData: FetchDataFn): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: Win32Path, placeholderId: FilePlaceholderId | FolderPlaceholderId): Promise<void>;
   createFolderPlaceholder(path: Win32Path, placeholderId: FolderPlaceholderId, creationTime: number, lastWriteTime: number): Promise<void>;
   dehydrateFile(path: Win32Path): Promise<void>;

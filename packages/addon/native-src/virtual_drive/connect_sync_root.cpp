@@ -5,15 +5,13 @@
 
 napi_value connect_sync_root_impl(napi_env env, napi_callback_info info)
 {
-    auto [syncRootPath, fetchDataCallback, cancelFetchDataCallback] =
-        napi_extract_args<std::wstring, napi_value, napi_value>(env, info);
+    auto [syncRootPath, fetchDataCallback] =
+        napi_extract_args<std::wstring, napi_value>(env, info);
 
     register_threadsafe_fetch_data_callback("FetchDataThreadSafe", env, fetchDataCallback);
-    register_threadsafe_cancel_fetch_data_callback("CancelFetchDataThreadSafe", env, cancelFetchDataCallback);
 
     CF_CALLBACK_REGISTRATION callbackTable[] = {
         {CF_CALLBACK_TYPE_FETCH_DATA, fetch_data_callback_wrapper},
-        {CF_CALLBACK_TYPE_CANCEL_FETCH_DATA, cancel_fetch_data_callback_wrapper},
         CF_CALLBACK_REGISTRATION_END};
 
     CF_CONNECTION_KEY connectionKey;
