@@ -10,6 +10,7 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('folders-recovery-sync', () => {
+  const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'getCheckpoint');
   const getFoldersMock = partialSpyOn(DriveServerWipModule.FolderModule, 'getFolders');
   const getLocalFoldersMock = partialSpyOn(getLocalFoldersModule, 'getLocalFolders');
   const getItemsToSyncMock = partialSpyOn(getItemsToSyncModule, 'getItemsToSync');
@@ -22,10 +23,20 @@ describe('folders-recovery-sync', () => {
   });
 
   beforeEach(() => {
+    getCheckpointMock.mockResolvedValue({ data: { updatedAt: 'datetime' } });
     getFoldersMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
     getLocalFoldersMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid }]);
-    getItemsToSyncMock.mockResolvedValue([{ uuid: 'create' as FileUuid }]);
+    getItemsToSyncMock.mockReturnValue([{ uuid: 'create' as FileUuid }]);
     getDeletedItemsMock.mockReturnValue([{ uuid: 'deleted' as FileUuid, parentUuid: 'parentUuid' }]);
+  });
+
+  it('should return empty if no checkpoint', async () => {
+    // Given
+    getCheckpointMock.mockResolvedValue({ data: undefined });
+    // When
+    const res = await foldersRecoverySync(props);
+    // Then
+    expect(res).toHaveLength(0);
   });
 
   it('should return empty if no remote folders', async () => {

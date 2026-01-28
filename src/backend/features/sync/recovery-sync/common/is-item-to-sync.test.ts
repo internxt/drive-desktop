@@ -34,7 +34,7 @@ describe('is-item-to-sync', () => {
     calls(loggerMock.error).toHaveLength(0);
   });
 
-  it('should return true if not exists locally', () => {
+  it('should return true if local item does not exists', () => {
     // Given
     props.localsMap = new Map();
     // When

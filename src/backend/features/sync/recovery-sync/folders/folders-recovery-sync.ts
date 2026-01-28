@@ -14,6 +14,14 @@ type Props = {
 };
 
 export async function foldersRecoverySync({ ctx, offset }: Props) {
+  const { data: checkpoint } = await SqliteModule.CheckpointModule.getCheckpoint({
+    userUuid: ctx.userUuid,
+    workspaceId: ctx.workspaceId,
+    type: 'folder',
+  });
+
+  if (!checkpoint) return [];
+
   const query: GetFoldersQuery = {
     limit: FETCH_LIMIT_1000,
     offset,
@@ -35,8 +43,8 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
 
   if (!locals) return [];
 
-  const foldersToSync = await getItemsToSync({ ctx, type: 'folder', remotes, locals });
-  const deletedFolders = getDeletedItems({ ctx, type: 'folder', remotes, locals });
+  const foldersToSync = getItemsToSync({ ctx, type: 'folder', remotes, locals, checkpoint });
+  const deletedFolders = getDeletedItems({ ctx, type: 'folder', remotes, locals, checkpoint });
 
   const foldersToSyncPromises = createOrUpdateFolders({ ctx, folderDtos: foldersToSync });
   const deletedFoldersPromises = deletedFolders.map(async (folder) => {
