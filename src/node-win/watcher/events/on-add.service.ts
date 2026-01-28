@@ -1,4 +1,3 @@
-import { Stats } from 'node:fs';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
@@ -9,10 +8,9 @@ import { Drive } from '@/backend/features/drive';
 type TProps = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  stats: Stats;
 };
 
-export async function onAdd({ ctx, path, stats }: TProps) {
+export async function onAdd({ ctx, path }: TProps) {
   try {
     const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
@@ -28,7 +26,6 @@ export async function onAdd({ ctx, path, stats }: TProps) {
       await Drive.Actions.createFile({
         ctx,
         path,
-        stats,
         parentUuid: parentInfo.uuid,
       });
     }

@@ -1,4 +1,3 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
@@ -17,7 +16,7 @@ export class EnvironmentFileUploader {
   static run({ ctx, path, size }: TProps) {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
-    logger.debug({
+    ctx.logger.debug({
       msg: 'Uploading file to the bucket',
       path,
       size,

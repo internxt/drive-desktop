@@ -1,6 +1,5 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { Drive } from '@/backend/features/drive';
 
@@ -28,13 +27,10 @@ export async function checkDangledFile({ ctx, file }: Props) {
     if (error.message.includes('not found')) {
       ctx.logger.warn({ msg: 'Dangled file found', path: file.absolutePath, error });
 
-      const stats = await FileSystemModule.statThrow({ absolutePath: file.absolutePath });
-
       await Drive.Actions.replaceFile({
         ctx,
         path: file.absolutePath,
         uuid: file.uuid,
-        stats,
       });
     } else {
       ctx.logger.warn({ msg: 'Error downloading dangled file', path: file.absolutePath, error });

@@ -54,7 +54,7 @@ export async function checkIfModified({ ctx, remote, local, isFirstExecution }: 
     if (!fileInfo) return;
 
     if (localSize === fileInfo.onDiskSize) {
-      await Drive.Actions.replaceFile({ ctx, stats: local.stats, path, uuid: remote.uuid });
+      await Drive.Actions.replaceFile({ ctx, path, uuid: remote.uuid });
     } else {
       ctx.logger.error({
         msg: 'Cannot update file contents id, not hydrated',
