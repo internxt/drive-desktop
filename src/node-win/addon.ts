@@ -13,7 +13,10 @@ export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 export type FetchDataFn = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => Promise<void>;
 
 export namespace Watcher {
-  export type Event = { event: 'create' | 'update' | 'delete'; path: Win32Path } | { event: 'error'; path: string };
+  export type Event =
+    | { action: 'create' | 'update'; type: 'file' | 'folder' | 'error'; path: Win32Path }
+    | { action: 'delete'; type: 'unknown'; path: Win32Path }
+    | { action: 'error'; type: 'error'; path: string };
   export type OnEvent = (event: Event) => void;
   export type Subscription = {
     unsubscribe: () => void;

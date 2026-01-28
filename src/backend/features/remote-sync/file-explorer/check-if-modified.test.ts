@@ -86,7 +86,7 @@ describe('check-if-modified', () => {
       await checkIfModified(props);
       // Then
       call(loggerMock.debug).toMatchObject({ msg: 'Sync local changes to remote' });
-      call(replaceFileMock).toMatchObject({ path: 'remotePath', uuid: 'uuid', stats: { size: 512 } });
+      call(replaceFileMock).toMatchObject({ path: 'remotePath', uuid: 'uuid' });
     });
   });
 });

@@ -9,11 +9,14 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     napi_value eventObj;
     napi_create_object(env, &eventObj);
 
-    napi_value type, path, parentUuid;
+    napi_value action, type, path, parentUuid;
+
+    napi_create_string_utf8(env, event->action.c_str(), NAPI_AUTO_LENGTH, &action);
     napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &type);
     napi_create_string_utf8(env, event->path.c_str(), NAPI_AUTO_LENGTH, &path);
 
-    napi_set_named_property(env, eventObj, "event", type);
+    napi_set_named_property(env, eventObj, "action", action);
+    napi_set_named_property(env, eventObj, "type", type);
     napi_set_named_property(env, eventObj, "path", path);
     napi_set_named_property(env, eventObj, "parentUuid", parentUuid);
 
@@ -22,12 +25,6 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
     napi_call_function(env, undefined, jsCallback, 1, &eventObj, nullptr);
 
     delete event;
-}
-
-inline void sendEvent(WatcherContext* ctx, const std::string& type, const std::string& path)
-{
-    auto event = new WatcherEvent{type, path};
-    napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
 inline std::string wstringToUtf8(const std::wstring& wstr)
@@ -40,18 +37,43 @@ inline std::string wstringToUtf8(const std::wstring& wstr)
     return result;
 }
 
+inline void sendEvent(WatcherContext* ctx, const std::string& action, const std::wstring& path)
+{
+    std::string type;
+    std::string pathStr = wstringToUtf8(path);
+
+    if (action == "delete") {
+        type = "unknown";
+    } else {
+        DWORD attrs = GetFileAttributesW(path.c_str());
+        if (attrs == INVALID_FILE_ATTRIBUTES) {
+            type = "error";
+        } else {
+            type = (attrs & FILE_ATTRIBUTE_DIRECTORY) ? "folder" : "file";
+        }
+    }
+
+    auto event = new WatcherEvent{action, pathStr, type};
+    napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+}
+
+inline void sendError(WatcherContext* ctx, const std::string& error)
+{
+    auto event = new WatcherEvent{"error", error, "error"};
+    napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
+}
+
 inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
     std::wstring path = rootPath + L"\\" + filename;
-    std::string pathStr = wstringToUtf8(path);
 
     if (fni->Action == FILE_ACTION_MODIFIED) {
-        sendEvent(ctx, "update", pathStr);
+        sendEvent(ctx, "update", path);
     } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-        sendEvent(ctx, "delete", pathStr);
+        sendEvent(ctx, "delete", path);
     } else if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-        sendEvent(ctx, "create", pathStr);
+        sendEvent(ctx, "create", path);
     }
 }
 
@@ -76,7 +98,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
                 nullptr);
 
             if (!success) {
-                sendEvent(ctx, "error", std::format("ReadDirectoryChangesW failed: {}", GetLastError()));
+                sendError(ctx, std::format("ReadDirectoryChangesW failed: {}", GetLastError()));
                 break;
             }
 
@@ -92,7 +114,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
                 fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
             }
         } catch (...) {
-            sendEvent(ctx, "error", format_exception_message("WatchPath"));
+            sendError(ctx, format_exception_message("WatchPath"));
         }
     }
 }
@@ -110,7 +132,7 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
             try {
                 watchPath(ctx, rootPath);
             } catch (...) {
-                sendEvent(ctx, "error", format_exception_message("WatchPathWrapper"));
+                sendError(ctx, format_exception_message("WatchPathWrapper"));
             }
 
             wprintf(L"Remove watcher context\n");
