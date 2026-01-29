@@ -12,6 +12,8 @@ import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
+import { createWipClient } from '@/apps/shared/HttpClient/client';
+import Bottleneck from 'bottleneck';
 
 let isLoggedIn: boolean | null = null;
 
@@ -49,6 +51,7 @@ export async function checkIfUserIsLoggedIn() {
 export function setupAuthIpcHandlers() {
   ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
+    logger.debug({ msg: 'Manual logout' });
     eventBus.emit('USER_LOGGED_OUT');
   });
 }
@@ -62,8 +65,14 @@ export async function emitUserLoggedIn() {
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
 
+  const { driveApiBottleneck, client } = createWipClient();
+  const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
+
   const ctx: AuthContext = {
     abortController,
+    driveApiBottleneck,
+    uploadBottleneck,
+    client,
     workspaceToken: '',
   };
 
@@ -78,6 +87,6 @@ export async function emitUserLoggedIn() {
   setupLoggedPreloadIpc({ ctx });
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  BackupScheduler.start();
+  BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
 }

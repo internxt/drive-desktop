@@ -1,4 +1,5 @@
 import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import Bottleneck from 'bottleneck';
 import { z } from 'zod';
 
 /*
@@ -76,7 +77,14 @@ export function isServerError({ response: { status } }: { response: Response }):
 }
 
 export function isAbortError({ exc }: { exc: unknown }): boolean {
-  return exc instanceof DOMException && exc.name === 'AbortError';
+  return exc instanceof Error && exc.name === 'AbortError';
+}
+
+export function isBottleneckStop({ error }: { error: unknown }): boolean {
+  return (
+    error instanceof Bottleneck.BottleneckError &&
+    (error.message === 'This limiter has been stopped.' || error.message === 'This limiter has been stopped and cannot accept new jobs.')
+  );
 }
 
 export function handleRemoveErrors() {

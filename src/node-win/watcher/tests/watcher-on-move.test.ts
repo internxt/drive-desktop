@@ -30,7 +30,7 @@ describe('watcher on move', () => {
     // Then
     getEvents().toMatchObject([
       { event: 'delete', path: file1 },
-      { event: 'create', path: file2 },
+      { event: 'create', path: file2, type: 'file' },
     ]);
   });
 
@@ -46,7 +46,7 @@ describe('watcher on move', () => {
     // Then
     getEvents().toMatchObject([
       { event: 'delete', path: file1 },
-      { event: 'create', path: file2 },
+      { event: 'create', path: file2, type: 'file' },
     ]);
   });
 
@@ -62,7 +62,7 @@ describe('watcher on move', () => {
     // Then
     getEvents().toMatchObject([
       { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2 },
+      { event: 'create', path: folder2, type: 'folder' },
     ]);
   });
 
@@ -78,7 +78,7 @@ describe('watcher on move', () => {
     // Then
     getEvents().toMatchObject([
       { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2 },
+      { event: 'create', path: folder2, type: 'folder' },
     ]);
   });
 });

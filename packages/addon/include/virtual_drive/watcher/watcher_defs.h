@@ -6,6 +6,7 @@ struct WatcherContext {
 };
 
 struct WatcherEvent {
-    std::string type;
+    std::string action;
     std::string path;
+    std::string type;
 };

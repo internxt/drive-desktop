@@ -25,7 +25,7 @@ describe('watcher on change', () => {
     await appendFile(file, 'content');
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'update', path: file }]);
+    getEvents().toMatchObject([{ event: 'update', path: file, type: 'file' }]);
   });
 
   it('should emit update event when pin a file', async () => {
@@ -37,7 +37,7 @@ describe('watcher on change', () => {
     execSync(`attrib +P ${file}`);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'update', path: file }]);
+    getEvents().toMatchObject([{ event: 'update', path: file, type: 'file' }]);
   });
 
   it('should emit update event when unpin a file', async () => {
@@ -50,7 +50,7 @@ describe('watcher on change', () => {
     execSync(`attrib -P ${file}`);
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'update', path: file }]);
+    getEvents().toMatchObject([{ event: 'update', path: file, type: 'file' }]);
   });
 
   it('should emit update event when pin a folder', async () => {
@@ -62,7 +62,7 @@ describe('watcher on change', () => {
     execSync(`attrib +P ${folder}`);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'update', path: folder }]);
+    getEvents().toMatchObject([{ event: 'update', path: folder, type: 'folder' }]);
   });
 
   it('should emit update event when unpin a folder', async () => {
@@ -75,6 +75,6 @@ describe('watcher on change', () => {
     execSync(`attrib -P ${folder}`);
     await sleep(50);
     // Then
-    getEvents().toMatchObject([{ event: 'update', path: folder }]);
+    getEvents().toMatchObject([{ event: 'update', path: folder, type: 'folder' }]);
   });
 });

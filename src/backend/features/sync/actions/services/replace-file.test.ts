@@ -21,9 +21,9 @@ describe('replace-file', () => {
   let props: Parameters<typeof replaceFile>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof replaceFile>({ path, stats: { size, mtime } });
+    props = mockProps<typeof replaceFile>({ path });
 
-    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId });
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime });
   });
 
   it('should not persist if the file upload fails', async () => {
@@ -50,7 +50,7 @@ describe('replace-file', () => {
     // When
     await replaceFile(props);
     // Given
-    call(uploadMock).toMatchObject({ path, size });
+    call(uploadMock).toMatchObject({ path });
     call(persistMock).toMatchObject({ context: { path, contentsId: 'contentsId', size, modificationTime: '2000-01-01T00:00:00.000Z' } });
     call(addItemMock).toMatchObject({ action: 'MODIFIED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });

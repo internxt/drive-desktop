@@ -1,4 +1,3 @@
-import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
@@ -6,11 +5,13 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFolderDto } from '../out/dto';
 import { move } from './folders/move';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { checkExistence } from './folders/check-existence';
 
 export const folders = {
   createFolder,
   getFolders,
   move,
+  checkExistence,
 };
 export const FolderModule = folders;
 
@@ -22,7 +23,7 @@ async function getFolders({ ctx, context, skipLog }: { ctx: CommonContext; conte
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       signal: ctx.abortController.signal,
       params: { query: context.query },
     });

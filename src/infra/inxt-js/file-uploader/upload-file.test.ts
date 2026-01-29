@@ -8,6 +8,7 @@ import { uploadFile } from './upload-file';
 import { LocalSync } from '@/backend/features';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { sleep } from '@/apps/main/util';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('upload-file', () => {
   const processErrorMock = partialSpyOn(processError, 'processError');
@@ -75,11 +76,11 @@ describe('upload-file', () => {
     calls(processErrorMock).toHaveLength(1);
   });
 
-  it('should destroy read stream if signal aborted', async () => {
+  it('should abort if signal is aborted', async () => {
     // Given
     environment.upload.mockImplementation((_, opts) => {
-      opts.progressCallback(50, 0, 0);
       setTimeout(() => abortController.abort(), 25);
+      opts.finishedCallback(new Error(), null);
       return new ActionState(ActionTypes.Upload);
     });
     // When
@@ -87,27 +88,21 @@ describe('upload-file', () => {
     await sleep(50);
     // Then
     expect(res).toBeUndefined();
-    call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 50 });
-    calls(readable.destroy).toHaveLength(1);
+    call(loggerMock.debug).toMatchObject({ msg: 'Aborting upload' });
   });
 
   it('should stop abort upload on change size', async () => {
     // Given
     environment.upload.mockImplementation((_, opts) => {
-      opts.progressCallback(25, 0, 0);
-      opts.progressCallback(50, 0, 0);
       statMock.mockResolvedValue({ data: { size: 20 } });
-      opts.progressCallback(75, 0, 0);
+      opts.progressCallback(25, 0, 0);
+      opts.finishedCallback(new Error(), null);
       return new ActionState(ActionTypes.Upload);
     });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
-    calls(readable.destroy).toHaveLength(1);
-    calls(addItemMock).toMatchObject([
-      { action: 'UPLOADING', progress: 25 },
-      { action: 'UPLOADING', progress: 50 },
-    ]);
+    calls(loggerMock.debug).toMatchObject([{ msg: 'File size changed during upload' }, { msg: 'Aborting upload' }]);
   });
 });

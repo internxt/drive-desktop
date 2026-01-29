@@ -45,7 +45,7 @@ describe('drive-server-wip', () => {
 
     // When
     const fn: TFunction = driveServerWip[service][method];
-    await fn({ ctx: { abortController: new AbortController() }, context: {} }, {});
+    await fn({ ctx: { abortController: new AbortController(), client: clientMock }, context: {} }, {});
 
     // Then
     const { promiseFn } = clientWrapperMock.mock.calls[0][0];

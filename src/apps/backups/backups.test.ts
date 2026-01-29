@@ -81,8 +81,8 @@ describe('backups', () => {
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
     call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
-    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', stats: { size: 7 } });
-    call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder', stats: { size: 7 } });
+    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile' });
+    call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder' });
 
     expect(service.backed).toBe(8);
 

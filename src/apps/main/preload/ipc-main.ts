@@ -16,11 +16,12 @@ import { deleteBackupsFromDevice } from '../device/service';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
 import { getWorkArea, hideFrontend } from '../windows/widget';
 import { isUserLoggedIn } from '../auth/handlers';
 import { finishOnboarding } from '../windows';
 
-const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
+export const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupPreloadIpc() {
   ipcPreloadMain.handle('getWorkArea', () => Promise.resolve(getWorkArea()));
@@ -48,9 +49,13 @@ export function setupPreloadIpc() {
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
-  ipcMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
+  ipcPreloadMain.handle('backupsStartProcess', () => backupsStartProcess({ ctx }));
 }
 
 export function clearLoggedPreloadIpc() {
-  ipcMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('backupsSetInterval');
+  ipcPreloadMain.removeHandler('backupsStartProcess');
 }

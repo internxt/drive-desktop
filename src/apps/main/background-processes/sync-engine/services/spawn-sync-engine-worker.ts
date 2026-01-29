@@ -25,6 +25,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
       await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
       connectionKey = Addon.connectSyncRoot({ ctx });
+      ctx.logger.debug({ msg: 'Connection key', connectionKey });
     } catch (error) {
       addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
       throw error;

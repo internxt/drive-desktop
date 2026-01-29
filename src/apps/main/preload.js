@@ -80,12 +80,6 @@ var api = {
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
   },
-  setBackupsInterval(value) {
-    return import_electron2.ipcRenderer.invoke("set-backups-interval", value);
-  },
-  startBackupsProcess() {
-    import_electron2.ipcRenderer.send("start-backups-process");
-  },
   stopBackupsProcess() {
     import_electron2.ipcRenderer.send("stop-backups-process");
   },
@@ -201,6 +195,8 @@ var api = {
   openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
-  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props)
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props),
+  backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
+  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

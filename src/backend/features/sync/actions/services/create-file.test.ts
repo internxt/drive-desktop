@@ -22,10 +22,10 @@ describe('create-file', () => {
   let props: Parameters<typeof createFile>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof createFile>({ path, stats: { size } });
+    props = mockProps<typeof createFile>({ path });
 
     isTemporaryFileMock.mockReturnValue(false);
-    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId });
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size });
   });
 
   it('should not upload if the file is temporary', async () => {
@@ -61,7 +61,7 @@ describe('create-file', () => {
     // When
     await createFile(props);
     // Given
-    call(uploadMock).toMatchObject({ path, size });
+    call(uploadMock).toMatchObject({ path });
     call(persistMock).toMatchObject({ context: { path, body: { fileId: 'contentsId', size, plainName: 'file', type: 'txt' } } });
     call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });

@@ -5,37 +5,38 @@ import { Drive } from '@/backend/features/drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { Stats } from 'node:fs';
+import { stat } from 'node:fs/promises';
 
 type Props = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  stats: Stats;
 };
 
-export async function onChange({ ctx, path, stats }: Props) {
+export async function onChange({ ctx, path }: Props) {
   try {
     const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
     if (!fileInfo) return;
 
+    const { size, ctimeMs, mtimeMs } = await stat(path);
+
     const now = Date.now();
-    const isChanged = now - stats.ctimeMs <= 5000;
-    const isModified = now - stats.mtimeMs <= 5000;
+    const isChanged = now - ctimeMs <= 5000;
+    const isModified = now - mtimeMs <= 5000;
 
     ctx.logger.debug({
       msg: 'On change event',
       path,
       pinState: fileInfo.pinState,
       inSyncState: fileInfo.inSyncState,
-      size: stats.size,
+      size,
       onDiskSize: fileInfo.onDiskSize,
       isChanged,
       isModified,
     });
 
     if (isModified && fileInfo.inSyncState === InSyncState.NotSync) {
-      await Drive.Actions.replaceFile({ ctx, stats, path, uuid: fileInfo.uuid });
+      await Drive.Actions.replaceFile({ ctx, path, uuid: fileInfo.uuid });
     }
 
     if (isChanged) {
@@ -44,7 +45,7 @@ export async function onChange({ ctx, path, stats }: Props) {
       }
 
       if (fileInfo.pinState === PinState.OnlineOnly) {
-        if (stats.size === 0 || fileInfo.onDiskSize !== 0) {
+        if (size === 0 || fileInfo.onDiskSize !== 0) {
           await handleDehydrate({ ctx, path });
         }
       }

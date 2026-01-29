@@ -26,7 +26,7 @@ export async function logFileExplorer({ ctx }: Props) {
       if (fileInfo) {
         files.push([rPath, fileInfo.placeholderId, fileInfo.pinState, fileInfo.inSyncState, stats.size, fileInfo.onDiskSize].join(','));
       } else {
-        files.push([rPath].join(','));
+        files.push([rPath, '', '', '', stats.size].join(','));
       }
     });
 

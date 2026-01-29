@@ -18,12 +18,12 @@ export function StartBackup({ className }: StartBackupProps) {
   }
 
   function stopBackupsProcess() {
-    window.electron.stopBackupsProcess();
+    globalThis.window.electron.stopBackupsProcess();
     toggleConfirmation();
   }
 
   function startBackupsProcess() {
-    window.electron.startBackupsProcess();
+    void globalThis.window.electron.backupsStartProcess({});
   }
 
   return (

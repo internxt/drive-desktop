@@ -10,13 +10,13 @@ export function initWatcher({ ctx }: Props) {
 
   const handle = Addon.watchPath({
     ctx,
-    onEvent: ({ event, path }) => {
-      if (event === 'error') {
-        ctx.logger.error({ msg: 'Error in watcher', event, error: path });
+    onEvent: ({ action, path, type }) => {
+      if (type === 'error') {
+        ctx.logger.error({ msg: 'Error in watcher', action, type, error: path });
         return;
       }
 
-      void processEvent({ ctx, event, path: abs(path) });
+      void processEvent({ ctx, event: action, type, path: abs(path) });
     },
   });
 

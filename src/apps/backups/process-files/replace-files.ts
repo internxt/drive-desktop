@@ -17,7 +17,7 @@ export async function replaceFiles({ self, ctx, tracker, modified }: Props) {
       const path = local.path;
 
       try {
-        await Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid, stats: local.stats });
+        await Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid });
       } catch (error) {
         ctx.logger.error({ msg: 'Error replacing file', path, error });
       } finally {
