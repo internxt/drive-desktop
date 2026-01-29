@@ -9,53 +9,63 @@ describe('validate-windows-name', () => {
     return mockProps<typeof validateWindowsName>({ name });
   }
 
-  it('Should return true when the name is valid', () => {
+  it('should return true when the name is valid', () => {
     const result = validateWindowsName(getProps({ name: 'test' }));
     expect(result.isValid).toBe(true);
   });
 
-  it('Should return false when the name includes \\', () => {
+  it('should return false when the name includes \\', () => {
     const result = validateWindowsName(getProps({ name: '\\test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes /', () => {
+  it('should return false when the name includes /', () => {
     const result = validateWindowsName(getProps({ name: '/test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes :', () => {
+  it('should return false when the name includes :', () => {
     const result = validateWindowsName(getProps({ name: ':test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes *', () => {
+  it('should return false when the name includes *', () => {
     const result = validateWindowsName(getProps({ name: '*test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes ?', () => {
+  it('should return false when the name includes ?', () => {
     const result = validateWindowsName(getProps({ name: '?test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes "', () => {
+  it('should return false when the name includes "', () => {
     const result = validateWindowsName(getProps({ name: '"test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes <', () => {
+  it('should return false when the name includes <', () => {
     const result = validateWindowsName(getProps({ name: '<test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes >', () => {
+  it('should return false when the name includes >', () => {
     const result = validateWindowsName(getProps({ name: '>test' }));
     expect(result.isValid).toBe(false);
   });
 
-  it('Should return false when the name includes |', () => {
+  it('should return false when the name includes |', () => {
     const result = validateWindowsName(getProps({ name: '|test' }));
+    expect(result.isValid).toBe(false);
+  });
+
+  it('should return false when the name starts with empty space', () => {
+    const result = validateWindowsName(getProps({ name: ' test' }));
+    expect(result.isValid).toBe(false);
+  });
+
+  it('should return false when the name ends with empty space', () => {
+    const result = validateWindowsName(getProps({ name: 'test ' }));
     expect(result.isValid).toBe(false);
   });
 });

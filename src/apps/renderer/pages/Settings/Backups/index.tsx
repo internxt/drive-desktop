@@ -10,20 +10,12 @@ import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
 type Props = {
   active: boolean;
   showBackedFolders: () => void;
-  showIssues: () => void;
   showDownloadFolers: () => void;
   isSectionLoading: boolean;
   isAvailable: boolean;
 };
 
-export default function BackupsSection({
-  active,
-  showBackedFolders,
-  showDownloadFolers,
-  showIssues,
-  isSectionLoading,
-  isAvailable,
-}: Props) {
+export default function BackupsSection({ active, showBackedFolders, showDownloadFolers, isSectionLoading, isAvailable }: Props) {
   const { deviceState } = useContext(DeviceContext);
   const { existsBackup } = useContext(BackupContext);
 
@@ -46,7 +38,7 @@ export default function BackupsSection({
             <DevicesList className="w-1/3" />
             <div className="mx-4 border-l border-gray-10"></div>
             <ScrollableContent className="w-2/3">
-              <DeviceSettings onGoToList={showBackedFolders} showIssues={showIssues} showDownloadFolers={showDownloadFolers} />
+              <DeviceSettings onGoToList={showBackedFolders} showDownloadFolders={showDownloadFolers} />
             </ScrollableContent>
           </section>
         )}

@@ -29,17 +29,11 @@ const api = {
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
   },
-  isUserLoggedIn(): Promise<boolean> {
-    return ipcRenderer.invoke('is-user-logged-in');
-  },
   onUserLoggedInChanged(func: (_: boolean) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
   logout() {
     ipcRenderer.send('USER_LOGGED_OUT');
-  },
-  closeWindow() {
-    ipcRenderer.send('user-closed-window');
   },
   quit() {
     ipcRenderer.send('user-quit');
@@ -61,18 +55,6 @@ const api = {
     const callback = (_: unknown, v: Issue[]) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  openProcessIssuesWindow() {
-    ipcRenderer.send('open-process-issues-window');
-  },
-  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
-    ipcRenderer.send('open-settings-window', section);
-  },
-  settingsWindowResized(payload: { width: number; height: number }) {
-    ipcRenderer.send('settings-window-resized', payload);
-  },
-  finishOnboarding() {
-    ipcRenderer.send('user-finished-onboarding');
   },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
@@ -187,6 +169,10 @@ const api = {
   path,
   shellOpenExternal: shell.openExternal,
   shellOpenPath: shell.openPath,
+  getWorkArea: async () => await ipcPreloadRenderer.invoke('getWorkArea'),
+  hideFrontend: async () => await ipcPreloadRenderer.invoke('hideFrontend'),
+  isUserLoggedIn: async () => await ipcPreloadRenderer.invoke('isUserLoggedIn'),
+  finishOnboarding: async () => await ipcPreloadRenderer.invoke('finishOnboarding'),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
