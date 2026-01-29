@@ -35,7 +35,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
     return;
   }
 
-  const bottleneck = new Bottleneck({ maxConcurrent: 3 });
+  const bottleneck = new Bottleneck({ maxConcurrent: 4 });
   const abortController = new AbortController();
 
   ctx.abortController.signal.addEventListener('abort', () => {
@@ -61,7 +61,11 @@ export async function launchBackupProcesses({ ctx }: Props) {
   tracker.track(backups, abortController);
 
   for (const backupInfo of backups) {
-    logger.debug({ msg: 'Backup folder', backupInfo });
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Backup folder',
+      backupInfo,
+    });
 
     if (abortController.signal.aborted) {
       break;
