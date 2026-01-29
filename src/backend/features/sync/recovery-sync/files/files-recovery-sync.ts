@@ -7,19 +7,23 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getItemsToSync } from '../common/get-items-to-sync';
 import { getDeletedItems } from '../common/get-deleted-items';
 import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type Props = {
   ctx: SyncContext;
   offset: number;
+  lastId: FileUuid | FolderUuid | undefined;
 };
 
-export async function filesRecoverySync({ ctx, offset }: Props) {
+export async function filesRecoverySync({ ctx, offset, lastId }: Props) {
   const query: GetFilesQuery = {
     limit: FETCH_LIMIT_1000,
     offset,
     status: 'EXISTS',
     sort: 'uuid',
     order: 'ASC',
+    lastId,
   };
 
   const { data: remotes } = ctx.workspaceId

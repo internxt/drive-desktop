@@ -3062,7 +3062,7 @@ export interface components {
        */
       bucket: string;
       /**
-       * @description The ID of the file (required when size > 0)
+       * @description The ID of the file (required when size > 0, must not be provided when size = 0)
        * @example file12345
        */
       fileId?: string;
@@ -3168,7 +3168,7 @@ export interface components {
     };
     ReplaceFileDto: {
       /**
-       * @description File id (required when size > 0)
+       * @description File id (required when size > 0, must not be provided when size = 0)
        * @example 651300a2da9b27001f63f384
        */
       fileId?: string;
@@ -3904,7 +3904,7 @@ export interface components {
        */
       bucket: string;
       /**
-       * @description The ID of the file (required when size > 0)
+       * @description The ID of the file (required when size > 0, must not be provided when size = 0)
        * @example file12345
        */
       fileId?: string;
@@ -5121,6 +5121,8 @@ export interface operations {
         order?: 'ASC' | 'DESC';
         /** @description Filter files updated after this date */
         updatedAt?: string;
+        /** @description The last file uuid of the provided list in the previous call */
+        lastId?: string;
       };
       header?: never;
       path?: never;
@@ -8697,7 +8699,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Incomplete checkout email sent successfully */
+      /** @description Incomplete checkout processed successfully */
       200: {
         headers: {
           [name: string]: unknown;
