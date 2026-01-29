@@ -1,6 +1,6 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
-import { createLogger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { getAvailableProducts } from '../../payments/get-available-products';
@@ -18,13 +18,12 @@ type Props = {
 };
 
 export async function launchBackupProcesses({ ctx }: Props) {
-  const logger = createLogger({ tag: 'BACKUPS' });
   const user = getUser();
 
   if (!user) return;
 
   if (tracker.status !== 'STANDBY') {
-    logger.debug({ msg: 'Already running', status: tracker.status });
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
     return;
   }
 
@@ -44,7 +43,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
   });
 
   ipcMain.once('stop-backups-process', () => {
-    logger.debug({ msg: 'Backups bottleneck jobs', jobs: bottleneck.counts() });
+    logger.debug({ tag: 'BACKUPS', msg: 'Backups bottleneck jobs', jobs: bottleneck.counts() });
     void bottleneck.stop({ dropWaitingJobs: true });
     abortController.abort();
     tracker.setStatus('STOPPING');
@@ -56,7 +55,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   const backups = await obtainBackupsInfo();
 
-  logger.debug({ msg: 'Launching backups', backups });
+  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
   clearBackupsIssues();
   tracker.track(backups, abortController);
@@ -81,7 +80,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       workspaceToken: '',
       environment,
       abortController,
-      logger,
+      logger: createLogger({ tag: 'BACKUPS' }),
       addIssue: (issue) => {
         addBackupsIssue({
           ...issue,
