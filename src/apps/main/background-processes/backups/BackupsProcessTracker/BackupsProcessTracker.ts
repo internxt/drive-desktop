@@ -1,14 +1,16 @@
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
+import { BackupsStatus } from '../BackupsProcessStatus/BackupsStatus';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
 import { logger } from '@/apps/shared/logger/logger';
 
 export class BackupsProcessTracker {
+  status: BackupsStatus = 'STANDBY';
   processed = 0;
   total = 0;
 
-  private current: IndividualBackupProgress = {
+  current: IndividualBackupProgress = {
     total: 0,
     processed: 0,
   };
@@ -35,14 +37,20 @@ export class BackupsProcessTracker {
     this.abortController = abortController;
   }
 
-  currentTotal(total: number) {
+  currentTotal(total: number, backed: number) {
     this.current.total = total;
+    this.current.processed = backed;
+    this.notify();
   }
 
-  currentProcessed(processed: number) {
-    this.current.processed = processed;
-
+  currentProcessed() {
+    this.current.processed++;
     this.notify();
+  }
+
+  setStatus(status: BackupsStatus) {
+    this.status = status;
+    broadcastToWindows({ name: 'backups-status-changed', data: status });
   }
 
   backing() {

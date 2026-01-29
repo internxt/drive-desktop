@@ -1,6 +1,5 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
-import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
@@ -8,10 +7,11 @@ import { getAvailableProducts } from '../../payments/get-available-products';
 import { getUser } from '../../auth/service';
 import { buildUserEnvironment } from './build-environment';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { status } from './BackupsProcessStatus/BackupsProcessStatus';
 import electronStore from '../../config';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { obtainBackupsInfo } from './BackupConfiguration/BackupConfiguration';
+import Bottleneck from 'bottleneck';
 
 type Props = {
   ctx: AuthContext;
@@ -22,8 +22,8 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   if (!user) return;
 
-  if (!status.isIn('STANDBY')) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
+  if (tracker.status !== 'STANDBY') {
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
     return;
   }
 
@@ -35,6 +35,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
     return;
   }
 
+  const bottleneck = new Bottleneck({ maxConcurrent: 4 });
   const abortController = new AbortController();
 
   ctx.abortController.signal.addEventListener('abort', () => {
@@ -42,16 +43,17 @@ export async function launchBackupProcesses({ ctx }: Props) {
   });
 
   ipcMain.once('stop-backups-process', () => {
-    logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
+    logger.debug({ tag: 'BACKUPS', msg: 'Backups bottleneck jobs', jobs: bottleneck.counts() });
+    void bottleneck.stop({ dropWaitingJobs: true });
     abortController.abort();
-    status.set('STOPPING');
+    tracker.setStatus('STOPPING');
   });
 
-  status.set('RUNNING');
+  tracker.setStatus('RUNNING');
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
-  const backups = await backupsConfig.obtainBackupsInfo();
+  const backups = await obtainBackupsInfo();
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
@@ -74,6 +76,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       ...backupInfo,
       driveApiBottleneck: ctx.driveApiBottleneck,
       uploadBottleneck: ctx.uploadBottleneck,
+      backupsBottleneck: bottleneck,
       client: ctx.client,
       userUuid: user.uuid,
       bucket: user.backupsBucket,
@@ -92,10 +95,10 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
     tracker.backing();
 
-    await executeBackupWorker(tracker, context);
+    await executeBackupWorker(context);
   }
 
-  status.set('STANDBY');
+  tracker.setStatus('STANDBY');
 
   tracker.reset();
   electronStore.set('lastBackup', Date.now());
