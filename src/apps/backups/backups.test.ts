@@ -11,6 +11,7 @@ import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
+import Bottleneck from 'bottleneck';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
@@ -35,6 +36,7 @@ describe('backups', () => {
       folderUuid: rootUuid,
       pathname: testPath,
       abortController: new AbortController(),
+      backupsBottleneck: new Bottleneck(),
     },
   });
 
@@ -86,7 +88,7 @@ describe('backups', () => {
     calls(loggerMock.debug).toStrictEqual([
       { msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
       { msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
-      { msg: 'Total items to backup', total: 8, alreadyBacked: 3 },
+      { msg: 'Total items to backup', total: 8, backed: 3 },
     ]);
   });
 });

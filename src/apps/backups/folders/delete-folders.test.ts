@@ -2,12 +2,12 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { deleteFolders } from './delete-folders';
 import * as scheduleRequest from '../schedule-request';
-import * as deleteFileByUuid from '@/infra/drive-server-wip/out/ipc-main';
+import * as deleteFolderByUuid from '@/infra/drive-server-wip/out/ipc-main';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('delete-folders', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');
-  const deleteFileByUuidMock = partialSpyOn(deleteFileByUuid, 'deleteFileByUuid');
+  const deleteFolderByUuidMock = partialSpyOn(deleteFolderByUuid, 'deleteFolderByUuid');
 
   let props: Parameters<typeof deleteFolders>[0];
 
@@ -32,10 +32,10 @@ describe('delete-folders', () => {
 
   it('should delete file', async () => {
     // Given
-    deleteFileByUuidMock.mockResolvedValue();
+    deleteFolderByUuidMock.mockResolvedValue();
     // When
     await deleteFolders(props);
     // Then
-    call(deleteFileByUuidMock).toMatchObject({ path: '/folder' });
+    call(deleteFolderByUuidMock).toMatchObject({ path: '/folder' });
   });
 });
