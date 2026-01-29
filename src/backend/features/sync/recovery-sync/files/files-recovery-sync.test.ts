@@ -9,6 +9,7 @@ import * as getLocalFilesModule from './get-local-files';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('files-recovery-sync', () => {
+  const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'getCheckpoint');
   const getFilesMock = partialSpyOn(DriveServerWipModule.FileModule, 'getFiles');
   const getLocalFilesMock = partialSpyOn(getLocalFilesModule, 'getLocalFiles');
   const getItemsToSyncMock = partialSpyOn(getItemsToSyncModule, 'getItemsToSync');
@@ -21,10 +22,20 @@ describe('files-recovery-sync', () => {
   });
 
   beforeEach(() => {
+    getCheckpointMock.mockResolvedValue({ data: { updatedAt: 'datetime' } });
     getFilesMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
     getLocalFilesMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
-    getItemsToSyncMock.mockResolvedValue([{ uuid: 'create' as FileUuid }]);
+    getItemsToSyncMock.mockReturnValue([{ uuid: 'create' as FileUuid }]);
     getDeletedItemsMock.mockReturnValue([{ uuid: 'deleted' as FileUuid, parentUuid: 'parentUuid' }]);
+  });
+
+  it('should return empty if no checkpoint', async () => {
+    // Given
+    getCheckpointMock.mockResolvedValue({ data: undefined });
+    // When
+    const res = await filesRecoverySync(props);
+    // Then
+    expect(res).toHaveLength(0);
   });
 
   it('should return empty if no remote files', async () => {

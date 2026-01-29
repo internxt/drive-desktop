@@ -1,33 +1,36 @@
-import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getDeletedItems } from './get-deleted-items';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as isItemDeletedModule from './is-item-deleted';
 
 describe('get-deleted-items', () => {
+  const isItemDeletedMock = partialSpyOn(isItemDeletedModule, 'isItemDeleted');
+
   let props: Parameters<typeof getDeletedItems>[0];
 
   beforeEach(() => {
     props = mockProps<typeof getDeletedItems>({
-      remotes: [{ uuid: 'uuid' as FileUuid }],
-      locals: [{ uuid: 'uuid' as FileUuid }],
+      checkpoint: {},
+      remotes: [],
+      locals: [{ uuid: 'uuid' as FileUuid, updatedAt: 'datetime' }],
     });
   });
 
-  it('should return item if not exists remotely', () => {
+  it('should return empty if item is not deleted', () => {
     // Given
-    props.remotes = [];
-    // When
-    const res = getDeletedItems(props);
-    // Then
-    expect(res).toHaveLength(1);
-    calls(loggerMock.error).toMatchObject([{ msg: 'Remote item does not exist' }]);
-  });
-
-  it('should not return item if updatedAt and status are equal', () => {
+    isItemDeletedMock.mockReturnValue(false);
     // When
     const res = getDeletedItems(props);
     // Then
     expect(res).toHaveLength(0);
-    calls(loggerMock.error).toHaveLength(0);
+  });
+
+  it('should return local if item is deleted', () => {
+    // Given
+    isItemDeletedMock.mockReturnValue(true);
+    // When
+    const res = getDeletedItems(props);
+    // Then
+    expect(res).toHaveLength(1);
   });
 });
