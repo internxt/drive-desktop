@@ -1,23 +1,23 @@
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { replaceFiles } from './replace-files';
-import { Sync } from '@/backend/features/sync';
+import { deleteFiles } from './delete-files';
 import * as scheduleRequest from '../schedule-request';
+import * as deleteFileByUuid from '@/infra/drive-server-wip/out/ipc-main';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-describe('replace-files', () => {
+describe('delete-files', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');
-  const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
+  const deleteFileByUuidMock = partialSpyOn(deleteFileByUuid, 'deleteFileByUuid');
 
-  let props: Parameters<typeof replaceFiles>[0];
+  let props: Parameters<typeof deleteFiles>[0];
 
   beforeEach(() => {
     scheduleRequestMock.mockImplementation(async ({ fn }) => {
       await fn();
     });
 
-    props = mockProps<typeof replaceFiles>({
-      modified: [{ local: { path: abs('/file.txt') }, remote: {} }],
+    props = mockProps<typeof deleteFiles>({
+      deleted: [{ absolutePath: abs('/file.txt') }],
     });
   });
 
@@ -25,17 +25,17 @@ describe('replace-files', () => {
     // Given
     scheduleRequestMock.mockRejectedValue(new Error());
     // When
-    await replaceFiles(props);
+    await deleteFiles(props);
     // Then
     calls(loggerMock.error).toHaveLength(1);
   });
 
-  it('should replace file', async () => {
+  it('should delete file', async () => {
     // Given
-    replaceFileMock.mockResolvedValue({});
+    deleteFileByUuidMock.mockResolvedValue();
     // When
-    await replaceFiles(props);
+    await deleteFiles(props);
     // Then
-    call(replaceFileMock).toMatchObject({ path: '/file.txt' });
+    call(deleteFileByUuidMock).toMatchObject({ path: '/file.txt' });
   });
 });
