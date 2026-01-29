@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Sync } from '@/backend/features/sync';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { tracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 describe('create-folders', () => {
   const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
@@ -15,9 +16,9 @@ describe('create-folders', () => {
   let props: Parameters<typeof createFolders>[0];
 
   beforeEach(() => {
+    tracker.reset();
+
     props = mockProps<typeof createFolders>({
-      self: { backed: 0 },
-      tracker: { currentProcessed: vi.fn() },
       ctx: { abortController: new AbortController() },
       tree: { folders: new Map([[rootPath, { uuid: rootUuid, absolutePath: rootPath }]]) },
       added: [join(rootPath, 'folder')],
@@ -39,8 +40,7 @@ describe('create-folders', () => {
     // When
     await createFolders(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
   });
 
   it('should increase backed if there is an error', async () => {
@@ -49,8 +49,7 @@ describe('create-folders', () => {
     // When
     await createFolders(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
     calls(loggerMock.error).toHaveLength(1);
   });
 
@@ -60,8 +59,7 @@ describe('create-folders', () => {
     // When
     await createFolders(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
     call(createFolderMock).toMatchObject({ parentUuid: rootUuid, path: '/backup/folder' });
     expect(props.tree.folders.size).toBe(2);
   });
@@ -81,7 +79,7 @@ describe('create-folders', () => {
     // When
     await createFolders(props);
     // Then
-    expect(props.self.backed).toBe(7);
+    expect(tracker.current.processed).toBe(7);
     calls(createFolderMock).toMatchObject([
       { path: '/backup/folder1' },
       { path: '/backup/folder1/folder2' },

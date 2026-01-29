@@ -4,8 +4,7 @@ import { beforeAll } from 'vitest';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { mockDeep } from 'vitest-mock-extended';
-import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { FileUuid } from '../main/database/entities/DriveFile';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
@@ -30,11 +29,7 @@ describe('backups', () => {
   const addedFile = join(folder, 'addedFile');
   const rootUuid = v4();
 
-  const tracker = mockDeep<BackupsProcessTracker>();
-
-  const service = new Backup();
-  const props = mockProps<typeof service.run>({
-    tracker,
+  const props = mockProps<typeof Backup.run>({
     ctx: {
       folderId: 1,
       folderUuid: rootUuid,
@@ -75,7 +70,7 @@ describe('backups', () => {
     replaceFileMock.mockResolvedValueOnce({ uuid: 'replaceFile' as FileUuid });
 
     // When
-    await service.run(props);
+    await Backup.run(props);
 
     // Then
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
@@ -84,7 +79,7 @@ describe('backups', () => {
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile' });
     call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder' });
 
-    expect(service.backed).toBe(8);
+    expect(tracker.current.processed).toBe(8);
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);

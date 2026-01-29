@@ -3,6 +3,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { replaceFiles } from './replace-files';
 import { Sync } from '@/backend/features/sync';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { tracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 describe('replace-files', () => {
   const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
@@ -10,9 +11,9 @@ describe('replace-files', () => {
   let props: Parameters<typeof replaceFiles>[0];
 
   beforeEach(() => {
+    tracker.reset();
+
     props = mockProps<typeof replaceFiles>({
-      self: { backed: 0 },
-      tracker: { currentProcessed: vi.fn() },
       modified: [{ local: { stats: {} }, remote: { uuid: 'uuid' as FileUuid } }],
     });
   });
@@ -23,8 +24,7 @@ describe('replace-files', () => {
     // When
     await replaceFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
     calls(loggerMock.error).toHaveLength(1);
   });
 
@@ -34,7 +34,6 @@ describe('replace-files', () => {
     // When
     await replaceFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
   });
 });

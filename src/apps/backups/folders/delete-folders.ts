@@ -1,21 +1,23 @@
-import { tracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
-import { Backup } from '../Backups';
 import { BackupsContext } from '../BackupInfo';
+import { scheduleRequest } from '../schedule-request';
 
 type TProps = {
   ctx: BackupsContext;
-  self: Backup;
   deleted: Array<ExtendedDriveFolder>;
 };
 
-export async function deleteFolders({ ctx, self, deleted }: TProps) {
+export async function deleteFolders({ ctx, deleted }: TProps) {
   await Promise.all(
     deleted.map(async (folder) => {
-      await deleteFolderByUuid({ ctx, uuid: folder.uuid, path: folder.absolutePath });
-      self.backed++;
-      tracker.currentProcessed(self.backed);
+      const path = folder.absolutePath;
+
+      try {
+        await scheduleRequest({ ctx, fn: () => deleteFolderByUuid({ ctx, uuid: folder.uuid, path }) });
+      } catch (error) {
+        ctx.logger.error({ msg: 'Error deleting folder', path, error });
+      }
     }),
   );
 }

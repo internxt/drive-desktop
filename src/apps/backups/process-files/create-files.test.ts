@@ -4,6 +4,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createFiles } from './create-files';
 import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
+import { tracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 describe('create-files', () => {
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
@@ -14,9 +15,9 @@ describe('create-files', () => {
   let props: Parameters<typeof createFiles>[0];
 
   beforeEach(() => {
+    tracker.reset();
+
     props = mockProps<typeof createFiles>({
-      self: { backed: 0 },
-      tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: new Map([[parentPath, { uuid: 'parentUuid' as FolderUuid }]]) },
       added: [{ path, stats: { size: 1024 } }],
     });
@@ -28,8 +29,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
   });
 
   it('should increase backed if there is an error', async () => {
@@ -38,8 +38,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
     calls(loggerMock.error).toHaveLength(1);
   });
 
@@ -49,7 +48,6 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    expect(tracker.current.processed).toBe(1);
   });
 });
