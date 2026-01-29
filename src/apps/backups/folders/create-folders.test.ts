@@ -5,9 +5,10 @@ import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Sync } from '@/backend/features/sync';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { tracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import * as scheduleRequest from '../schedule-request';
 
 describe('create-folders', () => {
+  const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');
   const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
 
   const rootUuid = v4() as FolderUuid;
@@ -16,50 +17,49 @@ describe('create-folders', () => {
   let props: Parameters<typeof createFolders>[0];
 
   beforeEach(() => {
-    tracker.reset();
+    scheduleRequestMock.mockImplementation(async ({ fn }) => {
+      await fn();
+    });
 
     props = mockProps<typeof createFolders>({
-      ctx: { abortController: new AbortController() },
       tree: { folders: new Map([[rootPath, { uuid: rootUuid, absolutePath: rootPath }]]) },
       added: [join(rootPath, 'folder')],
     });
   });
 
-  it('should do nothing if signal is aborted', async () => {
+  it('should log if there is an error', async () => {
     // Given
-    props.ctx.abortController.abort();
+    scheduleRequestMock.mockRejectedValue(new Error());
+    // When
+    await createFolders(props);
+    // Then
+    call(loggerMock.error).toMatchObject({ msg: 'Error creating folder' });
+  });
+
+  it('should ignore if parent is not found', async () => {
+    // Given
+    props.tree.folders = new Map();
     // When
     await createFolders(props);
     // Then
     calls(createFolderMock).toHaveLength(0);
   });
 
-  it('should increase backed if parent is not found', async () => {
+  it('should ignore if folder cannot be created', async () => {
     // Given
-    props.tree.folders = new Map();
+    createFolderMock.mockResolvedValue(undefined);
     // When
     await createFolders(props);
     // Then
-    expect(tracker.current.processed).toBe(1);
-  });
-
-  it('should increase backed if there is an error', async () => {
-    // Given
-    createFolderMock.mockRejectedValue(new Error());
-    // When
-    await createFolders(props);
-    // Then
-    expect(tracker.current.processed).toBe(1);
-    calls(loggerMock.error).toHaveLength(1);
+    expect(props.tree.folders.size).toBe(1);
   });
 
   it('should add folder to the tree if it is created', async () => {
     // Given
-    createFolderMock.mockResolvedValueOnce({});
+    createFolderMock.mockResolvedValue({});
     // When
     await createFolders(props);
     // Then
-    expect(tracker.current.processed).toBe(1);
     call(createFolderMock).toMatchObject({ parentUuid: rootUuid, path: '/backup/folder' });
     expect(props.tree.folders.size).toBe(2);
   });
@@ -79,7 +79,6 @@ describe('create-folders', () => {
     // When
     await createFolders(props);
     // Then
-    expect(tracker.current.processed).toBe(7);
     calls(createFolderMock).toMatchObject([
       { path: '/backup/folder1' },
       { path: '/backup/folder1/folder2' },

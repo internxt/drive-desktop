@@ -10,10 +10,11 @@ type Props = {
 export async function scheduleRequest({ ctx, fn }: Props) {
   try {
     await ctx.backupsBottleneck.schedule(() => fn());
-    tracker.currentProcessed();
   } catch (error) {
     if (isBottleneckStop({ error })) return;
 
     throw error;
+  } finally {
+    tracker.currentProcessed();
   }
 }
