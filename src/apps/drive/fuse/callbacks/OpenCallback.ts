@@ -5,6 +5,7 @@ import { FuseFileOrDirectoryAlreadyExistsError, FuseIOError, FuseNoSuchFileOrDir
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { Container } from 'diod';
 import { trackOpen } from './open-flags-tracker';
+import { TemporalFile } from '../../../../context/storage/TemporalFiles/domain/TemporalFile';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(
@@ -30,7 +31,7 @@ export class OpenCallback extends FuseCallback<number> {
 
       return this.right(0);
     } catch (err) {
-      if (path.includes('.goutputstream-')) {
+      if (TemporalFile.isTemporaryPath(path)) {
         return this.left(new FuseFileOrDirectoryAlreadyExistsError());
       }
 

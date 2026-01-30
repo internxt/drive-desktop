@@ -12,7 +12,8 @@ export type TemporalFileAttributes = {
 export class TemporalFile extends AggregateRoot {
   private static readonly TEMPORAL_EXTENSION = 'tmp';
   private static readonly LOCK_FILE_NAME_PREFIX = '.~lock.';
-  private static readonly OUTPUT_STREAM_NAME_PREFIX = '.~lock.';
+  private static readonly OUTPUT_STREAM_NAME_PREFIX = '.goutputstream-';
+  private static readonly VIM_SWAP_EXTENSIONS = ['.swp', '.swo', '.swn', '.swm'];
 
   private constructor(
     private _createdAt: Date,
@@ -53,6 +54,16 @@ export class TemporalFile extends AggregateRoot {
     return file;
   }
 
+  static isTemporaryPath(pathString: string): boolean {
+    try {
+      const path = new TemporalFilePath(pathString);
+      const file = new TemporalFile(new Date(), path, new TemporalFileSize(0), new Date());
+      return file.isAuxiliary();
+    } catch {
+      return false;
+    }
+  }
+
   static from(attributes: TemporalFileAttributes): TemporalFile {
     return new TemporalFile(
       attributes.createdAt,
@@ -70,8 +81,9 @@ export class TemporalFile extends AggregateRoot {
     const isLockFile = this.isLockFile();
     const isTemporal = this.isTemporal();
     const isOutputStream = this.isOutputStream();
+    const isVimSwap = this.isVimSwapFile();
 
-    return isLockFile || isTemporal || isOutputStream;
+    return isLockFile || isTemporal || isOutputStream || isVimSwap;
   }
 
   isLockFile(): boolean {
@@ -84,6 +96,10 @@ export class TemporalFile extends AggregateRoot {
 
   isOutputStream(): boolean {
     return this.name.startsWith(TemporalFile.OUTPUT_STREAM_NAME_PREFIX);
+  }
+
+  isVimSwapFile(): boolean {
+    return TemporalFile.VIM_SWAP_EXTENSIONS.some((ext) => this.name.endsWith(ext));
   }
 
   attributes(): TemporalFileAttributes {
