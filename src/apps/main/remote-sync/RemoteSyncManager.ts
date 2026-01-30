@@ -89,6 +89,9 @@ export class RemoteSyncManager {
     }
     this.totalFilesSynced = 0;
     this.totalFoldersSynced = 0;
+    this.filesSyncStatus = 'IDLE';
+    this.foldersSyncStatus = 'IDLE';
+
     await this.db.files.connect();
     await this.db.folders.connect();
 

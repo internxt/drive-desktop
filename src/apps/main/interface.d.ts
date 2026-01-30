@@ -102,6 +102,7 @@ export interface IElectronAPI {
   onBackupFatalErrorsChanged(fn: (backupErrors: Array<BackupErrorRecord>) => void): () => void;
   getBackupFatalErrors(): Promise<Array<BackupErrorRecord>>;
   onBackupProgress(func: (value: number) => void): () => void;
+  startRemoteSync(): Promise<void>;
 }
 
 declare global {
