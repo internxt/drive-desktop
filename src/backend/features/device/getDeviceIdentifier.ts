@@ -1,21 +1,21 @@
-import { Either, left, right } from './../../../context/shared/domain/Either';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getMachineId } from '../../../infra/device/getMachineId';
 import os from 'os';
 import { DeviceIdentifierDTO, isAllowedPlatform } from './device.types';
 
-export function getDeviceIdentifier(): Either<Error, DeviceIdentifierDTO> {
+export function getDeviceIdentifier() {
   const hostname = os.hostname().trim();
   const platform = os.platform();
 
   if (!isAllowedPlatform(platform)) {
-    return left(new Error(`Unsupported platform: ${platform}`));
+    return { error: new Error(`Unsupported platform: ${platform}`) };
   }
 
   const { data: key, error } = getMachineId();
 
   if (key && platform && hostname) {
-    return right({ key, platform, hostname });
+    const data: DeviceIdentifierDTO = { key, platform, hostname };
+    return { data };
   }
 
   const err = logger.error({
@@ -24,5 +24,5 @@ export function getDeviceIdentifier(): Either<Error, DeviceIdentifierDTO> {
     error,
     context: { platform, hostname, key },
   });
-  return left(err);
+  return { error: err };
 }

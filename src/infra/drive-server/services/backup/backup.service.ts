@@ -223,7 +223,7 @@ export class BackupService {
     }
   }
 
-  async getDevicesByIdentifier(query: getDevicesByIdentifierQuery): Promise<Either<Error, Array<Device>>> {
+  async getDevicesByIdentifier({ query }: { query: getDevicesByIdentifierQuery }) {
     try {
       const response = await driveServerClient.GET('/backup/v2/devices', {
         headers: getNewApiHeaders(),
@@ -235,9 +235,12 @@ export class BackupService {
           msg: 'Get devices by identifier request was not successful',
           attributes: { endpoint: '/backup/v2/devices' },
         });
-        return left(new Error('Get devices by identifier request was not successful'));
+        const error = new Error('Get devices by identifier request was not successful');
+        return { error };
       }
-      return right(response.data.map(({ folder }) => mapDeviceAsFolderToDevice(folder!)));
+
+      const deviceMapped = response.data.map(({ folder }) => mapDeviceAsFolderToDevice(folder!));
+      return { data: deviceMapped };
     } catch (err) {
       const error = mapError(err);
       logger.error({
@@ -246,7 +249,7 @@ export class BackupService {
         error: error.message,
         attributes: { endpoint: '/backup/v2/devices' },
       });
-      return left(error);
+      return { error };
     }
   }
 

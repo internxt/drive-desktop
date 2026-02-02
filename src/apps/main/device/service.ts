@@ -299,11 +299,11 @@ export function findBackupPathnameFromId(id: number): string | undefined {
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   configStore.set('backupsEnabled', true);
 
-  const result = await DeviceModule.getOrCreateDevice();
-  if (result instanceof Error) {
-    throw result;
+  const { error, data } = await DeviceModule.getOrCreateDevice();
+  if (error) {
+    throw error;
   }
-  const operations = folderPaths.map((folderPath) => createBackup({ pathname: folderPath, device: result }));
+  const operations = folderPaths.map((folderPath) => createBackup({ pathname: folderPath, device: data }));
 
   await Promise.all(operations);
 }

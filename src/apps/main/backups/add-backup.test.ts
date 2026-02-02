@@ -1,26 +1,19 @@
+import * as getPathFromDialogModule from '../device/service';
+import * as createBackupModule from './create-backup';
+import * as DeviceModuleModule from './../../../backend/features/device/device.module';
+import * as enableExistingBackupModule from './enable-existing-backup';
+import * as fetchDeviceModule from '../../../backend/features/device/fetchDevice';
+import configStoreModule from '../config';
 import { addBackup } from './add-backup';
-import { getPathFromDialog } from '../device/service';
-import configStore from '../config';
-import { createBackup } from './create-backup';
-import { DeviceModule } from './../../../backend/features/device/device.module';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { enableExistingBackup } from './enable-existing-backup';
+import { loggerMock } from 'tests/vitest/mocks.helper';
+import { call, partialSpyOn } from 'tests/vitest/utils.helper';
 
-vi.mock('../device/service');
-vi.mock('../config');
-vi.mock('./create-backup');
-vi.mock('./../../../backend/features/device/device.module');
-vi.mock('./enable-existing-backup');
-vi.mock('../../../backend/features/device/fetchDevice', () => ({
-  fetchDevice: vi.fn(),
-}));
-
-const mockedGetPathFromDialog = vi.mocked(getPathFromDialog);
-const mockedConfigStore = vi.mocked(configStore);
-const mockedCreateBackup = vi.mocked(createBackup);
-const mockedDeviceModule = vi.mocked(DeviceModule);
-const mockedLogger = vi.mocked(logger);
-const mockedEnableExistingBackup = vi.mocked(enableExistingBackup);
+const mockedGetPathFromDialog = partialSpyOn(getPathFromDialogModule, 'getPathFromDialog');
+const mockedConfigStoreGet = partialSpyOn(configStoreModule, 'get');
+const mockedCreateBackup = partialSpyOn(createBackupModule, 'createBackup');
+const mockedGetOrCreateDevice = partialSpyOn(DeviceModuleModule.DeviceModule, 'getOrCreateDevice');
+const mockedEnableExistingBackup = partialSpyOn(enableExistingBackupModule, 'enableExistingBackup');
+const mockedFetchDevice = partialSpyOn(fetchDeviceModule, 'fetchDevice');
 
 describe('addBackup', () => {
   const mockDevice = {
@@ -33,25 +26,21 @@ describe('addBackup', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockedFetchDevice.mockResolvedValue({ error: undefined, data: mockDevice });
   });
 
   it('should throw error when device is not found', async () => {
     const mockError = new Error('Device not found');
-    mockedDeviceModule.getOrCreateDevice.mockResolvedValue(mockError);
-    mockedLogger.error.mockImplementation(() => {
-      throw new Error('Error message');
-    });
+    mockedGetOrCreateDevice.mockResolvedValue({ error: mockError, data: undefined });
 
     await expect(addBackup()).rejects.toThrow('Error message');
-    expect(mockedLogger.error).toBeCalledWith({
-      tag: 'BACKUPS',
+    call(loggerMock.error).toMatchObject({
       msg: 'Error adding backup: No device found',
     });
   });
 
   it('should return undefined when no path is chosen', async () => {
-    mockedDeviceModule.getOrCreateDevice.mockResolvedValue(mockDevice);
+    mockedGetOrCreateDevice.mockResolvedValue({ error: undefined, data: mockDevice });
     mockedGetPathFromDialog.mockResolvedValue(null);
 
     const result = await addBackup();
@@ -70,14 +59,14 @@ describe('addBackup', () => {
       backupsBucket: 'test-bucket',
     };
 
-    mockedDeviceModule.getOrCreateDevice.mockResolvedValue(mockDevice);
+    mockedGetOrCreateDevice.mockResolvedValue({ error: undefined, data: mockDevice });
     mockedGetPathFromDialog.mockResolvedValue({ path: chosenPath, itemName: 'backup' });
-    mockedConfigStore.get.mockReturnValue({});
+    mockedConfigStoreGet.mockReturnValue({});
     mockedCreateBackup.mockResolvedValue(mockBackupInfo);
 
     const result = await addBackup();
 
-    expect(mockedCreateBackup).toBeCalledWith({
+    call(mockedCreateBackup).toMatchObject({
       pathname: chosenPath,
       device: mockDevice,
     });
@@ -100,14 +89,14 @@ describe('addBackup', () => {
       backupsBucket: 'test-bucket',
     };
 
-    mockedDeviceModule.getOrCreateDevice.mockResolvedValue(mockDevice);
+    mockedGetOrCreateDevice.mockResolvedValue({ error: undefined, data: mockDevice });
     mockedGetPathFromDialog.mockResolvedValue({ path: chosenPath, itemName: 'existing' });
-    mockedConfigStore.get.mockReturnValue({ [chosenPath]: existingBackupData });
+    mockedConfigStoreGet.mockReturnValue({ [chosenPath]: existingBackupData });
     mockedEnableExistingBackup.mockResolvedValue(mockBackupInfo);
 
     const result = await addBackup();
 
-    expect(mockedEnableExistingBackup).toBeCalledWith(chosenPath, mockDevice);
+    call(mockedEnableExistingBackup).toMatchObject([chosenPath, mockDevice]);
     expect(result).toStrictEqual(mockBackupInfo);
   });
 });

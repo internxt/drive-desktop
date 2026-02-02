@@ -31,6 +31,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn', // TODO: Change back to 'error' after fixing existing violations
     '@typescript-eslint/no-unused-vars': 'warn', // TODO: Change back to 'error' after fixing existing violations
     '@typescript-eslint/no-unsafe-declaration-merging': 'warn', // TODO: Change back to 'error' after fixing existing violations
+    'object-shorthand': ['warn', 'always'],
   },
   parser: '@typescript-eslint/parser',
   settings: {

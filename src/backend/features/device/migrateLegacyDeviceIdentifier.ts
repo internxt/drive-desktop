@@ -1,56 +1,55 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { Either } from './../../../context/shared/domain/Either';
 import { Device } from './../../../apps/main/device/service';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 import configStore from './../../../apps/main/config';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 
-export async function migrateLegacyDeviceIdentifier(device: Device): Promise<Either<Error, Device>> {
-  const getDeviceIdentifierResult = getDeviceIdentifier();
-  if (getDeviceIdentifierResult.isLeft()) {
+type Props = {
+  device: Device;
+};
+
+export async function migrateLegacyDeviceIdentifier({ device }: Props) {
+  const { error, data } = getDeviceIdentifier();
+  if (error) {
     logger.warn({
       tag: 'BACKUPS',
       msg: 'No valid identifier available for migration',
     });
-    return right(device);
+    return { data: device };
   }
-  const deviceIdentifier = getDeviceIdentifierResult.getRight();
 
   const addIdentifierResult = await driveServerModule.backup.addDeviceIdentifier({
-    key: deviceIdentifier.key,
-    hostname: deviceIdentifier.hostname,
-    platform: deviceIdentifier.platform,
+    key: data.key,
+    hostname: data.hostname,
+    platform: data.platform,
     name: device.name,
     folderUuid: device.uuid,
   });
 
-  if (addIdentifierResult.isRight()) {
+  const migrationError = addIdentifierResult.getLeft();
+  const isSuccessful =
+    addIdentifierResult.isRight() ||
+    (migrationError instanceof BackupError && migrationError.code === 'ALREADY_EXISTS');
+
+  if (isSuccessful) {
     configStore.set('deviceId', -1);
     configStore.set('deviceUUID', '');
+
+    const migratedDevice = addIdentifierResult.isRight() ? addIdentifierResult.getRight() : device;
+
     logger.debug({
       tag: 'BACKUPS',
       msg: 'Successfully migrated legacy device identifier',
-      device: addIdentifierResult.getRight(),
+      device: migratedDevice,
     });
-    return right(addIdentifierResult.getRight());
+    return { data: migratedDevice };
   }
-  const error = addIdentifierResult.getLeft();
-  if (error instanceof BackupError && error.code === 'ALREADY_EXISTS') {
-    configStore.set('deviceId', -1);
-    configStore.set('deviceUUID', '');
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Successfully migrated legacy device identifier',
-      device: addIdentifierResult.getRight(),
-    });
-    return right(device);
-  }
+
   logger.warn({
     tag: 'BACKUPS',
     msg: 'Failed to migrate legacy device identifier',
-    error,
+    error: migrationError,
   });
-  return right(device);
+  return { data: device };
 }

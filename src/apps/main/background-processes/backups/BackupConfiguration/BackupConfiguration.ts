@@ -30,12 +30,12 @@ export class BackupConfiguration {
   }
 
   async obtainBackupsInfo(): Promise<Array<BackupInfo>> {
-    const device = await DeviceModule.getOrCreateDevice();
-    if (device instanceof Error) return [];
+    const { error, data } = await DeviceModule.getOrCreateDevice();
+    if (error) return [];
 
-    const enabledBackupEntries = await DeviceModule.getBackupsFromDevice(device, true);
+    const enabledBackupEntries = await DeviceModule.getBackupsFromDevice(data, true);
 
-    return this.map(enabledBackupEntries, device.bucket);
+    return this.map(enabledBackupEntries, data.bucket);
   }
 
   hasDiscoveredBackups(): boolean {

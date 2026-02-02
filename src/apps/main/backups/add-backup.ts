@@ -6,8 +6,8 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { enableExistingBackup } from './enable-existing-backup';
 
 export async function addBackup() {
-  const device = await DeviceModule.getOrCreateDevice();
-  if (device instanceof Error) {
+  const { error, data } = await DeviceModule.getOrCreateDevice();
+  if (error) {
     throw logger.error({ tag: 'BACKUPS', msg: 'Error adding backup: No device found' });
   }
 
@@ -19,8 +19,8 @@ export async function addBackup() {
   const existingBackup = backupList[chosenPath];
 
   if (!existingBackup) {
-    return await createBackup({ pathname: chosenPath, device });
+    return await createBackup({ pathname: chosenPath, device: data });
   } else {
-    return await enableExistingBackup(chosenPath, device);
+    return await enableExistingBackup(chosenPath, data);
   }
 }

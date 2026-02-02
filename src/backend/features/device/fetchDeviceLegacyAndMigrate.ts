@@ -1,19 +1,18 @@
-import { Either } from '../../../context/shared/domain/Either';
 import { fetchDevice, FetchDeviceProps } from './fetchDevice';
 import { migrateLegacyDeviceIdentifier } from './migrateLegacyDeviceIdentifier';
-import { Device } from '../../../apps/main/device/service';
 import configStore from '../../../apps/main/config';
+import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 
-export async function fetchDeviceLegacyAndMigrate(props: FetchDeviceProps): Promise<Either<Error, Device | null>> {
-  const deviceResult = await fetchDevice(props);
-
-  if (deviceResult.isRight()) {
-    const device = deviceResult.getRight();
-    if (device) {
-      return await migrateLegacyDeviceIdentifier(device);
+export async function fetchDeviceLegacyAndMigrate(props: FetchDeviceProps) {
+  const { error, data } = await fetchDevice(props);
+  if (error) {
+    if (error instanceof BackupError && error.code === 'NOT_FOUND') {
+      configStore.set('deviceId', -1);
+      configStore.set('deviceUUID', '');
     }
-    configStore.set('deviceId', -1);
-    configStore.set('deviceUUID', '');
+
+    return { error };
   }
-  return deviceResult;
+
+  return await migrateLegacyDeviceIdentifier({ device: data });
 }
