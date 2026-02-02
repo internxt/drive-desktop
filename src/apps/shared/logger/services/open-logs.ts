@@ -32,6 +32,12 @@ export async function openLogs() {
       }
     }
 
+    try {
+      archive.directory(join(PATHS.LOGS, 'crash'), 'crash');
+    } catch (error) {
+      logger.error({ msg: 'Error adding crash folder to zip', error });
+    }
+
     await archive.finalize();
     await pipelinePromise;
   } catch (error) {

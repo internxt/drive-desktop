@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import { app, crashReporter } from 'electron';
 
 import 'reflect-metadata';
 import 'core-js/stable';
@@ -12,16 +12,14 @@ import 'dotenv/config';
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
-setupElectronLog({ logsPath: PATHS.LOGS });
-
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
-import './device/handlers';
-import './ipcs/ipcMainAntivirus';
-import './remote-sync/handlers';
+import { setupDeviceIpc } from './device/handlers';
+import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
+import { setupRemoteSyncIpc } from './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';
-import eventBus from './event-bus';
+import { eventBus } from './event-bus';
 import { AppDataSource } from './database/data-source';
 import { createWidget } from './windows/widget';
 import { electronStore } from './config';
@@ -40,6 +38,12 @@ import { Marketing } from '@/backend/features';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+
+app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
+crashReporter.start({ uploadToServer: false, compress: false });
+
+setupElectronLog({ logsPath: PATHS.LOGS });
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -72,6 +76,9 @@ setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
+setupDeviceIpc();
+setupAntivirusIpc();
+setupRemoteSyncIpc();
 
 logger.debug({
   msg: 'Starting app',
