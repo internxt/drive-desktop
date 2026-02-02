@@ -1,10 +1,10 @@
-function SkeletonBox({ className }: { className?: string }) {
+function SkeletonBox({ className }: { className: string }) {
   return <div className={`animate-pulse rounded bg-gray-20 dark:bg-gray-10 ${className}`} />;
 }
 
 export function WidgetSkeleton() {
   return (
-    <div className="flex h-[400px] w-[340px] flex-col justify-between overflow-hidden rounded-xl bg-surface shadow-lg dark:bg-gray-1">
+    <div className="rounded-shadow-white absolute bottom-0 right-16 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
       {/* Top Section (Header + Body) */}
       <div className="flex h-full flex-col p-4">
         {/* Header */}
