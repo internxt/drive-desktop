@@ -47,17 +47,19 @@ export async function updateAllRemoteSync() {
   );
 }
 
-ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
-  logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
+export function setupRemoteSyncIpc() {
+  ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
+    logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
 
-  const { data: folder } = await driveServerWip.backup.fetchFolder({ folderUuid });
+    const { data: folder } = await driveServerWip.backup.fetchFolder({ folderUuid });
 
-  if (!folder) return [];
+    if (!folder) return [];
 
-  return folder.children.map((folder) => ({
-    id: folder.id,
-    uuid: folder.uuid,
-    plainName: folder.plainName,
-    pathname: '' as AbsolutePath,
-  }));
-});
+    return folder.children.map((folder) => ({
+      id: folder.id,
+      uuid: folder.uuid,
+      plainName: folder.plainName,
+      pathname: '' as AbsolutePath,
+    }));
+  });
+}

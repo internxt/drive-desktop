@@ -27,8 +27,8 @@ describe('open-logs', () => {
   });
 
   afterEach(() => {
-    call(createWriteStreamMock).toStrictEqual(join(PATHS.INTERNXT, 'logs', INTERNXT_LOGS));
-    call(openPathMock).toStrictEqual(join(PATHS.INTERNXT, 'logs'));
+    call(createWriteStreamMock).toStrictEqual(join(PATHS.LOGS, INTERNXT_LOGS));
+    call(openPathMock).toStrictEqual(join(PATHS.LOGS));
   });
 
   it('should catch file errors', async () => {
@@ -47,10 +47,11 @@ describe('open-logs', () => {
     await openLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(archive.file).toMatchObject([
-      [join(PATHS.INTERNXT, 'logs/drive.log'), { name: 'drive.log' }],
-      [join(PATHS.INTERNXT, 'logs/drive-important.log'), { name: 'drive-important.log' }],
+    calls(archive.file).toStrictEqual([
+      [join(PATHS.LOGS, 'drive.log'), { name: 'drive.log' }],
+      [join(PATHS.LOGS, 'drive-important.log'), { name: 'drive-important.log' }],
       [join(PATHS.INTERNXT, 'internxt_desktop.db'), { name: 'internxt_desktop.db' }],
     ]);
+    call(archive.directory).toStrictEqual([join(PATHS.LOGS, 'crash'), 'crash']);
   });
 });
