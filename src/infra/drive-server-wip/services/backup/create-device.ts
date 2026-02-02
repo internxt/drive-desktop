@@ -3,10 +3,10 @@ import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { getRequestKey } from '../../in/get-in-flight-request';
 
-class CreateDeviceError extends DriveServerWipError {
+export class CreateDeviceError extends DriveServerWipError {
   constructor(
     public readonly code: TDriveServerWipError | 'ALREADY_EXISTS',
-    cause: unknown,
+    cause?: unknown,
   ) {
     super(code, cause);
   }
@@ -35,12 +35,13 @@ export async function createDevice(context: { deviceName: string }) {
     },
   });
 
-  if (error?.code === 'UNKNOWN') {
-    switch (true) {
-      case error.response?.status === 409:
-        return { error: new CreateDeviceError('ALREADY_EXISTS', error.cause) };
+  if (error) {
+    if (error.response?.status === 409) {
+      return { error: new CreateDeviceError('ALREADY_EXISTS', error.cause) };
+    } else {
+      return { error };
     }
   }
 
-  return { data, error };
+  return { data };
 }

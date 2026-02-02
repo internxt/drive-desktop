@@ -6,7 +6,7 @@ import { downloadFolder } from './download-folder';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { broadcastToWindows } from '@/apps/main/windows';
-import { buildUserEnvironment } from '@/apps/main/background-processes/backups/build-environment';
+import { buildBackupsEnvironment } from '@/apps/main/background-processes/backups/build-environment';
 
 type Props = {
   device: Device;
@@ -25,7 +25,7 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
 
   const abortController = new AbortController();
 
-  const { contentsDownloader } = buildUserEnvironment({ user, type: 'backups' });
+  const { contentsDownloader } = buildBackupsEnvironment({ user, device });
 
   function eventListener() {
     logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.plainName });

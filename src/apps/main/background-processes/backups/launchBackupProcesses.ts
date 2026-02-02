@@ -5,13 +5,14 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { getAvailableProducts } from '../../payments/get-available-products';
 import { getUser } from '../../auth/service';
-import { buildUserEnvironment } from './build-environment';
+import { buildBackupsEnvironment } from './build-environment';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import electronStore from '../../config';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { AuthContext } from '@/apps/sync-engine/config';
-import { obtainBackupsInfo } from './BackupConfiguration/BackupConfiguration';
 import Bottleneck from 'bottleneck';
+import { getOrCreateDevice } from '../../device/service';
+import { getBackupsFromDevice } from '../../device/get-backups-from-device';
 
 type Props = {
   ctx: AuthContext;
@@ -19,7 +20,6 @@ type Props = {
 
 export async function launchBackupProcesses({ ctx }: Props) {
   const user = getUser();
-
   if (!user) return;
 
   if (tracker.status !== 'STANDBY') {
@@ -34,6 +34,9 @@ export async function launchBackupProcesses({ ctx }: Props) {
     logger.debug({ msg: 'Backups not available' });
     return;
   }
+
+  const { data: device } = await getOrCreateDevice();
+  if (!device) return;
 
   const bottleneck = new Bottleneck({ maxConcurrent: 4 });
   const abortController = new AbortController();
@@ -53,7 +56,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
-  const backups = await obtainBackupsInfo();
+  const backups = await getBackupsFromDevice(device, true);
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
@@ -71,7 +74,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       break;
     }
 
-    const { environment } = buildUserEnvironment({ user, type: 'backups' });
+    const { environment } = buildBackupsEnvironment({ user, device });
     const context: BackupsContext = {
       ...backupInfo,
       driveApiBottleneck: ctx.driveApiBottleneck,
@@ -79,7 +82,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       backupsBottleneck: bottleneck,
       client: ctx.client,
       userUuid: user.uuid,
-      bucket: user.backupsBucket,
+      bucket: device.bucket,
       workspaceId: '',
       workspaceToken: '',
       environment,

@@ -1,4 +1,3 @@
-import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { AntivirusManager } from './antivirus-manager/antivirus-manager';
@@ -6,6 +5,7 @@ import { AntivirusEngine } from './antivirus-manager/types';
 import { isPermissionError } from './utils/isPermissionError';
 import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
+import { homedir } from 'node:os';
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -155,9 +155,7 @@ class ManualSystemScan {
 
     try {
       if (!pathNames || pathNames.length === 0) {
-        const userSystemPath = await getUserSystemPath();
-        if (!userSystemPath) return;
-        pathNames = [userSystemPath.path];
+        pathNames = [homedir()];
       }
 
       const promises = pathNames.map((p) => getFilesFromDirectory({ rootFolder: p }));
