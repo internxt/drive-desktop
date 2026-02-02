@@ -7,13 +7,13 @@ import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
-import { buildUserEnvironment } from './backups/build-environment';
+import { buildDriveEnvironment } from './backups/build-environment';
 
 export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const { environment, contentsDownloader } = buildUserEnvironment({ user, type: 'drive' });
+  const { environment, contentsDownloader } = buildDriveEnvironment({ user });
 
   const syncContext: SyncContext = {
     abortController: ctx.abortController,
