@@ -4,6 +4,7 @@ import { createAndUploadThumbnail } from './create-and-upload-thumbnail';
 import * as uploadThumbnail from './upload-thumnail';
 import { nativeImage } from 'electron';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-and-upload-thumbnail', () => {
   const createThumbnailFromPathMock = deepMocked(nativeImage.createThumbnailFromPath);
@@ -19,6 +20,27 @@ describe('create-and-upload-thumbnail', () => {
     });
 
     props = mockProps<typeof createAndUploadThumbnail>({});
+  });
+
+  it('should log error if something happens', async () => {
+    // Given
+    props.path = abs('/parent/file.png');
+    createThumbnailFromPathMock.mockRejectedValue(new Error());
+    // When
+    await createAndUploadThumbnail(props);
+    // Then
+    call(loggerMock.error).toMatchObject({ msg: 'Error uploading thumbnail' });
+  });
+
+  it('should skip log error if thumbnail is not in local cache', async () => {
+    // Given
+    props.path = abs('/parent/file.png');
+    createThumbnailFromPathMock.mockRejectedValue(new Error('Failed to get thumbnail from local thumbnail cache reference'));
+    // When
+    await createAndUploadThumbnail(props);
+    // Then
+    calls(loggerMock.error).toHaveLength(0);
+    calls(createThumbnailMock).toHaveLength(0);
   });
 
   it('should skip if path is not thumbnailable', async () => {
