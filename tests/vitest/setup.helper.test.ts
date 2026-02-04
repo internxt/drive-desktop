@@ -25,6 +25,7 @@ vi.mock(import('electron'), () => {
     },
     nativeImage: {
       createFromPath: vi.fn(),
+      createThumbnailFromPath: vi.fn(),
     },
     shell: {
       openPath: vi.fn(),
