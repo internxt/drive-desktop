@@ -49,15 +49,6 @@ export async function processDeeplink({ url }: Props) {
       decodedLegacyToken = Buffer.from(base64LegacyToken, 'base64').toString('utf8');
       decodedToken = Buffer.from(base64Token, 'base64').toString('utf8');
       decodedPrivateKey = Buffer.from(base64PrivateKey, 'base64').toString('utf8');
-
-      logger.debug({
-        tag: 'AUTH',
-        msg: 'Successfully decoded parameters',
-        mnemonicWordsCount: decodedMnemonic.split(' ').length,
-        decodedMnemonicPreview: decodedMnemonic.substring(0, 50) + '...',
-        tokenStartsWith: decodedLegacyToken.substring(0, 20) + '...',
-        newTokenStartsWith: decodedToken.substring(0, 20) + '...',
-      });
     } catch (error) {
       logger.error({ tag: 'AUTH', msg: 'Failed to decode base64 parameters', error });
       return;
