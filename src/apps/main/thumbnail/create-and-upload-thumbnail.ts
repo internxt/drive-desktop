@@ -6,7 +6,7 @@ import { uploadThumbnail } from './upload-thumnail';
 import { FileUuid } from '../database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { nativeImage } from 'electron';
-import { toShortWin32 } from '@/node-win/addon-wrapper';
+import { toWin32 } from '@/node-win/addon-wrapper';
 import { extname } from 'node:path';
 
 const THUMBNAILABLE_EXTENSIONS = new Set([
@@ -55,7 +55,7 @@ export async function createAndUploadThumbnail({ ctx, fileUuid, path }: Props) {
      * This is the C++ implementation of `createThumbnailFromPath`:
      * https://github.com/electron/electron/blob/51a9101c3de7794baad9c35cce57adecf9ea3ad3/shell/common/api/electron_api_native_image_win.cc
      */
-    const win32Path = toShortWin32(path);
+    const win32Path = toWin32(path);
     const image = await nativeImage.createThumbnailFromPath(win32Path, { width: SIZE, height: SIZE });
     const buffer = image.toPNG();
 

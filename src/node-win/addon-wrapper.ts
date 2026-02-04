@@ -11,7 +11,7 @@ import { PinState } from './types/placeholder.type';
 import { addConnectionKey, fetchDataFn } from './callbacks';
 import { SyncContext } from '@/apps/sync-engine/config';
 
-function toWin32(path: AbsolutePath) {
+export function toWin32(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
 }
 
