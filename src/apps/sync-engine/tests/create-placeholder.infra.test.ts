@@ -46,7 +46,7 @@ describe('create-placeholder', () => {
     calls(loggerMock.error).toHaveLength(0);
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Register sync root', rootPath },
+      { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
       {
         msg: 'On change event',

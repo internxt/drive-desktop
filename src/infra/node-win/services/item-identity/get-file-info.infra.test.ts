@@ -40,7 +40,28 @@ describe('get-file-info', () => {
     // When
     const { data, error } = await getFileInfo(props);
     // Then
-    expect(error).toStrictEqual(undefined);
+    expect(error).toBeUndefined();
+    expect(data).toStrictEqual({
+      pinState: PinState.Unspecified,
+      inSyncState: InSyncState.Sync,
+      onDiskSize: 0,
+      placeholderId,
+      uuid,
+    });
+  });
+
+  it('should return data even when placeholder path is invalid', async () => {
+    // Given
+    const uuid = v4();
+    const path = join(rootPath, 'invalid ');
+    const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
+    props.path = path;
+
+    await Addon.createFilePlaceholder({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    // When
+    const { data, error } = await getFileInfo(props);
+    // Then
+    expect(error).toBeUndefined();
     expect(data).toStrictEqual({
       pinState: PinState.Unspecified,
       inSyncState: InSyncState.Sync,
@@ -57,7 +78,7 @@ describe('get-file-info', () => {
     // When
     const { data, error } = await getFileInfo(props);
     // Then
-    expect(data).toStrictEqual(undefined);
+    expect(data).toBeUndefined();
     expect(error).toStrictEqual(
       new GetFileInfoError(
         'NOT_A_PLACEHOLDER',
@@ -72,7 +93,7 @@ describe('get-file-info', () => {
     // When
     const { data, error } = await getFileInfo(props);
     // Then
-    expect(data).toStrictEqual(undefined);
+    expect(data).toBeUndefined();
     expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
   });
 });

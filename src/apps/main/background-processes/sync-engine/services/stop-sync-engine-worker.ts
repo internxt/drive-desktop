@@ -1,14 +1,14 @@
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { Addon } from '@/node-win/addon-wrapper';
 
-async function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
+function stopSyncEngineWorker({ worker }: { worker: WorkerConfig }) {
   const { ctx } = worker;
 
   ctx.logger.debug({ msg: 'Stop sync engine' });
 
   clearInterval(worker.syncSchedule);
   clearInterval(worker.workspaceTokenInterval);
-  await worker.watcher.unsubscribe();
+  worker.watcher.unsubscribe();
   workers.delete(ctx.workspaceId);
 }
 
@@ -16,7 +16,7 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
   const { ctx } = worker;
 
   try {
-    await stopSyncEngineWorker({ worker });
+    stopSyncEngineWorker({ worker });
     await Addon.disconnectSyncRoot({ connectionKey: worker.connectionKey });
     await Addon.unregisterSyncRoot({ providerId: ctx.providerId });
   } catch (error) {
