@@ -50,7 +50,7 @@ describe('addon', () => {
     // When
     Addon.connectSyncRoot(props);
     // Then
-    call(addon.connectSyncRoot).toStrictEqual([String.raw`\\?\C:\Users\user\InternxtDrive`, fetchDataFn]);
+    call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
     expect(getDriveContexts()).toMatchObject([{ rootPath }]);
   });
 
@@ -148,14 +148,14 @@ describe('addon', () => {
     // When
     await Addon.hydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(addon.hydrateFile).toStrictEqual(String.raw`\\?\\parent\file.txt`);
+    call(addon.hydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
   });
 
   it('should call addon.dehydrateFile', async () => {
     // When
     await Addon.dehydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(addon.dehydrateFile).toStrictEqual(String.raw`\\?\\parent\file.txt`);
+    call(addon.dehydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
   });
 
   it('should call addon.watchPath', () => {

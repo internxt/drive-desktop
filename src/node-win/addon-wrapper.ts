@@ -56,7 +56,7 @@ export class Addon {
   }
 
   static connectSyncRoot({ ctx }: { ctx: SyncContext }) {
-    const result = addon.connectSyncRoot(toWin32DevicePath(ctx.rootPath), fetchDataFn);
+    const result = addon.connectSyncRoot(toWin32Path(ctx.rootPath), fetchDataFn);
     const connectionKey = parseAddonZod('connectSyncRoot', result);
     addConnectionKey(connectionKey, ctx);
     return connectionKey;
@@ -129,11 +129,11 @@ export class Addon {
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.dehydrateFile(toWin32DevicePath(path));
+    await addon.dehydrateFile(toWin32Path(path));
   }
 
   static async hydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.hydrateFile(toWin32DevicePath(path));
+    await addon.hydrateFile(toWin32Path(path));
   }
 
   static watchPath({ ctx, onEvent }: { ctx: SyncContext; onEvent: Watcher.OnEvent }) {

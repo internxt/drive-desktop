@@ -32,7 +32,7 @@ type TAddon = {
     creationTime: number,
     lastWriteTime: number,
   ): Promise<void>;
-  connectSyncRoot(path: Win32DevicePath, fetchData: FetchDataFn): z.infer<typeof addonZod.connectSyncRoot>;
+  connectSyncRoot(path: Win32Path, fetchData: FetchDataFn): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId | FolderPlaceholderId): Promise<void>;
   createFolderPlaceholder(
     path: Win32DevicePath,
@@ -40,11 +40,11 @@ type TAddon = {
     creationTime: number,
     lastWriteTime: number,
   ): Promise<void>;
-  dehydrateFile(path: Win32DevicePath): Promise<void>;
+  dehydrateFile(path: Win32Path): Promise<void>;
   disconnectSyncRoot(connectionKey: bigint): Promise<void>;
   getPlaceholderState(path: Win32DevicePath): Promise<z.infer<typeof addonZod.getPlaceholderState>>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
-  hydrateFile(path: Win32DevicePath): Promise<void>;
+  hydrateFile(path: Win32Path): Promise<void>;
   registerSyncRoot(rootPath: Win32Path, providerName: string, providerVersion: string, providerId: string, logoPath: string): Promise<void>;
   setPinState(path: Win32DevicePath, pinState: PinState): Promise<void>;
   unregisterSyncRoot(providerId: string): Promise<void>;
@@ -52,7 +52,6 @@ type TAddon = {
   updatePlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId, size: number): Promise<void>;
   updateSyncStatus(path: Win32DevicePath): Promise<void>;
   watchPath(rootPath: Win32Path, onEvent: Watcher.OnEvent): z.infer<typeof addonZod.watchPath>;
-  getSyncRootFromPath(rootPath: Win32DevicePath): Promise<void>;
 };
 
 export const addon: TAddon = rawAddon;
