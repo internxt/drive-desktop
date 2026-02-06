@@ -11,7 +11,6 @@ void register_sync_root(const std::wstring& syncRootPath, const std::wstring& pr
                         const std::wstring& providerVersion, const std::wstring& id, const std::wstring& logoPath)
 {
     auto folder = winrt::StorageFolder::GetFolderFromPathAsync(syncRootPath).get();
-    winrt::Uri uri(L"https://drive.internxt.com/app/trash");
 
     winrt::StorageProviderSyncRootInfo info;
 
@@ -26,7 +25,7 @@ void register_sync_root(const std::wstring& syncRootPath, const std::wstring& pr
     info.InSyncPolicy(winrt::StorageProviderInSyncPolicy::FileCreationTime | winrt::StorageProviderInSyncPolicy::DirectoryCreationTime);
     info.HardlinkPolicy(winrt::StorageProviderHardlinkPolicy::None);
     info.ShowSiblingsAsGroup(false);
-    info.RecycleBinUri(uri);
+    info.RecycleBinUri(winrt::Uri(L"https://drive.internxt.com/app/trash"));
 
     winrt::StorageProviderSyncRootManager::Register(info);
 }
