@@ -5,10 +5,10 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as moveFile from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
-import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
+import { GetFileInfoError } from '@/infra/node-win/services/get-file-info';
 import { Drive } from '@/backend/features/drive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
 
 describe('on-add', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');

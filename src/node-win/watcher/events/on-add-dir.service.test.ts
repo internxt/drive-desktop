@@ -6,7 +6,7 @@ import * as moveFolder from '@/backend/features/local-sync/watcher/events/rename
 import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { Drive } from '@/backend/features/drive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
 
 describe('on-add-dir', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
