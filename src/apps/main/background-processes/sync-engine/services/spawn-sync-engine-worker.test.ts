@@ -3,18 +3,14 @@ import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.
 import { workers } from '@/apps/main/remote-sync/store';
 import * as scheduleSync from './schedule-sync';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { Addon } from '@/node-win/addon-wrapper';
-import * as addSyncIssue from '../../issues';
 import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import * as initWatcher from '@/node-win/watcher/watcher';
 import * as addPendingItems from '@/apps/sync-engine/in/add-pending-items';
+import * as loadVirtualDrive from './load-virtual-drive';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('spawn-sync-engine-worker', () => {
-  const createSyncRootFolderMock = partialSpyOn(VirtualDrive, 'createSyncRootFolder');
-  const registerSyncRootMock = partialSpyOn(Addon, 'registerSyncRoot');
-  const connectSyncRootMock = partialSpyOn(Addon, 'connectSyncRoot');
-  const addSyncIssueMock = partialSpyOn(addSyncIssue, 'addSyncIssue');
+  const loadVirtualDriveMock = partialSpyOn(loadVirtualDrive, 'loadVirtualDrive');
   const scheduleSyncMock = partialSpyOn(scheduleSync, 'scheduleSync');
   const recoverySyncMock = partialSpyOn(RecoverySyncModule, 'recoverySync');
   const refreshItemPlaceholdersMock = partialSpyOn(refreshItemPlaceholders, 'refreshItemPlaceholders');
@@ -28,25 +24,32 @@ describe('spawn-sync-engine-worker', () => {
     workers.clear();
   });
 
-  it('should add issue if register sync root fails', async () => {
+  it('should catch errors', async () => {
     // Given
-    registerSyncRootMock.mockRejectedValue(new Error('message'));
+    loadVirtualDriveMock.mockRejectedValue(new Error());
     // When
     await spawnSyncEngineWorker(props);
     // Then
-    call(addSyncIssueMock).toMatchObject({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE' });
+    call(loggerMock.error).toMatchObject({ msg: 'Error loading sync engine worker' });
   });
 
-  it('should start sync engine process if register sync root success', async () => {
+  it('should skip if load virtual drive fails', async () => {
     // Given
-    registerSyncRootMock.mockResolvedValue(undefined);
+    loadVirtualDriveMock.mockResolvedValue(undefined);
     // When
     await spawnSyncEngineWorker(props);
     // Then
-    calls(addSyncIssueMock).toHaveLength(0);
-    calls(createSyncRootFolderMock).toHaveLength(1);
-    calls(registerSyncRootMock).toHaveLength(1);
-    calls(connectSyncRootMock).toHaveLength(1);
+    calls(loggerMock.error).toHaveLength(0);
+    calls(refreshItemPlaceholdersMock).toHaveLength(0);
+  });
+
+  it('should start sync engine process if load virtual drive success', async () => {
+    // Given
+    loadVirtualDriveMock.mockResolvedValue(1n);
+    // When
+    await spawnSyncEngineWorker(props);
+    // Then
+    calls(loggerMock.error).toHaveLength(0);
     calls(refreshItemPlaceholdersMock).toHaveLength(1);
     calls(scheduleSyncMock).toHaveLength(1);
     calls(recoverySyncMock).toHaveLength(1);
