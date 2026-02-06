@@ -11,6 +11,9 @@ export const addonZod = {
     inSyncState: z.enum(InSyncState),
     onDiskSize: z.number(),
   }),
+  getSyncRootFromPath: z.object({
+    id: z.string(),
+  }),
   watchPath: z.object(),
   getRegisteredSyncRoots: z.array(
     z.object({

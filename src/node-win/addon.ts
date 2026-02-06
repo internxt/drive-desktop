@@ -44,10 +44,11 @@ type TAddon = {
   disconnectSyncRoot(connectionKey: bigint): Promise<void>;
   getPlaceholderState(path: Win32DevicePath): Promise<z.infer<typeof addonZod.getPlaceholderState>>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
+  getSyncRootFromPath(rootPath: Win32Path): Promise<z.infer<typeof addonZod.getSyncRootFromPath>>;
   hydrateFile(path: Win32Path): Promise<void>;
-  registerSyncRoot(rootPath: Win32Path, providerName: string, providerVersion: string, providerId: string, logoPath: string): Promise<void>;
+  registerSyncRoot(rootPath: Win32Path, providerName: string, providerVersion: string, id: string, logoPath: string): Promise<void>;
   setPinState(path: Win32DevicePath, pinState: PinState): Promise<void>;
-  unregisterSyncRoot(providerId: string): Promise<void>;
+  unregisterSyncRoot(id: string): Promise<void>;
   unwatchPath(handle: object): void;
   updatePlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId, size: number): Promise<void>;
   updateSyncStatus(path: Win32DevicePath): Promise<void>;
