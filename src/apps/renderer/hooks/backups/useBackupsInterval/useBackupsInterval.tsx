@@ -4,12 +4,8 @@ const BACKUP_MANUAL_INTERVAL = -1;
 export function useBackupsInterval() {
   const [backupsInterval, setBackupsInterval] = useState<number>(BACKUP_MANUAL_INTERVAL);
 
-  function handleSetBackupsInterval(interval: number) {
-    setBackupsInterval(interval);
-  }
-
   async function updateBackupsInterval(interval: number) {
-    handleSetBackupsInterval(interval);
+    setBackupsInterval(interval);
     await window.electron.setBackupsInterval(interval);
   }
 
@@ -18,7 +14,7 @@ export function useBackupsInterval() {
   }
 
   useEffect(() => {
-    retrieveBackupsInterval().then(handleSetBackupsInterval);
+    retrieveBackupsInterval().then(setBackupsInterval);
   }, []);
 
   return {

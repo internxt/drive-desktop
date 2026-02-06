@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { BACKUP_MANUAL_INTERVAL, backupsConfig } from '..';
+import { backupsConfig } from '..';
+import { BACKUP_MANUAL_INTERVAL } from '../constants';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupManager } from '../backup-manager';
 

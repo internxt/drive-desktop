@@ -316,6 +316,7 @@
       "frequency": {
         "title": "Frecuencia de subida",
         "options": {
+          "1h": "Cada hora",
           "6h": "Cada 6 horas",
           "12h": "Cada 12 horas",
           "24h": "Cada día",

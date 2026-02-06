@@ -311,6 +311,7 @@
       "frequency": {
         "title": "Fréquence de téléchargement",
         "options": {
+          "1h": "Toutes les heures",
           "6h": "Toutes les 6 heures",
           "12h": "Toutes les 12 heures",
           "24h": "Tous les jours",

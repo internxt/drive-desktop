@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ipcMain } from 'electron';
 import { registerBackupConfigurationIpcHandlers } from './register-backup-configuration-ipc-handlers';
-import { BACKUP_MANUAL_INTERVAL, backupsConfig } from '..';
+import { backupsConfig } from '..';
+import { BACKUP_MANUAL_INTERVAL } from '../constants';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import type { BackupManager } from '../backup-manager';
 import { getIpcHandler } from './__test-helpers__/ipc-test-utils';
