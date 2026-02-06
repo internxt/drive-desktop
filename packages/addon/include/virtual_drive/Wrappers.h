@@ -1,20 +1,85 @@
 #pragma once
 
+#include <internal.h>
 #include <node_api.h>
+#include <virtual_drive.h>
 
-napi_value ConnectSyncRootWrapper(napi_env env, napi_callback_info info);
-napi_value ConvertToPlaceholderWrapper(napi_env env, napi_callback_info info);
-napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info info);
-napi_value CreateFolderPlaceholderWrapper(napi_env env, napi_callback_info info);
-napi_value DehydrateFileWrapper(napi_env env, napi_callback_info info);
-napi_value DisconnectSyncRootWrapper(napi_env env, napi_callback_info info);
-napi_value GetPlaceholderStateWrapper(napi_env env, napi_callback_info info);
-napi_value GetRegisteredSyncRootsWrapper(napi_env env, napi_callback_info info);
-napi_value HydrateFileWrapper(napi_env env, napi_callback_info info);
-napi_value RegisterSyncRootWrapper(napi_env env, napi_callback_info info);
-napi_value SetPinStateWrapper(napi_env env, napi_callback_info info);
-napi_value UnregisterSyncRootWrapper(napi_env env, napi_callback_info info);
-napi_value UnwatchPathWrapper(napi_env env, napi_callback_info info);
-napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info info);
-napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info info);
-napi_value WatchPathWrapper(napi_env env, napi_callback_info info);
+inline napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, create_file_placeholder_wrapper);
+}
+
+inline napi_value UnregisterSyncRootWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, unregister_sync_root_wrapper);
+}
+
+inline napi_value RegisterSyncRootWrapper(napi_env env, napi_callback_info info)
+{
+    return NAPI_SAFE_WRAP(env, info, register_sync_root_wrapper);
+}
+
+inline napi_value GetRegisteredSyncRootsWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, get_registered_sync_roots_wrapper);
+}
+
+inline napi_value ConnectSyncRootWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, connect_sync_root_impl);
+}
+
+inline napi_value CreateFolderPlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, create_folder_placeholder_wrapper);
+}
+
+inline napi_value DisconnectSyncRootWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, disconnect_sync_root_wrapper);
+}
+
+inline napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, update_sync_status_wrapper);
+}
+
+inline napi_value GetPlaceholderStateWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, get_placeholder_state_wrapper);
+}
+
+inline napi_value ConvertToPlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, convert_to_placeholder_wrapper);
+}
+
+inline napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, hydrate_file_wrapper);
+}
+
+inline napi_value DehydrateFileWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, dehydrate_file_wrapper);
+}
+
+inline napi_value UnwatchPathWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, unwatchPathWrapper);
+}
+
+inline napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, update_placeholder_wrapper);
+}
+
+inline napi_value SetPinStateWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, set_pin_state_wrapper);
+}
+
+inline napi_value WatchPathWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, watchPathWrapper);
+}

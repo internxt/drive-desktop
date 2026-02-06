@@ -21,25 +21,11 @@ struct NapiSerializer<FileState> {
         napi_value obj;
         napi_create_object(env, &obj);
 
-        napi_value uuid;
-        napi_create_string_utf8(env, fileState.uuid.c_str(), NAPI_AUTO_LENGTH, &uuid);
-        napi_set_named_property(env, obj, "uuid", uuid);
-
-        napi_value placeholderId;
-        napi_create_string_utf8(env, fileState.placeholderId.c_str(), NAPI_AUTO_LENGTH, &placeholderId);
-        napi_set_named_property(env, obj, "placeholderId", placeholderId);
-
-        napi_value pinState;
-        napi_create_uint32(env, static_cast<uint32_t>(fileState.pinState), &pinState);
-        napi_set_named_property(env, obj, "pinState", pinState);
-
-        napi_value inSyncState;
-        napi_create_uint32(env, static_cast<uint32_t>(fileState.inSyncState), &inSyncState);
-        napi_set_named_property(env, obj, "inSyncState", inSyncState);
-
-        napi_value onDiskSize;
-        napi_create_int64(env, fileState.onDiskSize, &onDiskSize);
-        napi_set_named_property(env, obj, "onDiskSize", onDiskSize);
+        napiSetString(env, obj, "uuid", fileState.uuid);
+        napiSetString(env, obj, "placeholderId", fileState.placeholderId);
+        napiSetUint32(env, obj, "pinState", static_cast<uint32_t>(fileState.pinState));
+        napiSetUint32(env, obj, "inSyncState", static_cast<uint32_t>(fileState.inSyncState));
+        napiSetInt64(env, obj, "onDiskSize", fileState.onDiskSize);
 
         return obj;
     }
