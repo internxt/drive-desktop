@@ -4,7 +4,7 @@ import { readFile, unlink } from 'fs/promises';
 import path from 'path';
 import { DataSource, Repository } from 'typeorm';
 import { ensureFolderExists } from '../../../../../../../apps/shared/fs/ensure-folder-exists';
-import { WriteReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
+import { writeReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
 import { StorageFile } from '../../../../domain/StorageFile';
 import { StorageFileId } from '../../../../domain/StorageFileId';
 import { StorageFilesRepository } from '../../../../domain/StorageFilesRepository';
@@ -25,10 +25,10 @@ export class TypeOrmAndNodeFsStorageFilesRepository implements StorageFilesRepos
     ensureFolderExists(this.baseFolder);
   }
 
-  async store(file: StorageFile, readable: Readable): Promise<void> {
+  async store(file: StorageFile, readable: Readable, onProgress: (bytesWritten: number) => void): Promise<void> {
     const where = path.join(this.baseFolder, file.id.value);
 
-    await WriteReadableToFile.write(readable, where);
+    await writeReadableToFile({ readable, path: where, onProgress });
 
     await this.db.save(file.attributes());
   }

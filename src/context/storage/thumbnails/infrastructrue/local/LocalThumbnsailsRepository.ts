@@ -3,7 +3,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
-import { WriteReadableToFile } from '../../../../../apps/shared/fs/write-readable-to-file';
+import { writeReadableToFile } from '../../../../../apps/shared/fs/write-readable-to-file';
 import { File } from '../../../../virtual-drive/files/domain/File';
 import { RelativePathToAbsoluteConverter } from '../../../../virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { Thumbnail } from '../../domain/Thumbnail';
@@ -82,7 +82,15 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
       path.join(this.systemThumbnailsFolder, 'large', name),
     ];
 
-    await Promise.all(where.map((p) => WriteReadableToFile.write(stream, p)));
+    await Promise.all(
+      where.map((p) =>
+        writeReadableToFile({
+          readable: stream,
+          path: p,
+          onProgress: () => {},
+        }),
+      ),
+    );
 
     logger.debug({
       msg: `Thumbnail Created for ${file.nameWithExtension} on ${where}`,

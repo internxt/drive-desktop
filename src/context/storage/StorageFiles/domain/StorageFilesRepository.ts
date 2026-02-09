@@ -7,7 +7,7 @@ export abstract class StorageFilesRepository {
 
   abstract retrieve(id: StorageFileId): Promise<StorageFile>;
 
-  abstract store(file: StorageFile, readable: Readable): Promise<void>;
+  abstract store(file: StorageFile, readable: Readable, onProgress: (bytesWritten: number) => void): Promise<void>;
 
   abstract read(id: StorageFileId): Promise<Buffer>;
 

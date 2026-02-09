@@ -4,7 +4,7 @@ import { LocalThumbnailRepository } from './LocalThumbnsailsRepository';
 import { SystemThumbnailNameCalculator } from './SystemThumbnailNameCalculator';
 import { RelativePathToAbsoluteConverterTestClass } from '../../../../virtual-drive/shared/application/__test-helpers__/RelativePathToAbsoluteConverterTestClass';
 import { FileMother } from '../../../../virtual-drive/files/domain/__test-helpers__/FileMother';
-import { WriteReadableToFile } from '../../../../../apps/shared/fs/write-readable-to-file';
+import * as WriteReadableToFile from '../../../../../apps/shared/fs/write-readable-to-file';
 import { ThumbnailMother } from '../../../thumbnails/__test-helpers__/ThumbnailMother';
 import { Readable } from 'node:stream';
 
@@ -79,9 +79,9 @@ describe('Local Thumbnail Repository', () => {
       });
       const absolutePath = '/home/jens/photos/me.png';
 
-      const writeSpy = vi.spyOn(WriteReadableToFile, 'write');
+      const writeSpy = vi.spyOn(WriteReadableToFile, 'writeReadableToFile');
 
-      writeSpy.mockImplementation((readable: Readable) => {
+      writeSpy.mockImplementation(({ readable }) => {
         return new Promise((resolve) => {
           readable.on('data', () => {
             /* Intentionally empty - just consuming the stream */
@@ -97,8 +97,10 @@ describe('Local Thumbnail Repository', () => {
       await SUT.push(file, readableStream);
 
       expect(writeSpy).toBeCalledWith(
-        expect.any(Readable),
-        path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
+        expect.objectContaining({
+          readable: expect.any(Readable),
+          path: path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
+        }),
       );
     });
   });

@@ -6,6 +6,7 @@ import { FileMother } from '../../../../virtual-drive/files/domain/__test-helper
 import { StorageFilesRepositoryMock } from '../../__mocks__/StorageFilesRepositoryMock';
 import { StorageFileMother } from '../../../__test-helpers__/StorageFileMother';
 import { StorageFileDownloaderTestClass } from '../download/__test-helpers__/StorageFileDownloaderTestClass';
+import { DownloadProgressTrackerMock } from '../../__mocks__/DownloadProgressTrackerMock';
 
 describe('Storage Remote Changes Syncher', () => {
   let SUT: StorageRemoteChangesSyncher;
@@ -13,13 +14,15 @@ describe('Storage Remote Changes Syncher', () => {
   let repository: StorageFilesRepositoryMock;
   let singleFileMatchingSearcher: SingleFileMatchingSearcherTestClass;
   let storageFileDownloader: StorageFileDownloaderTestClass;
+  let tracker: DownloadProgressTrackerMock;
 
   beforeAll(() => {
     repository = new StorageFilesRepositoryMock();
     singleFileMatchingSearcher = new SingleFileMatchingSearcherTestClass();
     storageFileDownloader = new StorageFileDownloaderTestClass();
+    tracker = new DownloadProgressTrackerMock();
 
-    SUT = new StorageRemoteChangesSyncher(repository, singleFileMatchingSearcher, storageFileDownloader);
+    SUT = new StorageRemoteChangesSyncher(repository, singleFileMatchingSearcher, storageFileDownloader, tracker);
   });
 
   beforeEach(() => {
@@ -49,6 +52,7 @@ describe('Storage Remote Changes Syncher', () => {
 
     repository.returnAll(expectFilesDeleted);
     singleFileMatchingSearcher.returnOneAtATime(expectFilesDeleted.map(() => FileMother.any()));
+    storageFileDownloader.returnsAReadable();
 
     await SUT.run();
 
@@ -72,6 +76,7 @@ describe('Storage Remote Changes Syncher', () => {
 
     repository.returnAll(storageFilesFound);
     singleFileMatchingSearcher.returnOneAtATime(virtualFilesAssociated);
+    storageFileDownloader.returnsAReadable();
 
     await SUT.run();
 

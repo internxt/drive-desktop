@@ -6,13 +6,12 @@ import { Service } from 'diod';
 
 @Service()
 export class MainProcessDownloadProgressTracker extends SyncMessenger implements DownloadProgressTracker {
-  async downloadStarted(name: string, extension: string, size: number): Promise<void> {
+  async downloadStarted(name: string, extension: string): Promise<void> {
     setTrayStatus('SYNCING');
 
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: this.nameWithExtension(name, extension),
-      progress: 0,
     });
   }
 
@@ -28,14 +27,7 @@ export class MainProcessDownloadProgressTracker extends SyncMessenger implements
     });
   }
 
-  async downloadFinished(
-    name: string,
-    extension: string,
-    size: number,
-    progress: {
-      elapsedTime: number;
-    },
-  ): Promise<void> {
+  async downloadFinished(name: string, extension: string) {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     setTrayStatus('IDLE');

@@ -13,32 +13,6 @@ export class StorageFileDownloader {
     private readonly tracker: DownloadProgressTracker,
   ) {}
 
-  private async registerEvents(
-    handler: DownloaderHandler,
-    { name, type, size }: { name: string; type: string; size: number },
-  ) {
-    handler.on('start', () => {
-      this.tracker.downloadStarted(name, type, size);
-    });
-
-    handler.on('progress', (progress: number, elapsedTime: number) => {
-      this.tracker.downloadUpdate(name, type, {
-        elapsedTime,
-        percentage: progress,
-      });
-    });
-
-    handler.on('error', () => {
-      this.tracker.error(name, type);
-    });
-
-    handler.on('finish', () => {
-      this.tracker.downloadFinished(name, type, size, {
-        elapsedTime: handler.elapsedTime(),
-      });
-    });
-  }
-
   async run(
     file: StorageFile,
     metadata: {
@@ -46,10 +20,10 @@ export class StorageFileDownloader {
       type: string;
       size: number;
     },
-  ): Promise<Readable> {
+  ): Promise<{ stream: Readable; metadata: typeof metadata; handler: DownloaderHandler }> {
     const downloader = this.managerFactory.downloader();
 
-    await this.registerEvents(downloader, metadata);
+    downloader.on('error', () => this.tracker.error(metadata.name, metadata.type));
 
     const stream = await downloader.download(file);
 
@@ -57,6 +31,6 @@ export class StorageFileDownloader {
       msg: `stream created "${metadata.name}.${metadata.type}" with ${file.id.value}`,
     });
 
-    return stream;
+    return { stream, metadata, handler: downloader };
   }
 }

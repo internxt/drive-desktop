@@ -5,6 +5,8 @@ import { StorageFile } from '../../domain/StorageFile';
 import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 import { StorageFileDownloader } from '../download/StorageFileDownloader/StorageFileDownloader';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { DownloadProgressTracker } from '../../../../shared/domain/DownloadProgressTracker';
+import { downloadWithProgressTracking } from '../download/download-with-progress-tracking';
 
 @Service()
 export class StorageRemoteChangesSyncher {
@@ -12,6 +14,7 @@ export class StorageRemoteChangesSyncher {
     private readonly repository: StorageFilesRepository,
     private readonly fileSearcher: SingleFileMatchingSearcher,
     private readonly downloader: StorageFileDownloader,
+    private readonly tracker: DownloadProgressTracker,
   ) {}
 
   private async sync(storage: StorageFile): Promise<void> {
@@ -31,17 +34,15 @@ export class StorageRemoteChangesSyncher {
 
     await this.repository.delete(storage.id);
 
-    const newer = StorageFile.from({
-      id: virtualFile.contentsId,
-      virtualId: storage.virtualId.value,
-      size: virtualFile.size,
+    const storagedFile = await downloadWithProgressTracking({
+      virtualFile,
+      tracker: this.tracker,
+      downloader: this.downloader,
+      repository: this.repository,
     });
 
-    const readable = await this.downloader.run(newer, virtualFile);
-    await this.repository.store(newer, readable);
-
     logger.debug({
-      msg: `File "${virtualFile.nameWithExtension}" with ${newer.id.value} is avaliable offline`,
+      msg: `File "${virtualFile.nameWithExtension}" with ${storagedFile.id.value} is avaliable offline`,
     });
   }
 

@@ -7,16 +7,17 @@ import { fileIcon } from '../../assets/icons/getIcon';
 
 export function Item({ name, action, progress }: DriveOperationInfo) {
   const { translate } = useTranslationContext();
-  const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
+  const hasProgress = progress !== undefined && progress !== null;
+  const progressDisplay = hasProgress ? `${Math.ceil(progress * 100)}%` : '';
 
   let description = '';
 
   if (action === 'DOWNLOADING') {
-    description = progress
+    description = hasProgress
       ? translate('widget.body.activity.operation.downloading')
       : translate('widget.body.activity.operation.decrypting');
   } else if (action === 'UPLOADING') {
-    description = progress
+    description = hasProgress
       ? translate('widget.body.activity.operation.uploading')
       : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {

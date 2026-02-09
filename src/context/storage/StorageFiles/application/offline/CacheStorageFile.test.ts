@@ -4,6 +4,7 @@ import { SingleFileMatchingFinderTestClass } from '../../../../virtual-drive/fil
 import { FileMother } from '../../../../virtual-drive/files/domain/__test-helpers__/FileMother';
 import { StorageFileCacheMock } from '../../__mocks__/StorageFileCacheMock';
 import { StorageFileDownloaderTestClass } from '../download/__test-helpers__/StorageFileDownloaderTestClass';
+import { DownloadProgressTrackerMock } from '../../__mocks__/DownloadProgressTrackerMock';
 
 describe('Cache Storage File', () => {
   let SUT: CacheStorageFile;
@@ -11,13 +12,15 @@ describe('Cache Storage File', () => {
   let cache: StorageFileCacheMock;
   let finder: SingleFileMatchingFinderTestClass;
   let downloader: StorageFileDownloaderTestClass;
+  let tracker: DownloadProgressTrackerMock;
 
   beforeAll(() => {
     cache = new StorageFileCacheMock();
     finder = new SingleFileMatchingFinderTestClass();
     downloader = new StorageFileDownloaderTestClass();
+    tracker = new DownloadProgressTrackerMock();
 
-    SUT = new CacheStorageFile(finder, cache, downloader);
+    SUT = new CacheStorageFile(finder, cache, downloader, tracker);
   });
 
   beforeEach(() => {
