@@ -8,36 +8,31 @@
 #include <vector>
 
 void register_sync_root(const std::wstring& syncRootPath, const std::wstring& providerName,
-                        const std::wstring& providerVersion, const std::wstring& providerId, const std::wstring& logoPath)
+                        const std::wstring& providerVersion, const std::wstring& id, const std::wstring& logoPath)
 {
-    winrt::StorageProviderSyncRootInfo info;
-    info.Id(providerId);
-
     auto folder = winrt::StorageFolder::GetFolderFromPathAsync(syncRootPath).get();
+
+    winrt::StorageProviderSyncRootInfo info;
+
+    info.Id(id);
     info.Path(folder);
-
+    info.Version(providerVersion);
     info.DisplayNameResource(providerName);
-
-    std::wstring completeIconResource = std::wstring(logoPath) + L",0";
-    info.IconResource(completeIconResource);
-
+    info.IconResource(logoPath);
     info.HydrationPolicy(winrt::StorageProviderHydrationPolicy::Full);
     info.HydrationPolicyModifier(winrt::StorageProviderHydrationPolicyModifier::None);
     info.PopulationPolicy(winrt::StorageProviderPopulationPolicy::AlwaysFull);
     info.InSyncPolicy(winrt::StorageProviderInSyncPolicy::FileCreationTime | winrt::StorageProviderInSyncPolicy::DirectoryCreationTime);
-    info.Version(providerVersion);
-    info.ShowSiblingsAsGroup(false);
     info.HardlinkPolicy(winrt::StorageProviderHardlinkPolicy::None);
-
-    winrt::Uri uri(L"https://drive.internxt.com/app/trash");
-    info.RecycleBinUri(uri);
+    info.ShowSiblingsAsGroup(false);
+    info.RecycleBinUri(winrt::Uri(L"https://drive.internxt.com/app/trash"));
 
     winrt::StorageProviderSyncRootManager::Register(info);
 }
 
 napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
 {
-    auto [syncRootPath, providerName, providerVersion, providerId, logoPath] =
+    auto [syncRootPath, providerName, providerVersion, id, logoPath] =
         napi_extract_args<std::wstring, std::wstring, std::wstring, std::wstring, std::wstring>(env, info);
 
     return run_async(
@@ -47,6 +42,6 @@ napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
         std::move(syncRootPath),
         std::move(providerName),
         std::move(providerVersion),
-        std::move(providerId),
+        std::move(id),
         std::move(logoPath));
 }

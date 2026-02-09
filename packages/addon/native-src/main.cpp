@@ -14,6 +14,7 @@ napi_value init(napi_env env, napi_value exports)
         {"disconnectSyncRoot", nullptr, DisconnectSyncRootWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getPlaceholderState", nullptr, GetPlaceholderStateWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getRegisteredSyncRoots", nullptr, GetRegisteredSyncRootsWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"getSyncRootFromPath", nullptr, GetSyncRootFromPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"hydrateFile", nullptr, HydrateFileWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"registerSyncRoot", nullptr, RegisterSyncRootWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"setPinState", nullptr, SetPinStateWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},

@@ -1,15 +1,17 @@
-#include "stdafx.h"
+#include <get_registered_sync_roots.h>
+#include <stdafx.h>
+
 #include <filesystem>
 #include <iostream>
 #include <vector>
-#include "get_registered_sync_roots.h"
 
-std::vector<SyncRoots> get_registered_sync_roots() {
+std::vector<SyncRoots> get_registered_sync_roots()
+{
     std::vector<SyncRoots> syncRootList;
 
     auto syncRoots = winrt::StorageProviderSyncRootManager::GetCurrentSyncRoots();
 
-    for (auto const &info : syncRoots) {
+    for (auto const& info : syncRoots) {
         SyncRoots sr;
         sr.id = info.Id();
         sr.path = info.Path().Path();
