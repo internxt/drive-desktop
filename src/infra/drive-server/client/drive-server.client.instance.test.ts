@@ -1,8 +1,7 @@
 import { createClient } from '../drive-server.client';
-import Bottleneck from 'bottleneck';
 import eventBus from '../../../apps/main/event-bus';
 import { logout } from '../../../apps/main/auth/service';
-import { Mock } from 'vitest';
+import { call } from 'tests/vitest/utils.helper';
 
 vi.mock('../drive-server.client', () => ({
   createClient: vi.fn(() => ({})),
@@ -36,22 +35,19 @@ describe('driveServerClient instance', () => {
 
   it('should call createClient with expected options', async () => {
     await import('./drive-server.client.instance');
-    expect(createClient).toHaveBeenCalledWith(
-      expect.objectContaining({
-        baseUrl: expect.any(String),
-        limiter: expect.any(Bottleneck),
-        onUnauthorized: expect.any(Function),
-      }),
-    );
+    call(createClient).toMatchObject({
+      baseUrl: expect.any(String),
+      onUnauthorized: expect.any(Function),
+    });
   });
 
   it('should call eventBus.emit and logout when onUnauthorized is triggered', async () => {
     await import('./drive-server.client.instance');
-    const clientOptionsArg = (createClient as Mock).mock.calls[0][0];
+    const clientOptions = vi.mocked(createClient).mock.calls[0]![0]!;
 
-    clientOptionsArg.onUnauthorized();
+    clientOptions.onUnauthorized!();
 
-    expect(eventBus.emit).toHaveBeenCalledWith('USER_WAS_UNAUTHORIZED');
+    call(eventBus.emit).toEqual('USER_WAS_UNAUTHORIZED');
     expect(logout).toHaveBeenCalled();
   });
 
@@ -63,8 +59,6 @@ describe('driveServerClient instance', () => {
 
     await import('./drive-server.client.instance');
 
-    const mostRecentCall = (createClient as Mock).mock.calls[(createClient as Mock).mock.calls.length - 1];
-    const clientOptions = mostRecentCall[0];
-    expect(clientOptions.baseUrl).toBe('https://mock.api');
+    call(createClient).toMatchObject({ baseUrl: 'https://mock.api' });
   });
 });

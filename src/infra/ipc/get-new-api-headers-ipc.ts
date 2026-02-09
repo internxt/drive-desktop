@@ -1,8 +1,9 @@
 const isMainProcess = process.type === 'browser';
 
 /**
- * Gets new API headers via IPC or direct call based on process type
- * @returns Promise resolving to the API headers object
+ * @deprecated we dont need to do the disction between main and renderer process anymore, just use getNewApiHeaders
+ * ~~Gets new API headers via IPC or direct call based on process type~~
+ * ~~@returns Promise resolving to the API headers object~~
  */
 export async function getNewApiHeadersIPC(): Promise<Record<string, string>> {
   if (isMainProcess) {

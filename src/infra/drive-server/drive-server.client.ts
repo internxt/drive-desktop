@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Bottleneck from 'bottleneck';
+import { attachRateLimiterInterceptors } from './client/interceptors/rate-limiter/attach-rate-limiter-interceptors';
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
@@ -53,7 +53,6 @@ type OperationResponse<T, P extends keyof T, M extends HTTPMethod> =
 
 export interface ClientOptions {
   baseUrl: string;
-  limiter?: Bottleneck;
   onUnauthorized?: () => void;
 }
 
@@ -72,9 +71,7 @@ export function createClient<T>(opts: ClientOptions) {
     headers: { 'content-type': 'application/json' },
   });
 
-  if (opts.limiter) {
-    http.interceptors.request.use(opts.limiter.wrap(async (config: any) => config));
-  }
+  attachRateLimiterInterceptors(http);
 
   if (opts.onUnauthorized) {
     http.interceptors.response.use(
