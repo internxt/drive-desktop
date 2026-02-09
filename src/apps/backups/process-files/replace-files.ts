@@ -14,7 +14,7 @@ export async function replaceFiles({ ctx, modified }: Props) {
       const path = local.path;
 
       try {
-        await scheduleRequest({ ctx, fn: () => Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid }) });
+        await scheduleRequest({ ctx, path, fn: () => Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid }) });
       } catch (error) {
         ctx.logger.error({ msg: 'Error replacing file', path, error });
       }

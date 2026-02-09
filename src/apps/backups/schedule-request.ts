@@ -1,13 +1,15 @@
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { BackupsContext } from './BackupInfo';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
   ctx: BackupsContext;
+  path: AbsolutePath;
   fn: () => Promise<unknown>;
 };
 
-export async function scheduleRequest({ ctx, fn }: Props) {
+export async function scheduleRequest({ ctx, path, fn }: Props) {
   try {
     await ctx.backupsBottleneck.schedule(() => fn());
   } catch (error) {
@@ -15,6 +17,6 @@ export async function scheduleRequest({ ctx, fn }: Props) {
 
     throw error;
   } finally {
-    tracker.currentProcessed();
+    tracker.currentProcessed(path);
   }
 }

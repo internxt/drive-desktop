@@ -16,7 +16,7 @@ export async function createFolders({ ctx, added, tree }: TProps) {
 
   for (const path of sortedAdded) {
     try {
-      await scheduleRequest({ ctx, fn: () => createFolder(ctx, path, tree) });
+      await scheduleRequest({ ctx, path, fn: () => createFolder(ctx, path, tree) });
     } catch (error) {
       ctx.logger.error({ msg: 'Error creating folder', path, error });
     }
