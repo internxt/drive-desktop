@@ -4,7 +4,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as createFolder from './create-folder';
-import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as createPendingItems from './create-pending-items';
 

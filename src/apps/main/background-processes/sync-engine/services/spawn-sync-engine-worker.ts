@@ -3,13 +3,11 @@ import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { Addon } from '@/node-win/addon-wrapper';
-import { addSyncIssue } from '../../issues';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
 import { initWatcher } from '@/node-win/watcher/watcher';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { refreshWorkspaceToken } from '@/apps/sync-engine/refresh-workspace-token';
+import { loadVirtualDrive } from './load-virtual-drive';
 
 type TProps = {
   ctx: SyncContext;
@@ -18,18 +16,9 @@ type TProps = {
 export async function spawnSyncEngineWorker({ ctx }: TProps) {
   ctx.logger.debug({ msg: 'Spawn sync engine worker' });
 
-  let connectionKey: bigint;
-
   try {
-    try {
-      await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
-      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
-      connectionKey = Addon.connectSyncRoot({ ctx });
-      ctx.logger.debug({ msg: 'Connection key', connectionKey });
-    } catch (error) {
-      addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
-      throw error;
-    }
+    const connectionKey = await loadVirtualDrive({ ctx });
+    if (!connectionKey) return;
 
     /**
      * Jonathan Arce v2.5.1

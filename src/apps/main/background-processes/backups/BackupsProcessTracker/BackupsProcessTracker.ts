@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsStatus } from '../BackupsProcessStatus/BackupsStatus';
@@ -17,10 +18,16 @@ export class BackupsProcessTracker {
 
   private abortController: AbortController | undefined;
 
-  notify() {
+  notify(path?: AbsolutePath) {
     if (this.abortController && !this.abortController.signal.aborted) {
-      logger.debug({ tag: 'BACKUPS', msg: 'Progress', progress: this.progress() });
       broadcastToWindows({ name: 'backup-progress', data: this.progress() });
+      logger.debug({
+        tag: 'BACKUPS',
+        msg: 'Progress',
+        ...(path && { path }),
+        total: this.current.total,
+        processed: this.current.processed,
+      });
     }
   }
 
@@ -43,9 +50,9 @@ export class BackupsProcessTracker {
     this.notify();
   }
 
-  currentProcessed() {
+  currentProcessed(path: AbsolutePath) {
     this.current.processed++;
-    this.notify();
+    this.notify(path);
   }
 
   setStatus(status: BackupsStatus) {

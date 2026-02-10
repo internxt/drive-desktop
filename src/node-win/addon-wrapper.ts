@@ -76,6 +76,11 @@ export class Addon {
     return parseAddonZod('getPlaceholderState', result);
   }
 
+  static async getSyncRootFromPath({ path }: { path: AbsolutePath }) {
+    const result = await addon.getSyncRootFromPath(toWin32Path(path));
+    return parseAddonZod('getSyncRootFromPath', result);
+  }
+
   static async updatePlaceholder({ path, placeholderId, size }: { path: AbsolutePath; placeholderId: FilePlaceholderId; size: number }) {
     await addon.updatePlaceholder(toWin32DevicePath(path), placeholderId, size);
   }

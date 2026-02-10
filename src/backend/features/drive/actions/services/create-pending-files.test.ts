@@ -4,7 +4,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as createFile from './create-file';
-import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
+import { GetFileInfoError } from '@/infra/node-win/services/get-file-info';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-pending-files', () => {

@@ -18,7 +18,7 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
       const path = local.path;
 
       try {
-        await scheduleRequest({ ctx, fn: () => createFile(ctx, path, remoteTree) });
+        await scheduleRequest({ ctx, path, fn: () => createFile(ctx, path, remoteTree) });
       } catch (error) {
         ctx.logger.error({ msg: 'Error creating file', path, error });
       }

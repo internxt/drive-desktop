@@ -14,7 +14,7 @@ export async function deleteFiles({ ctx, deleted }: TProps) {
       const path = file.absolutePath;
 
       try {
-        await scheduleRequest({ ctx, fn: () => deleteFileByUuid({ ctx, uuid: file.uuid, path }) });
+        await scheduleRequest({ ctx, path, fn: () => deleteFileByUuid({ ctx, uuid: file.uuid, path }) });
       } catch (error) {
         ctx.logger.error({ msg: 'Error deleting folder', path, error });
       }

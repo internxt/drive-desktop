@@ -8,9 +8,9 @@ export function useBackupProgress() {
   const [percentualProgress, setPercentualProgress] = useState<number>(0);
 
   useEffect(() => {
-    const removeListener = window.electron.onBackupProgress(setBackupProgress);
+    const removeListener = globalThis.window.electron.onBackupProgress(setBackupProgress);
 
-    window.electron.getLastBackupProgress();
+    void globalThis.window.electron.getLastBackupProgress();
 
     return removeListener;
   }, []);
