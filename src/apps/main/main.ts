@@ -129,7 +129,7 @@ app
 
     setUpBackups();
 
-    const isLoggedIn = await checkIfUserIsLoggedIn();
+    const isLoggedIn = checkIfUserIsLoggedIn();
 
     if (isLoggedIn) {
       setIsLoggedIn(true);
