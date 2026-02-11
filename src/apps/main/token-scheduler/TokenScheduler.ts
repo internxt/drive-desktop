@@ -6,52 +6,45 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 const DAYS_BEFORE = 1;
 
 export class TokenScheduler {
-  private static timeout: NodeJS.Timeout | undefined;
+  static timeout: NodeJS.Timeout | undefined;
 
-  static getTimeout() {
-    return this.timeout;
-  }
-
-  static getExpiresAt() {
-    const token = obtainToken();
-    const decoded = jwtDecode<JwtPayload>(token);
-    if (!decoded.exp) throw new Error('Token does not have expiration time');
-    return decoded.exp * 1000;
-  }
-
-  static getRenewAt() {
-    const expiresAt = this.getExpiresAt();
-    const renewAt = expiresAt - DAYS_BEFORE * 24 * 60 * 60 * 1000;
-    const msToRenew = renewAt - Date.now();
-    return { expiresAt, renewAt, msToRenew };
-  }
-
-  static schedule() {
+  static getMillisecondsToRenew() {
     try {
-      const { expiresAt, renewAt, msToRenew } = this.getRenewAt();
+      const token = obtainToken();
+      const decoded = jwtDecode<JwtPayload>(token);
+      if (!decoded.exp) throw new Error('Token does not have expiration time');
+
+      const expiresAt = decoded.exp * 1000;
+      const renewAt = expiresAt - DAYS_BEFORE * 24 * 60 * 60 * 1000;
+      const msToRenew = renewAt - Date.now();
 
       logger.debug({
         tag: 'AUTH',
         msg: 'Token renew date',
         expiresAt: new Date(expiresAt),
         renewAt: new Date(renewAt),
+        msToRenew,
       });
 
-      this.timeout = setTimeout(async () => {
-        const { data } = await driveServerWip.auth.refresh();
-
-        if (data) {
-          updateCredentials({ newToken: data.newToken });
-          this.schedule();
-        }
-      }, msToRenew);
+      return msToRenew;
     } catch (error) {
-      logger.error({
-        tag: 'AUTH',
-        msg: 'Error scheduling refresh token',
-        error,
-      });
+      logger.error({ tag: 'AUTH', msg: 'Error getting token', error });
+      return null;
     }
+  }
+
+  static schedule() {
+    const msToRenew = this.getMillisecondsToRenew();
+    if (msToRenew === null) return;
+
+    this.timeout = setTimeout(async () => {
+      const { data } = await driveServerWip.auth.refresh();
+
+      if (data) {
+        updateCredentials({ newToken: data.newToken });
+        this.schedule();
+      }
+    }, msToRenew);
   }
 
   static stop() {

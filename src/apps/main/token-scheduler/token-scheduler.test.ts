@@ -27,28 +27,28 @@ describe('token-scheduler', () => {
     vi.useRealTimers();
   });
 
-  it('should not schedule if token does not have expiration time', () => {
+  it('should return Infinity if token does not have expiration time', () => {
     // Given
     obtainTokenMock.mockReturnValue(createToken('0 day'));
     // When
-    TokenScheduler.schedule();
+    TokenScheduler.getMillisecondsToRenew();
     // Then
-    expect(TokenScheduler.getTimeout()).toBe(undefined);
+    expect(TokenScheduler.timeout).toBeUndefined();
     call(loggerMock.error).toMatchObject({
       error: new Error('Token does not have expiration time'),
-      msg: 'Error scheduling refresh token',
+      msg: 'Error getting token',
     });
   });
 
-  it('should not schedule if token is invalid', () => {
+  it('should return Infinity if token is invalid', () => {
     // Given
     obtainTokenMock.mockReturnValue('invalid');
     // When
-    TokenScheduler.schedule();
+    TokenScheduler.getMillisecondsToRenew();
     // Then
-    expect(TokenScheduler.getTimeout()).toBe(undefined);
+    expect(TokenScheduler.timeout).toBeUndefined();
     call(loggerMock.error).toMatchObject({
-      msg: 'Error scheduling refresh token',
+      msg: 'Error getting token',
       error: expect.objectContaining({
         message: expect.stringContaining('Invalid token specified'),
       }),
@@ -63,7 +63,7 @@ describe('token-scheduler', () => {
     TokenScheduler.schedule();
     await vi.runOnlyPendingTimersAsync();
     // Then
-    expect(TokenScheduler.getTimeout()).not.toBe(undefined);
+    expect(TokenScheduler.timeout).not.toBe(undefined);
     call(updateCredentialsMock).toStrictEqual({ newToken: 'token' });
     calls(loggerMock.debug).toMatchObject([
       {
