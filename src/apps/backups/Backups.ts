@@ -1,4 +1,4 @@
-import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
+import { LocalTreeBuilder } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { BackupsContext } from './BackupInfo';
 import { Traverser } from './remote-tree/traverser';
 import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';

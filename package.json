@@ -15,7 +15,7 @@
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint src --ext .ts,.tsx --max-warnings 321",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 276",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src tests --check",
     "format:fix": "prettier src tests --write",
@@ -140,6 +140,7 @@
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.4.19",
     "terser-webpack-plugin": "^5.3.0",
+    "ts-api-utils": "^2.4.0",
     "ts-essentials": "^10.0.4",
     "ts-loader": "^9.2.6",
     "tsconfig-paths": "^4.2.0",
@@ -196,7 +197,7 @@
     "zustand": "^4.5.7"
   },
   "engines": {
-    "node": ">=22.0.0",
+    "node": ">=20.0.0",
     "npm": ">=10.0.0"
   }
 }
