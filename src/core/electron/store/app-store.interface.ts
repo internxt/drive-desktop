@@ -19,7 +19,6 @@ export type AppStore = {
   backupList: BackupList;
 
   newToken: string;
-  newTokenEncrypted: boolean;
   userData: User;
   mnemonic: string;
 

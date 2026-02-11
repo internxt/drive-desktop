@@ -1,39 +1,50 @@
 import { logger } from '@/apps/shared/logger/logger';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
-import { refreshToken } from '../auth/refresh-token';
-import { obtainToken } from '../auth/service';
+import { obtainToken, updateCredentials } from '../auth/service';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 const DAYS_BEFORE = 1;
 
 export class TokenScheduler {
-  timeout: NodeJS.Timeout | undefined;
+  private static timeout: NodeJS.Timeout | undefined;
 
-  getExpiration() {
+  static getTimeout() {
+    return this.timeout;
+  }
+
+  static getExpiresAt() {
     const token = obtainToken();
     const decoded = jwtDecode<JwtPayload>(token);
     if (!decoded.exp) throw new Error('Token does not have expiration time');
     return decoded.exp * 1000;
   }
 
-  schedule() {
+  static getRenewAt() {
+    const expiresAt = this.getExpiresAt();
+    const renewAt = expiresAt - DAYS_BEFORE * 24 * 60 * 60 * 1000;
+    const msToRenew = renewAt - Date.now();
+    return { expiresAt, renewAt, msToRenew };
+  }
+
+  static schedule() {
     try {
-      const expirationDate = this.getExpiration();
-      const renewDate = expirationDate - DAYS_BEFORE * 24 * 60 * 60 * 1000;
-      const delayInMs = renewDate - Date.now();
+      const { expiresAt, renewAt, msToRenew } = this.getRenewAt();
 
       logger.debug({
         tag: 'AUTH',
         msg: 'Token renew date',
-        expiresAt: new Date(expirationDate),
-        renewAt: new Date(renewDate),
+        expiresAt: new Date(expiresAt),
+        renewAt: new Date(renewAt),
       });
 
       this.timeout = setTimeout(async () => {
-        const isRefreshed = await refreshToken();
-        if (isRefreshed) {
+        const { data } = await driveServerWip.auth.refresh();
+
+        if (data) {
+          updateCredentials({ newToken: data.newToken });
           this.schedule();
         }
-      }, delayInMs);
+      }, msToRenew);
     } catch (error) {
       logger.error({
         tag: 'AUTH',
@@ -43,7 +54,7 @@ export class TokenScheduler {
     }
   }
 
-  stop() {
+  static stop() {
     clearTimeout(this.timeout);
   }
 }
