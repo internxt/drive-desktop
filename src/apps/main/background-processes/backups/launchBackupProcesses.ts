@@ -110,4 +110,9 @@ export async function launchBackupProcesses({ ctx }: Props) {
   ipcMain.removeAllListeners('stop-backups-process');
 
   powerSaveBlocker.stop(suspensionBlockId);
+
+  logger.debug({
+    tag: 'BACKUPS',
+    msg: 'Backup finished',
+  });
 }
