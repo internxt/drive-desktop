@@ -1,6 +1,5 @@
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { parseStatError } from './parse-stat-error';
 import { stat } from '@/infra/file-system/services/stat';
 import { StatItem, statReaddir } from '@/infra/file-system/services/stat-readdir';
 
@@ -9,14 +8,14 @@ export type LocalTree = {
   folders: AbsolutePath[];
 };
 
-export default class LocalTreeBuilder {
+export class LocalTreeBuilder {
   static async run({ ctx }: { ctx: BackupsContext }) {
     const rootPath = ctx.pathname;
 
     const { error } = await stat({ absolutePath: rootPath });
 
     if (error) {
-      parseStatError({ ctx, path: rootPath, error });
+      ctx.addIssue({ error: 'FOLDER_DOES_NOT_EXIST', name: rootPath });
       throw error;
     }
 
@@ -29,7 +28,7 @@ export default class LocalTreeBuilder {
       const { files, folders } = await statReaddir({
         folder: parentPath,
         onError: ({ path, error }) => {
-          parseStatError({ ctx, path, error });
+          ctx.addIssue({ error: 'FOLDER_DOES_NOT_EXIST', name: rootPath });
           ctx.logger.error({ msg: 'Error getting item stats', path, error });
         },
       });
