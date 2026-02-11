@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { getWidget } from '../windows/widget';
-import { refreshToken } from './refresh-token';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -32,7 +31,7 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_LOGGED_OUT');
 }
 
-export async function checkIfUserIsLoggedIn() {
+export function checkIfUserIsLoggedIn() {
   const user = getUser();
 
   if (!user) {
@@ -45,7 +44,13 @@ export async function checkIfUserIsLoggedIn() {
     return false;
   }
 
-  return await refreshToken();
+  const msToRenew = TokenScheduler.getMillisecondsToRenew();
+  if (msToRenew === null || msToRenew <= 0) {
+    logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
+    return false;
+  }
+
+  return true;
 }
 
 export function setupAuthIpcHandlers() {
@@ -59,8 +64,7 @@ export function setupAuthIpcHandlers() {
 export async function emitUserLoggedIn() {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
-  const scheduler = new TokenScheduler();
-  scheduler.schedule();
+  TokenScheduler.schedule();
 
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
@@ -79,7 +83,7 @@ export async function emitUserLoggedIn() {
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
-    scheduler.stop();
+    TokenScheduler.stop();
     BackupScheduler.stop();
     logout({ ctx });
   });

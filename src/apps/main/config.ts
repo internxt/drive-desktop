@@ -11,7 +11,6 @@ const schema: Schema<AppStore> = {
   backupList: { type: 'object' },
 
   newToken: { type: 'string' },
-  newTokenEncrypted: { type: 'boolean' },
   userData: { type: 'object' },
   mnemonic: { type: 'string' },
 
