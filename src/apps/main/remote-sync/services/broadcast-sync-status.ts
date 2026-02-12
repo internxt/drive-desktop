@@ -2,10 +2,10 @@ import { logger } from '@/apps/shared/logger/logger';
 import { setTrayStatus } from '../../tray/tray';
 import { broadcastToWidget } from '../../windows';
 import { RemoteSyncStatus } from '../helpers';
-import { remoteSyncManagers } from '../store';
+import { workers } from '../store';
 
 export function getSyncStatus() {
-  const allStatus = [...remoteSyncManagers].map(([, manager]) => manager.status);
+  const allStatus = [...workers.values().map(({ ctx }) => ctx.status)];
   logger.debug({ msg: 'RemoteSyncManagers status', allStatus });
 
   let status: RemoteSyncStatus = 'IDLE';

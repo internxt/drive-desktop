@@ -1,16 +1,17 @@
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as logFileExplorer from './log-file-explorer';
-import * as getDriveContexts from '@/node-win/callbacks';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logFileExplorers } from './log-file-explorers';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { workers } from '@/apps/main/remote-sync/store';
 
 describe('log-file-explorers', () => {
-  const getDriveContextsMock = partialSpyOn(getDriveContexts, 'getDriveContexts');
   const logFileExplorerMock = partialSpyOn(logFileExplorer, 'logFileExplorer');
 
   beforeEach(() => {
-    getDriveContextsMock.mockReturnValue([{ logger: loggerMock }, { logger: loggerMock }]);
+    workers.clear();
+    workers.set('workspaceId1', { ctx: { logger: loggerMock } } as any);
+    workers.set('workspaceId2', { ctx: { logger: loggerMock } } as any);
   });
 
   it('should return csv paths if log file explorer success', async () => {

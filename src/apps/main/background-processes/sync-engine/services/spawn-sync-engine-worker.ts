@@ -1,7 +1,6 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { scheduleSync } from './schedule-sync';
-import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
@@ -20,6 +19,16 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     const connectionKey = await loadVirtualDrive({ ctx });
     if (!connectionKey) return;
 
+    const worker: WorkerConfig = {
+      ctx,
+      connectionKey,
+      syncSchedule: scheduleSync({ ctx }),
+      watcher: initWatcher({ ctx }),
+      workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
+    };
+
+    workers.set(ctx.workspaceId, worker);
+
     /**
      * Jonathan Arce v2.5.1
      * The goal is to create/update/delete placeholders once the sync engine process spawns,
@@ -36,18 +45,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * all item placeholders and then execute this function.
      */
     void addPendingItems({ ctx });
-
-    const manager = addRemoteSyncManager({ context: ctx });
-
-    const worker: WorkerConfig = {
-      ctx,
-      connectionKey,
-      syncSchedule: scheduleSync({ ctx, manager }),
-      watcher: initWatcher({ ctx }),
-      workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
-    };
-
-    workers.set(ctx.workspaceId, worker);
 
     /**
      * v2.5.6 Daniel Jiménez

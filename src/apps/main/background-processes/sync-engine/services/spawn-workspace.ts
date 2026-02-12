@@ -49,6 +49,7 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
       client: ctx.client,
       userUuid: user.uuid,
       mnemonic,
+      status: 'IDLE',
       providerId: workspace.providerId,
       rootPath: workspace.rootPath,
       providerName: 'Internxt Drive for Business',
