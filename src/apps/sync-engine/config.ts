@@ -5,6 +5,7 @@ import { Environment } from '@internxt/inxt-js';
 import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
 import { paths } from '../shared/HttpClient/schema';
+import { RemoteSyncStatus } from '../main/remote-sync/helpers';
 
 export type AuthContext = {
   readonly abortController: AbortController;
@@ -23,6 +24,7 @@ export type CommonContext = AuthContext & {
 };
 
 export type SyncContext = CommonContext & {
+  status: RemoteSyncStatus;
   readonly providerId: string;
   rootPath: AbsolutePath;
   readonly rootUuid: FolderUuid;

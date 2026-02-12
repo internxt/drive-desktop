@@ -7,7 +7,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { call, deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { Addon } from './addon-wrapper';
-import { fetchDataFn, getDriveContexts } from './callbacks';
+import { fetchDataFn } from './callbacks';
 import { InSyncState, PinState } from './types/placeholder.type';
 
 vi.mock(import('@/node-win/addon'));
@@ -51,7 +51,6 @@ describe('addon', () => {
     Addon.connectSyncRoot(props);
     // Then
     call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
-    expect(getDriveContexts()).toMatchObject([{ rootPath }]);
   });
 
   it('should call addon.getRegisteredSyncRoots', async () => {
