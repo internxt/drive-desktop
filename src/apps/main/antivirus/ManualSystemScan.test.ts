@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ManualSystemScan, getManualScanMonitorInstance, ProgressData } from './ManualSystemScan';
+import { ManualSystemScan, ProgressData } from './ManualSystemScan';
 import { Antivirus } from './Antivirus';
 import { ScannedItem } from '../database/entities/ScannedItem';
 import fs from 'node:fs';
@@ -11,8 +11,8 @@ vi.mock('../device/service', () => ({
   getUserSystemPath: vi.fn(() => '/home/user/Documents'),
 }));
 vi.mock('./utils/getFilesFromDirectory', () => ({
-  getFilesFromDirectory: vi.fn((_path, callback) => {
-    callback('/path/to/file.txt');
+  getFilesFromDirectory: vi.fn(({ cb }: { dir: string; cb: (file: string) => Promise<void>; signal: AbortSignal }) => {
+    cb('/path/to/file.txt');
     return Promise.resolve();
   }),
   countSystemFiles: vi.fn(() => Promise.resolve(10)),
@@ -85,19 +85,6 @@ vi.mock('../event-bus', () => ({
     emit: vi.fn(),
   },
 }));
-vi.mock('electron', () => ({
-  app: {
-    isPackaged: false,
-    getName: vi.fn(() => 'drive-desktop-linux'),
-    getPath: vi.fn(() => '/mock/path'),
-    getVersion: vi.fn(() => '1.0.0'),
-  },
-  BrowserWindow: vi.fn(),
-  ipcMain: {
-    on: vi.fn(),
-    handle: vi.fn(),
-  },
-}));
 vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
     debug: vi.fn(),
@@ -135,22 +122,16 @@ describe('ManualSystemScan', () => {
   let mockAntivirus: Antivirus;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
-
     mockAntivirus = {
-      scanFile: vi.fn().mockImplementation((path) => {
-        return Promise.resolve({
-          file: path,
-          isInfected: false,
-          viruses: [],
-        });
+      scanFile: vi.fn().mockResolvedValue({
+        file: '/path/to/file.txt',
+        isInfected: false,
+        viruses: [],
       }),
-      scanFileWithRetry: vi.fn().mockImplementation((path) => {
-        return Promise.resolve({
-          file: path,
-          isInfected: false,
-          viruses: [],
-        });
+      scanFileWithRetry: vi.fn().mockResolvedValue({
+        file: '/path/to/file.txt',
+        isInfected: false,
+        viruses: [],
       }),
       stopClamAv: vi.fn().mockResolvedValue(undefined),
       stopServer: vi.fn().mockResolvedValue(undefined),
@@ -180,7 +161,7 @@ describe('ManualSystemScan', () => {
     mockAntivirus.scanFile.mockResolvedValue(mockScanResult);
     mockAntivirus.scanFileWithRetry.mockResolvedValue(mockScanResult);
 
-    manualSystemScan = await getManualScanMonitorInstance();
+    manualSystemScan = new ManualSystemScan();
   });
 
   describe('scanItems', { timeout: 15000 }, () => {
@@ -189,6 +170,8 @@ describe('ManualSystemScan', () => {
 
       const originalResetCounters = manualSystemScan['resetCounters'];
       manualSystemScan['resetCounters'] = vi.fn().mockResolvedValue(undefined);
+
+      (manualSystemScan as any).abortController = new AbortController();
 
       const mockQueue = {
         pushAsync: vi.fn().mockResolvedValue(undefined),
@@ -225,7 +208,7 @@ describe('ManualSystemScan', () => {
 
       await manualSystemScan.stopScan();
 
-      expect((manualSystemScan as any).cancelled).toBe(true);
+      expect((manualSystemScan as any).abortController.signal.aborted).toBe(true);
 
       expect(mockKill).toHaveBeenCalled();
 
@@ -538,7 +521,6 @@ describe('ManualSystemScan', () => {
       (manualSystemScan as any).progressEvents = [{ progress: 50 }];
       (manualSystemScan as any).totalItemsToScan = 200;
       (manualSystemScan as any).errorCount = 10;
-      (manualSystemScan as any).cancelled = true;
 
       const mockQueue = { kill: vi.fn() };
       (manualSystemScan as any).manualQueue = mockQueue;
@@ -556,7 +538,7 @@ describe('ManualSystemScan', () => {
       expect((manualSystemScan as any).infectedFiles).toEqual([]);
       expect((manualSystemScan as any).progressEvents).toEqual([]);
       expect((manualSystemScan as any).totalItemsToScan).toBe(0);
-      expect((manualSystemScan as any).cancelled).toBe(false);
+      expect((manualSystemScan as any).abortController.signal.aborted).toBe(false);
 
       expect((manualSystemScan as any).clearAllIntervals).toHaveBeenCalled();
       expect(mockQueue.kill).toHaveBeenCalled();
@@ -623,7 +605,7 @@ describe('ManualSystemScan', () => {
     it('should increment stuck count when no progress', () => {
       (manualSystemScan as any).totalScannedFiles = 5;
 
-      const result = manualSystemScan['handleStalledScan'](5, 1, 0, false, false, true);
+      const result = manualSystemScan['handleStalledScan'](5, 0, false, false, true);
 
       expect(result).toEqual({
         stuckCount: 1,
@@ -640,7 +622,7 @@ describe('ManualSystemScan', () => {
 
       vi.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(true);
 
-      const result = manualSystemScan['handleStalledScan'](98, 1, 30, false, false, false);
+      const result = manualSystemScan['handleStalledScan'](98, 29, false, false, false);
 
       expect(result.isComplete).toBe(true);
       expect(result.shouldContinue).toBe(false);
@@ -656,10 +638,10 @@ describe('ManualSystemScan', () => {
 
       vi.spyOn(manualSystemScan as any, 'isNearlyScanComplete').mockReturnValue(false);
 
-      const result = manualSystemScan['handleStalledScan'](50, 1, 30, false, false, true);
+      const result = manualSystemScan['handleStalledScan'](50, 29, false, false, true);
 
       expect(result.hasError).toBe(true);
-      expect((manualSystemScan as any).cancelled).toBe(true);
+      expect((manualSystemScan as any).abortController.signal.aborted).toBe(true);
 
       expect(eventBus.emit).toHaveBeenCalledWith(
         'ANTIVIRUS_SCAN_PROGRESS',
@@ -673,7 +655,9 @@ describe('ManualSystemScan', () => {
     });
 
     it('should reset stuck count if progress is made', () => {
-      const result = manualSystemScan['handleStalledScan'](4, 1, 3, false, false, true);
+      (manualSystemScan as any).totalScannedFiles = 5;
+
+      const result = manualSystemScan['handleStalledScan'](4, 3, false, false, true);
 
       expect(result.stuckCount).toBe(0);
       expect(result.shouldContinue).toBe(true);

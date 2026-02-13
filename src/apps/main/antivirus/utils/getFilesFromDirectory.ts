@@ -15,17 +15,19 @@ const isNonTempItem = (item: Dirent, dir: string): boolean => {
   );
 };
 
-export const getFilesFromDirectory = async (
-  dir: string,
-  cb: (file: string) => Promise<void>,
-  isCancelled?: () => boolean,
-): Promise<void | null> => {
-  if (isCancelled && isCancelled()) {
+type Props = {
+  dir: string;
+  cb: (file: string) => Promise<void>;
+  signal: AbortSignal;
+};
+
+export async function getFilesFromDirectory({ dir, cb, signal }: Props): Promise<void | null> {
+  if (signal.aborted) {
     logger.debug({
       tag: 'ANTIVIRUS',
       msg: `Directory traversal cancelled at ${dir}`,
     });
-    return null;
+    return;
   }
 
   let items: Dirent[];
@@ -53,27 +55,26 @@ export const getFilesFromDirectory = async (
         tag: 'ANTIVIRUS',
         msg: `Skipping directory "${dir}" due to permission error: ${getErrorMessage(error)}`,
       });
-      return null;
+      return;
     }
 
-    // Log other errors but continue scanning
     logger.warn({
       tag: 'ANTIVIRUS',
       msg: `Error reading directory "${dir}": ${getErrorMessage(error)}`,
       error,
     });
-    return null;
+    return;
   }
 
   const nonTempItems = items.filter((item) => isNonTempItem(item, dir));
 
   for (const item of nonTempItems) {
-    if (isCancelled && isCancelled()) {
+    if (signal.aborted) {
       logger.debug({
         tag: 'ANTIVIRUS',
         msg: `Directory traversal cancelled during processing at ${dir}`,
       });
-      return null;
+      return;
     }
 
     const fullPath = resolve(dir, item.name);
@@ -81,7 +82,7 @@ export const getFilesFromDirectory = async (
       try {
         const subitems = await readdir(fullPath, { withFileTypes: true });
         if (subitems.length > 0) {
-          await getFilesFromDirectory(fullPath, cb, isCancelled);
+          await getFilesFromDirectory({ dir: fullPath, cb, signal });
         }
       } catch (error: unknown) {
         if (isPermissionError(error)) {
@@ -90,7 +91,6 @@ export const getFilesFromDirectory = async (
             msg: `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(error)}`,
           });
         } else {
-          // Log other errors but continue scanning
           logger.warn({
             tag: 'ANTIVIRUS',
             msg: `Error accessing subdirectory "${fullPath}": ${getErrorMessage(error)}`,
@@ -110,7 +110,7 @@ export const getFilesFromDirectory = async (
       }
     }
   }
-};
+}
 
 export async function countSystemFiles(folder: string) {
   if (await PathTypeChecker.isFile(folder)) {

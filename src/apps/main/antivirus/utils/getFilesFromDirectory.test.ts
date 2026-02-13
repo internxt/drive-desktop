@@ -33,18 +33,20 @@ describe('getFilesFromDirectory', () => {
   it('should process a single file', async () => {
     const testFile = '/path/to/file.txt';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     mockPathTypeChecker.isFile.mockResolvedValue(true);
 
-    await getFilesFromDirectory(testFile, mockCallback);
+    await getFilesFromDirectory({ dir: testFile, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockPathTypeChecker.isFile).toHaveBeenCalledWith(testFile);
-    expect(mockCallback).toHaveBeenCalledWith(testFile);
-    expect(mockReaddir).not.toHaveBeenCalled();
+    expect(mockPathTypeChecker.isFile).toBeCalledWith(testFile);
+    expect(mockCallback).toBeCalledWith(testFile);
+    expect(mockReaddir).not.toBeCalled();
   });
 
   it('should process files in a directory', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'file2.txt', isDirectory: () => false },
@@ -53,18 +55,19 @@ describe('getFilesFromDirectory', () => {
     mockPathTypeChecker.isFile.mockResolvedValue(false);
     mockReaddir.mockResolvedValue(mockItems as any);
 
-    await getFilesFromDirectory(testDir, mockCallback);
+    await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockPathTypeChecker.isFile).toHaveBeenCalledWith(testDir);
-    expect(mockReaddir).toHaveBeenCalledWith(testDir, { withFileTypes: true });
-    expect(mockCallback).toHaveBeenCalledTimes(2);
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file2.txt');
+    expect(mockPathTypeChecker.isFile).toBeCalledWith(testDir);
+    expect(mockReaddir).toBeCalledWith(testDir, { withFileTypes: true });
+    expect(mockCallback).toBeCalledTimes(2);
+    expect(mockCallback).toBeCalledWith('/path/to/dir/file1.txt');
+    expect(mockCallback).toBeCalledWith('/path/to/dir/file2.txt');
   });
 
   it('should filter out .tmp files and temp/tmp directories', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'file2.tmp', isDirectory: () => false },
@@ -74,17 +77,18 @@ describe('getFilesFromDirectory', () => {
     mockPathTypeChecker.isFile.mockResolvedValue(false);
     mockReaddir.mockResolvedValue(mockItems as any);
 
-    await getFilesFromDirectory(testDir, mockCallback);
+    await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockCallback).toHaveBeenCalledTimes(1);
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockCallback).not.toHaveBeenCalledWith('/path/to/dir/file2.tmp');
-    expect(mockCallback).not.toHaveBeenCalledWith('/path/to/dir/tmp');
+    expect(mockCallback).toBeCalledTimes(1);
+    expect(mockCallback).toBeCalledWith('/path/to/dir/file1.txt');
+    expect(mockCallback).not.toBeCalledWith('/path/to/dir/file2.tmp');
+    expect(mockCallback).not.toBeCalledWith('/path/to/dir/tmp');
   });
 
   it('should recursively process subdirectories', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'subdir', isDirectory: () => true },
@@ -95,19 +99,20 @@ describe('getFilesFromDirectory', () => {
     mockReaddir.mockResolvedValueOnce(mockItems as any);
     mockReaddir.mockResolvedValueOnce(mockSubItems as any);
 
-    await getFilesFromDirectory(testDir, mockCallback);
+    await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockReaddir).toHaveBeenCalledWith(testDir, { withFileTypes: true });
-    expect(mockReaddir).toHaveBeenCalledWith('/path/to/dir/subdir', {
+    expect(mockReaddir).toBeCalledWith(testDir, { withFileTypes: true });
+    expect(mockReaddir).toBeCalledWith('/path/to/dir/subdir', {
       withFileTypes: true,
     });
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/subdir/file1.txt');
+    expect(mockCallback).toBeCalledWith('/path/to/dir/file1.txt');
+    expect(mockCallback).toBeCalledWith('/path/to/dir/subdir/file1.txt');
   });
 
   it('should handle permission errors when reading directory', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const permissionError = new Error('Permission denied') as NodeJS.ErrnoException;
     permissionError.code = 'EACCES';
 
@@ -115,45 +120,47 @@ describe('getFilesFromDirectory', () => {
     mockReaddir.mockRejectedValue(permissionError);
     mockIsPermissionError.mockReturnValue(true);
 
-    const result = await getFilesFromDirectory(testDir, mockCallback);
+    const result = await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockIsPermissionError).toHaveBeenCalledWith(permissionError);
-    expect(mockLogger.error).toHaveBeenCalledWith(
+    expect(mockIsPermissionError).toBeCalledWith(permissionError);
+    expect(mockLogger.error).toBeCalledWith(
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Skipping directory'),
       }),
     );
-    expect(result).toBeNull();
-    expect(mockCallback).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+    expect(mockCallback).not.toBeCalled();
   });
 
   it('should handle non-permission errors and continue scanning', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const nonPermissionError = new Error('Other error');
 
     mockPathTypeChecker.isFile.mockResolvedValue(false);
     mockReaddir.mockRejectedValue(nonPermissionError);
     mockIsPermissionError.mockReturnValue(false);
 
-    const result = await getFilesFromDirectory(testDir, mockCallback);
+    const result = await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockIsPermissionError).toHaveBeenCalledWith(nonPermissionError);
-    expect(mockLogger.warn).toHaveBeenCalledWith(
+    expect(mockIsPermissionError).toBeCalledWith(nonPermissionError);
+    expect(mockLogger.warn).toBeCalledWith(
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Error reading directory'),
         error: nonPermissionError,
       }),
     );
-    expect(result).toBeNull();
-    expect(mockCallback).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+    expect(mockCallback).not.toBeCalled();
   });
 
   it('should handle permission errors in subdirectories', async () => {
     const testDir = '/path/to/dir';
     const mockCallback = vi.fn().mockResolvedValue(undefined);
+    const abortController = new AbortController();
     const mockItems = [
       { name: 'file1.txt', isDirectory: () => false },
       { name: 'subdir', isDirectory: () => true },
@@ -166,10 +173,10 @@ describe('getFilesFromDirectory', () => {
     mockReaddir.mockRejectedValueOnce(permissionError);
     mockIsPermissionError.mockReturnValue(true);
 
-    await getFilesFromDirectory(testDir, mockCallback);
+    await getFilesFromDirectory({ dir: testDir, cb: mockCallback, signal: abortController.signal });
 
-    expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockLogger.debug).toHaveBeenCalledWith(
+    expect(mockCallback).toBeCalledWith('/path/to/dir/file1.txt');
+    expect(mockLogger.debug).toBeCalledWith(
       expect.objectContaining({
         tag: 'ANTIVIRUS',
         msg: expect.stringContaining('Skipping subdirectory'),

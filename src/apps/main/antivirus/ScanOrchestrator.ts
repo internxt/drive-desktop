@@ -14,11 +14,12 @@ export class ScanOrchestrator {
   private scanQueue: QueueObject<string> | null = null;
   private progressReporter: ScanProgressReporter | null = null;
   private dbConnection: DBScannerConnection;
-  private cancelled = false;
+  private abortController: AbortController;
 
   constructor() {
     const scannedItemsAdapter = new ScannedItemCollection();
     this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
+    this.abortController = new AbortController();
   }
 
   async scanPaths(paths: string[]) {
@@ -65,7 +66,20 @@ export class ScanOrchestrator {
         msg: `All files queued (${this.scanQueue.length()} in queue, ${this.scanQueue.running()} running). Waiting for completion...`,
       });
 
-      await this.scanQueue.drain();
+      await Promise.race([
+        this.scanQueue.drain(),
+        new Promise<void>((resolve) => {
+          this.abortController.signal.addEventListener('abort', () => resolve());
+        }),
+      ]);
+
+      if (this.abortController.signal.aborted) {
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Scan was cancelled',
+        });
+        return;
+      }
 
       logger.debug({
         tag: 'ANTIVIRUS',
@@ -94,10 +108,23 @@ export class ScanOrchestrator {
 
   async cancel() {
     logger.debug({ tag: 'ANTIVIRUS', msg: 'Cancelling scan...' });
-    this.cancelled = true;
 
-    if (this.scanQueue) this.scanQueue.kill();
+    this.abortController.abort();
+
+    if (this.scanQueue) {
+      this.scanQueue.kill();
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `Queue killed. Remaining in queue: ${this.scanQueue.length()}, Running workers: ${this.scanQueue.running()}`,
+      });
+    }
+
+    if (this.progressReporter) {
+      this.progressReporter.reportCompleted();
+    }
+
     await this.cleanup();
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Scan cancellation completed' });
   }
 
   private async countTotalFiles(paths: string[]) {
@@ -124,16 +151,16 @@ export class ScanOrchestrator {
     let queuedCount = 0;
 
     for (const path of paths) {
-      if (this.cancelled) break;
+      if (this.abortController.signal.aborted) break;
 
       logger.debug({
         tag: 'ANTIVIRUS',
         msg: `Queueing files from path: ${path}`,
       });
 
-      await getFilesFromDirectory(
-        path,
-        async (filePath: string) => {
+      await getFilesFromDirectory({
+        dir: path,
+        cb: async (filePath: string) => {
           if (this.scanQueue) {
             this.scanQueue.push(filePath);
             queuedCount++;
@@ -145,8 +172,8 @@ export class ScanOrchestrator {
             }
           }
         },
-        () => this.cancelled,
-      );
+        signal: this.abortController.signal,
+      });
     }
 
     logger.debug({
@@ -156,11 +183,7 @@ export class ScanOrchestrator {
   }
 
   private async scanFile(filePath: string) {
-    if (this.cancelled || !this.antivirus || !this.progressReporter) {
-      logger.warn({
-        tag: 'ANTIVIRUS',
-        msg: `Worker called but cannot process: cancelled=${this.cancelled}, antivirus=${!!this.antivirus}, reporter=${!!this.progressReporter}`,
-      });
+    if (this.abortController.signal.aborted || !this.antivirus || !this.progressReporter) {
       return;
     }
 
@@ -176,7 +199,7 @@ export class ScanOrchestrator {
         return;
       }
 
-      const scanResult = await this.antivirus.scanFileWithRetry(scannedItem.pathName);
+      const scanResult = await this.antivirus.scanFileWithRetry(scannedItem.pathName, this.abortController.signal);
 
       if (scanResult) {
         const isInfected = scanResult.isInfected;

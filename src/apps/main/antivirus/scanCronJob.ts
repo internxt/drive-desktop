@@ -13,8 +13,12 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
 
 let dailyScanInterval: NodeJS.Timeout | null = null;
+let backgroundScanAbortController: AbortController | null = null;
 
-const scanInBackground = async (): Promise<void> => {
+async function scanInBackground() {
+  const abortController = new AbortController();
+  backgroundScanAbortController = abortController;
+
   const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
   const antivirus = await Antivirus.createInstance();
@@ -34,7 +38,7 @@ const scanInBackground = async (): Promise<void> => {
           return;
         }
 
-        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName, abortController.signal);
         if (currentScannedFile) {
           await database.updateItemToDatabase(previousScannedItem.id, {
             ...scannedItem,
@@ -44,7 +48,7 @@ const scanInBackground = async (): Promise<void> => {
         return;
       }
 
-      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName, abortController.signal);
 
       if (currentScannedFile) {
         await database.addItemToDatabase({
@@ -60,19 +64,21 @@ const scanInBackground = async (): Promise<void> => {
   };
 
   try {
-    let backgroundQueue: QueueObject<string> | null = queue(scan, BACKGROUND_MAX_CONCURRENCY);
+    const backgroundQueue: QueueObject<string> = queue(scan, BACKGROUND_MAX_CONCURRENCY);
 
-    await getFilesFromDirectory(userSystemPath.path, (file: string) => backgroundQueue!.pushAsync(file));
+    await getFilesFromDirectory({
+      dir: userSystemPath.path,
+      cb: (file: string) => backgroundQueue.pushAsync(file),
+      signal: abortController.signal,
+    });
 
     await backgroundQueue.drain();
-
-    backgroundQueue = null;
   } catch (error) {
     if (!isPermissionError(error)) {
       throw error;
     }
   }
-};
+}
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
@@ -102,7 +108,17 @@ export function scheduleDailyScan() {
   }, ONE_DAY_MS);
 }
 
+export function cancelBackgroundScan() {
+  if (backgroundScanAbortController) {
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Cancelling ongoing background scan' });
+    backgroundScanAbortController.abort();
+    backgroundScanAbortController = null;
+  }
+}
+
 export function clearDailyScan() {
+  cancelBackgroundScan();
+
   if (dailyScanInterval) {
     clearInterval(dailyScanInterval);
     dailyScanInterval = null;
