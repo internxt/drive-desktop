@@ -87,12 +87,10 @@ const imageExtensions: FileExtensionMap = {
   eps: ['eps'],
   raw: ['raw', 'cr2', 'nef', 'orf', 'sr2'],
 };
-const previewableImageExtensionGroups: string[] = ['jpg', 'png', 'bmp', 'gif'];
 
 const pdfExtensions: FileExtensionMap = {
   pdf: ['pdf'],
 };
-const previewablePdfExtensionGroups: string[] = ['pdf'];
 
 const pptExtensions: FileExtensionMap = {
   ppt: ['ppt', 'pptx', 'pptm'],
@@ -171,9 +169,6 @@ export enum FileExtensionGroup {
 }
 
 type FileExtensionsDictionary = Record<FileExtensionGroup, FileExtensionMap>;
-type FileExtensionsPreviewableDictionary = {
-  [key in FileExtensionGroup]: string[];
-};
 
 const fileExtensionGroups: FileExtensionsDictionary = {
   [FileExtensionGroup.Audio]: audioExtensions,
@@ -190,23 +185,6 @@ const fileExtensionGroups: FileExtensionsDictionary = {
   [FileExtensionGroup.Csv]: csvExtensions,
   [FileExtensionGroup.Zip]: zipExtensions,
   [FileExtensionGroup.Default]: defaultExtensions,
-};
-
-export const fileExtensionPreviewableGroups: FileExtensionsPreviewableDictionary = {
-  [FileExtensionGroup.Audio]: [],
-  [FileExtensionGroup.Code]: [],
-  [FileExtensionGroup.Figma]: [],
-  [FileExtensionGroup.Image]: previewableImageExtensionGroups,
-  [FileExtensionGroup.Pdf]: previewablePdfExtensionGroups,
-  [FileExtensionGroup.Ppt]: [],
-  [FileExtensionGroup.Txt]: [],
-  [FileExtensionGroup.Video]: [],
-  [FileExtensionGroup.Word]: [],
-  [FileExtensionGroup.Xls]: [],
-  [FileExtensionGroup.Xml]: [],
-  [FileExtensionGroup.Csv]: [],
-  [FileExtensionGroup.Zip]: [],
-  [FileExtensionGroup.Default]: [],
 };
 
 export default fileExtensionGroups;

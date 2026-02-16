@@ -1,4 +1,3 @@
-/* TODO: DELTE DEAD CODE */
 import { AsyncZipDeflate, Zip } from 'fflate';
 import { ReadableStream, WritableStream } from 'node:stream/web';
 
