@@ -1,9 +1,9 @@
-import { getPathFromDialog } from '../device/service';
 import configStore from '../config';
 import { createBackup } from './create-backup';
 import { DeviceModule } from '../../../backend/features/device/device.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { enableExistingBackup } from './enable-existing-backup';
+import { getPathFromDialog } from '../../../backend/features/backup/get-path-from-dialog';
 
 export async function addBackup() {
   const { error, data } = await DeviceModule.getOrCreateDevice();

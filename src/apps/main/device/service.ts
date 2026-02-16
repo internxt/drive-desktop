@@ -21,6 +21,7 @@ import { getBackupFolderUuid } from '../../../infra/drive-server/services/backup
 import { updateBackupFolderName } from '../../../infra/drive-server/services/backup/services/update-backup-folder-metadata';
 import { migrateBackupEntryIfNeeded } from './migrate-backup-entry-if-needed';
 import { createBackup } from '../backups/create-backup';
+import { getPathFromDialog } from '../../../backend/features/backup/get-path-from-dialog';
 
 export type Device = {
   id: number;
@@ -313,30 +314,6 @@ export type PathInfo = {
   itemName: string;
   isDirectory?: boolean;
 };
-
-export async function getPathFromDialog(): Promise<{
-  path: string;
-  itemName: string;
-} | null> {
-  const result = await dialog.showOpenDialog({
-    properties: ['openDirectory'],
-  });
-
-  if (result.canceled) {
-    return null;
-  }
-
-  const chosenPath = result.filePaths[0];
-
-  const itemPath = chosenPath + (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
-
-  const itemName = path.basename(itemPath);
-
-  return {
-    path: itemPath,
-    itemName,
-  };
-}
 
 export async function getMultiplePathsFromDialog(allowFiles = false): Promise<PathInfo[] | null> {
   const result = await dialog.showOpenDialog({

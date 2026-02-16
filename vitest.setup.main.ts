@@ -10,7 +10,14 @@ vi.mock('electron', () => ({
   },
   ipcMain: {
     on: vi.fn(),
-    handle: vi.fn()
+    handle: vi.fn(),
+  },
+  dialog: {
+    showOpenDialog: vi.fn(),
+  },
+  BrowserWindow: {
+    getFocusedWindow: vi.fn(),
+    getAllWindows: vi.fn(),
   },
 }));
 

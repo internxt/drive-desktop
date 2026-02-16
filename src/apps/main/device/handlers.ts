@@ -7,10 +7,10 @@ import {
   disableBackup,
   downloadBackup,
   getDevices,
-  getPathFromDialog,
 } from './service';
 import { DeviceModule } from '../../../backend/features/device/device.module';
 import { addBackup } from '../backups/add-backup';
+import { getPathFromDialog } from '../../../backend/features/backup/get-path-from-dialog';
 
 ipcMain.handle('devices.get-all', () => getDevices());
 

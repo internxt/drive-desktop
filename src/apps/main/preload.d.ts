@@ -145,7 +145,7 @@ declare interface Window {
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
-    getFolderPath: typeof import('../main/device/service').getPathFromDialog;
+    getFolderPath: typeof import('../../backend/features/backup/get-path-from-dialog').getPathFromDialog;
 
     onRemoteChanges(func: (value: import('../main/realtime').EventPayload) => void): () => void;
 

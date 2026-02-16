@@ -1,4 +1,4 @@
-import * as getPathFromDialogModule from '../device/service';
+import * as getPathFromDialogModule from '../../../backend/features/backup/get-path-from-dialog';
 import * as createBackupModule from './create-backup';
 import * as DeviceModuleModule from './../../../backend/features/device/device.module';
 import * as enableExistingBackupModule from './enable-existing-backup';
