@@ -43,4 +43,6 @@ export async function createWidget() {
   });
 
   await widget.loadURL(resolveHtmlPath(''));
+
+  widget.show();
 }
