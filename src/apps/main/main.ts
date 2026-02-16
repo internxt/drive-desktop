@@ -132,7 +132,6 @@ app
 
     checkForUpdates();
     registerAvailableUserProductsHandlers();
-    getUserAvailableProductsAndStore({ forceStorage: true });
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
@@ -184,7 +183,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-
+    await getUserAvailableProductsAndStore();
     await trySetupAntivirusIpcAndInitialize();
   } catch (error) {
     logger.error({

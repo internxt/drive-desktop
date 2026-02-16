@@ -46,6 +46,9 @@ vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
     info: vi.fn(),
     debug: vi.fn(),
   },
+  PaymentsModule: {
+    getUserAvailableProducts: vi.fn(),
+  },
 }));
 
 vi.mock('@internxt/drive-desktop-core/src/backend', () => ({

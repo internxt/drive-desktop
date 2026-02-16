@@ -2,7 +2,6 @@ import configStore from '../../../../apps/main/config';
 import { AvailableUserProductsIPCMain } from './AvailableUserProductsIPCMain';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import eventBus from '../../../../apps/main/event-bus';
-import { getUserAvailableProductsAndStore } from '../services/get-user-available-products-and-store';
 import { WebContents } from 'electron';
 
 /**
@@ -14,27 +13,6 @@ const subscribedRenderers = new Set<WebContents>();
  * Registers handlers for available user products IPC events.
  */
 export function registerAvailableUserProductsHandlers() {
-  logger.debug({
-    tag: 'PRODUCTS',
-    msg: 'Registering event handlers for Product availability',
-  });
-
-  eventBus.on('USER_LOGGED_IN', () => {
-    logger.debug({
-      tag: 'PRODUCTS',
-      msg: 'User Logged in, checkin product availability',
-    });
-    void getUserAvailableProductsAndStore({ forceStorage: true });
-  });
-
-  eventBus.on('GET_USER_AVAILABLE_PRODUCTS', () => {
-    logger.debug({
-      tag: 'PRODUCTS',
-      msg: 'checkin product availability',
-    });
-    void getUserAvailableProductsAndStore();
-  });
-
   // Single event listener for product updates - broadcasts to all subscribed renderers
   eventBus.on('USER_AVAILABLE_PRODUCTS_UPDATED', (products) => {
     logger.debug({
@@ -43,14 +21,10 @@ export function registerAvailableUserProductsHandlers() {
     });
 
     subscribedRenderers.forEach((webContents) => {
-      if (!webContents.isDestroyed()) {
-        webContents.send('available-user-products-updated', products);
-      }
-    });
-
-    subscribedRenderers.forEach((webContents) => {
       if (webContents.isDestroyed()) {
         subscribedRenderers.delete(webContents);
+      } else {
+        webContents.send('available-user-products-updated', products);
       }
     });
   });

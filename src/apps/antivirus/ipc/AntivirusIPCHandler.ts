@@ -2,8 +2,8 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ipcMain } from 'electron';
 import { AntivirusIPCMain } from './AntivirusIPCMain';
 import { getMultiplePathsFromDialog } from '../../main/device/service';
-import { getStoredUserProducts } from '../../../backend/features/payments/services/get-stored-user-products';
 import { AntivirusScanService } from '../../main/antivirus/AntivirusScanService';
+import configStore from '../../main/config';
 
 export class AntivirusIPCHandler {
   public setupHandlers(): void {
@@ -22,7 +22,7 @@ export class AntivirusIPCHandler {
   private setupAvailabilityHandler(): void {
     AntivirusIPCMain.handle('antivirus:is-available', async () => {
       try {
-        const availableProducts = getStoredUserProducts();
+        const availableProducts = configStore.get('availableUserProducts');
         return !!availableProducts?.antivirus;
       } catch (error) {
         logger.error({

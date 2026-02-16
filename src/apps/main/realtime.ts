@@ -3,6 +3,7 @@ import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -90,7 +91,9 @@ function cleanAndStartRemoteNotifications() {
       eventPayload.bucket = data.payload.bucket;
     }
 
-    eventBus.emit('GET_USER_AVAILABLE_PRODUCTS');
+    if (eventPayload.eventName === 'PLAN_UPDATED') {
+      void getUserAvailableProductsAndStore();
+    }
 
     broadcastToWindows('remote-changes', eventPayload);
 
