@@ -1,6 +1,6 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/service';
-import { emitUserLoggedIn, setIsLoggedIn } from '../../auth/handlers';
+import { emitUserLoggedIn } from '../../auth/handlers';
 import { validateMnemonic } from 'bip39';
 
 type Props = { search: string };
@@ -39,6 +39,5 @@ export async function processLogin({ search }: Props) {
   setUser({ ...data.user, privateKey, mnemonic });
 
   restoreSavedConfig({ uuid: data.user.uuid });
-  setIsLoggedIn(true);
   void emitUserLoggedIn();
 }

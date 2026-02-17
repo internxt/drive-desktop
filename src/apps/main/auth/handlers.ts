@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import { getWidget } from '../windows/widget';
+import { getWidget, showFrontend } from '../windows/widget';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -66,6 +66,9 @@ export function setupAuthIpcHandlers() {
 
 export async function emitUserLoggedIn() {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
+
+  setIsLoggedIn(true);
+  showFrontend();
 
   TokenScheduler.schedule();
 

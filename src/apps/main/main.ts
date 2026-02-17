@@ -20,7 +20,7 @@ import { setupRemoteSyncIpc } from './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';
 import { AppDataSource } from './database/data-source';
-import { createWidget } from './windows/widget';
+import { createWidget, showFrontend } from './windows/widget';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { setupQuitHandlers } from './quit';
 import { migrate } from '@/migrations/migrate';
@@ -125,10 +125,10 @@ app
     const isLoggedIn = checkIfUserIsLoggedIn();
 
     if (isLoggedIn) {
-      setIsLoggedIn(true);
       await emitUserLoggedIn();
     } else {
       setIsLoggedIn(false);
+      showFrontend();
       setTrayStatus('IDLE');
     }
 
