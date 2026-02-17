@@ -11,7 +11,7 @@ export function Widget() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
-    <div className="rounded-shadow-white absolute bottom-0 right-16 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
+    <div className="rounded-shadow-white absolute bottom-0 right-12 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
       <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
 
       {syncStatus === 'SYNC_FAILED' ? <SyncFailed /> : <SyncInfo />}

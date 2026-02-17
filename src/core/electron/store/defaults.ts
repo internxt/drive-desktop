@@ -11,7 +11,6 @@ export const defaults: AppStore = {
 
   newToken: '',
   userData: {} as User,
-  mnemonic: '',
 
   savedConfigs: {},
   lastOnboardingShown: '',
@@ -24,4 +23,4 @@ export const defaults: AppStore = {
 };
 
 export const fieldsToSave: Array<keyof AppStore> = ['backupInterval', 'lastBackup', 'syncRoot', 'deviceUuid', 'backupList'];
-export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'userData', 'mnemonic'];
+export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'userData'];

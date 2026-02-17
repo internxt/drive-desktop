@@ -33,7 +33,7 @@ export async function processLogin({ search }: Props) {
    * v2.6.3 Daniel Jiménez
    * We need to override the privateKey and the mnemonic since inside the user they are encrypted.
    * Previous to SSO we were using the password to encrypt and decrypt the privateKey and
-   * mnemonic. However, since now the client never touches the password we need the backend
+   * mnemonic. However, since now the client never touches the password we need the frontend
    * to send as the decrypted privateKey and mnemonic.
    */
   setUser({ ...data.user, privateKey, mnemonic });

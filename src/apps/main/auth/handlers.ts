@@ -13,6 +13,9 @@ import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-mai
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import Bottleneck from 'bottleneck';
+import { openOnboardingWindow } from '../windows/onboarding';
+import electronStore from '../config';
+import { Marketing } from '@/backend/features';
 
 let isLoggedIn: boolean | null = null;
 
@@ -89,8 +92,12 @@ export async function emitUserLoggedIn() {
   });
 
   setupLoggedPreloadIpc({ ctx });
-  eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
+
+  const lastOnboardingShown = electronStore.get('lastOnboardingShown');
+  if (!lastOnboardingShown) void openOnboardingWindow();
+
   BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
+  void Marketing.showNotifications();
 }

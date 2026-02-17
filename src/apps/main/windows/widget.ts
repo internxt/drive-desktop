@@ -12,9 +12,15 @@ export function hideFrontend() {
   widget.hide();
 }
 
+export function showFrontend() {
+  widget.setAlwaysOnTop(true);
+  widget.show();
+  widget.setAlwaysOnTop(false);
+}
+
 export function toggleWidgetVisibility() {
-  if (widget.isVisible()) widget.hide();
-  else widget.show();
+  if (widget.isVisible()) hideFrontend();
+  else showFrontend();
 }
 
 export function getWorkArea() {
@@ -42,7 +48,9 @@ export async function createWidget() {
     skipTaskbar: true,
   });
 
+  widget.on('blur', () => hideFrontend());
+
   await widget.loadURL(resolveHtmlPath(''));
 
-  widget.show();
+  showFrontend();
 }

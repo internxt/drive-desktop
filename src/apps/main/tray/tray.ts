@@ -18,30 +18,18 @@ export class TrayMenu {
     this.setState('LOADING');
 
     this.tray.setToolTip(`Internxt ${INTERNXT_VERSION}`);
-    this.tray.setIgnoreDoubleClickEvents(true);
-
-    this.tray.on('click', () => {
-      toggleWidgetVisibility();
-      this.tray.setContextMenu(null);
-    });
-
-    this.tray.on('right-click', () => {
-      this.updateContextMenu();
-      this.tray.popUpContextMenu();
-    });
-  }
-
-  getIconPath(state: TrayMenuState) {
-    return path.join(this.iconsPath, `${state.toLowerCase()}.png`);
-  }
-
-  updateContextMenu() {
+    this.tray.on('click', () => toggleWidgetVisibility());
+    this.tray.on('right-click', () => this.tray.popUpContextMenu());
     this.tray.setContextMenu(
       Menu.buildFromTemplate([
         { label: 'Show/Hide', click: toggleWidgetVisibility },
         { label: 'Quit', click: () => void quitApp() },
       ]),
     );
+  }
+
+  getIconPath(state: TrayMenuState) {
+    return path.join(this.iconsPath, `${state.toLowerCase()}.png`);
   }
 
   setState(state: TrayMenuState) {

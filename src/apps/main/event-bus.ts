@@ -4,7 +4,6 @@ import { ProgressData } from './antivirus/ManualSystemScan';
 class EventBus extends EventEmitter {}
 
 type Events = {
-  USER_LOGGED_IN: () => void;
   USER_LOGGED_OUT: () => void;
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
 };
