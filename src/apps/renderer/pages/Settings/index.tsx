@@ -68,7 +68,7 @@ export default function Settings() {
                 <div className="flex flex-grow flex-col">
                   <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
                   <Header active={activeSection} onClick={setActiveSection} />
-                  <div className="flex bg-gray-1 p-5" style={{ minHeight: 420 }}>
+                  <div className="flex bg-gray-1 p-5" style={{ minHeight: 460, height: 460 }}>
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
                     <AccountSection active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection

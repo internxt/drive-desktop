@@ -426,9 +426,9 @@
         "cleanupTooltip": "Some files in use or requiring permission may not be cleaned automatically. Try cleaning them after closing active apps and after giving the permissions."
       },
       "generateReportView": {
-        "title": "No report found",
-        "description": "Generate a report to see which files can be cleaned up.",
-        "generateReport": "Generate report"
+        "title": "No scan yet",
+        "description": "Scan your system to find files you can safely remove and free up space.",
+        "generateReport": "Run Scan"
       },
       "loadingView": {
         "title": "Please wait a moment.",

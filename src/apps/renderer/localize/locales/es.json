@@ -425,9 +425,9 @@
         "cleanupTooltip": "Es posible que algunos archivos en uso o que requieren permiso no se limpien automáticamente. Intenta limpiarlos después de cerrar las aplicaciones activas y de conceder los permisos."
       },
       "generateReportView": {
-        "title": "No se ha encontrado ningún informe.",
-        "description": "Genere un informe para ver qué archivos se pueden limpiar.",
-        "generateReport": "Generar informe"
+        "title": "Ningún escaneo todavía",
+        "description": "Escanee su sistema para encontrar archivos que pueda eliminar de forma segura y liberar espacio.",
+        "generateReport": "Ejecutar escaneo"
       },
       "loadingView": {
         "title": "Espera un momento",

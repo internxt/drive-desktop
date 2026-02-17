@@ -38,7 +38,7 @@ export function CleanerSection({ active }: Props) {
     generateReport();
   }
   return (
-    <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
+    <section className={`${active ? 'flex flex-col' : 'hidden'} relative h-full w-full`}>
       {!isCleanerAvailable ? (
         <LockedState />
       ) : cleaningState.cleaning || cleaningState.cleaningCompleted ? (
@@ -46,9 +46,9 @@ export function CleanerSection({ active }: Props) {
       ) : (
         <div className="flex h-full w-full flex-col gap-4">
           {!report && !loading && (
-            <>
+            <div className="flex-1">
               <GenerateReportView onGenerateReport={handleGenerateReport} {...useCleanerViewModelHook} />
-            </>
+            </div>
           )}
           {loading && <LoadingView />}
           {report && (

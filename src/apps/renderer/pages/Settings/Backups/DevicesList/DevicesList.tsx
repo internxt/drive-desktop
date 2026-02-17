@@ -17,7 +17,7 @@ export function DevicesList({ className }: DevicesSideBarProps) {
 
   return (
     <aside className={className}>
-      <div className="flex grow-0 flex-col">
+      <div className="flex h-full flex-col">
         <h1 className="bg-gray-1">{translate('settings.backups.devices')}</h1>
         <ScrollableContent height={409} maxHeight={409} className="-mr-3">
           <ul>
