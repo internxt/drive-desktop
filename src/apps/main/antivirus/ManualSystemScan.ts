@@ -1,5 +1,4 @@
 import { queue, QueueObject } from 'async';
-import eventBus from '../event-bus';
 import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { AntivirusEngine } from './antivirus-manager/types';
 import { isPermissionError } from './utils/isPermissionError';
