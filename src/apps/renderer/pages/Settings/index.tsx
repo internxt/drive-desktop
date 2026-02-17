@@ -20,8 +20,6 @@ import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import { useI18n } from '../../localize/use-i18n';
 import { Section, useSettingsStore } from './settings-store';
 
-export const SHOW_ANTIVIRUS_TOOL = true;
-
 type Props = {
   activeSection: Section;
 };
@@ -47,9 +45,7 @@ export default function Settings({ activeSection }: Props) {
               }}>
               {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
               {subsection === 'download_list' && <DownloadFolderSelector onClose={() => setSubsection('panel')} />}
-              {SHOW_ANTIVIRUS_TOOL && subsection === 'list' && activeSection === 'ANTIVIRUS' && (
-                <RemoveMalwareState onCancel={() => setSubsection('panel')} />
-              )}
+              {subsection === 'list' && activeSection === 'ANTIVIRUS' && <RemoveMalwareState onCancel={() => setSubsection('panel')} />}
               {subsection === 'panel' && (
                 <>
                   <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" onClose={() => setActiveSection(null)} />
@@ -65,14 +61,12 @@ export default function Settings({ activeSection }: Props) {
                       showDownloadFolers={() => setSubsection('download_list')}
                       data-automation-id="itemSettingsBackups"
                     />
-                    {SHOW_ANTIVIRUS_TOOL && (
-                      <AntivirusSection
-                        onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
-                        active={activeSection === 'ANTIVIRUS'}
-                        showItemsWithMalware={() => setSubsection('list')}
-                        data-automation-id="itemSettingsAntivirus"
-                      />
-                    )}
+                    <AntivirusSection
+                      onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
+                      active={activeSection === 'ANTIVIRUS'}
+                      showItemsWithMalware={() => setSubsection('list')}
+                      data-automation-id="itemSettingsAntivirus"
+                    />
                     <CleanerModule.CleanerSection
                       active={activeSection === 'CLEANER'}
                       isAvailable={Boolean(availableProducts?.cleaner)}

@@ -22,7 +22,7 @@ export class TrayMenu {
     this.tray.on('right-click', () => this.tray.popUpContextMenu());
     this.tray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: 'Show/Hide', click: toggleWidgetVisibility },
+        { label: 'Show/Hide', click: () => toggleWidgetVisibility() },
         { label: 'Quit', click: () => void quitApp() },
       ]),
     );

@@ -1,6 +1,7 @@
 import { BrowserWindow, screen } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
+import { ProgressData } from '../antivirus/ManualSystemScan';
 
 let widget: BrowserWindow;
 
@@ -48,7 +49,6 @@ export async function createWidget() {
     skipTaskbar: true,
   });
 
-  widget.on('blur', () => hideFrontend());
   /**
    * v2.6.6 Daniel Jiménez
    * When using the `transparent` property in BrowserWindow, it sometimes flickers.
@@ -60,4 +60,8 @@ export async function createWidget() {
   });
 
   await widget.loadURL(resolveHtmlPath(''));
+}
+
+export function sendAntivirusProgress(progressData: ProgressData) {
+  widget.webContents.send('antivirus:scan-progress', progressData);
 }
