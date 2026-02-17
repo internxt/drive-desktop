@@ -29,7 +29,7 @@ export async function handleDeeplink({ url }: Props) {
 
     const userData = configStore.get('userData');
     if (userData?.uuid) {
-      const restored = canHisConfigBeRestored(userData.uuid);
+      const restored = canHisConfigBeRestored({ uuid: userData.uuid });
       logger.debug({ tag: 'AUTH', msg: 'Config restoration attempt on login', restored, uuid: userData.uuid });
     }
 

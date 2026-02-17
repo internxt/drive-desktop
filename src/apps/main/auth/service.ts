@@ -13,6 +13,75 @@ const tokensKeys = ['bearerToken', 'newToken'] as const;
 type TokenKey = (typeof tokensKeys)[number];
 type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
 
+const keepFields: Array<keyof typeof defaults> = ['preferedLanguage', 'lastOnboardingShown'];
+
+function resetConfig() {
+  for (const field of fieldsToSave) {
+    if (!keepFields.includes(field)) {
+      ConfigStore.set(field, defaults[field]);
+    }
+  }
+}
+
+function saveConfig() {
+  const user = getUser();
+  if (!user) {
+    return;
+  }
+
+  const { uuid } = user;
+
+  const savedConfigs = ConfigStore.get('savedConfigs');
+
+  const configToSave = Object.fromEntries(fieldsToSave.map((field) => [field, ConfigStore.get(field)]));
+
+  ConfigStore.set('savedConfigs', {
+    ...savedConfigs,
+    [uuid]: configToSave,
+  });
+}
+
+export function obtainToken(tokenName: TokenKey): string {
+  const token = ConfigStore.get(tokenName);
+  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(`${tokenName}Encrypted`);
+
+  if (!isEncrypted) {
+    return token;
+  }
+
+  try {
+    if (!safeStorage.isEncryptionAvailable()) {
+      logger.error({
+        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token',
+        tag: 'AUTH',
+      });
+
+      ConfigStore.set<EncryptedTokenKey>(`${tokenName}Encrypted`, false);
+      return token;
+    }
+
+    const buffer = Buffer.from(token, TOKEN_ENCODING);
+
+    return safeStorage.decryptString(buffer);
+  } catch (err) {
+    throw logger.error({
+      msg: '[AUTH] Failed to decrypt token',
+      tag: 'AUTH',
+      error: err,
+    });
+  }
+}
+
+export function obtainTokens(): Array<string> {
+  return tokensKeys.map(obtainToken);
+}
+
+export function getUser(): User | null {
+  const user = ConfigStore.get('userData');
+
+  return user && Object.keys(user).length ? user : null;
+}
+
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
 
@@ -120,57 +189,33 @@ export function getNewApiHeaders(): Record<string, string> {
   };
 }
 
-export function getUser(): User | null {
-  const user = ConfigStore.get('userData');
-
-  return user && Object.keys(user).length ? user : null;
-}
-
-export function obtainToken(tokenName: TokenKey): string {
-  const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(`${tokenName}Encrypted`);
-
-  if (!isEncrypted) {
-    return token;
-  }
-
-  try {
-    if (!safeStorage.isEncryptionAvailable()) {
-      logger.error({
-        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token',
-        tag: 'AUTH',
-      });
-
-      ConfigStore.set<EncryptedTokenKey>(`${tokenName}Encrypted`, false);
-      return token;
-    }
-
-    const buffer = Buffer.from(token, TOKEN_ENCODING);
-
-    return safeStorage.decryptString(buffer);
-  } catch (err) {
-    throw logger.error({
-      msg: '[AUTH] Failed to decrypt token',
-      tag: 'AUTH',
-      error: err,
-    });
-  }
-}
-
 export function tokensArePresent(): boolean {
   const tokens = tokensKeys.map((token) => ConfigStore.get(token)).filter((token) => token && token.length !== 0);
 
   return tokens.length === tokensKeys.length;
 }
 
-export function obtainTokens(): Array<string> {
-  return tokensKeys.map(obtainToken);
-}
-
 function resetCredentials() {
   for (const field of ['mnemonic', 'userData', 'bearerToken', 'bearerTokenEncrypted', 'newToken'] as const) {
     ConfigStore.set(field, defaults[field]);
   }
+}
+
+export function canHisConfigBeRestored({ uuid }: { uuid: string }) {
+  const savedConfigs = ConfigStore.get('savedConfigs');
+
+  if (!savedConfigs) return false;
+  const savedConfig = savedConfigs[uuid];
+
+  if (!savedConfig) {
+    return false;
+  }
+
+  for (const [key, value] of Object.entries(savedConfig)) {
+    ConfigStore.set(key, value);
+  }
+
+  return true;
 }
 
 export function logout() {
@@ -182,36 +227,4 @@ export function logout() {
   resetCredentials();
   void driveServerModule.auth.logout(headers);
   logger.debug({ msg: '[AUTH] User logged out' });
-}
-
-function saveConfig() {
-  const user = getUser();
-  if (!user) {
-    return;
-  }
-
-  const { uuid } = user;
-
-  const savedConfigs = ConfigStore.get('savedConfigs');
-
-  const configToSave: any = {};
-
-  for (const field of fieldsToSave) {
-    const value = ConfigStore.get(field);
-    configToSave[field] = value;
-  }
-  ConfigStore.set('savedConfigs', {
-    ...savedConfigs,
-    [uuid]: configToSave,
-  });
-}
-
-const keepFields: Array<keyof typeof defaults> = ['preferedLanguage', 'lastOnboardingShown'];
-
-function resetConfig() {
-  for (const field of fieldsToSave) {
-    if (!keepFields.includes(field)) {
-      ConfigStore.set(field, defaults[field]);
-    }
-  }
 }
