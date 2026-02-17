@@ -16,7 +16,6 @@ describe('resetConfig', () => {
       ['backupList', {}],
       ['newToken', ''],
       ['userData', {}],
-      ['mnemonic', ''],
     ]);
   });
 });
