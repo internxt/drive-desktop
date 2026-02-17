@@ -644,8 +644,6 @@ const types = Object.values(map);
 
 export type MimeType = (typeof types)[number];
 
-export type UnknownMimeType = 'application/octet-stream';
-
 type MimeTypesMap = {
   [key: (typeof keys)[number]]: MimeType;
 };

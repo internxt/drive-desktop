@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig, AxiosResp
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
-export type SyncBlockedTracker = () => Promise<void>;
 
 export class AuthorizedHttpClient {
   public readonly client: AxiosInstance;

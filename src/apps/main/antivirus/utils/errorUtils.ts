@@ -1,6 +1,3 @@
-import { isPermissionError } from './isPermissionError';
-import NodeClamError from '@internxt/scan/lib/NodeClamError';
-
 /**
  * Type guard to check if an unknown object is an Error
  * @param error The unknown object to check
@@ -8,43 +5,6 @@ import NodeClamError from '@internxt/scan/lib/NodeClamError';
  */
 export function isError(error: unknown): error is Error {
   return error instanceof Error;
-}
-
-/**
- * Type definition for ClamAV errors
- */
-export interface ClamAVError extends Error {
-  message: string;
-  isClamAVError?: boolean;
-}
-
-/**
- * Type guard to check if an error is a ClamAV error
- * @param error The error to check
- * @returns A type predicate indicating if the error is a ClamAV error
- */
-export function isClamAVError(error: Error): error is ClamAVError {
-  return error.message.includes('ClamAV') || error instanceof NodeClamError || 'isClamAVError' in error;
-}
-
-/**
- * Type definition for critical errors that should terminate processes
- */
-export interface CriticalError extends Error {
-  isCritical?: boolean;
-}
-
-/**
- * Type guard to check if an error is critical
- * @param error The error to check
- * @returns A type predicate indicating if the error is critical
- */
-export function isCriticalError(error: Error): error is CriticalError {
-  if ('isCritical' in error) return true;
-
-  if (isClamAVError(error)) return true;
-
-  return error.message.toLowerCase().includes('critical');
 }
 
 /**
@@ -84,17 +44,4 @@ export function getErrorMessage(error: unknown): string {
   }
 
   return String(error);
-}
-
-/**
- * Determines if an error should be rethrown based on its criticality
- * @param error The error to check
- * @returns Boolean indicating if the error should be rethrown
- */
-export function shouldRethrowError(error: unknown): boolean {
-  if (!isError(error)) return false;
-
-  if (isPermissionError(error)) return false;
-
-  return isCriticalError(error);
 }

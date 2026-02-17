@@ -9,10 +9,6 @@ export type DeviceIdentifierDTO = {
   hostname: string;
 };
 
-export type ExistingDeviceIdentifierDTO = DeviceIdentifierDTO & {
-  uuid: string;
-};
-
 export function isAllowedPlatform(platform: string): platform is AllowedPlatform {
   return (allowedPlatforms as readonly string[]).includes(platform);
 }

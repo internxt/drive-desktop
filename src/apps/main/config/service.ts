@@ -3,8 +3,6 @@ import { broadcastToWindows } from '../windows';
 
 export type StoredValues = keyof AppStore;
 
-export type ConfigKey<T extends StoredValues> = T;
-
 export const getConfigKey = <T extends StoredValues>(key: T): AppStore[T] => {
   return store.get(key);
 };

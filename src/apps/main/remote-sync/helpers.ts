@@ -38,12 +38,6 @@ export type SyncConfig = {
   maxRetries: number;
 };
 
-export const SYNC_OFFSET_MS = 0;
-
-export const lastSyncedAtIsNewer = (itemUpdatedAt: Date, lastItemsSyncAt: Date, offset: number) => {
-  return itemUpdatedAt.getTime() - offset > lastItemsSyncAt.getTime();
-};
-
 export function rewind(original: Date, milliseconds: number): Date {
   const shallowCopy = new Date(original.getTime());
 

@@ -3,7 +3,6 @@ import { ScanState } from './ScanState';
 import { useAntivirusContext } from '../../../../context/AntivirusContext';
 import { type Mock } from 'vitest';
 
-vi.mock('../../../../context/LocalContext');
 vi.mock('../../../../context/AntivirusContext');
 
 describe('ScanState', () => {

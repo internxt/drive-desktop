@@ -29,26 +29,8 @@ export class FuseIOError extends FuseError {
   }
 }
 
-export class FuseInvalidArgumentError extends FuseError {
-  constructor(argumentName: string) {
-    super(FuseCodes.EINVAL, `Invalid argument: ${argumentName}.`);
-  }
-}
-
-export class FusePermissionDeniedError extends FuseError {
-  constructor() {
-    super(FuseCodes.EACCES, 'Permission denied.');
-  }
-}
-
 export class FuseUnknownError extends FuseError {
   constructor(details?: string) {
     super(FuseCodes.EIO, `Unknown error${details ? `: ${details}` : ''}.`);
-  }
-}
-
-export class FuseNetworkError extends FuseError {
-  constructor() {
-    super(FuseCodes.ENETDOWN, 'Network is down.');
   }
 }

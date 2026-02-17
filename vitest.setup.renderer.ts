@@ -58,6 +58,13 @@ function createTypedMock<T extends object>(): DeepMock<T> {
 global.window = global.window || {};
 global.window.electron = createTypedMock<IElectronAPI>();
 
+// Mock LocalContext
+vi.mock('./src/apps/renderer/context/LocalContext', () => ({
+  useTranslationContext: () => ({
+    translate: (key: string) => key,
+  }),
+}));
+
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

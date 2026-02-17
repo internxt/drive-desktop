@@ -32,5 +32,3 @@ type DriveOperation = {
 };
 
 export type DriveOperationInfo = DriveOperationWithProgress | DriveOperation;
-
-export type DriveAction = Action | ActionWithProgress;

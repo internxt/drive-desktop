@@ -173,23 +173,6 @@ function resetCredentials() {
   }
 }
 
-export function canHisConfigBeRestored(uuid: string) {
-  const savedConfigs = ConfigStore.get('savedConfigs');
-
-  if (!savedConfigs) return;
-  const savedConfig = savedConfigs[uuid];
-
-  if (!savedConfig) {
-    return false;
-  }
-
-  for (const [key, value] of Object.entries(savedConfig)) {
-    ConfigStore.set(key, value);
-  }
-
-  return true;
-}
-
 export function logout() {
   const headers = getNewApiHeaders();
   logger.debug({ msg: 'Logging out' });

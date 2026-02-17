@@ -24,9 +24,6 @@ export const freshclamLogPath = path.join(logDir, 'freshclam.log');
 // ClamAV binary paths
 export const clamdPath = path.join(RESOURCES_PATH, '/bin/clamd');
 export const freshclamPath = path.join(RESOURCES_PATH, '/bin/freshclam');
-export const clamdConfigTemplatePath = path.join(RESOURCES_PATH, '/etc/clamd.conf');
-export const freshclamConfigTemplatePath = path.join(RESOURCES_PATH, '/etc/freshclam.conf');
-
 // Timeouts and intervals
 export const DEFAULT_CLAMD_WAIT_TIMEOUT = 180000; // 3 minutes
 export const DEFAULT_CLAMD_CHECK_INTERVAL = 5000; // 5 seconds

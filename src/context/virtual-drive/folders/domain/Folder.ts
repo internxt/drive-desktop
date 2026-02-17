@@ -220,5 +220,3 @@ export class Folder extends AggregateRoot {
     };
   }
 }
-
-export const RootFolderName = '/' as const;

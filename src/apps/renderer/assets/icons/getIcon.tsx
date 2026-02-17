@@ -275,5 +275,3 @@ export const fileIcon = (extension: string) => {
     return <Default />;
   }
 };
-
-export const folderIcon = <Folder />;
