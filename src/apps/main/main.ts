@@ -17,8 +17,6 @@ setupElectronLog({
 import './virtual-root-folder/handlers';
 import './auto-launch/handlers';
 import './auth/handlers';
-import '../../infra/ipc/files-ipc-handlers';
-import '../../infra/ipc/folders-ipc-handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';

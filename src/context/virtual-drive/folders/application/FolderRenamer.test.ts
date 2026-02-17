@@ -1,5 +1,4 @@
 import { FolderRenamer } from './FolderRenamer';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderPathMother } from '../domain/__test-helpers__/FolderPathMother';
 import { FolderPath } from '../domain/FolderPath';
@@ -8,18 +7,19 @@ import { SyncFolderMessengerMock } from '../__mocks__/SyncFolderMessengerMock';
 import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import { EventBusMock } from '../../shared/__mocks__/EventBusMock';
 import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
+import * as renameFolderModule from '../../../../infra/drive-server/services/folder/services/rename-folder';
+import { call, partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('Folder Renamer', () => {
   let repository: FolderRepositoryMock;
-  let remote: FolderRemoteFileSystemMock;
   let syncFolderMessenger: SyncFolderMessengerMock;
   let descendantsPathUpdater: FolderDescendantsPathUpdater;
   let renamer: FolderRenamer;
 
+  const renameFolderMock = partialSpyOn(renameFolderModule, 'renameFolder');
+
   beforeEach(() => {
     repository = new FolderRepositoryMock();
-
-    remote = new FolderRemoteFileSystemMock();
 
     const eventBus = new EventBusMock();
 
@@ -29,7 +29,7 @@ describe('Folder Renamer', () => {
       syncDescendants: vi.fn().mockResolvedValue(undefined),
     } as unknown as FolderDescendantsPathUpdater;
 
-    renamer = new FolderRenamer(repository, remote, eventBus, syncFolderMessenger, descendantsPathUpdater);
+    renamer = new FolderRenamer(repository, eventBus, syncFolderMessenger, descendantsPathUpdater);
   });
 
   const setUpHappyPath = (): {
@@ -44,7 +44,7 @@ describe('Folder Renamer', () => {
       path: destination.value,
     });
 
-    remote.shouldRename(expectedFolder);
+    renameFolderMock.mockResolvedValue({ data: {} as any });
 
     return {
       folder,
@@ -58,6 +58,11 @@ describe('Folder Renamer', () => {
       const { folder, destination } = setUpHappyPath();
 
       await renamer.run(folder, destination);
+
+      call(renameFolderMock).toMatchObject({
+        uuid: folder.uuid,
+        plainName: destination.name(),
+      });
     });
   });
 
@@ -104,8 +109,8 @@ describe('Folder Renamer', () => {
 
       await renamer.run(folder, destination);
 
-      expect(runMock).toHaveBeenCalledTimes(1);
-      expect(runMock).toHaveBeenCalledWith(expect.objectContaining({ _path: destination }), oldPath);
+      expect(runMock).toBeCalledTimes(1);
+      expect(runMock).toBeCalledWith(expect.objectContaining({ _path: destination }), oldPath);
     });
 
     it('does not block rename even if descendants update fails', async () => {
@@ -116,7 +121,21 @@ describe('Folder Renamer', () => {
 
       await expect(renamer.run(folder, destination)).resolves.not.toThrow();
 
-      expect(repository.updateMock).toHaveBeenCalledTimes(1);
+      expect(repository.updateMock).toBeCalledTimes(1);
+    });
+  });
+
+  describe('Error handling', () => {
+    it('throws when renameFolder returns an error', async () => {
+      const folder = FolderMother.any();
+      const destination = FolderPathMother.onFolder(folder.dirname);
+
+      const error = new Error('rename failed');
+      renameFolderMock.mockResolvedValue({ error } as any);
+
+      await expect(renamer.run(folder, destination)).rejects.toBe(error);
+
+      expect(repository.updateMock).not.toBeCalled();
     });
   });
 });

@@ -21,22 +21,6 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
     return this.persistMock();
   }
 
-  trash(id: number): Promise<void> {
-    expect(this.trashMock).toBeCalledWith(id);
-
-    return this.trashMock();
-  }
-
-  move(folderUuid: string, destinationFolderUuid: string): Promise<void> {
-    return this.moveMock(folderUuid, destinationFolderUuid);
-  }
-
-  rename(folder: Folder): Promise<void> {
-    expect(this.renameMock).toBeCalledWith(expect.objectContaining({ _path: new FolderPath(folder.path) }));
-
-    return this.renameMock();
-  }
-
   shouldPersists(folder: Folder, includeUuid: boolean) {
     const folderPath = new FolderPath(folder.path);
     const plainName = folderPath.name();

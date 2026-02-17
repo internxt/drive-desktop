@@ -4,14 +4,13 @@ import { Folder } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
+import { renameFolder } from '../../../../infra/drive-server/services/folder/services/rename-folder';
 
 @Service()
 export class FolderRenamer {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus,
     private readonly syncFolderMessenger: SyncFolderMessenger,
     private readonly descendantsPathUpdater: FolderDescendantsPathUpdater,
@@ -24,7 +23,10 @@ export class FolderRenamer {
 
     folder.rename(destination);
 
-    await this.remote.rename(folder);
+    const { error } = await renameFolder({ uuid: folder.uuid, plainName: folder.name });
+    if (error) {
+      throw error;
+    }
     await this.repository.update(folder);
 
     this.eventBus.publish(folder.pullDomainEvents());

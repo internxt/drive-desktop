@@ -7,12 +7,14 @@ import { relative } from '../../../../../apps/backups/utils/relative';
 import { isFatalError } from '../../../../../shared/issues/SyncErrorCause';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { backupErrorsTracker } from '../../../../../backend/features/backup';
+import { deleteFileFromStorageByFileId } from '../../../../../infra/drive-server/services/files/services/delete-file-content-from-bucket';
 
 @Service()
 export class FileBatchUploader {
   constructor(
     private readonly localHandler: LocalFileHandler,
     private readonly creator: SimpleFileCreator,
+    private readonly bucket: string,
   ) {}
 
   async run(
@@ -53,7 +55,10 @@ export class FileBatchUploader {
       if (either.isLeft()) {
         logger.debug({ msg: '[FILE CREATION FAILED]', error: either.getLeft() });
         // eslint-disable-next-line no-await-in-loop
-        await this.localHandler.delete(contentsId);
+        await deleteFileFromStorageByFileId({
+          bucketId: this.bucket,
+          fileId: contentsId,
+        });
         const error = either.getLeft();
 
         if (error.cause === 'FILE_ALREADY_EXISTS') {

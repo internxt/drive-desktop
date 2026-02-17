@@ -1,6 +1,5 @@
 import { Either } from '../../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
-import { File } from '../File';
 import { FileContentsId } from '../FileContentsId';
 import { FileFolderId } from '../FileFolderId';
 import { FilePath } from '../FilePath';
@@ -23,16 +22,4 @@ export type PersistedFileData = {
 
 export abstract class RemoteFileSystem {
   abstract persist(offline: FileDataToPersist): Promise<Either<DriveDesktopError, PersistedFileData>>;
-
-  abstract trash(contentsId: File['contentsId']): Promise<void>;
-
-  abstract move(file: File, destinationFolderUuid: string): Promise<void>;
-
-  abstract rename(file: File): Promise<void>;
-
-  abstract override(file: File): Promise<void>;
-
-  abstract delete(file: File): Promise<void>;
-
-  abstract hardDelete(contentsId: string): Promise<void>;
 }

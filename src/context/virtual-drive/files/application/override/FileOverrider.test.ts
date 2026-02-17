@@ -1,20 +1,22 @@
 import { BucketEntryIdMother } from '../../../../../context/virtual-drive/shared/domain/__test-helpers__/BucketEntryIdMother';
 import { EventBusMock } from '../../../../../context/virtual-drive/shared/__mocks__/EventBusMock';
-import { RemoteFileSystemMock } from '../../__mocks__/RemoteFileSystemMock';
 import { FileRepositoryMock } from '../../__mocks__/FileRepositoryMock';
 import { FileOverrider } from './FileOverrider';
 import { FileMother } from '../../domain/__test-helpers__/FileMother';
 import { FileSizeMother } from '../../domain/__test-helpers__/FileSizeMother';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
 import { FileOverriddenDomainEvent } from '../../domain/events/FileOverriddenDomainEvent';
+import * as overrideFileModule from '../../../../../infra/drive-server/services/files/services/override-file';
+import { call, partialSpyOn } from '../../../../../../tests/vitest/utils.helper';
 
 describe('File Overrider', () => {
+  const overrideFileMock = partialSpyOn(overrideFileModule, 'overrideFile');
+
   it('throws an error if no file is founded with the given fileId', async () => {
-    const rfs = new RemoteFileSystemMock();
     const repository = new FileRepositoryMock();
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(rfs, repository, eventBus);
+    const overrider = new FileOverrider(repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = BucketEntryIdMother.random();
@@ -31,11 +33,10 @@ describe('File Overrider', () => {
   });
 
   it('calls the override method with the updated contentsId and size updated', async () => {
-    const rfs = new RemoteFileSystemMock();
     const repository = new FileRepositoryMock();
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(rfs, repository, eventBus);
+    const overrider = new FileOverrider(repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = BucketEntryIdMother.random();
@@ -45,21 +46,18 @@ describe('File Overrider', () => {
 
     await overrider.run(file.path, updatedContentsId.value, updatedSize.value);
 
-    expect(rfs.overrideMock).toBeCalledWith(
-      expect.objectContaining({
-        _id: file.id,
-        _contentsId: updatedContentsId,
-        _size: updatedSize,
-      }),
-    );
+    call(overrideFileMock).toStrictEqual({
+      fileUuid: file.uuid,
+      fileContentsId: updatedContentsId.value,
+      fileSize: updatedSize.value,
+    });
   });
 
   it('emits the FileOverridden domain event when successfully overridden ', async () => {
-    const rfs = new RemoteFileSystemMock();
     const repository = new FileRepositoryMock();
     const eventBus = new EventBusMock();
 
-    const overrider = new FileOverrider(rfs, repository, eventBus);
+    const overrider = new FileOverrider(repository, eventBus);
 
     const file = FileMother.any();
     const updatedContentsId = BucketEntryIdMother.primitive();

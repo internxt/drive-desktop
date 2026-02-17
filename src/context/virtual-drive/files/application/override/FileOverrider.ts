@@ -4,13 +4,12 @@ import { File } from '../../domain/File';
 import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FileContentsId } from '../../domain/FileContentsId';
+import { overrideFile } from '../../../../../infra/drive-server/services/files/services/override-file';
 
 @Service()
 export class FileOverrider {
   constructor(
-    private readonly rfs: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly eventBus: EventBus,
   ) {}
@@ -28,7 +27,11 @@ export class FileOverrider {
 
     file.changeContents(new FileContentsId(newContentsId), new FileSize(newSize));
 
-    await this.rfs.override(file);
+    await overrideFile({
+      fileUuid: file.uuid,
+      fileContentsId: file.contentsId,
+      fileSize: file.size,
+    });
 
     await this.repository.update(file);
 

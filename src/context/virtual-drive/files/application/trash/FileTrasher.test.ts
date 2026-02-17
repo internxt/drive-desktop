@@ -1,26 +1,23 @@
 import { FileTrasher } from './FileTrasher';
 import { FileRepository } from '../../domain/FileRepository';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { AllParentFoldersStatusIsExists } from '../../../folders/application/AllParentFoldersStatusIsExists';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 import { FileMother } from '../../domain/__test-helpers__/FileMother';
 import { FileStatus, FileStatuses } from '../../domain/FileStatus';
 import { BucketEntryIdMother } from 'src/context/virtual-drive/shared/domain/__test-helpers__/BucketEntryIdMother';
 import { Mocked } from 'vitest';
+import * as addFileToTrashModule from '../../../../../infra/drive-server/services/files/services/add-file-to-trash';
+import { DriveServerError } from '../../../../../infra/drive-server/drive-server.error';
+import { call, partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('FileTrasher', () => {
   let sut: FileTrasher;
-  let remoteFileSystemMock: Mocked<RemoteFileSystem>;
   let fileRepositoryMock: Mocked<FileRepository>;
   let allParentFoldersStatusIsExistsMock: Mocked<AllParentFoldersStatusIsExists>;
   let syncFileMessengerMock: Mocked<SyncFileMessenger>;
+  const addFileToTrashMock = partialSpyOn(addFileToTrashModule, 'addFileToTrash');
 
   beforeEach(() => {
-    remoteFileSystemMock = {
-      trash: vi.fn(),
-      hardDelete: vi.fn(),
-    } as unknown as Mocked<RemoteFileSystem>;
-
     fileRepositoryMock = {
       matchingPartial: vi.fn(),
       update: vi.fn(),
@@ -36,12 +33,9 @@ describe('FileTrasher', () => {
       issues: vi.fn(),
     } as unknown as Mocked<SyncFileMessenger>;
 
-    sut = new FileTrasher(
-      remoteFileSystemMock,
-      fileRepositoryMock,
-      allParentFoldersStatusIsExistsMock,
-      syncFileMessengerMock,
-    );
+    addFileToTrashMock.mockResolvedValue({ data: true });
+
+    sut = new FileTrasher(fileRepositoryMock, allParentFoldersStatusIsExistsMock, syncFileMessengerMock);
   });
 
   afterEach(() => {
@@ -59,7 +53,7 @@ describe('FileTrasher', () => {
         contentsId,
         status: expect.anything(),
       });
-      expect(remoteFileSystemMock.trash).not.toBeCalled();
+      expect(addFileToTrashMock).not.toBeCalled();
       expect(fileRepositoryMock.update).not.toBeCalled();
     });
 
@@ -69,7 +63,7 @@ describe('FileTrasher', () => {
 
       await sut.run(file.contentsId);
 
-      expect(remoteFileSystemMock.trash).not.toBeCalled();
+      expect(addFileToTrashMock).not.toBeCalled();
       expect(fileRepositoryMock.update).not.toBeCalled();
       expect(syncFileMessengerMock.trashing).not.toBeCalled();
     });
@@ -82,7 +76,7 @@ describe('FileTrasher', () => {
       await sut.run(file.contentsId);
 
       expect(allParentFoldersStatusIsExistsMock.run).toBeCalledWith(file.folderId);
-      expect(remoteFileSystemMock.trash).not.toBeCalled();
+      expect(addFileToTrashMock).not.toBeCalled();
       expect(fileRepositoryMock.update).not.toBeCalled();
       expect(syncFileMessengerMock.trashing).not.toBeCalled();
     });
@@ -95,7 +89,7 @@ describe('FileTrasher', () => {
       await sut.run(file.contentsId);
 
       expect(syncFileMessengerMock.trashing).toBeCalledWith(file.name, file.type, file.size);
-      expect(remoteFileSystemMock.trash).toBeCalledWith(file.contentsId);
+      call(addFileToTrashMock).toBe(file.uuid);
       expect(fileRepositoryMock.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
       expect(syncFileMessengerMock.trashed).toBeCalledWith(file.name, file.type, file.size);
     });
@@ -108,19 +102,18 @@ describe('FileTrasher', () => {
       await sut.run(file.contentsId);
 
       expect(syncFileMessengerMock.trashing).toBeCalledWith(file.name, file.type, file.size);
-      expect(remoteFileSystemMock.trash).not.toBeCalled();
+      expect(addFileToTrashMock).not.toBeCalled();
       expect(fileRepositoryMock.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
       expect(syncFileMessengerMock.trashed).toBeCalledWith(file.name, file.type, file.size);
     });
 
-    it('should notify issues and rethrow error when remote.trash fails', async () => {
+    it('should notify issues and rethrow error when addFileToTrash fails', async () => {
       const file = FileMother.fromPartial({ size: 1024 });
-      const error = new Error('Remote trash failed');
       fileRepositoryMock.matchingPartial.mockReturnValue([file]);
       allParentFoldersStatusIsExistsMock.run.mockResolvedValue(true);
-      remoteFileSystemMock.trash.mockRejectedValue(error);
+      addFileToTrashMock.mockResolvedValue({ error: new DriveServerError('SERVER_ERROR', 500, 'Server error') });
 
-      await expect(sut.run(file.contentsId)).rejects.toThrow(error);
+      await expect(sut.run(file.contentsId)).rejects.toThrow('Error when deleting file');
 
       expect(syncFileMessengerMock.issues).toBeCalledWith({
         error: 'DELETE_ERROR',

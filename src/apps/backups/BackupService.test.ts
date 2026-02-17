@@ -5,7 +5,6 @@ import LocalTreeBuilder from '../../context/local/localTree/application/LocalTre
 import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
-import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { BackupInfo } from './BackupInfo';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
@@ -39,7 +38,6 @@ describe('BackupService', () => {
   let remoteTreeBuilder: RemoteTreeBuilder;
   let fileBatchUploader: FileBatchUploader;
   let fileBatchUpdater: FileBatchUpdater;
-  let remoteFileDeleter: FileDeleter;
   let simpleFolderCreator: SimpleFolderCreator;
   let backupsDanglingFilesService: BackupsDanglingFilesService;
   let mockValidateSpace: Mock;
@@ -51,7 +49,6 @@ describe('BackupService', () => {
     remoteTreeBuilder = mockDeep<RemoteTreeBuilder>();
     fileBatchUploader = mockDeep<FileBatchUploader>();
     fileBatchUpdater = mockDeep<FileBatchUpdater>();
-    remoteFileDeleter = mockDeep<FileDeleter>();
     backupsDanglingFilesService = mockDeep<BackupsDanglingFilesService>();
     simpleFolderCreator = mockDeep<SimpleFolderCreator>();
     tracker = mockDeep<BackupProgressTracker>();
@@ -67,7 +64,6 @@ describe('BackupService', () => {
       remoteTreeBuilder,
       fileBatchUploader,
       fileBatchUpdater,
-      remoteFileDeleter,
       simpleFolderCreator,
       backupsDanglingFilesService,
     );

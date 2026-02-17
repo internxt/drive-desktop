@@ -5,14 +5,13 @@ import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
+import { addFolderToTrash } from '../../../../infra/drive-server/services/folder/services/add-folder-to-trash';
 
 @Service()
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
     private readonly local: LocalFileSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
   ) {}
@@ -43,7 +42,14 @@ export class FolderDeleter {
 
       folder.trash();
 
-      await this.remote.trash(folder.id);
+      const { error } = await addFolderToTrash(folder.uuid);
+      if (error) {
+        logger.error({
+          msg: `Error adding folder ${folder.name} to trash:`,
+          error,
+        });
+        throw new Error('Error when deleting folder');
+      }
       await this.repository.delete(folder.id);
     } catch (error: unknown) {
       logger.error({

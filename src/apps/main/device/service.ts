@@ -1,11 +1,10 @@
 import { aes } from '@internxt/lib';
 import { dialog, IpcMainEvent } from 'electron';
-import fetch from 'electron-fetch';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import os from 'os';
 import path from 'path';
 import fs, { PathLike } from 'fs';
-import { getNewApiHeaders, getUser } from '../auth/service';
+import { getUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { downloadFolderAsZip } from '../network/download';
@@ -15,12 +14,13 @@ import { ipcMain } from 'electron';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
 import { DeviceModule } from '../../../backend/features/device/device.module';
-import { fetchFolder } from '../../../infra/drive-server/services/backup/services/fetch-folder';
-import { deleteFolder } from '../../../infra/drive-server/services/backup/services/delete-folder';
-import { getBackupFolderUuid } from '../../../infra/drive-server/services/backup/services/fetch-backup-folder-uuid';
-import { updateBackupFolderName } from '../../../infra/drive-server/services/backup/services/update-backup-folder-metadata';
+import { fetchFolder } from '../../../infra/drive-server/services/folder/services/fetch-folder';
+import { getBackupFolderUuid } from '../../../infra/drive-server/services/folder/services/fetch-backup-folder-uuid';
 import { migrateBackupEntryIfNeeded } from './migrate-backup-entry-if-needed';
 import { createBackup } from '../backups/create-backup';
+import { addFolderToTrash } from '../../../infra/drive-server/services/folder/services/add-folder-to-trash';
+import { renameFolder } from '../../../infra/drive-server/services/folder/services/rename-folder';
+import { fetchFolderTreeByUuid } from '../../../infra/drive-server/services/folder/services/fetch-folder-tree-by-uuid';
 import { getPathFromDialog } from '../../../backend/features/backup/get-path-from-dialog';
 
 export type Device = {
@@ -48,44 +48,41 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   fileDecryptedNames: Record<number, string>;
   size: number;
 }> {
-  const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
-    method: 'GET',
-    headers: getNewApiHeaders(),
-  });
+  const { data, error } = await fetchFolderTreeByUuid({ uuid: folderUuid });
 
-  if (res.ok) {
-    const { tree } = (await res.json()) as unknown as { tree: FolderTree };
-
-    let size = 0;
-    const folderDecryptedNames: Record<number, string> = {};
-    const fileDecryptedNames: Record<number, string> = {};
-
-    // ! Decrypts folders and files names
-    const pendingFolders = [tree];
-    while (pendingFolders.length > 0) {
-      const currentTree = pendingFolders[0];
-      const { folders, files } = {
-        folders: currentTree.children,
-        files: currentTree.files,
-      };
-
-      folderDecryptedNames[currentTree.id] = currentTree.plainName;
-
-      for (const file of files) {
-        fileDecryptedNames[file.id] = aes.decrypt(file.name, `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`);
-        size += Number(file.size);
-      }
-
-      pendingFolders.shift();
-
-      // * Adds current folder folders to pending
-      pendingFolders.push(...folders);
-    }
-
-    return { tree, folderDecryptedNames, fileDecryptedNames, size };
-  } else {
+  if (error) {
     throw new Error('Unsuccesful request to fetch folder tree');
   }
+
+  const { tree } = data as { tree: FolderTree };
+
+  let size = 0;
+  const folderDecryptedNames: Record<number, string> = {};
+  const fileDecryptedNames: Record<number, string> = {};
+
+  // ! Decrypts folders and files names
+  const pendingFolders = [tree];
+  while (pendingFolders.length > 0) {
+    const currentTree = pendingFolders[0];
+    const { folders, files } = {
+      folders: currentTree.children,
+      files: currentTree.files,
+    };
+
+    folderDecryptedNames[currentTree.id] = currentTree.plainName;
+
+    for (const file of files) {
+      fileDecryptedNames[file.id] = aes.decrypt(file.name, `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`);
+      size += Number(file.size);
+    }
+
+    pendingFolders.shift();
+
+    // * Adds current folder folders to pending
+    pendingFolders.push(...folders);
+  }
+
+  return { tree, folderDecryptedNames, fileDecryptedNames, size };
 }
 
 export async function downloadBackup(device: Device): Promise<void> {
@@ -167,7 +164,10 @@ async function downloadDeviceBackupZip(
     throw new Error('No saved user');
   }
 
-  const folder = await fetchFolder(device.uuid);
+  const { data: folder, error } = await fetchFolder(device.uuid);
+  if (error) {
+    throw new Error('Unsuccesful request to fetch folder');
+  }
   if (!folder || !folder.uuid || folder.uuid.length === 0) {
     throw new Error('No backup data found');
   }
@@ -195,8 +195,8 @@ async function downloadDeviceBackupZip(
 }
 
 export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
-  const res = await deleteFolder(backup.folderId);
-  if (!res.ok) {
+  const { error } = await addFolderToTrash(backup.folderUuid);
+  if (error) {
     throw new Error('Request to delete backup wasnt succesful');
   }
 
@@ -222,7 +222,7 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
   // delete backups that are not in the backup list
   const { tree } = await fetchFolderTree(device.uuid);
   const foldersToDelete = tree.children.filter((folder) => !backups.some((backup) => backup.folderId === folder.id));
-  deletionPromises = foldersToDelete.map((folder) => deleteFolder(folder.id));
+  deletionPromises = foldersToDelete.map((folder) => addFolderToTrash(folder.uuid));
   await Promise.all(deletionPromises);
 }
 
@@ -266,13 +266,13 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   const newFolderName = path.basename(chosenPath);
   if (oldFolderName !== newFolderName) {
     logger.debug({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
-    const getFolderUuidResponse = await getBackupFolderUuid(existingBackup);
+    const getFolderUuidResponse = await getBackupFolderUuid({ folderId: String(existingBackup.folderId) });
     if (getFolderUuidResponse.error) {
       throw getFolderUuidResponse.error;
     }
     const { data: folderUuid } = getFolderUuidResponse;
 
-    const res = await updateBackupFolderName(folderUuid, newFolderName);
+    const res = await renameFolder({ uuid: folderUuid, plainName: newFolderName });
 
     if (res.error) {
       throw new Error('Error in the request to rename a backup');

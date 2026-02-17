@@ -5,7 +5,6 @@ import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
-import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
@@ -25,6 +24,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupProgressTracker } from '../../backend/features/backup/backup-progress-tracker';
 import { RetryError } from '../shared/retry/RetryError';
 import { Either, left, right } from '../../context/shared/domain/Either';
+import { addFileToTrash } from '../../infra/drive-server/services/files/services/add-file-to-trash';
 
 @Service()
 export class BackupService {
@@ -33,7 +33,6 @@ export class BackupService {
     private readonly remoteTreeBuilder: RemoteTreeBuilder,
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
-    private readonly remoteFileDeleter: FileDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly backupsDanglingFilesService: BackupsDanglingFilesService,
   ) {}
@@ -261,7 +260,7 @@ export class BackupService {
       }
 
       // eslint-disable-next-line no-await-in-loop
-      await this.remoteFileDeleter.run(file);
+      await addFileToTrash(file.uuid);
     }
     tracker.incrementProcessed(deleted.length);
   }

@@ -1,4 +1,3 @@
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { FolderRenamer } from '../application/FolderRenamer';
 import { FolderRepository } from '../domain/FolderRepository';
 import { SyncFolderMessenger } from '../domain/SyncFolderMessenger';
@@ -9,13 +8,7 @@ import { FolderDescendantsPathUpdater } from '../application/FolderDescendantsPa
 
 export class FolderRenamerMock extends FolderRenamer {
   constructor() {
-    super(
-      {} as FolderRepository,
-      {} as RemoteFileSystem,
-      {} as EventBus,
-      {} as SyncFolderMessenger,
-      {} as FolderDescendantsPathUpdater,
-    );
+    super({} as FolderRepository, {} as EventBus, {} as SyncFolderMessenger, {} as FolderDescendantsPathUpdater);
   }
 
   public readonly mock = vi.fn();

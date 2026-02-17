@@ -1,10 +1,11 @@
 import { FileRepositorySynchronizer } from './FileRepositorySynchronizer';
 import { FileRepository } from '../domain/FileRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { right } from '../../../shared/domain/Either';
 import { File } from '../domain/File';
 import { StorageFileService } from '../../../storage/StorageFiles/StorageFileService';
 import { Mocked } from 'vitest';
+import * as deleteFileFromTrashModule from '../../../../infra/drive-server/services/files/services/delete-file-from-trash';
+import { call, calls, partialSpyOn } from '../../../../../tests/vitest/utils.helper';
 
 // Mock the Environment module
 vi.mock('@internxt/inxt-js', () => ({
@@ -17,7 +18,7 @@ describe('FileRepositorySynchronizer', () => {
   let sut: FileRepositorySynchronizer;
   let fileRepositoryMock: Mocked<FileRepository>;
   let storageFileServiceMock: Mocked<StorageFileService>;
-  let remoteFileSystemMock: RemoteFileSystem;
+  const deleteFileFromTrashMock = partialSpyOn(deleteFileFromTrashModule, 'deleteFileFromTrash');
 
   beforeEach(() => {
     fileRepositoryMock = {
@@ -30,11 +31,7 @@ describe('FileRepositorySynchronizer', () => {
       isFileDownloadable: vi.fn(),
     } as unknown as Mocked<StorageFileService>;
 
-    remoteFileSystemMock = {
-      hardDelete: vi.fn(),
-    } as unknown as RemoteFileSystem;
-
-    sut = new FileRepositorySynchronizer(fileRepositoryMock, storageFileServiceMock, remoteFileSystemMock);
+    sut = new FileRepositorySynchronizer(fileRepositoryMock, storageFileServiceMock);
   });
 
   afterEach(() => {
@@ -48,11 +45,11 @@ describe('FileRepositorySynchronizer', () => {
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
       expect(fileRepositoryMock.searchByArrayOfContentsId).toHaveBeenCalledWith(['file1', 'file2']);
-      expect(storageFileServiceMock.isFileDownloadable).not.toHaveBeenCalled();
-      expect(remoteFileSystemMock.hardDelete).not.toHaveBeenCalled();
+      expect(storageFileServiceMock.isFileDownloadable).not.toBeCalled();
+      expect(deleteFileFromTrashMock).not.toBeCalled();
       expect(result).toBe(true);
     });
-    it('should check every found file if is downloadable and call remoteFileSystem.hardDelete', async () => {
+    it('should check every found file if is downloadable and call deleteFileFromTrash', async () => {
       const files = [{ contentsId: 'file1' }, { contentsId: 'file2' }] as unknown as File[];
 
       fileRepositoryMock.searchByArrayOfContentsId.mockResolvedValue(files);
@@ -60,11 +57,13 @@ describe('FileRepositorySynchronizer', () => {
         .mockResolvedValueOnce(right(false)) // File1 is NOT downloadable
         .mockResolvedValueOnce(right(true)); // File2 is downloadable
 
+      deleteFileFromTrashMock.mockResolvedValueOnce({ data: true });
+
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
       expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(2);
-      expect(remoteFileSystemMock.hardDelete).toHaveBeenCalledTimes(1);
-      expect(remoteFileSystemMock.hardDelete).toHaveBeenCalledWith('file1');
+      calls(deleteFileFromTrashMock).toHaveLength(1);
+      call(deleteFileFromTrashMock).toStrictEqual('file1');
       expect(result).toBe(true);
     });
     it('should return false if there is an error trying to retrieve files', async () => {
@@ -81,8 +80,8 @@ describe('FileRepositorySynchronizer', () => {
 
       const result = await sut.fixDanglingFiles(['file1', 'file2']);
 
-      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(2);
-      expect(remoteFileSystemMock.hardDelete).not.toHaveBeenCalled();
+      calls(storageFileServiceMock.isFileDownloadable).toHaveLength(2);
+      expect(deleteFileFromTrashMock).not.toBeCalled();
       expect(result).toBe(true);
     });
 
@@ -98,9 +97,9 @@ describe('FileRepositorySynchronizer', () => {
 
       const result = await sut.fixDanglingFiles(['file1', 'file2', 'file3']);
 
-      expect(storageFileServiceMock.isFileDownloadable).toBeCalledTimes(1);
-      expect(storageFileServiceMock.isFileDownloadable).toBeCalledWith('file2');
-      expect(remoteFileSystemMock.hardDelete).not.toBeCalled();
+      expect(storageFileServiceMock.isFileDownloadable).toHaveBeenCalledTimes(1);
+      call(storageFileServiceMock.isFileDownloadable).toStrictEqual('file2');
+      expect(deleteFileFromTrashMock).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
   });

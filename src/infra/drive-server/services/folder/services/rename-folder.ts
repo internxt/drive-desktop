@@ -1,36 +1,27 @@
-import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
 import { Result } from '../../../../../context/shared/domain/Result';
 import { FolderDto } from '../../../../../infra/drive-server/out/dto';
-import fetch from 'electron-fetch';
-import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
-import { mapError } from '../../utils/mapError';
+import { DriveServerError } from '../../../drive-server.error';
+import { driveServerClient } from '../../../client/drive-server.client.instance';
+import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+type Props = {
+  uuid: string;
+  plainName: string;
+};
+export async function renameFolder({ uuid, plainName }: Props): Promise<Result<FolderDto, DriveServerError>> {
+  const { data, error } = await driveServerClient.PUT('/folders/{uuid}/meta', {
+    headers: getNewApiHeaders(),
+    path: { uuid },
+    body: { plainName },
+  });
 
-export async function renameFolder(folderUuid: string, newFolderName: string): Promise<Result<FolderDto, Error>> {
-  try {
-    const headers = await getNewApiHeadersIPC();
-    const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/meta`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        plainName: newFolderName,
-      }),
+  if (error) {
+    logger.error({
+      msg: 'Failed to update folder name',
+      error,
+      path: `/folders/${uuid}/meta`,
     });
-    if (!response.ok) {
-      return {
-        error: logger.error({
-          msg: 'Failed to update folder name',
-          error: response,
-        }),
-      };
-    }
-    const data: FolderDto = await response.json();
-    return { data };
-  } catch (error) {
-    const mappedError = mapError(error);
-    const err = logger.error({
-      msg: 'Error updating folder name',
-      error: mappedError.message,
-    });
-    return { error: err };
+    return { error };
   }
+  return { data };
 }

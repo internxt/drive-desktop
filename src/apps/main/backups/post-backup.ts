@@ -1,7 +1,7 @@
 import { Device } from '../device/service';
 import { Backup } from './types';
-import { createBackupFolder } from '../../../infra/drive-server/services/backup/services/create-backup-folder';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { createFolder } from '../../../infra/drive-server/services/folder/services/create-folder';
 
 type Props = {
   folderName: string;
@@ -9,15 +9,15 @@ type Props = {
 };
 
 export async function postBackup({ folderName, device }: Props) {
-  const { error, data } = await createBackupFolder(device.uuid, folderName);
+  const { error, data } = await createFolder({ parentFolderUuid: device.uuid, plainName: folderName });
   if (error) {
     logger.error({
       tag: 'BACKUPS',
       msg: 'Error creating backup folder',
       folderName,
-      error: error,
+      error,
     });
-    return { error: error };
+    return { error };
   }
 
   const backupData: Backup = {

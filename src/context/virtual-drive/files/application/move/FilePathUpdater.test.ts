@@ -4,29 +4,31 @@ import { ParentFolderFinder } from '../../../folders/application/ParentFolderFin
 import { ParentFolderFinderTestClass } from '../../../folders/__test-helpers__/ParentFolderFinderTestClass';
 
 import { FileRepositoryMock } from '../../__mocks__/FileRepositoryMock';
-import { RemoteFileSystemMock } from '../../__mocks__/RemoteFileSystemMock';
 import { SingleFileMatchingTestClass } from '../../__test-helpers__/SingleFileMatchingTestClass';
 import { FileMother } from '../../domain/__test-helpers__/FileMother';
 import { EventBusMock } from '../../../../../context/virtual-drive/shared/__mocks__/EventBusMock';
 import { FolderMother } from '../../../../../context/virtual-drive/folders/domain/__test-helpers__/FolderMother';
+import * as renameFileModule from '../../../../../infra/drive-server/services/files/services/rename-file';
+import * as moveFileModule from '../../../../../infra/drive-server/services/files/services/move-file';
+import { call, partialSpyOn } from '../../../../../../tests/vitest/utils.helper';
 
 describe('File path updater', () => {
   let repository: FileRepositoryMock;
   let folderFinder: ParentFolderFinderTestClass;
   let singleFileMatchingTestClass: SingleFileMatchingTestClass;
   let eventBus: EventBusMock;
-  let remoteFileSystemMock: RemoteFileSystemMock;
   let SUT: FilePathUpdater;
+
+  const renameFileMock = partialSpyOn(renameFileModule, 'renameFile');
+  const moveFileMock = partialSpyOn(moveFileModule, 'moveFile');
 
   beforeEach(() => {
     repository = new FileRepositoryMock();
     folderFinder = new ParentFolderFinderTestClass();
     singleFileMatchingTestClass = new SingleFileMatchingTestClass();
     eventBus = new EventBusMock();
-    remoteFileSystemMock = new RemoteFileSystemMock();
 
     SUT = new FilePathUpdater(
-      remoteFileSystemMock,
       repository,
       singleFileMatchingTestClass,
       folderFinder as unknown as ParentFolderFinder,
@@ -45,7 +47,11 @@ describe('File path updater', () => {
     await SUT.run(fileToRename.contentsId, destination.value);
 
     expect(repository.updateMock).toBeCalledWith(expect.objectContaining({ path: destination.value }));
-    expect(remoteFileSystemMock.renameMock).toBeCalledWith(expect.objectContaining({ path: destination.value }));
+    call(renameFileMock).toStrictEqual({
+      fileUuid: fileToRename.uuid,
+      plainName: destination.name(),
+      type: fileToRename.type,
+    });
   });
 
   it('does not rename or moves a file when the extension changes', async () => {
@@ -84,16 +90,9 @@ describe('File path updater', () => {
         path: destination.value,
       }),
     );
-    expect(remoteFileSystemMock.moveMock).toBeCalledWith(
-      expect.objectContaining({
-        _folderId: expect.objectContaining({
-          value: destinationFolder.id,
-        }),
-        _path: expect.objectContaining({
-          value: destination.value,
-        }),
-      }),
-      destinationFolder.uuid,
-    );
+    call(moveFileMock).toStrictEqual({
+      uuid: fileToMove.uuid,
+      destinationFolder: destinationFolder.uuid,
+    });
   });
 });

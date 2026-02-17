@@ -7,10 +7,8 @@ import { LocalFileHandler } from '../domain/LocalFileUploader';
 import { Environment } from '@internxt/inxt-js';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
-import { deleteFileContentIPC } from '../../../../infra/ipc/files-ipc';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { MULTIPART_UPLOAD_SIZE_THRESHOLD } from '../../../shared/domain/UploadConstants';
-
 @Service()
 export class EnvironmentLocalFileUploader implements LocalFileHandler {
   constructor(
@@ -63,16 +61,5 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
         readable.destroy();
       });
     });
-  }
-
-  async delete(contentsId: string): Promise<void> {
-    try {
-      await deleteFileContentIPC({
-        bucketId: this.bucket,
-        fileId: contentsId,
-      });
-    } catch (error) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Could not delete the file from the bucket', contentsId });
-    }
   }
 }

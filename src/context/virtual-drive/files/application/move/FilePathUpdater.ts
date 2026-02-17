@@ -11,13 +11,13 @@ import { FileAlreadyExistsError } from '../../domain/errors/FileAlreadyExistsErr
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
 import { FileRenameFailedDomainEvent } from '../../domain/events/FileRenameFailedDomainEvent';
 import { FileRenameStartedDomainEvent } from '../../domain/events/FileRenameStartedDomainEvent';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { SingleFileMatchingSearcher } from '../search/SingleFileMatchingSearcher';
+import { moveFile } from '../../../../../infra/drive-server/services/files/services/move-file';
+import { renameFile } from '../../../../../infra/drive-server/services/files/services/rename-file';
 
 @Service()
 export class FilePathUpdater {
   constructor(
-    private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly singleFileMatching: SingleFileMatchingSearcher,
     private readonly parentFolderFinder: ParentFolderFinder,
@@ -35,7 +35,11 @@ export class FilePathUpdater {
 
     file.rename(path);
 
-    await this.remote.rename(file);
+    await renameFile({
+      fileUuid: file.uuid,
+      plainName: file.name,
+      type: file.type,
+    });
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();
@@ -48,7 +52,10 @@ export class FilePathUpdater {
     file.moveTo(destinationFolder);
 
     logger.debug({ msg: 'REMOTE CHANGES' });
-    await this.remote.move(file, destinationFolder.uuid);
+    await moveFile({
+      uuid: file.uuid,
+      destinationFolder: destinationFolder.uuid,
+    });
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();

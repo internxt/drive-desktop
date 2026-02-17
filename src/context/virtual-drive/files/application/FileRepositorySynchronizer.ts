@@ -2,15 +2,14 @@ import { Service } from 'diod';
 import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { StorageFileService } from '../../../storage/StorageFiles/StorageFileService';
+import { deleteFileFromTrash } from '../../../../infra/drive-server/services/files/services/delete-file-from-trash';
 
 @Service()
 export class FileRepositorySynchronizer {
   constructor(
     private readonly repository: FileRepository,
     private readonly storageFileService: StorageFileService,
-    private readonly remoteFileSystem: RemoteFileSystem,
   ) {}
 
   async fixDanglingFiles(contentsIds: Array<File['contentsId']>): Promise<boolean> {
@@ -31,7 +30,7 @@ export class FileRepositorySynchronizer {
           if (file.size === 0) {
             continue;
           }
-
+          // eslint-disable-next-line no-await-in-loop
           const resultEither = await this.storageFileService.isFileDownloadable(file.contentsId);
           if (resultEither.isRight()) {
             const isFileDownloadable = resultEither.getRight();
@@ -39,7 +38,16 @@ export class FileRepositorySynchronizer {
               logger.warn({
                 msg: `[DANGLING FILE] File ${file.contentsId} is not downloadable, deleting...`,
               });
-              await this.remoteFileSystem.hardDelete(file.contentsId);
+              // eslint-disable-next-line no-await-in-loop
+              const { error } = await deleteFileFromTrash(file.contentsId);
+              if (error) {
+                logger.error({
+                  msg: '[FILE SYSTEM] Delete file from trash failed:',
+                  error,
+                });
+
+                throw new Error('Error when hard deleting file');
+              }
             }
           } else {
             const error = resultEither.getLeft();

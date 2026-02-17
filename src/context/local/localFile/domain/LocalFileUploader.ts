@@ -8,6 +8,4 @@ export abstract class LocalFileHandler {
     size: number,
     abortSignal: AbortSignal,
   ): Promise<Either<DriveDesktopError, string>>;
-
-  abstract delete(contentsId: string): Promise<void>;
 }

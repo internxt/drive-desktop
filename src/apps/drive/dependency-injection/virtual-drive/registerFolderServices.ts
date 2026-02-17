@@ -18,7 +18,6 @@ import { MainProcessSyncFolderMessenger } from '../../../../context/virtual-driv
 import { SyncFolderMessenger } from '../../../../context/virtual-drive/folders/domain/SyncFolderMessenger';
 import { RemoteFileSystem } from '../../../../context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../../../../context/virtual-drive/folders/domain/file-systems/LocalFileSystem';
-import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { FolderRepository } from '../../../../context/virtual-drive/folders/domain/FolderRepository';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { FoldersSearcherByPartial } from '../../../../context/virtual-drive/folders/application/search/FoldersSearcherByPartial';
@@ -30,16 +29,7 @@ export async function registerFolderServices(builder: ContainerBuilder): Promise
 
   builder.register(FolderRepository).use(InMemoryFolderRepository).asSingleton().private();
 
-  builder
-    .register(RemoteFileSystem)
-    .useFactory((c) => {
-      const clients = c.get(AuthorizedClients);
-      return new HttpRemoteFileSystem(
-        // @ts-ignore
-        clients.newDrive,
-      );
-    })
-    .private();
+  builder.register(RemoteFileSystem).use(HttpRemoteFileSystem).private();
 
   builder.register(LocalFileSystem).use(FuseLocalFileSystem).private();
 

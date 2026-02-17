@@ -11,8 +11,4 @@ export class LocalFileUploaderMock implements LocalFileHandler {
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     return this.uploadMock(path, size, abortSignal);
   }
-
-  delete(contentsId: string): Promise<void> {
-    return this.deleteMock(contentsId);
-  }
 }

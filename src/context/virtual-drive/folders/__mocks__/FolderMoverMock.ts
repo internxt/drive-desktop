@@ -1,4 +1,3 @@
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { FolderMover } from '../application/FolderMover';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderPath } from '../domain/FolderPath';
@@ -8,7 +7,7 @@ import { FolderDescendantsPathUpdater } from '../application/FolderDescendantsPa
 
 export class FolderMoverMock extends FolderMover {
   constructor() {
-    super({} as FolderRepository, {} as RemoteFileSystem, {} as ParentFolderFinder, {} as FolderDescendantsPathUpdater);
+    super({} as FolderRepository, {} as ParentFolderFinder, {} as FolderDescendantsPathUpdater);
   }
 
   public readonly mock = vi.fn();

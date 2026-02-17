@@ -1,12 +1,13 @@
 import { postBackup } from './post-backup';
-import { BackupError } from '../../backups/BackupError';
-import { createBackupFolder } from '../../../infra/drive-server/services/backup/services/create-backup-folder';
+import * as createFolderModule from '../../../infra/drive-server/services/folder/services/create-folder';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { FolderDto } from '../../../infra/drive-server/out/dto';
+import { DriveServerError } from '../../../infra/drive-server/drive-server.error';
+import { call } from '../../../../tests/vitest/utils.helper';
+import { partialSpyOn } from '../../../../tests/vitest/utils.helper';
 
-vi.mock('../../../infra/drive-server/services/backup/services/create-backup-folder');
+vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 
-const mockCreateBackupFolder = vi.mocked(createBackupFolder);
+const createFolderMock = partialSpyOn(createFolderModule, 'createFolder');
 const mockLogger = vi.mocked(logger);
 
 describe('postBackup', () => {
@@ -30,8 +31,8 @@ describe('postBackup', () => {
       uuid: 'folder-uuid-789',
     };
 
-    mockCreateBackupFolder.mockResolvedValue({
-      data: mockFolderData as FolderDto,
+    createFolderMock.mockResolvedValue({
+      data: mockFolderData,
     });
 
     const result = await postBackup({
@@ -39,8 +40,11 @@ describe('postBackup', () => {
       device: mockDevice,
     });
 
-    expect(mockCreateBackupFolder).toBeCalledWith('device-123', 'My Folder');
-    expect(result).toEqual({
+    call(createFolderMock).toMatchObject({
+      parentFolderUuid: 'device-123',
+      plainName: 'My Folder',
+    });
+    expect(result).toStrictEqual({
       data: {
         id: 456,
         name: 'My Folder',
@@ -49,9 +53,11 @@ describe('postBackup', () => {
     });
   });
 
-  it('should handle errors and return undefined', async () => {
-    mockCreateBackupFolder.mockResolvedValue({
-      error: new BackupError('NOT_EXISTS'),
+  it('should handle errors and return error result', async () => {
+    const error = new DriveServerError('BAD_REQUEST');
+
+    createFolderMock.mockResolvedValue({
+      error,
     });
 
     const result = await postBackup({
@@ -59,12 +65,12 @@ describe('postBackup', () => {
       device: mockDevice,
     });
 
-    expect(mockLogger.error).toHaveBeenCalledWith({
+    call(mockLogger.error).toMatchObject({
       tag: 'BACKUPS',
       msg: 'Error creating backup folder',
       folderName: 'Failed Folder',
-      error: expect.any(BackupError),
+      error,
     });
-    expect(result).toStrictEqual({ error: expect.any(BackupError) });
+    expect(result).toStrictEqual({ error });
   });
 });

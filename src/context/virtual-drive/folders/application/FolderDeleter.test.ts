@@ -2,35 +2,38 @@ import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists
 import { FolderDeleter } from './FolderDeleter';
 import { FolderAlreadyTrashed } from '../domain/errors/FolderAlreadyTrashed';
 import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
 import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/__test-helpers__/FolderMother';
+import * as addFolderToTrashModule from '../../../../infra/drive-server/services/folder/services/add-folder-to-trash';
+import { call, partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
   let allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
-  let remote: FolderRemoteFileSystemMock;
   let local: FolderLocalFileSystemMock;
   let SUT: FolderDeleter;
+
+  const addFolderToTrashMock = partialSpyOn(addFolderToTrashModule, 'addFolderToTrash');
 
   beforeEach(() => {
     repository = new FolderRepositoryMock();
     allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
-    remote = new FolderRemoteFileSystemMock();
     local = new FolderLocalFileSystemMock();
 
-    SUT = new FolderDeleter(repository, remote, local, allParentFoldersStatusIsExists);
+    SUT = new FolderDeleter(repository, local, allParentFoldersStatusIsExists);
   });
 
   it('trashes an existing folder', async () => {
     const folder = FolderMother.exists();
 
-    remote.shouldTrash(folder);
+    addFolderToTrashMock.mockResolvedValue({ data: true });
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
 
     await SUT.run(folder.uuid);
+
+    call(addFolderToTrashMock).toBe(folder.uuid);
     expect(repository.deleteMock).toBeCalledWith(folder.id);
   });
 
@@ -66,7 +69,7 @@ describe('Folder deleter', () => {
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
-    remote.shouldTrash(folder, new Error('Error during the deletion'));
+    addFolderToTrashMock.mockResolvedValue({ error: new Error('Error during the deletion') } as any);
 
     await SUT.run(folder.uuid);
 

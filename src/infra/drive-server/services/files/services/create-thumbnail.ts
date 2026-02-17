@@ -1,35 +1,22 @@
-import { logger } from '@internxt/drive-desktop-core/build/backend/core/logger/logger';
-import { components } from './../../../../schemas.d';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Result } from './../../../../../context/shared/domain/Result';
-import fetch from 'electron-fetch';
-import { FileError } from '../file.error';
-import { errorHandler } from './file-error-handler';
-import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
-import { mapError } from '../../utils/mapError';
+import { getNewApiHeaders } from '../../../../../apps/main/auth/service';
+import { CreateThumbnailDto, ThumbnailDto } from '../../../out/dto';
+import { DriveServerError } from '../../../drive-server.error';
+import { driveServerClient } from '../../../client/drive-server.client.instance';
 
-export async function createThumbnail(
-  body: components['schemas']['CreateThumbnailDto'],
-): Promise<Result<components['schemas']['ThumbnailDto'], FileError>> {
-  try {
-    const headers = await getNewApiHeadersIPC();
-    const response = await fetch(`${process.env.NEW_DRIVE_URL}/files/thumbnail`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-    if (response.ok) {
-      const data: components['schemas']['ThumbnailDto'] = await response.json();
-      return { data };
-    }
-    return errorHandler(response);
-  } catch (error) {
-    const mappedError = mapError(error);
+export async function createThumbnail(body: CreateThumbnailDto): Promise<Result<ThumbnailDto, DriveServerError>> {
+  const { data, error } = await driveServerClient.POST('/files/thumbnail', {
+    body,
+    headers: getNewApiHeaders(),
+  });
+  if (error) {
     logger.error({
-      msg: 'error creating a thumbnail',
-      error: mappedError.message,
+      msg: 'error response creating a thumbnail',
+      path: '/files/thumbnail',
+      error,
     });
-    return {
-      error: new FileError('UNKNOWN'),
-    };
+    return { error };
   }
+  return { data };
 }

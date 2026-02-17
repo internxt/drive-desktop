@@ -4,15 +4,14 @@ import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { ParentFolderFinder } from './ParentFolderFinder';
 import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
+import { moveFolder } from '../../../../infra/drive-server/services/folder/services/move-folder';
 
 @Service()
 export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
     private readonly fileParentFolderFinder: ParentFolderFinder,
     private readonly descendantsPathUpdater: FolderDescendantsPathUpdater,
   ) {}
@@ -21,7 +20,13 @@ export class FolderMover {
     const oldPath = folder.path;
     folder.moveTo(parentFolder);
 
-    await this.remote.move(folder.uuid, parentFolder.uuid);
+    const { error } = await moveFolder({
+      uuid: folder.uuid,
+      destinationFolder: parentFolder.uuid,
+    });
+    if (error) {
+      throw error;
+    }
     await this.repository.update(folder);
 
     void this.descendantsPathUpdater.syncDescendants(folder, oldPath);

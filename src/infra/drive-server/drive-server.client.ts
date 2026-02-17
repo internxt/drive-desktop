@@ -1,5 +1,7 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { attachRateLimiterInterceptors } from './client/interceptors/rate-limiter/attach-rate-limiter-interceptors';
+import { Result } from '../../context/shared/domain/Result';
+import { DriveServerError, mapStatusToErrorCause } from './drive-server.error';
 
 type HTTPMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
@@ -73,6 +75,7 @@ export function createClient<T>(opts: ClientOptions) {
 
   attachRateLimiterInterceptors(http);
 
+  // TODO: ADD proper unauthorized handling (refresh token + retry, or redirect to login).
   if (opts.onUnauthorized) {
     http.interceptors.response.use(
       (response) => response,
@@ -98,7 +101,7 @@ export function createClient<T>(opts: ClientOptions) {
       query?: Record<string, any>;
       body?: OperationRequestBody<T, P, M>;
     },
-  ): Promise<{ data: OperationResponse<T, P, M> }> {
+  ): Promise<Result<OperationResponse<T, P, M>, DriveServerError>> {
     let url = path as string;
 
     if (o?.path) {
@@ -113,17 +116,28 @@ export function createClient<T>(opts: ClientOptions) {
         },
       );
     }
-
-    const { data } = await http.request({
-      method,
-      url,
-      headers: o?.headers,
-      params: o?.query,
-      data: o?.body,
-    });
-    return { data };
+    try {
+      const { data } = await http.request({
+        method,
+        url,
+        headers: o?.headers,
+        params: o?.query,
+        data: o?.body,
+      });
+      return { data };
+    } catch (error) {
+      if (isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message ?? error.message;
+        const cause = status ? mapStatusToErrorCause(status) : 'UNKNOWN';
+        return { error: new DriveServerError(cause, status, message) };
+      }
+      return {
+        error: new DriveServerError('UNKNOWN', undefined, error instanceof Error ? error.message : 'Unexpected error'),
+      };
+    }
   }
-
+  // TODO: type `o` properly instead of `any` — currently callers get no type checking on body, path, headers, or query
   return {
     GET: <P extends PathsWithMethod<T, 'get'>>(p: P, o?: any) => request('get', p, o),
     POST: <P extends PathsWithMethod<T, 'post'>>(p: P, o?: any) => request('post', p, o),
