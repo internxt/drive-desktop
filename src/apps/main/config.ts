@@ -14,6 +14,7 @@ export const fieldsToSave = [
   'lastSavedListing',
   'lastSync',
   'deviceId',
+  'deviceUUID',
   'backupList',
   'nautilusExtensionVersion',
   'discoveredBackup',

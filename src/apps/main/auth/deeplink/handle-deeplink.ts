@@ -1,11 +1,12 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { app } from 'electron';
 import eventBus from '../../event-bus';
-import { setCredentials } from '../service';
+import { canHisConfigBeRestored, setCredentials } from '../service';
 import { setIsLoggedIn } from '../handlers';
 import { setupRootFolder } from '../../virtual-root-folder/service';
 import { processDeeplink } from './proccess-deeplink';
 import { initializeCurrentUser } from './initialize_current_user';
+import configStore from '../../config';
 
 type Props = {
   url: string;
@@ -25,6 +26,12 @@ export async function handleDeeplink({ url }: Props) {
     logger.debug({ tag: 'AUTH', msg: 'Auth details stored successfully from deeplink' });
 
     await initializeCurrentUser();
+
+    const userData = configStore.get('userData');
+    if (userData?.uuid) {
+      const restored = canHisConfigBeRestored(userData.uuid);
+      logger.debug({ tag: 'AUTH', msg: 'Config restoration attempt on login', restored, uuid: userData.uuid });
+    }
 
     await setupRootFolder();
 
