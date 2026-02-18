@@ -44,7 +44,7 @@ describe('stat-readdir', () => {
     expect(sortedFolders).toMatchObject([{ path: folder1 }, { path: folder2 }]);
   });
 
-  it('should throw error if root folder is denied', async () => {
+  it('should throw error if root folder access is denied', async () => {
     // Given
     execSync(`icacls "${root}" /deny "${process.env.USERNAME}":F`);
     // When
