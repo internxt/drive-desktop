@@ -393,6 +393,7 @@ export const fr: Translation = {
       DELETE_ERROR: "Impossible de supprimer l'élément",
       FILE_MODIFIED: 'Fichier modifié lors du téléchargement',
       FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 40GB)',
+      FOLDER_ACCESS_DENIED: "L'app n'a pas le droit d'accéder à cette dossier",
       FOLDER_DOES_NOT_EXIST: 'Dossier non existant',
       INVALID_WINDOWS_NAME: String.raw`Windows ne permet pas les noms contenant \ / : * ? " < > | ou commençant/terminant par des espaces`,
       NETWORK_CONNECTIVITY_ERROR: 'Erreur de connectivité réseau',

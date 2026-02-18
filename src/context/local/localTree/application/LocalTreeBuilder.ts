@@ -1,6 +1,5 @@
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { stat } from '@/infra/file-system/services/stat';
 import { StatItem, statReaddir } from '@/infra/file-system/services/stat-readdir';
 
 export type LocalTree = {
@@ -12,13 +11,6 @@ export class LocalTreeBuilder {
   static async run({ ctx }: { ctx: BackupsContext }) {
     const rootPath = ctx.pathname;
 
-    const { error } = await stat({ absolutePath: rootPath });
-
-    if (error) {
-      ctx.addIssue({ error: 'FOLDER_DOES_NOT_EXIST', name: rootPath });
-      throw error;
-    }
-
     const tree: LocalTree = {
       files: {},
       folders: [rootPath],
@@ -28,7 +20,7 @@ export class LocalTreeBuilder {
       const { files, folders } = await statReaddir({
         folder: parentPath,
         onError: ({ path, error }) => {
-          ctx.addIssue({ error: 'FOLDER_DOES_NOT_EXIST', name: rootPath });
+          ctx.addIssue({ error: 'FOLDER_ACCESS_DENIED', name: path });
           ctx.logger.error({ msg: 'Error getting item stats', path, error });
         },
       });

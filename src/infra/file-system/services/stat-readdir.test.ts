@@ -4,6 +4,7 @@ import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { execSync } from 'node:child_process';
 
 describe('stat-readdir', () => {
   const root = join(TEST_FILES, v4());
@@ -32,7 +33,7 @@ describe('stat-readdir', () => {
     await writeFile(file5, 'content');
   });
 
-  it('should add retrieve files and folders and handle errors', async () => {
+  it('should add retrieve files and folders', async () => {
     // When
     const { files, folders } = await statReaddir(props);
     // Then
@@ -41,5 +42,14 @@ describe('stat-readdir', () => {
 
     expect(sortedFiles).toMatchObject([{ path: file1 }, { path: file2 }, { path: file3 }]);
     expect(sortedFolders).toMatchObject([{ path: folder1 }, { path: folder2 }]);
+  });
+
+  it('should throw error if root folder is denied', async () => {
+    // Given
+    execSync(`icacls "${root}" /deny "${process.env.USERNAME}":F`);
+    // When
+    const promise = statReaddir(props);
+    // Then
+    await expect(promise).rejects.toThrowError('EPERM: operation not permitted, scandir');
   });
 });

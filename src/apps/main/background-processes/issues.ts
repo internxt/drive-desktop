@@ -12,7 +12,7 @@ export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_DOES_NOT_EXIST';
+  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST';
 };
 
 export type GeneralIssue = {
