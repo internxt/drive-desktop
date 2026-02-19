@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import { getWidget } from '../windows/widget';
-import { refreshToken } from './refresh-token';
+import { getWidget, showFrontend } from '../windows/widget';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -14,6 +13,9 @@ import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-mai
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import Bottleneck from 'bottleneck';
+import { openOnboardingWindow } from '../windows/onboarding';
+import electronStore from '../config';
+import { Marketing } from '@/backend/features';
 
 let isLoggedIn: boolean | null = null;
 
@@ -32,7 +34,7 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_LOGGED_OUT');
 }
 
-export async function checkIfUserIsLoggedIn() {
+export function checkIfUserIsLoggedIn() {
   const user = getUser();
 
   if (!user) {
@@ -45,7 +47,13 @@ export async function checkIfUserIsLoggedIn() {
     return false;
   }
 
-  return await refreshToken();
+  const msToRenew = TokenScheduler.getMillisecondsToRenew();
+  if (msToRenew === null || msToRenew <= 0) {
+    logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
+    return false;
+  }
+
+  return true;
 }
 
 export function setupAuthIpcHandlers() {
@@ -59,8 +67,10 @@ export function setupAuthIpcHandlers() {
 export async function emitUserLoggedIn() {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
-  const scheduler = new TokenScheduler();
-  scheduler.schedule();
+  setIsLoggedIn(true);
+  showFrontend();
+
+  TokenScheduler.schedule();
 
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
@@ -79,14 +89,18 @@ export async function emitUserLoggedIn() {
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
-    scheduler.stop();
+    TokenScheduler.stop();
     BackupScheduler.stop();
     logout({ ctx });
   });
 
   setupLoggedPreloadIpc({ ctx });
-  eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
+
+  const lastOnboardingShown = electronStore.get('lastOnboardingShown');
+  if (!lastOnboardingShown) void openOnboardingWindow();
+
   BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
+  void Marketing.showNotifications();
 }
