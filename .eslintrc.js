@@ -68,7 +68,7 @@ module.exports = {
     'sonarjs/no-useless-intersection': 'warn',
     'sonarjs/prefer-read-only-props': 'off',
     'sonarjs/pseudo-random': 'warn',
-    'sonarjs/public-static-readonly': 'warn',
+    'sonarjs/public-static-readonly': 'off',
     'sonarjs/redundant-type-aliases': 'off',
     'sonarjs/slow-regex': 'off',
     'sonarjs/todo-tag': 'off',

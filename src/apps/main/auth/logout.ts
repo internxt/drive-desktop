@@ -10,6 +10,7 @@ import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { setIsLoggedIn } from './handlers';
+import { showFrontend } from '../windows/widget';
 
 type Props = {
   ctx: AuthContext;
@@ -27,6 +28,7 @@ export function logout({ ctx }: Props) {
 
     setIsLoggedIn(false);
     closeAuxWindows();
+    showFrontend();
 
     stopRemoteNotifications();
     LocalSync.SyncState.onLogout();

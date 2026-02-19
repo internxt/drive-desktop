@@ -2,9 +2,10 @@ import jwt from 'jsonwebtoken';
 import { StringValue } from 'ms';
 
 import { TokenScheduler } from './TokenScheduler';
-import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as obtainToken from '../auth/service';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 function createToken(expiresIn: StringValue) {
   const email = 'test@internxt.com';
@@ -12,13 +13,10 @@ function createToken(expiresIn: StringValue) {
   return jwt.sign({ email }, 'JWT_SECRET', { expiresIn });
 }
 
-describe('Token Scheduler', () => {
+describe('token-scheduler', () => {
   const obtainTokenMock = partialSpyOn(obtainToken, 'obtainToken');
-
-  const scheduler = new TokenScheduler();
-
-  const jwtWithoutExpiration =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InV1aWQiOiIzMjE2YzUzNi1kZDJjLTVhNjEtOGM3Ni0yMmU0ZDQ4ZjY4OWUiLCJlbWFpbCI6InRlc3RAaW50ZXJueHQuY29tIiwibmFtZSI6InRlc3QiLCJsYXN0bmFtZSI6InRlc3QiLCJ1c2VybmFtZSI6InRlc3RAaW50ZXJueHQuY29tIiwic2hhcmVkV29ya3NwYWNlIjp0cnVlLCJuZXR3b3JrQ3JlZGVudGlhbHMiOnsidXNlciI6InRlc3RAaW50ZXJueHQuY29tIiwicGFzcyI6IiQyYSQwOCQ2QmhjZkRxaDE4c0kwN25kb2x0N29PNEtaTkpVQmpXSzYvZTRxMWppclR2SzdOTWE4dmZpLiJ9fSwiaWF0IjoxNjY3ODI4MDA2fQ.ckwjRsdNu9UUKUtdO3G32SwUUoMj7FAAOuBqVsIemo0';
+  const updateCredentialsMock = partialSpyOn(obtainToken, 'updateCredentials');
+  const refreshMock = partialSpyOn(driveServerWip.auth, 'refresh');
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -29,40 +27,55 @@ describe('Token Scheduler', () => {
     vi.useRealTimers();
   });
 
-  it('should not schedule if token does not have expiration time', () => {
+  it('should return Infinity if token does not have expiration time', () => {
     // Given
-    obtainTokenMock.mockReturnValue(jwtWithoutExpiration);
+    obtainTokenMock.mockReturnValue(createToken('0 day'));
     // When
-    scheduler.schedule();
+    TokenScheduler.getMillisecondsToRenew();
     // Then
-    expect(scheduler.timeout).toBe(undefined);
+    expect(TokenScheduler.timeout).toBeUndefined();
     call(loggerMock.error).toMatchObject({
       error: new Error('Token does not have expiration time'),
-      msg: 'Error scheduling refresh token',
+      msg: 'Error getting token',
     });
   });
 
-  it('should not schedule if token is invalid', () => {
+  it('should return Infinity if token is invalid', () => {
     // Given
     obtainTokenMock.mockReturnValue('invalid');
     // When
-    scheduler.schedule();
+    TokenScheduler.getMillisecondsToRenew();
     // Then
-    expect(scheduler.timeout).toBe(undefined);
-    call(loggerMock.error).toMatchObject({ msg: 'Error scheduling refresh token' });
+    expect(TokenScheduler.timeout).toBeUndefined();
+    call(loggerMock.error).toMatchObject({
+      msg: 'Error getting token',
+      error: expect.objectContaining({
+        message: expect.stringContaining('Invalid token specified'),
+      }),
+    });
   });
 
-  it('should schedule if token is valid', () => {
+  it('should refresh if token is expired', async () => {
     // Given
-    obtainTokenMock.mockReturnValue(createToken('31 day'));
+    obtainTokenMock.mockReturnValueOnce(createToken('1 day')).mockReturnValueOnce(createToken('31 day'));
+    refreshMock.mockResolvedValue({ data: { newToken: 'token' } });
     // When
-    scheduler.schedule();
+    TokenScheduler.schedule();
+    await vi.runOnlyPendingTimersAsync();
     // Then
-    expect(scheduler.timeout).not.toBe(undefined);
-    call(loggerMock.debug).toMatchObject({
-      msg: 'Token renew date',
-      expiresAt: new Date('1970-02-01'),
-      renewAt: new Date('1970-01-31'),
-    });
+    expect(TokenScheduler.timeout).not.toBe(undefined);
+    call(updateCredentialsMock).toStrictEqual({ newToken: 'token' });
+    calls(loggerMock.debug).toMatchObject([
+      {
+        msg: 'Token renew date',
+        expiresAt: new Date('1970-01-02'),
+        renewAt: new Date('1970-01-01'),
+      },
+      {
+        msg: 'Token renew date',
+        expiresAt: new Date('1970-02-01'),
+        renewAt: new Date('1970-01-31'),
+      },
+    ]);
   });
 });

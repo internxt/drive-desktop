@@ -43,6 +43,17 @@ describe('watcher on add', () => {
     getEvents().toMatchObject([{ event: 'create', path: file, type: 'file' }]);
   });
 
+  it('should emit create event when create file with strange characters', async () => {
+    // Given
+    const file = join(rootPath, 'Леди Баг в стиле куклы Лол');
+    await setupWatcher(rootPath);
+    // When
+    await writeFile(file, '');
+    await sleep(50);
+    // Then
+    getEvents().toMatchObject([{ event: 'create', path: file, type: 'file' }]);
+  });
+
   it('should emit create and update events when create file inside a folder', async () => {
     // Given
     const file = join(parent, 'file');

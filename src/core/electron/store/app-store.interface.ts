@@ -19,9 +19,7 @@ export type AppStore = {
   backupList: BackupList;
 
   newToken: string;
-  newTokenEncrypted: boolean;
   userData: User;
-  mnemonic: string;
 
   savedConfigs: Record<string, SavedConfig>;
   lastOnboardingShown: string;

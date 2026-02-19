@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { WidgetSkeleton } from '../WidgetSkeleton';
 import { Login } from '../../pages/Login';
 import { DraggableModal } from './draggable-modal';
 import { AUTH, Dimensions } from './get-dimensions';
@@ -22,9 +21,7 @@ export function AuthGuard() {
   }, []);
 
   function renderContent() {
-    if (isLoggedIn === null) {
-      return <WidgetSkeleton />;
-    }
+    if (isLoggedIn === null) return;
 
     if (isLoggedIn === false) {
       return (

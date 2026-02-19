@@ -15,9 +15,7 @@ describe('resetConfig', () => {
       ['deviceUuid', ''],
       ['backupList', {}],
       ['newToken', ''],
-      ['newTokenEncrypted', false],
       ['userData', {}],
-      ['mnemonic', ''],
     ]);
   });
 });
