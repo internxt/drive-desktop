@@ -19,12 +19,9 @@ import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupRemoteSyncIpc } from './remote-sync/handlers';
 
 import { autoUpdater } from 'electron-updater';
-import { eventBus } from './event-bus';
 import { AppDataSource } from './database/data-source';
-import { createWidget } from './windows/widget';
-import { electronStore } from './config';
+import { createWidget, showFrontend } from './windows/widget';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
-import { openOnboardingWindow } from './windows/onboarding';
 import { setupQuitHandlers } from './quit';
 import { migrate } from '@/migrations/migrate';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
@@ -34,7 +31,6 @@ import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/uti
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
 import { release, version } from 'node:os';
-import { Marketing } from '@/backend/features';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
@@ -121,40 +117,24 @@ app
     app.setAppUserModelId(INTERNXT_APP_ID);
 
     await AppDataSource.initialize();
+    await migrate();
 
     setupTrayIcon();
-
-    await migrate();
     await createWidget();
-
-    setUpBackups();
 
     const isLoggedIn = checkIfUserIsLoggedIn();
 
     if (isLoggedIn) {
-      setIsLoggedIn(true);
       await emitUserLoggedIn();
     } else {
       setIsLoggedIn(false);
+      showFrontend();
       setTrayStatus('IDLE');
     }
+
+    setUpBackups();
 
     await checkForUpdates();
     setInterval(checkForUpdates, 60 * 60 * 1000);
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
-
-eventBus.on('USER_LOGGED_IN', () => {
-  try {
-    const lastOnboardingShown = electronStore.get('lastOnboardingShown');
-
-    if (!lastOnboardingShown) {
-      void openOnboardingWindow();
-    }
-
-    void Marketing.showNotifications();
-  } catch (exc) {
-    logger.error({ msg: 'Error logging in', exc });
-    reportError(exc as Error);
-  }
-});
