@@ -12,7 +12,6 @@ const schema: Schema<AppStore> = {
 
   newToken: { type: 'string' },
   userData: { type: 'object' },
-  mnemonic: { type: 'string' },
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },

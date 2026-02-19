@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import { getWidget } from '../windows/widget';
+import { getWidget, showFrontend } from '../windows/widget';
 import { getUser } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -13,6 +13,9 @@ import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-mai
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import Bottleneck from 'bottleneck';
+import { openOnboardingWindow } from '../windows/onboarding';
+import electronStore from '../config';
+import { Marketing } from '@/backend/features';
 
 let isLoggedIn: boolean | null = null;
 
@@ -64,6 +67,9 @@ export function setupAuthIpcHandlers() {
 export async function emitUserLoggedIn() {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
+  setIsLoggedIn(true);
+  showFrontend();
+
   TokenScheduler.schedule();
 
   const abortController = new AbortController();
@@ -89,8 +95,12 @@ export async function emitUserLoggedIn() {
   });
 
   setupLoggedPreloadIpc({ ctx });
-  eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
+
+  const lastOnboardingShown = electronStore.get('lastOnboardingShown');
+  if (!lastOnboardingShown) void openOnboardingWindow();
+
   BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
+  void Marketing.showNotifications();
 }

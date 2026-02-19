@@ -20,7 +20,6 @@ export type AppStore = {
 
   newToken: string;
   userData: User;
-  mnemonic: string;
 
   savedConfigs: Record<string, SavedConfig>;
   lastOnboardingShown: string;

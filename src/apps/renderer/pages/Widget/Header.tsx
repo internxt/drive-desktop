@@ -2,7 +2,6 @@ import { MouseEventHandler, useEffect, useState } from 'react';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
 import { User } from '../../../main/types';
-import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
 import { useI18n } from '../../localize/use-i18n';
@@ -183,20 +182,15 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                     </div>
                   )}
                 </Menu.Item>
-                {SHOW_ANTIVIRUS_TOOL && (
-                  <Menu.Item>
-                    {({ active }) => (
-                      <div>
-                        <DropdownItem
-                          active={active}
-                          onClick={() => setSettingsSection('ANTIVIRUS')}
-                          data-automation-id="menuItemAntivirus">
-                          <span>{translate('widget.header.dropdown.antivirus')}</span>
-                        </DropdownItem>
-                      </div>
-                    )}
-                  </Menu.Item>
-                )}
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('ANTIVIRUS')} data-automation-id="menuItemAntivirus">
+                        <span>{translate('widget.header.dropdown.antivirus')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
                     <div>

@@ -9,7 +9,6 @@ describe('process-login', () => {
   const refreshMock = partialSpyOn(DriveServerWipModule.auth, 'refresh');
   const setUserMock = partialSpyOn(authService, 'setUser');
   const restoreSavedConfigMock = partialSpyOn(authService, 'restoreSavedConfig');
-  const setIsLoggedInMock = partialSpyOn(authHandlers, 'setIsLoggedIn');
   const emitUserLoggedInMock = partialSpyOn(authHandlers, 'emitUserLoggedIn');
 
   const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -33,7 +32,6 @@ describe('process-login', () => {
     calls(updateCredentialsMock).toStrictEqual([{ newToken: 'newToken' }, { newToken: 'refreshToken' }]);
     call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey', mnemonic });
     call(restoreSavedConfigMock).toStrictEqual({ uuid: 'uuid' });
-    call(setIsLoggedInMock).toBe(true);
     calls(emitUserLoggedInMock).toHaveLength(1);
   });
 });
