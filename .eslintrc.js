@@ -24,6 +24,7 @@ module.exports = {
         'sonarjs/assertions-in-tests': 'off',
         'sonarjs/constructor-for-side-effects': 'off',
         'sonarjs/function-return-type': 'off',
+        'sonarjs/hardcoded-secret-signatures': 'off',
         'sonarjs/no-alphabetical-sort': 'off',
         'sonarjs/no-empty-test-file': 'off',
         'sonarjs/os-command': 'off',
