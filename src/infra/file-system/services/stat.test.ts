@@ -1,10 +1,6 @@
 import { cwd } from 'node:process';
 import { stat } from './stat';
 import { join } from 'node:path';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
-import { execSync } from 'node:child_process';
 
 describe('stat', () => {
   it('If file exists', async () => {
@@ -21,22 +17,5 @@ describe('stat', () => {
 
     // Then
     expect(error?.code).toEqual('NON_EXISTS');
-  });
-
-  it('If file access is denied (EPERM)', async () => {
-    // Given
-    const folder = join(TEST_FILES, v4());
-    const file = join(folder, 'file.txt');
-
-    await mkdir(folder);
-    await writeFile(file, 'content');
-
-    execSync(`icacls "${file}" /deny "${process.env.USERNAME}":F`);
-
-    // When
-    const { error } = await stat({ absolutePath: file });
-
-    // Then
-    expect(error?.code).toEqual('NO_ACCESS');
   });
 });

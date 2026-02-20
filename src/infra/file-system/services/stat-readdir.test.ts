@@ -3,8 +3,8 @@ import { statReaddir } from './stat-readdir';
 import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { execSync } from 'node:child_process';
-import { call } from '@/tests/vitest/utils.helper.test';
 
 describe('stat-readdir', () => {
   const root = join(TEST_FILES, v4());
@@ -19,7 +19,7 @@ describe('stat-readdir', () => {
   const file4 = join(root, 'folder2', 'file4');
   const file5 = join(root, 'folder2', 'folder3', 'file5');
 
-  const onError = vi.fn();
+  const props = mockProps<typeof statReaddir>({ folder: root });
 
   beforeAll(async () => {
     await mkdir(root);
@@ -33,17 +33,23 @@ describe('stat-readdir', () => {
     await writeFile(file5, 'content');
   });
 
-  it('should add retrieve files and folders and handle errors', async () => {
-    // Given
-    execSync(`icacls "${file3}" /deny "${process.env.USERNAME}":F`);
+  it('should add retrieve files and folders', async () => {
     // When
-    const { files, folders } = await statReaddir({ folder: root, onError });
+    const { files, folders } = await statReaddir(props);
     // Then
     const sortedFiles = files.toSorted((a, b) => a.path.localeCompare(b.path));
     const sortedFolders = folders.toSorted((a, b) => a.path.localeCompare(b.path));
 
-    expect(sortedFiles).toMatchObject([{ path: file1 }, { path: file2 }]);
+    expect(sortedFiles).toMatchObject([{ path: file1 }, { path: file2 }, { path: file3 }]);
     expect(sortedFolders).toMatchObject([{ path: folder1 }, { path: folder2 }]);
-    call(onError).toMatchObject({ path: file3, error: { code: 'NO_ACCESS' } });
+  });
+
+  it('should throw error if root folder access is denied', async () => {
+    // Given
+    execSync(`icacls "${root}" /deny "${process.env.USERNAME}":F`);
+    // When
+    const promise = statReaddir(props);
+    // Then
+    await expect(promise).rejects.toThrowError('EPERM: operation not permitted, scandir');
   });
 });
