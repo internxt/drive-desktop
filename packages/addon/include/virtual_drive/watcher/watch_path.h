@@ -6,35 +6,18 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
 {
     WatcherEvent* event = static_cast<WatcherEvent*>(data);
 
-    napi_value eventObj;
-    napi_create_object(env, &eventObj);
+    napi_value obj;
+    napi_create_object(env, &obj);
 
-    napi_value action, type, path, parentUuid;
-
-    napi_create_string_utf8(env, event->action.c_str(), NAPI_AUTO_LENGTH, &action);
-    napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &type);
-    napi_create_string_utf8(env, event->path.c_str(), NAPI_AUTO_LENGTH, &path);
-
-    napi_set_named_property(env, eventObj, "action", action);
-    napi_set_named_property(env, eventObj, "type", type);
-    napi_set_named_property(env, eventObj, "path", path);
-    napi_set_named_property(env, eventObj, "parentUuid", parentUuid);
+    napiSetString(env, obj, "action", event->action);
+    napiSetString(env, obj, "type", event->type);
+    napiSetString(env, obj, "path", event->path);
 
     napi_value undefined;
     napi_get_undefined(env, &undefined);
-    napi_call_function(env, undefined, jsCallback, 1, &eventObj, nullptr);
+    napi_call_function(env, undefined, jsCallback, 1, &obj, nullptr);
 
     delete event;
-}
-
-inline std::string wstringToUtf8(const std::wstring& wstr)
-{
-    if (wstr.empty()) return {};
-
-    int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), nullptr, 0, nullptr, nullptr);
-    std::string result(size, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), result.data(), size, nullptr, nullptr);
-    return result;
 }
 
 inline void sendEvent(WatcherContext* ctx, const std::string& action, const std::wstring& path)
@@ -81,7 +64,7 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
 
-    BYTE buffer[4 * 1024];
+    BYTE buffer[64 * 1024];
 
     while (!ctx->shouldStop) {
         try {

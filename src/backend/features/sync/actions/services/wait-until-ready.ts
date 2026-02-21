@@ -2,7 +2,9 @@ import { sleep } from '@/apps/main/util';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { open } from 'node:fs/promises';
 
-const MAX_ATTEMPTS = 20;
+const SLEEP_MS = 500;
+const MAX_WAIT_MS = 60_000;
+const MAX_ATTEMPTS = Math.ceil(MAX_WAIT_MS / SLEEP_MS);
 
 type Props = {
   path: AbsolutePath;
@@ -15,7 +17,7 @@ export async function waitUntilReady({ path }: Props) {
       await fd.close();
       return true;
     } catch {
-      await sleep(100);
+      await sleep(SLEEP_MS);
     }
   }
 

@@ -1,16 +1,16 @@
 #pragma once
+#include <Placeholders.h>
+#include <Utilities.h>
+#include <cfapi.h>
+#include <stdafx.h>
+
+#include <condition_variable>
 #include <map>
 #include <memory>
 #include <mutex>
-#include <condition_variable>
 #include <string>
-#include "stdafx.h"
-#include <cfapi.h>
-#include "Utilities.h"
-#include "Placeholders.h"
 
-struct TransferContext
-{
+struct TransferContext {
     CF_CONNECTION_KEY connectionKey;
     CF_TRANSFER_KEY transferKey;
 
@@ -26,5 +26,4 @@ struct TransferContext
 };
 
 std::shared_ptr<TransferContext> CreateTransferContext(CF_TRANSFER_KEY transferKey);
-std::shared_ptr<TransferContext> GetTransferContext(CF_TRANSFER_KEY transferKey);
 void RemoveTransferContext(CF_TRANSFER_KEY transferKey);
