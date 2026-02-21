@@ -1,7 +1,6 @@
 import { setTrayStatus } from '../tray/tray';
 import { stopRemoteNotifications } from '../realtime';
 import { LocalSync } from '@/backend/features';
-import { remoteSyncManagers } from '../remote-sync/store';
 import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
 import { clearIssues } from '../background-processes/issues';
 import { closeAuxWindows } from '../windows';
@@ -32,7 +31,6 @@ export function logout({ ctx }: Props) {
 
     stopRemoteNotifications();
     LocalSync.SyncState.onLogout();
-    remoteSyncManagers.clear();
     clearAntivirus();
     clearIssues();
 
