@@ -21,6 +21,7 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
     uploadBottleneck: ctx.uploadBottleneck,
     client: ctx.client,
     userUuid: user.uuid,
+    status: 'IDLE',
     providerId,
     rootPath: await getRootVirtualDrive(),
     providerName: 'Internxt Drive',

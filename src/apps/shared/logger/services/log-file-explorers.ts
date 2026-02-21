@@ -1,7 +1,7 @@
 import { measurePerfomance } from '@/core/utils/measure-performance';
-import { getDriveContexts } from '@/node-win/callbacks';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { logFileExplorer } from './log-file-explorer';
+import { workers } from '@/apps/main/remote-sync/store';
 
 export async function logFileExplorers() {
   const csvPaths: AbsolutePath[] = [];
@@ -10,7 +10,7 @@ export async function logFileExplorers() {
 
   const time = await measurePerfomance(async () => {
     await Promise.all(
-      getDriveContexts().map(async (ctx) => {
+      workers.values().map(async ({ ctx }) => {
         try {
           const csvPath = await logFileExplorer({ ctx });
           csvPaths.push(csvPath);
