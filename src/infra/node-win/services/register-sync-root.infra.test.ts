@@ -35,7 +35,7 @@ describe('register-sync-root', () => {
     );
   });
 
-  it('should return error if path registered with different a provider id', async () => {
+  it('should return error if path is registered with a different provider id', async () => {
     // Given
     const props = mockProps<typeof registerSyncRoot>({ ctx: { rootPath, providerName, providerId: v4() } });
     // When

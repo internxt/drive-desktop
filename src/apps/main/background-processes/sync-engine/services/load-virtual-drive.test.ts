@@ -16,16 +16,18 @@ describe('load-virtual-drive', () => {
   const connectSyncRootMock = partialSpyOn(Addon, 'connectSyncRoot');
   const addSyncIssueMock = partialSpyOn(addSyncIssue, 'addSyncIssue');
 
-  const props = mockProps<typeof loadVirtualDrive>({ ctx: { providerId: 'syncRootId' } });
+  const props = mockProps<typeof loadVirtualDrive>({ ctx: { providerId: 'providerId' } });
 
   beforeEach(() => {
-    getSyncRootFromPathMock.mockResolvedValue({ id: 'oldSyncRootId' });
+    AddonRegisterSyncRootMock.mockResolvedValue();
+    getSyncRootFromPathMock.mockResolvedValue({ id: 'oldProviderId' });
     connectSyncRootMock.mockReturnValue(1n);
   });
 
-  it('should add sync issue if register sync root gives UNKNOWN error', async () => {
+  it('should add sync issue if register fails twice', async () => {
     // Given
     NodeWinRegisterSyncRootMock.mockResolvedValue(new RegisterSyncRootError('UNKNOWN'));
+    AddonRegisterSyncRootMock.mockRejectedValue(new Error());
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
@@ -34,27 +36,28 @@ describe('load-virtual-drive', () => {
     call(loggerMock.error).toMatchObject({ msg: 'Error loading virtual drive' });
   });
 
-  it('should add sync issue if there is no old sync root registered when ACCESS_DENIED', async () => {
+  it('should unregister with current provider id if no registered sync root', async () => {
     // Given
-    NodeWinRegisterSyncRootMock.mockResolvedValue(new RegisterSyncRootError('ACCESS_DENIED'));
+    NodeWinRegisterSyncRootMock.mockResolvedValue(new RegisterSyncRootError('UNKNOWN'));
     getSyncRootFromPathMock.mockRejectedValue(new Error());
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBeUndefined();
-    call(addSyncIssueMock).toMatchObject({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE' });
-    calls(loggerMock.error).toMatchObject([{ msg: 'Error getting sync root from path' }, { msg: 'Error loading virtual drive' }]);
+    expect(connectionkey).toBe(1n);
+    call(unregisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
+    call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
+    call(loggerMock.error).toMatchObject({ msg: 'Error getting sync root from path' });
   });
 
-  it('should unregister and register if there is an old sync root registered when ACCESS_DENIED', async () => {
+  it('should unregister with old provider id if registered sync root', async () => {
     // Given
-    NodeWinRegisterSyncRootMock.mockResolvedValue(new RegisterSyncRootError('ACCESS_DENIED'));
+    NodeWinRegisterSyncRootMock.mockResolvedValue(new RegisterSyncRootError('UNKNOWN'));
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
     expect(connectionkey).toBe(1n);
-    call(unregisterSyncRootMock).toStrictEqual({ providerId: 'oldSyncRootId' });
-    call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'syncRootId' });
+    call(unregisterSyncRootMock).toStrictEqual({ providerId: 'oldProviderId' });
+    call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     calls(loggerMock.error).toHaveLength(0);
   });
 
