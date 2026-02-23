@@ -16,12 +16,8 @@ export async function loadVirtualDrive({ ctx }: Props) {
     const info = await getSyncRootFromPath(ctx);
 
     if (error) {
-      if (info) {
-        await Addon.unregisterSyncRoot({ providerId: info.id });
-      } else {
-        await Addon.unregisterSyncRoot({ providerId: ctx.providerId });
-      }
-
+      const providerId = info ? info.id : ctx.providerId;
+      await Addon.unregisterSyncRoot({ providerId });
       await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
     }
 
