@@ -10,7 +10,7 @@ type TProps = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
 };
-a;
+
 export async function onUnlink({ ctx, path }: TProps) {
   try {
     const parentUuid = await getParentUuid({ ctx, path });
