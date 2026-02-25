@@ -1,15 +1,14 @@
 #pragma once
 
-#include <Callbacks.h>
 #include <external.h>
 
-napi_value connectSyncRoot(napi_env env, napi_callback_info info)
+inline napi_value connectSyncRoot(napi_env env, napi_callback_info info)
 {
     auto [syncRootPath, deleteCallback, fetchDataCallback] =
         napi_extract_args<std::wstring, napi_value, napi_value>(env, info);
 
     registerDeleteCallback(env, deleteCallback);
-    register_threadsafe_fetch_data_callback("FetchDataThreadSafe", env, fetchDataCallback);
+    registerFetchDataCallback(env, fetchDataCallback);
 
     CF_CALLBACK_REGISTRATION callbackTable[] = {
         {CF_CALLBACK_TYPE_FETCH_DATA, fetch_data_callback_wrapper},

@@ -16,7 +16,6 @@
       "sources": [
         "native-src/main.cpp",
         "native-src/placeholders_interface/Planceholders.cpp",
-        "native-src/sync_root_interface/callbacks/FetchData/FetchData.cpp",
         "native-src/virtual_drive/convert_to_placeholder.cpp",
         "native-src/virtual_drive/create_file_placeholder.cpp",
         "native-src/virtual_drive/create_folder_placeholder.cpp",

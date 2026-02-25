@@ -16,7 +16,7 @@ struct DeleteContext {
 
 napi_threadsafe_function threadsafeDeleteCallback = nullptr;
 
-void notifyDeleteCallback(napi_env env, napi_value jsCallback, void*, void* data)
+inline void notifyDeleteCallback(napi_env env, napi_value jsCallback, void*, void* data)
 {
     auto* ctx = static_cast<DeleteContext*>(data);
 
@@ -38,7 +38,7 @@ void notifyDeleteCallback(napi_env env, napi_value jsCallback, void*, void* data
     delete ctx;
 }
 
-void CALLBACK deleteCallbackWrapper(_In_ CONST CF_CALLBACK_INFO* callbackInfo, _In_ CONST CF_CALLBACK_PARAMETERS* callbackParameters)
+inline void CALLBACK deleteCallbackWrapper(_In_ CONST CF_CALLBACK_INFO* callbackInfo, _In_ CONST CF_CALLBACK_PARAMETERS* callbackParameters)
 {
     auto* ctx = new DeleteContext();
     ctx->connectionKey = callbackInfo->ConnectionKey;
@@ -63,7 +63,7 @@ void CALLBACK deleteCallbackWrapper(_In_ CONST CF_CALLBACK_INFO* callbackInfo, _
     check_hresult("CfExecute", CfExecute(&opInfo, &opParams));
 }
 
-void registerDeleteCallback(napi_env env, napi_value callback)
+inline void registerDeleteCallback(napi_env env, napi_value callback)
 {
     threadsafeDeleteCallback = registerThreadsafeCallback("DeleteCallback", env, callback, notifyDeleteCallback);
 }
