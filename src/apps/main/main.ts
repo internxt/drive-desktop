@@ -7,7 +7,7 @@ import 'regenerator-runtime/runtime';
 // the variables are injected if process.env.NODE_ENV === 'production'
 // via webpack in prod
 import 'dotenv/config';
-
+a;
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
