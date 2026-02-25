@@ -11,6 +11,9 @@
 #include <helpers/register_threadsafe_callback.h>
 #include <helpers/async_wrapper.h>
 
+#include <sync_root_interface/callbacks/delete_callback.h>
+
+#include <virtual_drive/connect_sync_root.h>
 #include <virtual_drive/get_sync_root_from_path.h>
 #include <virtual_drive/watcher/watcher_defs.h>
 #include <virtual_drive/watcher/unwatch_path.h>

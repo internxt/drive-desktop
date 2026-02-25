@@ -1,6 +1,6 @@
 #include <Callbacks.h>
+#include <Placeholders.h>
 #include <SearchAPI.h>
-#include <TransferContext.h>
 #include <Utilities.h>
 #include <cfapi.h>
 #include <check_hresult.h>
@@ -26,6 +26,21 @@
 #define FIELD_SIZE(type, field) (sizeof(((type*)nullptr)->field))
 
 #define CF_SIZE_OF_OP_PARAM(field) (FIELD_OFFSET(CF_OPERATION_PARAMETERS, field) + FIELD_SIZE(CF_OPERATION_PARAMETERS, field))
+
+struct TransferContext {
+    CF_CONNECTION_KEY connectionKey;
+    CF_TRANSFER_KEY transferKey;
+
+    LARGE_INTEGER fileSize;
+    LARGE_INTEGER requiredLength;
+    LARGE_INTEGER requiredOffset;
+    std::wstring path;
+
+    bool ready = false;
+
+    std::mutex mtx;
+    std::condition_variable cv;
+};
 
 napi_threadsafe_function g_fetch_data_threadsafe_callback = nullptr;
 
@@ -170,9 +185,9 @@ void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO* callbackI
             std::bit_cast<long long>(callbackInfo->ConnectionKey),
             callbackInfo->TransferKey.QuadPart);
 
-    auto ctx = CreateTransferContext(callbackInfo->TransferKey);
-
+    auto ctx = std::make_shared<TransferContext>();
     ctx->connectionKey = callbackInfo->ConnectionKey;
+    ctx->transferKey = callbackInfo->TransferKey;
     ctx->fileSize = callbackInfo->FileSize;
     ctx->requiredLength = callbackParameters->FetchData.RequiredLength;
     ctx->requiredOffset = callbackParameters->FetchData.RequiredFileOffset;
@@ -188,8 +203,6 @@ void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO* callbackI
     }
 
     wprintf(L"Remove transfer context\n");
-
-    RemoveTransferContext(ctx->transferKey);
 }
 
 void register_threadsafe_fetch_data_callback(const std::string& resource_name, napi_env env, napi_value callback)
