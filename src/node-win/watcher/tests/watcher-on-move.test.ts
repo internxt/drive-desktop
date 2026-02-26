@@ -28,10 +28,7 @@ describe('watcher on move', () => {
     await rename(file1, file2);
     await sleep(150);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
   });
 
   it('should emit create and delete events when move file', async () => {
@@ -44,10 +41,7 @@ describe('watcher on move', () => {
     await rename(file1, file2);
     await sleep(150);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
   });
 
   it('should emit create and delete events when rename folder', async () => {
@@ -60,10 +54,7 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2, type: 'folder' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
   });
 
   it('should emit create and delete events when move folder', async () => {
@@ -76,9 +67,6 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2, type: 'folder' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
   });
 });

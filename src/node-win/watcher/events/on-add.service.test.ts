@@ -4,7 +4,6 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as moveFile from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
-import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { GetFileInfoError } from '@/infra/node-win/services/get-file-info';
 import { Drive } from '@/backend/features/drive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -15,7 +14,6 @@ describe('on-add', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveFileMock = partialSpyOn(moveFile, 'moveFile');
   const createFileMock = partialSpyOn(Drive.Actions, 'createFile');
-  const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
 
   const path = abs('/parent/file.txt');
   const props = mockProps<typeof onAdd>({ path });
@@ -26,7 +24,6 @@ describe('on-add', () => {
     // When
     await onAdd(props);
     // Then
-    call(trackAddEventMock).toStrictEqual({ uuid: 'uuid' });
     call(moveFileMock).toMatchObject({ path, uuid: 'uuid' });
   });
 

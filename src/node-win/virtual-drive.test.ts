@@ -46,9 +46,8 @@ describe('addon', () => {
   it('should call addon.connectSyncRoot', () => {
     // Given
     const rootPath = abs('C:/Users/user/InternxtDrive');
-    const props = mockProps<typeof Addon.connectSyncRoot>({ ctx: { rootPath } });
     // When
-    Addon.connectSyncRoot(props);
+    Addon.connectSyncRoot({ rootPath });
     // Then
     call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
   });
