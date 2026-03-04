@@ -11,7 +11,7 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
 
     napiSetString(env, obj, "action", event->action);
     napiSetString(env, obj, "type", event->type);
-    napiSetString(env, obj, "path", event->path);
+    napiSetWstring(env, obj, "path", event->path);
 
     napi_value undefined;
     napi_get_undefined(env, &undefined);
@@ -23,26 +23,22 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
 inline void sendEvent(WatcherContext* ctx, const std::string& action, const std::wstring& path)
 {
     std::string type;
-    std::string pathStr = wstringToUtf8(path);
 
-    if (action == "delete") {
-        type = "unknown";
+    DWORD attrs = GetFileAttributesW(path.c_str());
+    if (attrs == INVALID_FILE_ATTRIBUTES) {
+        type = "error";
     } else {
-        DWORD attrs = GetFileAttributesW(path.c_str());
-        if (attrs == INVALID_FILE_ATTRIBUTES) {
-            type = "error";
-        } else {
-            type = (attrs & FILE_ATTRIBUTE_DIRECTORY) ? "folder" : "file";
-        }
+        type = (attrs & FILE_ATTRIBUTE_DIRECTORY) ? "folder" : "file";
     }
 
-    auto event = new WatcherEvent{action, pathStr, type};
+    auto event = new WatcherEvent{action, path, type};
     napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
 inline void sendError(WatcherContext* ctx, const std::string& error)
 {
-    auto event = new WatcherEvent{"error", error, "error"};
+    std::wstring wError(error.begin(), error.end());
+    auto event = new WatcherEvent{"error", wError, "error"};
     napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
@@ -53,8 +49,6 @@ inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootP
 
     if (fni->Action == FILE_ACTION_MODIFIED) {
         sendEvent(ctx, "update", path);
-    } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-        sendEvent(ctx, "delete", path);
     } else if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
         sendEvent(ctx, "create", path);
     }

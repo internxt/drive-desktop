@@ -1,35 +1,34 @@
-#include <Callbacks.h>
-#include <SearchAPI.h>
-#include <TransferContext.h>
-#include <Utilities.h>
-#include <cfapi.h>
-#include <check_hresult.h>
+#pragma once
+
+#include <Placeholders.h>
+#include <external.h>
 #include <napi_extract_args.h>
 #include <napi_safe_wrap.h>
 #include <propkey.h>
 #include <propvarutil.h>
-#include <stdafx.h>
-#include <windows.h>
-
-#include <chrono>
-#include <codecvt>
-#include <condition_variable>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <locale>
-#include <mutex>
-#include <string>
-#include <utility>
-#include <vector>
 
 #define FIELD_SIZE(type, field) (sizeof(((type*)nullptr)->field))
 
 #define CF_SIZE_OF_OP_PARAM(field) (FIELD_OFFSET(CF_OPERATION_PARAMETERS, field) + FIELD_SIZE(CF_OPERATION_PARAMETERS, field))
 
+struct TransferContext {
+    CF_CONNECTION_KEY connectionKey;
+    CF_TRANSFER_KEY transferKey;
+
+    LARGE_INTEGER fileSize;
+    LARGE_INTEGER requiredLength;
+    LARGE_INTEGER requiredOffset;
+    std::wstring path;
+
+    bool ready = false;
+
+    std::mutex mtx;
+    std::condition_variable cv;
+};
+
 napi_threadsafe_function g_fetch_data_threadsafe_callback = nullptr;
 
-HRESULT transfer_data(
+inline HRESULT transfer_data(
     _In_ CF_CONNECTION_KEY connectionKey,
     _In_ LARGE_INTEGER transferKey,
     _In_reads_bytes_opt_(length.QuadPart) LPCVOID transferData,
@@ -53,7 +52,7 @@ HRESULT transfer_data(
     return CfExecute(&opInfo, &opParams);
 }
 
-napi_value response_callback_fn_fetch_data(napi_env env, napi_callback_info info)
+inline napi_value response_callback_fn_fetch_data(napi_env env, napi_callback_info info)
 {
     size_t argc = 2;
     std::array<napi_value, 2> args;
@@ -139,12 +138,12 @@ napi_value response_callback_fn_fetch_data(napi_env env, napi_callback_info info
     return nullptr;
 }
 
-napi_value response_callback_fn_fetch_data_wrapper(napi_env env, napi_callback_info info)
+inline napi_value response_callback_fn_fetch_data_wrapper(napi_env env, napi_callback_info info)
 {
     return NAPI_SAFE_WRAP(env, info, response_callback_fn_fetch_data);
 }
 
-void notify_fetch_data_call(napi_env env, napi_value js_callback, void*, void* data)
+inline void notify_fetch_data_call(napi_env env, napi_value js_callback, void*, void* data)
 {
     TransferContext* ctx = static_cast<TransferContext*>(data);
 
@@ -164,15 +163,15 @@ void notify_fetch_data_call(napi_env env, napi_value js_callback, void*, void* d
     napi_call_function(env, undefined, js_callback, js_args.size(), js_args.data(), nullptr);
 }
 
-void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO* callbackInfo, _In_ CONST CF_CALLBACK_PARAMETERS* callbackParameters)
+inline void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO* callbackInfo, _In_ CONST CF_CALLBACK_PARAMETERS* callbackParameters)
 {
     wprintf(L"ConnectionKey: %lld, TransferKey: %lld\n",
             std::bit_cast<long long>(callbackInfo->ConnectionKey),
             callbackInfo->TransferKey.QuadPart);
 
-    auto ctx = CreateTransferContext(callbackInfo->TransferKey);
-
+    auto ctx = std::make_shared<TransferContext>();
     ctx->connectionKey = callbackInfo->ConnectionKey;
+    ctx->transferKey = callbackInfo->TransferKey;
     ctx->fileSize = callbackInfo->FileSize;
     ctx->requiredLength = callbackParameters->FetchData.RequiredLength;
     ctx->requiredOffset = callbackParameters->FetchData.RequiredFileOffset;
@@ -188,30 +187,9 @@ void CALLBACK fetch_data_callback_wrapper(_In_ CONST CF_CALLBACK_INFO* callbackI
     }
 
     wprintf(L"Remove transfer context\n");
-
-    RemoveTransferContext(ctx->transferKey);
 }
 
-void register_threadsafe_fetch_data_callback(const std::string& resource_name, napi_env env, napi_value callback)
+inline void registerFetchDataCallback(napi_env env, napi_value callback)
 {
-    std::u16string converted_resource_name(resource_name.begin(), resource_name.end());
-
-    napi_value resource_name_value;
-    napi_create_string_utf16(env, converted_resource_name.c_str(), NAPI_AUTO_LENGTH, &resource_name_value);
-
-    napi_threadsafe_function tsfn_fetch_data;
-    napi_create_threadsafe_function(
-        env,
-        callback,
-        nullptr,
-        resource_name_value,
-        0,
-        1,
-        nullptr,
-        nullptr,
-        nullptr,
-        notify_fetch_data_call,
-        &tsfn_fetch_data);
-
-    g_fetch_data_threadsafe_callback = tsfn_fetch_data;
+    g_fetch_data_threadsafe_callback = registerThreadsafeCallback("FetchDataCallback", env, callback, notify_fetch_data_call);
 }
