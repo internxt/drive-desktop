@@ -39,7 +39,7 @@ describe('watcher on unlink', () => {
     getEvents().toHaveLength(0);
   });
 
-  it('should not emit eventss when delete folder with a file inside', async () => {
+  it('should not emit events when delete folder with a file inside', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const file = join(parent, 'file');
@@ -53,7 +53,7 @@ describe('watcher on unlink', () => {
     getEvents().toHaveLength(0);
   });
 
-  it('should not emit eventss when delete folder with a folder inside', async () => {
+  it('should not emit events when delete folder with a folder inside', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
