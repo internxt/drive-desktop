@@ -1,4 +1,4 @@
-import { ipcMain, powerSaveBlocker } from 'electron';
+import { ipcMain } from 'electron';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
@@ -54,8 +54,6 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   tracker.setStatus('RUNNING');
 
-  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
-
   const backups = await getBackupsFromDevice(device, true);
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
@@ -108,8 +106,6 @@ export async function launchBackupProcesses({ ctx }: Props) {
   BackupScheduler.start({ ctx });
 
   ipcMain.removeAllListeners('stop-backups-process');
-
-  powerSaveBlocker.stop(suspensionBlockId);
 
   logger.debug({
     tag: 'BACKUPS',
