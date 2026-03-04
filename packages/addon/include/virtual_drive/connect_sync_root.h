@@ -1,17 +1,18 @@
-#include <Callbacks.h>
-#include <Windows.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
+#pragma once
 
-napi_value connect_sync_root_impl(napi_env env, napi_callback_info info)
+#include <external.h>
+
+inline napi_value connectSyncRoot(napi_env env, napi_callback_info info)
 {
-    auto [syncRootPath, fetchDataCallback] =
-        napi_extract_args<std::wstring, napi_value>(env, info);
+    auto [syncRootPath, deleteCallback, fetchDataCallback] =
+        napi_extract_args<std::wstring, napi_value, napi_value>(env, info);
 
-    register_threadsafe_fetch_data_callback("FetchDataThreadSafe", env, fetchDataCallback);
+    registerDeleteCallback(env, deleteCallback);
+    registerFetchDataCallback(env, fetchDataCallback);
 
     CF_CALLBACK_REGISTRATION callbackTable[] = {
         {CF_CALLBACK_TYPE_FETCH_DATA, fetch_data_callback_wrapper},
+        {CF_CALLBACK_TYPE_NOTIFY_DELETE, deleteCallbackWrapper},
         CF_CALLBACK_REGISTRATION_END};
 
     CF_CONNECTION_KEY connectionKey;
@@ -28,4 +29,9 @@ napi_value connect_sync_root_impl(napi_env env, napi_callback_info info)
     napi_value result;
     napi_create_bigint_int64(env, connectionKey.Internal, &result);
     return result;
+}
+
+inline napi_value ConnectSyncRootWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, connectSyncRoot);
 }
