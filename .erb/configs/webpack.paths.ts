@@ -14,7 +14,7 @@ const distRendererPath = path.join(distPath, 'renderer');
 
 const buildPath = path.join(rootPath, 'build');
 
-export const nativeDeps = ['better-sqlite3', 'electron-rebuild', 'typeorm', '@packages/addon'];
+export const nativeDeps = ['better-sqlite3', 'typeorm', '@packages/addon'];
 
 export default {
   rootPath,
