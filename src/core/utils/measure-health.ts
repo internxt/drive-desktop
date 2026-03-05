@@ -2,7 +2,7 @@ import os from 'node:os';
 
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-const INTERVAL = 3 * 60 * 1000;
+const INTERVAL = 60 * 1000;
 
 function measureEventLoopLag() {
   return new Promise<number>((resolve) => {
