@@ -11,7 +11,7 @@ import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
-a;
+
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import { setupDeviceIpc } from './device/handlers';
