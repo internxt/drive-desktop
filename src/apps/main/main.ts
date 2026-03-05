@@ -30,11 +30,12 @@ import { logger } from '../shared/logger/logger';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
-import { release, version } from 'node:os';
+import { arch, release, version } from 'node:os';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { resolve } from 'node:path';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { measureHealth } from '@/core/utils/measure-health';
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
@@ -83,6 +84,7 @@ logger.debug({
   isPackaged: app.isPackaged,
   osVersion: version(),
   osRelease: release(),
+  arch: arch(),
 });
 
 async function checkForUpdates() {
@@ -134,6 +136,7 @@ app
 
     setUpBackups();
 
+    measureHealth();
     await checkForUpdates();
     setInterval(checkForUpdates, 60 * 60 * 1000);
   })
