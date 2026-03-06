@@ -18,7 +18,7 @@ describe('watcher on move', () => {
     await mkdir(parent);
   });
 
-  it('should emit create and delete events when rename file', async () => {
+  it('should emit create event when rename file', async () => {
     // Given
     const file1 = join(rootPath, 'file1');
     const file2 = join(rootPath, 'file2');
@@ -28,13 +28,10 @@ describe('watcher on move', () => {
     await rename(file1, file2);
     await sleep(150);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
   });
 
-  it('should emit create and delete events when move file', async () => {
+  it('should emit create event when move file', async () => {
     // Given
     const file1 = join(rootPath, 'file');
     const file2 = join(parent, 'file');
@@ -44,13 +41,10 @@ describe('watcher on move', () => {
     await rename(file1, file2);
     await sleep(150);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
   });
 
-  it('should emit create and delete events when rename folder', async () => {
+  it('should emit create event when rename folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
@@ -60,13 +54,10 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2, type: 'folder' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
   });
 
-  it('should emit create and delete events when move folder', async () => {
+  it('should emit create event when move folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder');
     const folder2 = join(parent, 'folder');
@@ -76,9 +67,6 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2, type: 'folder' },
-    ]);
+    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
   });
 });

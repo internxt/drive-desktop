@@ -9,8 +9,10 @@ type Props = {
 };
 
 export async function loadVirtualDrive({ ctx }: Props) {
+  const { rootPath } = ctx;
+
   try {
-    await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
+    await VirtualDrive.createSyncRootFolder({ rootPath });
 
     const error = await NodeWin.registerSyncRoot({ ctx });
     const info = await getSyncRootFromPath(ctx);
@@ -18,14 +20,14 @@ export async function loadVirtualDrive({ ctx }: Props) {
     if (error) {
       const providerId = info ? info.id : ctx.providerId;
       await Addon.unregisterSyncRoot({ providerId });
-      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
+      await Addon.registerSyncRoot({ rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
     }
 
-    const connectionKey = Addon.connectSyncRoot({ ctx });
+    const connectionKey = Addon.connectSyncRoot({ rootPath });
     ctx.logger.debug({ msg: 'Connection key', connectionKey });
     return connectionKey;
   } catch (error) {
-    addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
+    addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: rootPath });
     ctx.logger.error({ msg: 'Error loading virtual drive', error });
     return;
   }

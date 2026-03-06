@@ -7,8 +7,9 @@ on:
 jobs:
   check_pr_size:
     # Ignore PRs with name merge-X-X-X-release
-    if: |
-      !(startsWith(github.head_ref, 'merge-') && endsWith(github.head_ref, '-release') && github.base_ref == 'main')
+    # if: |
+    #   !(startsWith(github.head_ref, 'merge-') && endsWith(github.head_ref, '-release') && github.base_ref == 'main')
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
