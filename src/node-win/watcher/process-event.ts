@@ -1,5 +1,4 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { onUnlink } from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
 import { onAdd } from './events/on-add.service';
 import { onAddDir } from './events/on-add-dir.service';
 import { debounceOnRaw } from './events/debounce-on-raw';
@@ -8,17 +7,12 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 type Props = {
   ctx: ProcessSyncContext;
   path: AbsolutePath;
-  event: 'create' | 'update' | 'delete';
+  event: 'create' | 'update';
   type: 'file' | 'folder' | 'unknown';
 };
 
 export async function processEvent({ ctx, event, type, path }: Props) {
   try {
-    if (event === 'delete') {
-      await onUnlink({ ctx, path });
-      return;
-    }
-
     if (event === 'update' && type === 'file') {
       debounceOnRaw({ ctx, path });
       return;

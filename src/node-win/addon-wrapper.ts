@@ -10,6 +10,7 @@ import { iconPath } from '@/apps/utils/icon';
 import { PinState } from './types/placeholder.type';
 import { fetchDataFn } from './callbacks';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { deleteCallback } from './delete-callback';
 
 export function toWin32Path(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -55,8 +56,8 @@ export class Addon {
     return parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  static connectSyncRoot({ ctx }: { ctx: SyncContext }) {
-    const result = addon.connectSyncRoot(toWin32Path(ctx.rootPath), fetchDataFn);
+  static connectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
+    const result = addon.connectSyncRoot(toWin32Path(rootPath), deleteCallback, fetchDataFn);
     const connectionKey = parseAddonZod('connectSyncRoot', result);
     return connectionKey;
   }
