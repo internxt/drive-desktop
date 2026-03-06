@@ -44,6 +44,7 @@ describe('process-error', () => {
     // Then
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
     call(sleepMock).toStrictEqual(sleepMs);
+    calls(retryFn).toHaveLength(1);
   });
 
   it('should handle unknown error', async () => {
