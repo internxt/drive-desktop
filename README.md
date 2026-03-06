@@ -56,6 +56,7 @@ Initialize the development environment:
 npm run init:dev
 npm run clamav # optional
 ```
+
 Start the application:
 
 ```bash
