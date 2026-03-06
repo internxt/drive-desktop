@@ -1,13 +1,11 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { Environment } from '@internxt/inxt-js';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 import * as processError from './process-error';
 import { ReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
 import { LocalSync } from '@/backend/features';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { sleep } from '@/apps/main/util';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('upload-file', () => {
@@ -26,8 +24,8 @@ describe('upload-file', () => {
 
     abortController = new AbortController();
     props = mockProps<typeof uploadFile>({
-      ctx: { abortController },
-      fn: environment.upload,
+      ctx: { environment },
+      abortController,
       readable,
       size: 10,
     });
@@ -35,10 +33,7 @@ describe('upload-file', () => {
 
   it('should upload file', async () => {
     // Given
-    environment.upload.mockImplementation((_, opts) => {
-      opts.finishedCallback(null, 'contentsId');
-      return new ActionState(ActionTypes.Upload);
-    });
+    environment.upload.mockResolvedValue('contentsId');
     // When
     const res = await uploadFile(props);
     // Then
@@ -51,8 +46,7 @@ describe('upload-file', () => {
     // Given
     environment.upload.mockImplementation((_, opts) => {
       opts.progressCallback(50, 0, 0);
-      opts.finishedCallback(null, 'contentsId');
-      return new ActionState(ActionTypes.Upload);
+      return Promise.resolve('contentsId');
     });
     // When
     const res = await uploadFile(props);
@@ -64,45 +58,27 @@ describe('upload-file', () => {
 
   it('should process error if upload fails', async () => {
     // Given
+    environment.upload.mockRejectedValue(new Error());
+    // When
+    const res = await uploadFile(props);
+    // Then
+    expect(res).toBeUndefined();
+    call(processErrorMock).toMatchObject({ sleepMs: 5000 });
+    calls(addItemMock).toHaveLength(0);
+  });
+
+  it('should abort upload on change size', async () => {
+    // Given
+    statMock.mockResolvedValue({ data: { size: 20 } });
     environment.upload.mockImplementation((_, opts) => {
-      opts.finishedCallback(new Error(), null);
-      return new ActionState(ActionTypes.Upload);
+      opts.progressCallback(25, 0, 0);
+      return Promise.resolve(undefined as any);
     });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
     calls(addItemMock).toHaveLength(0);
-    calls(processErrorMock).toHaveLength(1);
-  });
-
-  it('should abort if signal is aborted', async () => {
-    // Given
-    environment.upload.mockImplementation((_, opts) => {
-      setTimeout(() => abortController.abort(), 25);
-      opts.finishedCallback(new Error(), null);
-      return new ActionState(ActionTypes.Upload);
-    });
-    // When
-    const res = await uploadFile(props);
-    await sleep(50);
-    // Then
-    expect(res).toBeUndefined();
-    call(loggerMock.debug).toMatchObject({ msg: 'Aborting upload' });
-  });
-
-  it('should stop abort upload on change size', async () => {
-    // Given
-    environment.upload.mockImplementation((_, opts) => {
-      statMock.mockResolvedValue({ data: { size: 20 } });
-      opts.progressCallback(25, 0, 0);
-      opts.finishedCallback(new Error(), null);
-      return new ActionState(ActionTypes.Upload);
-    });
-    // When
-    const res = await uploadFile(props);
-    // Then
-    expect(res).toBeUndefined();
-    calls(loggerMock.debug).toMatchObject([{ msg: 'File size changed during upload' }, { msg: 'Aborting upload' }]);
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Uploading file to the bucket' }, { msg: 'File size changed during upload' }]);
   });
 });

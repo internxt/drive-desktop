@@ -104,7 +104,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 process.on('unhandledRejection', (error, promise) => {
-  if (isAbortError({ exc: error })) return;
+  if (isAbortError({ error })) return;
 
   logger.error({ msg: 'Unhandled rejection', error, promise });
 });
