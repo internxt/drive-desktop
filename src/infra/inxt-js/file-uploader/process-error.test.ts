@@ -46,9 +46,9 @@ describe('process-error', () => {
     call(sleepMock).toStrictEqual(sleepMs);
   });
 
-  it('should handle unknown errors', async () => {
+  it('should handle unknown error', async () => {
     // Given
-    props.error = new Error('Unknown');
+    props.error = 'unknown';
     // When
     await processError(props);
     // Then
