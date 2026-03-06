@@ -14,7 +14,6 @@ export async function uploadThumbnail({ ctx, buffer }: Props) {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/await-thenable
   return await ctx.environment.upload(ctx.bucket, {
     fileSize: buffer.byteLength,
     source,

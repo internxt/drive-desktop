@@ -38,7 +38,6 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
   }
 
   try {
-    // eslint-disable-next-line @typescript-eslint/await-thenable
     const contentsId = await ctx.environment.upload(ctx.bucket, {
       source: readable,
       fileSize: size,

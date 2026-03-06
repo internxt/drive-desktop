@@ -32,7 +32,6 @@ module.exports = {
     },
   ],
   rules: {
-    '@typescript-eslint/await-thenable': 'warn',
     '@typescript-eslint/ban-ts-comment': 'warn',
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
