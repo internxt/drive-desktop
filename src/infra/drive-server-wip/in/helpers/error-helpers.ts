@@ -76,8 +76,8 @@ export function isServerError({ response: { status } }: { response: Response }):
   return status >= 500 && status < 600;
 }
 
-export function isAbortError({ exc }: { exc: unknown }): boolean {
-  return exc instanceof Error && exc.name === 'AbortError';
+export function isAbortError({ error }: { error: unknown }): boolean {
+  return error instanceof Error && error.name === 'AbortError';
 }
 
 export function isBottleneckStop({ error }: { error: unknown }): boolean {
