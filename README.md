@@ -16,14 +16,19 @@
 
 ## Windows
 
+### Prerequisites
+
+Make sure you have the following tools installed before running the project:
+
 - [**NVM**](https://github.com/coreybutler/nvm-windows)
 
 - [**Python 3.10**](https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)
 
-- **Node.js 20**
+- **Node.js 22**
 
 ```bash
-nvm install 20
+nvm install 22
+nvm use 22
 ```
 
 - **node-gyp**
@@ -36,8 +41,24 @@ npm install -g node-gyp
 
 ![alt text](public/image-1.png) ![alt text](public/image.png)
 
+### Environment variables
+
+Before running the application for the first time, you must create a .env file.
+
+- Copy the template file: `cp .env.template .env`
+- Fill in the required environment variables in .env.
+
+### Install and run
+
+Initialize the development environment:
+
 ```bash
 npm run init:dev
 npm run clamav # optional
+```
+
+Start the application:
+
+```bash
 npm run start
 ```
