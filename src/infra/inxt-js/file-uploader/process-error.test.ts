@@ -3,44 +3,57 @@ import { processError } from './process-error';
 import { LocalSync } from '@/backend/features';
 import * as addGeneralIssue from '@/apps/main/background-processes/issues';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as sleep from '@/apps/main/util';
 
 describe('process-error', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const addGeneralIssueMock = partialSpyOn(addGeneralIssue, 'addGeneralIssue');
+  const sleepMock = partialSpyOn(sleep, 'sleep');
 
+  const retryFn = vi.fn();
+  const sleepMs = 5000;
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processError>({});
+    props = mockProps<typeof processError>({ retryFn, sleepMs });
   });
 
-  it('should not do anything if aborted', () => {
+  it('should not do anything if aborted', async () => {
     // Given
-    props.error = new Error('Process killed by user');
+    props.error = new DOMException('The operation was aborted', 'AbortError');
     // When
-    processError(props);
+    await processError(props);
     // Then
     calls(addItemMock).toHaveLength(0);
   });
 
-  it('should add general issue if max space used', () => {
+  it('should add general issue if max space used', async () => {
     // Given
     props.error = new Error('Max space used');
     // When
-    processError(props);
+    await processError(props);
     // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Failed to upload file to the bucket. Not enough space' });
     call(addGeneralIssueMock).toMatchObject({ error: 'NOT_ENOUGH_SPACE' });
-    calls(addItemMock).toHaveLength(1);
   });
 
-  it('should return UNKNOWN', () => {
+  it('should retry in case of server unavailable', async () => {
     // Given
-    props.error = new Error('Unknown error');
+    props.error = new Error('Server unavailable');
     // When
-    processError(props);
+    await processError(props);
+    // Then
+    call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
+    call(sleepMock).toStrictEqual(sleepMs);
+    calls(retryFn).toHaveLength(1);
+  });
+
+  it('should handle unknown error', async () => {
+    // Given
+    props.error = 'unknown';
+    // When
+    await processError(props);
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Failed to upload file to the bucket' });
-    calls(addItemMock).toHaveLength(1);
+    call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR' });
   });
 });

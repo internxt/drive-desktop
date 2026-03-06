@@ -1,34 +1,34 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { sleep } from '@/apps/main/util';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type TProps = {
+  ctx: CommonContext;
   path: AbsolutePath;
-  error: Error | null;
+  error: unknown;
+  sleepMs: number;
+  retryFn: () => Promise<ContentsId | undefined>;
 };
 
-export function processError({ path, error }: TProps) {
-  if (error) {
-    if (error.message === 'Process killed by user') return;
+export async function processError({ ctx, path, error, sleepMs, retryFn }: TProps) {
+  if (isAbortError({ error })) return;
 
-    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+  ctx.logger.error({ msg: 'Failed to upload file to the bucket', path, error });
+  LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
-    if (error.message === 'Max space used') {
-      logger.error({
-        msg: 'Failed to upload file to the bucket. Not enough space',
-        path,
-        error,
-      });
+  if (!(error instanceof Error)) return;
 
-      addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
-      return;
-    }
+  if (error.message === 'Server unavailable') {
+    addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
+    await sleep(sleepMs);
+    return retryFn();
+  }
 
-    logger.error({
-      msg: 'Failed to upload file to the bucket',
-      path,
-      error,
-    });
+  if (error.message === 'Max space used') {
+    addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
   }
 }

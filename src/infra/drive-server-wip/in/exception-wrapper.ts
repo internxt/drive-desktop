@@ -43,7 +43,7 @@ export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
 function parseException({ exc }: { exc: unknown }) {
   if (isNetworkConnectivityError({ exc })) {
     return { type: 'network' as const, excMessage: fetchExceptionSchema.safeParse(exc).data };
-  } else if (isAbortError({ exc })) {
+  } else if (isAbortError({ error: exc })) {
     return { type: 'abort' as const, excMessage: 'Aborted' };
   } else if (isBottleneckStop({ error: exc })) {
     return { type: 'bottleneck' as const, excMessage: 'Bottleneck stopped' };

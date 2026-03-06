@@ -6,7 +6,7 @@ type Props = {
   buffer: Buffer;
 };
 
-export function uploadThumbnail({ ctx, buffer }: Props) {
+export async function uploadThumbnail({ ctx, buffer }: Props) {
   const source = new Readable({
     read() {
       this.push(buffer);
@@ -14,15 +14,9 @@ export function uploadThumbnail({ ctx, buffer }: Props) {
     },
   });
 
-  return new Promise<string>((resolve, reject) => {
-    ctx.environment.upload(ctx.bucket, {
-      fileSize: buffer.byteLength,
-      source,
-      progressCallback: () => {},
-      finishedCallback: (err, id) => {
-        if (id) resolve(id);
-        else reject(err);
-      },
-    });
+  return await ctx.environment.upload(ctx.bucket, {
+    fileSize: buffer.byteLength,
+    source,
+    progressCallback: () => {},
   });
 }
