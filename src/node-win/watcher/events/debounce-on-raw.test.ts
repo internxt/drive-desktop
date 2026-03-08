@@ -19,20 +19,20 @@ describe('debounce-on-raw', () => {
     vi.useRealTimers();
   });
 
-  it('should not call it until 2s', () => {
+  it('should not call it until 1s', () => {
     // When
     debounceOnRaw(props);
     // Then
-    vi.advanceTimersByTime(1999);
+    vi.advanceTimersByTime(999);
     expect(onChangeMock).toBeCalledTimes(0);
     expect(timeouts.has(path)).toBe(true);
   });
 
-  it('should call it after 2s', () => {
+  it('should call it after 1s', () => {
     // When
     debounceOnRaw(props);
     // Then
-    vi.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(1000);
     expect(onChangeMock).toBeCalledTimes(1);
     expect(timeouts.size).toBe(0);
   });
@@ -42,7 +42,7 @@ describe('debounce-on-raw', () => {
     debounceOnRaw(props);
     debounceOnRaw(props);
     // Then
-    vi.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(1000);
     expect(onChangeMock).toBeCalledTimes(1);
     expect(timeouts.size).toBe(0);
   });
@@ -53,7 +53,7 @@ describe('debounce-on-raw', () => {
     props.path = abs('anotherPath');
     debounceOnRaw(props);
     // Then
-    vi.advanceTimersByTime(2000);
+    vi.advanceTimersByTime(1000);
     expect(onChangeMock).toBeCalledTimes(2);
     expect(timeouts.size).toBe(0);
   });

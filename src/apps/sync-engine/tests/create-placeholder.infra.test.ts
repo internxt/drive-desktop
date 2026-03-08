@@ -11,10 +11,12 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
 import * as processEvent from '@/node-win/watcher/process-event';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('create-placeholder', () => {
   const processEventSpy = partialSpyOn(processEvent, 'processEvent', false);
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
+  const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
 
   const providerName = 'Internxt Drive';
   const providerId = v4();
@@ -23,6 +25,7 @@ describe('create-placeholder', () => {
 
   beforeEach(async () => {
     createFileMock.mockResolvedValue({ uuid: v4() as FileUuid });
+    getByNameMock.mockResolvedValue({});
 
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
