@@ -1,6 +1,5 @@
 import { fileRepository } from '../drive-file';
 import { logger } from '@/apps/shared/logger/logger';
-import { parseData } from './parse-data';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SqliteError } from '../common/sqlite-error';
 
@@ -11,7 +10,7 @@ type Props = {
 };
 
 export async function createOrUpdateBatch({ files }: Props) {
-  if (files.length === 0) return { data: [] };
+  if (files.length === 0) return;
 
   try {
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
@@ -19,8 +18,6 @@ export async function createOrUpdateBatch({ files }: Props) {
 
       await fileRepository.upsert(chunk, { conflictPaths: ['uuid'] });
     }
-
-    return { data: files.map((data) => parseData({ data })) };
   } catch (error) {
     logger.error({
       msg: 'Error batch creating or updating files',
@@ -28,6 +25,6 @@ export async function createOrUpdateBatch({ files }: Props) {
       error,
     });
 
-    return { error: new SqliteError('UNKNOWN', error) };
+    return new SqliteError('UNKNOWN', error);
   }
 }

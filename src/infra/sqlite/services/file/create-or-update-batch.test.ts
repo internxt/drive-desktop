@@ -1,43 +1,74 @@
 import { fileRepository } from '../drive-file';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdateBatch } from './create-or-update-batch';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-or-update-batch', () => {
-  const upsertMock = partialSpyOn(fileRepository, 'upsert');
-
-  const files = Array.from({ length: 450 }, () => ({}));
-
+  const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdateBatch>[0];
 
-  beforeEach(() => {
-    upsertMock.mockResolvedValue({});
-
-    props = mockProps<typeof createOrUpdateBatch>({ files });
+  beforeAll(async () => {
+    await AppDataSource.initialize();
   });
 
-  it('should return empty if no files', async () => {
+  beforeEach(async () => {
+    await AppDataSource.getRepository(DriveFile).clear();
+
+    props = mockProps<typeof createOrUpdateBatch>({
+      files: Array.from({ length: 450 }).map((_, idx) => ({
+        id: idx,
+        uuid: `uuid${idx}`,
+        status: 'EXISTS',
+        fileId: 'fileId',
+        size: 1024,
+        folderId: 1,
+        folderUuid: 'parentUuid',
+        createdAt: date,
+        updatedAt: date,
+        modificationTime: date,
+      })),
+    });
+  });
+
+  it('should ignore if no files', async () => {
     // Given
     props.files = [];
     // When
-    const { data } = await createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
-    expect(data).toHaveLength(0);
+    expect(error).toBeUndefined();
+    expect(await fileRepository.count()).toBe(0);
+  });
+
+  it('should insert new files', async () => {
+    // When
+    const error = await createOrUpdateBatch(props);
+    // Then
+    expect(error).toBeUndefined();
+    expect(await fileRepository.count()).toBe(450);
+  });
+
+  it('should update existing files', async () => {
+    // Given
+    props.files[1].uuid = 'uuid0';
+    props.files[1].plainName = 'file';
+    // When
+    const error = await createOrUpdateBatch(props);
+    // Then
+    expect(error).toBeUndefined();
+    expect(await fileRepository.count()).toBe(449);
+    expect(await fileRepository.exists({ where: { uuid: 'uuid1' } })).toBe(false);
   });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
-    upsertMock.mockRejectedValue(new Error());
+    props.files = [{} as any];
     // When
-    const { error } = await createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-  });
-
-  it('should return files', async () => {
-    // When
-    const { data } = await createOrUpdateBatch(props);
-    // Then
-    expect(data).toHaveLength(450);
-    calls(upsertMock).toHaveLength(5);
+    call(loggerMock.error).toMatchObject({ error: { message: 'SqliteError: NOT NULL constraint failed: drive_file.id' } });
   });
 });

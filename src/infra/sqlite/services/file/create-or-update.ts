@@ -15,8 +15,7 @@ export async function createOrUpdate({ file }: Props) {
     });
 
     return parseData({ data: file });
-  } catch (exc) {
-    logger.error({ msg: 'Error creating or updating file', file, exc });
-    return;
+  } catch (error) {
+    logger.error({ msg: 'Error creating or updating file', file, error });
   }
 }

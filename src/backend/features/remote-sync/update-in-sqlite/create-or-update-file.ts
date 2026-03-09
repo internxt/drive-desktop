@@ -15,7 +15,7 @@ export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext;
 }
 
 export async function createOrUpdateFiles({ ctx, fileDtos }: { ctx: CommonContext; fileDtos: ParsedFileDto[] }) {
-  return await SqliteModule.FileModule.createOrUpdateBatch({
+  await SqliteModule.FileModule.createOrUpdateBatch({
     files: fileDtos.map((fileDto) => ({
       ...fileDto,
       size: Number(fileDto.size),
