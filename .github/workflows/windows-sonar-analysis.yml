@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
+      - name: Rebuild better-sqlite3
+        run: npm run rebuild:node
+
       - name: Run unit tests
         id: unit-tests
         run: npm run test -- --coverage
