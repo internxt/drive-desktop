@@ -68,6 +68,7 @@ describe('create-or-update-batch', () => {
     const error = await createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ error: { message: 'SqliteError: NOT NULL constraint failed: drive_file.id' } });
+    expect(await fileRepository.count()).toBe(0);
+    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_file.id' } });
   });
 });

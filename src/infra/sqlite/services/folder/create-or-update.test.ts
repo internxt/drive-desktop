@@ -70,6 +70,6 @@ describe('create-or-update', () => {
     // Then
     expect(res).toBeUndefined();
     expect(await folderRepository.count()).toBe(0);
-    call(loggerMock.error).toMatchObject({ error: { message: 'SqliteError: NOT NULL constraint failed: drive_folder.uuid' } });
+    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_folder.uuid' } });
   });
 });
