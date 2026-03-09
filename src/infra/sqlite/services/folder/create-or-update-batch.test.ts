@@ -1,43 +1,70 @@
 import { folderRepository } from '../drive-folder';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdateBatch } from './create-or-update-batch';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-or-update-batch', () => {
-  const upsertMock = partialSpyOn(folderRepository, 'upsert');
-
-  const folders = Array.from({ length: 450 }, () => ({}));
-
+  const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdateBatch>[0];
 
-  beforeEach(() => {
-    upsertMock.mockResolvedValue({});
-
-    props = mockProps<typeof createOrUpdateBatch>({ folders });
+  beforeAll(async () => {
+    await AppDataSource.initialize();
   });
 
-  it('should return empty if no folders', async () => {
+  beforeEach(async () => {
+    await folderRepository.clear();
+
+    props = mockProps<typeof createOrUpdateBatch>({
+      folders: Array.from({ length: 450 }).map((_, idx) => ({
+        id: idx,
+        uuid: `uuid${idx}`,
+        status: 'EXISTS',
+        parentId: 1,
+        parentUuid: 'parentUuid',
+        createdAt: date,
+        updatedAt: date,
+      })),
+    });
+  });
+
+  it('should ignore if no folders', async () => {
     // Given
     props.folders = [];
     // When
-    const { data } = await createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
-    expect(data).toHaveLength(0);
+    expect(error).toBeUndefined();
+    expect(await folderRepository.count()).toBe(0);
+  });
+
+  it('should insert new folders', async () => {
+    // When
+    const error = await createOrUpdateBatch(props);
+    // Then
+    expect(error).toBeUndefined();
+    expect(await folderRepository.count()).toBe(450);
+  });
+
+  it('should update existing folders', async () => {
+    // Given
+    props.folders[1].uuid = 'uuid0';
+    props.folders[1].plainName = 'folder';
+    // When
+    const error = await createOrUpdateBatch(props);
+    // Then
+    expect(error).toBeUndefined();
+    expect(await folderRepository.count()).toBe(449);
+    expect(await folderRepository.exists({ where: { uuid: 'uuid1' } })).toBe(false);
   });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
-    upsertMock.mockRejectedValue(new Error());
+    props.folders = [{} as any];
     // When
-    const { error } = await createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-  });
-
-  it('should return folders', async () => {
-    // When
-    const { data } = await createOrUpdateBatch(props);
-    // Then
-    expect(data).toHaveLength(450);
-    calls(upsertMock).toHaveLength(5);
+    call(loggerMock.error).toMatchObject({ error: { message: 'SqliteError: NOT NULL constraint failed: drive_folder.uuid' } });
   });
 });

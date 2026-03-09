@@ -2,7 +2,6 @@ import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdate } from './create-or-update';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { fileRepository } from '../drive-file';
 
 describe('create-or-update', () => {
@@ -14,7 +13,7 @@ describe('create-or-update', () => {
   });
 
   beforeEach(async () => {
-    await AppDataSource.getRepository(DriveFile).clear();
+    await fileRepository.clear();
 
     props = mockProps<typeof createOrUpdate>({
       file: {

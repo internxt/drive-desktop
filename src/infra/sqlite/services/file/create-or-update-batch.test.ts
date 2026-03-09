@@ -2,7 +2,6 @@ import { fileRepository } from '../drive-file';
 import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdateBatch } from './create-or-update-batch';
 import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-or-update-batch', () => {
@@ -14,7 +13,7 @@ describe('create-or-update-batch', () => {
   });
 
   beforeEach(async () => {
-    await AppDataSource.getRepository(DriveFile).clear();
+    await fileRepository.clear();
 
     props = mockProps<typeof createOrUpdateBatch>({
       files: Array.from({ length: 450 }).map((_, idx) => ({

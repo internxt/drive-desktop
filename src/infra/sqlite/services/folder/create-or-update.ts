@@ -15,8 +15,7 @@ export async function createOrUpdate({ folder }: Props) {
     });
 
     return parseData({ data: folder });
-  } catch (exc) {
-    logger.error({ msg: 'Error creating or updating folder', folder, exc });
-    return;
+  } catch (error) {
+    logger.error({ msg: 'Error creating or updating folder', folder, error });
   }
 }

@@ -1,6 +1,5 @@
 import { folderRepository } from '../drive-folder';
 import { logger } from '@/apps/shared/logger/logger';
-import { parseData } from './parse-data';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SqliteError } from '../common/sqlite-error';
 
@@ -11,7 +10,7 @@ type Props = {
 };
 
 export async function createOrUpdateBatch({ folders }: Props) {
-  if (folders.length === 0) return { data: [] };
+  if (folders.length === 0) return;
 
   try {
     for (let i = 0; i < folders.length; i += BATCH_SIZE) {
@@ -19,8 +18,6 @@ export async function createOrUpdateBatch({ folders }: Props) {
 
       await folderRepository.upsert(chunk, { conflictPaths: ['uuid'] });
     }
-
-    return { data: folders.map((data) => parseData({ data })) };
   } catch (error) {
     logger.error({
       msg: 'Error batch creating or updating folders',
@@ -28,6 +25,6 @@ export async function createOrUpdateBatch({ folders }: Props) {
       error,
     });
 
-    return { error: new SqliteError('UNKNOWN', error) };
+    return new SqliteError('UNKNOWN', error);
   }
 }

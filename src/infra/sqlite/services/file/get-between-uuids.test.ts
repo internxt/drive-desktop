@@ -6,6 +6,24 @@ import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-between-uuids', () => {
   const date = new Date().toISOString();
+  const file: DriveFile = {
+    id: 1,
+    uuid: 'uuid1',
+    status: 'EXISTS',
+    fileId: 'fileId',
+    size: 1024,
+    folderId: 1,
+    folderUuid: 'folderUuid',
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+    modificationTime: date,
+    plainName: 'file',
+    type: '',
+    isDangledStatus: true,
+  };
+
   let props: Parameters<typeof getBetweenUuids>[0];
 
   beforeAll(async () => {
@@ -13,7 +31,7 @@ describe('get-between-uuids', () => {
   });
 
   beforeEach(async () => {
-    await AppDataSource.getRepository(DriveFile).clear();
+    await fileRepository.clear();
 
     props = mockProps<typeof getBetweenUuids>({
       userUuid: 'userUuid',
@@ -32,58 +50,16 @@ describe('get-between-uuids', () => {
 
   it('should return files between uuids', async () => {
     // Given
-    await fileRepository.save([
-      {
-        id: 1,
-        uuid: 'uuid1',
-        status: 'EXISTS',
-        fileId: 'fileId1',
-        size: 1024,
-        folderId: 1,
-        folderUuid: 'folderUuid',
-        userUuid: 'userUuid',
-        workspaceId: 'workspaceId',
-        createdAt: date,
-        updatedAt: date,
-        modificationTime: date,
-      },
-      {
-        id: 2,
-        uuid: 'uuid2',
-        status: 'EXISTS',
-        fileId: 'fileId2',
-        size: 2048,
-        folderId: 1,
-        folderUuid: 'folderUuid',
-        userUuid: 'userUuid',
-        workspaceId: 'workspaceId',
-        createdAt: date,
-        updatedAt: date,
-        modificationTime: date,
-      },
-    ]);
+    await fileRepository.save([file, { ...file, uuid: 'uuid2', id: 2 }]);
     // When
     const { data } = await getBetweenUuids(props);
     // Then
-    expect(data).toHaveLength(2);
+    expect(data).toMatchObject([{ uuid: 'uuid1' }, { uuid: 'uuid2' }]);
   });
 
-  it('should not return files outside the uuid range', async () => {
+  it('should not return files outside the range', async () => {
     // Given
-    await fileRepository.save({
-      id: 1,
-      uuid: 'uuid9',
-      status: 'EXISTS',
-      fileId: 'fileId',
-      size: 1024,
-      folderId: 1,
-      folderUuid: 'folderUuid',
-      userUuid: 'userUuid',
-      workspaceId: 'workspaceId',
-      createdAt: date,
-      updatedAt: date,
-      modificationTime: date,
-    });
+    await fileRepository.save({ ...file, uuid: 'uuid4' });
     // When
     const { data } = await getBetweenUuids(props);
     // Then
@@ -92,20 +68,7 @@ describe('get-between-uuids', () => {
 
   it('should not return files from a different workspace', async () => {
     // Given
-    await fileRepository.save({
-      id: 1,
-      uuid: 'uuid2',
-      status: 'EXISTS',
-      fileId: 'fileId',
-      size: 1024,
-      folderId: 1,
-      folderUuid: 'folderUuid',
-      userUuid: 'userUuid',
-      workspaceId: 'other-workspace',
-      createdAt: date,
-      updatedAt: date,
-      modificationTime: date,
-    });
+    await fileRepository.save({ ...file, workspaceId: 'workspaceId2' });
     // When
     const { data } = await getBetweenUuids(props);
     // Then
@@ -114,20 +77,7 @@ describe('get-between-uuids', () => {
 
   it('should not return files with non-EXISTS status', async () => {
     // Given
-    await fileRepository.save({
-      id: 1,
-      uuid: 'uuid2',
-      status: 'TRASHED',
-      fileId: 'fileId',
-      size: 1024,
-      folderId: 1,
-      folderUuid: 'folderUuid',
-      userUuid: 'userUuid',
-      workspaceId: 'workspaceId',
-      createdAt: date,
-      updatedAt: date,
-      modificationTime: date,
-    });
+    await fileRepository.save({ ...file, status: 'TRASHED' });
     // When
     const { data } = await getBetweenUuids(props);
     // Then

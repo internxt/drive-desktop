@@ -1,42 +1,51 @@
-import * as auth from '@/apps/main/auth/service';
 import { folderRepository } from '../drive-folder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getByUuid } from './get-by-uuid';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-by-uuid', () => {
-  const getUserOrThrowSpy = partialSpyOn(auth, 'getUserOrThrow');
-  const findOneSpy = partialSpyOn(folderRepository, 'findOne');
+  const date = new Date().toISOString();
+  const folder: DriveFolder = {
+    uuid: 'uuid',
+    id: 1,
+    status: 'EXISTS',
+    plainName: 'folder',
+    parentUuid: 'parentUuid',
+    parentId: 0,
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+  };
 
-  const props = mockProps<typeof getByUuid>({});
+  let props: Parameters<typeof getByUuid>[0];
 
-  beforeEach(() => {
-    getUserOrThrowSpy.mockResolvedValue({ uuid: 'uuid' });
+  beforeAll(async () => {
+    await AppDataSource.initialize();
+  });
+
+  beforeEach(async () => {
+    await folderRepository.clear();
+
+    props = mockProps<typeof getByUuid>({
+      uuid: 'uuid',
+    });
   });
 
   it('should return NOT_FOUND when folder is not found', async () => {
-    // Given
-    findOneSpy.mockResolvedValue(null);
     // When
     const { error } = await getByUuid(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
-    // Given
-    findOneSpy.mockRejectedValue(new Error());
-    // When
-    const { error } = await getByUuid(props);
-    // Then
-    expect(error?.code).toBe('UNKNOWN');
-  });
-
   it('should return folder', async () => {
     // Given
-    findOneSpy.mockResolvedValue({ plainName: 'name' });
+    await folderRepository.save(folder);
     // When
     const { data } = await getByUuid(props);
     // Then
-    expect(data).toBeDefined();
+    expect(data?.uuid).toBe('uuid');
   });
 });

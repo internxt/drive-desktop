@@ -42,7 +42,7 @@ export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
     hasMore = folderDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    const { error: error2 } = await createOrUpdateFolders({ ctx, folderDtos });
+    const error2 = await createOrUpdateFolders({ ctx, folderDtos });
 
     if (error2) return;
 
