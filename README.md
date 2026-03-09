@@ -62,3 +62,12 @@ Start the application:
 ```bash
 npm run start
 ```
+
+### Tests
+
+To be able to run tests we need to rebuild the `better-sqlite3` to our node version since `@electron/rebuild` builds it to the electron node version.
+
+```bash
+npm run rebuild:node
+npm run test
+```
