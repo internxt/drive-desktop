@@ -1,43 +1,86 @@
 import { fileRepository } from '../drive-file';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getBetweenUuids } from './get-between-uuids';
-import { Between } from 'typeorm';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-between-uuids', () => {
-  const findMock = partialSpyOn(fileRepository, 'find');
-
-  const props = mockProps<typeof getBetweenUuids>({
+  const date = new Date().toISOString();
+  const file: DriveFile = {
+    id: 1,
+    uuid: 'uuid1',
+    status: 'EXISTS',
+    fileId: 'fileId',
+    size: 1024,
+    folderId: 1,
+    folderUuid: 'folderUuid',
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',
-    firstUuid: 'uuid1' as FileUuid,
-    lastUuid: 'uuid2' as FileUuid,
+    createdAt: date,
+    updatedAt: date,
+    modificationTime: date,
+    plainName: 'file',
+    type: '',
+    isDangledStatus: true,
+  };
+
+  let props: Parameters<typeof getBetweenUuids>[0];
+
+  beforeAll(async () => {
+    await AppDataSource.initialize();
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
-    // Given
-    findMock.mockRejectedValue(new Error());
-    // When
-    const { error } = await getBetweenUuids(props);
-    // Then
-    expect(error?.code).toBe('UNKNOWN');
+  beforeEach(async () => {
+    await fileRepository.clear();
+
+    props = mockProps<typeof getBetweenUuids>({
+      userUuid: 'userUuid',
+      workspaceId: 'workspaceId',
+      firstUuid: 'uuid1' as FileUuid,
+      lastUuid: 'uuid3' as FileUuid,
+    });
   });
 
-  it('should return files', async () => {
-    // Given
-    findMock.mockResolvedValue([]);
+  it('should return empty array when no files exist', async () => {
     // When
     const { data } = await getBetweenUuids(props);
     // Then
-    expect(data).toBeDefined();
-    call(findMock).toMatchObject({
-      order: { uuid: 'ASC' },
-      where: {
-        userUuid: 'userUuid',
-        workspaceId: 'workspaceId',
-        status: 'EXISTS',
-        uuid: Between('uuid1', 'uuid2'),
-      },
-    });
+    expect(data).toStrictEqual([]);
+  });
+
+  it('should return files between uuids', async () => {
+    // Given
+    await fileRepository.save([file, { ...file, uuid: 'uuid2', id: 2 }]);
+    // When
+    const { data } = await getBetweenUuids(props);
+    // Then
+    expect(data).toMatchObject([{ uuid: 'uuid1' }, { uuid: 'uuid2' }]);
+  });
+
+  it('should not return files outside the range', async () => {
+    // Given
+    await fileRepository.save({ ...file, uuid: 'uuid4' });
+    // When
+    const { data } = await getBetweenUuids(props);
+    // Then
+    expect(data).toStrictEqual([]);
+  });
+
+  it('should not return files from a different workspace', async () => {
+    // Given
+    await fileRepository.save({ ...file, workspaceId: 'workspaceId2' });
+    // When
+    const { data } = await getBetweenUuids(props);
+    // Then
+    expect(data).toStrictEqual([]);
+  });
+
+  it('should not return files with non-EXISTS status', async () => {
+    // Given
+    await fileRepository.save({ ...file, status: 'TRASHED' });
+    // When
+    const { data } = await getBetweenUuids(props);
+    // Then
+    expect(data).toStrictEqual([]);
   });
 });

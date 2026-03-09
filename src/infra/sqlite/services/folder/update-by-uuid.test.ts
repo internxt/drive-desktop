@@ -1,36 +1,53 @@
 import { folderRepository } from '../drive-folder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { updateByUuid } from './update-by-uuid';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('update-by-uuid', () => {
-  const updateSpy = partialSpyOn(folderRepository, 'update');
+  const date = new Date().toISOString();
+  const folder: DriveFolder = {
+    uuid: 'uuid',
+    id: 1,
+    status: 'EXISTS',
+    plainName: 'folder',
+    parentUuid: 'parentUuid',
+    parentId: 0,
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+  };
 
-  const props = mockProps<typeof updateByUuid>({ payload: {} });
+  let props: Parameters<typeof updateByUuid>[0];
+
+  beforeAll(async () => {
+    await AppDataSource.initialize();
+  });
+
+  beforeEach(async () => {
+    await folderRepository.clear();
+
+    props = mockProps<typeof updateByUuid>({
+      uuid: 'uuid' as FolderUuid,
+      payload: { status: 'TRASHED' },
+    });
+  });
 
   it('should return NOT_FOUND when no folder has been affected', async () => {
-    // Given
-    updateSpy.mockResolvedValue({ affected: 0 });
     // When
     const { error } = await updateByUuid(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should update folder status and return affected count', async () => {
     // Given
-    updateSpy.mockRejectedValue(new Error());
-    // When
-    const { error } = await updateByUuid(props);
-    // Then
-    expect(error?.code).toBe('UNKNOWN');
-  });
-
-  it('should return the number of folders affected', async () => {
-    // Given
-    updateSpy.mockResolvedValue({ affected: 1 });
+    await folderRepository.save(folder);
     // When
     const { data } = await updateByUuid(props);
     // Then
-    expect(data).toBeDefined();
+    expect(data).toBe(1);
+    expect(await folderRepository.exists({ where: { uuid: 'uuid', status: 'TRASHED' } })).toBe(true);
   });
 });

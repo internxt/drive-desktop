@@ -1,42 +1,61 @@
 import { folderRepository } from '../drive-folder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getByName } from './get-by-name';
+import { AppDataSource } from '@/apps/main/database/data-source';
+import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-by-name', () => {
-  const findOneSpy = partialSpyOn(folderRepository, 'findOne');
+  const date = new Date().toISOString();
+  const folder: DriveFolder = {
+    uuid: 'uuid',
+    id: 1,
+    status: 'EXISTS',
+    plainName: 'folder',
+    parentUuid: 'parentUuid',
+    parentId: 0,
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+  };
 
-  const props = mockProps<typeof getByName>({ plainName: 'folder' });
+  let props: Parameters<typeof getByName>[0];
+
+  beforeAll(async () => {
+    await AppDataSource.initialize();
+  });
+
+  beforeEach(async () => {
+    await folderRepository.clear();
+
+    props = mockProps<typeof getByName>({
+      parentUuid: 'parentUuid' as FolderUuid,
+      plainName: 'folder',
+    });
+  });
 
   it('should return NOT_FOUND when folder is not found', async () => {
-    // Given
-    findOneSpy.mockResolvedValue(null);
     // When
     const { error } = await getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
-    // Given
-    findOneSpy.mockRejectedValue(new Error());
-    // When
-    const { error } = await getByName(props);
-    // Then
-    expect(error?.code).toBe('UNKNOWN');
-  });
-
   it('should return folder', async () => {
     // Given
-    findOneSpy.mockResolvedValue({ plainName: 'name' });
+    await folderRepository.save(folder);
     // When
     const { data } = await getByName(props);
     // Then
-    expect(data).toBeDefined();
-    expect(findOneSpy).toBeCalledWith({
-      where: expect.objectContaining({
-        plainName: 'folder',
-        status: 'EXISTS',
-      }),
-    });
+    expect(data?.uuid).toBe('uuid');
+  });
+
+  it('should return NOT_FOUND when folder status is not EXISTS', async () => {
+    // Given
+    await folderRepository.save({ ...folder, status: 'TRASHED' });
+    // When
+    const { error } = await getByName(props);
+    // Then
+    expect(error?.code).toBe('NOT_FOUND');
   });
 });

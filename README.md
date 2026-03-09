@@ -2,7 +2,7 @@
 
 ## Windows
 
-[![node](https://img.shields.io/badge/node-22-iron)](https://nodejs.org/download/release/latest-iron/) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=bugs)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
+[![node](https://img.shields.io/badge/node-24-iron)](https://nodejs.org/download/release/latest-iron/) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=bugs)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
 
 ## Addon
 
@@ -24,11 +24,11 @@ Make sure you have the following tools installed before running the project:
 
 - [**Python 3.10**](https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)
 
-- **Node.js 22**
+- **Node.js 24**
 
 ```bash
-nvm install 22
-nvm use 22
+nvm install 24
+nvm use 24
 ```
 
 - **node-gyp**

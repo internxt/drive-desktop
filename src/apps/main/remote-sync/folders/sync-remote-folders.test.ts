@@ -13,7 +13,7 @@ describe('sync-remote-folders', () => {
 
   beforeEach(() => {
     getFoldersMock.mockResolvedValue({ data: [] });
-    createOrUpdateFoldersMock.mockResolvedValue({ data: [] });
+    createOrUpdateFoldersMock.mockResolvedValue(undefined);
   });
 
   it('should not fetch again if we fetch less than 1000 folders', async () => {
@@ -61,7 +61,7 @@ describe('sync-remote-folders', () => {
 
   it('should not update checkpoint if save to database fails', async () => {
     // Given
-    createOrUpdateFoldersMock.mockResolvedValue({ error: new Error() });
+    createOrUpdateFoldersMock.mockResolvedValue(new Error());
     // When
     await syncRemoteFolders({ ctx });
     // Then
