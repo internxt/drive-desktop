@@ -42,7 +42,7 @@ export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
     hasMore = fileDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    const { error: error2 } = await createOrUpdateFiles({ ctx, fileDtos });
+    const error2 = await createOrUpdateFiles({ ctx, fileDtos });
 
     if (error2) return;
 
