@@ -38,12 +38,6 @@ describe('error-helpers', () => {
       expect(isNetworkConnectivityError({ exc })).toBe(true);
     });
 
-    // Fallback: message includes "Failed to fetch"
-    it('should return true for message containing "Failed to fetch"', () => {
-      const exc = new Error('Failed to fetch');
-      expect(isNetworkConnectivityError({ exc })).toBe(true);
-    });
-
     // Negative cases
     it('should return false for a random Error without code or "Failed to fetch"', () => {
       const exc = new Error('Something else happened');

@@ -54,10 +54,10 @@ export async function createWidget() {
    * When using the `transparent` property in BrowserWindow, it sometimes flickers.
    * https://github.com/electron/electron/issues/12130
    */
-  widget.on('hide', () => widget.setOpacity(0));
-  widget.on('show', () => {
-    setTimeout(() => widget.setOpacity(1), 200);
-  });
+  // widget.on('hide', () => widget.setOpacity(0));
+  // widget.on('show', () => {
+  //   setTimeout(() => widget.setOpacity(1), 200);
+  // });
 
   await widget.loadURL(resolveHtmlPath(''));
 }
