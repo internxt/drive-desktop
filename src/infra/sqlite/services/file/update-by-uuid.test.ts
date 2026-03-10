@@ -36,6 +36,7 @@ describe('update-by-uuid', () => {
 
     props = mockProps<typeof updateByUuid>({
       uuid: 'uuid' as FileUuid,
+      payload: { status: 'EXISTS' },
     });
   });
 

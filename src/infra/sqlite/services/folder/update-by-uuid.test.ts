@@ -31,6 +31,7 @@ describe('update-by-uuid', () => {
 
     props = mockProps<typeof updateByUuid>({
       uuid: 'uuid' as FolderUuid,
+      payload: { status: 'EXISTS' },
     });
   });
 
