@@ -36,6 +36,12 @@ import { resolve } from 'node:path';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { measureHealth } from '@/core/utils/measure-health';
+import { applyMocks } from '@/tests/e2e/helpers/mocks.helper';
+
+if (process.env.PLAYWRIGHT_TEST === 'true') {
+  logger.debug({ msg: 'Applying mocks for playwright tests' });
+  applyMocks();
+}
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
