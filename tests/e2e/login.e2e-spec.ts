@@ -79,8 +79,8 @@ describe('Login', () => {
     await page.goto(loginUrl);
 
     // Fill in email and password using credentials from env at drive-web SSO flow
-    await page.fill('input[type="email"]', process.env.TEST_USER!);
-    await page.fill('input[type="password"]', process.env.TEST_PASSWORD!);
+    await page.fill('input[type="email"]', process.env.E2E_TEST_USER!);
+    await page.fill('input[type="password"]', process.env.E2E_TEST_PASSWORD!);
 
     const ssoLoginButton = page.getByRole('button', { name: 'Log in' });
     await pwExpect(ssoLoginButton).toBeVisible({ timeout: 50_000 });
