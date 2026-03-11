@@ -18,7 +18,7 @@ import electronStore from '../config';
 import { Marketing } from '@/backend/features';
 import { User } from '../types';
 
-let user: User | null;
+let user: User | null = null;
 
 export function setIsLoggedIn(value: User | null) {
   user = value;
