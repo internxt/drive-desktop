@@ -22,7 +22,6 @@ describe('get-between-uuids', () => {
     modificationTime: date,
     plainName: 'file',
     type: '',
-    isDangledStatus: true,
   };
 
   let props: Parameters<typeof getBetweenUuids>[0];

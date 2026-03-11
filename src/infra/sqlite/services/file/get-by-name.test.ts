@@ -23,7 +23,6 @@ describe('get-by-name', () => {
     modificationTime: date,
     plainName: 'file',
     type: 'txt',
-    isDangledStatus: false,
   };
 
   let props: Parameters<typeof getByName>[0];
