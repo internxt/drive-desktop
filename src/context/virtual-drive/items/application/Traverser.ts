@@ -6,7 +6,6 @@ import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-expl
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
-import { checkDangledFiles } from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
 type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
 type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
@@ -33,9 +32,6 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
       await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
     } else {
       await FilePlaceholderUpdater.update({ ctx, remote, files: fileExplorer.files, isFirstExecution });
-      if (isFirstExecution) {
-        void checkDangledFiles({ ctx, file: remote });
-      }
     }
   });
 

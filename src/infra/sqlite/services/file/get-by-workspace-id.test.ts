@@ -22,7 +22,6 @@ describe('get-by-workspace-id', () => {
     modificationTime: date,
     plainName: 'file',
     type: '',
-    isDangledStatus: true,
   };
 
   let props: Parameters<typeof getByWorkspaceId>[0];

@@ -22,7 +22,6 @@ describe('update-by-uuid', () => {
     modificationTime: date,
     plainName: 'file',
     type: '',
-    isDangledStatus: true,
   };
 
   let props: Parameters<typeof updateByUuid>[0];
@@ -56,17 +55,6 @@ describe('update-by-uuid', () => {
     // Then
     expect(data).toBe(1);
     expect(await fileRepository.exists({ where: { uuid: 'uuid', status: 'TRASHED' } })).toBe(true);
-  });
-
-  it('should update isDangledStatus', async () => {
-    // Given
-    await fileRepository.save(file);
-    props.payload = { isDangledStatus: false };
-    // When
-    const { data } = await updateByUuid(props);
-    // Then
-    expect(data).toBe(1);
-    expect(await fileRepository.exists({ where: { uuid: 'uuid', isDangledStatus: false } })).toBe(true);
   });
 
   it('should return UNKNOWN when error is thrown', async () => {

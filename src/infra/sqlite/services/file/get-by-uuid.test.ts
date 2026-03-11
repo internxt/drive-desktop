@@ -22,7 +22,6 @@ describe('get-by-uuid', () => {
     modificationTime: date,
     plainName: 'file',
     type: 'txt',
-    isDangledStatus: false,
   };
 
   let props: Parameters<typeof getByUuid>[0];
