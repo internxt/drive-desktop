@@ -43,11 +43,7 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
     });
 
     const syncCtx: SyncContext = {
-      user: ctx.user,
-      abortController: ctx.abortController,
-      driveApiBottleneck: ctx.driveApiBottleneck,
-      uploadBottleneck: ctx.uploadBottleneck,
-      client: ctx.client,
+      ...ctx,
       mnemonic,
       status: 'IDLE',
       providerId: workspace.providerId,

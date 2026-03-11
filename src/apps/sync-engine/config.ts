@@ -10,6 +10,7 @@ import { User } from '../main/types';
 
 export type AuthContext = {
   readonly user: User;
+  readonly userUuid: string;
   readonly abortController: AbortController;
   readonly driveApiBottleneck: Bottleneck;
   readonly uploadBottleneck: Bottleneck;

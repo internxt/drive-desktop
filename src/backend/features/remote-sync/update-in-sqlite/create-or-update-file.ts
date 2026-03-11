@@ -7,7 +7,7 @@ export async function createOrUpdateFile({ ctx, fileDto }: { ctx: CommonContext;
     file: {
       ...fileDto,
       size: Number(fileDto.size),
-      userUuid: ctx.user.uuid,
+      userUuid: ctx.userUuid,
       workspaceId: ctx.workspaceId,
     },
   });
@@ -18,7 +18,7 @@ export async function createOrUpdateFiles({ ctx, fileDtos }: { ctx: CommonContex
     files: fileDtos.map((fileDto) => ({
       ...fileDto,
       size: Number(fileDto.size),
-      userUuid: ctx.user.uuid,
+      userUuid: ctx.userUuid,
       workspaceId: ctx.workspaceId,
     })),
   });

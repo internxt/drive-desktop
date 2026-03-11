@@ -40,8 +40,8 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
 
 async function getDatabaseItems({ ctx }: { ctx: SyncContext }) {
   const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-    SqliteModule.FileModule.getByWorkspaceId({ userUuid: ctx.user.uuid, workspaceId: ctx.workspaceId }),
-    SqliteModule.FolderModule.getByWorkspaceId({ userUuid: ctx.user.uuid, workspaceId: ctx.workspaceId }),
+    SqliteModule.FileModule.getByWorkspaceId({ userUuid: ctx.userUuid, workspaceId: ctx.workspaceId }),
+    SqliteModule.FolderModule.getByWorkspaceId({ userUuid: ctx.userUuid, workspaceId: ctx.workspaceId }),
   ]);
 
   return { files, folders };

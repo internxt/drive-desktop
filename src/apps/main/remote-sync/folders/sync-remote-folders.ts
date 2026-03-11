@@ -49,7 +49,7 @@ export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
     const lastFolder = folderDtos.at(-1);
     if (lastFolder) {
       await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: ctx.user.uuid,
+        userUuid: ctx.userUuid,
         workspaceId: ctx.workspaceId,
         type: 'folder',
         name: lastFolder.plainName,

@@ -75,6 +75,7 @@ export async function emitUserLoggedIn(user: User) {
 
   const ctx: AuthContext = {
     user,
+    userUuid: user.uuid,
     abortController,
     driveApiBottleneck,
     uploadBottleneck,

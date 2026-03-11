@@ -49,7 +49,7 @@ export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
     const lastFile = fileDtos.at(-1);
     if (lastFile) {
       await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: ctx.user.uuid,
+        userUuid: ctx.userUuid,
         workspaceId: ctx.workspaceId,
         type: 'file',
         name: lastFile.plainName,
