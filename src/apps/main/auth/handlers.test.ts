@@ -7,6 +7,10 @@ describe('handlers', () => {
   const getUserMock = partialSpyOn(getUser, 'getUser');
   const getMillisecondsToRenewMock = partialSpyOn(TokenScheduler, 'getMillisecondsToRenew');
 
+  beforeEach(() => {
+    getUserMock.mockReturnValue({ uuid: 'uuid' });
+  });
+
   describe('checkUserIsLoggedIn', () => {
     it('should return false if user does not exist', () => {
       // Given
@@ -14,7 +18,7 @@ describe('handlers', () => {
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
     it('should return false if token is expired', () => {
@@ -23,7 +27,7 @@ describe('handlers', () => {
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
     it('should return false if cannot get token', () => {
@@ -32,7 +36,7 @@ describe('handlers', () => {
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
     it('should return true if token is not expired', () => {
@@ -41,7 +45,7 @@ describe('handlers', () => {
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(true);
+      expect(res).toStrictEqual({ uuid: 'uuid' });
     });
   });
 });
