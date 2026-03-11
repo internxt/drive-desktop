@@ -1,0 +1,33 @@
+name: Windows E2E testing
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm run init:ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install
+
+      - name: Build Electron app
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test:e2e
