@@ -1,5 +1,6 @@
 import { folderRepository } from '../drive-folder';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { getBetweenUuids } from './get-between-uuids';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -77,5 +78,15 @@ describe('get-between-uuids', () => {
     const { data } = await getBetweenUuids(props);
     // Then
     expect(data).toStrictEqual([]);
+  });
+
+  it('should return UNKNOWN when error is thrown', async () => {
+    // Given
+    props.userUuid = (() => null) as any;
+    // When
+    const { error } = await getBetweenUuids(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ error: { message: expect.stringContaining('Function parameter') } });
   });
 });

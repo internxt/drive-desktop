@@ -12,16 +12,16 @@ type TProps = {
 
 export function errorWrapper({ loggerBody, error, response, retry }: TProps) {
   const isKnownError = isServerError({ response });
-  const exc = isKnownError ? 'Server error' : error;
 
   const loggedError = logger.error({
     ...loggerBody,
     msg: `${loggerBody.msg} was not successful`,
     retry,
-    exc,
+    error,
     response: {
       status: response.status,
       statusText: response.statusText,
+      xRequestId: response.headers.get('x-request-id'),
     },
   });
 

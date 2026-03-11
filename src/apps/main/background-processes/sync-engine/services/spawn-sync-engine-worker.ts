@@ -13,7 +13,7 @@ type TProps = {
 };
 
 export async function spawnSyncEngineWorker({ ctx }: TProps) {
-  ctx.logger.debug({ msg: 'Spawn sync engine worker' });
+  ctx.logger.debug({ msg: 'Spawn sync engine worker', rootUuid: ctx.rootUuid });
 
   try {
     const connectionKey = await loadVirtualDrive({ ctx });

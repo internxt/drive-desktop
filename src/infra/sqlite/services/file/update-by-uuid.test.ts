@@ -1,5 +1,6 @@
 import { fileRepository } from '../drive-file';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { updateByUuid } from './update-by-uuid';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -21,7 +22,6 @@ describe('update-by-uuid', () => {
     modificationTime: date,
     plainName: 'file',
     type: '',
-    isDangledStatus: true,
   };
 
   let props: Parameters<typeof updateByUuid>[0];
@@ -35,7 +35,7 @@ describe('update-by-uuid', () => {
 
     props = mockProps<typeof updateByUuid>({
       uuid: 'uuid' as FileUuid,
-      payload: { status: 'TRASHED' },
+      payload: { status: 'EXISTS' },
     });
   });
 
@@ -49,6 +49,7 @@ describe('update-by-uuid', () => {
   it('should update file status and return affected count', async () => {
     // Given
     await fileRepository.save(file);
+    props.payload = { status: 'TRASHED' };
     // When
     const { data } = await updateByUuid(props);
     // Then
@@ -56,14 +57,14 @@ describe('update-by-uuid', () => {
     expect(await fileRepository.exists({ where: { uuid: 'uuid', status: 'TRASHED' } })).toBe(true);
   });
 
-  it('should update isDangledStatus', async () => {
+  it('should return UNKNOWN when error is thrown', async () => {
     // Given
     await fileRepository.save(file);
-    props.payload = { isDangledStatus: false };
+    props.payload = { status: null as any };
     // When
-    const { data } = await updateByUuid(props);
+    const { error } = await updateByUuid(props);
     // Then
-    expect(data).toBe(1);
-    expect(await fileRepository.exists({ where: { uuid: 'uuid', isDangledStatus: false } })).toBe(true);
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: 'NOT NULL constraint failed: drive_file.status' } });
   });
 });
