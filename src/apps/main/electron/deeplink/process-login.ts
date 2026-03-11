@@ -1,5 +1,5 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/service';
+import { restoreSavedConfig, updateCredentials } from '../../auth/service';
 import { emitUserLoggedIn } from '../../auth/handlers';
 import { validateMnemonic } from 'bip39';
 import { User } from '../../types';
