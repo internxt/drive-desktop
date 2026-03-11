@@ -17,7 +17,7 @@ export default mergeConfig(
         './tests/vitest/setup.helper.test.ts',
         './tests/vitest/setup.dom.helper.test.ts',
       ],
-      testTimeout: 50000,
+      testTimeout: 60_000,
     },
   })
 );

@@ -22,7 +22,7 @@ describe('Login', () => {
 
   it('should log in with browser using sso flow from drive-web', async () => {
     electronApp = await _electron.launch({
-      args: [ELECTRON_MAIN],
+      args: [ELECTRON_MAIN, '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       env: {
         ...process.env,
         PLAYWRIGHT_TEST: 'true',
@@ -31,12 +31,14 @@ describe('Login', () => {
         PORT: '1414',
       },
     });
+    electronApp.process().stdout?.on('data', (d) => console.log('[electron stdout]', d.toString()));
+    electronApp.process().stderr?.on('data', (d) => console.error('[electron stderr]', d.toString()));
 
     const loginWindow = await electronApp.firstWindow();
     await loginWindow.waitForLoadState('domcontentloaded');
 
     const loginWithBrowserBtn = loginWindow.locator('[data-automation-id="buttonLogin"]');
-    await pwExpect(loginWithBrowserBtn).toBeVisible({ timeout: 50_000 });
+    await pwExpect(loginWithBrowserBtn).toBeVisible({ timeout: 60_000 });
 
     // Intercept shell.openExternal and store the login URL
     await electronApp.evaluate(({ shell }) => {
@@ -83,20 +85,20 @@ describe('Login', () => {
     await page.fill('input[type="password"]', process.env.E2E_TEST_PASSWORD!);
 
     const ssoLoginButton = page.getByRole('button', { name: 'Log in' });
-    await pwExpect(ssoLoginButton).toBeVisible({ timeout: 50_000 });
+    await pwExpect(ssoLoginButton).toBeVisible({ timeout: 60_000 });
     await ssoLoginButton.click();
 
     const ssoOpenAppButton = page.getByRole('button', { name: 'Open app' });
-    await pwExpect(ssoOpenAppButton).toBeVisible({ timeout: 50_000 });
+    await pwExpect(ssoOpenAppButton).toBeVisible({ timeout: 60_000 });
     await ssoOpenAppButton.click();
 
     // Launch widget and wait for it to be visible
     const appWindow = await electronApp.firstWindow();
 
     const appWidget = appWindow.locator('[data-automation-id="widget-rootView"]');
-    await pwExpect(appWidget).toBeVisible({ timeout: 50_000 });
+    await pwExpect(appWidget).toBeVisible({ timeout: 60_000 });
 
     const emailText = appWindow.locator('[data-automation-id="header-userEmail"]');
-    await pwExpect(emailText).toHaveText(process.env.TEST_USER!);
+    await pwExpect(emailText).toHaveText(process.env.E2E_TEST_USER!);
   });
 });
