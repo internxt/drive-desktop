@@ -13,6 +13,7 @@ export default mergeConfig(
       environment: 'jsdom',
       include: ['tests/e2e/**/*.e2e-spec.ts'],
       setupFiles: [
+        'dotenv/config',
         './tests/vitest/setup.helper.test.ts',
         './tests/vitest/setup.dom.helper.test.ts',
       ],
