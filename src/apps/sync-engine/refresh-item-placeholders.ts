@@ -11,10 +11,21 @@ type Props = {
 
 export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
   try {
-    ctx.logger.debug({ msg: 'Refresh item placeholders', isFirstExecution });
-
     const time = await measurePerfomance(async () => {
       const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
+
+      ctx.logger.debug({
+        msg: 'Refresh item placeholders',
+        isFirstExecution,
+        database: {
+          files: database.files.length,
+          folders: database.folders.length,
+        },
+        fileExplorer: {
+          files: fileExplorer.files.size,
+          folders: fileExplorer.folders.size,
+        },
+      });
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
 

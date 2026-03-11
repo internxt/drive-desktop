@@ -1,8 +1,9 @@
 import { fileRepository } from '../drive-file';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { getByUuid } from './get-by-uuid';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('get-by-uuid', () => {
   const date = new Date().toISOString();
@@ -52,5 +53,15 @@ describe('get-by-uuid', () => {
     const { data } = await getByUuid(props);
     // Then
     expect(data?.uuid).toBe('uuid');
+  });
+
+  it('should return UNKNOWN when error is thrown', async () => {
+    // Given
+    props.uuid = (() => null) as any;
+    // When
+    const { error } = await getByUuid(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
   });
 });
