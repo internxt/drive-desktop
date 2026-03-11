@@ -16,17 +16,18 @@ import Bottleneck from 'bottleneck';
 import { openOnboardingWindow } from '../windows/onboarding';
 import electronStore from '../config';
 import { Marketing } from '@/backend/features';
+import { User } from '../types';
 
-let isLoggedIn: boolean | null = null;
+let user: User | null;
 
-export function setIsLoggedIn(value: boolean | null) {
-  isLoggedIn = value;
+export function setIsLoggedIn(value: User | null) {
+  user = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
 export function isUserLoggedIn() {
-  return isLoggedIn;
+  return user;
 }
 
 export function onUserUnauthorized() {
@@ -39,35 +40,29 @@ export function checkIfUserIsLoggedIn() {
 
   if (!user) {
     logger.debug({ tag: 'AUTH', msg: 'User not logged in' });
-    return false;
-  }
-
-  if (user.needLogout === undefined) {
-    logger.debug({ tag: 'AUTH', msg: 'User needs logout' });
-    return false;
+    return;
   }
 
   const msToRenew = TokenScheduler.getMillisecondsToRenew();
   if (msToRenew === null || msToRenew <= 0) {
     logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
-    return false;
+    return;
   }
 
-  return true;
+  return user;
 }
 
 export function setupAuthIpcHandlers() {
-  ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
     logger.debug({ msg: 'Manual logout' });
     eventBus.emit('USER_LOGGED_OUT');
   });
 }
 
-export async function emitUserLoggedIn() {
+export async function emitUserLoggedIn(user: User) {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
-  setIsLoggedIn(true);
+  setIsLoggedIn(user);
   showFrontend();
 
   TokenScheduler.schedule();
@@ -79,6 +74,7 @@ export async function emitUserLoggedIn() {
   const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
 
   const ctx: AuthContext = {
+    user,
     abortController,
     driveApiBottleneck,
     uploadBottleneck,

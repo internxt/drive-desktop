@@ -8,22 +8,9 @@ describe('handlers', () => {
   const getMillisecondsToRenewMock = partialSpyOn(TokenScheduler, 'getMillisecondsToRenew');
 
   describe('checkUserIsLoggedIn', () => {
-    beforeEach(() => {
-      getUserMock.mockReturnValue({ needLogout: false });
-    });
-
     it('should return false if user does not exist', () => {
       // Given
       getUserMock.mockReturnValue(null);
-      // When
-      const res = checkIfUserIsLoggedIn();
-      // Then
-      expect(res).toBe(false);
-    });
-
-    it('should return false if user needs logout', () => {
-      // Given
-      getUserMock.mockReturnValue({ needLogout: undefined });
       // When
       const res = checkIfUserIsLoggedIn();
       // Then

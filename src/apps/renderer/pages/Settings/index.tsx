@@ -19,12 +19,14 @@ import { sectionConfig } from './cleaner/cleaner.config';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import { useI18n } from '../../localize/use-i18n';
 import { Section, useSettingsStore } from './settings-store';
+import { User } from '@/apps/main/types';
 
 type Props = {
+  user: User;
   activeSection: Section;
 };
 
-export default function Settings({ activeSection }: Props) {
+export default function Settings({ user, activeSection }: Props) {
   const { setActiveSection } = useSettingsStore();
   const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
   const { data: availableProducts, isLoading: isAvailableProductsLoading } = useGetAvailableProducts();
@@ -52,7 +54,7 @@ export default function Settings({ activeSection }: Props) {
                   <Header active={activeSection} onClick={setActiveSection} />
                   <div className="flex flex-grow flex-col justify-center p-5">
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
-                    <AccountSection active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
+                    <AccountSection user={user} active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection
                       active={activeSection === 'BACKUPS'}
                       isAvailable={Boolean(availableProducts?.backups)}

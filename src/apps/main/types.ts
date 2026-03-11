@@ -15,7 +15,6 @@ export type User = {
   bridgeUser: string;
   userId: string;
   rootFolderId: string;
-  needLogout?: boolean;
   privateKey: string;
   mnemonic: string;
 };

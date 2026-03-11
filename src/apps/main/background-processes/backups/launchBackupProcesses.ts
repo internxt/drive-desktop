@@ -4,7 +4,6 @@ import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { getAvailableProducts } from '../../payments/get-available-products';
-import { getUser } from '../../auth/service';
 import { buildBackupsEnvironment } from './build-environment';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import electronStore from '../../config';
@@ -19,9 +18,6 @@ type Props = {
 };
 
 export async function launchBackupProcesses({ ctx }: Props) {
-  const user = getUser();
-  if (!user) return;
-
   if (tracker.status !== 'STANDBY') {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
     return;
@@ -72,14 +68,14 @@ export async function launchBackupProcesses({ ctx }: Props) {
       break;
     }
 
-    const { environment } = buildBackupsEnvironment({ user, device });
+    const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
       ...backupInfo,
+      user: ctx.user,
       driveApiBottleneck: ctx.driveApiBottleneck,
       uploadBottleneck: ctx.uploadBottleneck,
       backupsBottleneck: bottleneck,
       client: ctx.client,
-      userUuid: user.uuid,
       bucket: device.bucket,
       workspaceId: '',
       workspaceToken: '',

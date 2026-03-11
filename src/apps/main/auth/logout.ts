@@ -25,7 +25,7 @@ export function logout({ ctx }: Props) {
 
     setTrayStatus('IDLE');
 
-    setIsLoggedIn(false);
+    setIsLoggedIn(null);
     closeAuxWindows();
     showFrontend();
 

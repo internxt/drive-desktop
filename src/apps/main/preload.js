@@ -53,9 +53,6 @@ var api = {
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
   },
-  getUser() {
-    return import_electron2.ipcRenderer.invoke("get-user");
-  },
   onSyncInfoUpdate(func) {
     const eventName = "sync-info-update";
     const callback = (_, v) => func(v);

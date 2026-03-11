@@ -122,14 +122,14 @@ app
     await migrate();
 
     setupTrayIcon();
+
+    const user = checkIfUserIsLoggedIn();
     await createWidget();
 
-    const isLoggedIn = checkIfUserIsLoggedIn();
-
-    if (isLoggedIn) {
-      await emitUserLoggedIn();
+    if (user) {
+      await emitUserLoggedIn(user);
     } else {
-      setIsLoggedIn(false);
+      setIsLoggedIn(null);
       showFrontend();
       setTrayStatus('IDLE');
     }

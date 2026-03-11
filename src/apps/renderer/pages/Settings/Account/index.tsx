@@ -1,23 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { User } from '../../../../main/types';
 import Spinner from '../../../assets/spinner.svg';
 import Usage from './Usage';
-import UserInfo from './UserInfo';
+import { UserInfo } from './UserInfo';
 import Button from '../../../components/Button';
 import { useGetUsage } from '../../../api/use-get-usage';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
-export default function AccountSection({ active }: { active: boolean }) {
+export default function AccountSection({ user, active }: { user: User; active: boolean }) {
   const { translate } = useI18n();
-  const [user, setUser] = useState<User | null>(null);
   const { data: usage, status, refetch: refreshUsage } = useGetUsage();
-
-  useEffect(() => {
-    window.electron
-      .getUser()
-      .then(setUser)
-      .catch(() => setUser(null));
-  }, []);
 
   useEffect(() => {
     if (active) void refreshUsage();
@@ -25,7 +17,7 @@ export default function AccountSection({ active }: { active: boolean }) {
 
   return (
     <div className={`flex flex-col space-y-8 ${active ? 'block' : 'hidden'}`}>
-      {user !== null && <UserInfo user={user} />}
+      <UserInfo user={user} />
 
       <div className="flex items-center justify-center rounded-lg border border-gray-10 bg-surface p-4 shadow-sm dark:bg-gray-5">
         {status === 'loading' ? (

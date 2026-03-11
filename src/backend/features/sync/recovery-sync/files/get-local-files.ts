@@ -11,7 +11,7 @@ export async function getLocalFiles({ ctx, remotes }: Props) {
   if (!first || !last) return;
 
   const { data: locals } = await SqliteModule.FileModule.getBetweenUuids({
-    userUuid: ctx.userUuid,
+    userUuid: ctx.user.uuid,
     workspaceId: ctx.workspaceId,
     firstUuid: first.uuid,
     lastUuid: last.uuid,

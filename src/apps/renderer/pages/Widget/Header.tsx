@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
+import { MouseEventHandler } from 'react';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
 import { User } from '../../../main/types';
@@ -10,10 +10,11 @@ import { useIssuesStore } from '../Issues/issues-store';
 import { Avatar } from './Avatar';
 
 interface HeadersProps {
+  user: User;
   setIsLogoutModalOpen: (isOpen: boolean) => void;
 }
 
-const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
+const Header: React.FC<HeadersProps> = ({ user, setIsLogoutModalOpen }) => {
   const { translate } = useI18n();
   const { setActiveSection: setSettingsSection } = useSettingsStore();
   const { setActiveSection: setIssuesSection } = useIssuesStore();
@@ -48,20 +49,9 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   };
 
   const AccountSection = () => {
-    const [user, setUser] = useState<User | null>(null);
-
-    useEffect(() => {
-      window.electron
-        .getUser()
-        .then(setUser)
-        .catch(() => {
-          setUser(null);
-        });
-    }, []);
-
     return (
       <div className="flex flex-1 space-x-2.5 truncate" data-automation-id="headerAccountSection">
-        <Avatar user={user} />
+        <Avatar user={user} className="h-9 w-9 text-base" />
 
         <div className="flex flex-1 flex-col truncate">
           <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>

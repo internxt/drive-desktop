@@ -6,7 +6,7 @@ export async function createOrUpdateFolder({ ctx, folderDto }: { ctx: CommonCont
   return await SqliteModule.FolderModule.createOrUpdate({
     folder: {
       ...folderDto,
-      userUuid: ctx.userUuid,
+      userUuid: ctx.user.uuid,
       workspaceId: ctx.workspaceId,
     },
   });
@@ -16,7 +16,7 @@ export async function createOrUpdateFolders({ ctx, folderDtos }: { ctx: CommonCo
   return await SqliteModule.FolderModule.createOrUpdateBatch({
     folders: folderDtos.map((folderDto) => ({
       ...folderDto,
-      userUuid: ctx.userUuid,
+      userUuid: ctx.user.uuid,
       workspaceId: ctx.workspaceId,
     })),
   });

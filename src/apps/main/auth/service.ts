@@ -19,10 +19,7 @@ function ecnryptToken(token: string): string {
 }
 
 export function setUser(userData: User) {
-  ConfigStore.set('userData', {
-    ...userData,
-    needLogout: false,
-  });
+  ConfigStore.set('userData', userData);
 }
 
 export function updateCredentials({ newToken }: { newToken: string }) {

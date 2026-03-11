@@ -3,6 +3,7 @@ import { Login } from '../../pages/Login';
 import { DraggableModal } from './draggable-modal';
 import { AUTH, Dimensions } from './get-dimensions';
 import { LoggedPage } from './logged-page';
+import { User } from '@/apps/main/types';
 
 function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
   if (e.target === e.currentTarget) {
@@ -11,19 +12,17 @@ function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
 }
 
 export function AuthGuard() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [workArea, setWorkArea] = useState<Dimensions | undefined>(undefined);
 
   useEffect(() => {
-    globalThis.window.electron.onUserLoggedInChanged(setIsLoggedIn);
-    void globalThis.window.electron.isUserLoggedIn().then(setIsLoggedIn);
+    globalThis.window.electron.onUserLoggedInChanged(setUser);
+    void globalThis.window.electron.isUserLoggedIn().then(setUser);
     void globalThis.window.electron.getWorkArea().then((wa) => setWorkArea(wa));
   }, []);
 
   function renderContent() {
-    if (isLoggedIn === null) return;
-
-    if (isLoggedIn === false) {
+    if (user === null) {
       return (
         <DraggableModal workArea={workArea} dimensions={AUTH}>
           <Login />
@@ -31,7 +30,7 @@ export function AuthGuard() {
       );
     }
 
-    return <LoggedPage workArea={workArea} />;
+    return <LoggedPage user={user} workArea={workArea} />;
   }
 
   return (

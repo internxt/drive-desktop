@@ -15,7 +15,7 @@ type Props = {
 
 export async function foldersRecoverySync({ ctx, offset }: Props) {
   const { data: checkpoint } = await SqliteModule.CheckpointModule.getCheckpoint({
-    userUuid: ctx.userUuid,
+    userUuid: ctx.user.uuid,
     workspaceId: ctx.workspaceId,
     type: 'folder',
   });
