@@ -8,3 +8,5 @@ const setPlaywrightPaths = () => {
 export const applyE2EConfiguration = () => {
   setPlaywrightPaths();
 };
+
+export const DEFAULT_TIMEOUT = 30_000;
