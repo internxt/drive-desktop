@@ -7,11 +7,11 @@ describe('handlers', () => {
   const getUserMock = partialSpyOn(getUser, 'getUser');
   const getMillisecondsToRenewMock = partialSpyOn(TokenScheduler, 'getMillisecondsToRenew');
 
-  beforeEach(() => {
-    getUserMock.mockReturnValue({ uuid: 'uuid' });
-  });
-
   describe('checkUserIsLoggedIn', () => {
+    beforeEach(() => {
+      getUserMock.mockReturnValue({ uuid: 'uuid' });
+    });
+
     it('should return false if user does not exist', () => {
       // Given
       getUserMock.mockReturnValue(null);
