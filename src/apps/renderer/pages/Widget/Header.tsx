@@ -64,7 +64,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <Avatar user={user} />
 
         <div className="flex flex-1 flex-col truncate">
-          <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>
+          <p data-automation-id="header-userEmail" className="truncate text-sm font-medium text-gray-100" title={user?.email}>
             {user?.email}
           </p>
           {user && <UsageIndicator />}
