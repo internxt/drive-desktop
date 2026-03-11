@@ -51,14 +51,11 @@ jobs:
           echo "E2E_TEST_USER=$E2E_TEST_USER" >> .env
           echo "E2E_TEST_PASSWORD=$E2E_TEST_PASSWORD" >> .env
 
-      - name: Install dependencies
-        run: npm run init:ci
+      - name: Install dependencies and build
+        run: npm run init:e2e
 
       - name: Install Playwright browsers
         run: npx playwright install
-
-      - name: Build Electron app
-        run: npm run build
 
       - name: Run tests
         run: npm run test:e2e
