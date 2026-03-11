@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, it } from 'vitest';
-import { _electron, expect as pwExpect } from '@playwright/test';
+import { _electron, chromium, expect as pwExpect } from '@playwright/test';
 import type { ElectronApplication } from '@playwright/test';
 import * as path from 'node:path';
 import { fail } from 'node:assert';
-import { generateMnemonic } from 'bip39';
 import { createIsolatedStore } from './helpers/isolated-store';
 
 const ELECTRON_MAIN = path.resolve(__dirname, '../../dist/main/main.js');
@@ -72,19 +71,32 @@ describe('Login', () => {
       fail('redirectUri not found in loginUrl');
     }
 
-    const callbackUrl = Buffer.from(redirectUriEncoded, 'base64').toString('utf8');
+    // Launch playwright browser
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
 
-    // Simulate login redirect callback (what the browser would do)
-    const fakeSearchParams = new URLSearchParams({
-      newToken: Buffer.from('pw-token').toString('base64'),
-      privateKey: Buffer.from('pw-private-key').toString('base64'),
-      mnemonic: Buffer.from(generateMnemonic()).toString('base64'),
-    }).toString();
-    const callback = `${callbackUrl}?${fakeSearchParams}`;
+    // Navigate to loginUrl
+    await page.goto(loginUrl);
 
-    const response = await fetch(callback);
+    // Fill in email and password using credentials from env at drive-web SSO flow
+    await page.fill('input[type="email"]', process.env.TEST_USER!);
+    await page.fill('input[type="password"]', process.env.TEST_PASSWORD!);
 
-    expect(response.status).toBe(200);
-    expect(response.url).toStrictEqual('https://drive.internxt.com/auth-link-ok');
+    const ssoLoginButton = page.getByRole('button', { name: 'Log in' });
+    await pwExpect(ssoLoginButton).toBeVisible({ timeout: 50_000 });
+    await ssoLoginButton.click();
+
+    const ssoOpenAppButton = page.getByRole('button', { name: 'Open app' });
+    await pwExpect(ssoOpenAppButton).toBeVisible({ timeout: 50_000 });
+    await ssoOpenAppButton.click();
+
+    // Launch widget and wait for it to be visible
+    const appWindow = await electronApp.firstWindow();
+
+    const appWidget = appWindow.locator('[data-automation-id="widget-rootView"]');
+    await pwExpect(appWidget).toBeVisible({ timeout: 50_000 });
+
+    const emailText = appWindow.locator('[data-automation-id="header-userEmail"]');
+    await pwExpect(emailText).toHaveText(process.env.TEST_USER!);
   });
 });
