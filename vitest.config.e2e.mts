@@ -10,14 +10,20 @@ export default mergeConfig(
       coverage: {
         reportsDirectory: './coverage/e2e',
       },
-      environment: 'jsdom',
+      environment: 'node',
       include: ['tests/e2e/**/*.e2e-spec.ts'],
       setupFiles: [
         'dotenv/config',
-        './tests/vitest/setup.helper.test.ts',
-        './tests/vitest/setup.dom.helper.test.ts',
+        './tests/vitest/setup.e2e.helper.test.ts',
       ],
       testTimeout: 60_000,
+      pool: 'forks',
+      poolOptions: {
+        forks: {
+          singleFork: true,
+        },
+      },
+      maxConcurrency: 1
     },
   })
 );
