@@ -1,15 +1,22 @@
+import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import * as fs from 'node:fs';
-import * as os from 'node:os';
 import * as path from 'node:path';
 
-export function createIsolatedStore(): { dir: { homeDir: string; appDir: string }; cleanup: () => void } {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'internxt-e2e-'));
-  const homeDir = path.join(dir, 'home');
-  const appDir = path.join(dir, 'app');
-  fs.mkdirSync(homeDir);
-  fs.mkdirSync(appDir);
-  return {
-    dir: { homeDir, appDir },
-    cleanup: () => fs.rmSync(dir, { recursive: true, force: true }),
-  };
+export function getIsolatedStore(): { homeDir: string; appDir: string } {
+  const dir = TEST_FILES;
+  const homeDir = path.join(dir, 'e2e-home');
+  const appDir = path.join(dir, 'e2e-app');
+  return { homeDir, appDir };
+}
+
+export function createIsolatedStore() {
+  const { homeDir, appDir } = getIsolatedStore();
+  fs.mkdirSync(homeDir, { recursive: true });
+  fs.mkdirSync(appDir, { recursive: true });
+}
+
+export function cleanupIsolatedStore() {
+  const { homeDir, appDir } = getIsolatedStore();
+  fs.rmSync(homeDir, { recursive: true, force: true });
+  fs.rmSync(appDir, { recursive: true, force: true });
 }

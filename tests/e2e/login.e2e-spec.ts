@@ -3,36 +3,29 @@ import { _electron, chromium, expect as pwExpect } from '@playwright/test';
 import type { ElectronApplication } from '@playwright/test';
 import * as path from 'node:path';
 import { fail } from 'node:assert';
-import { createIsolatedStore } from './helpers/isolated-store';
+import { getIsolatedStore } from './helpers/isolated-store';
 
 const ELECTRON_MAIN = path.resolve(__dirname, '../../dist/main/main.js');
 
 describe('Login', () => {
   let electronApp: ElectronApplication;
-  let store: { dir: { homeDir: string; appDir: string }; cleanup: () => void };
-
-  beforeEach(() => {
-    store = createIsolatedStore();
-  });
 
   afterEach(async () => {
     await electronApp?.close();
-    store.cleanup();
   });
 
   it('should log in with browser using sso flow from drive-web', async () => {
+    const store = getIsolatedStore();
     electronApp = await _electron.launch({
       args: [ELECTRON_MAIN, '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       env: {
         ...process.env,
         PLAYWRIGHT_TEST: 'true',
-        PLAYWRIGHT_HOME_PATH: store.dir.homeDir,
-        PLAYWRIGHT_DATA_PATH: store.dir.appDir,
+        PLAYWRIGHT_HOME_PATH: store.homeDir,
+        PLAYWRIGHT_DATA_PATH: store.appDir,
         PORT: '1414',
       },
     });
-    electronApp.process().stdout?.on('data', (d) => console.log('[electron stdout]', d.toString()));
-    electronApp.process().stderr?.on('data', (d) => console.error('[electron stderr]', d.toString()));
 
     const loginWindow = await electronApp.firstWindow();
     await loginWindow.waitForLoadState('domcontentloaded');
