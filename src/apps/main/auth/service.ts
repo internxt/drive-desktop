@@ -18,10 +18,6 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
-export function setUser(userData: User) {
-  ConfigStore.set('userData', userData);
-}
-
 export function updateCredentials({ newToken }: { newToken: string }) {
   const token = ecnryptToken(newToken);
 

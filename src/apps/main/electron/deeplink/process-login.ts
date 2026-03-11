@@ -3,6 +3,7 @@ import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/servi
 import { emitUserLoggedIn } from '../../auth/handlers';
 import { validateMnemonic } from 'bip39';
 import { User } from '../../types';
+import electronStore from '../../config';
 
 type Props = { search: string };
 
@@ -38,7 +39,7 @@ export async function processLogin({ search }: Props) {
    * to send as the decrypted privateKey and mnemonic.
    */
   const user: User = { ...data.user, privateKey, mnemonic };
-  setUser(user);
+  electronStore.set('userData', user);
 
   restoreSavedConfig({ uuid: data.user.uuid });
   void emitUserLoggedIn(user);
