@@ -12,7 +12,7 @@ describe('handlers', () => {
       getUserMock.mockReturnValue({ uuid: 'uuid' });
     });
 
-    it('should return false if user does not exist', () => {
+    it('should return undefined if user does not exist', () => {
       // Given
       getUserMock.mockReturnValue(null);
       // When
@@ -21,7 +21,7 @@ describe('handlers', () => {
       expect(res).toBeUndefined();
     });
 
-    it('should return false if token is expired', () => {
+    it('should return undefined if token is expired', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(-1);
       // When
@@ -30,7 +30,7 @@ describe('handlers', () => {
       expect(res).toBeUndefined();
     });
 
-    it('should return false if cannot get token', () => {
+    it('should return undefined if cannot get token', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(null);
       // When
@@ -39,7 +39,7 @@ describe('handlers', () => {
       expect(res).toBeUndefined();
     });
 
-    it('should return true if token is not expired', () => {
+    it('should return user if token is not expired', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(100);
       // When
