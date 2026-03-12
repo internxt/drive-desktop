@@ -64,7 +64,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <Avatar user={user} />
 
         <div className="flex flex-1 flex-col truncate">
-          <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>
+          <p data-automation-id="header-userEmail" className="truncate text-sm font-medium text-gray-100" title={user?.email}>
             {user?.email}
           </p>
           {user && <UsageIndicator />}
@@ -119,7 +119,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
-      <Menu as="div" className="relative flex h-8 items-end">
+      <Menu as="div" className="relative flex h-8 items-end" data-automation-id="headerDropdown">
         {({ open }) => (
           <>
             <Menu.Button className="outline-none focus-visible:outline-none">
@@ -206,8 +206,8 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div>
-                      <DropdownItem active={active} onClick={handleLogoutModalOpen} data-automation-id="menuItemLogout">
+                    <div data-automation-id="menuItemLogout">
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
                         <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>

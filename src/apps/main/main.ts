@@ -36,6 +36,12 @@ import { resolve } from 'node:path';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { measureHealth } from '@/core/utils/measure-health';
+import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
+
+if (process.env.E2E_TEST === 'true') {
+  logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
+  applyE2EConfiguration();
+}
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });

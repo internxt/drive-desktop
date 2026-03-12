@@ -13,6 +13,7 @@
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.dev.dll.ts",
     "package": "rimraf dist && npm run build && electron-builder build --publish never",
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
+    "init:e2e": "npm ci --ignore-scripts && node node_modules/electron/install.js && npm run build && npm run rebuild:electron",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run rebuild:electron",
     "========== Code style ==========": "",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 276",
@@ -34,6 +35,7 @@
     "test:infra:one": "vitest --config vitest.config.infra.mts --watch related x",
     "test:renderer": "vitest --config vitest.config.renderer.mts",
     "test:renderer:one": "vitest --config vitest.config.renderer.mts --watch related x",
+    "test:e2e": "vitest --config vitest.config.e2e.mts",
     "coverage:merge": "lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info'",
     "========== Native deps ==========": "",
     "rebuild:node": "cd node_modules/better-sqlite3 && npx node-gyp rebuild",
@@ -77,6 +79,7 @@
   "devDependencies": {
     "@electron/rebuild": "^4.0.3",
     "@internxt/eslint-config-internxt": "1.0.9",
+    "@playwright/test": "^1.58.2",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@svgr/webpack": "^6.1.2",
     "@tanstack/eslint-plugin-query": "^4.43.0",
