@@ -5,8 +5,8 @@ const setPlaywrightPaths = () => {
   app.setPath('appData', process.env.PLAYWRIGHT_DATA_PATH!);
 };
 
-export const applyE2EConfiguration = () => {
+export function applyE2EConfiguration() {
   setPlaywrightPaths();
-};
+}
 
 export const DEFAULT_TIMEOUT = 30_000;
