@@ -17,6 +17,12 @@ const ENV_SCHEMA = z.object({
   ProgramData: z.string().min(1),
   TEMP: z.string().min(1),
   WINDIR: z.string().min(1),
+  /* E2E Testing */
+  E2E_TEST: z.union([z.literal('true'), z.literal('false')]).optional(),
+  E2E_TEST_USER: z.string().min(1).optional(),
+  E2E_TEST_PASSWORD: z.string().min(1).optional(),
+  E2E_HOME_PATH: z.string().min(1).optional(),
+  E2E_APPDATA_PATH: z.string().min(1).optional(),
 });
 
 export type TEnv = z.infer<typeof ENV_SCHEMA>;
