@@ -1,11 +1,11 @@
 import { _electron } from '@playwright/test';
 import type { ElectronApplication } from '@playwright/test';
-import * as path from 'node:path';
+import { join } from 'node:path';
 import { cwd } from 'node:process';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-const DIST_FOLDER = path.join(abs(cwd()), 'dist');
-const ELECTRON_MAIN = path.join(DIST_FOLDER, 'main/main.js');
+const DIST_FOLDER = join(abs(cwd()), 'dist');
+const ELECTRON_MAIN = join(DIST_FOLDER, 'main/main.js');
 
 export interface ElectronLaunchOptions {
   homeDir: string;
