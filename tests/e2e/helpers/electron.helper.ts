@@ -7,12 +7,12 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 const DIST_FOLDER = join(abs(cwd()), 'dist');
 const ELECTRON_MAIN = join(DIST_FOLDER, 'main/main.js');
 
-export interface ElectronLaunchOptions {
+export type ElectronLaunchOptions = {
   homeDir: string;
   appDir: string;
   port?: string;
   enableLogging?: boolean;
-}
+};
 
 export async function launchElectronApp(options: ElectronLaunchOptions) {
   const electronApp = await _electron.launch({
