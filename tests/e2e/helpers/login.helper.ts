@@ -5,7 +5,7 @@ import { fail } from 'node:assert';
 import { assertLoginWithBrowserButton, getAppWidget } from './views.helper';
 import { DEFAULT_TIMEOUT } from './e2e-configuration.helper';
 
-export async function interceptLoginUrl(electronApp: ElectronApplication): Promise<void> {
+export async function interceptLoginUrl(electronApp: ElectronApplication) {
   await electronApp.evaluate(({ shell }) => {
     const originalOpenExternal = shell.openExternal;
 
@@ -18,7 +18,7 @@ export async function interceptLoginUrl(electronApp: ElectronApplication): Promi
   });
 }
 
-export async function waitForLoginUrl(electronApp: ElectronApplication): Promise<string> {
+export async function waitForLoginUrl(electronApp: ElectronApplication) {
   await electronApp.evaluate(
     () =>
       new Promise<void>((resolve) => {
@@ -34,7 +34,7 @@ export async function waitForLoginUrl(electronApp: ElectronApplication): Promise
   return electronApp.evaluate(() => (global as any).__PW_LOGIN_URL as string);
 }
 
-export async function performSSOLogin(loginUrl: string, email: string, password: string): Promise<Page> {
+export async function performSSOLogin(loginUrl: string, email: string, password: string) {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
@@ -56,8 +56,16 @@ export async function performSSOLogin(loginUrl: string, email: string, password:
 export async function triggerAndCompleteSSOLogin(
   electronApp: ElectronApplication,
   loginWindow: Awaited<ReturnType<ElectronApplication['firstWindow']>>,
-  credentials: { email: string; password: string },
-): Promise<void> {
+  credentials?: { email: string; password: string },
+) {
+  if (!credentials) {
+    const email = process.env.E2E_TEST_USER;
+    const password = process.env.E2E_TEST_PASSWORD;
+    if (!email) fail('E2E_TEST_USER env var is not set');
+    if (!password) fail('E2E_TEST_PASSWORD env var is not set');
+    credentials = { email, password };
+  }
+
   const loginWithBrowserBtn = await assertLoginWithBrowserButton(loginWindow);
 
   await interceptLoginUrl(electronApp);
@@ -71,6 +79,7 @@ export async function triggerAndCompleteSSOLogin(
 
   const page = await performSSOLogin(loginUrl, credentials.email, credentials.password);
   await page.context().browser()?.close();
+  return credentials;
 }
 
 export async function assertLoggedIn(electronApp: ElectronApplication, expectedEmail: string) {

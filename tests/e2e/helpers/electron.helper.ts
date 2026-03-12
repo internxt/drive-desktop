@@ -14,7 +14,7 @@ export interface ElectronLaunchOptions {
   enableLogging?: boolean;
 }
 
-export async function launchElectronApp(options: ElectronLaunchOptions): Promise<ElectronApplication> {
+export async function launchElectronApp(options: ElectronLaunchOptions) {
   const electronApp = await _electron.launch({
     args: [ELECTRON_MAIN, '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
     env: {
