@@ -16,11 +16,7 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
   const { environment, contentsDownloader } = buildDriveEnvironment({ user });
 
   const syncContext: SyncContext = {
-    abortController: ctx.abortController,
-    driveApiBottleneck: ctx.driveApiBottleneck,
-    uploadBottleneck: ctx.uploadBottleneck,
-    client: ctx.client,
-    userUuid: user.uuid,
+    ...ctx,
     status: 'IDLE',
     providerId,
     rootPath: await getRootVirtualDrive(),

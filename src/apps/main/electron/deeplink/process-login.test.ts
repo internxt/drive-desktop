@@ -3,11 +3,12 @@ import { processLogin } from './process-login';
 import * as authService from '../../auth/service';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import * as authHandlers from '../../auth/handlers';
+import electronStore from '../../config';
 
 describe('process-login', () => {
   const updateCredentialsMock = partialSpyOn(authService, 'updateCredentials');
   const refreshMock = partialSpyOn(DriveServerWipModule.auth, 'refresh');
-  const setUserMock = partialSpyOn(authService, 'setUser');
+  const setStoreMock = partialSpyOn(electronStore, 'set');
   const restoreSavedConfigMock = partialSpyOn(authService, 'restoreSavedConfig');
   const emitUserLoggedInMock = partialSpyOn(authHandlers, 'emitUserLoggedIn');
 
@@ -30,7 +31,7 @@ describe('process-login', () => {
     await processLogin({ search: `?mnemonic=${base64Mnemonic}&newToken=bmV3VG9rZW4=&privateKey=cHJpdmF0ZUtleQ==` });
     // Then
     calls(updateCredentialsMock).toStrictEqual([{ newToken: 'newToken' }, { newToken: 'refreshToken' }]);
-    call(setUserMock).toStrictEqual({ uuid: 'uuid', privateKey: 'privateKey', mnemonic });
+    call(setStoreMock).toStrictEqual(['userData', { uuid: 'uuid', privateKey: 'privateKey', mnemonic }]);
     call(restoreSavedConfigMock).toStrictEqual({ uuid: 'uuid' });
     calls(emitUserLoggedInMock).toHaveLength(1);
   });

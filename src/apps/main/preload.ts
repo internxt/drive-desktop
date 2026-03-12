@@ -4,7 +4,6 @@ import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
-import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { Device, getOrCreateDevice, renameDevice } from './device/service';
@@ -16,6 +15,7 @@ import { FromProcess } from './preload/ipc';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 import { BackupDownloadProgress } from './windows/broadcast-to-windows';
+import { User } from './types';
 
 const api = {
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {
@@ -29,7 +29,7 @@ const api = {
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
   },
-  onUserLoggedInChanged(func: (_: boolean) => void) {
+  onUserLoggedInChanged(func: (_: User | null) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
   logout() {
@@ -37,9 +37,6 @@ const api = {
   },
   quit() {
     ipcRenderer.send('user-quit');
-  },
-  getUser(): Promise<ReturnType<typeof getUser>> {
-    return ipcRenderer.invoke('get-user');
   },
   onSyncInfoUpdate(func: (_: SyncStateItem[]) => void): () => void {
     const eventName = 'sync-info-update';

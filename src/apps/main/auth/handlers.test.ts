@@ -9,52 +9,43 @@ describe('handlers', () => {
 
   describe('checkUserIsLoggedIn', () => {
     beforeEach(() => {
-      getUserMock.mockReturnValue({ needLogout: false });
+      getUserMock.mockReturnValue({ uuid: 'uuid' });
     });
 
-    it('should return false if user does not exist', () => {
+    it('should return undefined if user does not exist', () => {
       // Given
       getUserMock.mockReturnValue(null);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
-    it('should return false if user needs logout', () => {
-      // Given
-      getUserMock.mockReturnValue({ needLogout: undefined });
-      // When
-      const res = checkIfUserIsLoggedIn();
-      // Then
-      expect(res).toBe(false);
-    });
-
-    it('should return false if token is expired', () => {
+    it('should return undefined if token is expired', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(-1);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
-    it('should return false if cannot get token', () => {
+    it('should return undefined if cannot get token', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(null);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(false);
+      expect(res).toBeUndefined();
     });
 
-    it('should return true if token is not expired', () => {
+    it('should return user if token is not expired', () => {
       // Given
       getMillisecondsToRenewMock.mockReturnValue(100);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
-      expect(res).toBe(true);
+      expect(res).toStrictEqual({ uuid: 'uuid' });
     });
   });
 });

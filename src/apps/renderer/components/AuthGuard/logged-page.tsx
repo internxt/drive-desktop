@@ -5,22 +5,24 @@ import Settings from '../../pages/Settings';
 import { Widget } from '../../pages/Widget';
 import { Dimensions, ISSUES, SETTINGS } from './get-dimensions';
 import { DraggableModal } from './draggable-modal';
+import { User } from '@/apps/main/types';
 
 type Props = {
+  user: User;
   workArea: Dimensions | undefined;
 };
 
-export function LoggedPage({ workArea }: Props) {
+export function LoggedPage({ user, workArea }: Props) {
   const { activeSection: settingsSection } = useSettingsStore();
   const { activeSection: issuesSection } = useIssuesStore();
 
   return (
     <>
-      <Widget />
+      <Widget user={user} />
 
       {settingsSection && (
         <DraggableModal workArea={workArea} dimensions={SETTINGS}>
-          <Settings activeSection={settingsSection} />
+          <Settings user={user} activeSection={settingsSection} />
         </DraggableModal>
       )}
 

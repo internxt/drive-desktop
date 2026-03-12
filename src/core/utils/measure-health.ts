@@ -17,12 +17,12 @@ function measureEventLoopLag() {
 function getWarnings(lag: number, memUsage: NodeJS.MemoryUsage) {
   const warnings: string[] = [];
 
-  if (lag > 100) warnings.push('HIGH EVENT LOOP LAG');
-  if (lag > 500) warnings.push('CRITICAL EVENT LOOP LAG: main process likely frozen');
+  if (lag > 100) warnings.push('High event loop lag');
+  if (lag > 500) warnings.push('Critical event loop lag: main process likely frozen');
 
   const heapMB = memUsage.heapUsed / 1024 / 1024;
-  if (heapMB > 500) warnings.push(`HIGH HEAP: ${heapMB.toFixed(0)}MB`);
-  if (os.freemem() < 200 * 1024 * 1024) warnings.push('LOW SYSTEM MEMORY');
+  if (heapMB > 500) warnings.push(`High heap: ${heapMB.toFixed(0)}MB`);
+  if (os.freemem() < 200 * 1024 * 1024) warnings.push('Low system memory');
 
   return warnings;
 }

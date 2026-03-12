@@ -6,8 +6,11 @@ import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
 import { paths } from '../shared/HttpClient/schema';
 import { RemoteSyncStatus } from '../main/remote-sync/helpers';
+import { User } from '../main/types';
 
 export type AuthContext = {
+  readonly user: User;
+  readonly userUuid: string;
   readonly abortController: AbortController;
   readonly driveApiBottleneck: Bottleneck;
   readonly uploadBottleneck: Bottleneck;
@@ -16,7 +19,6 @@ export type AuthContext = {
 };
 
 export type CommonContext = AuthContext & {
-  readonly userUuid: string;
   readonly workspaceId: string;
   readonly bucket: string;
   readonly environment: Environment;

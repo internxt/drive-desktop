@@ -1,7 +1,9 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { restoreSavedConfig, setUser, updateCredentials } from '../../auth/service';
+import { restoreSavedConfig, updateCredentials } from '../../auth/service';
 import { emitUserLoggedIn } from '../../auth/handlers';
 import { validateMnemonic } from 'bip39';
+import { User } from '../../types';
+import electronStore from '../../config';
 
 type Props = { search: string };
 
@@ -36,8 +38,9 @@ export async function processLogin({ search }: Props) {
    * mnemonic. However, since now the client never touches the password we need the frontend
    * to send as the decrypted privateKey and mnemonic.
    */
-  setUser({ ...data.user, privateKey, mnemonic });
+  const user: User = { ...data.user, privateKey, mnemonic };
+  electronStore.set('userData', user);
 
   restoreSavedConfig({ uuid: data.user.uuid });
-  void emitUserLoggedIn();
+  void emitUserLoggedIn(user);
 }
