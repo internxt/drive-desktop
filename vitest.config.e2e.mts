@@ -11,7 +11,7 @@ export default mergeConfig(
         reportsDirectory: './coverage/e2e',
       },
       environment: 'node',
-      include: ['tests/e2e/**/*.e2e-spec.ts'],
+      include: ['tests/e2e/**/*.e2e-test.ts'],
       setupFiles: [
         'dotenv/config',
         './tests/vitest/setup.e2e.helper.test.ts',
