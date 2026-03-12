@@ -5,20 +5,20 @@ import { broadcastToWindows } from '../windows';
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
+  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
 };
 
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST';
+  error: 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED';
 };
 
 export type GeneralIssue = {
   tab: 'general';
   name: string;
-  error: 'NOT_ENOUGH_SPACE' | 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
+  error: 'NOT_ENOUGH_SPACE' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
 };
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;

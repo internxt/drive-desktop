@@ -7,19 +7,12 @@ type Props = {
   uuid: FileUuid;
   payload: {
     status?: DriveFile['status'];
-    isDangledStatus?: boolean;
   };
 };
 
 export async function updateByUuid({ uuid, payload }: Props) {
   try {
-    const match = await fileRepository.update(
-      { uuid },
-      {
-        status: payload.status,
-        isDangledStatus: payload.isDangledStatus,
-      },
-    );
+    const match = await fileRepository.update({ uuid }, { status: payload.status });
 
     if (!match.affected) {
       return { error: new SingleItemError('NOT_FOUND') };

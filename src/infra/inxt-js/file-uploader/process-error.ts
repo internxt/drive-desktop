@@ -22,7 +22,7 @@ export async function processError({ ctx, path, error, sleepMs, retryFn }: TProp
 
   if (!(error instanceof Error)) return;
 
-  if (error.message === 'Server unavailable') {
+  if (error.message === 'Server unavailable' || error.message === 'Incomplete HTTP response') {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
     await sleep(sleepMs);
     return retryFn();

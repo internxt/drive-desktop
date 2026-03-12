@@ -24,12 +24,12 @@ import { z } from 'zod';
  *     code: 'ENOTFOUND'
  */
 export const fetchExceptionSchema = z.object({
-  code: z.string().optional(),
   message: z.string().optional(),
-  cause: z.object({ code: z.string().optional() }).optional(),
+  cause: z.object({ code: z.string() }),
 });
 
 const errorCodes = [
+  'EAI_AGAIN',
   'ENOTFOUND',
   'ECONNREFUSED',
   'ETIMEDOUT',
@@ -58,17 +58,9 @@ export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
   const parsedError = fetchExceptionSchema.safeParse(exc);
   if (!parsedError.success) return false;
 
-  const { code, message, cause } = parsedError.data;
+  const { cause } = parsedError.data;
 
-  if (code && errorCodes.includes(code)) {
-    return true;
-  }
-
-  if (cause?.code && errorCodes.includes(cause.code)) {
-    return true;
-  }
-
-  return !!(message && message.includes('Failed to fetch'));
+  return errorCodes.includes(cause.code);
 }
 
 export function isServerError({ response: { status } }: { response: Response }): boolean {

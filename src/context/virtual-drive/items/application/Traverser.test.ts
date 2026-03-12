@@ -5,13 +5,11 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
-import * as checkDangledFiles from '@/apps/sync-engine/dangled-files/check-dangled-files';
 
 describe('traverse', () => {
   const deleteItemPlaceholderMock = partialSpyOn(deleteItemPlaceholder, 'deleteItemPlaceholder');
   const updateFilePlaceholderMock = partialSpyOn(FilePlaceholderUpdater, 'update');
   const updateFolderPlaceholderMock = partialSpyOn(FolderPlaceholderUpdater, 'update');
-  const checkDangledFilesMock = partialSpyOn(checkDangledFiles, 'checkDangledFiles');
 
   let props: Parameters<typeof traverse>[0];
 
@@ -47,7 +45,6 @@ describe('traverse', () => {
     // When
     await traverse(props);
     // Then
-    calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
@@ -67,7 +64,6 @@ describe('traverse', () => {
     // When
     await traverse(props);
     // Then
-    calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
@@ -94,7 +90,6 @@ describe('traverse', () => {
     // When
     await traverse(props);
     // Then
-    calls(checkDangledFilesMock).toHaveLength(0);
     calls(deleteItemPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/deleted' }, type: 'file' },
       { remote: { absolutePath: '/drive/deleted' }, type: 'folder' },
@@ -114,20 +109,6 @@ describe('traverse', () => {
       { remote: { absolutePath: '/drive/child1' } },
       { remote: { absolutePath: '/drive/parent1/child2' } },
       { remote: { absolutePath: '/drive/parent1/parent2/child3' } },
-    ]);
-  });
-
-  it('should run dangled files if first iteration', async () => {
-    // Given
-    updateFolderPlaceholderMock.mockResolvedValue(true);
-    props.isFirstExecution = true;
-    // When
-    await traverse(props);
-    // Then
-    calls(checkDangledFilesMock).toMatchObject([
-      { file: { absolutePath: '/drive/child1' } },
-      { file: { absolutePath: '/drive/parent1/child2' } },
-      { file: { absolutePath: '/drive/parent1/parent2/child3' } },
     ]);
   });
 });

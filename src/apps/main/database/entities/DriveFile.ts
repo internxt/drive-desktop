@@ -16,7 +16,6 @@ export type SimpleDriveFile = {
   updatedAt: string;
   modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
-  isDangledStatus: boolean;
 };
 export type ExtendedDriveFile = SimpleDriveFile & {
   absolutePath: AbsolutePath;
@@ -70,7 +69,4 @@ export class DriveFile {
 
   @Column({ nullable: false, type: 'varchar' })
   modificationTime!: string;
-
-  @Column({ nullable: false, default: true, type: 'boolean' })
-  isDangledStatus!: boolean;
 }

@@ -1,5 +1,6 @@
 import { folderRepository } from '../drive-folder';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { getByName } from './get-by-name';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -57,5 +58,15 @@ describe('get-by-name', () => {
     const { error } = await getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
+  });
+
+  it('should return UNKNOWN when error is thrown', async () => {
+    // Given
+    props.parentUuid = (() => null) as any;
+    // When
+    const { error } = await getByName(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
   });
 });

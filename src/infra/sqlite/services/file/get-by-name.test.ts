@@ -1,9 +1,10 @@
 import { fileRepository } from '../drive-file';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
 import { getByName } from './get-by-name';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('get-by-name', () => {
   const date = new Date().toISOString();
@@ -22,7 +23,6 @@ describe('get-by-name', () => {
     modificationTime: date,
     plainName: 'file',
     type: 'txt',
-    isDangledStatus: false,
   };
 
   let props: Parameters<typeof getByName>[0];
@@ -63,5 +63,15 @@ describe('get-by-name', () => {
     const { error } = await getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
+  });
+
+  it('should return UNKNOWN when error is thrown', async () => {
+    // Given
+    props.parentUuid = (() => null) as any;
+    // When
+    const { error } = await getByName(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
   });
 });
