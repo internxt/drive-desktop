@@ -38,7 +38,7 @@ import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { measureHealth } from '@/core/utils/measure-health';
 import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
 
-if (process.env.PLAYWRIGHT_TEST === 'true') {
+if (process.env.E2E_TEST === 'true') {
   logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
   applyE2EConfiguration();
 }

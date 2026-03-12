@@ -19,9 +19,9 @@ export async function launchElectronApp(options: ElectronLaunchOptions) {
     args: [ELECTRON_MAIN, '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
     env: {
       ...process.env,
-      PLAYWRIGHT_TEST: 'true',
-      PLAYWRIGHT_HOME_PATH: options.homeDir,
-      PLAYWRIGHT_DATA_PATH: options.appDir,
+      E2E_TEST: 'true',
+      E2E_HOME_PATH: options.homeDir,
+      E2E_APPDATA_PATH: options.appDir,
       PORT: options.port ?? '1414',
       ELECTRON_ENABLE_LOGGING: '1',
     },
