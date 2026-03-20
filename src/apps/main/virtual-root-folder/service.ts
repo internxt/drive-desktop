@@ -42,11 +42,9 @@ export async function chooseSyncRootWithDialog({ ctx }: { ctx: AuthContext }) {
 
   if (result.canceled) return;
 
-  const user = getUserOrThrow();
-
   const chosenPath = abs(result.filePaths[0]);
 
-  const newSyncRoot = join(chosenPath, `InternxtDrive - ${user.uuid}`);
+  const newSyncRoot = join(chosenPath, `InternxtDrive - ${ctx.user.uuid}`);
   const oldSyncRoot = abs(electronStore.get('syncRoot'));
 
   logger.debug({ msg: 'Choose sync root with dialog', oldSyncRoot, newSyncRoot });
