@@ -19,7 +19,7 @@ async function getUsage() {
     key,
     loggerBody: {
       msg: 'Get usage request',
-      attributes: {a
+      attributes: {
         method,
         endpoint,
       },
