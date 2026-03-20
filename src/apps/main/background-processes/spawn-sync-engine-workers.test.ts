@@ -1,25 +1,29 @@
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as getUserOrThrow from '@/apps/main/auth/service';
 import * as getWorkspaces from './sync-engine/services/get-workspaces';
 import * as unregisterVirtualDrives from './sync-engine/services/unregister-virtual-drives';
 import * as spawnSyncEngineWorker from './sync-engine/services/spawn-sync-engine-worker';
 import * as spawnWorkspace from './sync-engine/services/spawn-workspace';
 import { spawnSyncEngineWorkers } from './sync-engine';
+import * as getRootVirtualDrive from '../virtual-root-folder/service';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('spawn-sync-engine-workers', () => {
-  const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');
+  const getRootVirtualDriveMock = partialSpyOn(getRootVirtualDrive, 'getRootVirtualDrive');
   const getWorkspacesMock = partialSpyOn(getWorkspaces, 'getWorkspaces');
   const unregisterVirtualDrivesMock = partialSpyOn(unregisterVirtualDrives, 'unregisterVirtualDrives');
   const spawnSyncEngineWorkerMock = partialSpyOn(spawnSyncEngineWorker, 'spawnSyncEngineWorker');
   const spawnWorkspaceMock = partialSpyOn(spawnWorkspace, 'spawnWorkspace');
 
   const props = mockProps<typeof spawnSyncEngineWorkers>({
-    ctx: { abortController: new AbortController() },
+    ctx: {
+      user: { uuid: 'user_id' },
+      abortController: new AbortController(),
+    },
   });
 
   it('should unregister old virtual drives and spawn workers', async () => {
     // Given
-    getUserOrThrowMock.mockReturnValue({ uuid: 'user_id' });
+    getRootVirtualDriveMock.mockResolvedValue(abs('C:/Users/user/InternxtDrive'));
     getWorkspacesMock.mockResolvedValue([{ providerId: '{WORKSPACE_ID1}' }, { providerId: '{WORKSPACE_ID2}' }]);
     // When
     await spawnSyncEngineWorkers(props);

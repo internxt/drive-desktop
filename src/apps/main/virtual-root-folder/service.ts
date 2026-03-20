@@ -8,7 +8,8 @@ import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
 import { workers } from '../remote-sync/store';
 import { cleanSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
-import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
+import { AuthContext } from '@/apps/sync-engine/config';
+import { spawnDrive } from '../background-processes/sync-engine';
 
 export const OLD_SYNC_ROOT = join(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
@@ -36,7 +37,7 @@ export async function getRootVirtualDrive() {
   return syncRoot;
 }
 
-export async function chooseSyncRootWithDialog() {
+export async function chooseSyncRootWithDialog({ ctx }: { ctx: AuthContext }) {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 
   if (result.canceled) return;
@@ -53,18 +54,15 @@ export async function chooseSyncRootWithDialog() {
   if (newSyncRoot === oldSyncRoot) return;
 
   try {
+    // If the previous location was not valid, we would never have a worker,
+    // so we wouldn't have to stop anything.
     const worker = workers.get('');
-
     if (worker) {
-      const { ctx } = worker;
-
       await cleanSyncEngineWorker({ worker });
-
-      ctx.rootPath = newSyncRoot;
-
-      await migrateSyncRoot({ oldSyncRoot, newSyncRoot });
-      await spawnSyncEngineWorker({ ctx });
     }
+
+    await migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+    await spawnDrive({ ctx });
   } catch (error) {
     logger.error({ msg: 'Error migrating sync root', error });
   }
