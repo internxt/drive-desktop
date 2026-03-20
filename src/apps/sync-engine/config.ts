@@ -28,7 +28,7 @@ export type CommonContext = AuthContext & {
 export type SyncContext = CommonContext & {
   status: RemoteSyncStatus;
   readonly providerId: string;
-  rootPath: AbsolutePath;
+  readonly rootPath: AbsolutePath;
   readonly rootUuid: FolderUuid;
   readonly providerName: string;
   readonly mnemonic: string;
