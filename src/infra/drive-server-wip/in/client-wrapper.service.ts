@@ -44,15 +44,16 @@ export async function clientWrapper<T>({
   try {
     const { reused, promise } = getInFlightRequest({ key, promiseFn });
 
+    const { data, error, response } = await promise;
+
     if (!skipLog) {
       logger.debug({
         ...loggerBody,
+        xRequestId: response.headers.get('x-request-id'),
         ...(reused && { reused }),
         ...(retry > 1 && { retry }),
       });
     }
-
-    const { data, error, response } = await promise;
 
     if (data) {
       handleRemoveErrors();
