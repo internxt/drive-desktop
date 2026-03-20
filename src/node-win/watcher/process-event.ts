@@ -10,7 +10,7 @@ type Props = {
   event: 'create' | 'update';
   type: 'file' | 'folder' | 'unknown';
 };
-a;
+
 export async function processEvent({ ctx, event, type, path }: Props) {
   try {
     if (event === 'update' && type === 'file') {
