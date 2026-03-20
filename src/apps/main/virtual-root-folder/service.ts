@@ -54,8 +54,7 @@ export async function chooseSyncRootWithDialog({ ctx }: { ctx: AuthContext }) {
   if (newSyncRoot === oldSyncRoot) return;
 
   try {
-    // If the previous location was not valid, we would never have a worker,
-    // so we wouldn't have to stop anything.
+    // If the previous location was not valid, we would never have a worker
     const worker = workers.get('');
     if (worker) {
       await cleanSyncEngineWorker({ worker });
