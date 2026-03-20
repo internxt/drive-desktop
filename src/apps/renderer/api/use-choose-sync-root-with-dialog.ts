@@ -4,7 +4,7 @@ import { queryKeys } from '../core/tanstack-query/query-keys';
 
 export function useChooseSyncRootWithDialog() {
   return useMutation({
-    mutationFn: () => globalThis.window.electron.driveChooseSyncRootWithDialog(),
+    mutationFn: () => globalThis.window.electron.driveChooseSyncRootWithDialog({}),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.syncRootLocation() });
     },
