@@ -21,11 +21,13 @@ export function initWatcher({ ctx }: { ctx: SyncContext }) {
 const events = new Map<number, { event: Watcher.SuccessEvent; timer: NodeJS.Timeout }>();
 const DEBOUNCE_MS = process.env.NODE_ENV === 'test' ? 50 : 2000;
 
-export function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event }) {
+function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event }) {
   if (event.type === 'error') {
     ctx.logger.error({ msg: 'Error in watcher', event });
     return;
   }
+
+  ctx.logger.debug({ msg: 'Watcher event', event });
 
   // We want to debounce events so if we receive multiple events from the same file
   // we just process the last one and ignore the rest.
