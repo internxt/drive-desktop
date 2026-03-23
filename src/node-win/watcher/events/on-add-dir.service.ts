@@ -21,6 +21,6 @@ export async function onAddDir({ ctx, path }: TProps) {
 
   if (parentInfo) {
     const parentUuid = parentInfo.uuid;
-    await Drive.Actions.createFile({ ctx, path, parentUuid });
+    await Drive.Actions.createFolder({ ctx, path, parentUuid });
   }
 }

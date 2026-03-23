@@ -44,7 +44,6 @@ describe('create-placeholder', () => {
     // When
     await writeFile(file, 'content');
     await sleep(3000);
-    return;
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
