@@ -1,13 +1,14 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { v4 } from 'uuid';
 
-import { setupWatcher, getEvents } from './watcher.helper.test';
+import { setupWatcher, getEvents, processEventMock } from './watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { getCalls } from '@/tests/vitest/utils.helper.test';
 
-describe('watcher on add', () => {
+describe('watcher-on-add', () => {
   let rootPath: AbsolutePath;
   let parent: AbsolutePath;
 
@@ -16,77 +17,69 @@ describe('watcher on add', () => {
     parent = join(rootPath, 'parent');
     await mkdir(rootPath);
     await mkdir(parent);
+    await setupWatcher(rootPath);
   });
 
-  it('should emit create and update events when create file', async () => {
+  it('should emit udpate event when create file', async () => {
     // Given
     const file = join(rootPath, 'file');
-    await setupWatcher(rootPath);
     // When
     await writeFile(file, 'content');
-    await sleep(50);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'create', path: file, type: 'file' },
-      { event: 'update', path: file, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size: 7 }, path: file }]);
   });
 
   it('should emit create event when create empty file', async () => {
     // Given
     const file = join(rootPath, 'file');
-    await setupWatcher(rootPath);
     // When
     await writeFile(file, '');
-    await sleep(50);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: file, type: 'file' }]);
+    getEvents().toMatchObject([{ event: { action: 'create', type: 'file', size: 0 }, path: file }]);
   });
 
-  it('should emit create event when create file with strange characters', async () => {
+  it('should emit update event when create file with strange characters', async () => {
     // Given
     const file = join(rootPath, 'Леди Баг в стиле куклы Лол');
-    await setupWatcher(rootPath);
-    // When
-    await writeFile(file, '');
-    await sleep(50);
-    // Then
-    getEvents().toMatchObject([{ event: 'create', path: file, type: 'file' }]);
-  });
-
-  it('should emit create and update events when create file inside a folder', async () => {
-    // Given
-    const file = join(parent, 'file');
-    await setupWatcher(rootPath);
     // When
     await writeFile(file, 'content');
-    await sleep(50);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'create', path: file, type: 'file' },
-      { event: 'update', path: file, type: 'file' },
-    ]);
+    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size: 7 }, path: file }]);
+  });
+
+  it('should emit update event when creating a big file', async () => {
+    // Given
+    const file = join(rootPath, 'file');
+    const size = 1024 * 1024;
+    const bigContent = Buffer.alloc(size);
+    // When
+    await writeFile(file, bigContent);
+    await sleep(100);
+    // Then
+    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size }, path: file }]);
+  });
+
+  it('should emit update events for all files with content', async () => {
+    // Given
+    const files = Array.from({ length: 50 }, (_, i) => join(rootPath, `file${i}`));
+    // When
+    await Promise.all(files.map((file) => writeFile(file, 'content')));
+    await sleep(100);
+    // Then
+    getEvents().toHaveLength(50);
+    expect(getCalls(processEventMock).every((c: any) => c.event.action === 'update')).toBe(true);
   });
 
   it('should emit create event when create folder', async () => {
     // Given
     const folder = join(rootPath, v4());
-    await setupWatcher(rootPath);
     // When
     await mkdir(folder);
-    await sleep(50);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: folder, type: 'folder' }]);
-  });
-
-  it('should emit create event when create folder inside a folder', async () => {
-    // Given
-    const folder = join(parent, 'folder');
-    await setupWatcher(rootPath);
-    // When
-    await mkdir(folder);
-    await sleep(50);
-    // Then
-    getEvents().toMatchObject([{ event: 'create', path: folder, type: 'folder' }]);
+    getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder }]);
   });
 });

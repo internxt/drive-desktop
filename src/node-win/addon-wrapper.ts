@@ -9,8 +9,6 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
 import { PinState } from './types/placeholder.type';
 import { fetchDataFn } from './callbacks';
-import { SyncContext } from '@/apps/sync-engine/config';
-import { deleteCallback } from './delete-callback';
 
 export function toWin32Path(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
@@ -57,7 +55,7 @@ export class Addon {
   }
 
   static connectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
-    const result = addon.connectSyncRoot(toWin32Path(rootPath), deleteCallback, fetchDataFn);
+    const result = addon.connectSyncRoot(toWin32Path(rootPath), fetchDataFn);
     const connectionKey = parseAddonZod('connectSyncRoot', result);
     return connectionKey;
   }
@@ -141,8 +139,8 @@ export class Addon {
     await addon.hydrateFile(toWin32Path(path));
   }
 
-  static watchPath({ ctx, onEvent }: { ctx: SyncContext; onEvent: Watcher.OnEvent }) {
-    const result = addon.watchPath(toWin32Path(ctx.rootPath), onEvent);
+  static watchPath({ rootPath, onEvent }: { rootPath: AbsolutePath; onEvent: Watcher.OnEvent }) {
+    const result = addon.watchPath(toWin32Path(rootPath), onEvent);
     return parseAddonZod('watchPath', result);
   }
 

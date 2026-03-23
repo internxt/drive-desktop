@@ -7,7 +7,7 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
-describe('watcher on move', () => {
+describe('watcher-on-move', () => {
   let rootPath: AbsolutePath;
   let parent: AbsolutePath;
 
@@ -18,7 +18,7 @@ describe('watcher on move', () => {
     await mkdir(parent);
   });
 
-  it('should emit create event when rename file', async () => {
+  it('should emit rename_new event when rename file', async () => {
     // Given
     const file1 = join(rootPath, 'file1');
     const file2 = join(rootPath, 'file2');
@@ -26,9 +26,9 @@ describe('watcher on move', () => {
     await setupWatcher(rootPath);
     // When
     await rename(file1, file2);
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
+    getEvents().toMatchObject([{ event: { action: 'rename_new', type: 'file' }, path: file2 }]);
   });
 
   it('should emit create event when move file', async () => {
@@ -39,12 +39,12 @@ describe('watcher on move', () => {
     await setupWatcher(rootPath);
     // When
     await rename(file1, file2);
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: file2, type: 'file' }]);
+    getEvents().toMatchObject([{ event: { action: 'create', type: 'file' }, path: file2 }]);
   });
 
-  it('should emit create event when rename folder', async () => {
+  it('should emit rename_new event when rename folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
@@ -54,7 +54,7 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
+    getEvents().toMatchObject([{ event: { action: 'rename_new', type: 'folder' }, path: folder2 }]);
   });
 
   it('should emit create event when move folder', async () => {
@@ -67,6 +67,6 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'create', path: folder2, type: 'folder' }]);
+    getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder2 }]);
   });
 });
