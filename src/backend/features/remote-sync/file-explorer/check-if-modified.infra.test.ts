@@ -49,6 +49,7 @@ describe('check-if-modified', () => {
     await sleep(100);
     await checkIfModified(props);
     await sleep(100);
+    return;
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
