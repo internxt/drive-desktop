@@ -32,9 +32,9 @@ describe('on-unlink', () => {
     // Given
     getFolderInfoMock.mockResolvedValue({ error: new Error() });
     // When
-    await onUnlink(props as any);
+    const promise = onUnlink(props as any);
     // Then
-    expect(loggerMock.error).toBeCalledTimes(1);
+    await expect(promise).rejects.toThrow();
   });
 
   it('should skip if file does not exist', async () => {
