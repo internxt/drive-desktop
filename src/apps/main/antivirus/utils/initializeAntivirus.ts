@@ -1,4 +1,3 @@
-import { getAvailableProducts } from '../../payments/get-available-products';
 import * as clamAVServer from '../ClamAVDaemon';
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { logger } from '@/apps/shared/logger/logger';
@@ -8,20 +7,6 @@ let clamAVInitializationPromise: Promise<{ antivirusEnabled: boolean }> | null =
 
 export async function initializeAntivirusIfAvailable() {
   try {
-    const availableProducts = await getAvailableProducts();
-    const isAntivirusEnabled = Boolean(availableProducts?.antivirus);
-
-    if (!isAntivirusEnabled) {
-      logger.debug({
-        tag: 'ANTIVIRUS',
-        msg: 'Antivirus not enabled for this user. Clearing any running ClamAV instance.',
-      });
-
-      clearAntivirus();
-
-      return { antivirusEnabled: false };
-    }
-
     const isWindowsDefenderActive = await isWindowsDefenderAvailable();
     if (isWindowsDefenderActive) {
       logger.debug({

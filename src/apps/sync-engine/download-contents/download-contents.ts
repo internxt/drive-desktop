@@ -17,6 +17,9 @@ export async function downloadContents({
 }) {
   LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress: 0 });
 
+  let offset = 0;
+  let chunk: Buffer<ArrayBufferLike> | undefined;
+
   try {
     const { data: readable, error } = await ctx.contentsDownloader.download({
       path,
@@ -28,9 +31,7 @@ export async function downloadContents({
 
     if (!readable) throw error;
 
-    let offset = 0;
-
-    for await (const chunk of readable) {
+    for await (chunk of readable) {
       const completed = offset + chunk.length;
 
       if (completed >= file.size) {
@@ -64,7 +65,7 @@ export async function downloadContents({
       return;
     }
 
-    ctx.logger.error({ msg: 'Error downloading file', path, error });
+    ctx.logger.error({ msg: 'Error downloading file', path, size: file.size, chunk: chunk?.length, error });
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
   }
 }

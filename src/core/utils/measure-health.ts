@@ -18,7 +18,7 @@ function getWarnings(lag: number, memUsage: NodeJS.MemoryUsage) {
   const warnings: string[] = [];
 
   if (lag > 100) warnings.push('High event loop lag');
-  if (lag > 500) warnings.push('Critical event loop lag: main process likely frozen');
+  else if (lag > 500) warnings.push('Critical event loop lag: main process likely frozen');
 
   const heapMB = memUsage.heapUsed / 1024 / 1024;
   if (heapMB > 500) warnings.push(`High heap: ${heapMB.toFixed(0)}MB`);
