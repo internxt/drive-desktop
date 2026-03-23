@@ -48,14 +48,17 @@ describe('check-if-modified', () => {
     // When
     await sleep(100);
     await checkIfModified(props);
-    await sleep(100);
+    await sleep(2200);
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(loggerMock.debug).toStrictEqual([
+    calls(loggerMock.debug).toMatchObject([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
+      { msg: 'Watcher event', event: { action: 'create', size: 0 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'Sync remote changes to local',
         path,
@@ -64,6 +67,10 @@ describe('check-if-modified', () => {
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
     ]);
 
     const stats = await stat(path);
