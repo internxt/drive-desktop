@@ -37,7 +37,7 @@ describe('check-if-modified', () => {
         uuid: 'uuid' as FileUuid,
         absolutePath: path,
         updatedAt: '2000-01-02',
-        size: 1000,
+        size: 14,
       },
       local: {
         path,
@@ -62,20 +62,19 @@ describe('check-if-modified', () => {
       {
         msg: 'Sync remote changes to local',
         path,
-        remoteSize: 1000,
+        remoteSize: 14,
         localSize: 7,
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
-      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
-      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
-      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
-      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
     ]);
 
     const stats = await stat(path);
     const fileInfo = await Addon.getPlaceholderState({ path });
-    expect(stats.size).toBe(1000);
+    expect(stats.size).toBe(14);
     expect(fileInfo.onDiskSize).toBe(0);
   });
 });
