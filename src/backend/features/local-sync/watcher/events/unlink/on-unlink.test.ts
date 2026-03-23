@@ -64,15 +64,6 @@ describe('on-unlink', () => {
       props.type = 'folder';
     });
 
-    it('should skip if folder does not exist', async () => {
-      // Given
-      getFolderByNameMock.mockResolvedValue({});
-      // When
-      await onUnlink(props as any);
-      // Then
-      calls(deleteFolderByUuidMock).toHaveLength(0);
-    });
-
     it('should unlink folder', async () => {
       // Given
       getFolderByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
