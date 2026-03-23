@@ -36,6 +36,13 @@ inline void napiSetInt64(napi_env env, napi_value obj, const char* key, LONGLONG
     napi_set_named_property(env, obj, key, val);
 }
 
+inline void napiSetDouble(napi_env env, napi_value obj, const char* key, double value)
+{
+    napi_value val;
+    napi_create_double(env, value, &val);
+    napi_set_named_property(env, obj, key, val);
+}
+
 inline void napiSetBool(napi_env env, napi_value obj, const char* key, bool value)
 {
     napi_value val;
