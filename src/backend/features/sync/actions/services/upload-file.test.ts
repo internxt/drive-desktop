@@ -6,14 +6,12 @@ import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environmen
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import Bottleneck from 'bottleneck';
-import * as waitUntilReady from './wait-until-ready';
 import { stat } from 'node:fs/promises';
 
 vi.mock(import('node:fs/promises'));
 
 describe('upload-file', () => {
   const statMock = deepMocked(stat);
-  const waitUntilReadyMock = partialSpyOn(waitUntilReady, 'waitUntilReady');
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
   const environmentFileUploadMock = partialSpyOn(environmentFileUpload, 'environmentFileUpload');
 
@@ -24,23 +22,12 @@ describe('upload-file', () => {
   beforeEach(() => {
     statMock.mockResolvedValue({ size });
     isTemporaryFileMock.mockReturnValue(false);
-    waitUntilReadyMock.mockResolvedValue(true);
     environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
 
     props = mockProps<typeof uploadFile>({
       ctx: { uploadBottleneck: new Bottleneck() },
       path,
     });
-  });
-
-  it('should return undefined if file is locked', async () => {
-    // Given
-    waitUntilReadyMock.mockResolvedValue(false);
-    // When
-    const res = await uploadFile(props);
-    // Then
-    expect(res).toBeUndefined();
-    calls(environmentFileUploadMock).toHaveLength(0);
   });
 
   it('should return empty contents id if the file is empty', async () => {
