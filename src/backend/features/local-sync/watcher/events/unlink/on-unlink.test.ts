@@ -32,9 +32,9 @@ describe('on-unlink', () => {
     // Given
     getFolderInfoMock.mockResolvedValue({ error: new Error() });
     // When
-    const promise = onUnlink(props as any);
+    await onUnlink(props as any);
     // Then
-    await expect(promise).rejects.toThrow();
+    expect(loggerMock.error).toBeCalledTimes(1);
   });
 
   describe('what happens for file', () => {
