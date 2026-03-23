@@ -25,6 +25,7 @@ describe('on-unlink', () => {
     props = {
       ctx: { logger: loggerMock },
       path: abs('/parent/file.txt'),
+      type: 'file',
     };
   });
 
@@ -37,30 +38,24 @@ describe('on-unlink', () => {
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 
-  describe('what happens for file', () => {
-    beforeEach(() => {
-      props.type = 'file';
-    });
+  it('should skip if file does not exist', async () => {
+    // Given
+    getFileByNameMock.mockResolvedValue({});
+    // When
+    await onUnlink(props as any);
+    // Then
+    calls(deleteFileByUuidMock).toHaveLength(0);
+  });
 
-    it('should skip if file does not exist', async () => {
-      // Given
-      getFileByNameMock.mockResolvedValue({});
-      // When
-      await onUnlink(props as any);
-      // Then
-      calls(deleteFileByUuidMock).toHaveLength(0);
-    });
-
-    it('should unlink file', async () => {
-      // Given
-      getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
-      // When
-      await onUnlink(props as any);
-      // Then
-      call(getFileByNameMock).toStrictEqual({ nameWithExtension: 'file.txt', parentUuid: 'parentUuid' });
-      call(getFolderInfoMock).toMatchObject({ path: '/parent' });
-      call(deleteFileByUuidMock).toMatchObject({ path: '/parent/file.txt', uuid: 'uuid' });
-    });
+  it('should unlink file', async () => {
+    // Given
+    getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    // When
+    await onUnlink(props as any);
+    // Then
+    call(getFileByNameMock).toStrictEqual({ nameWithExtension: 'file.txt', parentUuid: 'parentUuid' });
+    call(getFolderInfoMock).toMatchObject({ path: '/parent' });
+    call(deleteFileByUuidMock).toMatchObject({ path: '/parent/file.txt', uuid: 'uuid' });
   });
 
   describe('what happens for folder', () => {
