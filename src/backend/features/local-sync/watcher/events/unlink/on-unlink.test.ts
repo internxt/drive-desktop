@@ -1,78 +1,92 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as getParentUuid from './get-parent-uuid';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { onUnlink } from './on-unlink';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { DeepPartial } from 'ts-essentials';
 
 describe('on-unlink', () => {
-  const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
   const getFolderByNameMock = partialSpyOn(SqliteModule.FolderModule, 'getByName');
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
 
-  let props: Parameters<typeof onUnlink>[0];
+  let props: DeepPartial<Parameters<typeof onUnlink>[0]>;
 
   beforeEach(() => {
-    getParentUuidMock.mockResolvedValue('parentUuid' as FolderUuid);
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     getFolderByNameMock.mockResolvedValue({});
 
-    props = mockProps<typeof onUnlink>({
+    props = {
+      ctx: { logger: loggerMock },
       path: abs('/parent/file.txt'),
-      isDirectory: false,
+    };
+  });
+
+  it('should log error if cannot retrieve parent uuid', async () => {
+    // Given
+    getFolderInfoMock.mockResolvedValue({ error: new Error() });
+    // When
+    const promise = onUnlink(props as any);
+    // Then
+    await expect(promise).rejects.toThrow();
+  });
+
+  describe('what happens for file', () => {
+    beforeEach(() => {
+      props.type = 'file';
+    });
+
+    it('should skip if file does not exist', async () => {
+      // Given
+      getFileByNameMock.mockResolvedValue({});
+      // When
+      await onUnlink(props as any);
+      // Then
+      calls(deleteFileByUuidMock).toHaveLength(0);
+    });
+
+    it('should unlink file', async () => {
+      // Given
+      getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+      // When
+      await onUnlink(props as any);
+      // Then
+      call(getFileByNameMock).toStrictEqual({ nameWithExtension: 'file.txt', parentUuid: 'parentUuid' });
+      call(getFolderInfoMock).toMatchObject({ path: '/parent' });
+      call(deleteFileByUuidMock).toMatchObject({ path: '/parent/file.txt', uuid: 'uuid' });
     });
   });
 
-  it('should catch in case of error', async () => {
-    // Given
-    getParentUuidMock.mockRejectedValue(new Error());
-    // When
-    await onUnlink(props);
-    // Then
-    expect(loggerMock.error).toBeCalledTimes(1);
-  });
+  describe('what happens for folder', () => {
+    beforeEach(() => {
+      props.path = abs('/parent/folder');
+      props.type = 'folder';
+    });
 
-  it('should skip if cannot retrieve parent uuid', async () => {
-    // Given
-    getParentUuidMock.mockResolvedValue(null);
-    // When
-    await onUnlink(props);
-    // Then
-    call(getParentUuidMock).toMatchObject({ path: '/parent/file.txt' });
-    calls(getFileByNameMock).toHaveLength(0);
-  });
+    it('should skip if folder does not exist', async () => {
+      // Given
+      getFolderByNameMock.mockResolvedValue({});
+      // When
+      await onUnlink(props as any);
+      // Then
+      calls(deleteFolderByUuidMock).toHaveLength(0);
+    });
 
-  it('should skip if file does not exist', async () => {
-    // Given
-    getFileByNameMock.mockResolvedValue({});
-    // When
-    await onUnlink(props);
-    // Then
-    call(getFileByNameMock).toStrictEqual({ nameWithExtension: 'file.txt', parentUuid: 'parentUuid' });
-    calls(deleteFileByUuidMock).toHaveLength(0);
-  });
-
-  it('should unlink file', async () => {
-    // Given
-    getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
-    // When
-    await onUnlink(props);
-    // Then
-    call(deleteFileByUuidMock).toMatchObject({ path: '/parent/file.txt', uuid: 'uuid' });
-  });
-
-  it('should unlink folder', async () => {
-    // Given
-    getFolderByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
-    props.path = abs('/parent/folder');
-    props.isDirectory = true;
-    // When
-    await onUnlink(props);
-    // Then
-    call(deleteFolderByUuidMock).toMatchObject({ path: '/parent/folder', uuid: 'uuid' });
+    it('should unlink folder', async () => {
+      // Given
+      getFolderByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
+      // When
+      await onUnlink(props as any);
+      // Then
+      call(getFolderByNameMock).toStrictEqual({ plainName: 'folder', parentUuid: 'parentUuid' });
+      call(getFolderInfoMock).toMatchObject({ path: '/parent' });
+      call(deleteFolderByUuidMock).toMatchObject({ path: '/parent/folder', uuid: 'uuid' });
+    });
   });
 });
