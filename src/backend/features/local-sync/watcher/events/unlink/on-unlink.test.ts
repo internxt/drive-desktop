@@ -28,13 +28,13 @@ describe('on-unlink', () => {
     };
   });
 
-  it('should log error if cannot retrieve parent uuid', async () => {
+  it('should skip if cannot retrieve parent uuid', async () => {
     // Given
     getFolderInfoMock.mockResolvedValue({ error: new Error() });
     // When
-    const promise = onUnlink(props as any);
+    await onUnlink(props as any);
     // Then
-    await expect(promise).rejects.toThrow();
+    calls(deleteFileByUuidMock).toHaveLength(0);
   });
 
   it('should skip if file does not exist', async () => {
