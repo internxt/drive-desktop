@@ -2,15 +2,18 @@ import { checkIfModified } from './check-if-modified';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { stat, writeFile } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Addon } from '@/node-win/addon-wrapper';
 import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
+import * as onChange from '@/node-win/watcher/events/on-change';
 
 describe('check-if-modified', () => {
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
+
   const providerName = 'Internxt Drive';
   const providerId = v4();
   const rootPath = join(TEST_FILES, v4());
@@ -76,5 +79,6 @@ describe('check-if-modified', () => {
     const fileInfo = await Addon.getPlaceholderState({ path });
     expect(stats.size).toBe(14);
     expect(fileInfo.onDiskSize).toBe(0);
+    calls(onChangeMock).toMatchObject([{ event: { action: 'update', size: 7 } }, { event: { action: 'update', size: 14 } }]);
   });
 });
