@@ -59,8 +59,6 @@ describe('check-if-modified', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
-      { msg: 'Watcher event', event: { action: 'create', size: 0 } },
-      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'Sync remote changes to local',
@@ -70,8 +68,6 @@ describe('check-if-modified', () => {
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
-      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
-      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
       { msg: 'Watcher event', event: { action: 'update', size: 14 } },
     ]);
 

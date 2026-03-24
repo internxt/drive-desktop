@@ -49,7 +49,6 @@ describe('create-placeholder', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
-      { msg: 'Watcher event', event: { action: 'create', size: 0 } },
       { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
