@@ -83,6 +83,15 @@ describe('addon', () => {
     call(addon.getPlaceholderState).toStrictEqual(String.raw`\\?\\parent\file.txt`);
   });
 
+  it('should call addon.getSyncRootFromPath', async () => {
+    // Given
+    const rootPath = abs('C:/Users/user/InternxtDrive');
+    // When
+    await Addon.getSyncRootFromPath({ rootPath });
+    // Then
+    call(addon.getSyncRootFromPath).toStrictEqual(String.raw`C:\Users\user\InternxtDrive`);
+  });
+
   it('should call addon.updatePlaceholder', async () => {
     // When
     await Addon.updatePlaceholder({ path: abs('/parent/file.txt'), placeholderId: 'FILE:uuid', size: 1 });

@@ -1,14 +1,19 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { v4 } from 'uuid';
 
-import { setupWatcher, getEvents, processEventMock } from './watcher.helper.test';
+import { setupWatcher, getEvents } from './watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { getCalls } from '@/tests/vitest/utils.helper.test';
+import { call, calls, getCalls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as onChange from '../events/on-change';
+import * as onAddDir from '../events/on-add-dir.service';
 
 describe('watcher-on-add', () => {
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
+  const onAddDirMock = partialSpyOn(onAddDir, 'onAddDir');
+
   let rootPath: AbsolutePath;
   let parent: AbsolutePath;
 
@@ -27,7 +32,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, 'content');
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size: 7 }, path: file }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
   it('should emit create event when create empty file', async () => {
@@ -37,7 +42,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, '');
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'create', type: 'file', size: 0 }, path: file }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file', size: 0 }, path: file });
   });
 
   it('should emit update event when create file with strange characters', async () => {
@@ -47,7 +52,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, 'content');
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size: 7 }, path: file }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
   it('should emit update event when creating a big file', async () => {
@@ -59,7 +64,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, bigContent);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'update', type: 'file', size }, path: file }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size }, path: file });
   });
 
   it('should emit update events for all files with content', async () => {
@@ -69,8 +74,8 @@ describe('watcher-on-add', () => {
     await Promise.all(files.map((file) => writeFile(file, 'content')));
     await sleep(100);
     // Then
-    getEvents().toHaveLength(50);
-    expect(getCalls(processEventMock).every((c: any) => c.event.action === 'update')).toBe(true);
+    calls(onChangeMock).toHaveLength(50);
+    expect(getCalls(onChangeMock).every((c: any) => c.event.action === 'update')).toBe(true);
   });
 
   it('should emit create event when create folder', async () => {
@@ -81,5 +86,6 @@ describe('watcher-on-add', () => {
     await sleep(100);
     // Then
     getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder }]);
+    call(onAddDirMock).toMatchObject({ path: folder });
   });
 });
