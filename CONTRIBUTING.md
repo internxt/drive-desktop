@@ -77,12 +77,12 @@ We only use arrow functions when we want to define a function using a type.
 
 ```ts
 // bad
-const connect = () => {}
+const connect = () => {};
 // good
 function connect() {}
 // good
 type func = () => void;
-const connect: func = () => {}
+const connect: func = () => {};
 ```
 
 ### Use object props instead of multiple props
