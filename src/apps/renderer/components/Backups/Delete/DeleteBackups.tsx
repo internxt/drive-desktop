@@ -1,12 +1,12 @@
-import { SecondaryText } from '../../SecondaryText';
-import { SectionHeader } from '../../SectionHeader';
-import Button from '../../Button';
-import { ConfirmationModal } from './ConfirmationModal';
 import { useContext, useEffect, useState } from 'react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { BackupContext } from '../../../context/BackupContext';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { useBackupProgress } from '../../../hooks/backups/useBackupProgress';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Button from '../../Button';
+import { SecondaryText } from '../../SecondaryText';
+import { SectionHeader } from '../../SectionHeader';
+import { ConfirmationModal } from './ConfirmationModal';
 
 export function DeleteBackups() {
   const { backups, deleteBackups, backupStatus } = useContext(BackupContext);

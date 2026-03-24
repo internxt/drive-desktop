@@ -1,10 +1,10 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { NodeWin } from '@/infra/node-win/node-win.module';
+import { Stats } from 'node:fs';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Stats } from 'node:fs';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 
 export type FileExplorerFiles = Map<FileUuid, { path: AbsolutePath; stats: Stats }>;
 export type FileExplorerFolders = Map<FolderUuid, { path: AbsolutePath }>;

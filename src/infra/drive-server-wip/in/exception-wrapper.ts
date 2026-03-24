@@ -1,4 +1,5 @@
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 import { DriveServerWipError } from '../defs';
 import {
   fetchExceptionSchema,
@@ -7,7 +8,6 @@ import {
   isNetworkConnectivityError,
   networkErrorIssue,
 } from './helpers/error-helpers';
-import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 
 type TProps = {
   loggerBody: TLoggerBody;

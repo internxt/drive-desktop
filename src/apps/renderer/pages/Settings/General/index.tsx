@@ -1,8 +1,8 @@
 import { AppInfo } from './AppInfo';
 import DeviceName from './DeviceName';
 import { LanguagePicker } from './LanguagePicker';
-import { ThemePicker } from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
+import { ThemePicker } from './ThemePicker';
 import { SyncRootLocation } from './sync-root-location';
 
 export default function GeneralSection({ active }: { active: boolean }) {

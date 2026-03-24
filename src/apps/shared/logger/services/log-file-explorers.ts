@@ -1,7 +1,7 @@
-import { measurePerfomance } from '@/core/utils/measure-performance';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
-import { logFileExplorer } from './log-file-explorer';
 import { workers } from '@/apps/main/remote-sync/store';
+import { measurePerfomance } from '@/core/utils/measure-performance';
+import { logFileExplorer } from './log-file-explorer';
 
 export async function logFileExplorers() {
   const csvPaths: AbsolutePath[] = [];

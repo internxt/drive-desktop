@@ -1,15 +1,15 @@
 import { LocalTreeBuilder } from '../../context/local/localTree/application/LocalTreeBuilder';
-import { BackupsContext } from './BackupInfo';
-import { Traverser } from './remote-tree/traverser';
 import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
+import { BackupsContext } from './BackupInfo';
 import { calculateFilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
-import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { replaceFiles } from './process-files/replace-files';
+import { deleteFolders } from './folders/delete-folders';
 import { createFiles } from './process-files/create-files';
 import { deleteFiles } from './process-files/delete-files';
-import { deleteFolders } from './folders/delete-folders';
+import { replaceFiles } from './process-files/replace-files';
+import { Traverser } from './remote-tree/traverser';
 
 type Props = {
   ctx: BackupsContext;

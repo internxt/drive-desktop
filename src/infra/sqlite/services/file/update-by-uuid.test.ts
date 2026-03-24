@@ -1,9 +1,9 @@
-import { fileRepository } from '../drive-file';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { updateByUuid } from './update-by-uuid';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
+import { fileRepository } from '../drive-file';
+import { updateByUuid } from './update-by-uuid';
 
 describe('update-by-uuid', () => {
   const date = new Date().toISOString();

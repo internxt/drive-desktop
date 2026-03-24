@@ -1,5 +1,5 @@
-import { getCheckpoint } from './get-checkpoint';
 import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
+import { getCheckpoint } from './get-checkpoint';
 
 describe('get-checkpoint', () => {
   const props: Parameters<typeof getCheckpoint>[0] = {

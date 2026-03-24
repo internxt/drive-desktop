@@ -1,6 +1,6 @@
-import { processDeeplink } from './process-deeplink';
-import { call } from '@/tests/vitest/utils.helper.test';
 import { shell } from 'electron';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { processDeeplink } from './process-deeplink';
 
 describe('process-deeplink', () => {
   const openExternalMock = vi.mocked(shell.openExternal);

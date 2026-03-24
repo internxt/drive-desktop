@@ -1,8 +1,8 @@
-import { moveItem } from './move-item';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { moveItem } from './move-item';
 
 type TProps = {
   ctx: ProcessSyncContext;

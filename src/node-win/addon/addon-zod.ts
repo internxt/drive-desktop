@@ -1,5 +1,4 @@
 import { z } from 'zod';
-
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {

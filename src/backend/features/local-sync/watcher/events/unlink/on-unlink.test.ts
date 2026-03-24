@@ -1,12 +1,12 @@
-import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { onUnlink } from './on-unlink';
-import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 
 describe('on-unlink', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');

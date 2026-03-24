@@ -1,6 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { findMpCmdRun } from './find-mcp-command';
 import { execAsync } from '@/core/utils/exec-async';
+import { findMpCmdRun } from './find-mcp-command';
 
 export async function isWindowsDefenderAvailable(): Promise<boolean> {
   try {

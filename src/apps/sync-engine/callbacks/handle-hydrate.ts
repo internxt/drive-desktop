@@ -1,5 +1,5 @@
-import Bottleneck from 'bottleneck';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import Bottleneck from 'bottleneck';
 import { Addon } from '@/node-win/addon-wrapper';
 import { ProcessSyncContext } from '../config';
 

@@ -1,9 +1,9 @@
-import { RemoteSyncStatus } from './helpers';
-import { broadcastSyncStatus } from './services/broadcast-sync-status';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 import { syncRemoteFiles } from './files/sync-remote-files';
 import { syncRemoteFolders } from './folders/sync-remote-folders';
-import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { RemoteSyncStatus } from './helpers';
+import { broadcastSyncStatus } from './services/broadcast-sync-status';
 
 export async function startSyncByCheckpoint({ ctx }: { ctx: SyncContext }) {
   ctx.logger.debug({ msg: 'Starting sync by checkpoint' });

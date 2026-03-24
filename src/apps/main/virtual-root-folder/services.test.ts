@@ -1,10 +1,10 @@
-import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { electronStore } from '../config';
-import { getRootVirtualDrive, OLD_SYNC_ROOT } from './service';
-import * as getUserOrThrowModule from '../auth/service';
-import * as migrateSyncRootModule from './migrate-sync-root';
 import { abs, createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
+import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as getUserOrThrowModule from '../auth/service';
+import { electronStore } from '../config';
+import * as migrateSyncRootModule from './migrate-sync-root';
+import { getRootVirtualDrive, OLD_SYNC_ROOT } from './service';
 
 describe('getRootVirtualDrive', () => {
   const getUserOrThrowMock = partialSpyOn(getUserOrThrowModule, 'getUserOrThrow');

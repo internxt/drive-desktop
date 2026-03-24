@@ -1,30 +1,26 @@
 import { Transition } from '@headlessui/react';
-
-// Finder images
-import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
-import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
-import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
-import CleanerDarkImageSpanish from '../../assets/onboarding/cleaner/ES-Dark.svg';
-import CleanerDarkImageFrench from '../../assets/onboarding/cleaner/FR-Dark.svg';
-import CleanerDarkImageEnglish from '../../assets/onboarding/cleaner/EN-Dark.svg';
-
-import DriveLightImageSpanish from '../../assets/onboarding/drive/ES-Light.svg';
-import DriveLightImageFrench from '../../assets/onboarding/drive/FR-Light.svg';
-import DriveLightImageEnglish from '../../assets/onboarding/drive/EN-Light.svg';
-import DriveDarkImageSpanish from '../../assets/onboarding/drive/ES-Dark.svg';
-import DriveDarkImageFrench from '../../assets/onboarding/drive/FR-Dark.svg';
-import DriveDarkImageEnglish from '../../assets/onboarding/drive/EN-Dark.svg';
-
-import AntivirusLightImageSpanish from '../../assets/onboarding/antivirus/ES-Light.svg';
-import AntivirusLightImageFrench from '../../assets/onboarding/antivirus/FR-Light.svg';
-import AntivirusLightImageEnglish from '../../assets/onboarding/antivirus/EN-Light.svg';
-import AntivirusDarkImageSpanish from '../../assets/onboarding/antivirus/ES-Dark.svg';
-import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.svg';
-import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
-
-import { OnboardingImages } from './types';
 import { Language } from '@/apps/main/config/language.types';
 import { Theme } from '@/apps/main/config/theme.types';
+import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
+import AntivirusLightImageEnglish from '../../assets/onboarding/antivirus/EN-Light.svg';
+import AntivirusDarkImageSpanish from '../../assets/onboarding/antivirus/ES-Dark.svg';
+import AntivirusLightImageSpanish from '../../assets/onboarding/antivirus/ES-Light.svg';
+import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.svg';
+import AntivirusLightImageFrench from '../../assets/onboarding/antivirus/FR-Light.svg';
+import CleanerDarkImageEnglish from '../../assets/onboarding/cleaner/EN-Dark.svg';
+import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
+import CleanerDarkImageSpanish from '../../assets/onboarding/cleaner/ES-Dark.svg';
+// Finder images
+import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
+import CleanerDarkImageFrench from '../../assets/onboarding/cleaner/FR-Dark.svg';
+import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
+import DriveDarkImageEnglish from '../../assets/onboarding/drive/EN-Dark.svg';
+import DriveLightImageEnglish from '../../assets/onboarding/drive/EN-Light.svg';
+import DriveDarkImageSpanish from '../../assets/onboarding/drive/ES-Dark.svg';
+import DriveLightImageSpanish from '../../assets/onboarding/drive/ES-Light.svg';
+import DriveDarkImageFrench from '../../assets/onboarding/drive/FR-Dark.svg';
+import DriveLightImageFrench from '../../assets/onboarding/drive/FR-Light.svg';
+import { OnboardingImages } from './types';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;

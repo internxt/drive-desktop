@@ -1,10 +1,10 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loadInMemoryPaths } from './load-in-memory-paths';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as statReaddir from '@/infra/file-system/services/stat-readdir';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { loadInMemoryPaths } from './load-in-memory-paths';
 
 describe('load-in-memory-paths', () => {
   const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');

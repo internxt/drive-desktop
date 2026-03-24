@@ -1,14 +1,14 @@
-import { getActiveEngine } from './get-active-antivirus-engine';
-import { mockDeep } from 'vitest-mock-extended';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { mockDeep } from 'vitest-mock-extended';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import * as selectAntivirusEngineModule from './select-antivirus-engine';
-import * as createEngineModule from './create-antivirus-engine';
-import * as initializeAntivirusModule from '../utils/initializeAntivirus';
-import { AntivirusType } from './types';
-import { AntivirusManager } from './antivirus-manager';
 import { AntivirusClamAV } from '../antivirus-clam-av';
+import * as initializeAntivirusModule from '../utils/initializeAntivirus';
 import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
+import { AntivirusManager } from './antivirus-manager';
+import * as createEngineModule from './create-antivirus-engine';
+import { getActiveEngine } from './get-active-antivirus-engine';
+import * as selectAntivirusEngineModule from './select-antivirus-engine';
+import { AntivirusType } from './types';
 
 describe('getActiveEngine', () => {
   const mockManager = mockDeep<AntivirusManager>();

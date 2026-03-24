@@ -1,10 +1,10 @@
+import { writeFile } from 'node:fs/promises';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import * as statReaddir from '@/infra/file-system/services/stat-readdir';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { logFileExplorer } from './log-file-explorer';
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as statReaddir from '@/infra/file-system/services/stat-readdir';
-import { writeFile } from 'node:fs/promises';
-import { PATHS } from '@/core/electron/paths';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 
 vi.mock(import('node:fs/promises'));
 

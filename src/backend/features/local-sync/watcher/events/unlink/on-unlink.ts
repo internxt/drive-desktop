@@ -1,9 +1,9 @@
-import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { deleteFileByUuid, deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
   ctx: ProcessSyncContext;

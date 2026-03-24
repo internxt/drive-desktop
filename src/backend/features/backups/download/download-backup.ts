@@ -1,12 +1,12 @@
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Device, getPathFromDialog } from '@/apps/main/device/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ipcMain, shell } from 'electron';
-import { downloadFolder } from './download-folder';
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { broadcastToWindows } from '@/apps/main/windows';
 import { buildBackupsEnvironment } from '@/apps/main/background-processes/backups/build-environment';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Device, getPathFromDialog } from '@/apps/main/device/service';
+import { broadcastToWindows } from '@/apps/main/windows';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { downloadFolder } from './download-folder';
 
 type Props = {
   device: Device;

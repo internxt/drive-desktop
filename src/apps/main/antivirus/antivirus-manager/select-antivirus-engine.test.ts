@@ -1,9 +1,9 @@
-import { selectAntivirusEngine } from './select-antivirus-engine';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import * as isDefenderAvailable from '../windows-defender/is-windows-defender-available';
-import * as initializeAntivirusModule from '../utils/initializeAntivirus';
 import * as clamAVDaemon from '../ClamAVDaemon';
+import * as initializeAntivirusModule from '../utils/initializeAntivirus';
+import * as isDefenderAvailable from '../windows-defender/is-windows-defender-available';
+import { selectAntivirusEngine } from './select-antivirus-engine';
 
 describe('selectAntivirusEngine', () => {
   const isWindowsDefenderActiveMock = partialSpyOn(isDefenderAvailable, 'isWindowsDefenderAvailable');

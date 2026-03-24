@@ -1,14 +1,14 @@
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { mkdir } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
-import { mkdir } from 'node:fs/promises';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
 
 describe('get-folder-info', () => {
   const providerId = v4();

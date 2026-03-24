@@ -1,7 +1,7 @@
-import { ActionState } from '@internxt/inxt-js/build/api';
-import { Environment } from '@internxt/inxt-js';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath, logger, throwWrapper } from '@internxt/drive-desktop-core/build/backend';
+import { Environment } from '@internxt/inxt-js';
+import { ActionState } from '@internxt/inxt-js/build/api';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 const downloads = new Map<AbsolutePath, ActionState>();
 

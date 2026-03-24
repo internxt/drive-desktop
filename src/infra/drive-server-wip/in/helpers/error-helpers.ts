@@ -1,6 +1,6 @@
-import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import Bottleneck from 'bottleneck';
 import { z } from 'zod';
+import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 
 /*
  * v2.5.3

@@ -1,9 +1,9 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { replaceFiles } from './replace-files';
 import { Sync } from '@/backend/features/sync';
-import * as scheduleRequest from '../schedule-request';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as scheduleRequest from '../schedule-request';
+import { replaceFiles } from './replace-files';
 
 describe('replace-files', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');

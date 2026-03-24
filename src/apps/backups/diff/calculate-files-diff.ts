@@ -1,7 +1,7 @@
-import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { RemoteTree } from '../remote-tree/traverser';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
+import { RemoteTree } from '../remote-tree/traverser';
 
 export type FilesDiff = {
   added: Array<StatItem>;

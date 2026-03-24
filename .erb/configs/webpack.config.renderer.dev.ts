@@ -1,16 +1,16 @@
-import path from 'node:path';
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+import chalk from 'chalk';
+import Dotenv from 'dotenv-webpack';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { spawn, execSync } from 'node:child_process';
 import fs from 'node:fs';
+import path from 'node:path';
 import webpack from 'webpack';
 import webpackDevServer from 'webpack-dev-server';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import Dotenv from 'dotenv-webpack';
-import chalk from 'chalk';
 import { merge } from 'webpack-merge';
-import { spawn, execSync } from 'node:child_process';
+import checkNodeEnv from '../scripts/check-node-env';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
-import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 
 interface Configuration extends webpack.Configuration {
   devServer?: webpackDevServer.Configuration;

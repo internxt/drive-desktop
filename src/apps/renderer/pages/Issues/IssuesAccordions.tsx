@@ -1,7 +1,7 @@
+import { BackupsIssue, SyncIssue, GeneralIssue } from '@/apps/main/background-processes/issues';
 import { IssuesByError } from './IssuesByError';
 import { NoIssues } from './NoIssues';
 import { Section } from './issues-store';
-import { BackupsIssue, SyncIssue, GeneralIssue } from '@/apps/main/background-processes/issues';
 
 type IssuesAccordionsProps = {
   selectedTab: Section;

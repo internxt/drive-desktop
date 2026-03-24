@@ -1,6 +1,6 @@
-import { calculateFilesDiff } from './calculate-files-diff';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockProps } from 'tests/vitest/utils.helper.test';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { calculateFilesDiff } from './calculate-files-diff';
 
 describe('calculate-files-diff', () => {
   const props = mockProps<typeof calculateFilesDiff>({

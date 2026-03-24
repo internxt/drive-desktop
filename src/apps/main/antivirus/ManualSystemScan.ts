@@ -1,11 +1,11 @@
 import { queue, QueueObject } from 'async';
+import { homedir } from 'node:os';
+import { logger } from '@/apps/shared/logger/logger';
+import { sendAntivirusProgress } from '../windows/widget';
 import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { AntivirusEngine } from './antivirus-manager/types';
-import { isPermissionError } from './utils/isPermissionError';
-import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
-import { homedir } from 'node:os';
-import { sendAntivirusProgress } from '../windows/widget';
+import { isPermissionError } from './utils/isPermissionError';
 
 export interface ProgressData {
   totalScannedFiles: number;

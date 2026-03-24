@@ -1,9 +1,9 @@
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { Notification } from 'electron';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { MarketingNotification } from '@/infra/drive-server-wip/services/notifications/get-notifications';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { Notification } from 'electron';
 
 function showNotification(notification: MarketingNotification) {
   logger.debug({ msg: 'Show notification', notification });

@@ -1,13 +1,13 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { downloadFolder } from './download-folder';
-import * as broadcastToWindows from '@/apps/main/windows';
-import { Traverser } from '@/apps/backups/remote-tree/traverser';
-import * as downloadFile from './download-file';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { sleep } from '@/apps/main/util';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { mkdir } from 'node:fs/promises';
+import { Traverser } from '@/apps/backups/remote-tree/traverser';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { sleep } from '@/apps/main/util';
+import * as broadcastToWindows from '@/apps/main/windows';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as downloadFile from './download-file';
+import { downloadFolder } from './download-folder';
 
 vi.mock(import('node:fs/promises'));
 

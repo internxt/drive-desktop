@@ -1,14 +1,14 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
-import { clientWrapper } from '../in/client-wrapper.service';
-import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
-import { getRequestKey } from '../in/get-in-flight-request';
-import { createFile } from './files/create-file';
-import { parseFileDto } from '../out/dto';
-import { move } from './files/move';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { clientWrapper } from '../in/client-wrapper.service';
+import { getRequestKey } from '../in/get-in-flight-request';
+import { parseFileDto } from '../out/dto';
 import { checkExistence } from './files/check-existence';
+import { createFile } from './files/create-file';
+import { move } from './files/move';
 
 export const files = {
   getFiles,

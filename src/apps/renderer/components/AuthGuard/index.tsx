@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { User } from '@/apps/main/types';
 import { Login } from '../../pages/Login';
 import { DraggableModal } from './draggable-modal';
 import { AUTH, Dimensions } from './get-dimensions';
 import { LoggedPage } from './logged-page';
-import { User } from '@/apps/main/types';
 
 function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
   if (e.target === e.currentTarget) {

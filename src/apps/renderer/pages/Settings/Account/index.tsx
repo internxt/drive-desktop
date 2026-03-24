@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { User } from '../../../../main/types';
+import { useGetUsage } from '../../../api/use-get-usage';
 import Spinner from '../../../assets/spinner.svg';
+import Button from '../../../components/Button';
 import Usage from './Usage';
 import { UserInfo } from './UserInfo';
-import Button from '../../../components/Button';
-import { useGetUsage } from '../../../api/use-get-usage';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function AccountSection({ user, active }: { user: User; active: boolean }) {
   const { translate } = useI18n();

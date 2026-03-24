@@ -1,7 +1,7 @@
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getLocalFolders } from './get-local-folders';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-local-folders', () => {
   const getBetweenUuidsMock = partialSpyOn(SqliteModule.FolderModule, 'getBetweenUuids');

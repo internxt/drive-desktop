@@ -1,11 +1,11 @@
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as getRootVirtualDrive from '../virtual-root-folder/service';
+import { spawnSyncEngineWorkers } from './sync-engine';
 import * as getWorkspaces from './sync-engine/services/get-workspaces';
-import * as unregisterVirtualDrives from './sync-engine/services/unregister-virtual-drives';
 import * as spawnSyncEngineWorker from './sync-engine/services/spawn-sync-engine-worker';
 import * as spawnWorkspace from './sync-engine/services/spawn-workspace';
-import { spawnSyncEngineWorkers } from './sync-engine';
-import * as getRootVirtualDrive from '../virtual-root-folder/service';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as unregisterVirtualDrives from './sync-engine/services/unregister-virtual-drives';
 
 describe('spawn-sync-engine-workers', () => {
   const getRootVirtualDriveMock = partialSpyOn(getRootVirtualDrive, 'getRootVirtualDrive');

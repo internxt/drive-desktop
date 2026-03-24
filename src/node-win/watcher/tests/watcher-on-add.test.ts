@@ -1,14 +1,13 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
-
-import { setupWatcher, getEvents } from './watcher.helper.test';
-import { sleep } from '@/apps/main/util';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { v4 } from 'uuid';
+import { sleep } from '@/apps/main/util';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, getCalls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as onChange from '../events/on-change';
 import * as onAddDir from '../events/on-add-dir.service';
+import * as onChange from '../events/on-change';
+import { setupWatcher, getEvents } from './watcher.helper.test';
 
 describe('watcher-on-add', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');

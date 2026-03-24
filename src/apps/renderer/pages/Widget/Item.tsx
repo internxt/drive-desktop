@@ -1,10 +1,10 @@
 import { Check, WarningCircle } from '@phosphor-icons/react';
+import { clsx } from 'clsx';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { getBaseName, getExtension } from '../../utils/path';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 import { fileIcon } from '../../assets/icons/getIcon';
 import { useI18n } from '../../localize/use-i18n';
-import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
-import { clsx } from 'clsx';
+import { getBaseName, getExtension } from '../../utils/path';
 
 const progressActions: SyncStateItem['action'][] = ['DOWNLOADING', 'UPLOADING'];
 const errorActions: SyncStateItem['action'][] = ['DELETE_ERROR', 'MODIFY_ERROR', 'MOVE_ERROR', 'DOWNLOAD_ERROR', 'UPLOAD_ERROR'];

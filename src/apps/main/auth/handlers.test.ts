@@ -1,7 +1,7 @@
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { checkIfUserIsLoggedIn } from './handlers';
 import * as getUser from './service';
-import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 
 describe('handlers', () => {
   const getUserMock = partialSpyOn(getUser, 'getUser');

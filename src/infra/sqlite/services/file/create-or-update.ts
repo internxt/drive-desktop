@@ -1,7 +1,7 @@
-import { fileRepository } from '../drive-file';
-import { logger } from '@/apps/shared/logger/logger';
-import { parseData } from './parse-data';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { logger } from '@/apps/shared/logger/logger';
+import { fileRepository } from '../drive-file';
+import { parseData } from './parse-data';
 
 type Props = {
   file: DriveFile;

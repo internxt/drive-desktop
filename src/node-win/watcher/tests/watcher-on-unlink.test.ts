@@ -1,14 +1,13 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
-
-import { setupWatcher } from './watcher.helper.test';
-import { sleep } from '@/apps/main/util';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import trash from 'trash';
-import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { v4 } from 'uuid';
+import { sleep } from '@/apps/main/util';
 import * as onUnlink from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { setupWatcher } from './watcher.helper.test';
 
 describe('watcher-on-unlink', () => {
   const onUnlinkMock = partialSpyOn(onUnlink, 'onUnlink');

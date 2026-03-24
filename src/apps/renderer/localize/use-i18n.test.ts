@@ -1,6 +1,6 @@
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { getI18nValue } from './use-i18n';
 import * as configStoreModule from '../features/config/config.store';
+import { getI18nValue } from './use-i18n';
 
 describe('use-i18n', () => {
   const configStoreMock = partialSpyOn(configStoreModule, 'configStore');

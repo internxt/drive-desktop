@@ -1,7 +1,7 @@
 import type { ElectronApplication } from '@playwright/test';
 import { expect as pwExpect } from '@playwright/test';
-import { getFirstWindow } from './electron.helper';
 import { DEFAULT_TIMEOUT } from './e2e-configuration.helper';
+import { getFirstWindow } from './electron.helper';
 
 export async function getAppWidget(electronApp: ElectronApplication) {
   const appWindow = await getFirstWindow(electronApp);

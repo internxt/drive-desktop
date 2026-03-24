@@ -1,5 +1,5 @@
-import { posix, win32 } from 'node:path';
 import { AbsolutePath as CoreAbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { posix, win32 } from 'node:path';
 
 export type AbsolutePath = CoreAbsolutePath;
 

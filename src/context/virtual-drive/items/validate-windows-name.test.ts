@@ -1,6 +1,6 @@
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { validateWindowsName } from './validate-windows-name';
 import * as addSyncIssue from '@/apps/main/background-processes/issues';
+import { validateWindowsName } from './validate-windows-name';
 
 describe('validate-windows-name', () => {
   partialSpyOn(addSyncIssue, 'addSyncIssue');

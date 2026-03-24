@@ -1,8 +1,8 @@
-import { scanFile } from './scan-file';
 import * as childProcess from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as parseVirusNames from './parse-virus-names';
+import { scanFile } from './scan-file';
 
 type MockChildProcess = EventEmitter & {
   stdout: EventEmitter;

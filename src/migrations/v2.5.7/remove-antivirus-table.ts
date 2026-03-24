@@ -1,6 +1,6 @@
+import Database from 'better-sqlite3';
 import { logger } from '@/apps/shared/logger/logger';
 import { PATHS } from '@/core/electron/paths';
-import Database from 'better-sqlite3';
 
 export class RemoveAntivirusTable {
   static readonly KEY = 'v2-5-7-remove-antivirus-table';

@@ -1,8 +1,8 @@
 import { electronStore } from '@/apps/main/config';
-import { BackupScheduler } from './BackupScheduler';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as launchBackupProcesses from '../launchBackupProcesses';
+import { BackupScheduler } from './BackupScheduler';
 
 describe('backup-scheduler', () => {
   const getMock = partialSpyOn(electronStore, 'get');

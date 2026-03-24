@@ -1,6 +1,6 @@
 import configStore from '@/apps/main/config';
-import { resetConfig } from './reset-config';
 import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { resetConfig } from './reset-config';
 
 describe('resetConfig', () => {
   const configSetMock = partialSpyOn(configStore, 'set');

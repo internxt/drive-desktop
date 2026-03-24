@@ -1,8 +1,8 @@
-import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
+import { FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { checkIfMoved } from './check-if-moved';
 
 export class FolderPlaceholderUpdater {

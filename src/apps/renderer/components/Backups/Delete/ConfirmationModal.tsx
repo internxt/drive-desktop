@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react/jsx-runtime';
-import Button from '../../Button';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Button from '../../Button';
 
 interface ConfirmationModalProps {
   show: boolean;

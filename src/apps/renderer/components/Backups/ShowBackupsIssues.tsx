@@ -1,7 +1,7 @@
 import { WarningCircle } from '@phosphor-icons/react';
-import Button from '../Button';
 import { useI18n } from '../../localize/use-i18n';
 import { useIssuesStore } from '../../pages/Issues/issues-store';
+import Button from '../Button';
 
 export function ShowBackupsIssues() {
   const { translate } = useI18n();

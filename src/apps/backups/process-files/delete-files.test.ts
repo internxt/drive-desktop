@@ -1,9 +1,9 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { deleteFiles } from './delete-files';
-import * as scheduleRequest from '../schedule-request';
-import * as deleteFileByUuid from '@/infra/drive-server-wip/out/ipc-main';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as deleteFileByUuid from '@/infra/drive-server-wip/out/ipc-main';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as scheduleRequest from '../schedule-request';
+import { deleteFiles } from './delete-files';
 
 describe('delete-files', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');

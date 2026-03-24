@@ -1,11 +1,11 @@
-import { generateCleanerReport } from './generate-cleaner-report';
-import * as generateAppCacheReportModule from './generate-app-cache-report';
-import * as generateLogFilesReportModule from './generate-log-files-report';
-import * as generateWebStorageFileReportModule from './generate-web-storage-files-report';
-import * as generateWebCacheReportModule from './generate-web-cache-report';
-import * as generateWindowsSpecificFileReportModule from './generate-windows-specific-file-report';
-import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as generateAppCacheReportModule from './generate-app-cache-report';
+import { generateCleanerReport } from './generate-cleaner-report';
+import * as generateLogFilesReportModule from './generate-log-files-report';
+import * as generateWebCacheReportModule from './generate-web-cache-report';
+import * as generateWebStorageFileReportModule from './generate-web-storage-files-report';
+import * as generateWindowsSpecificFileReportModule from './generate-windows-specific-file-report';
 
 describe('generateCleanerReport', () => {
   const generateAppCacheReportMock = partialSpyOn(generateAppCacheReportModule, 'generateAppCacheReport');

@@ -1,6 +1,6 @@
+import { DEFAULT_LANGUAGE } from '@/apps/main/config/language.types';
 import { User } from '@/apps/main/types';
 import { AppStore } from './app-store.interface';
-import { DEFAULT_LANGUAGE } from '@/apps/main/config/language.types';
 
 export const defaults: AppStore = {
   backupInterval: 24 * 60 * 60 * 1000,

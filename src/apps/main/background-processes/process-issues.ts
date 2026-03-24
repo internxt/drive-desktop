@@ -1,5 +1,4 @@
 import { Notification } from 'electron';
-
 import { logger } from '@/apps/shared/logger/logger';
 import { iconPath } from '@/apps/utils/icon';
 

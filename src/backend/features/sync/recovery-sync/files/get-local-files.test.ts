@@ -1,7 +1,7 @@
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getLocalFiles } from './get-local-files';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-local-files', () => {
   const getBetweenUuidsMock = partialSpyOn(SqliteModule.FileModule, 'getBetweenUuids');

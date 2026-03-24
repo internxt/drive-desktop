@@ -1,6 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
+import { getRequestKey } from '../../in/get-in-flight-request';
 import { noContentWrapper } from '../../in/no-content-wrapper.service';
 
 export async function logout() {

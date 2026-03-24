@@ -1,12 +1,12 @@
-import { changeSyncStatus, startSyncByCheckpoint } from './RemoteSyncManager';
-import { ipcMain } from 'electron';
-import { ItemBackup } from '../../shared/types/items';
-import { logger } from '../../shared/logger/logger';
-import { workers } from './store';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { ipcMain } from 'electron';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { logger } from '../../shared/logger/logger';
+import { ItemBackup } from '../../shared/types/items';
+import { changeSyncStatus, startSyncByCheckpoint } from './RemoteSyncManager';
+import { workers } from './store';
 
 export async function updateRemoteSync({ ctx }: { ctx: SyncContext }) {
   try {

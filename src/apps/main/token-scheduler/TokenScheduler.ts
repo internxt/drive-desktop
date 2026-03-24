@@ -1,7 +1,7 @@
-import { logger } from '@/apps/shared/logger/logger';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
-import { obtainToken, updateCredentials } from '../auth/service';
+import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { obtainToken, updateCredentials } from '../auth/service';
 
 const DAYS_BEFORE = 1;
 

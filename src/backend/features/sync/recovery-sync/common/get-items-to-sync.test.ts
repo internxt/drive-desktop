@@ -1,6 +1,6 @@
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getItemsToSync } from './get-items-to-sync';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as isItemToSyncModule from './is-item-to-sync';
 
 describe('get-items-to-sync', () => {

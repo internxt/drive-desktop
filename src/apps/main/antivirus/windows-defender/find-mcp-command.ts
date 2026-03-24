@@ -1,7 +1,7 @@
-import { join } from 'node:path';
 import { access, constants } from 'node:fs/promises';
-import { getDefenderVersions } from './get-defender-version';
+import { join } from 'node:path';
 import { logger } from '@/apps/shared/logger/logger';
+import { getDefenderVersions } from './get-defender-version';
 
 export async function findMpCmdRun() {
   const DEFENDER_PLATFORM_PATH = 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform';

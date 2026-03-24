@@ -1,11 +1,11 @@
-import { checkIfModified } from './check-if-modified';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { Drive } from '../../drive';
-import { NodeWin } from '@/infra/node-win/node-win.module';
+import { checkIfModified } from './check-if-modified';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));

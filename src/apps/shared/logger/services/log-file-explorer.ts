@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { writeFile } from 'node:fs/promises';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { writeFile } from 'node:fs/promises';
 
 type Props = {
   ctx: SyncContext;

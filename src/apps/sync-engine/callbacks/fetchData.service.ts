@@ -1,9 +1,9 @@
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { ProcessSyncContext } from '../config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { downloadContents } from '../download-contents/download-contents';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { CallbackDownload } from '@/node-win/addon';
+import { ProcessSyncContext } from '../config';
+import { downloadContents } from '../download-contents/download-contents';
 
 type TProps = {
   ctx: ProcessSyncContext;

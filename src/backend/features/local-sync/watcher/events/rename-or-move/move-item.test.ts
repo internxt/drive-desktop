@@ -1,11 +1,11 @@
-import { moveItem } from './move-item';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { Addon } from '@/node-win/addon-wrapper';
-import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { Addon } from '@/node-win/addon-wrapper';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { moveItem } from './move-item';
 
 describe('move-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
