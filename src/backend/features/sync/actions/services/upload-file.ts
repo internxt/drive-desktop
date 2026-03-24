@@ -3,7 +3,6 @@ import { CommonContext } from '@/apps/sync-engine/config';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
-import { waitUntilReady } from './wait-until-ready';
 import { stat } from 'node:fs/promises';
 
 type Props = {
@@ -12,12 +11,6 @@ type Props = {
 };
 
 export async function uploadFile({ ctx, path }: Props) {
-  const isReady = await waitUntilReady({ path });
-  if (!isReady) {
-    ctx.logger.error({ msg: 'Wait until ready, timeout', path });
-    return;
-  }
-
   const { size, mtime } = await stat(path);
 
   if (size === 0) {

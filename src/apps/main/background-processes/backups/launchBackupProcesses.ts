@@ -3,7 +3,6 @@ import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { getAvailableProducts } from '../../payments/get-available-products';
 import { buildBackupsEnvironment } from './build-environment';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import electronStore from '../../config';
@@ -20,14 +19,6 @@ type Props = {
 export async function launchBackupProcesses({ ctx }: Props) {
   if (tracker.status !== 'STANDBY') {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
-    return;
-  }
-
-  const availableProducts = await getAvailableProducts();
-  const isBackupsEnabled = Boolean(availableProducts?.backups);
-
-  if (!isBackupsEnabled) {
-    logger.debug({ msg: 'Backups not available' });
     return;
   }
 

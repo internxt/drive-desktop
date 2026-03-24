@@ -20,7 +20,7 @@ describe('client-wrapper', () => {
   const sleepMock = vi.mocked(sleep);
   const getInFlightRequestMock = vi.mocked(getInFlightRequest);
 
-  const response = {} as unknown as Response;
+  const response = { headers: new Map() } as unknown as Response;
 
   beforeEach(() => {
     getInFlightRequestMock.mockImplementation(({ promiseFn }) => ({ reused: false, promise: promiseFn() }));

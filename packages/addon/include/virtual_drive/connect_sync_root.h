@@ -4,15 +4,13 @@
 
 inline napi_value connectSyncRoot(napi_env env, napi_callback_info info)
 {
-    auto [syncRootPath, deleteCallback, fetchDataCallback] =
-        napi_extract_args<std::wstring, napi_value, napi_value>(env, info);
+    auto [syncRootPath, fetchDataCallback] =
+        napi_extract_args<std::wstring, napi_value>(env, info);
 
-    registerDeleteCallback(env, deleteCallback);
     registerFetchDataCallback(env, fetchDataCallback);
 
     CF_CALLBACK_REGISTRATION callbackTable[] = {
         {CF_CALLBACK_TYPE_FETCH_DATA, fetch_data_callback_wrapper},
-        {CF_CALLBACK_TYPE_NOTIFY_DELETE, deleteCallbackWrapper},
         CF_CALLBACK_REGISTRATION_END};
 
     CF_CONNECTION_KEY connectionKey;
