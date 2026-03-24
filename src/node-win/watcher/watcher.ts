@@ -27,8 +27,6 @@ function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event }) {
     return;
   }
 
-  ctx.logger.debug({ msg: 'Watcher event', event });
-
   // We want to debounce events so if we receive multiple events from the same file
   // we just process the last one and ignore the rest.
   const existing = events.get(event.internalId);
@@ -37,6 +35,8 @@ function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event }) {
   const timer = setTimeout(() => {
     events.delete(event.internalId);
     const path = abs(event.path);
+
+    ctx.logger.debug({ msg: 'Watcher event', event });
 
     if (event.action === 'delete') {
       // If the file still exists it means that the file has not been deleted but edited
