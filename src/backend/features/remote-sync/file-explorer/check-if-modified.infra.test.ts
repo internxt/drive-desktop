@@ -68,13 +68,13 @@ describe('check-if-modified', () => {
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
-      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
     ]);
 
     const stats = await stat(path);
     const fileInfo = await Addon.getPlaceholderState({ path });
     expect(stats.size).toBe(14);
     expect(fileInfo.onDiskSize).toBe(0);
-    calls(onChangeMock).toMatchObject([{ event: { action: 'update', size: 7 } }, { event: { action: 'update', size: 14 } }]);
+    calls(onChangeMock).toMatchObject([{ event: { action: 'update', size: 7 } }, { event: { action: 'update', size: 1000 } }]);
   });
 });
