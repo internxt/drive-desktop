@@ -81,7 +81,7 @@ describe('backups', () => {
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile' });
     call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder' });
 
-    expect(tracker.current.processed).toBe(6);
+    expect(tracker.current.processed).toBe(8);
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);
