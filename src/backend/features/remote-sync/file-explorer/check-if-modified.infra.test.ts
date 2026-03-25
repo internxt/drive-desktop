@@ -37,7 +37,7 @@ describe('check-if-modified', () => {
         uuid: 'uuid' as FileUuid,
         absolutePath: path,
         updatedAt: '2000-01-02',
-        size: 1000,
+        size: 14,
       },
       local: {
         path,
@@ -48,28 +48,33 @@ describe('check-if-modified', () => {
     // When
     await sleep(100);
     await checkIfModified(props);
-    await sleep(100);
-    return;
+    await sleep(2200);
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(loggerMock.debug).toStrictEqual([
+    calls(loggerMock.debug).toMatchObject([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
+      { msg: 'Watcher event', event: { action: 'create', size: 0 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'Sync remote changes to local',
         path,
-        remoteSize: 1000,
+        remoteSize: 14,
         localSize: 7,
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 14 } },
     ]);
 
     const stats = await stat(path);
     const fileInfo = await Addon.getPlaceholderState({ path });
-    expect(stats.size).toBe(1000);
+    expect(stats.size).toBe(14);
     expect(fileInfo.onDiskSize).toBe(0);
   });
 });

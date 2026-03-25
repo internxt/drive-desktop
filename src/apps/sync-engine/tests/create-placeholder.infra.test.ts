@@ -10,11 +10,9 @@ import { initWatcher } from '@/node-win/watcher/watcher';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
-import * as processEvent from '@/node-win/watcher/process-event';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('create-placeholder', () => {
-  const processEventSpy = partialSpyOn(processEvent, 'processEvent', false);
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
   const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
 
@@ -43,15 +41,17 @@ describe('create-placeholder', () => {
 
     // When
     await writeFile(file, 'content');
-    await sleep(3000);
-    return;
+    await sleep(2200);
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(loggerMock.debug).toStrictEqual([
+    calls(loggerMock.debug).toMatchObject([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
+      { msg: 'Watcher event', event: { action: 'create', size: 0 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'On change event',
         path: file,
@@ -62,12 +62,6 @@ describe('create-placeholder', () => {
         isChanged: true,
         isModified: true,
       },
-    ]);
-
-    calls(processEventSpy).toMatchObject([
-      { event: 'create', path: file },
-      { event: 'update', path: file },
-      { event: 'update', path: file },
     ]);
   });
 });

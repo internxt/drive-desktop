@@ -10,24 +10,17 @@ type TProps = {
 };
 
 export async function onAddDir({ ctx, path }: TProps) {
-  try {
-    const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
+  const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
 
-    if (folderInfo) {
-      await moveFolder({ ctx, path, uuid: folderInfo.uuid });
-      return;
-    }
+  if (folderInfo) {
+    await moveFolder({ ctx, path, uuid: folderInfo.uuid });
+    return;
+  }
 
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: dirname(path) });
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: dirname(path) });
 
-    if (parentInfo) {
-      await Drive.Actions.createFolder({
-        ctx,
-        path,
-        parentUuid: parentInfo.uuid,
-      });
-    }
-  } catch (error) {
-    ctx.logger.error({ msg: 'Error on addDir event', path, error });
+  if (parentInfo) {
+    const parentUuid = parentInfo.uuid;
+    await Drive.Actions.createFolder({ ctx, path, parentUuid });
   }
 }

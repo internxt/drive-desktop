@@ -1,4 +1,4 @@
-import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -7,7 +7,6 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { onUnlink } from './on-unlink';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
-import { DeepPartial } from 'ts-essentials';
 
 describe('on-unlink', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
@@ -16,7 +15,7 @@ describe('on-unlink', () => {
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
 
-  let props: DeepPartial<Parameters<typeof onUnlink>[0]>;
+  let props: TestProps<typeof onUnlink>;
 
   beforeEach(() => {
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
@@ -33,9 +32,9 @@ describe('on-unlink', () => {
     // Given
     getFolderInfoMock.mockResolvedValue({ error: new Error() });
     // When
-    await onUnlink(props as any);
+    const promise = onUnlink(props as any);
     // Then
-    expect(loggerMock.error).toBeCalledTimes(1);
+    await expect(promise).rejects.toThrow();
   });
 
   it('should skip if file does not exist', async () => {
