@@ -10,8 +10,8 @@ type Props = {
   path: AbsolutePath;
 };
 
-// For some reason, even after we have received the last `update` event from the watcher
-// which means that the file is fully copied it can still appear as locked.
+// The watcher goes faster than windows copying the file, so we may have receive the last `update` event
+// from the watcher before the file is fully copied. In that case the file can appear as locked.
 // We are going to wait until we can open it.
 export async function waitUntilReady({ path }: Props) {
   for (let i = 0; i < MAX_ATTEMPTS; i++) {
