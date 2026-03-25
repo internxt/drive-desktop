@@ -5,7 +5,9 @@ import { BackupsContext } from './BackupInfo';
 import { calculateFilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
+import { deleteFolders } from './folders/delete-folders';
 import { createFiles } from './process-files/create-files';
+import { deleteFiles } from './process-files/delete-files';
 import { replaceFiles } from './process-files/replace-files';
 import { Traverser } from './remote-tree/traverser';
 
@@ -56,6 +58,8 @@ export class Backup {
     tracker.currentTotal(total, backed);
 
     await Promise.all([
+      deleteFolders({ ctx, deleted: foldersDiff.deleted }),
+      deleteFiles({ ctx, deleted: filesDiff.deleted }),
       replaceFiles({ ctx, modified: filesDiff.modified }),
       createFolders({ ctx, added: foldersDiff.added, tree: remote }).then(() => {
         return createFiles({ ctx, remoteTree: remote, added: filesDiff.added });

@@ -34,7 +34,7 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
     }
   }
 
-  const total = added.length + unmodified.length;
+  const total = added.length + deleted.length + unmodified.length;
 
   return { added, deleted, unmodified, total };
 }
