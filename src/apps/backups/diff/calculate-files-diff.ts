@@ -44,7 +44,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
     }
   }
 
-  const total = added.length + modified.length + deleted.length + unmodified.length;
+  const total = added.length + modified.length + unmodified.length;
 
   return {
     added,

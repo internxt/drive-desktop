@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { beforeAll } from 'vitest';
 import { Sync } from '@/backend/features/sync';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
@@ -19,8 +18,6 @@ describe('backups', () => {
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
   const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
   const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
-  const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
-  const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
 
   const testPath = join(TEST_FILES, v4());
   const folder = join(testPath, 'folder');
@@ -75,20 +72,18 @@ describe('backups', () => {
     await Backup.run(props);
 
     // Then
-    call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
-    call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
     call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
     call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile' });
     call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder' });
 
-    expect(tracker.current.processed).toBe(8);
+    expect(tracker.current.processed).toBe(6);
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);
     calls(loggerMock.debug).toStrictEqual([
-      { msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
-      { msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
-      { msg: 'Total items to backup', total: 8, backed: 3 },
+      { msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 3 },
+      { msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 3 },
+      { msg: 'Total items to backup', total: 6, backed: 3 },
     ]);
   });
 });
