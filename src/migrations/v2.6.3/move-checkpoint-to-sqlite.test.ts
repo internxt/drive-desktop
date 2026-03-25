@@ -1,6 +1,6 @@
-import { MoveCheckpointToSqlite } from './move-checkpoint-to-sqlite';
 import { readFile } from 'node:fs/promises';
 import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
+import { MoveCheckpointToSqlite } from './move-checkpoint-to-sqlite';
 
 vi.mock(import('node:fs/promises'));
 

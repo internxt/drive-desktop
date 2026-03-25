@@ -1,17 +1,17 @@
-import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
-import { onChange } from './on-change';
-import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Drive } from '@/backend/features/drive';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Addon } from '@/node-win/addon-wrapper';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as moveFile from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Addon } from '@/node-win/addon-wrapper';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
+import { onChange } from './on-change';
 
 describe('on-change', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');

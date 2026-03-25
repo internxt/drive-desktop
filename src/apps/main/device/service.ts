@@ -3,15 +3,15 @@
 import { dialog } from 'electron';
 import os from 'node:os';
 import path from 'node:path';
-import electronStore from '../config';
+import { client } from '@/apps/shared/HttpClient/client';
+import { logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
-import { logger } from '@/apps/shared/logger/logger';
-import { client } from '@/apps/shared/HttpClient/client';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { getBackupsFromDevice } from './get-backups-from-device';
+import electronStore from '../config';
 import { FolderUuid } from '../database/entities/DriveFolder';
-import { AuthContext } from '@/apps/sync-engine/config';
+import { getBackupsFromDevice } from './get-backups-from-device';
 
 export type Device = {
   plainName: string;

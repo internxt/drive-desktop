@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron';
-
-import { addBackup, disableBackup, getOrCreateDevice, getDevices, renameDevice } from './service';
 import { getBackupsFromDevice } from './get-backups-from-device';
+import { addBackup, disableBackup, getOrCreateDevice, getDevices, renameDevice } from './service';
 
 export function setupDeviceIpc() {
   ipcMain.handle('get-or-create-device', getOrCreateDevice);

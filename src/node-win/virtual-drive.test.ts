@@ -1,10 +1,8 @@
 import { v4 } from 'uuid';
-
-import { addon } from '@/node-win/addon';
-
 import { iconPath } from '@/apps/utils/icon';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { addon } from '@/node-win/addon';
 import { call, deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { Addon } from './addon-wrapper';
 import { fetchDataFn } from './callbacks';

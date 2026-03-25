@@ -1,6 +1,6 @@
+import { CheckpointRepository } from '@/apps/main/database/data-source';
 import { logger } from '@/apps/shared/logger/logger';
 import { SingleItemError } from '../common/single-item-error';
-import { CheckpointRepository } from '@/apps/main/database/data-source';
 
 type Props = {
   type: 'file' | 'folder';

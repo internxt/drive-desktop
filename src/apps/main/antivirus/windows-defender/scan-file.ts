@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
-import { ScanResult } from './types';
-import { parseVirusNames } from './parse-virus-names';
 import { logger } from '@/apps/shared/logger/logger';
+import { parseVirusNames } from './parse-virus-names';
+import { ScanResult } from './types';
 
 type TProps = {
   filePath: string;

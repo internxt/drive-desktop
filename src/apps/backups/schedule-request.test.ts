@@ -1,7 +1,7 @@
-import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { scheduleRequest } from './schedule-request';
-import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import Bottleneck from 'bottleneck';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { scheduleRequest } from './schedule-request';
 
 describe('schedule-request', () => {
   let props: Parameters<typeof scheduleRequest>[0];

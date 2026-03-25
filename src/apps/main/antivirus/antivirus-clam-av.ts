@@ -1,9 +1,9 @@
-import path from 'node:path';
 import NodeClam from '@internxt/scan';
-import * as clamAVServer from './ClamAVDaemon';
 import { app } from 'electron';
+import path from 'node:path';
 import { cwd } from 'node:process';
 import { logger } from '@/apps/shared/logger/logger';
+import * as clamAVServer from './ClamAVDaemon';
 
 export type SelectedItemToScanProps = {
   path: string;

@@ -1,25 +1,24 @@
+import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useRef, useState } from 'react';
-
+import { User } from '@/apps/main/types';
+import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import WindowTopBar from '../../components/WindowTopBar';
-import AccountSection from './Account';
-import GeneralSection from './General';
-import BackupsSection from './Backups';
-import Header from './Header';
-import { DeviceProvider } from '../../context/DeviceContext';
+import { AntivirusProvider } from '../../context/AntivirusContext';
 import { BackupProvider } from '../../context/BackupContext';
-import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
-import DownloadFolderSelector from './Backups/Selector/DownloadSelector';
+import { DeviceProvider } from '../../context/DeviceContext';
+import { CleanerProvider } from '../../context/cleaner-context';
+import { useI18n } from '../../localize/use-i18n';
+import AccountSection from './Account';
 import AntivirusSection from './Antivirus';
 import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
-import { AntivirusProvider } from '../../context/AntivirusContext';
-import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
-import { CleanerProvider } from '../../context/cleaner-context';
-import { useCleaner } from './cleaner/context/use-cleaner';
+import BackupsSection from './Backups';
+import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
+import DownloadFolderSelector from './Backups/Selector/DownloadSelector';
+import GeneralSection from './General';
+import Header from './Header';
 import { sectionConfig } from './cleaner/cleaner.config';
-import { useGetAvailableProducts } from '../../api/use-get-available-products';
-import { useI18n } from '../../localize/use-i18n';
+import { useCleaner } from './cleaner/context/use-cleaner';
 import { Section, useSettingsStore } from './settings-store';
-import { User } from '@/apps/main/types';
 
 type Props = {
   user: User;

@@ -1,14 +1,14 @@
-import { Traverser } from '@/apps/backups/remote-tree/traverser';
-import { downloadFile } from './download-file';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
-import { User } from '@/apps/main/types';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Device } from '@/apps/main/device/service';
-import { broadcastToWindows } from '@/apps/main/windows';
-import { ContentsDownloader } from '@/infra/inxt-js';
 import Bottleneck from 'bottleneck';
 import { mkdir } from 'node:fs/promises';
+import { Traverser } from '@/apps/backups/remote-tree/traverser';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Device } from '@/apps/main/device/service';
+import { User } from '@/apps/main/types';
+import { broadcastToWindows } from '@/apps/main/windows';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { ContentsDownloader } from '@/infra/inxt-js';
+import { downloadFile } from './download-file';
 
 type Props = {
   user: User;

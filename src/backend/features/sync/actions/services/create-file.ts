@@ -1,15 +1,15 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { LocalSync } from '@/backend/features';
-import { uploadFile } from './upload-file';
-import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
+import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-file';
+import { uploadFile } from './upload-file';
 
 type Props = {
   ctx: CommonContext;

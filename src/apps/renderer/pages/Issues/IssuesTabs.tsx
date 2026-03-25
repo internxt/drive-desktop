@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Section } from './issues-store';
 import { useI18n } from '../../localize/use-i18n';
+import { Section } from './issues-store';
 
 function TabPill({ value, name, active, setAsActive }: { value: Section; name: string; active: boolean; setAsActive: () => void }) {
   return (

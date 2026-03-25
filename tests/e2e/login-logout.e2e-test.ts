@@ -1,13 +1,13 @@
-import { afterEach, beforeEach, describe, it } from 'vitest';
 import { _electron, expect as pwExpect } from '@playwright/test';
 import type { ElectronApplication } from '@playwright/test';
 import { fail } from 'node:assert';
-import { getIsolatedStore } from './helpers/isolated-store.helper';
+import { afterEach, beforeEach, describe, it } from 'vitest';
+import { sleep } from '@/apps/main/util';
+import { DEFAULT_TIMEOUT } from './helpers/e2e-configuration.helper';
 import { getFirstWindow, launchElectronApp } from './helpers/electron.helper';
+import { getIsolatedStore } from './helpers/isolated-store.helper';
 import { assertLoggedIn, triggerAndCompleteSSOLogin } from './helpers/login.helper';
 import { assertLoginWithBrowserButton } from './helpers/views.helper';
-import { DEFAULT_TIMEOUT } from './helpers/e2e-configuration.helper';
-import { sleep } from '@/apps/main/util';
 
 describe('Login-Logout scenario test', () => {
   const store = getIsolatedStore();

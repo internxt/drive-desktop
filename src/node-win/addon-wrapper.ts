@@ -1,14 +1,14 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { addon, Watcher, Win32DevicePath, Win32Path } from './addon';
-import { addonZod } from './addon/addon-zod';
+import { posix, win32 } from 'node:path';
 import { logger } from '@/apps/shared/logger/logger';
+import { iconPath } from '@/apps/utils/icon';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { posix, win32 } from 'node:path';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { iconPath } from '@/apps/utils/icon';
-import { PinState } from './types/placeholder.type';
+import { addon, Watcher, Win32DevicePath, Win32Path } from './addon';
+import { addonZod } from './addon/addon-zod';
 import { fetchDataFn } from './callbacks';
+import { PinState } from './types/placeholder.type';
 
 export function toWin32Path(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;

@@ -1,4 +1,3 @@
-import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import {
   CleanerReport,
   CleanerViewModel,
@@ -6,6 +5,7 @@ import {
 } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
 import { CleanerContextType } from '@internxt/drive-desktop-core/build/frontend/features/cleaner/cleaner.types';
+import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import { cleanerSectionKeys } from '@/apps/renderer/pages/Settings/cleaner/cleaner.config';
 
 export const CleanerContext = createContext<CleanerContextType | undefined>(undefined);

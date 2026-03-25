@@ -1,7 +1,7 @@
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
-import webpackPaths, { nativeDeps } from './webpack.paths';
 import { validateProcessEnv } from '../scripts/validate-process-env';
+import webpackPaths, { nativeDeps } from './webpack.paths';
 
 validateProcessEnv();
 

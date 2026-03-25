@@ -1,7 +1,7 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 import { mkdir } from 'node:fs/promises';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 
 export class VirtualDrive {
   static async createSyncRootFolder({ rootPath }: { rootPath: AbsolutePath }) {

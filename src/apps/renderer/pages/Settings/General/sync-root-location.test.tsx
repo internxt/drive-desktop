@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { useSyncRootLocation } from './sync-root-location';
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as useGetSyncRootLocation from '@/apps/renderer/api/use-get-sync-root-location';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { useSyncRootLocation } from './sync-root-location';
 
 describe('sync-root-location', () => {
   const useGetSyncRootLocationMock = partialSpyOn(useGetSyncRootLocation, 'useGetSyncRootLocation');

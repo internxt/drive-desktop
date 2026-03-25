@@ -1,8 +1,8 @@
 import { ipcMain, shell } from 'electron';
-import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
-import { getMultiplePathsFromDialog } from '../device/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
+import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
+import { getMultiplePathsFromDialog } from '../device/service';
 
 export function setupAntivirusIpc() {
   ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {

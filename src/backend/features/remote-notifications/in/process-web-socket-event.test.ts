@@ -1,5 +1,5 @@
-import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
 import { updateAllRemoteSync } from '@/apps/main/remote-sync/handlers';
+import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('@/apps/main/windows'));

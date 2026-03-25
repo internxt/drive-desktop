@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-
-import syncedStackLight from '../../assets/illustrations/syncedStack-light.png';
 import syncedStackDark from '../../assets/illustrations/syncedStack-dark.png';
+import syncedStackLight from '../../assets/illustrations/syncedStack-light.png';
 import { useI18n } from '../../localize/use-i18n';
 
 export function NoInfoToShow() {

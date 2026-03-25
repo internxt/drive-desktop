@@ -1,12 +1,12 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { Environment } from '@internxt/inxt-js';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as processError from './process-error';
 import { ReadStream } from 'node:fs';
-import { uploadFile } from './upload-file';
+import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as processError from './process-error';
+import { uploadFile } from './upload-file';
 
 describe('upload-file', () => {
   const processErrorMock = partialSpyOn(processError, 'processError');

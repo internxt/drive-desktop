@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
+import { PATHS } from '@/core/electron/paths';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
-import { PATHS } from '@/core/electron/paths';
 import { Checkpoint } from './entities/checkpoint';
 
 /**

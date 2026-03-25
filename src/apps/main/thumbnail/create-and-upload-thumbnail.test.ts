@@ -1,10 +1,10 @@
+import { nativeImage } from 'electron';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createAndUploadThumbnail } from './create-and-upload-thumbnail';
 import * as uploadThumbnail from './upload-thumnail';
-import { nativeImage } from 'electron';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('create-and-upload-thumbnail', () => {
   const createThumbnailFromPathMock = deepMocked(nativeImage.createThumbnailFromPath);

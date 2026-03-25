@@ -1,8 +1,8 @@
 import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { syncRemoteFolders } from './sync-remote-folders';
 import * as createOrUpdateFoldersModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { syncRemoteFolders } from './sync-remote-folders';
 
 describe('sync-remote-folders', () => {
   const createOrUpdateFoldersMock = partialSpyOn(createOrUpdateFoldersModule, 'createOrUpdateFolders');

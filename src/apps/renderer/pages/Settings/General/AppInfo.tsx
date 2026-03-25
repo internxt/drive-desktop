@@ -1,7 +1,7 @@
+import { clsx } from 'clsx';
 import { useOpenLogs } from '@/apps/renderer/api/use-open-logs';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { clsx } from 'clsx';
 
 export function AppInfo() {
   const { translate } = useI18n();

@@ -1,6 +1,6 @@
+import React from 'react';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupListItem } from './BackupItem';
-import React from 'react';
 
 interface BackupsListProps {
   items: Array<ItemBackup>;

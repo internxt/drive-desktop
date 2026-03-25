@@ -1,8 +1,8 @@
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { SyncContext } from './config';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { measurePerfomance } from '@/core/utils/measure-performance';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { SyncContext } from './config';
 
 type Props = {
   ctx: SyncContext;

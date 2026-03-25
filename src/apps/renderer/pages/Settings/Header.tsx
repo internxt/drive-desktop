@@ -1,7 +1,6 @@
+import { UilHistory } from '@iconscout/react-unicons';
 import { At, Gear, Icon, Sparkle } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
-
-import { UilHistory } from '@iconscout/react-unicons';
 import { Shield } from 'phosphor-react';
 import { useI18n } from '../../localize/use-i18n';
 import { Section, sectionValues } from './settings-store';

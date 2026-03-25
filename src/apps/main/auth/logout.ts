@@ -1,15 +1,15 @@
-import { setTrayStatus } from '../tray/tray';
-import { stopRemoteNotifications } from '../realtime';
-import { LocalSync } from '@/backend/features';
-import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
-import { clearIssues } from '../background-processes/issues';
-import { closeAuxWindows } from '../windows';
-import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
-import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
-import { setIsLoggedIn } from './handlers';
+import { LocalSync } from '@/backend/features';
+import { AuthModule } from '@/backend/features/auth/auth.module';
+import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
+import { clearIssues } from '../background-processes/issues';
+import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { stopRemoteNotifications } from '../realtime';
+import { setTrayStatus } from '../tray/tray';
+import { closeAuxWindows } from '../windows';
 import { showFrontend } from '../windows/widget';
+import { setIsLoggedIn } from './handlers';
 
 type Props = {
   ctx: AuthContext;

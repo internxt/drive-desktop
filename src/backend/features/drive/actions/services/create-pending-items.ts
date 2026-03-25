@@ -1,7 +1,7 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { createPendingFiles } from './create-pending-files';
 import { createPendingFolders } from './create-pending-folders';
 

@@ -1,5 +1,5 @@
-import { store } from '../store';
 import { SyncStateItem } from '../defs';
+import { store } from '../store';
 import { broadcastToFrontend } from './broadcast-to-frontend';
 
 export function addItem(item: SyncStateItem) {

@@ -1,7 +1,7 @@
-import { useI18n } from '../../localize/use-i18n';
+import { AUTH } from '../../components/AuthGuard/get-dimensions';
 import Button from '../../components/Button';
 import WindowTopBar from '../../components/WindowTopBar';
-import { AUTH } from '../../components/AuthGuard/get-dimensions';
+import { useI18n } from '../../localize/use-i18n';
 
 function openUrl(url: string) {
   void globalThis.window.electron.shellOpenExternal(url).catch(reportError);

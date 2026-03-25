@@ -1,8 +1,8 @@
-import Button from '../../../../components/Button';
 import { Menu, Transition } from '@headlessui/react';
-import { ScanType } from '../../../../hooks/antivirus/useAntivirus';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { TranslationFn } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Button from '../../../../components/Button';
+import { ScanType } from '../../../../hooks/antivirus/useAntivirus';
 
 const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) => {
   return (

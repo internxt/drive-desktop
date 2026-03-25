@@ -1,8 +1,8 @@
-import { Addon } from '@/node-win/addon-wrapper';
-import { addSyncIssue } from '../../issues';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { Addon } from '@/node-win/addon-wrapper';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { addSyncIssue } from '../../issues';
 
 type Props = {
   ctx: SyncContext;

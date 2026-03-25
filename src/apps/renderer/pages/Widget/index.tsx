@@ -1,11 +1,11 @@
-import Header from './Header';
-import SyncAction from './SyncAction';
-import { SyncInfo } from './SyncInfo';
-import useSyncStatus from '../../hooks/useSyncStatus';
-import { SyncFailed } from './SyncFailed';
-import { ModalLogout } from './Logout';
 import { useState } from 'react';
 import { User } from '@/apps/main/types';
+import useSyncStatus from '../../hooks/useSyncStatus';
+import Header from './Header';
+import { ModalLogout } from './Logout';
+import SyncAction from './SyncAction';
+import { SyncFailed } from './SyncFailed';
+import { SyncInfo } from './SyncInfo';
 
 export function Widget({ user }: { user: User }) {
   const { syncStatus } = useSyncStatus();

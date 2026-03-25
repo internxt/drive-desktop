@@ -1,6 +1,6 @@
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { getCheckpoint } from './get-checkpoint';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { getCheckpoint } from './get-checkpoint';
 
 describe('get-checkpoint', () => {
   const getCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'getCheckpoint');

@@ -1,8 +1,8 @@
+import { Environment } from '@internxt/inxt-js';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
-import { Environment } from '@internxt/inxt-js';
-import { User } from '../../types';
 import { Device } from '../../device/service';
+import { User } from '../../types';
 
 type Props = {
   bridgeUser: string;

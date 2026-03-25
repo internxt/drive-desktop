@@ -1,5 +1,5 @@
-import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { StatItem, statReaddir } from '@/infra/file-system/services/stat-readdir';
 
 export type LocalTree = {

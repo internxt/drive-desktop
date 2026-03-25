@@ -2,8 +2,8 @@ import { chromium } from '@playwright/test';
 import { expect as pwExpect } from '@playwright/test';
 import type { ElectronApplication, Page } from '@playwright/test';
 import { fail } from 'node:assert';
-import { assertLoginWithBrowserButton, getAppWidget } from './views.helper';
 import { DEFAULT_TIMEOUT } from './e2e-configuration.helper';
+import { assertLoginWithBrowserButton, getAppWidget } from './views.helper';
 
 export async function interceptLoginUrl(electronApp: ElectronApplication) {
   await electronApp.evaluate(({ shell }) => {

@@ -1,11 +1,11 @@
-import { downloadFile } from './download-file';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { mockDeep } from 'vitest-mock-extended';
-import { ContentsDownloader } from '@/infra/inxt-js';
-import * as pipeline from '@/core/utils/pipeline';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { createWriteStream } from 'node:fs';
+import { mockDeep } from 'vitest-mock-extended';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as pipeline from '@/core/utils/pipeline';
+import { ContentsDownloader } from '@/infra/inxt-js';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { downloadFile } from './download-file';
 
 vi.mock(import('node:fs'));
 

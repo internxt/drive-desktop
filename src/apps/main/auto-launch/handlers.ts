@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-
 import { isAutoLaunchEnabled, toggleAutoLaunch } from './service';
 
 export function setupAutoLaunchHandlers() {

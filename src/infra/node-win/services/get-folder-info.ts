@@ -1,9 +1,9 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFolderInfoError extends Error {
   constructor(

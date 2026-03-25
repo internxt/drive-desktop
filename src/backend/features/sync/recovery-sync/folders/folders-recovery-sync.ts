@@ -1,12 +1,12 @@
-import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { SyncContext } from '@/apps/sync-engine/config';
-import { getLocalFolders } from './get-local-folders';
-import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { getItemsToSync } from '../common/get-items-to-sync';
-import { getDeletedItems } from '../common/get-deleted-items';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
+import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFoldersQuery } from '@/infra/drive-server-wip/services/folders.service';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { getDeletedItems } from '../common/get-deleted-items';
+import { getItemsToSync } from '../common/get-items-to-sync';
+import { getLocalFolders } from './get-local-folders';
 
 type Props = {
   ctx: SyncContext;

@@ -1,5 +1,5 @@
-import { generateReport } from './generate-report';
 import { CleanableItem } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { generateReport } from './generate-report';
 
 describe('generateReport', () => {
   const mockCleanableItems1 = [{ sizeInBytes: 1024 }, { sizeInBytes: 2048 }] as CleanableItem[];

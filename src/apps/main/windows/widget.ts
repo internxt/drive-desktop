@@ -1,7 +1,6 @@
 import { BrowserWindow, screen } from 'electron';
-
-import { preloadPath, resolveHtmlPath } from '../util';
 import { ProgressData } from '../antivirus/ManualSystemScan';
+import { preloadPath, resolveHtmlPath } from '../util';
 
 let widget: BrowserWindow;
 

@@ -1,7 +1,7 @@
-import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
-import { initializeClamAV } from '../utils/initializeAntivirus';
-import { checkClamdAvailability } from '../ClamAVDaemon';
 import { logger } from '@/apps/shared/logger/logger';
+import { checkClamdAvailability } from '../ClamAVDaemon';
+import { initializeClamAV } from '../utils/initializeAntivirus';
+import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 
 export async function selectAntivirusEngine() {
   logger.debug({

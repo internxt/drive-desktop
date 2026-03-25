@@ -1,11 +1,11 @@
+import { WarningCircle } from 'phosphor-react';
 import { useContext } from 'react';
+import { useIssues } from '@/apps/renderer/hooks/useIssues';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Button from '../../../components/Button';
 import { SecondaryText } from '../../../components/SecondaryText';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { BackupContext } from '../../../context/BackupContext';
-import { WarningCircle } from 'phosphor-react';
-import { useIssues } from '@/apps/renderer/hooks/useIssues';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface SelectedFoldersSectionProps extends React.HTMLAttributes<HTMLBaseElement> {
   onGoToList: () => void;

@@ -1,8 +1,8 @@
-import { fileRepository } from '../drive-file';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { createOrUpdateBatch } from './create-or-update-batch';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps } from '@/tests/vitest/utils.helper.test';
+import { fileRepository } from '../drive-file';
+import { createOrUpdateBatch } from './create-or-update-batch';
 
 describe('create-or-update-batch', () => {
   const date = new Date().toISOString();

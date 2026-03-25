@@ -1,7 +1,7 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { BackupsContext } from './BackupInfo';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
   ctx: BackupsContext;

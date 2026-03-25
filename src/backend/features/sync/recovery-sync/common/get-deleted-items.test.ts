@@ -1,6 +1,6 @@
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getDeletedItems } from './get-deleted-items';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as isItemDeletedModule from './is-item-deleted';
 
 describe('get-deleted-items', () => {

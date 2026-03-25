@@ -1,5 +1,4 @@
 import { BrowserWindow } from 'electron';
-
 import { preloadPath, resolveHtmlPath } from '../util';
 
 let onboardingWindow: BrowserWindow | null = null;

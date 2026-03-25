@@ -1,6 +1,6 @@
-import { calculateFoldersDiff } from './calculate-folders-diff';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockProps } from 'tests/vitest/utils.helper.test';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { calculateFoldersDiff } from './calculate-folders-diff';
 
 describe('calculate-folders-diff', () => {
   it('It should calculate folders diff', () => {

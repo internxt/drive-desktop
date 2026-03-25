@@ -1,8 +1,8 @@
 import WindowTopBar from '../../components/WindowTopBar';
-import { IssuesTabs } from './IssuesTabs';
 import { useIssues } from '../../hooks/useIssues';
-import IssuesAccordions from './IssuesAccordions';
 import { useI18n } from '../../localize/use-i18n';
+import IssuesAccordions from './IssuesAccordions';
+import { IssuesTabs } from './IssuesTabs';
 import { Section, useIssuesStore } from './issues-store';
 
 type Props = {

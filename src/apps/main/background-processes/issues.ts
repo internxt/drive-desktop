@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron';
-import { showNotEnoughSpaceNotification } from './process-issues';
 import { broadcastToWindows } from '../windows';
+import { showNotEnoughSpaceNotification } from './process-issues';
 
 export type SyncIssue = {
   tab: 'sync';

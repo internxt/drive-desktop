@@ -1,8 +1,8 @@
 import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
+import { calls, call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as generateReportModule from './generate-report';
 import { generateWebCacheReport } from './generate-web-cache-report';
 import { pathsToClean } from './paths-to-clean';
-import * as generateReportModule from './generate-report';
-import { calls, call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('generateWebCacheReport', () => {
   const scanDirectoryMock = partialSpyOn(CleanerModule, 'scanDirectory');
