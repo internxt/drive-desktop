@@ -9,7 +9,6 @@ import { call, deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { Addon } from './addon-wrapper';
 import { fetchDataFn } from './callbacks';
 import { InSyncState, PinState } from './types/placeholder.type';
-import { deleteCallback } from './delete-callback';
 
 vi.mock(import('@/node-win/addon'));
 
@@ -50,7 +49,7 @@ describe('addon', () => {
     // When
     Addon.connectSyncRoot({ rootPath });
     // Then
-    call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, deleteCallback, fetchDataFn]);
+    call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
   });
 
   it('should call addon.getRegisteredSyncRoots', async () => {
@@ -162,7 +161,7 @@ describe('addon', () => {
     watchPathMock.mockReturnValue({});
     const rootPath = abs('C:/Users/user/InternxtDrive');
     const onEvent = vi.fn();
-    const props = mockProps<typeof Addon.watchPath>({ ctx: { rootPath }, onEvent });
+    const props = mockProps<typeof Addon.watchPath>({ rootPath, onEvent });
     // When
     Addon.watchPath(props);
     // Then

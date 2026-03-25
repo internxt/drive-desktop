@@ -16,7 +16,7 @@ export function debounceOnRaw({ ctx, path }: TProps) {
 
   timeout = setTimeout(async () => {
     timeouts.delete(path);
-    await onChange({ ctx, path });
+    await onChange({ ctx, path } as any);
   }, 1000);
 
   timeouts.set(path, timeout);

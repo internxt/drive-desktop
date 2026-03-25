@@ -10,14 +10,21 @@ import { PinState } from './types/placeholder.type';
 export type Win32Path = Brand<string, 'Win32Path'>;
 export type Win32DevicePath = Brand<string, 'Win32DevicePath'>;
 
-export type DeleteCallback = (connectionKey: bigint, path: Win32Path, isDirectory: boolean) => void;
 export type CallbackDownload = (buffer: Buffer, offset: number) => void;
 export type FetchDataCallback = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => void;
 
 export namespace Watcher {
-  export type Event =
-    | { action: 'create' | 'update'; type: 'file' | 'folder' | 'error'; path: Win32Path }
-    | { action: 'error'; type: 'error'; path: string };
+  export type SuccessEvent = {
+    action: 'create' | 'update' | 'delete' | 'rename_old' | 'rename_new';
+    type: 'file' | 'folder';
+    path: Win32Path;
+    size: number;
+    internalId: number;
+    ctimeMs: number;
+    mtimeMs: number;
+  };
+  export type ErrorEvent = { action: 'error'; type: 'error'; path: string };
+  export type Event = SuccessEvent | ErrorEvent;
   export type OnEvent = (event: Event) => void;
   export type Subscription = {
     unsubscribe: () => void;
@@ -32,11 +39,7 @@ type TAddon = {
     creationTime: number,
     lastWriteTime: number,
   ): Promise<void>;
-  connectSyncRoot(
-    path: Win32Path,
-    deleteCallback: DeleteCallback,
-    fetchDataCallback: FetchDataCallback,
-  ): z.infer<typeof addonZod.connectSyncRoot>;
+  connectSyncRoot(path: Win32Path, fetchDataCallback: FetchDataCallback): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId | FolderPlaceholderId): Promise<void>;
   createFolderPlaceholder(
     path: Win32DevicePath,

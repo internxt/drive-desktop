@@ -3,12 +3,14 @@ import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { Watcher } from '@/node-win/addon';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { stat } from 'node:fs/promises';
 
 type Props = {
   ctx: ProcessSyncContext;
+  event: Watcher.SuccessEvent;
   path: AbsolutePath;
 };
 

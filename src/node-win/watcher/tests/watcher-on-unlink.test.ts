@@ -6,6 +6,7 @@ import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import trash from 'trash';
 
 describe('watcher on unlink', () => {
   let rootPath: AbsolutePath;
@@ -15,31 +16,31 @@ describe('watcher on unlink', () => {
     await mkdir(rootPath);
   });
 
-  it('should not emit events when delete file', async () => {
+  it('should emit delete event when delete file', async () => {
     // Given
     const file = join(rootPath, 'file');
     await writeFile(file, 'content');
     await setupWatcher(rootPath);
     // When
     await rm(file, { force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toHaveLength(0);
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'file' }, path: file }]);
   });
 
-  it('should not emit events when delete folder', async () => {
+  it('should emit delete event when delete folder', async () => {
     // Given
     const folder = join(rootPath, 'folder');
     await mkdir(folder);
     await setupWatcher(rootPath);
     // When
     await rm(folder, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toHaveLength(0);
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'folder' }, path: folder }]);
   });
 
-  it('should not emit events when delete folder with a file inside', async () => {
+  it('should emit delete event when delete folder with file inside using terminal', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const file = join(parent, 'file');
@@ -48,12 +49,26 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(parent, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toHaveLength(0);
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'folder' }, path: parent }]);
   });
 
-  it('should not emit events when delete folder with a folder inside', async () => {
+  it('should emit delete event when delete folder with file inside using trash', async () => {
+    // Given
+    const parent = join(rootPath, 'parent');
+    const file = join(parent, 'file');
+    await mkdir(parent);
+    await writeFile(file, 'content');
+    await setupWatcher(rootPath);
+    // When
+    await trash(parent);
+    await sleep(100);
+    // Then
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'folder' }, path: parent }]);
+  });
+
+  it('should emit delete event when delete folder with folder inside using terminal', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
@@ -62,8 +77,22 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(parent, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toHaveLength(0);
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'folder' }, path: parent }]);
+  });
+
+  it('should emit delete event when delete folder with folder inside using trash', async () => {
+    // Given
+    const parent = join(rootPath, 'parent');
+    const folder = join(parent, 'folder');
+    await mkdir(parent);
+    await mkdir(folder);
+    await setupWatcher(rootPath);
+    // When
+    await trash(parent);
+    await sleep(100);
+    // Then
+    getEvents().toMatchObject([{ event: { action: 'delete', type: 'folder' }, path: parent }]);
   });
 });
