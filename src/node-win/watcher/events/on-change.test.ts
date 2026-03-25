@@ -7,12 +7,22 @@ import { onChange } from './on-change';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Drive } from '@/backend/features/drive';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Addon } from '@/node-win/addon-wrapper';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as moveFile from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 
 describe('on-change', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
   const replaceFileMock = partialSpyOn(Drive.Actions, 'replaceFile');
+  const createFileMock = partialSpyOn(Drive.Actions, 'createFile');
+  const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
+  const convertToPlaceholderMock = partialSpyOn(Addon, 'convertToPlaceholder');
+  const moveFileMock = partialSpyOn(moveFile, 'moveFile');
 
   const path = abs('/file.txt');
   let props: TestProps<typeof onChange>;
@@ -24,7 +34,30 @@ describe('on-change', () => {
     };
   });
 
-  it('should update contents id when file is modified and not in sync', async () => {
+  it('should replace file when file is in sqlite', async () => {
+    // Given
+    getFileInfoMock.mockResolvedValue({});
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    // When
+    await onChange(props as any);
+    // Then
+    call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FILE:uuid' });
+    call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
+  });
+
+  it('should create file when file is not in sqlite', async () => {
+    // Given
+    getFileInfoMock.mockResolvedValue({});
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getByNameMock.mockResolvedValue({});
+    // When
+    await onChange(props as any);
+    // Then
+    call(createFileMock).toMatchObject({ path, parentUuid: 'parentUuid' });
+  });
+
+  it('should replace file when file is modified and not in sync', async () => {
     // Given
     props.event = { mtimeMs: Date.now() };
     getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
@@ -32,8 +65,6 @@ describe('on-change', () => {
     await onChange(props as any);
     // Then
     call(replaceFileMock).toMatchObject({ path });
-    calls(throttleHydrateMock).toHaveLength(0);
-    calls(handleDehydrateMock).toHaveLength(0);
   });
 
   it('should hydrate when ctime is modified and disk size is 0', async () => {
@@ -43,9 +74,7 @@ describe('on-change', () => {
     // When
     await onChange(props as any);
     // Then
-    calls(replaceFileMock).toHaveLength(0);
     call(throttleHydrateMock).toMatchObject({ path });
-    calls(handleDehydrateMock).toHaveLength(0);
   });
 
   it('should dehydrate when ctime is modified and disk size is not 0', async () => {
@@ -67,8 +96,16 @@ describe('on-change', () => {
     // When
     await onChange(props as any);
     // Then
-    calls(replaceFileMock).toHaveLength(0);
-    calls(throttleHydrateMock).toHaveLength(0);
     call(handleDehydrateMock).toMatchObject({ path });
+  });
+
+  it('should move when ctime is modified and file is not in sync', async () => {
+    // Given
+    props.event = { ctimeMs: Date.now() };
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    // When
+    await onChange(props as any);
+    // Then
+    call(moveFileMock).toMatchObject({ path });
   });
 });

@@ -35,7 +35,7 @@ export async function loadVirtualDrive({ ctx }: Props) {
 
 async function getSyncRootFromPath(ctx: SyncContext) {
   try {
-    const info = await Addon.getSyncRootFromPath({ path: ctx.rootPath });
+    const info = await Addon.getSyncRootFromPath({ rootPath: ctx.rootPath });
     ctx.logger.debug({ msg: 'Sync root from path', info });
     return info;
   } catch (error) {

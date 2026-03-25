@@ -1,4 +1,5 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
+
 import { getConfigBase } from './vitest.config.base.mts';
 
 const baseConfig = getConfigBase();
@@ -12,10 +13,7 @@ export default mergeConfig(
       },
       environment: 'node',
       include: ['tests/e2e/**/*.e2e-test.ts'],
-      setupFiles: [
-        'dotenv/config',
-        './tests/vitest/setup.e2e.helper.test.ts',
-      ],
+      setupFiles: ['dotenv/config', './tests/vitest/setup.e2e.helper.test.ts'],
       testTimeout: 60_000,
       pool: 'forks',
       poolOptions: {
@@ -23,7 +21,7 @@ export default mergeConfig(
           singleFork: true,
         },
       },
-      maxConcurrency: 1
+      maxConcurrency: 1,
     },
-  })
+  }),
 );

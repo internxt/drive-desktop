@@ -1,11 +1,11 @@
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { initWatcher } from '../watcher';
 import { sleep } from '@/apps/main/util';
 import { Watcher } from '@/node-win/addon';
 import * as processEvent from '../process-event';
 
-export const processEventMock = partialSpyOn(processEvent, 'processEvent');
+export const processEventMock = vi.spyOn(processEvent, 'processEvent');
 
 let watcher: Watcher.Subscription | undefined;
 

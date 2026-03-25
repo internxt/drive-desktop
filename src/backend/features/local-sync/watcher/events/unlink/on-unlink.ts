@@ -14,8 +14,8 @@ type Props = {
 export async function onUnlink({ ctx, path, type }: Props) {
   // Get parent placeholderId from the file explorer.
   const parentPath = dirname(path);
-  const { data: parentInfo, error } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
-  if (error) throw error;
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
+  if (!parentInfo) return;
 
   const parentUuid = parentInfo.uuid;
   const name = basename(path);

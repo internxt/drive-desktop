@@ -6,8 +6,14 @@ import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as onChange from '../events/on-change';
+import * as onAddDir from '../events/on-add-dir.service';
 
 describe('watcher-on-move', () => {
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
+  const onAddDirMock = partialSpyOn(onAddDir, 'onAddDir');
+
   let rootPath: AbsolutePath;
   let parent: AbsolutePath;
 
@@ -28,7 +34,7 @@ describe('watcher-on-move', () => {
     await rename(file1, file2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'rename_new', type: 'file' }, path: file2 }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file' }, path: file2 });
   });
 
   it('should emit create event when move file', async () => {
@@ -41,7 +47,7 @@ describe('watcher-on-move', () => {
     await rename(file1, file2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'create', type: 'file' }, path: file2 }]);
+    call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file' }, path: file2 });
   });
 
   it('should emit rename_new event when rename folder', async () => {
@@ -55,6 +61,7 @@ describe('watcher-on-move', () => {
     await sleep(100);
     // Then
     getEvents().toMatchObject([{ event: { action: 'rename_new', type: 'folder' }, path: folder2 }]);
+    call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 
   it('should emit create event when move folder', async () => {
@@ -68,5 +75,6 @@ describe('watcher-on-move', () => {
     await sleep(100);
     // Then
     getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder2 }]);
+    call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 });
