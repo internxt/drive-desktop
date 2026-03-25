@@ -7,6 +7,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { onUnlink } from './on-unlink';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { DeepPartial } from 'ts-essentials';
 
 describe('on-unlink', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
