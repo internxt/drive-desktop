@@ -25,7 +25,7 @@ type Props = {
 // - modify a file (we may lose the placeholderId). We can recreate this use case by editing
 // an image with Paint.
 
-// We receive a rename_new event when:
+// We receive a rename_old and rename_new event when:
 // - rename a file or a folder.
 // - modify a file (we may lose the placeholderId).
 

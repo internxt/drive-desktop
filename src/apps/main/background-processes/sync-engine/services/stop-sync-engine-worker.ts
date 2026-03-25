@@ -7,12 +7,15 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
   ctx.logger.debug({ msg: 'Stop sync engine' });
 
   try {
+    clearInterval(worker.syncSchedule);
+    clearInterval(worker.workspaceTokenInterval);
+    // We need to unwatch first the drive, otherwise when we unregister the sync root
+    // we are going to receive a delete event for every placeholder that is inside.
+    worker.watcher.unsubscribe();
+
     await Addon.disconnectSyncRoot({ connectionKey: worker.connectionKey });
     await Addon.unregisterSyncRoot({ providerId: ctx.providerId });
 
-    clearInterval(worker.syncSchedule);
-    clearInterval(worker.workspaceTokenInterval);
-    worker.watcher.unsubscribe();
     workers.delete(ctx.workspaceId);
   } catch (error) {
     ctx.logger.error({

@@ -4,10 +4,10 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as onAddDir from '../events/on-add-dir.service';
 import * as onChange from '../events/on-change';
-import { setupWatcher, getEvents } from './watcher.helper.test';
+import { setupWatcher, onEventSpy } from './watcher.helper.test';
 
 describe('watcher-on-move', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');
@@ -33,6 +33,10 @@ describe('watcher-on-move', () => {
     await rename(file1, file2);
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'rename_old', type: 'file', size: 7 } },
+      { event: { action: 'rename_new', type: 'file', size: 7 } },
+    ]);
     call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file' }, path: file2 });
   });
 
@@ -46,6 +50,10 @@ describe('watcher-on-move', () => {
     await rename(file1, file2);
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'file', size: 7 } },
+      { event: { action: 'create', type: 'file', size: 7 } },
+    ]);
     call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file' }, path: file2 });
   });
 
@@ -59,7 +67,10 @@ describe('watcher-on-move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'rename_new', type: 'folder' }, path: folder2 }]);
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'rename_old', type: 'folder', size: 0 } },
+      { event: { action: 'rename_new', type: 'folder', size: 0 } },
+    ]);
     call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 
@@ -73,7 +84,10 @@ describe('watcher-on-move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder2 }]);
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'folder', size: 0 } },
+      { event: { action: 'create', type: 'folder', size: 0 } },
+    ]);
     call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 });

@@ -4,10 +4,10 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { call, calls, getCalls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as onAddDir from '../events/on-add-dir.service';
 import * as onChange from '../events/on-change';
-import { setupWatcher, getEvents } from './watcher.helper.test';
+import { setupWatcher, onEventSpy } from './watcher.helper.test';
 
 describe('watcher-on-add', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');
@@ -31,6 +31,10 @@ describe('watcher-on-add', () => {
     await writeFile(file, 'content');
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'create', type: 'file', size: 0 } },
+      { event: { action: 'update', type: 'file', size: 7 } },
+    ]);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
@@ -41,6 +45,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, '');
     await sleep(100);
     // Then
+    call(onEventSpy).toMatchObject({ event: { action: 'create', type: 'file', size: 0 } });
     call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file', size: 0 }, path: file });
   });
 
@@ -51,6 +56,10 @@ describe('watcher-on-add', () => {
     await writeFile(file, 'content');
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'create', type: 'file', size: 0 } },
+      { event: { action: 'update', type: 'file', size: 7 } },
+    ]);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
@@ -63,6 +72,8 @@ describe('watcher-on-add', () => {
     await writeFile(file, bigContent);
     await sleep(100);
     // Then
+    expect(onEventSpy.mock.calls[0][0]).toMatchObject({ event: { action: 'create', type: 'file', size: 0 } });
+    expect(onEventSpy.mock.calls.slice(1).every(([c]) => c.event.action === 'update')).toBe(true);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size }, path: file });
   });
 
@@ -73,8 +84,9 @@ describe('watcher-on-add', () => {
     await Promise.all(files.map((file) => writeFile(file, 'content')));
     await sleep(100);
     // Then
+    calls(onEventSpy).toHaveLength(100);
     calls(onChangeMock).toHaveLength(50);
-    expect(getCalls(onChangeMock).every((c: any) => c.event.action === 'update')).toBe(true);
+    expect(onChangeMock.mock.calls.every(([c]) => c.event.action === 'update')).toBe(true);
   });
 
   it('should emit create event when create folder', async () => {
@@ -84,7 +96,7 @@ describe('watcher-on-add', () => {
     await mkdir(folder);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'create', type: 'folder' }, path: folder }]);
+    call(onEventSpy).toMatchObject({ event: { action: 'create', type: 'folder', size: 0 } });
     call(onAddDirMock).toMatchObject({ path: folder });
   });
 });
