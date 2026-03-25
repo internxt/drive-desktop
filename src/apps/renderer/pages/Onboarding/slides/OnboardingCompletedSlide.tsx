@@ -1,7 +1,7 @@
 import { CheckCircle } from 'phosphor-react';
-import { OnboardingSlideProps } from '../helpers';
-import { useTheme } from '../../../hooks/useConfig';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { useTheme } from '../../../hooks/useConfig';
+import { OnboardingSlideProps } from '../helpers';
 
 export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useI18n();

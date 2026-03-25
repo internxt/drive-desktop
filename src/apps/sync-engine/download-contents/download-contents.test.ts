@@ -1,11 +1,11 @@
-import { mockDeep } from 'vitest-mock-extended';
-import { Readable } from 'node:stream';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { InxtJs } from '@/infra';
-import { downloadContents } from './download-contents';
+import { Readable } from 'node:stream';
+import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
+import { InxtJs } from '@/infra';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { downloadContents } from './download-contents';
 
 describe('download-contents', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');

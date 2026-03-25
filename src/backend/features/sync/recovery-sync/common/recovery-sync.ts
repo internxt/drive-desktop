@@ -1,6 +1,6 @@
-import { SyncContext } from '@/apps/sync-engine/config';
-import { sleep } from '@/apps/main/util';
 import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
+import { sleep } from '@/apps/main/util';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { filesRecoverySync } from '../files/files-recovery-sync';
 import { foldersRecoverySync } from '../folders/folders-recovery-sync';
 

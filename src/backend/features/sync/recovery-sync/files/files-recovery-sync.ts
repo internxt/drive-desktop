@@ -1,12 +1,12 @@
-import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { SyncContext } from '@/apps/sync-engine/config';
-import { getLocalFiles } from './get-local-files';
-import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { getItemsToSync } from '../common/get-items-to-sync';
-import { getDeletedItems } from '../common/get-deleted-items';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { getDeletedItems } from '../common/get-deleted-items';
+import { getItemsToSync } from '../common/get-items-to-sync';
+import { getLocalFiles } from './get-local-files';
 
 type Props = {
   ctx: SyncContext;

@@ -1,12 +1,12 @@
-import { FolderPlaceholderUpdater } from './update-folder-placeholder';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as needsToBeMoved from './needs-to-be-moved';
 import { rename } from 'node:fs/promises';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as needsToBeMoved from './needs-to-be-moved';
+import { FolderPlaceholderUpdater } from './update-folder-placeholder';
 
 vi.mock(import('node:fs/promises'));
 

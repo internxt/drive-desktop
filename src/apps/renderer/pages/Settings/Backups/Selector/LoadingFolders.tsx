@@ -1,6 +1,6 @@
 import { Spinner } from 'phosphor-react';
-import { BackupsState } from '../../../../hooks/backups/useBackups';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { BackupsState } from '../../../../hooks/backups/useBackups';
 
 interface LoadingFoldersProps {
   state: BackupsState;

@@ -1,5 +1,5 @@
-import Button from '../../components/Button';
 import { CloudSlash } from '@phosphor-icons/react';
+import Button from '../../components/Button';
 import { useI18n } from '../../localize/use-i18n';
 
 function handleRetrySync() {

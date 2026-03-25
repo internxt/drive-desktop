@@ -1,10 +1,10 @@
-import createClient, { Middleware } from 'openapi-fetch';
-import { paths } from './schema';
-import { getAuthHeaders } from '@/apps/main/auth/headers';
-import { getRequestPriority, scheduleFetch } from './schedule-fetch';
-import { AuthContext } from '@/apps/sync-engine/config';
-import { onUserUnauthorized } from '@/apps/main/auth/handlers';
 import Bottleneck from 'bottleneck';
+import createClient, { Middleware } from 'openapi-fetch';
+import { onUserUnauthorized } from '@/apps/main/auth/handlers';
+import { getAuthHeaders } from '@/apps/main/auth/headers';
+import { AuthContext } from '@/apps/sync-engine/config';
+import { getRequestPriority, scheduleFetch } from './schedule-fetch';
+import { paths } from './schema';
 
 export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
   return { 'x-internxt-workspace': ctx.workspaceToken };

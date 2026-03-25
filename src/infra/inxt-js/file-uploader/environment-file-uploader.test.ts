@@ -1,9 +1,9 @@
-import { mockDeep } from 'vitest-mock-extended';
-import { environmentFileUpload } from './environment-file-uploader';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as uploadFile from './upload-file';
 import { createReadStream, ReadStream } from 'node:fs';
+import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { environmentFileUpload } from './environment-file-uploader';
+import * as uploadFile from './upload-file';
 
 vi.mock(import('node:fs'));
 

@@ -2,8 +2,8 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { createPendingItems } from './create-pending-items';
 import { createFolder } from './create-folder';
+import { createPendingItems } from './create-pending-items';
 
 type Props = {
   ctx: SyncContext;

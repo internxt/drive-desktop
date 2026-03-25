@@ -1,10 +1,10 @@
-import configStore from '../config';
-import { Device, findBackupPathnameFromId } from './service';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import configStore from '../config';
+import { Device, findBackupPathnameFromId } from './service';
 
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   try {

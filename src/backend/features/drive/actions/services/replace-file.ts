@@ -1,8 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
 import { Addon } from '@/node-win/addon-wrapper';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
   ctx: SyncContext;

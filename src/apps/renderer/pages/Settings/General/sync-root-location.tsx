@@ -1,8 +1,8 @@
+import { useMemo } from 'react';
 import { useChooseSyncRootWithDialog } from '@/apps/renderer/api/use-choose-sync-root-with-dialog';
 import { useGetSyncRootLocation } from '@/apps/renderer/api/use-get-sync-root-location';
 import Button from '@/apps/renderer/components/Button';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { useMemo } from 'react';
 
 export function useSyncRootLocation() {
   const { data: syncRoot } = useGetSyncRootLocation();

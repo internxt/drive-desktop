@@ -1,8 +1,8 @@
-import { nativeTheme } from 'electron';
-import { broadcastToWindows } from '../windows';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { Theme } from './theme.types';
+import { nativeTheme } from 'electron';
 import { electronStore } from '../config';
+import { broadcastToWindows } from '../windows';
+import { Theme } from './theme.types';
 
 export function getTheme() {
   const configTheme = electronStore.get('preferedTheme');

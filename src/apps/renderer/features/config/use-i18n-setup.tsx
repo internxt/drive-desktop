@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
-
-import dayjs from 'dayjs';
-import DayJsLocales from '@/apps/shared/Locale/DayJsLocales';
 import { Language } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import dayjs from 'dayjs';
+import { useEffect } from 'react';
+import DayJsLocales from '@/apps/shared/Locale/DayJsLocales';
 import { configStore } from './config.store';
 
 function updateLanguage(language: Language) {

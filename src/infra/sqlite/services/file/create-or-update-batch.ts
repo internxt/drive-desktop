@@ -1,7 +1,7 @@
-import { fileRepository } from '../drive-file';
-import { logger } from '@/apps/shared/logger/logger';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { logger } from '@/apps/shared/logger/logger';
 import { SqliteError } from '../common/sqlite-error';
+import { fileRepository } from '../drive-file';
 
 const BATCH_SIZE = 100;
 

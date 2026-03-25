@@ -1,13 +1,13 @@
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { writeFile } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { getFileInfo, GetFileInfoError } from './get-file-info';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
-import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 import { Addon } from '@/node-win/addon-wrapper';
-import { writeFile } from 'node:fs/promises';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { getFileInfo, GetFileInfoError } from './get-file-info';
 
 describe('get-file-info', () => {
   const providerId = v4();

@@ -1,8 +1,8 @@
 import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
-import { generateLogFilesReport } from './generate-log-files-report';
-import { pathsToClean } from './paths-to-clean';
 import { calls, call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { generateLogFilesReport } from './generate-log-files-report';
 import * as generateReportModule from './generate-report';
+import { pathsToClean } from './paths-to-clean';
 
 describe('generateLogFilesReport', () => {
   const scanDirectoryMock = partialSpyOn(CleanerModule, 'scanDirectory');

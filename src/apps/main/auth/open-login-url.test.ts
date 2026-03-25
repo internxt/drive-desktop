@@ -1,7 +1,7 @@
 import { shell } from 'electron';
-import { openLoginUrl, server } from './open-login-url';
 import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as processLogin from '../electron/deeplink/process-login';
+import { openLoginUrl, server } from './open-login-url';
 
 describe('open-login-url', () => {
   const processLoginMock = partialSpyOn(processLogin, 'processLogin');

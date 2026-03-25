@@ -1,6 +1,6 @@
-import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 export type RemoteTree = {

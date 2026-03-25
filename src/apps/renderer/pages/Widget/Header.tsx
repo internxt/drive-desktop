@@ -1,12 +1,12 @@
-import { MouseEventHandler } from 'react';
-import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
+import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
+import { MouseEventHandler } from 'react';
 import { User } from '../../../main/types';
-import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
+import { useIssues } from '../../hooks/useIssues';
 import { useI18n } from '../../localize/use-i18n';
-import { useSettingsStore } from '../Settings/settings-store';
 import { useIssuesStore } from '../Issues/issues-store';
+import { useSettingsStore } from '../Settings/settings-store';
 import { Avatar } from './Avatar';
 
 interface HeadersProps {

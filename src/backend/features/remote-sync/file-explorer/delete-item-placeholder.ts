@@ -1,9 +1,9 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { rm } from 'node:fs/promises';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { rm } from 'node:fs/promises';
-import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: FileExplorerFiles };
 type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: FileExplorerFolders };

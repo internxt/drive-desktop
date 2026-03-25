@@ -1,7 +1,7 @@
-import { ShieldCheck, ShieldWarning } from 'phosphor-react';
-import Button from '../../../../components/Button';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { TranslationFn } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { ShieldCheck, ShieldWarning } from 'phosphor-react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Button from '../../../../components/Button';
 
 interface ScanStateProps {
   isScanning: boolean;

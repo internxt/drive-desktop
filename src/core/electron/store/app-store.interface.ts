@@ -1,6 +1,6 @@
-import { User } from '@/apps/main/types';
-import { ConfigTheme } from '@/apps/main/config/theme.types';
 import { Language } from '@/apps/main/config/language.types';
+import { ConfigTheme } from '@/apps/main/config/theme.types';
+import { User } from '@/apps/main/types';
 
 type BackupList = Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
 export type SavedConfig = {

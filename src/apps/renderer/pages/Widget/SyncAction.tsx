@@ -1,9 +1,9 @@
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
+import { useGetUsage } from '../../api/use-get-usage';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
 import { useNetworkRetry } from '../../hooks/useNetworkRetry';
-import { useGetUsage } from '../../api/use-get-usage';
-import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { useI18n } from '../../localize/use-i18n';
 
 type Props = { syncStatus: RemoteSyncStatus };

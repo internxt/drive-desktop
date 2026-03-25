@@ -1,12 +1,12 @@
-import { SyncContext } from '@/apps/sync-engine/config';
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
-import { scheduleSync } from './schedule-sync';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
-import { initWatcher } from '@/node-win/watcher/watcher';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { refreshWorkspaceToken } from '@/apps/sync-engine/refresh-workspace-token';
+import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import { initWatcher } from '@/node-win/watcher/watcher';
 import { loadVirtualDrive } from './load-virtual-drive';
+import { scheduleSync } from './schedule-sync';
 
 type TProps = {
   ctx: SyncContext;

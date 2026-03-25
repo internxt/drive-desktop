@@ -1,5 +1,5 @@
-import { Watcher } from '@/node-win/addon';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { Watcher } from '@/node-win/addon';
 
 export type WorkerConfig = {
   ctx: SyncContext;

@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { rename } from 'node:fs/promises';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { needsToBeMoved } from './needs-to-be-moved';
-import { rename } from 'node:fs/promises';
 import { Addon } from '@/node-win/addon-wrapper';
+import { needsToBeMoved } from './needs-to-be-moved';
 
 type Props = {
   ctx: SyncContext;

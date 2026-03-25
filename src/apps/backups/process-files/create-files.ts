@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
+import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
   ctx: BackupsContext;

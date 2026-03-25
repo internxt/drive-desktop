@@ -1,6 +1,6 @@
+import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { AntivirusWindowsDefender } from './antivirus-windows-defender';
 import * as findMCPCommand from './find-mcp-command';
-import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 
 describe('AntivirusWindowsDefender', () => {
   partialSpyOn(console, 'error');

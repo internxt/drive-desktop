@@ -1,9 +1,9 @@
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { Sync } from '@/backend/features/sync';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Addon } from '@/node-win/addon-wrapper';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { replaceFile } from './replace-file';
-import { Addon } from '@/node-win/addon-wrapper';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Sync } from '@/backend/features/sync';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('replace-file', () => {
   const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');

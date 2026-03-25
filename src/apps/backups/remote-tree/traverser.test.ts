@@ -1,9 +1,9 @@
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { Traverser } from './traverser';
 import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Traverser } from './traverser';
 
 vi.mock(import('@/apps/main/util'));
 

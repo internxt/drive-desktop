@@ -1,6 +1,6 @@
-import fs from 'node:fs';
 import chalk from 'chalk';
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import { nativeDeps } from '../configs/webpack.paths';
 
 const depsWithBindingGyp = fs.readdirSync('node_modules').filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));

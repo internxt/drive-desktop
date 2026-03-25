@@ -1,11 +1,11 @@
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
 import { useContext, useEffect, useState } from 'react';
-import Button from '../../../../components/Button';
-import { LoadingFolders } from './LoadingFolders';
-import { BackupContext } from '../../../../context/BackupContext';
-import { ItemBackup } from '../../../../../shared/types/items';
-import { BackupsList } from './BackupsList';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { ItemBackup } from '../../../../../shared/types/items';
+import Button from '../../../../components/Button';
+import { BackupContext } from '../../../../context/BackupContext';
+import { BackupsList } from './BackupsList';
+import { LoadingFolders } from './LoadingFolders';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;

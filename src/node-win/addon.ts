@@ -1,10 +1,9 @@
-import { z } from 'zod';
-
-import { addonZod } from './addon/addon-zod';
+import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/brand.types';
 import { addon as rawAddon } from '@packages/addon/dist';
+import { z } from 'zod';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/brand.types';
+import { addonZod } from './addon/addon-zod';
 import { PinState } from './types/placeholder.type';
 
 export type Win32Path = Brand<string, 'Win32Path'>;

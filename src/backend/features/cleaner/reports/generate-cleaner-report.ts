@@ -2,8 +2,8 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { CleanerReport, CleanerSection } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { generateAppCacheReport } from './generate-app-cache-report';
 import { generateLogFilesReport } from './generate-log-files-report';
-import { generateWebStorageFileReport } from './generate-web-storage-files-report';
 import { generateWebCacheReport } from './generate-web-cache-report';
+import { generateWebStorageFileReport } from './generate-web-storage-files-report';
 import { generateWindowsSpecificFileReport } from './generate-windows-specific-file-report';
 
 let storedCleanerReport: CleanerReport | null = null;

@@ -1,15 +1,14 @@
 import { dialog, shell } from 'electron';
-
-import { electronStore } from '../config';
-import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { migrateSyncRoot } from './migrate-sync-root';
-import { PATHS } from '@/core/electron/paths';
-import { workers } from '../remote-sync/store';
-import { cleanSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import { getUserOrThrow } from '../auth/service';
 import { spawnDrive } from '../background-processes/sync-engine';
+import { cleanSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { electronStore } from '../config';
+import { workers } from '../remote-sync/store';
+import { migrateSyncRoot } from './migrate-sync-root';
 
 export const OLD_SYNC_ROOT = join(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 

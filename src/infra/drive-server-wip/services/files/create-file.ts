@@ -1,10 +1,10 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
-import { DriveServerWipError, TDriveServerWipError } from '../../defs';
-import { getRequestKey } from '../../in/get-in-flight-request';
-import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
-import { FileDto, parseFileDto } from '../../out/dto';
-import { CommonContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { paths } from '@/apps/shared/HttpClient/schema';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
+import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
+import { getRequestKey } from '../../in/get-in-flight-request';
+import { FileDto, parseFileDto } from '../../out/dto';
 
 export type CreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 

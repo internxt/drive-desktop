@@ -1,13 +1,13 @@
-import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { workers } from '@/apps/main/remote-sync/store';
-import * as scheduleSync from './schedule-sync';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
-import * as initWatcher from '@/node-win/watcher/watcher';
 import * as addPendingItems from '@/apps/sync-engine/in/add-pending-items';
-import * as loadVirtualDrive from './load-virtual-drive';
+import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
+import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import * as initWatcher from '@/node-win/watcher/watcher';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as loadVirtualDrive from './load-virtual-drive';
+import * as scheduleSync from './schedule-sync';
+import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 
 describe('spawn-sync-engine-worker', () => {
   const loadVirtualDriveMock = partialSpyOn(loadVirtualDrive, 'loadVirtualDrive');

@@ -1,12 +1,12 @@
-import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
-import { InxtJs } from '@/infra';
 import { Environment } from '@internxt/inxt-js';
 import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
-import { paths } from '../shared/HttpClient/schema';
+import { InxtJs } from '@/infra';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { RemoteSyncStatus } from '../main/remote-sync/helpers';
 import { User } from '../main/types';
+import { paths } from '../shared/HttpClient/schema';
 
 export type AuthContext = {
   readonly user: User;

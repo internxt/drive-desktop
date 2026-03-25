@@ -1,9 +1,9 @@
 import os from 'node:os';
 import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { CreateDeviceError } from '@/infra/drive-server-wip/services/backup/create-device';
 import configStore from '../config';
 import { createUniqueDevice, saveDeviceToConfig } from './service';
-import { CreateDeviceError } from '@/infra/drive-server-wip/services/backup/create-device';
 
 vi.mock(import('node:os'));
 vi.mock(import('@/apps/main/config'));

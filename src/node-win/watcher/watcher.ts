@@ -1,9 +1,9 @@
+import { existsSync } from 'node:fs';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { processEvent } from './process-event';
-import { Addon } from '../addon-wrapper';
 import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Watcher } from '../addon';
-import { existsSync } from 'node:fs';
+import { Addon } from '../addon-wrapper';
+import { processEvent } from './process-event';
 
 export function initWatcher({ ctx }: { ctx: SyncContext }) {
   ctx.logger.debug({ msg: 'Setup watcher' });

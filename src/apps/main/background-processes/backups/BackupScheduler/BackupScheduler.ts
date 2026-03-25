@@ -1,7 +1,7 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { launchBackupProcesses } from '../launchBackupProcesses';
 import { electronStore } from '@/apps/main/config';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { launchBackupProcesses } from '../launchBackupProcesses';
 
 export class BackupScheduler {
   private static timeout: NodeJS.Timeout | undefined;

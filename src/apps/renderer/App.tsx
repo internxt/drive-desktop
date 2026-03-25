@@ -1,13 +1,11 @@
-import './App.css';
-
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-
-import Onboarding from './pages/Onboarding';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+import './App.css';
+import { AuthGuard } from './components/AuthGuard';
 import { queryClient } from './core/tanstack-query/query-client';
 import { useI18nSetup } from './features/config/use-i18n-setup';
 import { useThemeSetup } from './features/config/use-theme-setup';
-import { AuthGuard } from './components/AuthGuard';
+import Onboarding from './pages/Onboarding';
 
 export function App() {
   useI18nSetup();

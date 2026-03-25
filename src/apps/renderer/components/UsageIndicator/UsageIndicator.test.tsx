@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useUsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { useUsageIndicator } from '.';
 import * as useGetUsageModule from '../../api/use-get-usage';
 
 describe('usage-indicator', () => {

@@ -1,8 +1,8 @@
-import { getOnboardingWindow } from './onboarding';
-import { getWidget } from './widget';
+import { electronStore } from '../config';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
-import { electronStore } from '../config';
+import { getOnboardingWindow } from './onboarding';
+import { getWidget } from './widget';
 
 export function closeAuxWindows() {
   getOnboardingWindow()?.destroy();

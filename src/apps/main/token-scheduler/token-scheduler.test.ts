@@ -1,11 +1,10 @@
 import jwt from 'jsonwebtoken';
 import { StringValue } from 'ms';
-
-import { TokenScheduler } from './TokenScheduler';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as obtainToken from '../auth/service';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { TokenScheduler } from './TokenScheduler';
 
 function createToken(expiresIn: StringValue) {
   const email = 'test@internxt.com';

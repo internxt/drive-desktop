@@ -1,11 +1,11 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { createPendingFolders } from './create-pending-folders';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as createFolder from './create-folder';
 import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as createFolder from './create-folder';
+import { createPendingFolders } from './create-pending-folders';
 import * as createPendingItems from './create-pending-items';
 
 describe('create-pending-folders', () => {

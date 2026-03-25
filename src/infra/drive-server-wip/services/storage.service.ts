@@ -1,11 +1,11 @@
-import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
-import { noContentWrapper } from '../in/no-content-wrapper.service';
-import { clientWrapper } from '../in/client-wrapper.service';
-import { getRequestKey } from '../in/get-in-flight-request';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { AuthContext, CommonContext } from '@/apps/sync-engine/config';
+import { clientWrapper } from '../in/client-wrapper.service';
+import { getRequestKey } from '../in/get-in-flight-request';
+import { noContentWrapper } from '../in/no-content-wrapper.service';
 
 export const storage = {
   deleteFileByUuid,

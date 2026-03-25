@@ -1,8 +1,8 @@
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Addon } from '@/node-win/addon-wrapper';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { handleHydrate } from './handle-hydrate';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { Addon } from '@/node-win/addon-wrapper';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('handle-hydrate', () => {
   const hydrateFileMock = partialSpyOn(Addon, 'hydrateFile');

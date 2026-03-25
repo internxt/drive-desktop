@@ -1,8 +1,8 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createReadStream } from 'node:fs';
-import { uploadFile } from './upload-file';
-import { LocalSync } from '@/backend/features';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { uploadFile } from './upload-file';
 
 type TProps = {
   ctx: CommonContext;

@@ -1,12 +1,12 @@
-import { DetailedDevicePill } from '../../../components/Backups/DetailedDevicePill';
-import { DeleteBackups } from '../../../components/Backups/Delete/DeleteBackups';
-import { SelectedFoldersSection } from './SelectedFoldersSection';
-import { Frequency } from './Frequency';
-import { StartBackup } from './StartBackup';
-import { ViewBackups } from './ViewBackups';
 import { useContext } from 'react';
+import { DeleteBackups } from '../../../components/Backups/Delete/DeleteBackups';
+import { DetailedDevicePill } from '../../../components/Backups/DetailedDevicePill';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { DownloadBackups } from './DownloadBackups';
+import { Frequency } from './Frequency';
+import { SelectedFoldersSection } from './SelectedFoldersSection';
+import { StartBackup } from './StartBackup';
+import { ViewBackups } from './ViewBackups';
 
 interface DeviceBackupsProps {
   onGoToList: () => void;

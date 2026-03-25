@@ -1,9 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { fileSystem } from '../file-system.module';
-import { StatError } from './stat';
 import { Stats } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { fileSystem } from '../file-system.module';
+import { StatError } from './stat';
 
 export type StatItem = { path: AbsolutePath; stats: Stats };
 type Props = { folder: AbsolutePath; onError?: ({ path, error }: { path: AbsolutePath; error: StatError }) => void };

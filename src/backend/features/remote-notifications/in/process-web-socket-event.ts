@@ -1,6 +1,6 @@
 import { NOTIFICATION_SCHEMA } from '@/apps/main/notification-schema';
-import { logger } from '@/apps/shared/logger/logger';
 import { updateAllRemoteSync } from '@/apps/main/remote-sync/handlers';
+import { logger } from '@/apps/shared/logger/logger';
 import { INTERNXT_CLIENT } from '@/core/utils/utils';
 
 export async function processWebSocketEvent({ data }: { data: unknown }) {

@@ -1,6 +1,6 @@
+import { join } from 'node:path';
 import { cwd } from 'node:process';
 import { stat } from './stat';
-import { join } from 'node:path';
 
 describe('stat', () => {
   it('If file exists', async () => {

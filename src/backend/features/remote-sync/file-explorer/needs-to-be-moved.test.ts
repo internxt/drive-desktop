@@ -1,8 +1,8 @@
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { needsToBeMoved } from './needs-to-be-moved';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { needsToBeMoved } from './needs-to-be-moved';
 
 describe('needs-to-be-moved', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');

@@ -1,10 +1,10 @@
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { statReaddir } from './stat-readdir';
-import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { execSync } from 'node:child_process';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { v4 } from 'uuid';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { statReaddir } from './stat-readdir';
 
 describe('stat-readdir', () => {
   const root = join(TEST_FILES, v4());

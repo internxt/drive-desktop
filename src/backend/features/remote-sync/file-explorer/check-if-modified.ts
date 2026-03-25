@@ -1,10 +1,10 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { Stats } from 'node:fs';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Drive } from '../../drive';
 
 type Props = {

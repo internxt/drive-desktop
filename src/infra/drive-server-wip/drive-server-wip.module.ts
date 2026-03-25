@@ -1,11 +1,11 @@
 import { auth } from './services/auth.service';
 import { backup } from './services/backup.service';
-import { storage } from './services/storage.service';
-import { user } from './services/user.service';
 import { FileModule, files } from './services/files.service';
 import { FolderModule, folders } from './services/folders.service';
-import { WorkspaceModule, workspaces } from './services/workspaces.service';
 import { getNotifications } from './services/notifications/get-notifications';
+import { storage } from './services/storage.service';
+import { user } from './services/user.service';
+import { WorkspaceModule, workspaces } from './services/workspaces.service';
 
 export const driveServerWip = {
   workspaces,

@@ -1,10 +1,10 @@
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { v4 } from 'uuid';
-import { registerSyncRoot, RegisterSyncRootError } from './register-sync-root';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { registerSyncRoot, RegisterSyncRootError } from './register-sync-root';
 
 describe('register-sync-root', () => {
   const providerId = v4();

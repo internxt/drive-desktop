@@ -1,10 +1,10 @@
-import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
-import { getRequestKey } from '../../in/get-in-flight-request';
-import { clientWrapper } from '../../in/client-wrapper.service';
-import { DriveServerWipError, TDriveServerWipError } from '../../defs';
-import { parseFolderDto } from '../../out/dto';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
+import { clientWrapper } from '../../in/client-wrapper.service';
+import { getRequestKey } from '../../in/get-in-flight-request';
+import { parseFolderDto } from '../../out/dto';
 
 class MoveFolderError extends DriveServerWipError {
   constructor(

@@ -1,12 +1,12 @@
-import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
-import { getRootVirtualDrive } from '../virtual-root-folder/service';
-import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
-import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
-import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
-import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { createLogger } from '@/apps/shared/logger/logger';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { FolderUuid } from '../database/entities/DriveFolder';
+import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { buildDriveEnvironment } from './backups/build-environment';
+import { getWorkspaces } from './sync-engine/services/get-workspaces';
+import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
+import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
+import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 
 export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
   const { providerId, promise } = await spawnDrive({ ctx });

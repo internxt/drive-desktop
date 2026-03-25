@@ -1,6 +1,6 @@
-import { getDefenderVersions } from './get-defender-version';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { readdir, access } from 'node:fs/promises';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { getDefenderVersions } from './get-defender-version';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:path'));

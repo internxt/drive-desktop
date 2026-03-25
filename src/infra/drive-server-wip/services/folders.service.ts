@@ -1,11 +1,11 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
+import { CommonContext } from '@/apps/sync-engine/config';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFolderDto } from '../out/dto';
-import { move } from './folders/move';
-import { CommonContext } from '@/apps/sync-engine/config';
 import { checkExistence } from './folders/check-existence';
+import { createFolder } from './folders/create-folder';
+import { move } from './folders/move';
 
 export const folders = {
   createFolder,

@@ -1,6 +1,5 @@
-import os from 'node:os';
-
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import os from 'node:os';
 
 const INTERVAL = 60 * 1000;
 

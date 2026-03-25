@@ -1,12 +1,12 @@
-import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
-import { uploadFile } from './upload-file';
-import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import Bottleneck from 'bottleneck';
 import { stat } from 'node:fs/promises';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { uploadFile } from './upload-file';
 
 vi.mock(import('node:fs/promises'));
 

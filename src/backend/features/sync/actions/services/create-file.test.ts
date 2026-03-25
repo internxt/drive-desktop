@@ -1,13 +1,13 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
-import { createFile } from './create-file';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { LocalSync } from '@/backend/features';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as uploadFile from './upload-file';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
+import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { createFile } from './create-file';
+import * as uploadFile from './upload-file';
 
 describe('create-file', () => {
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
