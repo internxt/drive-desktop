@@ -1,11 +1,11 @@
-import { useIssuesStore } from '../../pages/Issues/issues-store';
-import { useSettingsStore } from '../../pages/Settings/settings-store';
-import { IssuesPage } from '../../pages/Issues';
-import Settings from '../../pages/Settings';
-import { Widget } from '../../pages/Widget';
-import { Dimensions, ISSUES, SETTINGS } from './get-dimensions';
-import { DraggableModal } from './draggable-modal';
 import { User } from '@/apps/main/types';
+import { IssuesPage } from '../../pages/Issues';
+import { useIssuesStore } from '../../pages/Issues/issues-store';
+import Settings from '../../pages/Settings';
+import { useSettingsStore } from '../../pages/Settings/settings-store';
+import { Widget } from '../../pages/Widget';
+import { DraggableModal } from './draggable-modal';
+import { Dimensions, ISSUES, SETTINGS } from './get-dimensions';
 
 type Props = {
   user: User;

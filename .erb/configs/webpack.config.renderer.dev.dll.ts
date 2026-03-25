@@ -1,9 +1,9 @@
-import webpack from 'webpack';
 import path from 'node:path';
+import webpack from 'webpack';
 import { merge } from 'webpack-merge';
+import checkNodeEnv from '../scripts/check-node-env';
 import baseConfig from './webpack.config.base';
 import webpackPaths, { nativeDeps } from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
 
 checkNodeEnv('development');
 

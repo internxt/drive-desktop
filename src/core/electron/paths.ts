@@ -1,5 +1,5 @@
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { app } from 'electron';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 const HOME_FOLDER_PATH = abs(app.getPath('home'));
 const APP_DATA_PATH = abs(app.getPath('appData'));

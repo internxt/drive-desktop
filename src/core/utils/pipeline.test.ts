@@ -1,7 +1,7 @@
-import { Readable } from 'node:stream';
-import { pipeline } from './pipeline';
 import { WriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
 import { calls } from '@/tests/vitest/utils.helper.test';
+import { pipeline } from './pipeline';
 
 vi.mock(import('node:fs'));
 

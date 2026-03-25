@@ -1,6 +1,6 @@
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Brand } from '@/context/shared/domain/Brand';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;

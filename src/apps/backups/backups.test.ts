@@ -1,17 +1,17 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { Backup } from './Backups';
-import { beforeAll } from 'vitest';
-import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
+import Bottleneck from 'bottleneck';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { v4 } from 'uuid';
+import { beforeAll } from 'vitest';
+import { Sync } from '@/backend/features/sync';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { FileUuid } from '../main/database/entities/DriveFile';
-import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Sync } from '@/backend/features/sync';
-import Bottleneck from 'bottleneck';
+import { Backup } from './Backups';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');

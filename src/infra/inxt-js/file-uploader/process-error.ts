@@ -1,9 +1,9 @@
-import { addGeneralIssue } from '@/apps/main/background-processes/issues';
-import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { CommonContext } from '@/apps/sync-engine/config';
-import { sleep } from '@/apps/main/util';
+import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { sleep } from '@/apps/main/util';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type TProps = {
@@ -22,7 +22,7 @@ export async function processError({ ctx, path, error, sleepMs, retryFn }: TProp
 
   if (!(error instanceof Error)) return;
 
-  if (error.message === 'Server unavailable' || error.message === 'Incomplete HTTP response') {
+  if (error.message === 'Server unavailable' || error.message === 'Incomplete HTTP response' || error.message === 'Premature close') {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
     await sleep(sleepMs);
     return retryFn();

@@ -1,8 +1,8 @@
+import * as sleepModule from '@/apps/main/util';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { recoverySync } from './recovery-sync';
 import * as filesRecoverySyncModule from '../files/files-recovery-sync';
 import * as foldersRecoverySyncModule from '../folders/folders-recovery-sync';
-import * as sleepModule from '@/apps/main/util';
+import { recoverySync } from './recovery-sync';
 
 describe('recovery-sync', () => {
   partialSpyOn(sleepModule, 'sleep');

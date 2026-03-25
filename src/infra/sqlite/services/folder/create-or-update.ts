@@ -1,7 +1,7 @@
-import { logger } from '@/apps/shared/logger/logger';
-import { parseData } from './parse-data';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { logger } from '@/apps/shared/logger/logger';
 import { folderRepository } from '../drive-folder';
+import { parseData } from './parse-data';
 
 type Props = {
   folder: DriveFolder;

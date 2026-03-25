@@ -1,6 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { scanFile } from './scan-file';
 import { findMpCmdRun } from './find-mcp-command';
+import { scanFile } from './scan-file';
 
 export class AntivirusWindowsDefender {
   isInitialized = false;

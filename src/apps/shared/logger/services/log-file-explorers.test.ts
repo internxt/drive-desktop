@@ -1,9 +1,9 @@
+import { workers } from '@/apps/main/remote-sync/store';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as logFileExplorer from './log-file-explorer';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logFileExplorers } from './log-file-explorers';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { workers } from '@/apps/main/remote-sync/store';
 
 describe('log-file-explorers', () => {
   const logFileExplorerMock = partialSpyOn(logFileExplorer, 'logFileExplorer');

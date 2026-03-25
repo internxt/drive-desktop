@@ -1,7 +1,7 @@
 import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
 import { cleanerCtx } from '../cleaner.config';
-import { pathsToClean } from './paths-to-clean';
 import { generateReport } from './generate-report';
+import { pathsToClean } from './paths-to-clean';
 
 export async function generateWebCacheReport() {
   const promises = [

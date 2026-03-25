@@ -1,9 +1,9 @@
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { shell } from 'electron';
 import http from 'node:http';
 import { AddressInfo } from 'node:net';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { processLogin } from '../electron/deeplink/process-login';
-import { shell } from 'electron';
 import { DRIVE_WEB_URL } from '@/core/utils/utils';
+import { processLogin } from '../electron/deeplink/process-login';
 
 const HOST = '127.0.0.1';
 

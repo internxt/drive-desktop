@@ -1,7 +1,7 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export class GetFileInfoError extends Error {
   constructor(

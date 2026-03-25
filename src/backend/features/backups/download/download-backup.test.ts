@@ -1,11 +1,11 @@
+import { ipcMain } from 'electron';
+import * as getUserOrThrow from '@/apps/main/auth/service';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as getPathFromDialog from '@/apps/main/device/service';
+import * as broadcastToWindows from '@/apps/main/windows';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { downloadBackup } from './download-backup';
-import * as getUserOrThrow from '@/apps/main/auth/service';
-import * as getPathFromDialog from '@/apps/main/device/service';
 import * as downloadFolder from './download-folder';
-import { ipcMain } from 'electron';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as broadcastToWindows from '@/apps/main/windows';
 
 describe('download-backup', () => {
   const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Accordion } from './Accordion';
 import { Issue } from '@/apps/main/background-processes/issues';
 import { useI18n } from '../../localize/use-i18n';
+import { Accordion } from './Accordion';
 
 function groupAppIssuesByErrorName(issues: Issue[]) {
   return issues.reduce(

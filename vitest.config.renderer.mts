@@ -1,5 +1,4 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
-
 import { getConfigBase } from './vitest.config.base.mts';
 
 const baseConfig = getConfigBase();

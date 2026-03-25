@@ -1,7 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { getRequestKey } from '../../in/get-in-flight-request';
-import { clientWrapper } from '../../in/client-wrapper.service';
 import { components } from '@/apps/shared/HttpClient/schema';
+import { clientWrapper } from '../../in/client-wrapper.service';
+import { getRequestKey } from '../../in/get-in-flight-request';
 
 export type MarketingNotification = components['schemas']['NotificationWithStatusDto'];
 

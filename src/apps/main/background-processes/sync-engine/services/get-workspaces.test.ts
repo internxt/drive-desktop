@@ -1,8 +1,8 @@
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { getWorkspaces } from './get-workspaces';
-import { PATHS } from '@/core/electron/paths';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { getWorkspaces } from './get-workspaces';
 
 describe('get-workspaces', () => {
   const getWorkspacesMock = partialSpyOn(driveServerWipModule.workspaces, 'getWorkspaces');

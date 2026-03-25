@@ -1,6 +1,6 @@
+import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdate } from './create-or-update';
-import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
 
 describe('create-or-update', () => {
   let props: Parameters<typeof createOrUpdate>[0];

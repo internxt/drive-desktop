@@ -1,7 +1,7 @@
 import Store, { Schema } from 'electron-store';
+import { PATHS } from '@/core/electron/paths';
 import { AppStore } from '@/core/electron/store/app-store.interface';
 import { defaults } from '@/core/electron/store/defaults';
-import { PATHS } from '@/core/electron/paths';
 
 const schema: Schema<AppStore> = {
   backupInterval: { type: 'number' },

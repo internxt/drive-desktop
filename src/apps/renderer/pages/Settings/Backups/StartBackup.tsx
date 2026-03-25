@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { ConfirmationModal } from '../../../components/Backups/Delete/ConfirmationModal';
 import Button from '../../../components/Button';
 import { BackupContext } from '../../../context/BackupContext';
-import { ConfirmationModal } from '../../../components/Backups/Delete/ConfirmationModal';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 type StartBackupProps = {
   className: string;

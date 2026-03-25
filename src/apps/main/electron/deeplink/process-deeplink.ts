@@ -1,6 +1,6 @@
-import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { shell } from 'electron';
+import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
 
 const notificationPrefix = 'internxt://notification/';
 

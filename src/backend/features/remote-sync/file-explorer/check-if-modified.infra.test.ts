@@ -1,15 +1,15 @@
-import { checkIfModified } from './check-if-modified';
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { v4 } from 'uuid';
-import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { stat, writeFile } from 'node:fs/promises';
+import { v4 } from 'uuid';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Addon } from '@/node-win/addon-wrapper';
-import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 import * as onChange from '@/node-win/watcher/events/on-change';
+import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
+import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { checkIfModified } from './check-if-modified';
 
 describe('check-if-modified', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');

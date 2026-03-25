@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import Bottleneck from 'bottleneck';
 import { BackupsIssue } from '../main/background-processes/issues';
 import { CommonContext } from '../sync-engine/config';
-import Bottleneck from 'bottleneck';
 
 export type BackupInfo = {
   folderUuid: string;

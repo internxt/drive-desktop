@@ -1,16 +1,16 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { basename } from 'node:path';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { Watcher } from '@/node-win/addon';
-import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { basename } from 'node:path';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Watcher } from '@/node-win/addon';
 import { Addon } from '@/node-win/addon-wrapper';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 
 type Props = {
   ctx: SyncContext;

@@ -1,7 +1,7 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as moveItemModule from './move-item';
-import { moveFolder } from './move-folder';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { moveFolder } from './move-folder';
+import * as moveItemModule from './move-item';
 
 describe('move-folder', () => {
   const getByUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByUuid');

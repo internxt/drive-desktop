@@ -1,11 +1,11 @@
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
 type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };

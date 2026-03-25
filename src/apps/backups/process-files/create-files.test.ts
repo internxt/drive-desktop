@@ -1,10 +1,10 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { createFiles } from './create-files';
-import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Sync } from '@/backend/features/sync';
+import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as scheduleRequest from '../schedule-request';
+import { createFiles } from './create-files';
 
 describe('create-files', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');

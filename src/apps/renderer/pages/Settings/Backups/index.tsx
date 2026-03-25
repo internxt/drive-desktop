@@ -1,11 +1,11 @@
+import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
 import { useContext } from 'react';
+import { BackupContext } from '@/apps/renderer/context/BackupContext';
+import { ScrollableContent } from '../../../components/ScrollableContent';
 import { DeviceContext } from '../../../context/DeviceContext';
+import { LockedState } from '../Antivirus/views/LockedState';
 import { DeviceSettings } from './DeviceSettings';
 import { DevicesList } from './DevicesList';
-import { ScrollableContent } from '../../../components/ScrollableContent';
-import { BackupContext } from '@/apps/renderer/context/BackupContext';
-import { LockedState } from '../Antivirus/views/LockedState';
-import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
 
 type Props = {
   active: boolean;

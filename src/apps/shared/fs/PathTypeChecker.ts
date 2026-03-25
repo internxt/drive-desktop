@@ -1,5 +1,5 @@
-import { logger } from '../logger/logger';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import { logger } from '../logger/logger';
 
 export class PathTypeChecker {
   static async isFolder(absolutePath: string): Promise<boolean> {

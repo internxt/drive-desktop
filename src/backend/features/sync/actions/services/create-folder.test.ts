@@ -1,10 +1,10 @@
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { LocalSync } from '@/backend/features';
+import * as createOrUpdateFolder from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolder } from './create-folder';
-import { LocalSync } from '@/backend/features';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as createOrUpdateFolder from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 describe('create-folder', () => {
   const persistMock = partialSpyOn(driveServerWip.folders, 'createFolder');

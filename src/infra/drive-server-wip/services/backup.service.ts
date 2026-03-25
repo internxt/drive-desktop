@@ -1,9 +1,9 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { createDevice } from './backup/create-device';
-import { getDevice } from './backup/get-device';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { createDevice } from './backup/create-device';
 import { fetchFolder } from './backup/fetch-folder';
+import { getDevice } from './backup/get-device';
 
 export const backup = {
   getDevices,

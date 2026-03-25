@@ -1,6 +1,9 @@
 // Slides
-import { WelcomeSlide } from './slides/WelcomeSlide';
-import { DriveSlide } from './slides/DriveSlide';
+import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
+import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
+import Button from '../../components/Button';
+import { useTheme } from '../../hooks/useConfig';
+import { useI18n } from '../../localize/use-i18n';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -10,17 +13,13 @@ import {
   getDriveImageSvg,
   getAntivirusImageSvg,
 } from './helpers';
-
-import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
-import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
-import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
-import Button from '../../components/Button';
-import { BackupsSlide } from './slides/BackupsSlide';
-import { useTheme } from '../../hooks/useConfig';
-import { AntivirusSlide } from './slides/AntivirusSlide';
-import { CleanerSlide } from './slides/cleaner-slide';
 import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer-image';
-import { useI18n } from '../../localize/use-i18n';
+import { AntivirusSlide } from './slides/AntivirusSlide';
+import { BackupsSlide } from './slides/BackupsSlide';
+import { DriveSlide } from './slides/DriveSlide';
+import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
+import { WelcomeSlide } from './slides/WelcomeSlide';
+import { CleanerSlide } from './slides/cleaner-slide';
 
 export const SLIDES: OnboardingSlide[] = [
   {

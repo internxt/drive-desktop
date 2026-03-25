@@ -1,6 +1,6 @@
-import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 
 export function getIsolatedStore(): { homeDir: string; appDir: string } {
   const dir = TEST_FILES;

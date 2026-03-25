@@ -1,8 +1,8 @@
+import { electronStore } from '@/apps/main/config';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { migrate } from './migrate';
 import { AddUserUuidToDatabase } from './v2.5.1/add-user-uuid-to-database';
 import { RemoveAntivirusTable } from './v2.5.7/remove-antivirus-table';
-import { electronStore } from '@/apps/main/config';
 import { MoveCheckpointToSqlite } from './v2.6.3/move-checkpoint-to-sqlite';
 
 describe('migrate', () => {

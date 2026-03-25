@@ -1,14 +1,14 @@
+import { ArrowCircleDown, ArrowCircleUp } from 'phosphor-react';
 import { useContext, useEffect } from 'react';
+import { BackupsStatus } from '@/apps/main/background-processes/backups/BackupsProcessStatus/BackupsStatus';
+import { BackupContext } from '../../context/BackupContext';
+import { DeviceContext } from '../../context/DeviceContext';
 import { useBackupProgress } from '../../hooks/backups/useBackupProgress';
+import { useIssues } from '../../hooks/useIssues';
 import { BackupsProgressBar } from './BackupsProgressBar';
 import { BackupsProgressPercentage } from './BackupsProgressPercent';
-import { ArrowCircleDown, ArrowCircleUp } from 'phosphor-react';
 import { LastBackupMade } from './LastBackupMade';
 import { ShowBackupsIssues } from './ShowBackupsIssues';
-import { DeviceContext } from '../../context/DeviceContext';
-import { BackupContext } from '../../context/BackupContext';
-import { useIssues } from '../../hooks/useIssues';
-import { BackupsStatus } from '@/apps/main/background-processes/backups/BackupsProcessStatus/BackupsStatus';
 
 function BackingUp({ backupStatus }: { backupStatus: BackupsStatus }) {
   return (

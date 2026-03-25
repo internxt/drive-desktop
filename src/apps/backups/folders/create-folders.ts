@@ -1,8 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Sync } from '@/backend/features/sync';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { RemoteTree } from '../remote-tree/traverser';
-import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Sync } from '@/backend/features/sync';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { scheduleRequest } from '../schedule-request';
 
 type TProps = {

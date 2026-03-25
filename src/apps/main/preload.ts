@@ -1,21 +1,21 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
+import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
-import { RemoteSyncStatus } from './remote-sync/helpers';
-import { StoredValues } from './config/service';
-import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
-import { Issue } from './background-processes/issues';
-import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
-import { Device, getOrCreateDevice, renameDevice } from './device/service';
-import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
-import { ItemBackup } from '../shared/types/items';
-import { getBackupsFromDevice } from './device/get-backups-from-device';
-import { ipcPreloadRenderer } from './preload/ipc-renderer';
-import { FromProcess } from './preload/ipc';
-import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
-import { BackupDownloadProgress } from './windows/broadcast-to-windows';
+import { ItemBackup } from '../shared/types/items';
+import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
+import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
+import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
+import { Issue } from './background-processes/issues';
+import { StoredValues } from './config/service';
+import { getBackupsFromDevice } from './device/get-backups-from-device';
+import { Device, getOrCreateDevice, renameDevice } from './device/service';
+import { FromProcess } from './preload/ipc';
+import { ipcPreloadRenderer } from './preload/ipc-renderer';
+import { RemoteSyncStatus } from './remote-sync/helpers';
 import { User } from './types';
+import { BackupDownloadProgress } from './windows/broadcast-to-windows';
 
 const api = {
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {

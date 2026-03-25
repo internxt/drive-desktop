@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
 import { Language, TranslationArgs, TranslationPath } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 import { I18nModule } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { useCallback } from 'react';
 import { configStore } from '../features/config/config.store';
 
 const translations = {

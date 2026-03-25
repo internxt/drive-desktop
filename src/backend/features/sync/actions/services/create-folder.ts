@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { basename } from 'node:path';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { basename } from 'node:path';
 
 type Props = {
   ctx: CommonContext;

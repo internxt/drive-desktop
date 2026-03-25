@@ -1,14 +1,13 @@
-import { appendFile, mkdir, rename, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
-
-import { setupWatcher, getEvents } from './watcher.helper.test';
-import { sleep } from '@/apps/main/util';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { execSync } from 'node:child_process';
-import { call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { appendFile, mkdir, rename, writeFile } from 'node:fs/promises';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { v4 } from 'uuid';
+import { sleep } from '@/apps/main/util';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as onChange from '../events/on-change';
+import { setupWatcher, onEventSpy } from './watcher.helper.test';
 
 describe('watcher-on-change', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');
@@ -29,6 +28,7 @@ describe('watcher-on-change', () => {
     await appendFile(file, 'content');
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([{ event: { action: 'update', type: 'file', size: 14 } }]);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 14 }, path: file });
   });
 
@@ -43,6 +43,11 @@ describe('watcher-on-change', () => {
     await rename(file2, file1);
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'file', size: 7 } },
+      { event: { action: 'rename_old', type: 'file', size: 10 } },
+      { event: { action: 'rename_new', type: 'file', size: 10 } },
+    ]);
     call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file', size: 10 }, path: file1 });
   });
 
@@ -55,6 +60,7 @@ describe('watcher-on-change', () => {
     execSync(`attrib +P ${file}`);
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([{ event: { action: 'update', type: 'file', size: 7 } }]);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
@@ -68,6 +74,7 @@ describe('watcher-on-change', () => {
     execSync(`attrib -P ${file}`);
     await sleep(100);
     // Then
+    calls(onEventSpy).toMatchObject([{ event: { action: 'update', type: 'file', size: 7 } }]);
     call(onChangeMock).toMatchObject({ event: { action: 'update', type: 'file', size: 7 }, path: file });
   });
 
@@ -80,7 +87,7 @@ describe('watcher-on-change', () => {
     execSync(`attrib +P ${folder}`);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'update', type: 'folder', size: 0 }, path: folder }]);
+    calls(onEventSpy).toMatchObject([{ event: { action: 'update', type: 'folder', size: 0 } }]);
   });
 
   it('should emit update event when unpin a folder', async () => {
@@ -93,6 +100,6 @@ describe('watcher-on-change', () => {
     execSync(`attrib -P ${folder}`);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: { action: 'update', type: 'folder', size: 0 }, path: folder }]);
+    calls(onEventSpy).toMatchObject([{ event: { action: 'update', type: 'folder', size: 0 } }]);
   });
 });

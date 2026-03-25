@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Spinner from '../../../assets/spinner.svg';
-import { DeviceContext } from '../../../context/DeviceContext';
 import Button from '../../../components/Button';
 import TextInput from '../../../components/TextInput';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { DeviceContext } from '../../../context/DeviceContext';
 
 export default function DeviceName({ onChangeView }: { onChangeView: boolean }) {
   const { translate } = useI18n();

@@ -1,9 +1,9 @@
+import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { stat } from 'node:fs/promises';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
-import { stat } from 'node:fs/promises';
 
 type Props = {
   ctx: CommonContext;

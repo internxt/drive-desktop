@@ -1,5 +1,5 @@
-import { BrowserWindow } from 'electron';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { BrowserWindow } from 'electron';
 
 export function emitProgress(progressData: CleanupProgress) {
   const windows = BrowserWindow.getAllWindows();

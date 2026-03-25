@@ -1,16 +1,16 @@
-import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
-import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
-import { sleep } from '@/apps/main/util';
+import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { v4 } from 'uuid';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { Addon } from '@/node-win/addon-wrapper';
-import { initWatcher } from '@/node-win/watcher/watcher';
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { sleep } from '@/apps/main/util';
 import { Sync } from '@/backend/features/sync';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { Addon } from '@/node-win/addon-wrapper';
+import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { initWatcher } from '@/node-win/watcher/watcher';
 
 describe('create-placeholder', () => {
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');

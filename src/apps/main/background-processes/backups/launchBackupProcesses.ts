@@ -1,16 +1,16 @@
-import { ipcMain } from 'electron';
-import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
-import { createLogger, logger } from '@/apps/shared/logger/logger';
-import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { buildBackupsEnvironment } from './build-environment';
-import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import electronStore from '../../config';
-import { BackupScheduler } from './BackupScheduler/BackupScheduler';
-import { AuthContext } from '@/apps/sync-engine/config';
 import Bottleneck from 'bottleneck';
-import { getOrCreateDevice } from '../../device/service';
+import { ipcMain } from 'electron';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
+import electronStore from '../../config';
 import { getBackupsFromDevice } from '../../device/get-backups-from-device';
+import { getOrCreateDevice } from '../../device/service';
+import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
+import { BackupScheduler } from './BackupScheduler/BackupScheduler';
+import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
+import { buildBackupsEnvironment } from './build-environment';
 
 type Props = {
   ctx: AuthContext;

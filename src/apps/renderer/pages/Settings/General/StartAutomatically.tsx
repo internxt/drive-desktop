@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-
-import Checkbox from '../../../components/Checkbox';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Checkbox from '../../../components/Checkbox';
 
 export default function StartAutomatically() {
   const { translate } = useI18n();

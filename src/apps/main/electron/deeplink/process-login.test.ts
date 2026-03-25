@@ -1,9 +1,9 @@
-import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { processLogin } from './process-login';
-import * as authService from '../../auth/service';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as authHandlers from '../../auth/handlers';
+import * as authService from '../../auth/service';
 import electronStore from '../../config';
+import { processLogin } from './process-login';
 
 describe('process-login', () => {
   const updateCredentialsMock = partialSpyOn(authService, 'updateCredentials');

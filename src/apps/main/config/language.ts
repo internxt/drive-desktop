@@ -1,5 +1,5 @@
-import { broadcastToWindows } from '../windows';
 import { electronStore } from '../config';
+import { broadcastToWindows } from '../windows';
 
 export function getLanguage() {
   return electronStore.get('preferedLanguage');

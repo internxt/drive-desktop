@@ -1,7 +1,7 @@
-import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
-import { AntivirusClamAV } from '../antivirus-clam-av';
-import { AntivirusType } from './types';
 import { logger } from '@/apps/shared/logger/logger';
+import { AntivirusClamAV } from '../antivirus-clam-av';
+import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
+import { AntivirusType } from './types';
 
 export async function createEngine({ type }: { type: AntivirusType }) {
   if (type === 'windows-defender') {

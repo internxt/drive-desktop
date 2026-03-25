@@ -1,9 +1,9 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'node:path';
-import { toggleWidgetVisibility } from '../windows/widget';
-import { quitApp } from '../quit';
 import { cwd } from 'node:process';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { quitApp } from '../quit';
+import { toggleWidgetVisibility } from '../windows/widget';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 

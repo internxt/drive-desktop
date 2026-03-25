@@ -1,6 +1,6 @@
-import { User } from '@/apps/main/types';
 import { clsx } from 'clsx';
 import { useState } from 'react';
+import { User } from '@/apps/main/types';
 
 type Props = {
   user: User;

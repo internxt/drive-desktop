@@ -1,10 +1,10 @@
-import { LockedState } from './views/LockedState';
-import { ChooseItemsState } from './views/ChooseItemsState';
-import { ScanState } from './views/ScanState';
-import { Views } from '../../../hooks/antivirus/useAntivirus';
-import { useAntivirusContext } from '../../../context/AntivirusContext';
-import { useEffect } from 'react';
 import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
+import { useEffect } from 'react';
+import { useAntivirusContext } from '../../../context/AntivirusContext';
+import { Views } from '../../../hooks/antivirus/useAntivirus';
+import { ChooseItemsState } from './views/ChooseItemsState';
+import { LockedState } from './views/LockedState';
+import { ScanState } from './views/ScanState';
 
 type AntivirusSectionProps = {
   active: boolean;

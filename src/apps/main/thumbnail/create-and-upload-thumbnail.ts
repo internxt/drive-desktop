@@ -1,13 +1,13 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { logger } from '@/apps/shared/logger/logger';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
-import { uploadThumbnail } from './upload-thumnail';
-import { FileUuid } from '../database/entities/DriveFile';
-import { CommonContext } from '@/apps/sync-engine/config';
 import { nativeImage } from 'electron';
-import { toWin32Path } from '@/node-win/addon-wrapper';
 import { extname } from 'node:path';
+import { logger } from '@/apps/shared/logger/logger';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { toWin32Path } from '@/node-win/addon-wrapper';
+import { FileUuid } from '../database/entities/DriveFile';
+import { uploadThumbnail } from './upload-thumnail';
 
 const THUMBNAILABLE_EXTENSIONS = new Set([
   // Images

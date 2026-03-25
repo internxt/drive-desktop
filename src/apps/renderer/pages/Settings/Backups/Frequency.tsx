@@ -1,7 +1,7 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { SectionHeader } from '../../../components/SectionHeader';
 import Select from '../../../components/Select';
 import { useBackupsInterval } from '../../../hooks/backups/useBackupsInterval';
-import { SectionHeader } from '../../../components/SectionHeader';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export function Frequency() {
   const { backupsInterval, updateBackupsInterval } = useBackupsInterval();

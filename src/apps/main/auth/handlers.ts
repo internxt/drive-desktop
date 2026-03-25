@@ -1,22 +1,22 @@
+import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
-import eventBus from '../event-bus';
-import { getWidget, showFrontend } from '../windows/widget';
-import { getUser } from './service';
-import { logger } from '@/apps/shared/logger/logger';
-import { cleanAndStartRemoteNotifications } from '../realtime';
-import { AuthContext } from '@/apps/sync-engine/config';
-import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
-import { logout } from './logout';
-import { TokenScheduler } from '../token-scheduler/TokenScheduler';
-import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
-import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
-import Bottleneck from 'bottleneck';
-import { openOnboardingWindow } from '../windows/onboarding';
-import electronStore from '../config';
+import { logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
+import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
+import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
+import electronStore from '../config';
+import eventBus from '../event-bus';
+import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
+import { cleanAndStartRemoteNotifications } from '../realtime';
+import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { User } from '../types';
+import { openOnboardingWindow } from '../windows/onboarding';
+import { getWidget, showFrontend } from '../windows/widget';
+import { logout } from './logout';
+import { getUser } from './service';
 
 let user: User | null = null;
 

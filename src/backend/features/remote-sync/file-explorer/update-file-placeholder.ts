@@ -1,9 +1,9 @@
-import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
+import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { checkIfModified } from './check-if-modified';
-import { SyncContext } from '@/apps/sync-engine/config';
-import { Addon } from '@/node-win/addon-wrapper';
 import { checkIfMoved } from './check-if-moved';
 
 type Props = {

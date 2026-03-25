@@ -1,9 +1,9 @@
-import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { restoreSavedConfig, updateCredentials } from '../../auth/service';
-import { emitUserLoggedIn } from '../../auth/handlers';
 import { validateMnemonic } from 'bip39';
-import { User } from '../../types';
+import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { emitUserLoggedIn } from '../../auth/handlers';
+import { restoreSavedConfig, updateCredentials } from '../../auth/service';
 import electronStore from '../../config';
+import { User } from '../../types';
 
 type Props = { search: string };
 

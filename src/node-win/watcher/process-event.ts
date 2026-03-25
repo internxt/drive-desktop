@@ -1,8 +1,8 @@
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { onAddDir } from './events/on-add-dir.service';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { onUnlink } from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
 import { Watcher } from '../addon';
+import { onAddDir } from './events/on-add-dir.service';
 import { onChange } from './events/on-change';
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
 // - modify a file (we may lose the placeholderId). We can recreate this use case by editing
 // an image with Paint.
 
-// We receive a rename_new event when:
+// We receive a rename_old and rename_new event when:
 // - rename a file or a folder.
 // - modify a file (we may lose the placeholderId).
 

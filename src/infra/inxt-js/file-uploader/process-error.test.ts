@@ -1,9 +1,9 @@
+import * as addGeneralIssue from '@/apps/main/background-processes/issues';
+import * as sleep from '@/apps/main/util';
+import { LocalSync } from '@/backend/features';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processError } from './process-error';
-import { LocalSync } from '@/backend/features';
-import * as addGeneralIssue from '@/apps/main/background-processes/issues';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import * as sleep from '@/apps/main/util';
 
 describe('process-error', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');

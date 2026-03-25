@@ -1,8 +1,8 @@
+import { readFile } from 'node:fs/promises';
+import { z } from 'zod';
 import { logger } from '@/apps/shared/logger/logger';
 import { PATHS } from '@/core/electron/paths';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { readFile } from 'node:fs/promises';
-import { z } from 'zod';
 
 const SCHEMA = z.object({
   collections: z.array(

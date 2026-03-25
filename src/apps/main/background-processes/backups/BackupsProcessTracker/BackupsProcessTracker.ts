@@ -1,10 +1,10 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { logger } from '@/apps/shared/logger/logger';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsStatus } from '../BackupsProcessStatus/BackupsStatus';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class BackupsProcessTracker {
   status: BackupsStatus = 'STANDBY';

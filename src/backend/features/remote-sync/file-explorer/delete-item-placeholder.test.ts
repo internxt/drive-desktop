@@ -1,10 +1,10 @@
+import { rm } from 'node:fs/promises';
+import trash from 'trash';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { deleteItemPlaceholder } from './delete-item-placeholder';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { rm } from 'node:fs/promises';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import trash from 'trash';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('trash'));

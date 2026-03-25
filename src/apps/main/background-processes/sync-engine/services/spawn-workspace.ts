@@ -1,11 +1,11 @@
-import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
-import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
-import { createLogger, logger } from '@/apps/shared/logger/logger';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { buildEnvironment } from '../../backups/build-environment';
+import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 
 type TProps = {
   ctx: AuthContext;

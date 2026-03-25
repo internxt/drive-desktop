@@ -1,7 +1,7 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
-import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 export type FoldersDiff = {
   added: Array<AbsolutePath>;

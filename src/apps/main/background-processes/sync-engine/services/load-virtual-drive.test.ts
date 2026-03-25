@@ -1,11 +1,11 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loadVirtualDrive } from './load-virtual-drive';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import * as addSyncIssue from '../../issues';
 import { RegisterSyncRootError } from '@/infra/node-win/services/register-sync-root';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { Addon } from '@/node-win/addon-wrapper';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as addSyncIssue from '../../issues';
+import { loadVirtualDrive } from './load-virtual-drive';
 
 describe('load-virtual-drive', () => {
   partialSpyOn(VirtualDrive, 'createSyncRootFolder');

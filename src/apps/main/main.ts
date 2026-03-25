@@ -1,42 +1,37 @@
-import { app, crashReporter } from 'electron';
-
-import 'reflect-metadata';
+import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
 // via webpack in prod
 import 'dotenv/config';
-
-// ***** APP BOOTSTRAPPING ****************************************************** //
-import { PATHS } from '@/core/electron/paths';
-import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
-
-import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
-import { setupDeviceIpc } from './device/handlers';
-import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
-import { setupRemoteSyncIpc } from './remote-sync/handlers';
-
+import { app, crashReporter } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import { AppDataSource } from './database/data-source';
-import { createWidget, showFrontend } from './windows/widget';
-import { setTrayStatus, setupTrayIcon } from './tray/tray';
-import { setupQuitHandlers } from './quit';
+import { arch, release, version } from 'node:os';
+import { resolve } from 'node:path';
+import 'reflect-metadata';
+import 'regenerator-runtime/runtime';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import { measureHealth } from '@/core/utils/measure-health';
+import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
+import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { migrate } from '@/migrations/migrate';
+import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
+import { logger } from '../shared/logger/logger';
+import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
+import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
-import { logger } from '../shared/logger/logger';
-import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
-import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
-import { arch, release, version } from 'node:os';
+import { AppDataSource } from './database/data-source';
+import { setupDeviceIpc } from './device/handlers';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
-import { resolve } from 'node:path';
-import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { measureHealth } from '@/core/utils/measure-health';
-import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
+import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
+import { setupPreloadIpc } from './preload/ipc-main';
+import { setupQuitHandlers } from './quit';
+import { setupRemoteSyncIpc } from './remote-sync/handlers';
+import { setTrayStatus, setupTrayIcon } from './tray/tray';
+import { createWidget, showFrontend } from './windows/widget';
 
 if (process.env.E2E_TEST === 'true') {
   logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
