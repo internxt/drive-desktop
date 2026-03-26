@@ -6,6 +6,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import electronStore from '../../config';
 import { getBackupsFromDevice } from '../../device/get-backups-from-device';
 import { getOrCreateDevice } from '../../device/service';
+import { getAvailableProducts } from '../../payments/get-available-products';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
@@ -19,6 +20,14 @@ type Props = {
 export async function launchBackupProcesses({ ctx }: Props) {
   if (tracker.status !== 'STANDBY') {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
+    return;
+  }
+
+  const availableProducts = await getAvailableProducts();
+  const isBackupsEnabled = Boolean(availableProducts?.backups);
+
+  if (!isBackupsEnabled) {
+    logger.debug({ msg: 'Backups not available' });
     return;
   }
 
