@@ -12,10 +12,8 @@ export function useIssues() {
   }, [issues]);
 
   useEffect(() => {
-    void window.electron.getIssues().then(setIssues);
-
-    const removeListener = window.electron.onIssuesChanged(setIssues);
-    return removeListener;
+    void globalThis.window.electron.getIssues().then(setIssues);
+    return globalThis.window.electron.onIssuesChanged(setIssues);
   }, []);
 
   return {

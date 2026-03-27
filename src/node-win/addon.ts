@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Brand } from '@internxt/drive-desktop-core/build/backend/core/utils/brand.types';
 import { addon as rawAddon } from '@packages/addon/dist';
 import { z } from 'zod';
@@ -16,7 +17,7 @@ export namespace Watcher {
   export type SuccessEvent = {
     action: 'create' | 'update' | 'delete' | 'rename_old' | 'rename_new';
     type: 'file' | 'folder';
-    path: Win32Path;
+    path: AbsolutePath;
     size: number;
     internalId: number;
     ctimeMs: number;

@@ -53,11 +53,13 @@ inline SyncRoot getSyncRootFromPath(const std::wstring& path)
 {
     auto folder = winrt::StorageFolder::GetFolderFromPathAsync(path).get();
     auto info = winrt::StorageProviderSyncRootManager::GetSyncRootInformationForFolder(folder);
+    auto pathStr = winrt::to_string(info.Path().Path());
+    std::replace(pathStr.begin(), pathStr.end(), '\\', '/');
 
     SyncRoot res;
     res.id = info.Id();
     res.providerId = winrt::to_hstring(info.ProviderId());
-    res.path = info.Path().Path();
+    res.path = winrt::to_hstring(pathStr);
     res.version = info.Version();
     res.displayNameResource = info.DisplayNameResource();
     res.iconResource = info.IconResource();
