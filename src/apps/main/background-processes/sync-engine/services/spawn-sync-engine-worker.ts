@@ -23,7 +23,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       ctx,
       connectionKey,
       syncSchedule: scheduleSync({ ctx }),
-      watcher: initWatcher({ ctx }),
       workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
     };
 
@@ -37,6 +36,8 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await refreshItemPlaceholders({ ctx, isFirstExecution: true });
+
+    worker.watcher = initWatcher({ ctx });
 
     /**
      * v2.5.7 Daniel Jiménez

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Watcher } from '../addon';
 import { processEvent } from './process-event';
 
@@ -20,7 +20,7 @@ export function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event
 
   const timer = setTimeout(() => {
     events.delete(event.internalId);
-    const path = abs(event.path);
+    const { path } = event;
 
     ctx.logger.debug({ msg: 'Watcher event', event });
 
