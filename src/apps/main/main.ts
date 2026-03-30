@@ -33,7 +33,6 @@ import { setupRemoteSyncIpc } from './remote-sync/handlers';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { createWidget, showFrontend } from './windows/widget';
 
-a;
 if (process.env.E2E_TEST === 'true') {
   logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
   applyE2EConfiguration();
