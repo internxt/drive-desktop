@@ -69,7 +69,7 @@ export async function uploadFile({ ctx, size, path, retry = 1, sleepMs = 5000 }:
       }
     }
 
-    worker.on('message', async (r: WorkerResponse) => {
+    async function onMessage(r: WorkerResponse) {
       if (path !== r.path) return;
 
       switch (r.type) {
@@ -77,20 +77,18 @@ export async function uploadFile({ ctx, size, path, retry = 1, sleepMs = 5000 }:
           await onProgress(r);
           break;
         case 'success':
+          worker.off('message', onMessage);
           resolve(r.contentsId);
           break;
         case 'error':
+          worker.off('message', onMessage);
           await onError(r);
           break;
       }
-    });
+    }
 
-    sendRequest({
-      type: 'upload',
-      path,
-      size,
-      bucketId: ctx.bucket,
-      config: ctx.environmentConfig,
-    });
+    worker.on('message', onMessage);
+
+    sendRequest({ type: 'upload', path, size, bucketId: ctx.bucket, config: ctx.environmentConfig });
   });
 }
