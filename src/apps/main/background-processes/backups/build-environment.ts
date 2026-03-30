@@ -1,4 +1,5 @@
 import { Environment } from '@internxt/inxt-js';
+import { EnvironmentConfig } from '@internxt/inxt-js/build/api';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
 import { Device } from '../../device/service';
@@ -12,7 +13,7 @@ type Props = {
 };
 
 export function buildEnvironment({ bridgeUser, bridgePass, mnemonic, bucket }: Props) {
-  const environment = new Environment({
+  const config: EnvironmentConfig = {
     bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser,
     bridgePass,
@@ -22,11 +23,12 @@ export function buildEnvironment({ bridgeUser, bridgePass, mnemonic, bucket }: P
       clientVersion: INTERNXT_VERSION,
       desktopHeader: process.env.DESKTOP_HEADER,
     },
-  });
+  };
 
+  const environment = new Environment(config);
   const contentsDownloader = new InxtJs.ContentsDownloader(environment, bucket);
 
-  return { environment, contentsDownloader };
+  return { config, environment, contentsDownloader };
 }
 
 export function buildDriveEnvironment({ user }: { user: User }) {

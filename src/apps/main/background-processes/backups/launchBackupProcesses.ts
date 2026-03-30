@@ -68,7 +68,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       break;
     }
 
-    const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
+    const { config, environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
       ...backupInfo,
       ...ctx,
@@ -76,6 +76,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
       bucket: device.bucket,
       workspaceId: '',
       workspaceToken: '',
+      environmentConfig: config,
       environment,
       abortController,
       logger: createLogger({ tag: 'BACKUPS' }),

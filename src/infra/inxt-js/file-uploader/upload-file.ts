@@ -1,22 +1,30 @@
-import { ReadStream } from 'node:fs';
+import { join } from 'node:path';
+import { cwd } from 'node:process';
+import { Worker } from 'node:worker_threads';
+import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { sleep } from '@/apps/main/util';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { processError } from './process-error';
+import { ErrorResponse, ProgressResponse, WorkerRequest, WorkerResponse } from './worker-defs';
 
 type Props = {
   ctx: CommonContext;
-  readable: ReadStream;
   size: number;
   path: AbsolutePath;
-  abortController: AbortController;
   retry?: number;
   sleepMs?: number;
 };
 
-export async function uploadFile({ ctx, readable, size, path, abortController, retry = 1, sleepMs = 5000 }: Props) {
+const worker = new Worker(join(cwd(), 'dist/main/worker.js'));
+
+export function sendRequest(m: WorkerRequest) {
+  worker.postMessage(m);
+}
+
+export async function uploadFile({ ctx, size, path, retry = 1, sleepMs = 5000 }: Props) {
   ctx.logger.debug({
     msg: 'Uploading file to the bucket',
     path,
@@ -25,39 +33,64 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
     ...(retry > 1 && { retry }),
   });
 
-  async function progressCallback(progress: number) {
+  async function onProgress({ progress }: ProgressResponse) {
     const { data: stats } = await fileSystem.stat({ absolutePath: path });
 
     if (stats && stats.size !== size) {
       ctx.logger.debug({ msg: 'File size changed during upload', path, oldSize: size, newSize: stats.size });
-      abortController.abort();
+      sendRequest({ type: 'abort', path });
       return;
     }
 
     LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
   }
 
-  try {
-    const contentsId = await ctx.environment.upload(ctx.bucket, {
-      source: readable,
-      fileSize: size,
-      abortSignal: abortController.signal,
-      progressCallback: (progress) => void progressCallback(progress),
+  return await new Promise<ContentsId | undefined>((resolve) => {
+    async function onError({ code, error }: ErrorResponse) {
+      if (code === 'ABORTED') return;
+
+      ctx.logger.error({ msg: 'Failed to upload file to the bucket', path, error });
+      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+
+      if (code === 'MAX_SPACE_USED') {
+        addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
+      } else if (code === 'SERVER') {
+        addGeneralIssue({ error: 'SERVER_INTERNAL_ERROR', name: path });
+        await sleep(sleepMs);
+        resolve(
+          await uploadFile({
+            ctx,
+            size,
+            path,
+            retry: retry + 1,
+            sleepMs: sleepMs * 2,
+          }),
+        );
+      }
+    }
+
+    worker.on('message', async (r: WorkerResponse) => {
+      if (path !== r.path) return;
+
+      switch (r.type) {
+        case 'progress':
+          await onProgress(r);
+          break;
+        case 'success':
+          resolve(r.contentsId);
+          break;
+        case 'error':
+          await onError(r);
+          break;
+      }
     });
 
-    return contentsId as ContentsId;
-  } catch (error) {
-    const retryFn = () =>
-      uploadFile({
-        ctx,
-        readable,
-        size,
-        path,
-        abortController,
-        retry: retry + 1,
-        sleepMs: sleepMs * 2,
-      });
-
-    return processError({ ctx, path, error, sleepMs, retryFn });
-  }
+    sendRequest({
+      type: 'upload',
+      path,
+      size,
+      bucketId: ctx.bucket,
+      config: ctx.environmentConfig,
+    });
+  });
 }

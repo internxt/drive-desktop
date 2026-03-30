@@ -23,7 +23,7 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
 
 export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
   const { user } = ctx;
-  const { environment, contentsDownloader } = buildDriveEnvironment({ user });
+  const { config, environment, contentsDownloader } = buildDriveEnvironment({ user });
   const providerId = `{${user.uuid.toUpperCase()}}`;
 
   const syncContext: SyncContext = {
@@ -40,6 +40,7 @@ export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
     bridgePass: user.userId,
     workspaceToken: '',
     logger: createLogger({ tag: 'SYNC-ENGINE' }),
+    environmentConfig: config,
     environment,
     contentsDownloader,
   };

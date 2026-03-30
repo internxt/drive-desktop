@@ -1,5 +1,6 @@
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { Environment } from '@internxt/inxt-js';
+import { EnvironmentConfig } from '@internxt/inxt-js/build/api';
 import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
 import { InxtJs } from '@/infra';
@@ -21,6 +22,7 @@ export type AuthContext = {
 export type CommonContext = AuthContext & {
   readonly workspaceId: string;
   readonly bucket: string;
+  readonly environmentConfig: EnvironmentConfig;
   readonly environment: Environment;
   readonly logger: typeof logger;
 };

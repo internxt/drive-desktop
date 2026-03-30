@@ -32,7 +32,7 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
       privateKeyInBase64: ctx.user.privateKey,
     });
 
-    const { environment, contentsDownloader } = buildEnvironment({
+    const { config, environment, contentsDownloader } = buildEnvironment({
       bucket: credentials.bucket,
       mnemonic,
       bridgeUser: credentials.credentials.networkUser,
@@ -53,6 +53,7 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
       bridgeUser: credentials.credentials.networkUser,
       bridgePass: credentials.credentials.networkPass,
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: workspace.id }),
+      environmentConfig: config,
       environment,
       contentsDownloader,
     };

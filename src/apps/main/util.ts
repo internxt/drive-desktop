@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { cwd } from 'node:process';
 import { URL } from 'node:url';
 
 export let resolveHtmlPath: (pathname: string, query?: string) => string;
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
   };
 }
 
-export const preloadPath = path.join(__dirname, 'preload.js');
+export const preloadPath = path.join(cwd(), 'dist/main/preload.js');
 
 export function sleep(ms: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, ms));
