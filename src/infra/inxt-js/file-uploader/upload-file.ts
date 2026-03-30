@@ -45,30 +45,22 @@ export async function uploadFile({ ctx, size, path, retry = 1, sleepMs = 5000 }:
     LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
   }
 
-  return await new Promise<ContentsId | undefined>((resolve) => {
-    async function onError({ code, error }: ErrorResponse) {
-      if (code === 'ABORTED') return;
+  async function onError({ code, error }: ErrorResponse) {
+    if (code === 'ABORTED') return;
 
-      ctx.logger.error({ msg: 'Failed to upload file to the bucket', path, error });
-      LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    ctx.logger.error({ msg: 'Failed to upload file to the bucket', path, error });
+    LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
-      if (code === 'MAX_SPACE_USED') {
-        addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
-      } else if (code === 'SERVER') {
-        addGeneralIssue({ error: 'SERVER_INTERNAL_ERROR', name: path });
-        await sleep(sleepMs);
-        resolve(
-          await uploadFile({
-            ctx,
-            size,
-            path,
-            retry: retry + 1,
-            sleepMs: sleepMs * 2,
-          }),
-        );
-      }
+    if (code === 'MAX_SPACE_USED') {
+      addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
+    } else if (code === 'SERVER') {
+      addGeneralIssue({ error: 'SERVER_INTERNAL_ERROR', name: path });
+      await sleep(sleepMs);
+      return await uploadFile({ ctx, size, path, retry: retry + 1, sleepMs: sleepMs * 2 });
     }
+  }
 
+  return await new Promise<ContentsId | undefined>((resolve) => {
     async function onMessage(r: WorkerResponse) {
       if (path !== r.path) return;
 
@@ -82,7 +74,7 @@ export async function uploadFile({ ctx, size, path, retry = 1, sleepMs = 5000 }:
           break;
         case 'error':
           worker.off('message', onMessage);
-          await onError(r);
+          resolve(await onError(r));
           break;
       }
     }
