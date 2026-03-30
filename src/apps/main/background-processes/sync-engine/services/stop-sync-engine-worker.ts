@@ -11,7 +11,7 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
     clearInterval(worker.workspaceTokenInterval);
     // We need to unwatch first the drive, otherwise when we unregister the sync root
     // we are going to receive a delete event for every placeholder that is inside.
-    worker.watcher.unsubscribe();
+    worker.watcher?.unsubscribe();
 
     await Addon.disconnectSyncRoot({ connectionKey: worker.connectionKey });
     await Addon.unregisterSyncRoot({ providerId: ctx.providerId });

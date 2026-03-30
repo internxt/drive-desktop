@@ -2,7 +2,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { addSyncIssue } from '../../issues';
+import { addSyncIssue, removeSyncIssue } from '../../issues';
 
 type Props = {
   ctx: SyncContext;
@@ -25,6 +25,7 @@ export async function loadVirtualDrive({ ctx }: Props) {
 
     const connectionKey = Addon.connectSyncRoot({ rootPath });
     ctx.logger.debug({ msg: 'Connection key', connectionKey });
+    removeSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: rootPath });
     return connectionKey;
   } catch (error) {
     addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: rootPath });

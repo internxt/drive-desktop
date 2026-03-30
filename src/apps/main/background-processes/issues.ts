@@ -70,14 +70,22 @@ export function setupIssueHandlers() {
   ipcMain.handle('get-issues', () => issues);
 }
 
-export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
+function removeIssue(issue: Issue) {
   const initialLength = issues.length;
 
   issues = issues.filter((i) => {
-    return !(i.tab === 'general' && i.error === issue.error);
+    return !(i.tab === issue.tab && i.error === issue.error && i.name === issue.name);
   });
 
   if (issues.length < initialLength) {
     onIssuesChanged();
   }
+}
+
+export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
+  removeIssue({ ...issue, tab: 'sync' });
+}
+
+export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
+  removeIssue({ ...issue, tab: 'general' });
 }
