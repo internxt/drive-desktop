@@ -5,7 +5,7 @@ export type WorkerConfig = {
   ctx: SyncContext;
   connectionKey: bigint;
   syncSchedule: NodeJS.Timeout;
-  watcher: Watcher.Subscription;
+  watcher?: Watcher.Subscription;
   workspaceTokenInterval: NodeJS.Timeout | undefined;
 };
 

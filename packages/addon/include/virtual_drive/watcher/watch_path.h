@@ -58,7 +58,8 @@ inline void sendError(WatcherContext* ctx, const std::string& error)
 inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
-    std::wstring path = rootPath + L"\\" + filename;
+    std::wstring path = rootPath + L"/" + filename;
+    std::replace(path.begin(), path.end(), L'\\', L'/');
 
     switch (fni->Action) {
         case FILE_ACTION_ADDED:

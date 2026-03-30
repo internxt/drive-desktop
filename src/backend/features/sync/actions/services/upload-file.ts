@@ -4,6 +4,7 @@ import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
   ctx: CommonContext;
@@ -11,6 +12,12 @@ type Props = {
 };
 
 export async function uploadFile({ ctx, path }: Props) {
+  const isReady = await waitUntilReady({ path });
+  if (!isReady) {
+    ctx.logger.error({ msg: 'Wait until ready, timeout', path });
+    return;
+  }
+
   const { size, mtime } = await stat(path);
 
   if (size === 0) {
