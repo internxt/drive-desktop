@@ -32,10 +32,7 @@ describe('download-contents', () => {
     // When
     await downloadContents(props);
     // Then
-    calls(addItemMock).toStrictEqual([
-      { action: 'DOWNLOADING', path: 'file.txt', progress: 0 },
-      { action: 'DOWNLOADED', path: 'file.txt' },
-    ]);
+    calls(addItemMock).toStrictEqual([{ action: 'DOWNLOADED', path: 'file.txt' }]);
 
     calls(callback).toStrictEqual([
       [chunks[0], 0],
@@ -55,10 +52,7 @@ describe('download-contents', () => {
     await downloadContents(props);
     // Then
     calls(contentsDownloader.forceStop).toHaveLength(1);
-    calls(addItemMock).toStrictEqual([
-      { action: 'DOWNLOADING', path: 'file.txt', progress: 0 },
-      { action: 'DOWNLOAD_ERROR', path: 'file.txt' },
-    ]);
+    calls(addItemMock).toStrictEqual([{ action: 'DOWNLOAD_ERROR', path: 'file.txt' }]);
   });
 
   it('should ignore error if operation is cancelled by user', async () => {
@@ -70,9 +64,6 @@ describe('download-contents', () => {
     await downloadContents(props);
     // Then
     calls(contentsDownloader.forceStop).toHaveLength(1);
-    calls(addItemMock).toStrictEqual([
-      { action: 'DOWNLOADING', path: 'file.txt', progress: 0 },
-      { action: 'DOWNLOAD_CANCEL', path: 'file.txt' },
-    ]);
+    calls(addItemMock).toStrictEqual([{ action: 'DOWNLOAD_CANCEL', path: 'file.txt' }]);
   });
 });
