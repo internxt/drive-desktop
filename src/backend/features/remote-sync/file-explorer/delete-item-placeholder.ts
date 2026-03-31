@@ -1,5 +1,4 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { rm } from 'node:fs/promises';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -29,20 +28,12 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
         localPath: local.path,
         type,
       });
-
-      const { default: trash } = await import('trash');
-      await trash(local.path);
-      return;
     }
 
-    ctx.logger.debug({ msg: 'Delete placeholder', path: remote.absolutePath, type });
-    await rm(remote.absolutePath, { recursive: true, force: true });
+    ctx.logger.debug({ msg: 'Delete placeholder', path: local.path, type });
+    const { default: trash } = await import('trash');
+    await trash(local.path);
   } catch (error) {
-    ctx.logger.error({
-      msg: 'Error deleting placeholder',
-      path: remote.absolutePath,
-      type,
-      error,
-    });
+    ctx.logger.error({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error });
   }
 }
