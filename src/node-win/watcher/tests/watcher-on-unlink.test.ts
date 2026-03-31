@@ -63,21 +63,6 @@ describe('watcher-on-unlink', () => {
     call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
   });
 
-  it('should emit delete event when delete folder with file inside using trash', async () => {
-    // Given
-    const parent = join(rootPath, 'parent');
-    const file = join(parent, 'file');
-    await mkdir(parent);
-    await writeFile(file, 'content');
-    await setupWatcher(rootPath);
-    // When
-    await trash(parent);
-    await sleep(100);
-    // Then
-    call(onEventSpy).toMatchObject({ event: { action: 'delete', type: 'folder', size: 0 } });
-    call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
-  });
-
   it('should emit delete event when delete folder with folder inside using terminal', async () => {
     // Given
     const parent = join(rootPath, 'parent');
@@ -96,12 +81,14 @@ describe('watcher-on-unlink', () => {
     call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
   });
 
-  it('should emit delete event when delete folder with folder inside using trash', async () => {
+  it('should emit delete event when delete folder with items inside using our custom delete', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
+    const file = join(parent, 'file');
     await mkdir(parent);
     await mkdir(folder);
+    await writeFile(file, 'content');
     await setupWatcher(rootPath);
     // When
     await trash(parent);
