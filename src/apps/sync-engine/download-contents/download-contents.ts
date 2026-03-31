@@ -15,8 +15,6 @@ export async function downloadContents({
   path: AbsolutePath;
   callback: CallbackDownload;
 }) {
-  LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress: 0 });
-
   let offset = 0;
   let chunk: Buffer<ArrayBufferLike> | undefined;
 
@@ -24,9 +22,6 @@ export async function downloadContents({
     const { data: readable, error } = await ctx.contentsDownloader.download({
       path,
       contentsId: file.contentsId,
-      onProgress: (progress) => {
-        LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress });
-      },
     });
 
     if (!readable) throw error;

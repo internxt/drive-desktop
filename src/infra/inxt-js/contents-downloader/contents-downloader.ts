@@ -2,6 +2,7 @@ import { AbsolutePath, logger, throwWrapper } from '@internxt/drive-desktop-core
 import { Environment } from '@internxt/inxt-js';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { LocalSync } from '@/backend/features';
 
 const downloads = new Map<AbsolutePath, ActionState>();
 
@@ -23,13 +24,17 @@ export class ContentsDownloader {
     }
   }
 
-  download({ path, contentsId, onProgress }: { path: AbsolutePath; contentsId: ContentsId; onProgress?: (progress: number) => void }) {
+  download({ path, contentsId }: { path: AbsolutePath; contentsId: ContentsId }) {
+    LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress: 0 });
+
     return new Promise((resolve: Resolve) => {
       const state = this.environment.download(
         this.bucket,
         contentsId,
         {
-          progressCallback: (progress) => onProgress?.(progress),
+          progressCallback: (progress) => {
+            LocalSync.SyncState.addItem({ action: 'DOWNLOADING', path, progress });
+          },
           finishedCallback: (error, stream) => {
             if (stream) {
               return resolve({ data: stream });

@@ -27,6 +27,8 @@ function getWarnings(lag: number, memUsage: NodeJS.MemoryUsage) {
 }
 
 async function logHealth() {
+  if (globalThis.gc) globalThis.gc();
+
   const memUsage = process.memoryUsage();
   const lag = await measureEventLoopLag();
   const cpus = os.cpus();
@@ -40,6 +42,7 @@ async function logHealth() {
       heapTotal_MB: (memUsage.heapTotal / 1024 / 1024).toFixed(1),
       rss_MB: (memUsage.rss / 1024 / 1024).toFixed(1),
       external_MB: (memUsage.external / 1024 / 1024).toFixed(1),
+      arrayBuffers: memUsage.arrayBuffers,
     },
     system: {
       freeMem_MB: (os.freemem() / 1024 / 1024).toFixed(0),
