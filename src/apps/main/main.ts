@@ -140,5 +140,5 @@ app
     measureHealth();
     await checkForUpdates();
     setInterval(checkForUpdates, 60 * 60 * 1000);
-  })a
+  })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
