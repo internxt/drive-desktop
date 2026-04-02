@@ -118,7 +118,7 @@ app
   .whenReady()
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
-
+    a;
     await AppDataSource.initialize();
     await migrate();
 
