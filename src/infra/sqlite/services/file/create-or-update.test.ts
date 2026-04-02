@@ -42,7 +42,7 @@ describe('create-or-update', () => {
     // When
     createOrUpdate(props as any);
     // Then
-    expect(db.prepare('SELECT * FROM drive_file').get()).toMatchObject({
+    expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
       id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
@@ -66,7 +66,7 @@ describe('create-or-update', () => {
     props.file.plainName = 'file';
     createOrUpdate(props);
     // Then
-    expect(db.prepare('SELECT * FROM drive_file').get()).toMatchObject({
+    expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
       id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
@@ -91,7 +91,7 @@ describe('create-or-update', () => {
     const res = createOrUpdate(props);
     // Then
     expect(res).toBeUndefined();
-    expect(db.prepare('SELECT COUNT(*) FROM drive_file').get()).toMatchObject({ 'COUNT(*)': 0 });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 0 });
     call(loggerMock.error).toMatchObject({ error: { message: 'Provided value cannot be bound to SQLite parameter 1.' } });
   });
 });
