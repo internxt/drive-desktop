@@ -37,6 +37,7 @@ if (process.env.E2E_TEST === 'true') {
   logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
   applyE2EConfiguration();
 }
+a;
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
