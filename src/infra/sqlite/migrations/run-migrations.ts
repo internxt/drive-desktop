@@ -1,18 +1,14 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { cwd } from 'node:process';
 import { DatabaseSync } from 'node:sqlite';
 import { PATHS } from '@/core/electron/paths';
 
 export const db = new DatabaseSync(process.env.NODE_ENV === 'test' ? ':memory:' : PATHS.SQLITE_DB);
 
-const MIGRATIONS_DIR = join(cwd(), 'migrations');
+const MIGRATIONS_DIR = __dirname;
 
 export function runMigrations() {
-  db.exec('PRAGMA journal_mode = WAL');
-  db.exec('PRAGMA foreign_keys = ON');
-
   db.exec(`
     CREATE TABLE IF NOT EXISTS migrations (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

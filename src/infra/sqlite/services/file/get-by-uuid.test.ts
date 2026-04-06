@@ -1,12 +1,13 @@
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { getByUuid } from './get-by-uuid';
 import { upsertQuery } from './queries';
 
 describe('get-by-uuid', () => {
   const date = new Date().toISOString();
-  const file = {
+  const file: DriveFile = {
     id: 1,
     uuid: 'uuid',
     status: 'EXISTS',

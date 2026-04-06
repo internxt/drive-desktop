@@ -2,12 +2,13 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { getByName } from './get-by-name';
 import { upsertQuery } from './queries';
 
 describe('get-by-name', () => {
   const date = new Date().toISOString();
-  const file = {
+  const file: DriveFile = {
     id: 1,
     uuid: 'uuid',
     status: 'EXISTS',

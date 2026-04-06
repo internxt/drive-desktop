@@ -15,7 +15,7 @@ export function getByWorkspaceId({ userUuid, workspaceId }: Props) {
       .prepare(`SELECT * FROM drive_file WHERE userUuid = :userUuid AND workspaceId = :workspaceId`)
       .all({ userUuid, workspaceId });
 
-    return { data: items.map((item) => parseData({ data: item as unknown as DriveFile })) };
+    return { data: items.map((item) => parseData({ data: item as DriveFile })) };
   } catch (exc) {
     logger.error({
       msg: 'Error getting files by workspace id',

@@ -7,13 +7,13 @@ import { SingleItemError } from '../common/single-item-error';
 type Props = {
   uuid: FileUuid;
   payload: {
-    status?: DriveFile['status'];
+    status: DriveFile['status'];
   };
 };
 
 export function updateByUuid({ uuid, payload }: Props) {
   try {
-    const result = db.prepare(`UPDATE drive_file SET status = :status WHERE uuid = :uuid`).run({ uuid, status: payload.status ?? null });
+    const result = db.prepare(`UPDATE drive_file SET status = :status WHERE uuid = :uuid`).run({ uuid, status: payload.status });
 
     if (!result.changes) {
       return { error: new SingleItemError('NOT_FOUND') };
