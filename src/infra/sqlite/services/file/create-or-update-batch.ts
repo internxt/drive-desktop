@@ -31,7 +31,7 @@ export function createOrUpdateBatch({ files }: Props) {
           updatedAt: file.updatedAt,
           folderUuid: file.folderUuid ?? '',
           workspaceId: file.workspaceId ?? '',
-          fileId: file.fileId ?? '',
+          fileId: file.fileId,
           size: file.size,
           folderId: file.folderId,
           userUuid: file.userUuid,
