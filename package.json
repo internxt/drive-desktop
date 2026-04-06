@@ -45,6 +45,8 @@
     "prepare": "husky install",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.ts"
+    "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.ts",
+    "schema": "sqlite3 %APPDATA%/internxt-drive/internxt_desktop.db .fullschema > src/infra/sqlite/schema.sql"
   },
   "build": {
     "productName": "Internxt",
