@@ -8,7 +8,7 @@ export class AddUserUuidToDatabase {
     const user = getUser();
 
     if (user) {
-      await Promise.all([folderRepository.update({ userUuid: '' }, { userUuid: user.uuid })]);
+      await folderRepository.update({ userUuid: '' }, { userUuid: user.uuid });
     }
   }
 }
