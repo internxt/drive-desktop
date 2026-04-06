@@ -2,7 +2,6 @@
 /.erb/dll
 /.github/copilot-instructions.md
 /.idea
-/.npmrc
 /.vscode
 /build
 /clamAV/*
