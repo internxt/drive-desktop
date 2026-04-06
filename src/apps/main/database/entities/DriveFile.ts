@@ -17,9 +17,7 @@ export type SimpleDriveFile = {
   modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };
-export type ExtendedDriveFile = SimpleDriveFile & {
-  absolutePath: AbsolutePath;
-};
+export type ExtendedDriveFile = SimpleDriveFile & { absolutePath: AbsolutePath };
 
 @Entity('drive_file')
 export class DriveFile {
@@ -33,10 +31,10 @@ export class DriveFile {
   status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: true, type: 'varchar' })
-  plainName!: string;
+  plainName: string | null = null;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
-  type!: string;
+  type: string | null = null;
 
   @Column({ nullable: false, type: 'varchar' })
   createdAt!: string;
@@ -45,10 +43,10 @@ export class DriveFile {
   updatedAt!: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  folderUuid?: string;
+  folderUuid: string | null = null;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
-  workspaceId?: string;
+  workspaceId: string | null = null;
 
   @Column({ nullable: false, type: 'varchar' })
   fileId!: string;
