@@ -1,5 +1,4 @@
 import { getUser } from '@/apps/main/auth/service';
-import { fileRepository } from '@/infra/sqlite/services/drive-file';
 import { folderRepository } from '@/infra/sqlite/services/drive-folder';
 
 export class AddUserUuidToDatabase {
@@ -9,10 +8,7 @@ export class AddUserUuidToDatabase {
     const user = getUser();
 
     if (user) {
-      await Promise.all([
-        fileRepository.update({ userUuid: '' }, { userUuid: user.uuid }),
-        folderRepository.update({ userUuid: '' }, { userUuid: user.uuid }),
-      ]);
+      await Promise.all([folderRepository.update({ userUuid: '' }, { userUuid: user.uuid })]);
     }
   }
 }

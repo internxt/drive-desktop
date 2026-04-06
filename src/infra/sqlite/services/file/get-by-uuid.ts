@@ -1,6 +1,6 @@
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { db } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { SingleItemError } from '../common/single-item-error';
 import { parseData } from './parse-data';
 

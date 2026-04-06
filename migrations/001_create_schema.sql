@@ -12,6 +12,11 @@ CREATE TABLE
     "fileId" VARCHAR NOT NULL,
     "size" INTEGER NOT NULL,
     "folderId" INTEGER NOT NULL,
+    /**
+     * v2.5.1 Daniel Jiménez
+     * We mark this field as empty to allow the migration to complete.
+     * However, the value is populated by a custom migration on the startup.
+     */
     "userUuid" VARCHAR NOT NULL DEFAULT (''),
     "modificationTime" VARCHAR NOT NULL
   );

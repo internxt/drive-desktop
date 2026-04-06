@@ -1,8 +1,8 @@
 import { basename, extname } from 'node:path';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { logger } from '@/apps/shared/logger/logger';
 import { db } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { SingleItemError } from '../common/single-item-error';
 import { parseData } from './parse-data';
 
@@ -27,7 +27,7 @@ export function getByName({ parentUuid, nameWithExtension }: Props) {
       )
       .get({ folderUuid: parentUuid, plainName, type: extension.slice(1) });
 
-    if (data) return { data: parseData({ data: data as unknown as DriveFile }) };
+    if (data) return { data: parseData({ data: data as DriveFile }) };
     return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
     logger.error({
