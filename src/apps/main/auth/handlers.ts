@@ -5,6 +5,8 @@ import { createWipClient } from '@/apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
+import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
+import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import electronStore from '../config';
@@ -46,6 +48,8 @@ export function checkIfUserIsLoggedIn() {
   const msToRenew = TokenScheduler.getMillisecondsToRenew();
   if (msToRenew === null || msToRenew <= 0) {
     logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
+    saveConfig();
+    resetConfig();
     return;
   }
 

@@ -1,8 +1,8 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { ipcMain } from 'electron';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { electronStore } from '../../config';
 import { eventBus } from '../../event-bus';
-import { setupBackupConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { launchBackupProcesses } from './launchBackupProcesses';
@@ -21,7 +21,17 @@ export async function backupsStartProcess({ ctx }: { ctx: AuthContext }) {
 export function setUpBackups() {
   logger.debug({ msg: 'Setting up backups' });
 
-  setupBackupConfig();
+  ipcMain.handle('get-backups-interval', () => {
+    return electronStore.get('backupInterval');
+  });
+
+  ipcMain.handle('get-last-backup-timestamp', () => {
+    return electronStore.get('lastBackup');
+  });
+
+  ipcMain.handle('get-backups-status', () => {
+    return tracker.status;
+  });
 
   eventBus.on('USER_LOGGED_OUT', () => tracker.reset());
 }
