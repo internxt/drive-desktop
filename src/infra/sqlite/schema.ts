@@ -7,7 +7,6 @@
  * with `fileId`) it's not removed automatically from the database. `synchronize: true` just runs some
  * migrations like adding a column. This is an issue since we needed to know the internals of `typeorm`
  * which is not usual knowledge.
- *
  * 2. Removing the `syncrhonize: true` option and using `typeorm` migrations was not the best. The migrations
  * were inside a typescript file being just a single line string, so it wasn't easy to spot issues or apply more customize
  * migrations.
