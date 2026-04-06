@@ -1,7 +1,7 @@
 import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
+import { db } from '../../migrations/run-migrations';
 import { SingleItemError } from '../common/single-item-error';
-import { fileRepository } from '../drive-file';
 
 type Props = {
   uuid: FileUuid;
@@ -10,15 +10,17 @@ type Props = {
   };
 };
 
-export async function updateByUuid({ uuid, payload }: Props) {
+export function updateByUuid({ uuid, payload }: Props) {
   try {
-    const match = await fileRepository.update({ uuid }, { status: payload.status });
+    const result = db
+      .prepare(`UPDATE drive_file SET status = :status WHERE uuid = :uuid`)
+      .run({ uuid, status: payload.status ?? null });
 
-    if (!match.affected) {
+    if (!result.changes) {
       return { error: new SingleItemError('NOT_FOUND') };
     }
 
-    return { data: match.affected };
+    return { data: result.changes };
   } catch (exc) {
     logger.error({
       msg: 'Error updating file by uuid',

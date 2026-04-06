@@ -1,17 +1,16 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { fileRepository } from '../drive-file';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { getByName } from './get-by-name';
+import { upsertQuery } from './queries';
 
 describe('get-by-name', () => {
   const date = new Date().toISOString();
-  const file: DriveFile = {
-    status: 'EXISTS',
+  const file = {
     id: 1,
     uuid: 'uuid',
+    status: 'EXISTS',
     fileId: 'fileId',
     size: 1024,
     folderId: 1,
@@ -27,51 +26,55 @@ describe('get-by-name', () => {
 
   let props: Parameters<typeof getByName>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await fileRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof getByName>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_file');
+
+    props = {
       parentUuid: 'folderUuid' as FolderUuid,
       nameWithExtension: 'file.txt',
-    });
+    };
   });
 
-  it('should return NOT_FOUND when file is not found', async () => {
+  it('should return NOT_FOUND when file is not found', () => {
     // When
-    const { error } = await getByName(props);
+    const { error } = getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return file', async () => {
+  it('should return file', () => {
     // Given
-    await fileRepository.save(file);
+    db.prepare(upsertQuery).run(file);
     // When
-    const { data } = await getByName(props);
+    const { data } = getByName(props);
     // Then
     expect(data?.uuid).toBe('uuid');
   });
 
-  it('should return NOT_FOUND when file status is not EXISTS', async () => {
+  it('should return NOT_FOUND when file status is not EXISTS', () => {
     // Given
-    await fileRepository.save({ ...file, status: 'TRASHED' });
+    db.prepare(upsertQuery).run({ ...file, status: 'TRASHED' });
     // When
-    const { error } = await getByName(props);
+    const { error } = getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.parentUuid = (() => null) as any;
     // When
-    const { error } = await getByName(props);
+    const { error } = getByName(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('cannot be bound') } });
   });
 });
