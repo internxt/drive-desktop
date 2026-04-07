@@ -33,6 +33,11 @@ CREATE TABLE
     "parentUuid" VARCHAR,
     "workspaceId" VARCHAR DEFAULT (''),
     "parentId" INTEGER,
+    /**
+     * v2.5.1 Daniel Jiménez
+     * We mark this field as empty to allow the migration to complete.
+     * However, the value is populated by a custom migration on the startup.
+     */
     "userUuid" VARCHAR NOT NULL DEFAULT (''),
     CONSTRAINT "UQ_7a0c089191f5ebdc214e0af808a" UNIQUE ("id")
   );

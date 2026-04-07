@@ -1,17 +1,26 @@
-import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { logger } from '@/apps/shared/logger/logger';
-import { folderRepository } from '../drive-folder';
+import { db } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
 import { parseData } from './parse-data';
+import { upsertQuery } from './queries';
 
 type Props = {
   folder: DriveFolder;
 };
 
-export async function createOrUpdate({ folder }: Props) {
+export function createOrUpdate({ folder }: Props) {
   try {
-    await folderRepository.upsert(folder, {
-      conflictPaths: ['uuid'],
-      skipUpdateIfNoValuesChanged: true,
+    db.prepare(upsertQuery).run({
+      uuid: folder.uuid,
+      id: folder.id,
+      workspaceId: folder.workspaceId ?? null,
+      parentId: folder.parentId ?? null,
+      parentUuid: folder.parentUuid ?? null,
+      userUuid: folder.userUuid,
+      createdAt: folder.createdAt,
+      updatedAt: folder.updatedAt,
+      plainName: folder.plainName ?? null,
+      status: folder.status,
     });
 
     return parseData({ data: folder });
