@@ -81,7 +81,7 @@ describe('watcher-on-unlink', () => {
     call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
   });
 
-  it('should emit delete event when delete folder with items inside using our custom delete', async () => {
+  it('should emit delete event when delete folder with items inside using trash', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
