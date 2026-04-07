@@ -26,7 +26,7 @@ export function getBetweenUuids({ userUuid, workspaceId, firstUuid, lastUuid }: 
       )
       .all({ userUuid, workspaceId, firstUuid, lastUuid });
 
-    return { data: items.map((item) => parseData({ data: item as unknown as DriveFolder })) };
+    return { data: items.map((item) => parseData({ data: item as DriveFolder })) };
   } catch (error) {
     logger.error({
       msg: 'Error getting folders between uuids',

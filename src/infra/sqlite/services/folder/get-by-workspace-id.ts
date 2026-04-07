@@ -15,7 +15,7 @@ export function getByWorkspaceId({ userUuid, workspaceId }: Props) {
       .prepare(`SELECT * FROM drive_folder WHERE userUuid = :userUuid AND workspaceId = :workspaceId`)
       .all({ userUuid, workspaceId });
 
-    return { data: items.map((item) => parseData({ data: item as unknown as DriveFolder })) };
+    return { data: items.map((item) => parseData({ data: item as DriveFolder })) };
   } catch (exc) {
     logger.error({
       msg: 'Error getting folders by workspace id',

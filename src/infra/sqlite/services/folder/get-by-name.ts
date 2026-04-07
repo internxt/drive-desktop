@@ -22,7 +22,7 @@ export function getByName({ parentUuid, plainName }: Props) {
       )
       .get({ parentUuid, plainName });
 
-    if (data) return { data: parseData({ data: data as unknown as DriveFolder }) };
+    if (data) return { data: parseData({ data: data as DriveFolder }) };
     return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
     logger.error({
