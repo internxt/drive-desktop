@@ -15,7 +15,7 @@ import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
-import { migrate } from '@/migrations/migrate';
+import { runMigrations } from '@/infra/sqlite/migrations/run-migrations';
 import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
 import { logger } from '../shared/logger/logger';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
@@ -23,7 +23,6 @@ import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
-import { AppDataSource } from './database/data-source';
 import { setupDeviceIpc } from './device/handlers';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
@@ -119,9 +118,7 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    await AppDataSource.initialize();
-    await migrate();
-
+    runMigrations();
     setupTrayIcon();
 
     const user = checkIfUserIsLoggedIn();

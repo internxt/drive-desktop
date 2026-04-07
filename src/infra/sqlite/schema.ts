@@ -11,7 +11,7 @@
  * were inside a typescript file being just a single line string, so it wasn't easy to spot issues or apply more customize
  * migrations.
  *
- * Basically `typeorm` is high level orm that was removing "complexity" but we didn't have control about what was
+ * Basically `typeorm` is a high level orm that was removing "complexity" but we didn't have control about what was
  * happening. So we decided to try different alternatives. First, the requirements. We needed something that was able to
  * run migrations from code (since it's a desktop app and we cannot run them from cli) and also thas was able to run
  * different sqlite drivers. For example, `drizzleOrm` only allows `better_sqlite3`, which is the fastest sqlite driver,
@@ -20,7 +20,7 @@
  *
  * We found that no ORM was meeting our requirements so we decided to move to raw sql using `node:sqlite`. Why?
  *
- * 1. The database is very small and we don't have any relationship.
+ * 1. The database is very small and we don't have any relationships.
  * 2. We want high control of what's happening behind since everything is going to run on the client side and any small
  * mistake is difficult to recover (like it has happened before). We would have our migrations in sql files and
  * create our own migrations table.
@@ -62,4 +62,13 @@ export type DriveFolder = {
   updatedAt: string;
   plainName: string | null;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
+};
+
+export type Checkpoint = {
+  id: number;
+  type: 'file' | 'folder';
+  name: string;
+  updatedAt: string;
+  userUuid: string;
+  workspaceId: string;
 };

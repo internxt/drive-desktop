@@ -25,7 +25,4 @@ export type AppStore = {
   lastOnboardingShown: string;
   preferedLanguage: Language;
   preferedTheme: ConfigTheme;
-  'migrations.v2-5-1-add-user-uuid-to-database': boolean;
-  'migrations.v2-5-7-remove-antivirus-table': boolean;
-  'migrations.v2-6-3-move-checkpoint-to-sqlite': boolean;
 };
