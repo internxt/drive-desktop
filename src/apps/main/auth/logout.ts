@@ -1,7 +1,9 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
-import { AuthModule } from '@/backend/features/auth/auth.module';
+import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
+import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
 import { clearIssues } from '../background-processes/issues';
 import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
@@ -35,12 +37,11 @@ export function logout({ ctx }: Props) {
     clearIssues();
 
     void cleanSyncEngineWorkers();
-    AuthModule.logout();
+
+    saveConfig();
+    void DriveServerWipModule.auth.logout();
+    resetConfig();
   } catch (error) {
-    logger.error({
-      tag: 'AUTH',
-      msg: 'Error logging out',
-      error,
-    });
+    logger.error({ tag: 'AUTH', msg: 'Error logging out', error });
   }
 }
