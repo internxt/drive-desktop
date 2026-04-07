@@ -1,9 +1,9 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { folderRepository } from '../drive-folder';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
 import { getByUuid } from './get-by-uuid';
+import { upsertQuery } from './queries';
 
 describe('get-by-uuid', () => {
   const date = new Date().toISOString();
@@ -22,41 +22,43 @@ describe('get-by-uuid', () => {
 
   let props: Parameters<typeof getByUuid>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await folderRepository.clear();
-
-    props = mockProps<typeof getByUuid>({
-      uuid: 'uuid',
-    });
+  afterAll(() => {
+    db.close();
   });
 
-  it('should return NOT_FOUND when folder is not found', async () => {
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = { uuid: 'uuid' };
+  });
+
+  it('should return NOT_FOUND when folder is not found', () => {
     // When
-    const { error } = await getByUuid(props);
+    const { error } = getByUuid(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return folder', async () => {
+  it('should return folder', () => {
     // Given
-    await folderRepository.save(folder);
+    db.prepare(upsertQuery).run(folder);
     // When
-    const { data } = await getByUuid(props);
+    const { data } = getByUuid(props);
     // Then
     expect(data?.uuid).toBe('uuid');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.uuid = (() => null) as any;
     // When
-    const { error } = await getByUuid(props);
+    const { error } = getByUuid(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('cannot be bound') } });
   });
 });
