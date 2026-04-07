@@ -25,8 +25,13 @@ void register_sync_root(const std::wstring& syncRootPath, const std::wstring& pr
     info.InSyncPolicy(winrt::StorageProviderInSyncPolicy::FileCreationTime | winrt::StorageProviderInSyncPolicy::DirectoryCreationTime);
     info.HardlinkPolicy(winrt::StorageProviderHardlinkPolicy::None);
     info.ShowSiblingsAsGroup(false);
+    // Trash references are saved in regedit
+    // HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SyncRootManager
     info.RecycleBinUri(winrt::Uri(L"https://drive.internxt.com/app/trash"));
 
+    // This adds entries here:
+    // - Computer\HKEY_CURRENT_USER\Software\Classes\WOW6432Node\CLSID
+    // - HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace
     winrt::StorageProviderSyncRootManager::Register(info);
 }
 
