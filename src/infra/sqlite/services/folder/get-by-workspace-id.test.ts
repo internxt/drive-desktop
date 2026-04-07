@@ -1,9 +1,9 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { folderRepository } from '../drive-folder';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
 import { getByWorkspaceId } from './get-by-workspace-id';
+import { upsertQuery } from './queries';
 
 describe('get-by-workspace-id', () => {
   const date = new Date().toISOString();
@@ -22,51 +22,56 @@ describe('get-by-workspace-id', () => {
 
   let props: Parameters<typeof getByWorkspaceId>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await folderRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof getByWorkspaceId>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
       userUuid: 'userUuid',
       workspaceId: 'workspaceId',
-    });
+    };
   });
 
-  it('should return empty array when no folders exist', async () => {
+  it('should return empty array when no folders exist', () => {
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return all folders for a workspace', async () => {
+  it('should return all folders for a workspace', () => {
     // Given
-    await folderRepository.save([folder, { ...folder, uuid: 'uuid2', id: 2 }]);
+    db.prepare(upsertQuery).run(folder);
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2 });
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toHaveLength(2);
   });
 
-  it('should not return folders from a different workspace', async () => {
+  it('should not return folders from a different workspace', () => {
     // Given
-    await folderRepository.save({ ...folder, workspaceId: 'workspaceId2' });
+    db.prepare(upsertQuery).run({ ...folder, workspaceId: 'workspaceId2' });
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.userUuid = (() => null) as any;
     // When
-    const { error } = await getByWorkspaceId(props);
+    const { error } = getByWorkspaceId(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('cannot be bound') } });
   });
 });

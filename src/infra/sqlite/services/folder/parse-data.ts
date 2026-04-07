@@ -1,4 +1,5 @@
-import { DriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { DriveFolder } from '../../schema';
 
 type TProps = {
   data: DriveFolder;
