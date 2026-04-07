@@ -13,13 +13,13 @@ export function createOrUpdate({ folder }: Props) {
     db.prepare(upsertQuery).run({
       uuid: folder.uuid,
       id: folder.id,
-      workspaceId: folder.workspaceId ?? null,
-      parentId: folder.parentId ?? null,
-      parentUuid: folder.parentUuid ?? null,
+      workspaceId: folder.workspaceId ?? '',
+      parentId: folder.parentId ?? '',
+      parentUuid: folder.parentUuid ?? '',
       userUuid: folder.userUuid,
       createdAt: folder.createdAt,
       updatedAt: folder.updatedAt,
-      plainName: folder.plainName ?? null,
+      plainName: folder.plainName ?? '',
       status: folder.status,
     });
 
