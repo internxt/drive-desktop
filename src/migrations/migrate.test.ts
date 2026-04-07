@@ -26,7 +26,7 @@ describe('migrate', () => {
     // When
     await migrate();
     // Then
-    expect(setMock).toBeCalledTimes(3);
+    expect(setMock).toBeCalledTimes(2);
     expect(removeAntivirusTableMock).toBeCalledTimes(1);
     expect(moveCheckpointToSqliteMock).toBeCalledTimes(1);
   });
