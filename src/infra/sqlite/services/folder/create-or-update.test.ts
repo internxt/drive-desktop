@@ -42,12 +42,12 @@ describe('create-or-update', () => {
       id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
-      plainName: null,
+      plainName: '',
       createdAt: date,
       updatedAt: date,
-      parentUuid: null,
-      workspaceId: null,
-      parentId: null,
+      parentUuid: '',
+      workspaceId: '',
+      parentId: '',
       userUuid: 'userUuid',
     });
   });
@@ -65,9 +65,9 @@ describe('create-or-update', () => {
       plainName: 'folder',
       createdAt: date,
       updatedAt: date,
-      parentUuid: null,
-      workspaceId: null,
-      parentId: null,
+      parentUuid: '',
+      workspaceId: '',
+      parentId: '',
       userUuid: 'userUuid',
     });
   });
