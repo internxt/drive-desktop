@@ -12,19 +12,19 @@
 CREATE TABLE
   drive_file_new (
     id INTEGER NOT NULL,
-    uuid VARCHAR PRIMARY KEY NOT NULL,
-    status VARCHAR NOT NULL,
+    uuid VARCHAR(36) PRIMARY KEY NOT NULL,
+    status VARCHAR(7) NOT NULL,
     plainName VARCHAR NOT NULL,
     type VARCHAR NOT NULL,
-    createdAt VARCHAR NOT NULL,
-    updatedAt VARCHAR NOT NULL,
-    folderUuid VARCHAR NOT NULL,
-    workspaceId VARCHAR NOT NULL,
-    fileId VARCHAR NOT NULL,
+    createdAt VARCHAR(24) NOT NULL,
+    updatedAt VARCHAR(24) NOT NULL,
+    folderUuid VARCHAR(36) NOT NULL,
+    workspaceId VARCHAR(36) NOT NULL,
+    fileId VARCHAR(24) NOT NULL,
     size INTEGER NOT NULL,
     folderId INTEGER NOT NULL,
-    userUuid VARCHAR NOT NULL,
-    modificationTime VARCHAR NOT NULL
+    userUuid VARCHAR(36) NOT NULL,
+    modificationTime VARCHAR(24) NOT NULL
   );
 
 

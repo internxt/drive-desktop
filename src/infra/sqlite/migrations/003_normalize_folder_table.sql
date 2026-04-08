@@ -1,15 +1,15 @@
 CREATE TABLE
   drive_folder_new (
     id INTEGER NOT NULL,
-    uuid VARCHAR PRIMARY KEY NOT NULL,
-    status VARCHAR NOT NULL,
+    uuid VARCHAR(36) PRIMARY KEY NOT NULL,
+    status VARCHAR(7) NOT NULL,
     plainName VARCHAR NOT NULL,
-    createdAt VARCHAR NOT NULL,
-    updatedAt VARCHAR NOT NULL,
-    parentUuid VARCHAR NOT NULL,
-    workspaceId VARCHAR NOT NULL,
+    createdAt VARCHAR(24) NOT NULL,
+    updatedAt VARCHAR(24) NOT NULL,
+    parentUuid VARCHAR(36) NOT NULL,
+    workspaceId VARCHAR(36) NOT NULL,
     parentId INTEGER,
-    userUuid VARCHAR NOT NULL
+    userUuid VARCHAR(36) NOT NULL
   );
 
 
