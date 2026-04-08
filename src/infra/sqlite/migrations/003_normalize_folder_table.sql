@@ -3,7 +3,7 @@ CREATE TABLE
     id INTEGER NOT NULL,
     uuid VARCHAR(36) PRIMARY KEY NOT NULL,
     status VARCHAR(7) NOT NULL,
-    plainName VARCHAR NOT NULL,
+    plainName TEXT NOT NULL,
     createdAt VARCHAR(24) NOT NULL,
     updatedAt VARCHAR(24) NOT NULL,
     parentUuid VARCHAR(36) NOT NULL,
