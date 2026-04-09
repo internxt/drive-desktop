@@ -1,8 +1,9 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { fileRepository } from '../drive-file';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
+import { upsertQuery } from './queries';
 import { updateByUuid } from './update-by-uuid';
 
 describe('update-by-uuid', () => {
@@ -26,43 +27,47 @@ describe('update-by-uuid', () => {
 
   let props: Parameters<typeof updateByUuid>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await fileRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof updateByUuid>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_file');
+
+    props = {
       uuid: 'uuid' as FileUuid,
       payload: { status: 'EXISTS' },
-    });
+    };
   });
 
-  it('should return NOT_FOUND when no file has been affected', async () => {
+  it('should return NOT_FOUND when no file has been affected', () => {
     // When
-    const { error } = await updateByUuid(props);
+    const { error } = updateByUuid(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should update file status and return affected count', async () => {
+  it('should update file status and return affected count', () => {
     // Given
-    await fileRepository.save(file);
+    db.prepare(upsertQuery).run(file);
     props.payload = { status: 'TRASHED' };
     // When
-    const { data } = await updateByUuid(props);
+    const { data } = updateByUuid(props);
     // Then
     expect(data).toBe(1);
-    expect(await fileRepository.exists({ where: { uuid: 'uuid', status: 'TRASHED' } })).toBe(true);
+    expect({ ...db.prepare(`SELECT status FROM drive_file WHERE uuid = 'uuid'`).get() }).toStrictEqual({ status: 'TRASHED' });
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
-    await fileRepository.save(file);
+    db.prepare(upsertQuery).run(file);
     props.payload = { status: null as any };
     // When
-    const { error } = await updateByUuid(props);
+    const { error } = updateByUuid(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
     call(loggerMock.error).toMatchObject({ exc: { message: 'NOT NULL constraint failed: drive_file.status' } });

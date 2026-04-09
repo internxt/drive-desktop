@@ -1,6 +1,7 @@
-import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { db } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { SqliteError } from '../common/sqlite-error';
 import { parseData } from './parse-data';
 
@@ -25,7 +26,7 @@ export function getBetweenUuids({ userUuid, workspaceId, firstUuid, lastUuid }: 
       )
       .all({ userUuid, workspaceId, firstUuid, lastUuid });
 
-    return { data: items.map((item) => parseData({ data: item as unknown as DriveFile })) };
+    return { data: items.map((item) => parseData({ data: item as DriveFile })) };
   } catch (error) {
     logger.error({
       msg: 'Error getting files between uuids',

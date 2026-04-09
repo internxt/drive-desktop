@@ -1,6 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
+import { db } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { SqliteError } from '../common/sqlite-error';
-import { fileRepository } from '../drive-file';
 import { parseData } from './parse-data';
 
 type Props = {
@@ -8,14 +9,13 @@ type Props = {
   workspaceId: string;
 };
 
-export async function getByWorkspaceId({ userUuid, workspaceId }: Props) {
+export function getByWorkspaceId({ userUuid, workspaceId }: Props) {
   try {
-    const items = await fileRepository.findBy({
-      userUuid,
-      workspaceId,
-    });
+    const items = db
+      .prepare(`SELECT * FROM drive_file WHERE userUuid = :userUuid AND workspaceId = :workspaceId`)
+      .all({ userUuid, workspaceId });
 
-    return { data: items.map((item) => parseData({ data: item })) };
+    return { data: items.map((item) => parseData({ data: item as DriveFile })) };
   } catch (exc) {
     logger.error({
       msg: 'Error getting files by workspace id',

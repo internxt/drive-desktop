@@ -1,9 +1,9 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { fileRepository } from '../drive-file';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFile } from '../../schema';
 import { getByWorkspaceId } from './get-by-workspace-id';
+import { upsertQuery } from './queries';
 
 describe('get-by-workspace-id', () => {
   const date = new Date().toISOString();
@@ -26,51 +26,56 @@ describe('get-by-workspace-id', () => {
 
   let props: Parameters<typeof getByWorkspaceId>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await fileRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof getByWorkspaceId>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_file');
+
+    props = {
       userUuid: 'userUuid',
       workspaceId: 'workspaceId',
-    });
+    };
   });
 
-  it('should return empty array when no files exist', async () => {
+  it('should return empty array when no files exist', () => {
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return all files for a workspace', async () => {
+  it('should return all files for a workspace', () => {
     // Given
-    await fileRepository.save([file, { ...file, uuid: 'uuid2', id: 2 }]);
+    db.prepare(upsertQuery).run(file);
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2', id: 2 });
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toHaveLength(2);
   });
 
-  it('should not return files from a different workspace', async () => {
+  it('should not return files from a different workspace', () => {
     // Given
-    await fileRepository.save({ ...file, workspaceId: 'workspaceId2' });
+    db.prepare(upsertQuery).run({ ...file, workspaceId: 'workspaceId2' });
     // When
-    const { data } = await getByWorkspaceId(props);
+    const { data } = getByWorkspaceId(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.userUuid = (() => null) as any;
     // When
-    const { error } = await getByWorkspaceId(props);
+    const { error } = getByWorkspaceId(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('Function parameter') } });
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('cannot be bound') } });
   });
 });

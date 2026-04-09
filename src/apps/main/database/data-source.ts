@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { PATHS } from '@/core/electron/paths';
-import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import { Checkpoint } from './entities/checkpoint';
 
@@ -17,14 +16,14 @@ export const AppDataSource = new DataSource(
         autoSave: false,
         logging: false,
         synchronize: true,
-        entities: [DriveFile, DriveFolder, Checkpoint],
+        entities: [DriveFolder, Checkpoint],
       }
     : {
         type: 'better-sqlite3',
         database: PATHS.SQLITE_DB,
         logging: false,
         synchronize: true,
-        entities: [DriveFile, DriveFolder, Checkpoint],
+        entities: [DriveFolder, Checkpoint],
       },
 );
 
