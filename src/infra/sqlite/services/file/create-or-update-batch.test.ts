@@ -1,21 +1,24 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { fileRepository } from '../drive-file';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdateBatch } from './create-or-update-batch';
 
 describe('create-or-update-batch', () => {
   const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdateBatch>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await fileRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof createOrUpdateBatch>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_file');
+
+    props = {
       files: Array.from({ length: 450 }).map((_, idx) => ({
         id: idx,
         uuid: `uuid${idx}`,
@@ -23,52 +26,73 @@ describe('create-or-update-batch', () => {
         fileId: 'fileId',
         size: 1024,
         folderId: 1,
-        folderUuid: 'parentUuid',
+        folderUuid: null,
         createdAt: date,
         updatedAt: date,
         modificationTime: date,
+        plainName: null,
+        type: null,
+        userUuid: 'userUuid',
+        workspaceId: null,
       })),
-    });
+    };
   });
 
-  it('should ignore if no files', async () => {
+  it('should ignore if no files', () => {
     // Given
     props.files = [];
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await fileRepository.count()).toBe(0);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should insert new files', async () => {
+  it('should insert new files', () => {
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await fileRepository.count()).toBe(450);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 450 });
+    expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
+      id: 0,
+      uuid: 'uuid0',
+      status: 'EXISTS',
+      plainName: '',
+      type: '',
+      createdAt: date,
+      updatedAt: date,
+      folderUuid: '',
+      workspaceId: '',
+      fileId: 'fileId',
+      size: 1024,
+      folderId: 1,
+      userUuid: 'userUuid',
+      modificationTime: date,
+    });
   });
 
-  it('should update existing files', async () => {
+  it('should update existing files', () => {
     // Given
     props.files[1].uuid = 'uuid0';
     props.files[1].plainName = 'file';
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await fileRepository.count()).toBe(449);
-    expect(await fileRepository.exists({ where: { uuid: 'uuid1' } })).toBe(false);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 449 });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file WHERE uuid = ?').get('uuid0') }).toStrictEqual({ 'COUNT(*)': 1 });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file WHERE uuid = ?').get('uuid1') }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
-    props.files = [{} as any];
+    props.files.push({} as any);
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    expect(await fileRepository.count()).toBe(0);
-    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_file.id' } });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 400 });
+    call(loggerMock.error).toMatchObject({ error: { message: 'Provided value cannot be bound to SQLite parameter 1.' } });
   });
 });

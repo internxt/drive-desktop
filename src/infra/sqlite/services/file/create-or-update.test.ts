@@ -1,21 +1,24 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { fileRepository } from '../drive-file';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdate } from './create-or-update';
 
 describe('create-or-update', () => {
   const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdate>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await fileRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof createOrUpdate>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_file');
+
+    props = {
       file: {
         id: 1,
         uuid: 'uuid',
@@ -23,64 +26,72 @@ describe('create-or-update', () => {
         fileId: 'fileId',
         size: 1024,
         folderId: 1,
-        folderUuid: 'parentUuid',
+        folderUuid: null,
         createdAt: date,
         updatedAt: date,
         modificationTime: date,
+        plainName: null,
+        type: null,
+        userUuid: 'userUuid',
+        workspaceId: null,
       },
-    });
+    };
   });
 
-  it('should insert new file', async () => {
+  it('should insert new file', () => {
     // When
-    const res = await createOrUpdate(props);
+    createOrUpdate(props as any);
     // Then
-    expect(await fileRepository.count()).toBe(1);
-    expect(res).toStrictEqual({
-      contentsId: 'fileId',
-      createdAt: date,
-      extension: '',
-      modificationTime: date,
-      name: undefined,
-      parentId: 1,
-      parentUuid: 'parentUuid',
-      size: 1024,
-      status: 'EXISTS',
-      updatedAt: date,
+    expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
+      id: 1,
       uuid: 'uuid',
+      status: 'EXISTS',
+      plainName: '',
+      type: '',
+      createdAt: date,
+      updatedAt: date,
+      folderUuid: '',
+      workspaceId: '',
+      fileId: 'fileId',
+      size: 1024,
+      folderId: 1,
+      userUuid: 'userUuid',
+      modificationTime: date,
     });
   });
 
-  it('should update existing file', async () => {
+  it('should update existing file', () => {
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.file.plainName = 'file';
-    const res = await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    expect(await fileRepository.count()).toBe(1);
-    expect(res).toStrictEqual({
-      contentsId: 'fileId',
-      createdAt: date,
-      extension: '',
-      modificationTime: date,
-      name: 'file',
-      parentId: 1,
-      parentUuid: 'parentUuid',
-      size: 1024,
-      status: 'EXISTS',
-      updatedAt: date,
+    expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
+      id: 1,
       uuid: 'uuid',
+      status: 'EXISTS',
+      plainName: 'file',
+      type: '',
+      createdAt: date,
+      updatedAt: date,
+      folderUuid: '',
+      workspaceId: '',
+      fileId: 'fileId',
+      size: 1024,
+      folderId: 1,
+      userUuid: 'userUuid',
+      modificationTime: date,
     });
   });
 
-  it('should return UNKNOWN if there is an error', async () => {
+  it('should return UNKNOWN if there is an error', () => {
     // Given
     props.file = {} as any;
     // When
-    const res = await createOrUpdate(props);
+    const res = createOrUpdate(props);
     // Then
     expect(res).toBeUndefined();
-    expect(await fileRepository.count()).toBe(0);
-    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_file.id' } });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 0 });
+    call(loggerMock.error).toMatchObject({ error: { message: 'Provided value cannot be bound to SQLite parameter 1.' } });
   });
 });
