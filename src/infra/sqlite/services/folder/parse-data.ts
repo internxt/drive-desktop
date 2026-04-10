@@ -2,7 +2,7 @@ import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/Dri
 import { DriveFolder } from '../../schema';
 
 type TProps = {
-  data: DriveFolder;
+  data: any;
 };
 
 export function parseData({ data }: TProps): SimpleDriveFolder {
