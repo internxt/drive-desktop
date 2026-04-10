@@ -1,5 +1,5 @@
-import { CheckpointRepository } from '@/apps/main/database/data-source';
 import { logger } from '@/apps/shared/logger/logger';
+import { db } from '../../migrations/run-migrations';
 import { SqliteError } from '../common/sqlite-error';
 
 type Props = {
@@ -10,16 +10,17 @@ type Props = {
   updatedAt: string;
 };
 
-export async function createOrUpdate(payload: Props) {
+export function createOrUpdate(payload: Props) {
   try {
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Update checkpoint', payload });
 
-    await CheckpointRepository.upsert(payload, {
-      conflictPaths: ['type', 'userUuid', 'workspaceId'],
-      skipUpdateIfNoValuesChanged: true,
-    });
-
-    return {};
+    db.prepare(
+      `INSERT INTO checkpoint (type, name, updatedAt, userUuid, workspaceId)
+       VALUES (:type, :name, :updatedAt, :userUuid, :workspaceId)
+       ON CONFLICT (type, userUuid, workspaceId) DO UPDATE SET
+         name = excluded.name,
+         updatedAt = excluded.updatedAt`,
+    ).run(payload);
   } catch (error) {
     logger.error({
       tag: 'SYNC-ENGINE',
@@ -28,6 +29,6 @@ export async function createOrUpdate(payload: Props) {
       error,
     });
 
-    return { error: new SqliteError('UNKNOWN', error) };
+    return new SqliteError('UNKNOWN', error);
   }
 }

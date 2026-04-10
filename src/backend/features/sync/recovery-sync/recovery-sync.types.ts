@@ -1,8 +1,8 @@
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { Checkpoint } from '@/apps/main/database/entities/checkpoint';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { ParsedFileDto, ParsedFolderDto } from '@/infra/drive-server-wip/out/dto';
+import { Checkpoint } from '@/infra/sqlite/schema';
 
 export type FileProps = {
   ctx: SyncContext;

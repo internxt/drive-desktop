@@ -1,84 +1,85 @@
-import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdate } from './create-or-update';
 
 describe('create-or-update', () => {
   let props: Parameters<typeof createOrUpdate>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await CheckpointRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof createOrUpdate>({
+  beforeEach(() => {
+    db.exec('DELETE FROM checkpoint');
+
+    props = {
       type: 'file',
       userUuid: 'userUuid1',
       workspaceId: 'workspaceId1',
       name: 'name',
       updatedAt: 'updatedAt1',
-    });
+    };
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.type = undefined as any;
     // When
-    const { error } = await createOrUpdate(props);
+    const error = createOrUpdate(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ error: { message: expect.stringContaining('cannot be bound') } });
   });
 
-  it('should create checkpoint if not exists', async () => {
+  it('should create checkpoint if not exists', () => {
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    const res = await CheckpointRepository.find({});
-    expect(res).toMatchObject([{ updatedAt: 'updatedAt1' }]);
+    expect(db.prepare('SELECT * FROM checkpoint').all()).toMatchObject([{ updatedAt: 'updatedAt1' }]);
   });
 
-  it('should update checkpoint if exists', async () => {
+  it('should update checkpoint if exists', () => {
     // Given
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.updatedAt = 'updatedAt2';
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    const res = await CheckpointRepository.find({});
-    expect(res).toMatchObject([{ updatedAt: 'updatedAt2' }]);
+    expect(db.prepare('SELECT * FROM checkpoint').all()).toMatchObject([{ updatedAt: 'updatedAt2' }]);
   });
 
-  it('should create checkpoint if different type', async () => {
+  it('should create checkpoint if different type', () => {
     // Given
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.type = 'folder';
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    const res = await CheckpointRepository.find({});
-    expect(res).toMatchObject([{ type: 'file' }, { type: 'folder' }]);
+    expect(db.prepare('SELECT * FROM checkpoint').all()).toMatchObject([{ type: 'file' }, { type: 'folder' }]);
   });
 
-  it('should create checkpoint if different userUuid', async () => {
+  it('should create checkpoint if different userUuid', () => {
     // Given
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.userUuid = 'userUuid2';
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    const res = await CheckpointRepository.find({});
-    expect(res).toMatchObject([{ userUuid: 'userUuid1' }, { userUuid: 'userUuid2' }]);
+    expect(db.prepare('SELECT * FROM checkpoint').all()).toMatchObject([{ userUuid: 'userUuid1' }, { userUuid: 'userUuid2' }]);
   });
 
-  it('should create checkpoint if different workspaceId', async () => {
+  it('should create checkpoint if different workspaceId', () => {
     // Given
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.workspaceId = 'workspaceId2';
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    const res = await CheckpointRepository.find({});
-    expect(res).toMatchObject([{ workspaceId: 'workspaceId1' }, { workspaceId: 'workspaceId2' }]);
+    expect(db.prepare('SELECT * FROM checkpoint').all()).toMatchObject([{ workspaceId: 'workspaceId1' }, { workspaceId: 'workspaceId2' }]);
   });
 });

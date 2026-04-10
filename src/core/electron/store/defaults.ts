@@ -16,9 +16,6 @@ export const defaults: AppStore = {
   lastOnboardingShown: '',
   preferedLanguage: DEFAULT_LANGUAGE,
   preferedTheme: 'system',
-  'migrations.v2-5-1-add-user-uuid-to-database': false,
-  'migrations.v2-5-7-remove-antivirus-table': false,
-  'migrations.v2-6-3-move-checkpoint-to-sqlite': false,
 };
 
 export const fieldsToSave: Array<keyof AppStore> = ['backupInterval', 'lastBackup', 'syncRoot', 'deviceUuid', 'backupList'];
