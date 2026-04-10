@@ -112,7 +112,7 @@ process.on('unhandledRejection', (error, promise) => {
 process.on('uncaughtException', (error, origin) => {
   logger.error({ msg: 'Uncaught exception', error, origin });
 });
-a;
+
 app
   .whenReady()
   .then(async () => {
