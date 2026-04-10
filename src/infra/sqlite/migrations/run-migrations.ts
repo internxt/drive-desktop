@@ -6,7 +6,7 @@ import { PATHS } from '@/core/electron/paths';
 
 export const db = new DatabaseSync(process.env.NODE_ENV === 'test' ? ':memory:' : PATHS.SQLITE_DB);
 
-const MIGRATIONS_DIR = __dirname;
+export const MIGRATIONS_DIR = __dirname;
 
 export function runMigrations() {
   db.exec(`
