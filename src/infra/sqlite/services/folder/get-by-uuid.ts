@@ -12,7 +12,7 @@ export function getByUuid({ uuid }: Props) {
   try {
     const data = db.prepare(`SELECT * FROM drive_folder WHERE uuid = :uuid LIMIT 1`).get({ uuid });
 
-    if (data) return { data: parseData({ data: data as unknown as DriveFolder }) };
+    if (data) return { data: parseData({ data: data as DriveFolder }) };
 
     return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
