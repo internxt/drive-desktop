@@ -20,7 +20,7 @@
  *
  * We found that no ORM was meeting our requirements so we decided to move to raw sql using `node:sqlite`. Why?
  *
- * 1. The database is very small and we don't have any relationships.
+ * 1. The database is very small and we don't have any relationship.
  * 2. We want high control of what's happening behind since everything is going to run on the client side and any small
  * mistake is difficult to recover (like it has happened before). We would have our migrations in sql files and
  * create our own migrations table.
