@@ -1,75 +1,85 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { folderRepository } from '../drive-folder';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdate } from './create-or-update';
 
 describe('create-or-update', () => {
   const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdate>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await folderRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof createOrUpdate>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
       folder: {
         id: 1,
         uuid: 'uuid',
         status: 'EXISTS',
-        parentUuid: 'parentUuid',
-        parentId: 1,
+        parentUuid: null,
+        parentId: null,
         userUuid: 'userUuid',
-        workspaceId: 'workspaceId',
+        workspaceId: null,
         createdAt: date,
         updatedAt: date,
+        plainName: null,
       },
-    });
+    };
   });
 
-  it('should insert new folder', async () => {
+  it('should insert new folder', () => {
     // When
-    const res = await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    expect(await folderRepository.count()).toBe(1);
-    expect(res).toStrictEqual({
-      createdAt: date,
-      name: undefined,
-      parentUuid: 'parentUuid',
-      status: 'EXISTS',
-      updatedAt: date,
+    expect({ ...db.prepare('SELECT * FROM drive_folder').get() }).toStrictEqual({
+      id: 1,
       uuid: 'uuid',
+      status: 'EXISTS',
+      plainName: '',
+      createdAt: date,
+      updatedAt: date,
+      parentUuid: '',
+      workspaceId: '',
+      parentId: '',
+      userUuid: 'userUuid',
     });
   });
 
-  it('should update existing folder', async () => {
+  it('should update existing folder', () => {
     // When
-    await createOrUpdate(props);
+    createOrUpdate(props);
     props.folder.plainName = 'folder';
-    const res = await createOrUpdate(props);
+    createOrUpdate(props);
     // Then
-    expect(await folderRepository.count()).toBe(1);
-    expect(res).toStrictEqual({
-      createdAt: date,
-      name: 'folder',
-      parentUuid: 'parentUuid',
-      status: 'EXISTS',
-      updatedAt: date,
+    expect({ ...db.prepare('SELECT * FROM drive_folder').get() }).toStrictEqual({
+      id: 1,
       uuid: 'uuid',
+      status: 'EXISTS',
+      plainName: 'folder',
+      createdAt: date,
+      updatedAt: date,
+      parentUuid: '',
+      workspaceId: '',
+      parentId: '',
+      userUuid: 'userUuid',
     });
   });
 
-  it('should return undefined if there is an error', async () => {
+  it('should return undefined if there is an error', () => {
     // Given
     props.folder = {} as any;
     // When
-    const res = await createOrUpdate(props);
+    const res = createOrUpdate(props);
     // Then
     expect(res).toBeUndefined();
-    expect(await folderRepository.count()).toBe(0);
-    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_folder.uuid' } });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 0 });
+    call(loggerMock.error).toMatchObject({ error: { message: 'Provided value cannot be bound to SQLite parameter 1.' } });
   });
 });

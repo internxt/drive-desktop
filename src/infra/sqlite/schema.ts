@@ -50,3 +50,16 @@ export type DriveFile = {
   userUuid: string;
   modificationTime: string;
 };
+
+export type DriveFolder = {
+  id: number;
+  uuid: string;
+  workspaceId: string | null;
+  parentId: number | null;
+  parentUuid: string | null;
+  userUuid: string;
+  createdAt: string;
+  updatedAt: string;
+  plainName: string | null;
+  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+};

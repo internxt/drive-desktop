@@ -1,9 +1,10 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
-import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { folderRepository } from '../drive-folder';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
 import { getBetweenUuids } from './get-between-uuids';
+import { upsertQuery } from './queries';
 
 describe('get-between-uuids', () => {
   const date = new Date().toISOString();
@@ -22,71 +23,76 @@ describe('get-between-uuids', () => {
 
   let props: Parameters<typeof getBetweenUuids>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await folderRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof getBetweenUuids>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
       userUuid: 'userUuid',
       workspaceId: 'workspaceId',
       firstUuid: 'uuid1' as FolderUuid,
       lastUuid: 'uuid3' as FolderUuid,
-    });
+    };
   });
 
-  it('should return empty array when no folders exist', async () => {
+  it('should return empty array when no folders exist', () => {
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = getBetweenUuids(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return folders between uuids', async () => {
+  it('should return folders between uuids', () => {
     // Given
-    await folderRepository.save([folder, { ...folder, uuid: 'uuid2', id: 2 }]);
+    db.prepare(upsertQuery).run(folder);
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2 });
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = getBetweenUuids(props);
     // Then
     expect(data).toMatchObject([{ uuid: 'uuid1' }, { uuid: 'uuid2' }]);
   });
 
-  it('should not return files outside the range', async () => {
+  it('should not return files outside the range', () => {
     // Given
-    await folderRepository.save({ ...folder, uuid: 'uuid4' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid4' });
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = getBetweenUuids(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should not return folders from a different workspace', async () => {
+  it('should not return folders from a different workspace', () => {
     // Given
-    await folderRepository.save({ ...folder, workspaceId: 'workspaceId2' });
+    db.prepare(upsertQuery).run({ ...folder, workspaceId: 'workspaceId2' });
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = getBetweenUuids(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should not return folders with non-EXISTS status', async () => {
+  it('should not return folders with non-EXISTS status', () => {
     // Given
-    await folderRepository.save({ ...folder, status: 'TRASHED' });
+    db.prepare(upsertQuery).run({ ...folder, status: 'TRASHED' });
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = getBetweenUuids(props);
     // Then
     expect(data).toStrictEqual([]);
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
     props.userUuid = (() => null) as any;
     // When
-    const { error } = await getBetweenUuids(props);
+    const { error } = getBetweenUuids(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ error: { message: expect.stringContaining('Function parameter') } });
+    call(loggerMock.error).toMatchObject({ error: { message: expect.stringContaining('cannot be bound') } });
   });
 });

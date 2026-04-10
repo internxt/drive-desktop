@@ -40,7 +40,7 @@ describe('create-or-update', () => {
 
   it('should insert new file', () => {
     // When
-    createOrUpdate(props as any);
+    createOrUpdate(props);
     // Then
     expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
       id: 1,

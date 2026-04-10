@@ -1,71 +1,77 @@
-import { AppDataSource } from '@/apps/main/database/data-source';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps } from '@/tests/vitest/utils.helper.test';
-import { folderRepository } from '../drive-folder';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdateBatch } from './create-or-update-batch';
 
 describe('create-or-update-batch', () => {
   const date = new Date().toISOString();
   let props: Parameters<typeof createOrUpdateBatch>[0];
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  beforeEach(async () => {
-    await folderRepository.clear();
+  afterAll(() => {
+    db.close();
+  });
 
-    props = mockProps<typeof createOrUpdateBatch>({
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
       folders: Array.from({ length: 450 }).map((_, idx) => ({
         id: idx,
         uuid: `uuid${idx}`,
         status: 'EXISTS',
         parentId: 1,
         parentUuid: 'parentUuid',
+        userUuid: 'userUuid',
+        workspaceId: null,
         createdAt: date,
         updatedAt: date,
+        plainName: null,
       })),
-    });
+    };
   });
 
-  it('should ignore if no folders', async () => {
+  it('should ignore if no folders', () => {
     // Given
     props.folders = [];
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await folderRepository.count()).toBe(0);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should insert new folders', async () => {
+  it('should insert new folders', () => {
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await folderRepository.count()).toBe(450);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 450 });
   });
 
-  it('should update existing folders', async () => {
+  it('should update existing folders', () => {
     // Given
     props.folders[1].uuid = 'uuid0';
     props.folders[1].plainName = 'folder';
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
-    expect(await folderRepository.count()).toBe(449);
-    expect(await folderRepository.exists({ where: { uuid: 'uuid1' } })).toBe(false);
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 449 });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder WHERE uuid = ?').get('uuid1') }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
-    props.folders = [{} as any];
+    props.folders.push({} as any);
     // When
-    const error = await createOrUpdateBatch(props);
+    const error = createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    expect(await folderRepository.count()).toBe(0);
-    call(loggerMock.error).toMatchObject({ error: { message: 'NOT NULL constraint failed: drive_folder.uuid' } });
+    expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 400 });
+    call(loggerMock.error).toMatchObject({ error: { message: 'Provided value cannot be bound to SQLite parameter 1.' } });
   });
 });
