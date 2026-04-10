@@ -72,12 +72,3 @@ export type Checkpoint = {
   userUuid: string;
   workspaceId: string;
 };
-
-export type Checkpoint = {
-  id: number;
-  type: 'file' | 'folder';
-  name: string;
-  updatedAt: string;
-  userUuid: string;
-  workspaceId: string;
-};
