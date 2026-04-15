@@ -38,7 +38,7 @@ export async function performSSOLogin(loginUrl: string, email: string, password:
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
-  await page.goto(loginUrl);
+  await page.goto(loginUrl, { timeout: DEFAULT_TIMEOUT });
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
 

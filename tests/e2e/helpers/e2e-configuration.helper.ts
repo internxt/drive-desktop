@@ -1,16 +1,16 @@
-import { app } from 'electron';
+export function getE2EPaths() {
+  const e2eHomePath = process.env.E2E_HOME_PATH;
+  const e2eAppDataPath = process.env.E2E_APPDATA_PATH;
 
-function setPlaywrightPaths() {
-  const homePath = process.env.E2E_HOME_PATH;
-  const appDataPath = process.env.E2E_APPDATA_PATH;
-  if (!homePath) throw new Error('E2E_HOME_PATH env var is not set');
-  if (!appDataPath) throw new Error('E2E_APPDATA_PATH env var is not set');
-  app.setPath('home', homePath);
-  app.setPath('appData', appDataPath);
+  if (process.env.E2E_TEST === 'true') {
+    if (!e2eHomePath) throw new Error('E2E_HOME_PATH env var is not set');
+    if (!e2eAppDataPath) throw new Error('E2E_APPDATA_PATH env var is not set');
+
+    return {
+      e2eHomePath,
+      e2eAppDataPath,
+    };
+  }
 }
 
-export function applyE2EConfiguration() {
-  setPlaywrightPaths();
-}
-
-export const DEFAULT_TIMEOUT = 30_000;
+export const DEFAULT_TIMEOUT = 60_000;

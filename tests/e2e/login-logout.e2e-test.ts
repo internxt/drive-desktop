@@ -20,10 +20,7 @@ describe('Login-Logout scenario test', () => {
   let electronApp: ElectronApplication;
 
   beforeEach(async () => {
-    electronApp = await launchElectronApp({
-      homeDir: store.homeDir,
-      appDir: store.appDir,
-    });
+    electronApp = await launchElectronApp();
   });
 
   afterEach(async () => {
@@ -51,10 +48,7 @@ describe('Login-Logout scenario test', () => {
 
       await sleep(500);
 
-      electronApp = await launchElectronApp({
-        homeDir: store.homeDir,
-        appDir: store.appDir,
-      });
+      electronApp = await launchElectronApp();
     }
 
     // Verify session persists after the last restart
