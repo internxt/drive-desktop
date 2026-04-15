@@ -10,6 +10,7 @@ import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
 import 'regenerator-runtime/runtime';
+import { captureSentryException, initSentry } from '@/apps/shared/sentry/sentry';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
@@ -41,6 +42,8 @@ app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
 
 setupElectronLog({ logsPath: PATHS.LOGS });
+
+initSentry();
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -107,10 +110,12 @@ process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
   logger.error({ msg: 'Unhandled rejection', error, promise });
+  captureSentryException(error, { promise, type: 'unhandledRejection' });
 });
 
 process.on('uncaughtException', (error, origin) => {
   logger.error({ msg: 'Uncaught exception', error, origin });
+  captureSentryException(error, { origin, type: 'uncaughtException' });
 });
 
 app

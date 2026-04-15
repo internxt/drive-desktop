@@ -11,6 +11,8 @@ const ENV_SCHEMA = z.object({
   NOTIFICATIONS_URL: z.url(),
   PAYMENTS_URL: z.url(),
   PORT: z.coerce.number(),
+  SENTRY_DSN: z.string().min(1),
+  SENTRY_ENVIRONMENT: z.string().min(1),
   /* Cleaner */
   APPDATA: z.string().min(1),
   LOCALAPPDATA: z.string().min(1),

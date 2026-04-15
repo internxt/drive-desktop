@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
+import { triggerTestError } from '@/apps/shared/sentry/sentry';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
@@ -44,6 +45,10 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
   ipcPreloadMain.handle('getRemoteSyncStatus', () => Promise.resolve(getSyncStatus()));
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
+  ipcPreloadMain.handle('triggerTestError', () => {
+    triggerTestError();
+    return Promise.resolve(true);
+  });
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
