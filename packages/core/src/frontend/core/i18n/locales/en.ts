@@ -231,6 +231,7 @@ export const en = {
         warning: "Folders won't automatically backup until you click 'Backup now'. This mode is not recommended.",
       },
       folders: {
+        'no-folders': 'No folders available',
         'no-folders-to-download': 'No folders available for download',
         save: 'Save',
         cancel: 'Cancel',

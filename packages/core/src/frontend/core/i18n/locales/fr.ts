@@ -234,6 +234,7 @@ export const fr: Translation = {
           'Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé.',
       },
       folders: {
+        'no-folders': 'Pas encore de sauvegardes',
         'no-folders-to-download': 'Pas de dossiers à télécharger',
         save: 'Sauvegarder',
         cancel: 'Annuler',

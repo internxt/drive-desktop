@@ -233,6 +233,7 @@ export const de: Translation = {
         warning: 'Ordner werden erst automatisch gesichert, wenn Sie auf „Jetzt sichern“ klicken. Dieser Modus wird nicht empfohlen.',
       },
       folders: {
+        'no-folders': 'Keine Ordner vorhanden',
         'no-folders-to-download': 'Keine Ordner zum Download verfügbar',
         save: 'Speichern',
         cancel: 'Abbrechen',
