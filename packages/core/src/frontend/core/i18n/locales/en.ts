@@ -143,6 +143,7 @@ export const en = {
           es: 'Español (Spanish)',
           en: 'English (English)',
           fr: 'Français (French)',
+          de: 'Deutsch (German)',
         },
       },
       theme: {

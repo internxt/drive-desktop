@@ -145,6 +145,7 @@ export const es: Translation = {
           es: 'Español (Español)',
           en: 'English (Inglés)',
           fr: 'Français (Francés)',
+          de: 'Deutsch (Alemán)',
         },
       },
       theme: {

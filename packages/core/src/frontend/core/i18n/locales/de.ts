@@ -191,7 +191,8 @@ export const de = {
         },
         full: {
           title: 'Ihr Speicher ist voll',
-          subtitle: 'Sie können keine Dateien hochladen, synchronisieren oder sichern. Erweitern Sie jetzt Ihren Plan oder löschen Sie Dateien, um Platz zu sparen.',
+          subtitle:
+            'Sie können keine Dateien hochladen, synchronisieren oder sichern. Erweitern Sie jetzt Ihren Plan oder löschen Sie Dateien, um Platz zu sparen.',
         },
       },
     },
