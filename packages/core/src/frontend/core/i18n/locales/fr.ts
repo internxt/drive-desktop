@@ -201,7 +201,6 @@ export const fr: Translation = {
     backups: {
       title: 'Dossiers de sauvegarde',
       'add-folders': 'Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder',
-      'selected-folder_one': '{{count}} dossier',
       'selected-folder_other': '{{count}} dossiers',
       activate: 'Sauvegarder vos dossiers',
       'view-backups': 'Parcourir les backups',
@@ -235,7 +234,6 @@ export const fr: Translation = {
           'Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé.',
       },
       folders: {
-        'no-folders': 'Pas encore de sauvegardes',
         'no-folders-to-download': 'Pas de dossiers à télécharger',
         save: 'Sauvegarder',
         cancel: 'Annuler',

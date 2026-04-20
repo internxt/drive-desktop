@@ -201,7 +201,6 @@ export const es: Translation = {
     backups: {
       title: 'Carpetas de copia de seguridad',
       'add-folders': 'Haz clic en + para hacer una copia de seguridad de tus carpetas',
-      'selected-folder_one': '{{count}} carpeta',
       'selected-folder_other': '{{count}} carpetas',
       activate: 'Hacer copia de seguridad de tus carpetas',
       'view-backups': 'Explorar backups',
@@ -235,7 +234,6 @@ export const es: Translation = {
           "Las carpetas no se respaldarán automáticamente hasta que haga clic en 'Copia de seguridad ahora'. Este modo no se recomienda.",
       },
       folders: {
-        'no-folders': 'No hay carpetas seleccionadas',
         'no-folders-to-download': 'No hay carpetas para descargar',
         save: 'Guardar',
         cancel: 'Cancelar',

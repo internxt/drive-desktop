@@ -200,7 +200,6 @@ export const de: Translation = {
     },
     backups: {
       title: 'Backup-Ordner',
-      'selected-folder_one': '{{count}} Ordner',
       'selected-folder_other': '{{count}} Ordner',
       'add-folders': 'Klicken Sie auf +, um die Ordner auszuwählen,\n die Sie sichern möchten',
       activate: 'Sichern Sie Ihre Ordner und Dateien',
@@ -234,7 +233,6 @@ export const de: Translation = {
         warning: 'Ordner werden erst automatisch gesichert, wenn Sie auf „Jetzt sichern“ klicken. Dieser Modus wird nicht empfohlen.',
       },
       folders: {
-        'no-folders': 'leerer Ordner, kein Ordner verfügbar',
         'no-folders-to-download': 'Keine Ordner zum Download verfügbar',
         save: 'Speichern',
         cancel: 'Abbrechen',
