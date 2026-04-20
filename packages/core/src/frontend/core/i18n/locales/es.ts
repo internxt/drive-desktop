@@ -145,6 +145,7 @@ export const es: Translation = {
           es: 'Español (Español)',
           en: 'English (Inglés)',
           fr: 'Français (Francés)',
+          de: 'Deutsch (Alemán)',
         },
       },
       theme: {
@@ -200,7 +201,6 @@ export const es: Translation = {
     backups: {
       title: 'Carpetas de copia de seguridad',
       'add-folders': 'Haz clic en + para hacer una copia de seguridad de tus carpetas',
-      'selected-folder_one': '{{count}} carpeta',
       'selected-folder_other': '{{count}} carpetas',
       activate: 'Hacer copia de seguridad de tus carpetas',
       'view-backups': 'Explorar backups',
