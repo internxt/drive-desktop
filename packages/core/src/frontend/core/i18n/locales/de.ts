@@ -1,4 +1,6 @@
-export const de = {
+import { Translation } from '../i18n.types';
+
+export const de: Translation = {
   login: {
     signInBrowser: 'Im Browser anmelden',
     createAccount: 'Konto erstellen',
