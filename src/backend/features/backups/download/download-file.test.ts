@@ -32,7 +32,7 @@ describe('download-file', () => {
     // Given
     pipelineMock.mockResolvedValue(new pipeline.PipelineError('ABORTED'));
     // When
-    await downloadFile(props as any);
+    await downloadFile(props);
     // Then
     calls(loggerMock.error).toHaveLength(0);
     call(addItemMock).toMatchObject({ action: 'DOWNLOAD_CANCEL', path: '/parent/file.txt' });
@@ -42,7 +42,7 @@ describe('download-file', () => {
     // Given
     contentsDownloader.downloadThrow.mockRejectedValue(new Error());
     // When
-    await downloadFile(props as any);
+    await downloadFile(props);
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Error downloading file' });
     call(addItemMock).toMatchObject({ action: 'DOWNLOAD_ERROR', path: '/parent/file.txt' });
@@ -50,7 +50,7 @@ describe('download-file', () => {
 
   it('should add sync event if file is downloaded successfully', async () => {
     // When
-    await downloadFile(props as any);
+    await downloadFile(props);
     // Then
     calls(loggerMock.error).toHaveLength(0);
     call(addItemMock).toMatchObject({ action: 'DOWNLOADED', path: '/parent/file.txt' });
