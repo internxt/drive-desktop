@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
@@ -11,9 +11,9 @@ import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getFolderInfo, GetFolderInfoError } from './get-folder-info';
 
 describe('get-folder-info', () => {
-  const providerId = v4();
-  const rootUuid = v4() as FolderUuid;
-  const testPath = join(TEST_FILES, v4());
+  const providerId = randomUUID();
+  const rootUuid = randomUUID() as FolderUuid;
+  const testPath = join(TEST_FILES, randomUUID());
   const rootPath = join(testPath, rootUuid);
 
   let props: Parameters<typeof getFolderInfo>[0];
@@ -49,7 +49,7 @@ describe('get-folder-info', () => {
 
   it('should return data when path is a folder placeholder', async () => {
     // Given
-    const uuid = v4();
+    const uuid = randomUUID();
     const path = join(rootPath, uuid);
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = path;
@@ -64,7 +64,7 @@ describe('get-folder-info', () => {
 
   it('should return error NOT_A_PLACEHOLDER when the path is not a placeholder', async () => {
     // Given
-    props.path = join(rootPath, v4());
+    props.path = join(rootPath, randomUUID());
     await mkdir(props.path);
     // When
     const { data, error } = await getFolderInfo(props);
@@ -80,7 +80,7 @@ describe('get-folder-info', () => {
 
   it('should return error UNKNOWN when the path does not exist', async () => {
     // Given
-    props.path = join(rootPath, v4());
+    props.path = join(rootPath, randomUUID());
     // When
     const { data, error } = await getFolderInfo(props);
     // Then
