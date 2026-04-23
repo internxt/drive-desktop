@@ -1,6 +1,6 @@
 import Bottleneck from 'bottleneck';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
 import { beforeAll } from 'vitest';
 import { Sync } from '@/backend/features/sync';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -22,13 +22,13 @@ describe('backups', () => {
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
 
-  const testPath = join(TEST_FILES, v4());
+  const testPath = join(TEST_FILES, randomUUID());
   const folder = join(testPath, 'folder');
   const addedFolder = join(testPath, 'addedFolder');
   const unmodifiedFile = join(testPath, 'unmodifiedFile');
   const modifiedFile = join(testPath, 'modifiedFile');
   const addedFile = join(folder, 'addedFile');
-  const rootUuid = v4();
+  const rootUuid = randomUUID();
 
   const props = mockProps<typeof Backup.run>({
     ctx: {

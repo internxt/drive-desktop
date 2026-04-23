@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
 import { VirtualDrive } from '@/node-win/virtual-drive';
@@ -7,10 +7,10 @@ import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { registerSyncRoot, RegisterSyncRootError } from './register-sync-root';
 
 describe('register-sync-root', () => {
-  const providerId = v4();
+  const providerId = randomUUID();
   const providerName = 'Internxt Drive';
-  const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, v4());
+  const testPath = join(TEST_FILES, randomUUID());
+  const rootPath = join(testPath, randomUUID());
 
   beforeAll(async () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
@@ -23,7 +23,7 @@ describe('register-sync-root', () => {
 
   it('should return error if path is too short', async () => {
     // Given
-    const props = mockProps<typeof registerSyncRoot>({ ctx: { rootPath: abs('/'), providerName, providerId: v4() } });
+    const props = mockProps<typeof registerSyncRoot>({ ctx: { rootPath: abs('/'), providerName, providerId: randomUUID() } });
     // When
     const error = await registerSyncRoot(props);
     // Then
@@ -37,7 +37,7 @@ describe('register-sync-root', () => {
 
   it('should return error if path is registered with a different provider id', async () => {
     // Given
-    const props = mockProps<typeof registerSyncRoot>({ ctx: { rootPath, providerName, providerId: v4() } });
+    const props = mockProps<typeof registerSyncRoot>({ ctx: { rootPath, providerName, providerId: randomUUID() } });
     // When
     const error = await registerSyncRoot(props);
     // Then
