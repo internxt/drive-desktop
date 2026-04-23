@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Sync } from '@/backend/features/sync';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -11,7 +11,7 @@ describe('create-folders', () => {
   const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');
   const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
 
-  const rootUuid = v4() as FolderUuid;
+  const rootUuid = randomUUID() as FolderUuid;
   const rootPath = abs('/backup');
 
   let props: Parameters<typeof createFolders>[0];

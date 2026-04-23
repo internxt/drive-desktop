@@ -1,8 +1,8 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { appendFile, mkdir, rename, writeFile } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
@@ -15,7 +15,7 @@ describe('watcher-on-change', () => {
   let rootPath: AbsolutePath;
 
   beforeEach(async () => {
-    rootPath = join(TEST_FILES, v4());
+    rootPath = join(TEST_FILES, randomUUID());
     await mkdir(rootPath);
   });
 
