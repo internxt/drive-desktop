@@ -3,6 +3,7 @@ import { ipcMain } from 'electron';
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
+import { clearSentryUserContext, setSentryUserContext } from '@/apps/shared/sentry/sentry';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
@@ -67,6 +68,7 @@ export async function emitUserLoggedIn(user: User) {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
   setIsLoggedIn(user);
+  setSentryUserContext(user.email, user.uuid);
   showFrontend();
 
   TokenScheduler.schedule();
@@ -89,6 +91,7 @@ export async function emitUserLoggedIn(user: User) {
 
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
+    clearSentryUserContext();
     clearLoggedPreloadIpc();
     TokenScheduler.stop();
     BackupScheduler.stop();

@@ -1,4 +1,4 @@
-import { captureException, captureMessage, init } from '@sentry/electron/main';
+import { captureException, captureMessage, init, setUser } from '@sentry/electron/main';
 import { arch, release, version } from 'node:os';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { logger } from '../logger/logger';
@@ -58,6 +58,26 @@ export function initSentry(): void {
     environment,
     release: INTERNXT_VERSION,
   });
+}
+
+export function setSentryUserContext(email: string, uuid: string): void {
+  if (!isInitialized) return;
+
+  setUser({ email, id: uuid });
+
+  logger.debug({
+    msg: 'Sentry user context set',
+    email,
+    uuid,
+  });
+}
+
+export function clearSentryUserContext(): void {
+  if (!isInitialized) return;
+
+  setUser(null);
+
+  logger.debug({ msg: 'Sentry user context cleared' });
 }
 
 export async function captureSentryException(error: unknown, extra?: Record<string, unknown>): Promise<void> {
