@@ -1,12 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { mockProps } from 'tests/vitest/utils.helper.test';
-import { v4 } from 'uuid';
 import { join } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalTreeBuilder } from './LocalTreeBuilder';
 
 describe('LocalTreeBuilder', () => {
-  const folder = join(TEST_FILES, v4());
+  const folder = join(TEST_FILES, randomUUID());
 
   const folder1 = join(folder, 'folder1');
   const folder2 = join(folder, 'folder2');

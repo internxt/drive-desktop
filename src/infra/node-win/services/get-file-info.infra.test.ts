@@ -1,6 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -10,9 +10,9 @@ import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getFileInfo, GetFileInfoError } from './get-file-info';
 
 describe('get-file-info', () => {
-  const providerId = v4();
-  const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, v4());
+  const providerId = randomUUID();
+  const testPath = join(TEST_FILES, randomUUID());
+  const rootPath = join(testPath, randomUUID());
 
   let props: Parameters<typeof getFileInfo>[0];
 
@@ -31,7 +31,7 @@ describe('get-file-info', () => {
 
   it('should return data when path is a file placeholder', async () => {
     // Given
-    const uuid = v4();
+    const uuid = randomUUID();
     const path = join(rootPath, uuid);
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
@@ -52,7 +52,7 @@ describe('get-file-info', () => {
 
   it('should return data even when placeholder path is invalid', async () => {
     // Given
-    const uuid = v4();
+    const uuid = randomUUID();
     const path = join(rootPath, 'invalid ');
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = path;
@@ -73,7 +73,7 @@ describe('get-file-info', () => {
 
   it('should return error NOT_A_PLACEHOLDER when path is not a placeholder', async () => {
     // Given
-    props.path = join(rootPath, v4());
+    props.path = join(rootPath, randomUUID());
     await writeFile(props.path, 'content');
     // When
     const { data, error } = await getFileInfo(props);
@@ -89,7 +89,7 @@ describe('get-file-info', () => {
 
   it('should return error UNKNOWN when path does not exist', async () => {
     // Given
-    props.path = join(rootPath, v4());
+    props.path = join(rootPath, randomUUID());
     // When
     const { data, error } = await getFileInfo(props);
     // Then
