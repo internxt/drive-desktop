@@ -63,8 +63,7 @@
     "@tanstack/react-virtual": "^3.13.12",
     "check-disk-space": "^3.4.0",
     "electron-log": "^5.4.1",
-    "react": "^17.0.2",
-    "uuid": "^14.0.0"
+    "react": "^17.0.2"
   },
   "engines": {
     "node": ">=18.20.8",
