@@ -90,6 +90,33 @@ export async function captureSentryMessage(message: string, extra?: Record<strin
   captureMessage(message, { extra });
 }
 
+export async function captureSentryDownloadError({
+  error,
+  fileUuid,
+  contentsId,
+  fileSize,
+  destinationPath,
+  downloadFailureSource,
+}: {
+  error: unknown;
+  fileUuid: string;
+  contentsId: string;
+  fileSize: number;
+  destinationPath: string;
+  downloadFailureSource: 'backup-download' | 'sync-download';
+}): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    extra: {
+      downloadFailureSource,
+      fileUuid,
+      contentsId,
+      fileSize,
+      destinationPath,
+    },
+  });
+}
+
 export function triggerTestError(): void {
   throw new Error('Manual Sentry test error - This is an expected error for testing purposes');
 }

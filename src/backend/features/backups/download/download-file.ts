@@ -1,6 +1,7 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { createWriteStream } from 'node:fs';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { captureSentryDownloadError } from '@/apps/shared/sentry/sentry';
 import { pipeline } from '@/core/utils/pipeline';
 import { InxtJs } from '@/infra';
 
@@ -28,5 +29,14 @@ export async function downloadFile({ file, contentsDownloader }: Props) {
     }
   } catch (error) {
     logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
+
+    await captureSentryDownloadError({
+      error,
+      fileUuid: file.uuid,
+      contentsId: file.contentsId,
+      fileSize: file.size,
+      destinationPath: file.absolutePath,
+      downloadFailureSource: 'backup-download',
+    });
   }
 }
