@@ -5,7 +5,6 @@ import 'core-js/stable';
 // via webpack in prod
 import 'dotenv/config';
 import { app, crashReporter } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
@@ -24,6 +23,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
 import { setupDeviceIpc } from './device/handlers';
+import { checkForUpdates } from './electron/autoupdater/check-for-updates';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
@@ -87,16 +87,6 @@ logger.debug({
   arch: arch(),
 });
 
-async function checkForUpdates() {
-  autoUpdater.logger = {
-    debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    info: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
-    warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
-  };
-  await autoUpdater.checkForUpdatesAndNotify();
-}
-
 if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
@@ -118,9 +108,11 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
+    setupTrayIcon();
+    await checkForUpdates();
+
     measureHealth();
     runMigrations();
-    setupTrayIcon();
     setUpBackups();
 
     const user = checkIfUserIsLoggedIn();
@@ -133,8 +125,5 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
-
-    await checkForUpdates();
-    setInterval(checkForUpdates, 60 * 60 * 1000);
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
