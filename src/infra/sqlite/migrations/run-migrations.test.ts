@@ -9,11 +9,8 @@ describe('run-migrations', () => {
   test('that migrations folder only contains sql files and follow the order', () => {
     // Given
     const files = fs.readdirSync(MIGRATIONS_DIR).toSorted((a, b) => a.localeCompare(b));
-    const sqlFiles = files.filter((f) => f.endsWith('.sql'));
-    const nonSqlFiles = files.filter((f) => !f.endsWith('.sql'));
     // Then
-    expect(nonSqlFiles).toStrictEqual(['run-migrations.test.ts', 'run-migrations.ts']);
-    sqlFiles.forEach((file, index) => {
+    files.forEach((file, index) => {
       const expectedPrefix = String(index + 1).padStart(3, '0');
       expect(file).toMatch(new RegExp(`^${expectedPrefix}_.*\\.sql$`));
     });

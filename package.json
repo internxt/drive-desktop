@@ -73,7 +73,8 @@
     },
     "extraResources": [
       "./assets/**",
-      "./clamAV/**"
+      "./clamAV/**",
+      "./migrations/**"
     ]
   },
   "devDependencies": {
