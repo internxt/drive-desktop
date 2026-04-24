@@ -6,7 +6,7 @@ export async function verifyHash({ filePath, latestVersion }: { filePath: string
   const data = await readFile(filePath);
   const actual = createHash('sha512').update(data).digest('base64');
 
-  logger.debug({ msg: 'Verifying release update', actual });
+  logger.debug({ msg: 'Verifying release hash', actual });
 
   const url = `https://github.com/internxt/drive-desktop/releases/download/v${latestVersion}/latest.yml`;
   const res = await fetch(url);

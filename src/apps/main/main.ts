@@ -109,7 +109,6 @@ app
     app.setAppUserModelId(INTERNXT_APP_ID);
 
     setupTrayIcon();
-    await checkForUpdates();
 
     measureHealth();
     runMigrations();
@@ -125,5 +124,7 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
+
+    void checkForUpdates();
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
