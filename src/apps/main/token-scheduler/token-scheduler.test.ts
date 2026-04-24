@@ -22,10 +22,6 @@ describe('token-scheduler', () => {
     vi.setSystemTime(new Date(0));
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('should return Infinity if token does not have expiration time', () => {
     // Given
     obtainTokenMock.mockReturnValue(createToken('0 day'));

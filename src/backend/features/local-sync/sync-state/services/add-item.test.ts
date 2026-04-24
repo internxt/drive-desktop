@@ -15,11 +15,6 @@ describe('add-item', () => {
     clearStore();
   });
 
-  afterEach(() => {
-    vi.clearAllTimers();
-    vi.useRealTimers();
-  });
-
   it('should add item to store and broadcast to frontend when add item', () => {
     // When
     addItem(props);

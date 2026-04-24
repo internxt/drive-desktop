@@ -30,10 +30,6 @@ describe('download-backup', () => {
     vi.setSystemTime(new Date('2025-01-01T12:00:00Z'));
   });
 
-  afterAll(() => {
-    vi.useRealTimers();
-  });
-
   it('should stop if the user does not select a path', async () => {
     // Given
     getPathFromDialogMock.mockResolvedValue(null);

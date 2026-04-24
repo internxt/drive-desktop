@@ -27,10 +27,11 @@ releaseDate: '2026-04-23T09:59:15.387Z'`;
 
   beforeEach(() => {
     readFileMock.mockResolvedValue(fileContent);
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue(latestYml(validHash)) }));
   });
 
   it('should verify hash successfully when hashes match', async () => {
+    // Given
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue(latestYml(validHash)) }));
     // When
     await verifyHash(props as any);
     // Then

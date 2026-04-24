@@ -17,10 +17,6 @@ describe('backup-scheduler', () => {
     BackupScheduler.stop();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('should not schedule backups if there is no last backup', () => {
     // Given
     getMock.mockReturnValueOnce(-1);

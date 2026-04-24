@@ -17,10 +17,6 @@ describe('wasAccessedWithinLastHour', () => {
     });
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   it('should return true when file was modified within last hour', () => {
     // Given
     props.fileStats.mtimeMs = new Date('2025-09-19T11:00:00Z').getTime();
