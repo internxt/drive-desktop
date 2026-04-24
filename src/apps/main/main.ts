@@ -110,10 +110,9 @@ async function start() {
     await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    setupTrayIcon();
-
     measureHealth();
     runMigrations();
+    setupTrayIcon();
     setUpBackups();
 
     const user = checkIfUserIsLoggedIn();
