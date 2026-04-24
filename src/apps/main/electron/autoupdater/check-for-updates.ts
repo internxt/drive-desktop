@@ -26,7 +26,9 @@ export async function checkForUpdates() {
 
     logger.debug({ msg: 'New release available', latest, filePath });
 
-    await checkExistingFile({ latest, filePath });
+    const installing = await checkExistingFile({ latest, filePath });
+    if (installing) return true;
+
     // We don't want to block the main thread when downloading the release
     void downloadRelease({ fileName, filePath, latest });
   } catch (error) {
