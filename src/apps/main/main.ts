@@ -102,12 +102,14 @@ process.on('uncaughtException', (error, origin) => {
   logger.error({ msg: 'Uncaught exception', error, origin });
 });
 
-app
-  .whenReady()
-  .then(async () => {
+async function start() {
+  try {
+    const installing = await checkForUpdates();
+    if (installing) return;
+
+    await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    await checkForUpdates();
     setupTrayIcon();
 
     measureHealth();
@@ -124,5 +126,9 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
-  })
-  .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
+  } catch (error) {
+    logger.error({ msg: 'Error starting app', error });
+  }
+}
+
+void start();

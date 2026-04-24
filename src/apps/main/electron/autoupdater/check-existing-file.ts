@@ -9,7 +9,7 @@ export async function checkExistingFile({ filePath, latest }: { filePath: string
   try {
     logger.debug({ msg: 'Release already downloaded' });
     await verifyHash({ filePath, latest });
-    installRelease({ filePath });
+    return installRelease({ filePath });
   } catch (error) {
     logger.debug({ msg: 'Invalid downloaded release', error });
   }
