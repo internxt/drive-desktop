@@ -14,6 +14,7 @@ export async function downloadRelease({ fileName, filePath, latest }: { fileName
     const time = await measurePerfomance(async () => {
       const url = `https://github.com/internxt/drive-desktop/releases/download/v${latest}/${fileName}`;
       const res = await fetch(url);
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const readStream = Readable.fromWeb(res.body as ReadableStream);

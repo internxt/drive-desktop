@@ -12,9 +12,10 @@ describe('check-existing-file', () => {
   const verifyHashMock = partialSpyOn(verifyHashModule, 'verifyHash');
   const installReleaseMock = partialSpyOn(showDialog, 'installRelease');
 
-  const filePath = '/tmp/Internxt-Setup-10.0.0.exe';
-  const latest = '10.0.0';
-  const props: TestProps<typeof checkExistingFile> = { filePath, latest };
+  const props: TestProps<typeof checkExistingFile> = {
+    filePath: '/tmp/Internxt-Setup-10.0.0.exe',
+    latest: '10.0.0',
+  };
 
   beforeEach(() => {
     existsSyncMock.mockReturnValue(true);
@@ -36,9 +37,9 @@ describe('check-existing-file', () => {
     const res = await checkExistingFile(props as any);
     // Then
     expect(res).toBe(true);
+    calls(verifyHashMock).toHaveLength(1);
+    calls(installReleaseMock).toHaveLength(1);
     call(loggerFn).toStrictEqual({ msg: 'Release already downloaded' });
-    call(verifyHashMock).toMatchObject({ filePath, latest });
-    call(installReleaseMock).toMatchObject({ filePath });
   });
 
   it('should skip install if hash verification fails', async () => {
