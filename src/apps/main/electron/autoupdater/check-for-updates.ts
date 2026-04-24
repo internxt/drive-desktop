@@ -1,13 +1,10 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { app } from 'electron';
-import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { measurePerfomance } from '@/core/utils/measure-performance';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { checkExistingFile } from './check-existing-file';
-import { showDialog } from './show-dialog';
-import { verifyHash } from './verify-hash';
+import { downloadRelease } from './download-release';
 
 export async function checkForUpdates() {
   if (!app.isPackaged) return;
@@ -20,6 +17,7 @@ export async function checkForUpdates() {
 
     if (!isNewer(INTERNXT_VERSION, latest)) {
       logger.debug({ msg: 'App is up to date', latest });
+      setTimeout(checkForUpdates, 60 * 60 * 1000);
       return;
     }
 
@@ -29,17 +27,8 @@ export async function checkForUpdates() {
     logger.debug({ msg: 'New release available', latest, filePath });
 
     await checkExistingFile({ latest, filePath });
-
-    const time = await measurePerfomance(async () => {
-      const url = `https://github.com/internxt/drive-desktop/releases/download/v${latest}/${fileName}`;
-      const res = await fetch(url);
-      await writeFile(filePath, Buffer.from(await res.arrayBuffer()));
-    });
-
-    logger.debug({ msg: 'New release downloaded', time });
-
-    await verifyHash({ filePath, latest });
-    await showDialog({ filePath, latest });
+    // We don't want to block the main thread when downloading the release
+    void downloadRelease({ fileName, filePath, latest });
   } catch (error) {
     logger.error({ msg: 'Check for updates failed', error });
   }

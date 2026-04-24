@@ -59,8 +59,7 @@ if (process.defaultApp) {
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-  app.quit();
-  process.exit(0);
+  app.exit(0);
 } else {
   app.on('second-instance', (event, argv) => {
     processDeeplink({ argv });
@@ -108,6 +107,7 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
+    await checkForUpdates();
     setupTrayIcon();
 
     measureHealth();
@@ -124,7 +124,5 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
-
-    void checkForUpdates();
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));

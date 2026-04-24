@@ -15,6 +15,10 @@ export async function showDialog({ filePath, latest }: { filePath: string; lates
 
   if (response !== 0) return;
 
+  installRelease({ filePath });
+}
+
+export function installRelease({ filePath }: { filePath: string }) {
   spawn(filePath, ['--updated'], { detached: true, stdio: 'ignore' }).unref();
-  app.quit();
+  app.exit(0);
 }
