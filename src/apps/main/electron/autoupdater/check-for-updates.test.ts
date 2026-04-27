@@ -39,7 +39,7 @@ describe('check-for-updates', () => {
     call(loggerFn).toMatchObject({
       msg: 'Check for updates failed',
       error: {
-        message: expect.stringContaining('tag_name must match vX.X.X'),
+        message: expect.stringContaining('name must match X.X.X'),
       },
     });
   });
