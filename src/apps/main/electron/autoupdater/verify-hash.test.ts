@@ -11,6 +11,7 @@ describe('verify-hash', () => {
 
   const fileContent = Buffer.from('fake installer content');
   const validHash = createHash('sha512').update(fileContent).digest('base64');
+  const wrongHash = createHash('sha512').update(Buffer.from('wrong content')).digest('base64');
   const props: TestProps<typeof verifyHash> = { latest: '10.0.0' };
 
   function latestYml(hash: string) {
@@ -50,10 +51,10 @@ releaseDate: '2026-04-23T09:59:15.387Z'`;
 
   it('should throw if hash mismatch', async () => {
     // Given
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue('sha512: wronghash==') }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue(latestYml(wrongHash)) }));
     // When
     const promise = verifyHash(props as any);
     // Then
-    await expect(promise).rejects.toThrow(`sha512 mismatch: expected wronghash==, got ${validHash}`);
+    await expect(promise).rejects.toThrow(`sha512 mismatch: expected ${wrongHash}, got ${validHash}`);
   });
 });
