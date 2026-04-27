@@ -1,3 +1,4 @@
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { app, dialog, nativeImage } from 'electron';
 import { spawn } from 'node:child_process';
 import { iconPath } from '@/apps/utils/icon';
@@ -10,8 +11,10 @@ export async function showDialog({ filePath, latest }: { filePath: string; lates
     message: `Version ${latest} is available`,
     detail: 'Install the update now?',
     buttons: ['Update Now', 'Later'],
-    cancelId: 1,
+    cancelId: 2,
   });
+
+  logger.debug({ msg: 'Release dialog response', response });
 
   if (response !== 0) return;
 
