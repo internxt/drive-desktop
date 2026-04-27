@@ -8,7 +8,7 @@ export async function showDialog({ filePath, latest }: { filePath: string; lates
     icon: nativeImage.createFromPath(iconPath),
     title: 'Update Available',
     message: `Version ${latest} is available`,
-    detail: 'Download and install the update now?',
+    detail: 'Install the update now?',
     buttons: ['Update Now', 'Later'],
     cancelId: 1,
   });

@@ -12,7 +12,7 @@ export async function downloadRelease({ fileName, filePath, latest }: { fileName
     logger.debug({ msg: 'Downloading release', latest });
 
     const time = await measurePerfomance(async () => {
-      const url = `https://github.com/internxt/drive-desktop/releases/download/v${latest}/${fileName}`;
+      const url = `https://github.com/internxt/drive-desktop/releases/latest/download/${fileName}`;
       const res = await fetch(url);
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -24,7 +24,7 @@ export async function downloadRelease({ fileName, filePath, latest }: { fileName
 
     logger.debug({ msg: 'New release downloaded', time });
 
-    await verifyHash({ filePath, latest });
+    await verifyHash({ filePath });
     await showDialog({ filePath, latest });
   } catch (error) {
     logger.error({ msg: 'Cannot download release', latest, error });

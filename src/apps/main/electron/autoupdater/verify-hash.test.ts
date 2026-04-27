@@ -12,7 +12,7 @@ describe('verify-hash', () => {
   const fileContent = Buffer.from('fake installer content');
   const validHash = createHash('sha512').update(fileContent).digest('base64');
   const wrongHash = createHash('sha512').update(Buffer.from('wrong content')).digest('base64');
-  const props: TestProps<typeof verifyHash> = { latest: '10.0.0' };
+  const props: TestProps<typeof verifyHash> = {};
 
   function latestYml(hash: string) {
     return `
@@ -36,7 +36,7 @@ releaseDate: '2026-04-23T09:59:15.387Z'`;
     // When
     await verifyHash(props as any);
     // Then
-    call(fetch).toBe('https://github.com/internxt/drive-desktop/releases/download/v10.0.0/latest.yml');
+    call(fetch).toBe('https://github.com/internxt/drive-desktop/releases/latest/download/latest.yml');
     calls(loggerFn).toMatchObject([{ msg: 'Verifying release hash' }, { msg: 'Release hash verified' }]);
   });
 

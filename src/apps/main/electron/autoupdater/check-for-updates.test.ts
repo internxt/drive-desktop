@@ -12,7 +12,7 @@ describe('check-for-updates', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ tag_name: 'v10.0.0' }) }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ name: '10.0.0' }) }));
 
     // @ts-expect-error is read only
     app.isPackaged = true;
@@ -31,7 +31,7 @@ describe('check-for-updates', () => {
 
   it('should throw error if release schema is invalid', async () => {
     // Given
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ tag_name: 'v2.0' }) }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ name: '2.0' }) }));
     // When
     const res = await checkForUpdates();
     // Then
@@ -46,7 +46,7 @@ describe('check-for-updates', () => {
 
   it('should check new releases every hour if app is up to date', async () => {
     // Given
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ tag_name: 'v2.0.0' }) }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ name: '2.0.0' }) }));
     // When
     const res = await checkForUpdates();
     // Then

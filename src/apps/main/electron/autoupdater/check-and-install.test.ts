@@ -1,20 +1,19 @@
 import { existsSync } from 'node:fs';
 import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, deepMocked, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
-import { checkExistingFile } from './check-existing-file';
+import { checkAndInstall } from './check-and-install';
 import * as showDialog from './show-dialog';
 import * as verifyHashModule from './verify-hash';
 
 vi.mock(import('node:fs'));
 
-describe('check-existing-file', () => {
+describe('check-and-install', () => {
   const existsSyncMock = deepMocked(existsSync);
   const verifyHashMock = partialSpyOn(verifyHashModule, 'verifyHash');
   const installReleaseMock = partialSpyOn(showDialog, 'installRelease');
 
-  const props: TestProps<typeof checkExistingFile> = {
+  const props: TestProps<typeof checkAndInstall> = {
     filePath: '/tmp/Internxt-Setup-10.0.0.exe',
-    latest: '10.0.0',
   };
 
   beforeEach(() => {
@@ -26,7 +25,7 @@ describe('check-existing-file', () => {
     // Given
     existsSyncMock.mockReturnValue(false);
     // When
-    const res = await checkExistingFile(props as any);
+    const res = await checkAndInstall(props as any);
     // Then
     expect(res).toBeUndefined();
     calls(verifyHashMock).toHaveLength(0);
@@ -34,7 +33,7 @@ describe('check-existing-file', () => {
 
   it('should install release if file exists and hash is valid', async () => {
     // When
-    const res = await checkExistingFile(props as any);
+    const res = await checkAndInstall(props as any);
     // Then
     expect(res).toBe(true);
     calls(verifyHashMock).toHaveLength(1);
@@ -46,7 +45,7 @@ describe('check-existing-file', () => {
     // Given
     verifyHashMock.mockRejectedValue(new Error('sha512 mismatch'));
     // When
-    const res = await checkExistingFile(props as any);
+    const res = await checkAndInstall(props as any);
     // Then
     expect(res).toBeUndefined();
     calls(installReleaseMock).toHaveLength(0);
