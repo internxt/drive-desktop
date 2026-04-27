@@ -2,9 +2,14 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { app } from 'electron';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { z } from 'zod';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { checkExistingFile } from './check-existing-file';
 import { downloadRelease } from './download-release';
+
+const ReleaseSchema = z.object({
+  tag_name: z.string().regex(/^v\d+\.\d+\.\d+$/, 'tag_name must match vX.X.X'),
+});
 
 export async function checkForUpdates() {
   if (!app.isPackaged) return;
@@ -12,8 +17,8 @@ export async function checkForUpdates() {
   try {
     const res = await fetch('https://api.github.com/repos/internxt/drive-desktop/releases/latest');
     const data = await res.json();
-    const release = data as { tag_name: string };
-    const latest = release.tag_name.replace(/^v/, '');
+    const { tag_name } = ReleaseSchema.parse(data);
+    const latest = tag_name.replace(/^v/, '');
 
     if (!isNewer(INTERNXT_VERSION, latest)) {
       logger.debug({ msg: 'App is up to date', latest });

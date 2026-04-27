@@ -29,6 +29,21 @@ describe('check-for-updates', () => {
     calls(fetch).toHaveLength(0);
   });
 
+  it('should throw error if release schema is invalid', async () => {
+    // Given
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ tag_name: 'v2.0' }) }));
+    // When
+    const res = await checkForUpdates();
+    // Then
+    expect(res).toBeUndefined();
+    call(loggerFn).toMatchObject({
+      msg: 'Check for updates failed',
+      error: {
+        message: expect.stringContaining('tag_name must match vX.X.X'),
+      },
+    });
+  });
+
   it('should check new releases every hour if app is up to date', async () => {
     // Given
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: vi.fn().mockResolvedValue({ tag_name: 'v2.0.0' }) }));
