@@ -1,13 +1,13 @@
 import { app } from 'electron';
 import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as checkExistingFile from './check-existing-file';
+import * as checkAndInstall from './check-and-install';
 import { checkForUpdates, isNewer } from './check-for-updates';
 import * as downloadRelease from './download-release';
 
 describe('check-for-updates', () => {
   const appMock = vi.mocked(app);
-  const checkExistingFileMock = partialSpyOn(checkExistingFile, 'checkExistingFile');
+  const checkAndInstallMock = partialSpyOn(checkAndInstall, 'checkAndInstall');
   const downloadReleaseMock = partialSpyOn(downloadRelease, 'downloadRelease');
 
   beforeEach(() => {
@@ -61,7 +61,7 @@ describe('check-for-updates', () => {
 
   it('should not download release if it was already downloaded', async () => {
     // Given
-    checkExistingFileMock.mockResolvedValue(true);
+    checkAndInstallMock.mockResolvedValue(true);
     // When
     const res = await checkForUpdates();
     // Then
@@ -71,7 +71,7 @@ describe('check-for-updates', () => {
 
   it('should download release if it was not downloaded', async () => {
     // Given
-    checkExistingFileMock.mockResolvedValue(false);
+    checkAndInstallMock.mockResolvedValue(false);
     // When
     const res = await checkForUpdates();
     // Then
