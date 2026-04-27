@@ -117,6 +117,30 @@ export async function captureSentryDownloadError({
   });
 }
 
+export async function captureSentryUploadError({
+  error,
+  fileUuid,
+  fileSize,
+  sourcePath,
+  uploadSource,
+}: {
+  error: unknown;
+  fileUuid: string;
+  fileSize: number;
+  sourcePath: string;
+  uploadSource: 'backup-upload' | 'sync-upload';
+}): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    extra: {
+      uploadFailureSource: uploadSource,
+      fileUuid,
+      fileSize,
+      sourcePath,
+    },
+  });
+}
+
 export function triggerTestError(): void {
   throw new Error('Manual Sentry test error - This is an expected error for testing purposes');
 }

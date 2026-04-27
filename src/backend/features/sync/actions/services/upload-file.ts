@@ -1,6 +1,7 @@
 import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
 import { stat } from 'node:fs/promises';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
+import { captureSentryUploadError } from '@/apps/shared/sentry/sentry';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
@@ -38,6 +39,14 @@ export async function uploadFile({ ctx, path }: Props) {
     return { contentsId, size, mtime };
   } catch (error) {
     if (isBottleneckStop({ error })) return;
+
+    await captureSentryUploadError({
+      error,
+      fileUuid: '',
+      fileSize: size,
+      sourcePath: path,
+      uploadSource: 'sync-upload',
+    });
 
     throw error;
   }
