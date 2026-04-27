@@ -12,7 +12,7 @@ export async function verifyHash({ filePath, latest }: { filePath: string; lates
   const res = await fetch(url);
   const text = await res.text();
 
-  const match = /^sha512:\s*(.+)$/m.exec(text);
+  const match = /^sha512:[ \t]*([A-Za-z0-9+/]{86}==)$/m.exec(text);
   if (!match) throw new Error('sha512 not found in latest.yml');
   const expected = match[1].trim();
 
