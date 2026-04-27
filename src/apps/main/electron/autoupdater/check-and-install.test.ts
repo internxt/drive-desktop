@@ -1,14 +1,12 @@
-import { existsSync } from 'node:fs';
+import * as access from '@/infra/file-system/services/access';
 import { loggerFn } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, deepMocked, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { checkAndInstall } from './check-and-install';
 import * as showDialog from './show-dialog';
 import * as verifyHashModule from './verify-hash';
 
-vi.mock(import('node:fs'));
-
 describe('check-and-install', () => {
-  const existsSyncMock = deepMocked(existsSync);
+  const existsSyncMock = partialSpyOn(access, 'access');
   const verifyHashMock = partialSpyOn(verifyHashModule, 'verifyHash');
   const installReleaseMock = partialSpyOn(showDialog, 'installRelease');
 
@@ -17,13 +15,13 @@ describe('check-and-install', () => {
   };
 
   beforeEach(() => {
-    existsSyncMock.mockReturnValue(true);
+    existsSyncMock.mockResolvedValue(undefined);
     installReleaseMock.mockReturnValue(true);
   });
 
   it('should skip if file does not exist', async () => {
     // Given
-    existsSyncMock.mockReturnValue(false);
+    existsSyncMock.mockResolvedValue(new access.AccessError('NON_EXISTS'));
     // When
     const res = await checkAndInstall(props as any);
     // Then
