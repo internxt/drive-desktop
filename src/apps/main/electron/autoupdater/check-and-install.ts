@@ -1,10 +1,11 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { existsSync } from 'node:fs';
+import { access } from '@/infra/file-system/services/access';
 import { installRelease } from './show-dialog';
 import { verifyHash } from './verify-hash';
 
 export async function checkAndInstall({ filePath }: { filePath: string }) {
-  if (!existsSync(filePath)) return;
+  const error = await access(filePath);
+  if (error) return;
 
   try {
     logger.debug({ msg: 'Release already downloaded' });
