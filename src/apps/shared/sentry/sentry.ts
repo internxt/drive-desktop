@@ -191,6 +191,29 @@ export async function captureSentryDehydrationError({ error, path }: { error: un
   });
 }
 
+export async function captureSentryFolderError({
+  error,
+  uuid,
+  operationType,
+  path,
+}: {
+  error: unknown;
+  uuid: string;
+  operationType: 'create' | 'move' | 'delete';
+  path: string;
+}): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    tags: {
+      'folder-operation': operationType,
+    },
+    extra: {
+      uuid,
+      path,
+    },
+  });
+}
+
 export function triggerTestError(): void {
   throw new Error('Manual Sentry test error - This is an expected error for testing purposes');
 }
