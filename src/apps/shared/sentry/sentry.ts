@@ -103,7 +103,7 @@ export async function captureSentryDownloadError({
   if (!isInitialized) return;
   captureException(error, {
     extra: {
-      downloadFailureSource,
+      errorType: downloadFailureSource,
       fileUuid,
       contentsId,
       fileSize,
@@ -128,10 +128,32 @@ export async function captureSentryUploadError({
   if (!isInitialized) return;
   captureException(error, {
     extra: {
-      uploadFailureSource: uploadSource,
+      errorType: uploadSource,
       fileUuid,
       fileSize,
       sourcePath,
+    },
+  });
+}
+
+export async function captureSentryPlaceholderSyncError({
+  error,
+  uuid,
+  type,
+  operationType,
+}: {
+  error: unknown;
+  uuid: string;
+  type: 'file' | 'folder';
+  operationType: 'create' | 'update' | 'delete';
+}): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    extra: {
+      errorType: 'sync-placeholder',
+      uuid,
+      type,
+      operationType,
     },
   });
 }
