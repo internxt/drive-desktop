@@ -17,7 +17,7 @@ describe('access', () => {
     expect(error).toMatchObject({ code: 'NON_EXISTS', cause: { code: 'ENOENT' } });
   });
 
-  it('should return UNKNOWN if file does not exist', async () => {
+  it('should return UNKNOWN if it throws an unknown error', async () => {
     // When
     const error = await access({} as any);
     // Then
