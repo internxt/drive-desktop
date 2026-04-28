@@ -102,6 +102,9 @@ export async function captureSentryDownloadError({
 }): Promise<void> {
   if (!isInitialized) return;
   captureException(error, {
+    tags: {
+      downloadSource: downloadFailureSource,
+    },
     extra: {
       errorType: downloadFailureSource,
       fileUuid,
@@ -127,6 +130,9 @@ export async function captureSentryUploadError({
 }): Promise<void> {
   if (!isInitialized) return;
   captureException(error, {
+    tags: {
+      uploadSource,
+    },
     extra: {
       errorType: uploadSource,
       fileUuid,
@@ -149,11 +155,38 @@ export async function captureSentryPlaceholderSyncError({
 }): Promise<void> {
   if (!isInitialized) return;
   captureException(error, {
+    tags: {
+      'sync-placeholder': true,
+    },
     extra: {
       errorType: 'sync-placeholder',
       uuid,
       type,
       operationType,
+    },
+  });
+}
+
+export async function captureSentryHydrationError({ error, path }: { error: unknown; path: string }): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    tags: {
+      'hydration-error': true,
+    },
+    extra: {
+      path,
+    },
+  });
+}
+
+export async function captureSentryDehydrationError({ error, path }: { error: unknown; path: string }): Promise<void> {
+  if (!isInitialized) return;
+  captureException(error, {
+    tags: {
+      'dehydration-error': true,
+    },
+    extra: {
+      path,
     },
   });
 }

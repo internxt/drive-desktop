@@ -1,5 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import Bottleneck from 'bottleneck';
+import { captureSentryHydrationError } from '@/apps/shared/sentry/sentry';
 import { Addon } from '@/node-win/addon-wrapper';
 import { ProcessSyncContext } from '../config';
 
@@ -20,6 +21,10 @@ export async function handleHydrate({ ctx, path }: TProps) {
     ctx.logger.debug({ msg: 'File hydrated', path });
   } catch (error) {
     ctx.logger.error({ msg: 'Error hydrating file', path, error });
+    await captureSentryHydrationError({
+      error,
+      path,
+    });
   }
 }
 
