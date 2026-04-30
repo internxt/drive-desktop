@@ -1,5 +1,4 @@
-#include <Wrappers.h>
-#include <node_api.h>
+#include <internal.h>
 
 #include <iterator>
 
