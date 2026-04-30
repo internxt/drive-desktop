@@ -1,11 +1,5 @@
 #pragma once
 
-#include <external.h>
-#include <napi_extract_args.h>
-#include <napi_safe_wrap.h>
-#include <propkey.h>
-#include <propvarutil.h>
-
 #define FIELD_SIZE(type, field) (sizeof(((type*)nullptr)->field))
 
 #define CF_SIZE_OF_OP_PARAM(field) (FIELD_OFFSET(CF_OPERATION_PARAMETERS, field) + FIELD_SIZE(CF_OPERATION_PARAMETERS, field))
