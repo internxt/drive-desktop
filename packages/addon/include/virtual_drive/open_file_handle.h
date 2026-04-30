@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 inline winrt::file_handle openFileHandle(const std::wstring& path, DWORD dwDesiredAccess, bool openAsPlaceholder)
 {
     bool isDirectory = std::filesystem::is_directory(path);
