@@ -1,5 +1,7 @@
 #pragma once
 
+// All external libraries are imported here.
+
 #include <ShlObj_core.h>
 #include <Windows.h>
 #include <cfapi.h>
