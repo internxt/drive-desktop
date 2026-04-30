@@ -19,8 +19,6 @@
       "include_dirs": [
         "include",
         "include/helpers",
-        "include/sync_root_interface",
-        "include/sync_root_interface/callbacks",
         "include/virtual_drive",
         "include/virtual_drive/watcher"
       ],

@@ -7,8 +7,8 @@ inline void create_file_placeholder(const std::wstring& path, const std::wstring
         return;
     }
 
-    LARGE_INTEGER creationTime = Utilities::JsTimestampToLargeInteger(creationTimeMs);
-    LARGE_INTEGER lastWriteTime = Utilities::JsTimestampToLargeInteger(lastWriteTimeMs);
+    LARGE_INTEGER creationTime = jsTimestampToLargeInteger(creationTimeMs);
+    LARGE_INTEGER lastWriteTime = jsTimestampToLargeInteger(lastWriteTimeMs);
 
     std::filesystem::path fsPath(path);
     std::wstring parentPath = fsPath.parent_path().wstring();
