@@ -44,11 +44,6 @@ inline napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
     return NAPI_SAFE_WRAP(env, args, hydrate_file_wrapper);
 }
 
-inline napi_value DehydrateFileWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, dehydrate_file_wrapper);
-}
-
 inline napi_value UnwatchPathWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, unwatchPathWrapper);
