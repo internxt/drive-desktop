@@ -1,21 +1,14 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <virtual_drive.h>
+#pragma once
 
-#include <filesystem>
-
-void create_folder_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t creationTimeMs, int64_t lastWriteTimeMs)
+inline void create_folder_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);
         return;
     }
 
-    LARGE_INTEGER creationTime = Utilities::JsTimestampToLargeInteger(creationTimeMs);
-    LARGE_INTEGER lastWriteTime = Utilities::JsTimestampToLargeInteger(lastWriteTimeMs);
+    LARGE_INTEGER creationTime = jsTimestampToLargeInteger(creationTimeMs);
+    LARGE_INTEGER lastWriteTime = jsTimestampToLargeInteger(lastWriteTimeMs);
 
     std::filesystem::path fsPath(path);
     std::wstring parentPath = fsPath.parent_path().wstring();
@@ -36,7 +29,7 @@ void create_folder_placeholder(const std::wstring& path, const std::wstring& pla
         CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_STOP_ON_ERROR, nullptr));
 }
 
-napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info info)
+inline napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path, placeholderId, creationTimeMs, lastWriteTimeMs] =
         napi_extract_args<std::wstring, std::wstring, int64_t, int64_t>(env, info);
@@ -44,4 +37,9 @@ napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info in
     return run_async(env, "CreateFolderPlaceholderAsync", create_folder_placeholder,
                      std::move(path), std::move(placeholderId),
                      creationTimeMs, lastWriteTimeMs);
+}
+
+inline napi_value CreateFolderPlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, create_folder_placeholder_wrapper);
 }

@@ -37,7 +37,7 @@ function getFiles(root) {
 const fileContent = readFileSync(gypFile);
 const gypData = JSON.parse(fileContent);
 
-gypData.targets[0].sources = getFiles('native-src');
+gypData.targets[0].sources = getFiles('src');
 gypData.targets[0].include_dirs = getFolders('include');
 
 writeFileSync(gypFile, JSON.stringify(gypData, null, 2));

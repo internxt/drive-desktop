@@ -1,11 +1,32 @@
 #pragma once
 
-#include <external.h>
-#include <node_api.h>
+#include <optional>
 
 template <typename T>
 struct NapiSerializer {
     static napi_value serialize(napi_env env, const T& value);
+};
+
+template <>
+struct NapiSerializer<std::wstring> {
+    static napi_value serialize(napi_env env, const std::wstring& value)
+    {
+        napi_value result;
+        napi_create_string_utf16(env, (char16_t*)value.c_str(), value.length(), &result);
+        return result;
+    }
+};
+
+template <>
+struct NapiSerializer<std::optional<std::wstring>> {
+    static napi_value serialize(napi_env env, const std::optional<std::wstring>& value)
+    {
+        if (value) return NapiSerializer<std::wstring>::serialize(env, *value);
+
+        napi_value result;
+        napi_get_undefined(env, &result);
+        return result;
+    }
 };
 
 inline void napiSetString(napi_env env, napi_value obj, const char* key, const std::string& value)

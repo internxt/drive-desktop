@@ -5,6 +5,8 @@ import { join, parse } from 'node:path';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { measurePerfomance } from '@/core/utils/measure-performance';
+import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: FileExplorerFiles };
@@ -38,6 +40,19 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     if (type === 'file') {
       await rm(local.path);
       return;
+    }
+
+    let nonPlaceholderItem: string | undefined;
+
+    const time = await measurePerfomance(async () => {
+      nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
+    });
+
+    if (nonPlaceholderItem) {
+      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', time, nonPlaceholderItem });
+      return;
+    } else {
+      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders', time });
     }
 
     /**
