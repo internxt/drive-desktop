@@ -1,9 +1,5 @@
 #pragma once
 
-#include <external.h>
-
-#include <optional>
-
 inline std::optional<std::wstring> findNonPlaceholderImpl(const std::wstring& parentPath, const std::wstring& prefix)
 {
     WIN32_FIND_DATAW fd;

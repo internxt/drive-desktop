@@ -21,12 +21,11 @@ template <>
 struct NapiSerializer<std::optional<std::wstring>> {
     static napi_value serialize(napi_env env, const std::optional<std::wstring>& value)
     {
-        if (!value) {
-            napi_value result;
-            napi_get_undefined(env, &result);
-            return result;
-        }
-        return NapiSerializer<std::wstring>::serialize(env, *value);
+        if (value) return NapiSerializer<std::wstring>::serialize(env, *value);
+
+        napi_value result;
+        napi_get_undefined(env, &result);
+        return result;
     }
 };
 
