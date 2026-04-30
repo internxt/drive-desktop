@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Placeholders.h>
 #include <external.h>
 #include <napi_extract_args.h>
 #include <napi_safe_wrap.h>
@@ -112,7 +111,7 @@ inline napi_value response_callback_fn_fetch_data(napi_env env, napi_callback_in
         } else {
             wprintf(L"Fetch data finished\n");
 
-            auto fileHandle = Placeholders::OpenFileHandle(ctx->path, FILE_WRITE_ATTRIBUTES, true);
+            auto fileHandle = openFileHandle(ctx->path, FILE_WRITE_ATTRIBUTES, true);
             CfSetPinState(fileHandle.get(), CF_PIN_STATE_PINNED, CF_SET_PIN_FLAG_NONE, nullptr);
 
             {

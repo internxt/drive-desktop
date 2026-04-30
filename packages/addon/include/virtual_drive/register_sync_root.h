@@ -1,14 +1,7 @@
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <napi_extract_args.h>
-#include <stdafx.h>
+#pragma once
 
-#include <filesystem>
-#include <iostream>
-#include <vector>
-
-void register_sync_root(const std::wstring& syncRootPath, const std::wstring& providerName,
-                        const std::wstring& providerVersion, const std::wstring& id, const std::wstring& logoPath)
+inline void register_sync_root(const std::wstring& syncRootPath, const std::wstring& providerName,
+                               const std::wstring& providerVersion, const std::wstring& id, const std::wstring& logoPath)
 {
     auto folder = winrt::StorageFolder::GetFolderFromPathAsync(syncRootPath).get();
 
@@ -35,7 +28,7 @@ void register_sync_root(const std::wstring& syncRootPath, const std::wstring& pr
     winrt::StorageProviderSyncRootManager::Register(info);
 }
 
-napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
+inline napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
 {
     auto [syncRootPath, providerName, providerVersion, id, logoPath] =
         napi_extract_args<std::wstring, std::wstring, std::wstring, std::wstring, std::wstring>(env, info);
@@ -49,4 +42,9 @@ napi_value register_sync_root_wrapper(napi_env env, napi_callback_info info)
         std::move(providerVersion),
         std::move(id),
         std::move(logoPath));
+}
+
+inline napi_value RegisterSyncRootWrapper(napi_env env, napi_callback_info info)
+{
+    return NAPI_SAFE_WRAP(env, info, register_sync_root_wrapper);
 }

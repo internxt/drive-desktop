@@ -1,12 +1,8 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
+#pragma once
 
-void update_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t size)
+inline void update_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t size)
 {
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
+    auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
     CF_FS_METADATA fsMetadata = {};
     fsMetadata.FileSize.QuadPart = size;
@@ -25,9 +21,14 @@ void update_placeholder(const std::wstring& path, const std::wstring& placeholde
             nullptr));
 }
 
-napi_value update_placeholder_wrapper(napi_env env, napi_callback_info info)
+inline napi_value update_placeholder_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path, placeholderId, size] = napi_extract_args<std::wstring, std::wstring, int64_t>(env, info);
 
     return run_async(env, "UpdatePlaceholderAsync", update_placeholder, std::move(path), std::move(placeholderId), size);
+}
+
+inline napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, update_placeholder_wrapper);
 }
