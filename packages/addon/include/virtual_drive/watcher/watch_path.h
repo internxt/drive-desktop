@@ -153,3 +153,8 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
     napi_create_external(env, ctx, nullptr, nullptr, &external);
     return external;
 }
+
+inline napi_value WatchPathWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, watchPathWrapper);
+}

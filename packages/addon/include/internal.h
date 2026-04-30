@@ -25,6 +25,7 @@
 #include <virtual_drive/hydrate_file.h>
 #include <virtual_drive/register_sync_root.h>
 #include <virtual_drive/set_pin_state.h>
+#include <virtual_drive/unregister_sync_root.h>
 #include <virtual_drive/update_placeholder.h>
 #include <virtual_drive/update_sync_status.h>
 #include <virtual_drive/watcher/watcher_defs.h>

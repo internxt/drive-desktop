@@ -1,11 +1,6 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <open_file_handle.h>
+#pragma once
 
-void set_pin_state(const std::wstring& path, CF_PIN_STATE pinState)
+inline void set_pin_state(const std::wstring& path, CF_PIN_STATE pinState)
 {
     auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
@@ -18,7 +13,7 @@ void set_pin_state(const std::wstring& path, CF_PIN_STATE pinState)
             nullptr));
 }
 
-napi_value set_pin_state_wrapper(napi_env env, napi_callback_info info)
+inline napi_value set_pin_state_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path, pinState] = napi_extract_args<std::wstring, CF_PIN_STATE>(env, info);
 
