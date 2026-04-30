@@ -1,5 +1,7 @@
 #pragma once
 
+#include <external.h>
+
 inline void disconnect_sync_root(CF_CONNECTION_KEY connectionKey)
 {
     check_hresult("CfDisconnectSyncRoot", CfDisconnectSyncRoot(connectionKey));

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <external.h>
+
 inline napi_value connectSyncRoot(napi_env env, napi_callback_info info)
 {
     auto [syncRootPath, fetchDataCallback] =

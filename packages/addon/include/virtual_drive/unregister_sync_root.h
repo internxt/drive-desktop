@@ -1,5 +1,7 @@
 #pragma once
 
+#include <external.h>
+
 inline napi_value unregister_sync_root_wrapper(napi_env env, napi_callback_info info)
 {
     auto [id] = napi_extract_args<std::wstring>(env, info);

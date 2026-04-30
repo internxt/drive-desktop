@@ -1,5 +1,7 @@
 #pragma once
 
+#include <external.h>
+
 inline void update_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t size)
 {
     auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
