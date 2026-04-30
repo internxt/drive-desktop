@@ -14,7 +14,7 @@
         }
       },
       "sources": [
-        "native-src/main.cpp"
+        "src/main.cpp"
       ],
       "include_dirs": [
         "include",
