@@ -24,6 +24,7 @@
 #include <virtual_drive/create_folder_placeholder.h>
 #include <virtual_drive/dehydrate_file.h>
 #include <virtual_drive/disconnect_sync_root.h>
+#include <virtual_drive/get_first_non_placeholder.h>
 #include <virtual_drive/get_placeholder_state.h>
 #include <virtual_drive/get_registered_sync_roots.h>
 #include <virtual_drive/get_sync_root_from_path.h>
