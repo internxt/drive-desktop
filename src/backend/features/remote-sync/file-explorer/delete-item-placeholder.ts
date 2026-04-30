@@ -42,7 +42,7 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
       return;
     }
 
-    let nonPlaceholderItem: string | null = null;
+    let nonPlaceholderItem: string | undefined;
 
     const time = await measurePerfomance(async () => {
       nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });

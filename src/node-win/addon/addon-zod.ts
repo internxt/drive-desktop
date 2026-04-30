@@ -10,7 +10,7 @@ export const addonZod = {
     inSyncState: z.enum(InSyncState),
     onDiskSize: z.number(),
   }),
-  getFirstNonPlaceholder: z.string().nullable(),
+  getFirstNonPlaceholder: z.string().optional(),
   getSyncRootFromPath: z.object({ id: z.string() }),
   watchPath: z.object(),
   getRegisteredSyncRoots: z.array(

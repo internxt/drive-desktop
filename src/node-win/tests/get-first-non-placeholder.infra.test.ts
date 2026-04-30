@@ -36,7 +36,8 @@ describe('get-first-non-placeholder', () => {
     await Addon.createFolderPlaceholder({ path: join(parentPath, 'folder1'), placeholderId: 'FOLDER:folder1', ...item });
     await Addon.createFolderPlaceholder({ path: join(parentPath, 'folder2'), placeholderId: 'FOLDER:folder2', ...item });
     await Addon.createFolderPlaceholder({ path: join(parentPath, 'folder2', 'folder3'), placeholderId: 'FOLDER:folder3', ...item });
-    await Addon.createFilePlaceholder({ path: join(parentPath, 'file1.txt'), placeholderId: 'FILE:file1', ...item });
+    await writeFile(join(parentPath, 'file1.txt'), 'content');
+    await Addon.convertToPlaceholder({ path: join(parentPath, 'file1.txt'), placeholderId: 'FILE:file1' });
     await Addon.createFilePlaceholder({ path: join(parentPath, 'folder1', 'file2.txt'), placeholderId: 'FILE:file2', ...item });
     await Addon.createFilePlaceholder({ path: join(parentPath, 'folder2', 'file3.txt'), placeholderId: 'FILE:file3', ...item });
     await Addon.createFilePlaceholder({ path: join(parentPath, 'folder2', 'folder3', 'file4.txt'), placeholderId: 'FILE:file3', ...item });
