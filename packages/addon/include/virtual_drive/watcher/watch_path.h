@@ -82,7 +82,7 @@ inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstri
 
 inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
 {
-    auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
+    auto hDirectory = openFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
 
     BYTE buffer[64 * 1024];
 

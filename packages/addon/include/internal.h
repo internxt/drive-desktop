@@ -11,6 +11,8 @@
 #include <helpers/register_threadsafe_callback.h>
 #include <helpers/async_wrapper.h>
 
+#include <virtual_drive/open_file_handle.h>
+
 #include <sync_root_interface/callbacks/fetch_data_callback.h>
 
 #include <virtual_drive/connect_sync_root.h>

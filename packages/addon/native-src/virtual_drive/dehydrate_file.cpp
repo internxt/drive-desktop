@@ -3,6 +3,7 @@
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <napi_extract_args.h>
+#include <open_file_handle.h>
 
 #include <filesystem>
 
@@ -12,7 +13,7 @@ void dehydrate_file(const std::wstring& path)
         throw std::runtime_error("Cannot dehydrate folder");
     }
 
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
+    auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
     LARGE_INTEGER offset;
     offset.QuadPart = 0;

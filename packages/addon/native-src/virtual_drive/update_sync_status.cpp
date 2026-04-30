@@ -3,10 +3,11 @@
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <napi_extract_args.h>
+#include <open_file_handle.h>
 
 void update_sync_status(const std::wstring& path)
 {
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
+    auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
     check_hresult(
         "CfSetInSyncState",

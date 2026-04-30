@@ -34,6 +34,5 @@ struct NapiSerializer<FileState> {
 class Placeholders
 {
    public:
-    static winrt::file_handle OpenFileHandle(const std::wstring& path, DWORD accessRights, bool openAsPlaceholder);
     static FileState GetPlaceholderInfo(const std::wstring& path);
 };

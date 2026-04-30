@@ -3,10 +3,11 @@
 #include <async_wrapper.h>
 #include <check_hresult.h>
 #include <napi_extract_args.h>
+#include <open_file_handle.h>
 
 void set_pin_state(const std::wstring& path, CF_PIN_STATE pinState)
 {
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
+    auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
     check_hresult(
         "CfSetPinState",

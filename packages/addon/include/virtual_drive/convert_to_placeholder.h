@@ -4,7 +4,7 @@
 
 inline void convert_to_placeholder(const std::wstring& path, const std::wstring& placeholderId)
 {
-    auto fileHandle = Placeholders::OpenFileHandle(path, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, false);
+    auto fileHandle = openFileHandle(path, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, false);
 
     LPCVOID fileIdentity = static_cast<LPCVOID>(placeholderId.c_str());
     DWORD fileIdentityLength = static_cast<DWORD>(placeholderId.size() * sizeof(wchar_t));
