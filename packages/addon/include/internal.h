@@ -22,6 +22,7 @@
 #include <virtual_drive/dehydrate_file.h>
 #include <virtual_drive/disconnect_sync_root.h>
 #include <virtual_drive/get_sync_root_from_path.h>
+#include <virtual_drive/hydrate_file.h>
 #include <virtual_drive/update_sync_status.h>
 #include <virtual_drive/watcher/watcher_defs.h>
 #include <virtual_drive/watcher/unwatch_path.h>

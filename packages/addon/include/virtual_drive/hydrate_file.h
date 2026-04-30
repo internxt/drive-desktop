@@ -1,11 +1,6 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <open_file_handle.h>
+#pragma once
 
-#include <filesystem>
+#include <external.h>
 
 void hydrate_file(const std::wstring& path)
 {
@@ -35,4 +30,9 @@ napi_value hydrate_file_wrapper(napi_env env, napi_callback_info info)
     auto [path] = napi_extract_args<std::wstring>(env, info);
 
     return run_async(env, "HydrateFileAsync", hydrate_file, std::move(path));
+}
+
+inline napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, hydrate_file_wrapper);
 }
