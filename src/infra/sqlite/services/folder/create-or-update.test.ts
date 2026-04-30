@@ -23,13 +23,13 @@ describe('create-or-update', () => {
         id: 1,
         uuid: 'uuid',
         status: 'EXISTS',
-        parentUuid: null,
+        parentUuid: 'parentUuid',
         parentId: null,
         userUuid: 'userUuid',
-        workspaceId: null,
+        workspaceId: 'workspaceId',
         createdAt: date,
         updatedAt: date,
-        plainName: null,
+        plainName: 'plainName',
       },
     };
   });
@@ -42,12 +42,12 @@ describe('create-or-update', () => {
       id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
-      plainName: '',
+      plainName: 'plainName',
       createdAt: date,
       updatedAt: date,
-      parentUuid: '',
-      workspaceId: '',
-      parentId: '',
+      parentUuid: 'parentUuid',
+      workspaceId: 'workspaceId',
+      parentId: null,
       userUuid: 'userUuid',
     });
   });
@@ -65,9 +65,9 @@ describe('create-or-update', () => {
       plainName: 'folder',
       createdAt: date,
       updatedAt: date,
-      parentUuid: '',
-      workspaceId: '',
-      parentId: '',
+      parentUuid: 'parentUuid',
+      workspaceId: 'workspaceId',
+      parentId: null,
       userUuid: 'userUuid',
     });
   });
