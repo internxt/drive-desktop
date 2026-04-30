@@ -24,3 +24,8 @@ napi_value set_pin_state_wrapper(napi_env env, napi_callback_info info)
 
     return run_async(env, "SetPinStateAsync", set_pin_state, std::move(path), pinState);
 }
+
+inline napi_value SetPinStateWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, set_pin_state_wrapper);
+}

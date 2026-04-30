@@ -2,12 +2,12 @@
 
 #include <external.h>
 
-void disconnect_sync_root(CF_CONNECTION_KEY connectionKey)
+inline void disconnect_sync_root(CF_CONNECTION_KEY connectionKey)
 {
     check_hresult("CfDisconnectSyncRoot", CfDisconnectSyncRoot(connectionKey));
 }
 
-napi_value disconnect_sync_root_wrapper(napi_env env, napi_callback_info info)
+inline napi_value disconnect_sync_root_wrapper(napi_env env, napi_callback_info info)
 {
     auto [connectionKey] = napi_extract_args<CF_CONNECTION_KEY>(env, info);
 

@@ -2,7 +2,7 @@
 
 #include <external.h>
 
-void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
+inline void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
         convert_to_placeholder(path, placeholderId);
@@ -33,7 +33,7 @@ void create_file_placeholder(const std::wstring& path, const std::wstring& place
         CfCreatePlaceholders(parentPath.c_str(), &cloudEntry, 1, CF_CREATE_FLAG_STOP_ON_ERROR, nullptr));
 }
 
-napi_value create_file_placeholder_wrapper(napi_env env, napi_callback_info info)
+inline napi_value create_file_placeholder_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path, placeholderId, fileSize, creationTimeMs, lastWriteTimeMs] =
         napi_extract_args<std::wstring, std::wstring, int64_t, int64_t, int64_t>(env, info);

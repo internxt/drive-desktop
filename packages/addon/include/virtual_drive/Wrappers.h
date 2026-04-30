@@ -24,16 +24,6 @@ inline napi_value UnwatchPathWrapper(napi_env env, napi_callback_info args)
     return NAPI_SAFE_WRAP(env, args, unwatchPathWrapper);
 }
 
-inline napi_value UpdatePlaceholderWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, update_placeholder_wrapper);
-}
-
-inline napi_value SetPinStateWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, set_pin_state_wrapper);
-}
-
 inline napi_value WatchPathWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, watchPathWrapper);

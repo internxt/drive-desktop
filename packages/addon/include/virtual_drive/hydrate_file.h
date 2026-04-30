@@ -2,7 +2,7 @@
 
 #include <external.h>
 
-void hydrate_file(const std::wstring& path)
+inline void hydrate_file(const std::wstring& path)
 {
     if (std::filesystem::is_directory(path)) {
         throw std::runtime_error("Cannot hydrate folder");
@@ -25,7 +25,7 @@ void hydrate_file(const std::wstring& path)
             nullptr));
 }
 
-napi_value hydrate_file_wrapper(napi_env env, napi_callback_info info)
+inline napi_value hydrate_file_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path] = napi_extract_args<std::wstring>(env, info);
 

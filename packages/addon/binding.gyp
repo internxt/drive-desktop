@@ -19,9 +19,7 @@
         "native-src/virtual_drive/get_placeholder_state.cpp",
         "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots.cpp",
         "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp",
-        "native-src/virtual_drive/set_pin_state.cpp",
-        "native-src/virtual_drive/unregister_sync_root.cpp",
-        "native-src/virtual_drive/update_placeholder.cpp"
+        "native-src/virtual_drive/unregister_sync_root.cpp"
       ],
       "include_dirs": [
         "include",
