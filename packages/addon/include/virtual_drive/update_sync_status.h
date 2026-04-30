@@ -1,11 +1,8 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <open_file_handle.h>
+#pragma once
 
-void update_sync_status(const std::wstring& path)
+#include <external.h>
+
+inline void update_sync_status(const std::wstring& path)
 {
     auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
 
@@ -20,9 +17,14 @@ void update_sync_status(const std::wstring& path)
     SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, path.c_str(), nullptr);
 }
 
-napi_value update_sync_status_wrapper(napi_env env, napi_callback_info info)
+inline napi_value update_sync_status_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path] = napi_extract_args<std::wstring>(env, info);
 
     return run_async(env, "UpdateSyncStatusAsync", update_sync_status, std::move(path));
+}
+
+inline napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, update_sync_status_wrapper);
 }

@@ -18,6 +18,7 @@
 #include <virtual_drive/connect_sync_root.h>
 #include <virtual_drive/convert_to_placeholder.h>
 #include <virtual_drive/get_sync_root_from_path.h>
+#include <virtual_drive/update_sync_status.h>
 #include <virtual_drive/watcher/watcher_defs.h>
 #include <virtual_drive/watcher/unwatch_path.h>
 #include <virtual_drive/watcher/watch_path.h>

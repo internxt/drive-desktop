@@ -14,5 +14,4 @@ napi_value register_sync_root_wrapper(napi_env env, napi_callback_info args);
 napi_value set_pin_state_wrapper(napi_env env, napi_callback_info info);
 napi_value unregister_sync_root_wrapper(napi_env env, napi_callback_info args);
 napi_value update_placeholder_wrapper(napi_env env, napi_callback_info info);
-napi_value update_sync_status_wrapper(napi_env info, napi_callback_info args);
 void convert_to_placeholder(const std::wstring& path, const std::wstring& placeholderId);

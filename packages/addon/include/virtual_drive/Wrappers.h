@@ -34,11 +34,6 @@ inline napi_value DisconnectSyncRootWrapper(napi_env env, napi_callback_info arg
     return NAPI_SAFE_WRAP(env, args, disconnect_sync_root_wrapper);
 }
 
-inline napi_value UpdateSyncStatusWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, update_sync_status_wrapper);
-}
-
 inline napi_value GetPlaceholderStateWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, get_placeholder_state_wrapper);

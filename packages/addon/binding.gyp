@@ -27,8 +27,7 @@
         "native-src/virtual_drive/register_sync_root.cpp",
         "native-src/virtual_drive/set_pin_state.cpp",
         "native-src/virtual_drive/unregister_sync_root.cpp",
-        "native-src/virtual_drive/update_placeholder.cpp",
-        "native-src/virtual_drive/update_sync_status.cpp"
+        "native-src/virtual_drive/update_placeholder.cpp"
       ],
       "include_dirs": [
         "include",
