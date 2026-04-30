@@ -4,11 +4,6 @@
 #include <node_api.h>
 #include <virtual_drive.h>
 
-inline napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, create_file_placeholder_wrapper);
-}
-
 inline napi_value UnregisterSyncRootWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, unregister_sync_root_wrapper);

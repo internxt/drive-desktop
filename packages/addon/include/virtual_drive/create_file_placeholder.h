@@ -1,11 +1,6 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <virtual_drive.h>
+#pragma once
 
-#include <filesystem>
+#include <external.h>
 
 void create_file_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t fileSize, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
@@ -46,4 +41,9 @@ napi_value create_file_placeholder_wrapper(napi_env env, napi_callback_info info
     return run_async(env, "CreateFilePlaceholderAsync", create_file_placeholder,
                      std::move(path), std::move(placeholderId), fileSize,
                      creationTimeMs, lastWriteTimeMs);
+}
+
+inline napi_value CreateFilePlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, create_file_placeholder_wrapper);
 }
