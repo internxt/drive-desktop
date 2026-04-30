@@ -3,7 +3,6 @@
 #include <node_api.h>
 
 napi_value connect_sync_root_impl(napi_env env, napi_callback_info args);
-napi_value convert_to_placeholder_wrapper(napi_env env, napi_callback_info args);
 napi_value create_file_placeholder_wrapper(napi_env env, napi_callback_info args);
 napi_value create_folder_placeholder_wrapper(napi_env env, napi_callback_info args);
 napi_value dehydrate_file_wrapper(napi_env env, napi_callback_info info);

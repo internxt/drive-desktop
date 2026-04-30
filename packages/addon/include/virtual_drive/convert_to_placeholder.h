@@ -1,13 +1,8 @@
-#include <Placeholders.h>
-#include <Windows.h>
-#include <async_wrapper.h>
-#include <check_hresult.h>
-#include <napi_extract_args.h>
-#include <stdafx.h>
+#pragma once
 
-#include <filesystem>
+#include <external.h>
 
-void convert_to_placeholder(const std::wstring& path, const std::wstring& placeholderId)
+inline void convert_to_placeholder(const std::wstring& path, const std::wstring& placeholderId)
 {
     auto fileHandle = Placeholders::OpenFileHandle(path, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, false);
 
@@ -28,9 +23,14 @@ void convert_to_placeholder(const std::wstring& path, const std::wstring& placeh
     }
 }
 
-napi_value convert_to_placeholder_wrapper(napi_env env, napi_callback_info info)
+inline napi_value convert_to_placeholder_wrapper(napi_env env, napi_callback_info info)
 {
     auto [path, placeholderId] = napi_extract_args<std::wstring, std::wstring>(env, info);
 
     return run_async(env, "ConvertToPlaceholderAsync", convert_to_placeholder, std::move(path), std::move(placeholderId));
+}
+
+inline napi_value ConvertToPlaceholderWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, convert_to_placeholder_wrapper);
 }

@@ -44,11 +44,6 @@ inline napi_value GetPlaceholderStateWrapper(napi_env env, napi_callback_info ar
     return NAPI_SAFE_WRAP(env, args, get_placeholder_state_wrapper);
 }
 
-inline napi_value ConvertToPlaceholderWrapper(napi_env env, napi_callback_info args)
-{
-    return NAPI_SAFE_WRAP(env, args, convert_to_placeholder_wrapper);
-}
-
 inline napi_value HydrateFileWrapper(napi_env env, napi_callback_info args)
 {
     return NAPI_SAFE_WRAP(env, args, hydrate_file_wrapper);
