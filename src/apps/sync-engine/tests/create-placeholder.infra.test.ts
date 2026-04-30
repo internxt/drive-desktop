@@ -1,7 +1,7 @@
+import { randomUUID } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { v4 } from 'uuid';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 import { Sync } from '@/backend/features/sync';
@@ -17,12 +17,12 @@ describe('create-placeholder', () => {
   const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
 
   const providerName = 'Internxt Drive';
-  const providerId = v4();
-  const rootPath = join(TEST_FILES, v4());
+  const providerId = randomUUID();
+  const rootPath = join(TEST_FILES, randomUUID());
   const file = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
-    createFileMock.mockResolvedValue({ uuid: v4() as FileUuid });
+    createFileMock.mockResolvedValue({ uuid: randomUUID() as FileUuid });
     getByNameMock.mockResolvedValue({});
 
     await VirtualDrive.createSyncRootFolder({ rootPath });

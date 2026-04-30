@@ -18,6 +18,10 @@ export function LanguagePicker() {
       value: 'fr',
       name: translate('settings.general.language.options.fr'),
     },
+    {
+      value: 'de',
+      name: translate('settings.general.language.options.de'),
+    },
   ];
 
   const updatePreferedLanguage = (value: string) => {

@@ -1,12 +1,14 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { app } from 'electron';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { cwd } from 'node:process';
 import { DatabaseSync } from 'node:sqlite';
 import { PATHS } from '@/core/electron/paths';
 
 export const db = new DatabaseSync(process.env.NODE_ENV === 'test' ? ':memory:' : PATHS.SQLITE_DB);
 
-const MIGRATIONS_DIR = __dirname;
+export const MIGRATIONS_DIR = app.isPackaged ? join(process.resourcesPath, 'migrations') : join(cwd(), 'migrations');
 
 export function runMigrations() {
   db.exec(`

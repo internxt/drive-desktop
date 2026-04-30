@@ -123,8 +123,10 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
+    measureHealth();
     runMigrations();
     setupTrayIcon();
+    setUpBackups();
 
     const user = checkIfUserIsLoggedIn();
     await createWidget();
@@ -137,9 +139,6 @@ app
       setTrayStatus('IDLE');
     }
 
-    setUpBackups();
-
-    measureHealth();
     await checkForUpdates();
     setInterval(checkForUpdates, 60 * 60 * 1000);
   })
