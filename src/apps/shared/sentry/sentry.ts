@@ -327,7 +327,3 @@ export async function captureSentryFolderError({
     isCapturing = false;
   }
 }
-
-export function triggerTestError(): void {
-  throw new Error('Manual Sentry test error - This is an expected error for testing purposes');
-}

@@ -47,7 +47,6 @@ export type FromProcess = {
   openLoginUrl: Mirror<typeof openLoginUrl>;
   getRemoteSyncStatus: Mirror<typeof getSyncStatus>;
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
-  triggerTestError: () => Promise<boolean>;
 
   deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
   backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
