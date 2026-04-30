@@ -26,7 +26,7 @@ export async function checkForUpdates() {
     }
 
     const fileName = `Internxt-Setup-${latest}.exe`;
-    const filePath = join(tmpdir(), fileName);
+    const filePath = join(tmpdir(), 'Internxt-Setup.exe');
 
     logger.debug({ msg: 'New release available', latest, filePath });
 

@@ -1,58 +1,72 @@
-import trash from 'trash';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { randomUUID } from 'node:crypto';
+import { mkdir, rename, rm } from 'node:fs/promises';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, mockProps } from '@/tests/vitest/utils.helper.test';
+import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, TestProps } from '@/tests/vitest/utils.helper.test';
 import { deleteItemPlaceholder } from './delete-item-placeholder';
 
-vi.mock(import('trash'));
+vi.mock(import('node:fs/promises'));
+vi.mock(import('node:crypto'));
 
 describe('delete-item-placeholder', () => {
-  const trashMock = vi.mocked(trash);
+  const mkdirMock = vi.mocked(mkdir);
+  const renameMock = vi.mocked(rename);
+  const rmMock = vi.mocked(rm);
+  const randomUUIDMock = vi.mocked(randomUUID);
 
-  const uuid = 'uuid' as FolderUuid;
-  const path = abs('/local');
+  const uuid = 'uuid' as FileUuid;
+  const localPath = abs('C://Users/user/InternxtDrive/item');
+  const trashDir = String.raw`C:\.internxt-trash`;
+  const trashPath = String.raw`C:\.internxt-trash\randomUUID`;
 
-  let props: Parameters<typeof deleteItemPlaceholder>[0];
+  let props: TestProps<typeof deleteItemPlaceholder>;
 
   beforeEach(() => {
-    props = mockProps<typeof deleteItemPlaceholder>({
-      remote: { absolutePath: path, uuid },
-      locals: new Map([[uuid, { path }]]),
-      type: 'folder',
-    });
+    randomUUIDMock.mockReturnValue('randomUUID' as any);
+    props = {
+      ctx: { logger: loggerMock },
+      remote: { absolutePath: localPath, uuid },
+      locals: new Map([[uuid, { path: localPath }]]),
+      type: 'file',
+    };
   });
 
   it('should skip if local item does not exist', async () => {
     // Given
     props.locals = new Map();
     // When
-    await deleteItemPlaceholder(props);
+    await deleteItemPlaceholder(props as any);
     // Then
-    calls(trashMock).toHaveLength(0);
-    calls(loggerMock.error).toHaveLength(0);
+    calls(loggerFn).toHaveLength(0);
   });
 
-  it('should log and trash item if paths do not match', async () => {
+  it('should log and delete item if paths do not match', async () => {
     // Given
-    props.remote.absolutePath = abs('/remote');
+    props.remote!.absolutePath = abs('/remote');
     // When
-    await deleteItemPlaceholder(props);
+    await deleteItemPlaceholder(props as any);
     // Then
-    call(trashMock).toStrictEqual('/local');
-    call(loggerMock.error).toStrictEqual({
-      msg: 'Path does not match when deleting placeholder',
-      localPath: '/local',
-      remotePath: '/remote',
-      type: 'folder',
-    });
+    calls(loggerFn).toMatchObject([{ msg: 'Path does not match when deleting placeholder' }, { msg: 'Delete placeholder' }]);
+    call(rmMock).toStrictEqual(localPath);
   });
 
-  it('should trash item if paths match', async () => {
+  it('should delete file directly if paths match', async () => {
     // When
-    await deleteItemPlaceholder(props);
+    await deleteItemPlaceholder(props as any);
     // Then
-    calls(loggerMock.error).toHaveLength(0);
-    call(trashMock).toStrictEqual('/local');
+    call(loggerFn).toMatchObject({ msg: 'Delete placeholder' });
+    call(rmMock).toStrictEqual(localPath);
+  });
+
+  it('should move folder to trash dir if paths match', async () => {
+    props.type = 'folder';
+    // When
+    await deleteItemPlaceholder(props as any);
+    // Then
+    call(loggerFn).toMatchObject({ msg: 'Delete placeholder' });
+    call(mkdirMock).toStrictEqual([trashDir, { recursive: true }]);
+    call(renameMock).toStrictEqual([localPath, trashPath]);
+    call(rmMock).toStrictEqual([trashPath, { recursive: true, force: true }]);
   });
 });

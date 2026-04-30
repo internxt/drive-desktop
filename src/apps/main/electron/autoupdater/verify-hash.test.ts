@@ -1,13 +1,14 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, deepMocked, TestProps } from '@/tests/vitest/utils.helper.test';
 import { verifyHash } from './verify-hash';
 
-vi.mock(import('node:fs/promises'));
+vi.mock(import('node:fs'));
+vi.mock(import('node:stream/promises'));
 
 describe('verify-hash', () => {
-  const readFileMock = deepMocked(readFile);
+  const pipelineMock = deepMocked(pipeline);
 
   const fileContent = Buffer.from('fake installer content');
   const validHash = createHash('sha512').update(fileContent).digest('base64');
@@ -27,7 +28,10 @@ releaseDate: '2026-04-23T09:59:15.387Z'`;
   }
 
   beforeEach(() => {
-    readFileMock.mockResolvedValue(fileContent);
+    pipelineMock.mockImplementation((_readable: any, writable: any) => {
+      writable.update(fileContent);
+      return Promise.resolve();
+    });
   });
 
   it('should verify hash successfully when hashes match', async () => {

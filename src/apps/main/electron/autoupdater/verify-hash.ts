@@ -1,10 +1,12 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 
 export async function verifyHash({ filePath }: { filePath: string }) {
-  const data = await readFile(filePath);
-  const actual = createHash('sha512').update(data).digest('base64');
+  const hash = createHash('sha512');
+  await pipeline(createReadStream(filePath), hash);
+  const actual = hash.digest('base64');
 
   logger.debug({ msg: 'Verifying release hash', actual });
 
