@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 inline void hydrate_file(const std::wstring& path)
 {
     if (std::filesystem::is_directory(path)) {

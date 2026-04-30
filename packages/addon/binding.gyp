@@ -16,9 +16,7 @@
       "sources": [
         "native-src/main.cpp",
         "native-src/placeholders_interface/Planceholders.cpp",
-        "native-src/virtual_drive/get_placeholder_state.cpp",
-        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots.cpp",
-        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp"
+        "native-src/virtual_drive/get_placeholder_state.cpp"
       ],
       "include_dirs": [
         "include",

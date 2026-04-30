@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 inline void register_sync_root(const std::wstring& syncRootPath, const std::wstring& providerName,
                                const std::wstring& providerVersion, const std::wstring& id, const std::wstring& logoPath)
 {

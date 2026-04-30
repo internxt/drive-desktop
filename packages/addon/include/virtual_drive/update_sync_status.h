@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 inline void update_sync_status(const std::wstring& path)
 {
     auto fileHandle = openFileHandle(path, FILE_WRITE_ATTRIBUTES, true);
