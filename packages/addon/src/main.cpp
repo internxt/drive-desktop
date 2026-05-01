@@ -10,6 +10,7 @@ napi_value init(napi_env env, napi_value exports)
         {"dehydrateFile", nullptr, DehydrateFileWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"disconnectSyncRoot", nullptr, DisconnectSyncRootWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getFirstNonPlaceholder", nullptr, getFirstNonPlaceholderWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"getOpenFileExplorers", nullptr, GetOpenFileExplorersWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getPlaceholderState", nullptr, GetPlaceholderStateWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getRegisteredSyncRoots", nullptr, GetRegisteredSyncRootsWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"getSyncRootFromPath", nullptr, GetSyncRootFromPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
@@ -20,6 +21,7 @@ napi_value init(napi_env env, napi_value exports)
         {"unwatchPath", nullptr, UnwatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updatePlaceholder", nullptr, UpdatePlaceholderWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updateSyncStatus", nullptr, UpdateSyncStatusWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
+        {"watchFileExplorers", nullptr, WatchFileExplorersWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"watchPath", nullptr, WatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
     };
 
