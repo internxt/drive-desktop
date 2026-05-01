@@ -1,12 +1,12 @@
-import { PATHS } from '@/core/electron/paths';
-import { basename } from 'node:path/posix';
-import { logger } from '../logger';
-import { shell } from 'electron';
-import { INTERNXT_LOGS } from '@/core/utils/utils';
-import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
+import { shell } from 'electron';
+import { createWriteStream } from 'node:fs';
+import { basename } from 'node:path/posix';
 import { pipeline } from 'node:stream/promises';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import { INTERNXT_LOGS } from '@/core/utils/utils';
+import { logger } from '../logger';
 import { logFileExplorers } from './log-file-explorers';
 
 export async function openLogs() {
@@ -30,6 +30,12 @@ export async function openLogs() {
       } catch (error) {
         logger.error({ msg: 'Error adding log file to zip', path, error });
       }
+    }
+
+    try {
+      archive.directory(join(PATHS.LOGS, 'crash'), 'crash');
+    } catch (error) {
+      logger.error({ msg: 'Error adding crash folder to zip', error });
     }
 
     await archive.finalize();

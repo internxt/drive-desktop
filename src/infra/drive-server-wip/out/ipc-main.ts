@@ -1,15 +1,15 @@
-import { PersistMoveFileProps, PersistMoveFolderProps } from './ipc';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
-import { LocalSync } from '@/backend/features';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
-import { CommonContext } from '@/apps/sync-engine/config';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { PersistMoveFileProps, PersistMoveFolderProps } from './ipc';
 
 export async function deleteFileByUuid({ ctx, path, uuid }: { ctx: CommonContext; path: AbsolutePath; uuid: FileUuid }) {
   const res = await driveServerWip.storage.deleteFileByUuid({ ctx, context: { path, uuid } });
@@ -59,8 +59,8 @@ export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }:
 
 function addMoveEvent(success: boolean, action: 'move' | 'rename', path: AbsolutePath) {
   if (success) {
-    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVE_ERROR' : 'RENAME_ERROR', path });
-  } else {
     LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVED' : 'RENAMED', path });
+  } else {
+    LocalSync.SyncState.addItem({ action: action === 'move' ? 'MOVE_ERROR' : 'RENAME_ERROR', path });
   }
 }

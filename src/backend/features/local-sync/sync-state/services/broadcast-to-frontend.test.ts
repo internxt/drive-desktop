@@ -1,8 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import * as broadcastToWidgetModule from '@/apps/main/windows';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as storeModule from '../store';
 import { broadcastToFrontend, getSortedItems } from './broadcast-to-frontend';
-import * as broadcastToWidgetModule from '@/apps/main/windows';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 describe('broadcast-to-frontend', () => {
   const clearStoreMock = partialSpyOn(storeModule, 'clearStore');

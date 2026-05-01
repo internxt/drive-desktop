@@ -1,7 +1,7 @@
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 import { DriveServerWipError } from '../defs';
 import { isServerError, serverErrorIssue } from './helpers/error-helpers';
-import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 
 type TProps = {
   loggerBody: TLoggerBody;
@@ -22,6 +22,7 @@ export function errorWrapper({ loggerBody, error, response, retry }: TProps) {
     response: {
       status: response.status,
       statusText: response.statusText,
+      xRequestId: response.headers.get('x-request-id'),
     },
   });
 

@@ -1,5 +1,8 @@
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { createOrUpdate } from './create-or-update';
 import { getCheckpoint } from './get-checkpoint';
-import { AppDataSource, CheckpointRepository } from '@/apps/main/database/data-source';
 
 describe('get-checkpoint', () => {
   const props: Parameters<typeof getCheckpoint>[0] = {
@@ -8,29 +11,41 @@ describe('get-checkpoint', () => {
     workspaceId: 'workspaceId',
   };
 
-  beforeAll(async () => {
-    await AppDataSource.initialize();
+  beforeAll(() => {
+    runMigrations();
   });
 
-  it('should return NOT_FOUND when checkpoint is not found', async () => {
+  afterAll(() => {
+    db.close();
+  });
+
+  beforeEach(() => {
+    db.exec('DELETE FROM checkpoint');
+  });
+
+  it('should return NOT_FOUND when checkpoint is not found', () => {
     // When
-    const { error } = await getCheckpoint(props);
+    const { error } = getCheckpoint(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return checkpoint', async () => {
+  it('should return checkpoint', () => {
     // Given
-    await CheckpointRepository.save({
-      name: 'name',
-      workspaceId: 'workspaceId',
-      userUuid: 'userUuid',
-      updatedAt: 'updatedAt',
-      type: 'file',
-    });
+    createOrUpdate({ name: 'name', type: 'file', updatedAt: 'updatedAt', userUuid: 'userUuid', workspaceId: 'workspaceId' });
     // When
-    const { data } = await getCheckpoint(props);
+    const { data } = getCheckpoint(props);
     // Then
     expect(data).toMatchObject({ id: 1 });
+  });
+
+  it('should return UNKNOWN when error is thrown', () => {
+    // Given
+    props.userUuid = (() => null) as any;
+    // When
+    const { error } = getCheckpoint(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ error: { message: expect.stringContaining('cannot be bound') } });
   });
 });

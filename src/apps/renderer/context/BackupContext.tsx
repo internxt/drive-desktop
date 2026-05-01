@@ -1,8 +1,8 @@
 import { createContext, ReactNode, useEffect } from 'react';
-import { LastBackupContextProps, useLastBackup } from '../hooks/backups/useLastBackup';
+import { BackupDownloadContextProps, useBackupDownloadProgress } from '../hooks/backups/useBackupDownloadProgress';
 import { BackupContextProps, useBackups } from '../hooks/backups/useBackups';
 import { BackupStatusContextProps, useBackupStatus } from '../hooks/backups/useBackupsStatus';
-import { BackupDownloadContextProps, useBackupDownloadProgress } from '../hooks/backups/useBackupDownloadProgress';
+import { LastBackupContextProps, useLastBackup } from '../hooks/backups/useLastBackup';
 
 type BackupContext = LastBackupContextProps & BackupContextProps & BackupStatusContextProps & BackupDownloadContextProps;
 

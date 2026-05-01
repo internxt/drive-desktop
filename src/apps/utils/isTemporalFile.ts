@@ -1,5 +1,5 @@
-import { basename, extname } from 'node:path';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { basename, extname } from 'node:path';
 
 type Props = {
   path: AbsolutePath;

@@ -1,23 +1,34 @@
-import { getUserOrThrow } from '../auth/service';
-import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
-import { getRootVirtualDrive } from '../virtual-root-folder/service';
-import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
-import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
-import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
-import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { createLogger } from '@/apps/shared/logger/logger';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { FolderUuid } from '../database/entities/DriveFolder';
-import { buildUserEnvironment } from './backups/build-environment';
+import { getRootVirtualDrive } from '../virtual-root-folder/service';
+import { buildDriveEnvironment } from './backups/build-environment';
+import { getWorkspaces } from './sync-engine/services/get-workspaces';
+import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
+import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
+import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 
 export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
-  const user = getUserOrThrow();
+  const { providerId, promise } = await spawnDrive({ ctx });
 
+  const workspaces = await getWorkspaces({ ctx });
+  const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
+  const currentProviderIds = workspaceProviderIds.concat([providerId]);
+
+  await unregisterVirtualDrives({ currentProviderIds });
+
+  const promises = workspaces.map((workspace) => spawnWorkspace({ ctx, workspace }));
+  await Promise.all([promise, ...promises]);
+}
+
+export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
+  const { user } = ctx;
+  const { environment, contentsDownloader } = buildDriveEnvironment({ user });
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const { environment, contentsDownloader } = buildUserEnvironment({ user, type: 'drive' });
 
   const syncContext: SyncContext = {
-    abortController: ctx.abortController,
-    userUuid: user.uuid,
+    ...ctx,
+    status: 'IDLE',
     providerId,
     rootPath: await getRootVirtualDrive(),
     providerName: 'Internxt Drive',
@@ -34,13 +45,5 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
   };
 
   const promise = spawnSyncEngineWorker({ ctx: syncContext });
-
-  const workspaces = await getWorkspaces({ ctx });
-  const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
-  const currentProviderIds = workspaceProviderIds.concat([providerId]);
-
-  await unregisterVirtualDrives({ currentProviderIds });
-
-  const promises = workspaces.map((workspace) => spawnWorkspace({ ctx, workspace }));
-  await Promise.all([promise, ...promises]);
+  return { providerId, promise };
 }

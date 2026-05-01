@@ -1,17 +1,21 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
-
-import { setupWatcher, getEvents } from './watcher.helper.test';
-import { sleep } from '@/apps/main/util';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { randomUUID } from 'node:crypto';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import trash from 'trash';
+import { sleep } from '@/apps/main/util';
+import * as onUnlink from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { setupWatcher, onEventSpy } from './watcher.helper.test';
 
-describe('watcher on unlink', () => {
+describe('watcher-on-unlink', () => {
+  const onUnlinkMock = partialSpyOn(onUnlink, 'onUnlink');
+
   let rootPath: AbsolutePath;
 
   beforeEach(async () => {
-    rootPath = join(TEST_FILES, v4());
+    rootPath = join(TEST_FILES, randomUUID());
     await mkdir(rootPath);
   });
 
@@ -22,9 +26,10 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(file, { force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'delete', path: file }]);
+    call(onEventSpy).toMatchObject({ event: { action: 'delete', type: 'file', size: 7 } });
+    call(onUnlinkMock).toMatchObject({ path: file, type: 'file' });
   });
 
   it('should emit delete event when delete folder', async () => {
@@ -34,12 +39,13 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(folder, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([{ event: 'delete', path: folder }]);
+    call(onEventSpy).toMatchObject({ event: { action: 'delete', type: 'folder', size: 0 } });
+    call(onUnlinkMock).toMatchObject({ path: folder, type: 'folder' });
   });
 
-  it('should emit delete events when delete folder with a file inside', async () => {
+  it('should emit delete event when delete folder with file inside using terminal', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const file = join(parent, 'file');
@@ -48,15 +54,16 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(parent, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file },
-      { event: 'delete', path: parent },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'file', size: 7 } },
+      { event: { action: 'delete', type: 'folder', size: 0 } },
     ]);
+    call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
   });
 
-  it('should emit delete events when delete folder with a folder inside', async () => {
+  it('should emit delete event when delete folder with folder inside using terminal', async () => {
     // Given
     const parent = join(rootPath, 'parent');
     const folder = join(parent, 'folder');
@@ -65,11 +72,29 @@ describe('watcher on unlink', () => {
     await setupWatcher(rootPath);
     // When
     await rm(parent, { recursive: true, force: true });
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder },
-      { event: 'delete', path: parent },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'folder', size: 0 } },
+      { event: { action: 'delete', type: 'folder', size: 0 } },
     ]);
+    call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
+  });
+
+  it('should emit delete event when delete folder with items inside using trash', async () => {
+    // Given
+    const parent = join(rootPath, 'parent');
+    const folder = join(parent, 'folder');
+    const file = join(parent, 'file');
+    await mkdir(parent);
+    await mkdir(folder);
+    await writeFile(file, 'content');
+    await setupWatcher(rootPath);
+    // When
+    await trash(parent);
+    await sleep(100);
+    // Then
+    call(onEventSpy).toMatchObject({ event: { action: 'delete', type: 'folder', size: 0 } });
+    call(onUnlinkMock).toMatchObject({ path: parent, type: 'folder' });
   });
 });

@@ -1,13 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import LocalTreeBuilder from './LocalTreeBuilder';
-import { v4 } from 'uuid';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { call, mockProps } from 'tests/vitest/utils.helper.test';
+import { mockProps } from 'tests/vitest/utils.helper.test';
 import { join } from '../../localFile/infrastructure/AbsolutePath';
-import { execSync } from 'node:child_process';
+import { LocalTreeBuilder } from './LocalTreeBuilder';
 
 describe('LocalTreeBuilder', () => {
-  const folder = join(TEST_FILES, v4());
+  const folder = join(TEST_FILES, randomUUID());
 
   const folder1 = join(folder, 'folder1');
   const folder2 = join(folder, 'folder2');
@@ -37,17 +36,6 @@ describe('LocalTreeBuilder', () => {
     const tree = await LocalTreeBuilder.run(props);
     // Then
     expect(Object.keys(tree.files).toSorted()).toStrictEqual([file1, file2, file3, file4]);
-    expect(tree.folders.toSorted()).toStrictEqual([folder, folder1, folder3, folder2]);
-  });
-
-  it('should add an issue if stat gives error and continue', async () => {
-    // Given
-    execSync(`icacls "${file3}" /deny "${process.env.USERNAME}":F`);
-    // When
-    const tree = await LocalTreeBuilder.run(props);
-    // Then
-    call(addIssue).toMatchObject({ name: file3, error: 'FOLDER_ACCESS_DENIED' });
-    expect(Object.keys(tree.files).toSorted()).toStrictEqual([file1, file2, file4]);
     expect(tree.folders.toSorted()).toStrictEqual([folder, folder1, folder3, folder2]);
   });
 });

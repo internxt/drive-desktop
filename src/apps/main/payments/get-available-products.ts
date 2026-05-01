@@ -1,8 +1,7 @@
-import { obtainToken } from '../auth/service';
-
-import { onUserUnauthorized } from '../auth/handlers';
-import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { PaymentsModule, logger } from '@internxt/drive-desktop-core/build/backend';
+import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
+import { onUserUnauthorized } from '../auth/handlers';
+import { obtainToken } from '../auth/service';
 
 export function getAvailableProducts() {
   const newToken = obtainToken();

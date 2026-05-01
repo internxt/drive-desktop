@@ -1,9 +1,9 @@
+import { SyncContext } from '@/apps/sync-engine/config';
 import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
-import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFoldersQuery } from '@/infra/drive-server-wip/services/folders.service';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { FETCH_LIMIT_1000 } from '../store';
 
 type TProps = {
   ctx: SyncContext;
@@ -42,7 +42,7 @@ export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
     hasMore = folderDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    const { error: error2 } = await createOrUpdateFolders({ ctx, folderDtos });
+    const error2 = await createOrUpdateFolders({ ctx, folderDtos });
 
     if (error2) return;
 

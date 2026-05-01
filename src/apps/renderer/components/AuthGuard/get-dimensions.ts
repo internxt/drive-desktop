@@ -19,7 +19,7 @@ export function getDimensions({ workArea, dimensions }: Props) {
     left: 0,
     top: 0,
     right: workArea.width - dimensions.width,
-    bottom: workArea.height - dimensions.height,
+    bottom: workArea.height - 100,
   };
 
   return { positions, bounds };

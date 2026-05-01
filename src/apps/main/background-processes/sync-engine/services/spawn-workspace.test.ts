@@ -1,20 +1,21 @@
-import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { spawnWorkspace } from './spawn-workspace';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import * as spawnSyncEngineWorker from './spawn-sync-engine-worker';
-import * as getUserOrThrow from '@/apps/main/auth/service';
-import * as decryptMessageWithPrivateKey from '@/apps/shared/crypto/service';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import * as decryptMessageWithPrivateKey from '@/apps/shared/crypto/service';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as spawnSyncEngineWorker from './spawn-sync-engine-worker';
+import { spawnWorkspace } from './spawn-workspace';
 
 describe('spawn-workspace.service', () => {
   const getCredentialsMock = partialSpyOn(driveServerWipModule.workspaces, 'getCredentials');
   const decryptMessageWithPrivateKeyMock = partialSpyOn(decryptMessageWithPrivateKey, 'decryptMessageWithPrivateKey');
   const spawnSyncEngineWorkerMock = partialSpyOn(spawnSyncEngineWorker, 'spawnSyncEngineWorker');
-  const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');
 
   const props = mockProps<typeof spawnWorkspace>({
-    ctx: { abortController: new AbortController() },
+    ctx: {
+      user: {},
+      abortController: new AbortController(),
+    },
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
@@ -33,7 +34,6 @@ describe('spawn-workspace.service', () => {
         },
       },
     });
-    getUserOrThrowMock.mockReturnValue({});
     decryptMessageWithPrivateKeyMock.mockResolvedValue('decryptedMnemonic');
   });
 

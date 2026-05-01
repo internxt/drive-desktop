@@ -1,44 +1,46 @@
-import { app } from 'electron';
-
-import 'reflect-metadata';
+import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
 // via webpack in prod
 import 'dotenv/config';
-
-// ***** APP BOOTSTRAPPING ****************************************************** //
-import { PATHS } from '@/core/electron/paths';
-import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
-
-setupElectronLog({ logsPath: PATHS.LOGS });
-
-import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
-import './device/handlers';
-import './ipcs/ipcMainAntivirus';
-import './remote-sync/handlers';
-
+import { app, crashReporter } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import eventBus from './event-bus';
-import { AppDataSource } from './database/data-source';
-import { createWidget } from './windows/widget';
-import { electronStore } from './config';
-import { setTrayStatus, setupTrayIcon } from './tray/tray';
-import { openOnboardingWindow } from './windows/onboarding';
-import { setupQuitHandlers } from './quit';
-import { migrate } from '@/migrations/migrate';
+import { arch, release, version } from 'node:os';
+import { resolve } from 'node:path';
+import 'reflect-metadata';
+import 'regenerator-runtime/runtime';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { PATHS } from '@/core/electron/paths';
+import { measureHealth } from '@/core/utils/measure-health';
+import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
+import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { runMigrations } from '@/infra/sqlite/migrations/run-migrations';
+import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
+import { logger } from '../shared/logger/logger';
+import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
+import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
-import { logger } from '../shared/logger/logger';
-import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
-import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
-import { release, version } from 'node:os';
-import { Marketing } from '@/backend/features';
+import { setupDeviceIpc } from './device/handlers';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
-import { resolve } from 'node:path';
+import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
+import { setupPreloadIpc } from './preload/ipc-main';
+import { setupQuitHandlers } from './quit';
+import { setupRemoteSyncIpc } from './remote-sync/handlers';
+import { setTrayStatus, setupTrayIcon } from './tray/tray';
+import { createWidget, showFrontend } from './windows/widget';
+
+if (process.env.E2E_TEST === 'true') {
+  logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
+  applyE2EConfiguration();
+}
+
+app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
+crashReporter.start({ uploadToServer: false, compress: false });
+
+setupElectronLog({ logsPath: PATHS.LOGS });
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -71,6 +73,9 @@ setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
+setupDeviceIpc();
+setupAntivirusIpc();
+setupRemoteSyncIpc();
 
 logger.debug({
   msg: 'Starting app',
@@ -79,6 +84,7 @@ logger.debug({
   isPackaged: app.isPackaged,
   osVersion: version(),
   osRelease: release(),
+  arch: arch(),
 });
 
 async function checkForUpdates() {
@@ -97,8 +103,10 @@ if (process.env.NODE_ENV === 'production') {
   sourceMapSupport.install();
 }
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error({ msg: 'Unhandled rejection', reason, promise });
+process.on('unhandledRejection', (error, promise) => {
+  if (isAbortError({ error })) return;
+
+  logger.error({ msg: 'Unhandled rejection', error, promise });
 });
 
 process.on('uncaughtException', (error, origin) => {
@@ -110,22 +118,19 @@ app
   .then(async () => {
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    await AppDataSource.initialize();
-
+    measureHealth();
+    runMigrations();
     setupTrayIcon();
-
-    await migrate();
-    await createWidget();
-
     setUpBackups();
 
-    const isLoggedIn = await checkIfUserIsLoggedIn();
+    const user = checkIfUserIsLoggedIn();
+    await createWidget();
 
-    if (isLoggedIn) {
-      setIsLoggedIn(true);
-      await emitUserLoggedIn();
+    if (user) {
+      await emitUserLoggedIn(user);
     } else {
-      setIsLoggedIn(false);
+      setIsLoggedIn(null);
+      showFrontend();
       setTrayStatus('IDLE');
     }
 
@@ -133,18 +138,3 @@ app
     setInterval(checkForUpdates, 60 * 60 * 1000);
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
-
-eventBus.on('USER_LOGGED_IN', () => {
-  try {
-    const lastOnboardingShown = electronStore.get('lastOnboardingShown');
-
-    if (!lastOnboardingShown) {
-      void openOnboardingWindow();
-    }
-
-    void Marketing.showNotifications();
-  } catch (exc) {
-    logger.error({ msg: 'Error logging in', exc });
-    reportError(exc as Error);
-  }
-});

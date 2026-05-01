@@ -1,15 +1,15 @@
 import { UilArrowLeft } from '@iconscout/react-unicons';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { useContext, useEffect, useState } from 'react';
-import Button from '../../../../components/Button';
-import { LoadingFolders } from './LoadingFolders';
-import { BackupsList } from './BackupsList';
-import { BackupContext } from '../../../../context/BackupContext';
-import { DeviceContext } from '../../../../context/DeviceContext';
-import { ItemBackup } from '../../../../../shared/types/items';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { ItemBackup } from '../../../../../shared/types/items';
+import Button from '../../../../components/Button';
+import { BackupContext } from '../../../../context/BackupContext';
+import { DeviceContext } from '../../../../context/DeviceContext';
+import { BackupsList } from './BackupsList';
+import { LoadingFolders } from './LoadingFolders';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;

@@ -1,6 +1,6 @@
-import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { isItemToSync } from './is-item-to-sync';
 
 describe('is-item-to-sync', () => {
@@ -34,7 +34,7 @@ describe('is-item-to-sync', () => {
     calls(loggerMock.error).toHaveLength(0);
   });
 
-  it('should return true if not exists locally', () => {
+  it('should return true if local item does not exists', () => {
     // Given
     props.localsMap = new Map();
     // When

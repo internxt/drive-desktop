@@ -1,12 +1,12 @@
-import { FolderPlaceholderUpdater } from './update-folder-placeholder';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as needsToBeMoved from './needs-to-be-moved';
 import { rename } from 'node:fs/promises';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as needsToBeMoved from './needs-to-be-moved';
+import { updateFolderPlaceholder } from './update-folder-placeholder';
 
 vi.mock(import('node:fs/promises'));
 
@@ -20,12 +20,12 @@ describe('update-folder-placeholder', () => {
   const date = '2000-01-01T00:00:00.000Z';
   const time = new Date(date).getTime();
 
-  let props: Parameters<typeof FolderPlaceholderUpdater.update>[0];
+  let props: Parameters<typeof updateFolderPlaceholder>[0];
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
-    props = mockProps<typeof FolderPlaceholderUpdater.update>({
+    props = mockProps<typeof updateFolderPlaceholder>({
       folders: new Map([['uuid' as FolderUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
@@ -40,7 +40,7 @@ describe('update-folder-placeholder', () => {
     // Given
     validateWindowsNameMock.mockReturnValue({ isValid: false });
     // When
-    const res = await FolderPlaceholderUpdater.update(props);
+    const res = await updateFolderPlaceholder(props);
     // Then
     expect(res).toBe(false);
     expect(needsToBeMovedMock).toBeCalledTimes(0);
@@ -50,7 +50,7 @@ describe('update-folder-placeholder', () => {
     // Given
     props.folders = new Map();
     // When
-    const res = await FolderPlaceholderUpdater.update(props);
+    const res = await updateFolderPlaceholder(props);
     // Then
     expect(res).toBe(true);
     expect(needsToBeMovedMock).toBeCalledTimes(0);
@@ -67,7 +67,7 @@ describe('update-folder-placeholder', () => {
     // Given
     needsToBeMovedMock.mockResolvedValue(true);
     // When
-    const res = await FolderPlaceholderUpdater.update(props);
+    const res = await updateFolderPlaceholder(props);
     // Then
     expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
@@ -80,7 +80,7 @@ describe('update-folder-placeholder', () => {
     // Given
     needsToBeMovedMock.mockResolvedValue(false);
     // When
-    const res = await FolderPlaceholderUpdater.update(props);
+    const res = await updateFolderPlaceholder(props);
     // Then
     expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
@@ -93,7 +93,7 @@ describe('update-folder-placeholder', () => {
       throw new Error('Something failed');
     });
     // When
-    const res = await FolderPlaceholderUpdater.update(props);
+    const res = await updateFolderPlaceholder(props);
     // Then
     expect(res).toBe(false);
     expect(needsToBeMovedMock).toBeCalledTimes(0);

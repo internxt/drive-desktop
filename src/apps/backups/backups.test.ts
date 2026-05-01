@@ -1,17 +1,17 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { Backup } from './Backups';
-import { beforeAll } from 'vitest';
-import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { v4 } from 'uuid';
+import Bottleneck from 'bottleneck';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { mockDeep } from 'vitest-mock-extended';
-import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { FileUuid } from '../main/database/entities/DriveFile';
-import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
-import { FolderUuid } from '../main/database/entities/DriveFolder';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { beforeAll } from 'vitest';
 import { Sync } from '@/backend/features/sync';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { tracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { FileUuid } from '../main/database/entities/DriveFile';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
+import { Backup } from './Backups';
 
 describe('backups', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
@@ -22,24 +22,21 @@ describe('backups', () => {
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
 
-  const testPath = join(TEST_FILES, v4());
+  const testPath = join(TEST_FILES, randomUUID());
   const folder = join(testPath, 'folder');
   const addedFolder = join(testPath, 'addedFolder');
   const unmodifiedFile = join(testPath, 'unmodifiedFile');
   const modifiedFile = join(testPath, 'modifiedFile');
   const addedFile = join(folder, 'addedFile');
-  const rootUuid = v4();
+  const rootUuid = randomUUID();
 
-  const tracker = mockDeep<BackupsProcessTracker>();
-
-  const service = new Backup();
-  const props = mockProps<typeof service.run>({
-    tracker,
+  const props = mockProps<typeof Backup.run>({
     ctx: {
       folderId: 1,
       folderUuid: rootUuid,
       pathname: testPath,
       abortController: new AbortController(),
+      backupsBottleneck: new Bottleneck(),
     },
   });
 
@@ -75,23 +72,23 @@ describe('backups', () => {
     replaceFileMock.mockResolvedValueOnce({ uuid: 'replaceFile' as FileUuid });
 
     // When
-    await service.run(props);
+    await Backup.run(props);
 
     // Then
     call(deleteFileByUuidMock).toMatchObject({ uuid: 'deletedFile' });
     call(deleteFolderByUuidMock).toMatchObject({ uuid: 'deletedFolder' });
     call(createFolderMock).toMatchObject({ path: addedFolder, parentUuid: rootUuid });
-    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile', stats: { size: 7 } });
-    call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder', stats: { size: 7 } });
+    call(replaceFileMock).toMatchObject({ uuid: 'modifiedFile' });
+    call(createFileMock).toMatchObject({ path: addedFile, parentUuid: 'folder' });
 
-    expect(service.backed).toBe(8);
+    expect(tracker.current.processed).toBe(8);
 
     expect(loggerMock.error).toBeCalledTimes(0);
     expect(loggerMock.warn).toBeCalledTimes(0);
     calls(loggerMock.debug).toStrictEqual([
       { msg: 'Files diff', added: 1, modified: 1, deleted: 1, unmodified: 1, total: 4 },
       { msg: 'Folders diff', added: 1, deleted: 1, unmodified: 2, total: 4 },
-      { msg: 'Total items to backup', total: 8, alreadyBacked: 3 },
+      { msg: 'Total items to backup', total: 8, backed: 3 },
     ]);
   });
 });

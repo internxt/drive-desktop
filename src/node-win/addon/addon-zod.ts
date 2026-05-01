@@ -1,5 +1,4 @@
 import { z } from 'zod';
-
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
@@ -10,6 +9,9 @@ export const addonZod = {
     pinState: z.enum(PinState),
     inSyncState: z.enum(InSyncState),
     onDiskSize: z.number(),
+  }),
+  getSyncRootFromPath: z.object({
+    id: z.string(),
   }),
   watchPath: z.object(),
   getRegisteredSyncRoots: z.array(

@@ -1,28 +1,35 @@
+import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
-import eventBus from '../event-bus';
-import { getWidget } from '../windows/widget';
-import { refreshToken } from './refresh-token';
-import { getUser } from './service';
-import { logger } from '@/apps/shared/logger/logger';
-import { cleanAndStartRemoteNotifications } from '../realtime';
-import { AuthContext } from '@/apps/sync-engine/config';
-import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
-import { logout } from './logout';
-import { TokenScheduler } from '../token-scheduler/TokenScheduler';
-import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
-import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
 import { setMaxListeners } from 'node:events';
+import { createWipClient } from '@/apps/shared/HttpClient/client';
+import { logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
+import { Marketing } from '@/backend/features';
+import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
+import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
+import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
+import electronStore from '../config';
+import eventBus from '../event-bus';
+import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
+import { cleanAndStartRemoteNotifications } from '../realtime';
+import { TokenScheduler } from '../token-scheduler/TokenScheduler';
+import { User } from '../types';
+import { openOnboardingWindow } from '../windows/onboarding';
+import { getWidget, showFrontend } from '../windows/widget';
+import { logout } from './logout';
+import { getUser } from './service';
 
-let isLoggedIn: boolean | null = null;
+let user: User | null = null;
 
-export function setIsLoggedIn(value: boolean | null) {
-  isLoggedIn = value;
+export function setIsLoggedIn(value: User | null) {
+  user = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
 }
 
 export function isUserLoggedIn() {
-  return isLoggedIn;
+  return user;
 }
 
 export function onUserUnauthorized() {
@@ -30,54 +37,71 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_LOGGED_OUT');
 }
 
-export async function checkIfUserIsLoggedIn() {
+export function checkIfUserIsLoggedIn() {
   const user = getUser();
 
   if (!user) {
     logger.debug({ tag: 'AUTH', msg: 'User not logged in' });
-    return false;
+    return;
   }
 
-  if (user.needLogout === undefined) {
-    logger.debug({ tag: 'AUTH', msg: 'User needs logout' });
-    return false;
+  const msToRenew = TokenScheduler.getMillisecondsToRenew();
+  if (msToRenew === null || msToRenew <= 0) {
+    logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
+    saveConfig();
+    resetConfig();
+    return;
   }
 
-  return await refreshToken();
+  return user;
 }
 
 export function setupAuthIpcHandlers() {
-  ipcMain.handle('get-user', getUser);
   ipcMain.on('USER_LOGGED_OUT', () => {
+    logger.debug({ msg: 'Manual logout' });
     eventBus.emit('USER_LOGGED_OUT');
   });
 }
 
-export async function emitUserLoggedIn() {
+export async function emitUserLoggedIn(user: User) {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
-  const scheduler = new TokenScheduler();
-  scheduler.schedule();
+  setIsLoggedIn(user);
+  showFrontend();
+
+  TokenScheduler.schedule();
 
   const abortController = new AbortController();
   setMaxListeners(0, abortController.signal);
 
+  const { driveApiBottleneck, client } = createWipClient();
+  const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
+
   const ctx: AuthContext = {
+    user,
+    userUuid: user.uuid,
     abortController,
+    driveApiBottleneck,
+    uploadBottleneck,
+    client,
     workspaceToken: '',
   };
 
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearLoggedPreloadIpc();
-    scheduler.stop();
+    TokenScheduler.stop();
     BackupScheduler.stop();
     logout({ ctx });
   });
 
   setupLoggedPreloadIpc({ ctx });
-  eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  BackupScheduler.start();
+
+  const lastOnboardingShown = electronStore.get('lastOnboardingShown');
+  if (!lastOnboardingShown) void openOnboardingWindow();
+
+  BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
+  void Marketing.showNotifications();
 }

@@ -1,6 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
+import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
 
 export class GetDeviceError extends DriveServerWipError {
@@ -35,12 +35,13 @@ export async function getDevice(context: { deviceUuid: string }) {
     },
   });
 
-  if (error?.code === 'UNKNOWN') {
-    switch (true) {
-      case error.response?.status === 404:
-        return { error: new GetDeviceError('NOT_FOUND', error.cause) };
+  if (error) {
+    if (error.response?.status === 404) {
+      return { error: new GetDeviceError('NOT_FOUND', error.cause) };
+    } else {
+      return { error };
     }
   }
 
-  return { data, error };
+  return { data };
 }

@@ -6,52 +6,77 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
 {
     WatcherEvent* event = static_cast<WatcherEvent*>(data);
 
-    napi_value eventObj;
-    napi_create_object(env, &eventObj);
+    napi_value obj;
+    napi_create_object(env, &obj);
 
-    napi_value type, path, parentUuid;
-    napi_create_string_utf8(env, event->type.c_str(), NAPI_AUTO_LENGTH, &type);
-    napi_create_string_utf8(env, event->path.c_str(), NAPI_AUTO_LENGTH, &path);
-
-    napi_set_named_property(env, eventObj, "event", type);
-    napi_set_named_property(env, eventObj, "path", path);
-    napi_set_named_property(env, eventObj, "parentUuid", parentUuid);
+    napiSetString(env, obj, "action", event->action);
+    napiSetString(env, obj, "type", event->type);
+    napiSetWstring(env, obj, "path", event->path);
+    napiSetInt64(env, obj, "internalId", (LONGLONG)event->internalId);
+    napiSetInt64(env, obj, "size", (LONGLONG)event->size);
+    napiSetDouble(env, obj, "ctimeMs", event->ctimeMs);
+    napiSetDouble(env, obj, "mtimeMs", event->mtimeMs);
 
     napi_value undefined;
     napi_get_undefined(env, &undefined);
-    napi_call_function(env, undefined, jsCallback, 1, &eventObj, nullptr);
+    napi_call_function(env, undefined, jsCallback, 1, &obj, nullptr);
 
     delete event;
 }
 
-inline void sendEvent(WatcherContext* ctx, const std::string& type, const std::string& path)
+// Converts a Windows FILETIME (100-ns intervals since 1601-01-01) to Unix milliseconds
+inline double fileTimeToUnixMs(const LARGE_INTEGER& li)
 {
-    auto event = new WatcherEvent{type, path};
+    // 116444736000000000 = number of 100-ns intervals between 1601 and 1970
+    return (double)((li.QuadPart - 116444736000000000LL) / 10000LL);
+}
+
+inline void sendEvent(WatcherContext* ctx, const std::string& action, const std::wstring& path, FILE_NOTIFY_EXTENDED_INFORMATION* fni)
+{
+    std::string type = (fni->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? "folder" : "file";
+
+    auto event = new WatcherEvent{
+        action,
+        path,
+        type,
+        (uint64_t)fni->FileId.QuadPart,
+        (uint64_t)fni->FileSize.QuadPart,
+        fileTimeToUnixMs(fni->LastChangeTime),
+        fileTimeToUnixMs(fni->LastModificationTime),
+    };
+
     napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
-inline std::string wstringToUtf8(const std::wstring& wstr)
+inline void sendError(WatcherContext* ctx, const std::string& error)
 {
-    if (wstr.empty()) return {};
-
-    int size = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), nullptr, 0, nullptr, nullptr);
-    std::string result(size, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.size(), result.data(), size, nullptr, nullptr);
-    return result;
+    std::wstring wError(error.begin(), error.end());
+    auto event = new WatcherEvent{"error", wError, "error"};
+    napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
-inline void processEvent(FILE_NOTIFY_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
+inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstring& rootPath, WatcherContext* ctx)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
-    std::wstring path = rootPath + L"\\" + filename;
-    std::string pathStr = wstringToUtf8(path);
+    std::wstring path = rootPath + L"/" + filename;
+    std::replace(path.begin(), path.end(), L'\\', L'/');
 
-    if (fni->Action == FILE_ACTION_MODIFIED) {
-        sendEvent(ctx, "update", pathStr);
-    } else if (fni->Action == FILE_ACTION_REMOVED || fni->Action == FILE_ACTION_RENAMED_OLD_NAME) {
-        sendEvent(ctx, "delete", pathStr);
-    } else if (fni->Action == FILE_ACTION_ADDED || fni->Action == FILE_ACTION_RENAMED_NEW_NAME) {
-        sendEvent(ctx, "create", pathStr);
+    switch (fni->Action) {
+        case FILE_ACTION_ADDED:
+            sendEvent(ctx, "create", path, fni);
+            break;
+        case FILE_ACTION_REMOVED:
+            sendEvent(ctx, "delete", path, fni);
+            break;
+        case FILE_ACTION_MODIFIED:
+            sendEvent(ctx, "update", path, fni);
+            break;
+        case FILE_ACTION_RENAMED_OLD_NAME:
+            sendEvent(ctx, "rename_old", path, fni);
+            break;
+        case FILE_ACTION_RENAMED_NEW_NAME:
+            sendEvent(ctx, "rename_new", path, fni);
+            break;
     }
 }
 
@@ -59,13 +84,13 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
 {
     auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
 
-    BYTE buffer[4 * 1024];
+    BYTE buffer[64 * 1024];
 
     while (!ctx->shouldStop) {
         try {
             DWORD bytesReturned = 0;
 
-            BOOL success = ReadDirectoryChangesW(
+            BOOL success = ReadDirectoryChangesExW(
                 hDirectory.get(),
                 buffer,
                 sizeof(buffer),
@@ -73,26 +98,27 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
                 FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE | FILE_NOTIFY_CHANGE_ATTRIBUTES,
                 &bytesReturned,
                 nullptr,
-                nullptr);
+                nullptr,
+                ReadDirectoryNotifyExtendedInformation);
 
             if (!success) {
-                sendEvent(ctx, "error", std::format("ReadDirectoryChangesW failed: {}", GetLastError()));
+                sendError(ctx, std::format("ReadDirectoryChangesExW failed: {}", GetLastError()));
                 break;
             }
 
             if (ctx->shouldStop) break;
 
-            FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)buffer;
+            FILE_NOTIFY_EXTENDED_INFORMATION* fni = (FILE_NOTIFY_EXTENDED_INFORMATION*)buffer;
 
             while (true) {
                 processEvent(fni, rootPath, ctx);
 
                 if (fni->NextEntryOffset == 0) break;
 
-                fni = (FILE_NOTIFY_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
+                fni = (FILE_NOTIFY_EXTENDED_INFORMATION*)((BYTE*)fni + fni->NextEntryOffset);
             }
         } catch (...) {
-            sendEvent(ctx, "error", format_exception_message("WatchPath"));
+            sendError(ctx, format_exception_message("WatchPath"));
         }
     }
 }
@@ -110,7 +136,7 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
             try {
                 watchPath(ctx, rootPath);
             } catch (...) {
-                sendEvent(ctx, "error", format_exception_message("WatchPathWrapper"));
+                sendError(ctx, format_exception_message("WatchPathWrapper"));
             }
 
             wprintf(L"Remove watcher context\n");

@@ -1,28 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { calculateUsage } from '../usage/service';
-import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { getAvailableProducts } from '../payments/get-available-products';
-import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
-import { getTheme } from '../config/theme';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
-import { setConfigKey } from '../config/service';
-import { getLanguage } from '../config/language';
-import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
-import { openLoginUrl } from '../auth/open-login-url';
-import { deleteBackupsFromDevice } from '../device/service';
-import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
-import { updateAllRemoteSync } from '../remote-sync/handlers';
-import { getWorkArea, hideFrontend } from '../windows/widget';
+import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { isUserLoggedIn } from '../auth/handlers';
+import { openLoginUrl } from '../auth/open-login-url';
+import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
+import { getLanguage } from '../config/language';
+import { setConfigKey } from '../config/service';
+import { getTheme } from '../config/theme';
+import { deleteBackupsFromDevice } from '../device/service';
+import { getAvailableProducts } from '../payments/get-available-products';
+import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
+import { calculateUsage } from '../usage/service';
+import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { finishOnboarding } from '../windows';
+import { getWorkArea, hideFrontend } from '../windows/widget';
 
-type AsyncMirror<T extends (...args: any[]) => unknown> =
-  Parameters<T> extends [] ? () => ReturnType<T> : (props: Omit<Parameters<T>[0], 'ctx'>) => ReturnType<T>;
-
-type Mirror<T extends (...args: any[]) => unknown> =
-  Parameters<T> extends [] ? () => Promise<ReturnType<T>> : (props: Parameters<T>[0]) => Promise<ReturnType<T>>;
+type OmitCtx<T> = 'ctx' extends keyof T ? Omit<T, 'ctx'> : T;
+type BuildSignature<T extends (...args: any[]) => unknown, R> =
+  Parameters<T> extends [] ? () => R : (props: OmitCtx<Parameters<T>[0]>) => R;
+type AsyncMirror<T extends (...args: any[]) => unknown> = BuildSignature<T, ReturnType<T>>;
+type Mirror<T extends (...args: any[]) => unknown> = BuildSignature<T, Promise<ReturnType<T>>>;
 
 export type FromProcess = {
   getWorkArea: Mirror<typeof getWorkArea>;
@@ -49,6 +49,8 @@ export type FromProcess = {
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
 
   deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
+  backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
+  backupsSetInterval: Mirror<typeof backupsSetInterval>;
 };
 
 export type FromMain = {};

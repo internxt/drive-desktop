@@ -1,8 +1,8 @@
-import { clearAntivirus } from '../utils/initializeAntivirus';
-import { selectAntivirusEngine } from './select-antivirus-engine';
-import { createEngine } from './create-antivirus-engine';
 import { logger } from '@/apps/shared/logger/logger';
+import { clearAntivirus } from '../utils/initializeAntivirus';
 import { AntivirusManager } from './antivirus-manager';
+import { createEngine } from './create-antivirus-engine';
+import { selectAntivirusEngine } from './select-antivirus-engine';
 
 export async function getActiveEngine({ self }: { self: AntivirusManager }) {
   try {

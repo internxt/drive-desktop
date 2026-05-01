@@ -1,14 +1,12 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { downloadBackup } from './download-backup';
-import * as getUserOrThrow from '@/apps/main/auth/service';
-import * as getPathFromDialog from '@/apps/main/device/service';
-import * as downloadFolder from './download-folder';
 import { ipcMain } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as getPathFromDialog from '@/apps/main/device/service';
 import * as broadcastToWindows from '@/apps/main/windows';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { downloadBackup } from './download-backup';
+import * as downloadFolder from './download-folder';
 
 describe('download-backup', () => {
-  const getUserOrThrowMock = partialSpyOn(getUserOrThrow, 'getUserOrThrow');
   const getPathFromDialogMock = partialSpyOn(getPathFromDialog, 'getPathFromDialog');
   const downloadFolderMock = partialSpyOn(downloadFolder, 'downloadFolder');
   const onMock = partialSpyOn(ipcMain, 'on');
@@ -16,6 +14,7 @@ describe('download-backup', () => {
   const broadcastToWindowsMock = partialSpyOn(broadcastToWindows, 'broadcastToWindows');
 
   const props = mockProps<typeof downloadBackup>({
+    ctx: { user: {} },
     device: {
       plainName: 'device',
       uuid: 'deviceUuid',
@@ -23,7 +22,6 @@ describe('download-backup', () => {
   });
 
   beforeEach(() => {
-    getUserOrThrowMock.mockReturnValue({});
     getPathFromDialogMock.mockResolvedValue({ path: '/backup' });
   });
 

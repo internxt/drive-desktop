@@ -1,14 +1,14 @@
-import { openLogs } from './open-logs';
-import { call, calls } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import archiver from 'archiver';
 import { shell } from 'electron';
 import { createWriteStream } from 'node:fs';
-import { INTERNXT_LOGS } from '@/core/utils/utils';
-import archiver from 'archiver';
-import { mockDeep } from 'vitest-mock-extended';
 import { pipeline } from 'node:stream/promises';
+import { mockDeep } from 'vitest-mock-extended';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
+import { INTERNXT_LOGS } from '@/core/utils/utils';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls } from '@/tests/vitest/utils.helper.test';
+import { openLogs } from './open-logs';
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:stream/promises'));
@@ -27,8 +27,8 @@ describe('open-logs', () => {
   });
 
   afterEach(() => {
-    call(createWriteStreamMock).toStrictEqual(join(PATHS.INTERNXT, 'logs', INTERNXT_LOGS));
-    call(openPathMock).toStrictEqual(join(PATHS.INTERNXT, 'logs'));
+    call(createWriteStreamMock).toStrictEqual(join(PATHS.LOGS, INTERNXT_LOGS));
+    call(openPathMock).toStrictEqual(join(PATHS.LOGS));
   });
 
   it('should catch file errors', async () => {
@@ -47,10 +47,11 @@ describe('open-logs', () => {
     await openLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(archive.file).toMatchObject([
-      [join(PATHS.INTERNXT, 'logs/drive.log'), { name: 'drive.log' }],
-      [join(PATHS.INTERNXT, 'logs/drive-important.log'), { name: 'drive-important.log' }],
+    calls(archive.file).toStrictEqual([
+      [join(PATHS.LOGS, 'drive.log'), { name: 'drive.log' }],
+      [join(PATHS.LOGS, 'drive-important.log'), { name: 'drive-important.log' }],
       [join(PATHS.INTERNXT, 'internxt_desktop.db'), { name: 'internxt_desktop.db' }],
     ]);
+    call(archive.directory).toStrictEqual([join(PATHS.LOGS, 'crash'), 'crash']);
   });
 });

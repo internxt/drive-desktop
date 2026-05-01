@@ -1,6 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
+import { db } from '../../migrations/run-migrations';
+import { Checkpoint } from '../../schema';
 import { SingleItemError } from '../common/single-item-error';
-import { CheckpointRepository } from '@/apps/main/database/data-source';
 
 type Props = {
   type: 'file' | 'folder';
@@ -8,12 +9,17 @@ type Props = {
   workspaceId: string;
 };
 
-export async function getCheckpoint(payload: Props) {
+export function getCheckpoint(payload: Props) {
   try {
-    const data = await CheckpointRepository.findOne({ where: payload });
+    const data = db
+      .prepare(
+        `SELECT * FROM checkpoint
+         WHERE type = :type AND userUuid = :userUuid AND workspaceId = :workspaceId
+         LIMIT 1`,
+      )
+      .get(payload);
 
-    if (data) return { data };
-
+    if (data) return { data: data as Checkpoint };
     return { error: new SingleItemError('NOT_FOUND') };
   } catch (error) {
     logger.error({

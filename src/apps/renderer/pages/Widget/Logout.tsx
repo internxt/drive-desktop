@@ -19,7 +19,10 @@ export function ModalLogout({ onClose, onLogout }: Readonly<Props>) {
             className="bg-gray-300 hover:bg-gray-400 rounded-6px border border-gray-30 bg-white px-5 py-1 text-supporting-3 text-black dark:border-gray-10 dark:bg-gray-5 dark:text-gray-80">
             {translate('widget.header.dropdown.logout-confirmation.cancel')}
           </button>
-          <button onClick={onLogout} className="bg-red-600 rounded-6px bg-red px-5 py-1 text-supporting-3 text-white">
+          <button
+            data-automation-id="modal-logout-confirmation"
+            onClick={onLogout}
+            className="bg-red-600 rounded-6px bg-red px-5 py-1 text-supporting-3 text-white">
             {translate('widget.header.dropdown.logout-confirmation.confirm')}
           </button>
         </div>

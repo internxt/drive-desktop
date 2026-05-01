@@ -1,12 +1,11 @@
-import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
-import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
-import { createLogger, logger } from '@/apps/shared/logger/logger';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { getUserOrThrow } from '@/apps/main/auth/service';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { buildEnvironment } from '../../backups/build-environment';
+import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 
 type TProps = {
   ctx: AuthContext;
@@ -27,12 +26,10 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
 
   if (error) return;
 
-  const user = getUserOrThrow();
-
   try {
     const mnemonic = await decryptMessageWithPrivateKey({
       encryptedMessage: Buffer.from(workspace.key, 'base64').toString(),
-      privateKeyInBase64: user.privateKey,
+      privateKeyInBase64: ctx.user.privateKey,
     });
 
     const { environment, contentsDownloader } = buildEnvironment({
@@ -43,9 +40,9 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
     });
 
     const syncCtx: SyncContext = {
-      abortController: ctx.abortController,
-      userUuid: user.uuid,
+      ...ctx,
       mnemonic,
+      status: 'IDLE',
       providerId: workspace.providerId,
       rootPath: workspace.rootPath,
       providerName: 'Internxt Drive for Business',

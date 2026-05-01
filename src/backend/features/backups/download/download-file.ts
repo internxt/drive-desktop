@@ -1,8 +1,9 @@
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { createWriteStream } from 'node:fs';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { pipeline } from '@/core/utils/pipeline';
 import { InxtJs } from '@/infra';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { createWriteStream } from 'node:fs';
+import { LocalSync } from '../..';
 
 type Props = {
   file: ExtendedDriveFile;
@@ -10,23 +11,33 @@ type Props = {
 };
 
 export async function downloadFile({ file, contentsDownloader }: Props) {
-  try {
-    logger.debug({ tag: 'BACKUPS', msg: 'Download file', path: file.absolutePath });
+  const path = file.absolutePath;
 
-    const writable = createWriteStream(file.absolutePath);
+  try {
+    logger.debug({ tag: 'BACKUPS', msg: 'Download file', path });
+
+    const writable = createWriteStream(path);
 
     const readable = await contentsDownloader.downloadThrow({
-      path: file.absolutePath,
+      path,
       contentsId: file.contentsId,
     });
 
     const error = await pipeline({ readable, writable });
 
-    if (error) {
-      if (error.code === 'ABORTED') return;
-      throw error;
+    if (!error) {
+      LocalSync.SyncState.addItem({ action: 'DOWNLOADED', path });
+      return;
     }
+
+    if (error.code === 'ABORTED') {
+      LocalSync.SyncState.addItem({ action: 'DOWNLOAD_CANCEL', path });
+      return;
+    }
+
+    throw error;
   } catch (error) {
-    logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path: file.absolutePath, error });
+    LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
+    logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path, error });
   }
 }

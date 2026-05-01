@@ -1,6 +1,6 @@
+import bytes from 'bytes';
 import { useGetUsage } from '../../api/use-get-usage';
 import { useI18n } from '../../localize/use-i18n';
-import bytes from 'bytes';
 
 export function useUsageIndicator() {
   const { t } = useI18n();

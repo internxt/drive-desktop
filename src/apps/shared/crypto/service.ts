@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { Message, PrivateKey, WebStream } from 'openpgp';
 import { logger } from '../logger/logger';
 
-export async function getOpenpgp(): Promise<typeof import('openpgp')> {
+export function getOpenpgp(): Promise<typeof import('openpgp')> {
   return import('openpgp');
 }
 

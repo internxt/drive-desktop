@@ -2,6 +2,8 @@ import { DeepPartial } from 'ts-essentials';
 import { MockedFunction, MockInstance } from 'vitest';
 import { loggerMock } from './mocks.helper.test';
 
+export type TestProps<T extends (...args: any) => any> = DeepPartial<Parameters<T>[0]>;
+
 function getCalls(object: any) {
   return object.mock.calls.map((call: any) => {
     if (call.length === 1) return call[0];

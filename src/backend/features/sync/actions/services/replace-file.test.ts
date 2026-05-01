@@ -1,12 +1,12 @@
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import { LocalSync } from '@/backend/features';
+import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { replaceFile } from './replace-file';
-import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { LocalSync } from '@/backend/features';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as uploadFile from './upload-file';
-import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
-import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 describe('replace-file', () => {
   const uploadMock = partialSpyOn(uploadFile, 'uploadFile');
@@ -21,9 +21,9 @@ describe('replace-file', () => {
   let props: Parameters<typeof replaceFile>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof replaceFile>({ path, stats: { size, mtime } });
+    props = mockProps<typeof replaceFile>({ path });
 
-    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId });
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime });
   });
 
   it('should not persist if the file upload fails', async () => {
@@ -50,7 +50,7 @@ describe('replace-file', () => {
     // When
     await replaceFile(props);
     // Given
-    call(uploadMock).toMatchObject({ path, size });
+    call(uploadMock).toMatchObject({ path });
     call(persistMock).toMatchObject({ context: { path, contentsId: 'contentsId', size, modificationTime: '2000-01-01T00:00:00.000Z' } });
     call(addItemMock).toMatchObject({ action: 'MODIFIED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });

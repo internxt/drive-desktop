@@ -1,11 +1,10 @@
-import { client } from '@/apps/shared/HttpClient/client';
-import { paths } from '@/apps/shared/HttpClient/schema';
-import { DriveServerWipError, TDriveServerWipError } from '../../defs';
-import { getRequestKey } from '../../in/get-in-flight-request';
-import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
-import { FileDto, parseFileDto } from '../../out/dto';
-import { CommonContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { paths } from '@/apps/shared/HttpClient/schema';
+import { CommonContext } from '@/apps/sync-engine/config';
+import { DriveServerWipError, TDriveServerWipError } from '../../defs';
+import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
+import { getRequestKey } from '../../in/get-in-flight-request';
+import { FileDto, parseFileDto } from '../../out/dto';
 
 export type CreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 
@@ -29,7 +28,7 @@ export async function createFile({ ctx, context }: Props) {
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.POST(endpoint, {
+    ctx.client.POST(endpoint, {
       signal: ctx.abortController.signal,
       body: context.body,
     });

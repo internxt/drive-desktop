@@ -1,4 +1,5 @@
-import { ContentsId, DriveFile, FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { DriveFile } from '../../schema';
 
 type TProps = {
   data: DriveFile;
@@ -20,6 +21,5 @@ export function parseData({ data }: TProps): SimpleDriveFile {
     updatedAt: data.updatedAt,
     modificationTime: data.modificationTime,
     status: data.status,
-    isDangledStatus: data.isDangledStatus,
   };
 }

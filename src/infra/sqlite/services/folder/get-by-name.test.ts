@@ -1,42 +1,77 @@
-import { folderRepository } from '../drive-folder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
 import { getByName } from './get-by-name';
+import { upsertQuery } from './queries';
 
 describe('get-by-name', () => {
-  const findOneSpy = partialSpyOn(folderRepository, 'findOne');
+  const date = new Date().toISOString();
+  const folder: DriveFolder = {
+    uuid: 'uuid',
+    id: 1,
+    status: 'EXISTS',
+    plainName: 'folder',
+    parentUuid: 'parentUuid',
+    parentId: 0,
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+  };
 
-  const props = mockProps<typeof getByName>({ plainName: 'folder' });
+  let props: Parameters<typeof getByName>[0];
 
-  it('should return NOT_FOUND when folder is not found', async () => {
-    // Given
-    findOneSpy.mockResolvedValue(null);
+  beforeAll(() => {
+    runMigrations();
+  });
+
+  afterAll(() => {
+    db.close();
+  });
+
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
+      parentUuid: 'parentUuid' as FolderUuid,
+      plainName: 'folder',
+    };
+  });
+
+  it('should return NOT_FOUND when folder is not found', () => {
     // When
-    const { error } = await getByName(props);
+    const { error } = getByName(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should return folder', () => {
     // Given
-    findOneSpy.mockRejectedValue(new Error());
+    db.prepare(upsertQuery).run(folder);
     // When
-    const { error } = await getByName(props);
+    const { data } = getByName(props);
     // Then
-    expect(error?.code).toBe('UNKNOWN');
+    expect(data?.uuid).toBe('uuid');
   });
 
-  it('should return folder', async () => {
+  it('should return NOT_FOUND when folder status is not EXISTS', () => {
     // Given
-    findOneSpy.mockResolvedValue({ plainName: 'name' });
+    db.prepare(upsertQuery).run({ ...folder, status: 'TRASHED' });
     // When
-    const { data } = await getByName(props);
+    const { error } = getByName(props);
     // Then
-    expect(data).toBeDefined();
-    expect(findOneSpy).toBeCalledWith({
-      where: expect.objectContaining({
-        plainName: 'folder',
-        status: 'EXISTS',
-      }),
-    });
+    expect(error?.code).toBe('NOT_FOUND');
+  });
+
+  it('should return UNKNOWN when error is thrown', () => {
+    // Given
+    props.parentUuid = (() => null) as any;
+    // When
+    const { error } = getByName(props);
+    // Then
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: expect.stringContaining('cannot be bound') } });
   });
 });

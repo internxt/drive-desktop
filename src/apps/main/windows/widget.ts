@@ -1,5 +1,5 @@
 import { BrowserWindow, screen } from 'electron';
-
+import { ProgressData } from '../antivirus/ManualSystemScan';
 import { preloadPath, resolveHtmlPath } from '../util';
 
 let widget: BrowserWindow;
@@ -12,9 +12,15 @@ export function hideFrontend() {
   widget.hide();
 }
 
+export function showFrontend() {
+  widget.setAlwaysOnTop(true);
+  widget.show();
+  widget.setAlwaysOnTop(false);
+}
+
 export function toggleWidgetVisibility() {
-  if (widget.isVisible()) widget.hide();
-  else widget.show();
+  if (widget.isVisible()) hideFrontend();
+  else showFrontend();
 }
 
 export function getWorkArea() {
@@ -43,4 +49,8 @@ export async function createWidget() {
   });
 
   await widget.loadURL(resolveHtmlPath(''));
+}
+
+export function sendAntivirusProgress(progressData: ProgressData) {
+  widget.webContents.send('antivirus:scan-progress', progressData);
 }

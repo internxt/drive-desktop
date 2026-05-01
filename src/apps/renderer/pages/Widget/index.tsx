@@ -1,18 +1,21 @@
-import Header from './Header';
-import SyncAction from './SyncAction';
-import { SyncInfo } from './SyncInfo';
-import useSyncStatus from '../../hooks/useSyncStatus';
-import { SyncFailed } from './SyncFailed';
-import { ModalLogout } from './Logout';
 import { useState } from 'react';
+import { User } from '@/apps/main/types';
+import useSyncStatus from '../../hooks/useSyncStatus';
+import Header from './Header';
+import { ModalLogout } from './Logout';
+import SyncAction from './SyncAction';
+import { SyncFailed } from './SyncFailed';
+import { SyncInfo } from './SyncInfo';
 
-export function Widget() {
+export function Widget({ user }: { user: User }) {
   const { syncStatus } = useSyncStatus();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
-    <div className="rounded-shadow-white absolute bottom-0 right-16 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
-      <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
+    <div
+      data-automation-id="widget-rootView"
+      className="rounded-shadow-white absolute bottom-0 right-12 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
+      <Header user={user} setIsLogoutModalOpen={setIsLogoutModalOpen} />
 
       {syncStatus === 'SYNC_FAILED' ? <SyncFailed /> : <SyncInfo />}
 

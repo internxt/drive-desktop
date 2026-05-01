@@ -1,19 +1,20 @@
-import { MouseEventHandler, useEffect, useState } from 'react';
-import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
+import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
+import { MouseEventHandler } from 'react';
 import { User } from '../../../main/types';
-import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
-import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
+import { useIssues } from '../../hooks/useIssues';
 import { useI18n } from '../../localize/use-i18n';
-import { useSettingsStore } from '../Settings/settings-store';
 import { useIssuesStore } from '../Issues/issues-store';
+import { useSettingsStore } from '../Settings/settings-store';
+import { Avatar } from './Avatar';
 
 interface HeadersProps {
+  user: User;
   setIsLogoutModalOpen: (isOpen: boolean) => void;
 }
 
-const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
+const Header: React.FC<HeadersProps> = ({ user, setIsLogoutModalOpen }) => {
   const { translate } = useI18n();
   const { setActiveSection: setSettingsSection } = useSettingsStore();
   const { setActiveSection: setIssuesSection } = useIssuesStore();
@@ -48,25 +49,12 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   };
 
   const AccountSection = () => {
-    const [user, setUser] = useState<User | null>(null);
-
-    useEffect(() => {
-      window.electron
-        .getUser()
-        .then(setUser)
-        .catch(() => {
-          setUser(null);
-        });
-    }, []);
-
     return (
       <div className="flex flex-1 space-x-2.5 truncate" data-automation-id="headerAccountSection">
-        <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-base font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
-          {`${user?.name.charAt(0) ?? ''}${user?.lastname.charAt(0) ?? ''}`}
-        </div>
+        <Avatar user={user} className="h-9 w-9 text-base" />
 
         <div className="flex flex-1 flex-col truncate">
-          <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>
+          <p data-automation-id="header-userEmail" className="truncate text-sm font-medium text-gray-100" title={user?.email}>
             {user?.email}
           </p>
           {user && <UsageIndicator />}
@@ -121,7 +109,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
-      <Menu as="div" className="relative flex h-8 items-end">
+      <Menu as="div" className="relative flex h-8 items-end" data-automation-id="headerDropdown">
         {({ open }) => (
           <>
             <Menu.Button className="outline-none focus-visible:outline-none">
@@ -183,20 +171,15 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                     </div>
                   )}
                 </Menu.Item>
-                {SHOW_ANTIVIRUS_TOOL && (
-                  <Menu.Item>
-                    {({ active }) => (
-                      <div>
-                        <DropdownItem
-                          active={active}
-                          onClick={() => setSettingsSection('ANTIVIRUS')}
-                          data-automation-id="menuItemAntivirus">
-                          <span>{translate('widget.header.dropdown.antivirus')}</span>
-                        </DropdownItem>
-                      </div>
-                    )}
-                  </Menu.Item>
-                )}
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('ANTIVIRUS')} data-automation-id="menuItemAntivirus">
+                        <span>{translate('widget.header.dropdown.antivirus')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
                     <div>
@@ -213,8 +196,8 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div>
-                      <DropdownItem active={active} onClick={handleLogoutModalOpen} data-automation-id="menuItemLogout">
+                    <div data-automation-id="menuItemLogout">
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
                         <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>

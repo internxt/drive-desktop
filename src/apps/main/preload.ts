@@ -1,20 +1,20 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
+import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
-import { RemoteSyncStatus } from './remote-sync/helpers';
-import { StoredValues } from './config/service';
-import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
-import { getUser } from './auth/service';
-import { Issue } from './background-processes/issues';
-import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
-import { Device, getOrCreateDevice, renameDevice } from './device/service';
-import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
-import { ItemBackup } from '../shared/types/items';
-import { getBackupsFromDevice } from './device/get-backups-from-device';
-import { ipcPreloadRenderer } from './preload/ipc-renderer';
-import { FromProcess } from './preload/ipc';
-import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
+import { ItemBackup } from '../shared/types/items';
+import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
+import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
+import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
+import { Issue } from './background-processes/issues';
+import { StoredValues } from './config/service';
+import { getBackupsFromDevice } from './device/get-backups-from-device';
+import { Device, getOrCreateDevice, renameDevice } from './device/service';
+import { FromProcess } from './preload/ipc';
+import { ipcPreloadRenderer } from './preload/ipc-renderer';
+import { RemoteSyncStatus } from './remote-sync/helpers';
+import { User } from './types';
 import { BackupDownloadProgress } from './windows/broadcast-to-windows';
 
 const api = {
@@ -29,7 +29,7 @@ const api = {
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
   },
-  onUserLoggedInChanged(func: (_: boolean) => void) {
+  onUserLoggedInChanged(func: (_: User | null) => void) {
     ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },
   logout() {
@@ -37,9 +37,6 @@ const api = {
   },
   quit() {
     ipcRenderer.send('user-quit');
-  },
-  getUser(): Promise<ReturnType<typeof getUser>> {
-    return ipcRenderer.invoke('get-user');
   },
   onSyncInfoUpdate(func: (_: SyncStateItem[]) => void): () => void {
     const eventName = 'sync-info-update';
@@ -64,12 +61,6 @@ const api = {
   },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
-  },
-  setBackupsInterval(value: number): Promise<void> {
-    return ipcRenderer.invoke('set-backups-interval', value);
-  },
-  startBackupsProcess() {
-    ipcRenderer.send('start-backups-process');
   },
   stopBackupsProcess() {
     ipcRenderer.send('stop-backups-process');
@@ -199,7 +190,7 @@ const api = {
   getLanguage: async () => await ipcPreloadRenderer.invoke('getLanguage'),
   setConfigKey: async (props) => await ipcPreloadRenderer.invoke('setConfigKey', props),
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
-  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
+  driveChooseSyncRootWithDialog: async (props) => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog', props),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
@@ -207,6 +198,8 @@ const api = {
   syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
 
   deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
+  backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke('backupsSetInterval', props),
+  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke('backupsStartProcess', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

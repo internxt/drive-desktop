@@ -1,9 +1,9 @@
+import { SyncContext } from '@/apps/sync-engine/config';
 import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { FETCH_LIMIT_1000 } from '../store';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { FETCH_LIMIT_1000 } from '../store';
 
 type TProps = {
   ctx: SyncContext;
@@ -42,7 +42,7 @@ export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
     hasMore = fileDtos.length === FETCH_LIMIT_1000;
     offset += FETCH_LIMIT_1000;
 
-    const { error: error2 } = await createOrUpdateFiles({ ctx, fileDtos });
+    const error2 = await createOrUpdateFiles({ ctx, fileDtos });
 
     if (error2) return;
 

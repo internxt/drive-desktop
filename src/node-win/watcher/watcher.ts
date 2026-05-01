@@ -1,23 +1,13 @@
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { processEvent } from './process-event';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '../addon-wrapper';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { onEvent } from './on-event';
 
-type Props = { ctx: ProcessSyncContext };
-
-export function initWatcher({ ctx }: Props) {
+export function initWatcher({ ctx }: { ctx: SyncContext }) {
   ctx.logger.debug({ msg: 'Setup watcher' });
 
   const handle = Addon.watchPath({
-    ctx,
-    onEvent: ({ event, path }) => {
-      if (event === 'error') {
-        ctx.logger.error({ msg: 'Error in watcher', event, error: path });
-        return;
-      }
-
-      void processEvent({ ctx, event, path: abs(path) });
-    },
+    rootPath: ctx.rootPath,
+    onEvent: (event) => onEvent({ ctx, event }),
   });
 
   return {

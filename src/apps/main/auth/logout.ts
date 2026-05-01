@@ -1,14 +1,16 @@
-import { setTrayStatus } from '../tray/tray';
-import { stopRemoteNotifications } from '../realtime';
-import { LocalSync } from '@/backend/features';
-import { remoteSyncManagers } from '../remote-sync/store';
-import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
-import { clearIssues } from '../background-processes/issues';
-import { closeAuxWindows } from '../windows';
-import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
-import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
+import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
+import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
+import { clearIssues } from '../background-processes/issues';
+import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { stopRemoteNotifications } from '../realtime';
+import { setTrayStatus } from '../tray/tray';
+import { closeAuxWindows } from '../windows';
+import { showFrontend } from '../windows/widget';
 import { setIsLoggedIn } from './handlers';
 
 type Props = {
@@ -17,26 +19,29 @@ type Props = {
 
 export function logout({ ctx }: Props) {
   try {
+    logger.debug({ tag: 'AUTH', msg: 'Drive API bottleneck jobs', jobs: ctx.driveApiBottleneck.counts() });
+    logger.debug({ tag: 'AUTH', msg: 'Upload bottleneck jobs', jobs: ctx.uploadBottleneck.counts() });
+    void ctx.driveApiBottleneck.stop({ dropWaitingJobs: true });
+    void ctx.uploadBottleneck.stop({ dropWaitingJobs: true });
     ctx.abortController.abort();
 
     setTrayStatus('IDLE');
 
-    setIsLoggedIn(false);
+    setIsLoggedIn(null);
     closeAuxWindows();
+    showFrontend();
 
     stopRemoteNotifications();
     LocalSync.SyncState.onLogout();
-    remoteSyncManagers.clear();
     clearAntivirus();
     clearIssues();
 
     void cleanSyncEngineWorkers();
-    AuthModule.logout();
+
+    saveConfig();
+    void DriveServerWipModule.auth.logout();
+    resetConfig();
   } catch (error) {
-    logger.error({
-      tag: 'AUTH',
-      msg: 'Error logging out',
-      error,
-    });
+    logger.error({ tag: 'AUTH', msg: 'Error logging out', error });
   }
 }

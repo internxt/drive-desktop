@@ -1,19 +1,21 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
-import { clientWrapper } from '../in/client-wrapper.service';
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
-import { getRequestKey } from '../in/get-in-flight-request';
-import { createFile } from './files/create-file';
-import { parseFileDto } from '../out/dto';
-import { move } from './files/move';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { clientWrapper } from '../in/client-wrapper.service';
+import { getRequestKey } from '../in/get-in-flight-request';
+import { parseFileDto } from '../out/dto';
+import { checkExistence } from './files/check-existence';
+import { createFile } from './files/create-file';
+import { move } from './files/move';
 
 export const files = {
   getFiles,
   createFile,
   move,
   replaceFile,
+  checkExistence,
   createThumbnail,
 };
 export const FileModule = files;
@@ -27,7 +29,7 @@ async function getFiles({ ctx, context, skipLog }: { ctx: CommonContext; context
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       signal: ctx.abortController.signal,
       params: { query: context.query },
     });
@@ -64,7 +66,7 @@ async function replaceFile({
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.PUT(endpoint, {
+    ctx.client.PUT(endpoint, {
       signal: ctx.abortController.signal,
       headers: getWorkspaceHeader({ ctx }),
       params: { path: { uuid: context.uuid } },
@@ -94,7 +96,7 @@ async function createThumbnail({ ctx, context }: { ctx: CommonContext; context: 
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.POST(endpoint, {
+    ctx.client.POST(endpoint, {
       signal: ctx.abortController.signal,
       headers: getWorkspaceHeader({ ctx }),
       body: context.body,

@@ -1,11 +1,10 @@
-import { client } from '@/apps/shared/HttpClient/client';
-import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { getRequestKey } from '../in/get-in-flight-request';
-import { createFile } from './workspaces/create-file';
-import { parseFileDto, parseFolderDto } from '../out/dto';
-import { createFolder } from './workspaces/create-folder';
 import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
+import { clientWrapper } from '../in/client-wrapper.service';
+import { getRequestKey } from '../in/get-in-flight-request';
+import { parseFileDto, parseFolderDto } from '../out/dto';
+import { createFile } from './workspaces/create-file';
+import { createFolder } from './workspaces/create-folder';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -25,7 +24,7 @@ async function getWorkspaces({ ctx }: { ctx: AuthContext }) {
   const endpoint = '/workspaces';
   const key = getRequestKey({ method, endpoint });
 
-  const promiseFn = () => client.GET(endpoint, { signal: ctx.abortController.signal });
+  const promiseFn = () => ctx.client.GET(endpoint, { signal: ctx.abortController.signal });
 
   return await clientWrapper({
     promiseFn,
@@ -40,7 +39,7 @@ async function getCredentials({ ctx, context }: { ctx: AuthContext; context: { w
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       signal: ctx.abortController.signal,
       params: { path: { workspaceId: context.workspaceId } },
     });
@@ -60,7 +59,7 @@ async function getFiles({ ctx, query, skipLog }: { ctx: SyncContext; query: Quer
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       signal: ctx.abortController.signal,
       params: {
         path: context.path,
@@ -90,7 +89,7 @@ async function getFolders({ ctx, query, skipLog }: { ctx: SyncContext; query: Qu
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       signal: ctx.abortController.signal,
       params: {
         path: context.path,

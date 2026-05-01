@@ -1,24 +1,25 @@
-import { ipcMain, powerSaveBlocker } from 'electron';
-import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
-import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
-import { createLogger, logger } from '@/apps/shared/logger/logger';
+import Bottleneck from 'bottleneck';
+import { ipcMain } from 'electron';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { getAvailableProducts } from '../../payments/get-available-products';
-import { getUser } from '../../auth/service';
-import { buildUserEnvironment } from './build-environment';
-import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { status } from './BackupsProcessStatus/BackupsProcessStatus';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
 import electronStore from '../../config';
+import { getBackupsFromDevice } from '../../device/get-backups-from-device';
+import { getOrCreateDevice } from '../../device/service';
+import { getAvailableProducts } from '../../payments/get-available-products';
+import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
+import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
+import { buildBackupsEnvironment } from './build-environment';
 
-export async function launchBackupProcesses(): Promise<void> {
-  const user = getUser();
+type Props = {
+  ctx: AuthContext;
+};
 
-  if (!user) return;
-
-  if (!status.isIn('STANDBY')) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
+export async function launchBackupProcesses({ ctx }: Props) {
+  if (tracker.status !== 'STANDBY') {
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status: tracker.status });
     return;
   }
 
@@ -30,19 +31,26 @@ export async function launchBackupProcesses(): Promise<void> {
     return;
   }
 
+  const { data: device } = await getOrCreateDevice();
+  if (!device) return;
+
+  const bottleneck = new Bottleneck({ maxConcurrent: 4 });
   const abortController = new AbortController();
 
-  ipcMain.once('stop-backups-process', () => {
-    logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
+  ctx.abortController.signal.addEventListener('abort', () => {
     abortController.abort();
-    status.set('STOPPING');
   });
 
-  status.set('RUNNING');
+  ipcMain.once('stop-backups-process', () => {
+    logger.debug({ tag: 'BACKUPS', msg: 'Backups bottleneck jobs', jobs: bottleneck.counts() });
+    void bottleneck.stop({ dropWaitingJobs: true });
+    abortController.abort();
+    tracker.setStatus('STOPPING');
+  });
 
-  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
+  tracker.setStatus('RUNNING');
 
-  const backups = await backupsConfig.obtainBackupsInfo();
+  const backups = await getBackupsFromDevice(device, true);
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
@@ -60,11 +68,12 @@ export async function launchBackupProcesses(): Promise<void> {
       break;
     }
 
-    const { environment } = buildUserEnvironment({ user, type: 'backups' });
+    const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
       ...backupInfo,
-      userUuid: user.uuid,
-      bucket: user.backupsBucket,
+      ...ctx,
+      backupsBottleneck: bottleneck,
+      bucket: device.bucket,
       workspaceId: '',
       workspaceToken: '',
       environment,
@@ -80,16 +89,19 @@ export async function launchBackupProcesses(): Promise<void> {
 
     tracker.backing();
 
-    await executeBackupWorker(tracker, context);
+    await executeBackupWorker(context);
   }
 
-  status.set('STANDBY');
+  tracker.setStatus('STANDBY');
 
   tracker.reset();
   electronStore.set('lastBackup', Date.now());
-  BackupScheduler.start();
+  BackupScheduler.start({ ctx });
 
   ipcMain.removeAllListeners('stop-backups-process');
 
-  powerSaveBlocker.stop(suspensionBlockId);
+  logger.debug({
+    tag: 'BACKUPS',
+    msg: 'Backup finished',
+  });
 }

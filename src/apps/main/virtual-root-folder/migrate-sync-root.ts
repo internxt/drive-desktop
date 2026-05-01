@@ -1,7 +1,7 @@
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import { existsSync } from 'node:fs';
-import { electronStore } from '../config';
 import { rename } from 'node:fs/promises';
+import { electronStore } from '../config';
 
 type Props = { oldSyncRoot: AbsolutePath; newSyncRoot: AbsolutePath };
 

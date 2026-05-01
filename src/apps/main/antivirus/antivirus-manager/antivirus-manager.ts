@@ -1,5 +1,5 @@
-import { AntivirusType, AntivirusEngine } from './types';
 import { getActiveEngine } from './get-active-antivirus-engine';
+import { AntivirusType, AntivirusEngine } from './types';
 
 export class AntivirusManager {
   static instance: AntivirusManager | null = null;

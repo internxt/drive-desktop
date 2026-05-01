@@ -1,14 +1,8 @@
-import { logger } from '@/apps/shared/logger/logger';
-import Bottleneck from 'bottleneck';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createReadStream } from 'node:fs';
-import { uploadFile } from './upload-file';
-import { LocalSync } from '@/backend/features';
 import { CommonContext } from '@/apps/sync-engine/config';
-
-const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
-
-const limiter = new Bottleneck({ maxConcurrent: 4 });
+import { LocalSync } from '@/backend/features';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { uploadFile } from './upload-file';
 
 type TProps = {
   ctx: CommonContext;
@@ -16,27 +10,23 @@ type TProps = {
   size: number;
 };
 
-export class EnvironmentFileUploader {
-  static upload({ ctx, path, size }: TProps) {
-    const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
+export async function environmentFileUpload({ ctx, path, size }: TProps) {
+  const abortController = new AbortController();
 
-    logger.debug({
-      msg: 'Uploading file to the bucket',
-      path,
-      size,
-      bucket: ctx.bucket,
-      useMultipartUpload,
-    });
-
-    const readable = createReadStream(path);
-    const fn = useMultipartUpload ? ctx.environment.uploadMultipartFile.bind(ctx.environment) : ctx.environment.upload;
-
-    LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
-
-    return uploadFile({ ctx, fn, readable, size, path });
+  function onAbort() {
+    ctx.logger.debug({ msg: 'Aborting upload', path });
+    abortController.abort();
   }
 
-  static async run(props: TProps) {
-    return await limiter.schedule(() => this.upload(props));
-  }
+  ctx.abortController.signal.addEventListener('abort', onAbort);
+
+  LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
+
+  const readable = createReadStream(path);
+  const contentsId = await uploadFile({ ctx, readable, size, path, abortController });
+
+  readable.close();
+  ctx.abortController.signal.removeEventListener('abort', onAbort);
+
+  return contentsId;
 }

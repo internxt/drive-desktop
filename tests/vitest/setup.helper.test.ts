@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { cwd } from 'node:process';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 const TEST_FILES = join(abs(cwd()), 'test-files');
 
@@ -25,6 +25,7 @@ vi.mock(import('electron'), () => {
     },
     nativeImage: {
       createFromPath: vi.fn(),
+      createThumbnailFromPath: vi.fn(),
     },
     shell: {
       openPath: vi.fn(),

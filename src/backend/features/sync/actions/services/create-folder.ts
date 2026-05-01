@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { basename } from 'node:path';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { basename } from 'node:path';
 
 type Props = {
   ctx: CommonContext;
@@ -23,9 +23,15 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
     parentFolderUuid: parentUuid,
   };
 
-  const res = ctx.workspaceId
+  let res = ctx.workspaceId
     ? await driveServerWip.workspaces.createFolder({ ctx, context: { path, body } })
     : await driveServerWip.folders.createFolder({ ctx, context: { path, body } });
+
+  if (res.error?.code === 'FOLDER_ALREADY_EXISTS') {
+    res = await driveServerWip.folders.checkExistence({ ctx, context: { parentUuid, name } });
+  }
+
+  if (res.error?.code === 'ABORTED') return;
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });

@@ -1,7 +1,8 @@
-import { getOnboardingWindow } from './onboarding';
-import { getWidget } from './widget';
+import { electronStore } from '../config';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
+import { getOnboardingWindow } from './onboarding';
+import { getWidget } from './widget';
 
 export function closeAuxWindows() {
   getOnboardingWindow()?.destroy();
@@ -16,6 +17,7 @@ export function broadcastToWindows({ name, data }: BroadcastToWindows) {
 }
 
 export async function finishOnboarding() {
-  window?.close();
+  electronStore.set('lastOnboardingShown', new Date().toISOString());
+  getOnboardingWindow()?.close();
   await openVirtualDriveRootFolder();
 }

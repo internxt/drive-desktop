@@ -46,4 +46,6 @@ export type CustomIpc<EmittedEvents extends CustomIPCEvents, ListenedEvents exte
       ...args: Parameters<NonVoidReturnHandler<ListenedEvents>[Event]>
     ) => ReturnType<ListenedEvents[Event]> | Promise<ReturnType<ListenedEvents[Event]>>,
   ): void;
+
+  removeHandler<Event extends keyof NonVoidReturnHandler<ListenedEvents>>(event: Event): void;
 };

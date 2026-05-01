@@ -1,11 +1,11 @@
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { createPendingFiles } from './create-pending-files';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as createFile from './create-file';
-import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
+import { GetFileInfoError } from '@/infra/node-win/services/get-file-info';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as createFile from './create-file';
+import { createPendingFiles } from './create-pending-files';
 
 describe('create-pending-files', () => {
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');

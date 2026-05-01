@@ -1,5 +1,5 @@
-import { INTERNXT_CLIENT } from '@/core/utils/utils';
 import { z } from 'zod';
+import { INTERNXT_CLIENT } from '@/core/utils/utils';
 
 const EVENT = z.object({
   email: z.string(),

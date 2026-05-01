@@ -1,6 +1,7 @@
+import { Environment } from '@internxt/inxt-js';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { InxtJs } from '@/infra';
-import { Environment } from '@internxt/inxt-js';
+import { Device } from '../../device/service';
 import { User } from '../../types';
 
 type Props = {
@@ -28,9 +29,18 @@ export function buildEnvironment({ bridgeUser, bridgePass, mnemonic, bucket }: P
   return { environment, contentsDownloader };
 }
 
-export function buildUserEnvironment({ user, type }: { user: User; type: 'drive' | 'backups' }) {
+export function buildDriveEnvironment({ user }: { user: User }) {
   return buildEnvironment({
-    bucket: type === 'drive' ? user.bucket : user.backupsBucket,
+    bucket: user.bucket,
+    mnemonic: user.mnemonic,
+    bridgeUser: user.bridgeUser,
+    bridgePass: user.userId,
+  });
+}
+
+export function buildBackupsEnvironment({ user, device }: { user: User; device: Device }) {
+  return buildEnvironment({
+    bucket: device.bucket,
     mnemonic: user.mnemonic,
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,

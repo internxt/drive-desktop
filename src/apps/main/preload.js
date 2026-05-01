@@ -53,9 +53,6 @@ var api = {
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
   },
-  getUser() {
-    return import_electron2.ipcRenderer.invoke("get-user");
-  },
   onSyncInfoUpdate(func) {
     const eventName = "sync-info-update";
     const callback = (_, v) => func(v);
@@ -79,12 +76,6 @@ var api = {
   },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
-  },
-  setBackupsInterval(value) {
-    return import_electron2.ipcRenderer.invoke("set-backups-interval", value);
-  },
-  startBackupsProcess() {
-    import_electron2.ipcRenderer.send("start-backups-process");
   },
   stopBackupsProcess() {
     import_electron2.ipcRenderer.send("stop-backups-process");
@@ -195,12 +186,14 @@ var api = {
   getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
   setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props),
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
-  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
+  driveChooseSyncRootWithDialog: async (props) => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog", props),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
   downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
-  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props)
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props),
+  backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
+  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

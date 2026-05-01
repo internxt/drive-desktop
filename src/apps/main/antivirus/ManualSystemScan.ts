@@ -1,11 +1,11 @@
-import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
-import eventBus from '../event-bus';
+import { homedir } from 'node:os';
+import { logger } from '@/apps/shared/logger/logger';
+import { sendAntivirusProgress } from '../windows/widget';
 import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { AntivirusEngine } from './antivirus-manager/types';
-import { isPermissionError } from './utils/isPermissionError';
-import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
+import { isPermissionError } from './utils/isPermissionError';
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -87,7 +87,7 @@ class ManualSystemScan {
     if (currentSession !== this.scanSessionId) return;
 
     if (this.progressEvents.length > 0) {
-      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+      sendAntivirusProgress({
         ...(this.progressEvents.pop() as ProgressData),
         done: true,
       });
@@ -120,7 +120,7 @@ class ManualSystemScan {
 
     reportProgressInterval = setInterval(() => {
       if (this.progressEvents.length > 0) {
-        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+        sendAntivirusProgress({
           ...(this.progressEvents.pop() as ProgressData),
         });
         this.progressEvents = [];
@@ -155,9 +155,7 @@ class ManualSystemScan {
 
     try {
       if (!pathNames || pathNames.length === 0) {
-        const userSystemPath = await getUserSystemPath();
-        if (!userSystemPath) return;
-        pathNames = [userSystemPath.path];
+        pathNames = [homedir()];
       }
 
       const promises = pathNames.map((p) => getFilesFromDirectory({ rootFolder: p }));
@@ -172,7 +170,7 @@ class ManualSystemScan {
         totalFiles: allFilePaths.length,
       });
 
-      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+      sendAntivirusProgress({
         totalScannedFiles: 0,
         infectedFiles: [],
         currentScanPath: '',

@@ -11,7 +11,7 @@ export function validateWindowsName({ path, name }: TProps) {
    * v2.5.3 Daniel Jiménez
    * These characters are invalid in windows paths.
    */
-  const forbiddenPattern = /[<>:"/\\|?*]/;
+  const forbiddenPattern = /[<>:"/\\|?*]|^\s|\s$/;
   const isValid = !forbiddenPattern.test(name);
 
   if (!isValid) {

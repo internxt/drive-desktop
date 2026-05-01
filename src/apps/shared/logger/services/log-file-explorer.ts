@@ -1,10 +1,10 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { writeFile } from 'node:fs/promises';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { writeFile } from 'node:fs/promises';
 
 type Props = {
   ctx: SyncContext;
@@ -26,7 +26,7 @@ export async function logFileExplorer({ ctx }: Props) {
       if (fileInfo) {
         files.push([rPath, fileInfo.placeholderId, fileInfo.pinState, fileInfo.inSyncState, stats.size, fileInfo.onDiskSize].join(','));
       } else {
-        files.push([rPath].join(','));
+        files.push([rPath, '', '', '', stats.size].join(','));
       }
     });
 

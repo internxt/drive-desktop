@@ -1,7 +1,7 @@
-import { ShieldCheck, ShieldWarning } from 'phosphor-react';
-import Button from '../../../../components/Button';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { TranslationFn } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { ShieldCheck, ShieldWarning } from 'phosphor-react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Button from '../../../../components/Button';
 
 interface ScanStateProps {
   isScanning: boolean;
@@ -135,7 +135,7 @@ export const ScanState = ({
 
   return (
     <section className="flex w-full flex-col items-center justify-center">
-      <div className="flex h-full max-h-[320px] w-full max-w-[590px] flex-col items-center justify-center gap-10 p-5">
+      <div className="flex h-full w-full max-w-[590px] flex-col items-center justify-center gap-10 p-5">
         {countFiles && (
           <div className="flex flex-col items-center gap-4">
             <p className="text-lg">{translate('settings.antivirus.scanProcess.countingFiles')}</p>

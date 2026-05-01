@@ -6,6 +6,11 @@ struct WatcherContext {
 };
 
 struct WatcherEvent {
+    std::string action;
+    std::wstring path;
     std::string type;
-    std::string path;
+    uint64_t internalId;  // Internal fileId
+    uint64_t size;
+    double ctimeMs;  // LastChangeTime as Unix milliseconds
+    double mtimeMs;  // LastModificationTime as Unix milliseconds
 };

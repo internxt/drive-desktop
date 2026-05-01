@@ -9,6 +9,6 @@ describe('get-dimensions', () => {
     });
     // Then
     expect(positions).toStrictEqual({ x: 250, y: 300 });
-    expect(bounds).toStrictEqual({ left: 0, top: 0, right: 500, bottom: 600 });
+    expect(bounds).toStrictEqual({ left: 0, top: 0, right: 500, bottom: 700 });
   });
 });

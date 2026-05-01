@@ -8,11 +8,11 @@
 
 napi_value unregister_sync_root_wrapper(napi_env env, napi_callback_info info)
 {
-    auto [providerId] = napi_extract_args<std::wstring>(env, info);
+    auto [id] = napi_extract_args<std::wstring>(env, info);
 
     return run_async(
         env,
         "UnregisterSyncRootAsync",
         winrt::StorageProviderSyncRootManager::Unregister,
-        std::move(providerId));
+        std::move(id));
 }

@@ -12,12 +12,12 @@ type Props = {
 
 export async function createPendingFiles({ ctx, files, parentUuid }: Props) {
   await Promise.all(
-    files.map(async ({ path, stats }) => {
+    files.map(async ({ path }) => {
       const { error } = await NodeWin.getFileInfo({ path });
 
       if (error) {
         if (error.code === 'NOT_A_PLACEHOLDER') {
-          await createFile({ ctx, path, parentUuid, stats });
+          await createFile({ ctx, path, parentUuid });
         } else {
           ctx.logger.error({ msg: 'Error getting file info', path, error });
         }

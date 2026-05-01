@@ -1,9 +1,9 @@
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Sync } from '@/backend/features/sync';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Addon } from '@/node-win/addon-wrapper';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolder } from './create-folder';
-import { Addon } from '@/node-win/addon-wrapper';
-import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Sync } from '@/backend/features/sync';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as createPendingItems from './create-pending-items';
 
 describe('create-folder', () => {

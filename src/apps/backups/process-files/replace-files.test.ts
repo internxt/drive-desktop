@@ -1,40 +1,41 @@
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { replaceFiles } from './replace-files';
 import { Sync } from '@/backend/features/sync';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as scheduleRequest from '../schedule-request';
+import { replaceFiles } from './replace-files';
 
 describe('replace-files', () => {
+  const scheduleRequestMock = partialSpyOn(scheduleRequest, 'scheduleRequest');
   const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
 
   let props: Parameters<typeof replaceFiles>[0];
 
   beforeEach(() => {
+    scheduleRequestMock.mockImplementation(async ({ fn }) => {
+      await fn();
+    });
+
     props = mockProps<typeof replaceFiles>({
-      self: { backed: 0 },
-      tracker: { currentProcessed: vi.fn() },
-      modified: [{ local: { stats: {} }, remote: { uuid: 'uuid' as FileUuid } }],
+      modified: [{ local: { path: abs('/file.txt') }, remote: {} }],
     });
   });
 
-  it('should increase backed if there is an error', async () => {
+  it('should log if there is an error', async () => {
     // Given
-    replaceFileMock.mockRejectedValue(new Error());
+    scheduleRequestMock.mockRejectedValue(new Error());
     // When
     await replaceFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
     calls(loggerMock.error).toHaveLength(1);
   });
 
-  it('should increase backed if file is replaced', async () => {
+  it('should replace file', async () => {
     // Given
     replaceFileMock.mockResolvedValue({});
     // When
     await replaceFiles(props);
     // Then
-    expect(props.self.backed).toBe(1);
-    calls(props.tracker.currentProcessed).toHaveLength(1);
+    call(replaceFileMock).toMatchObject({ path: '/file.txt' });
   });
 });

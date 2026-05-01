@@ -1,8 +1,8 @@
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as authServiceModule from '@/apps/main/auth/service';
-import { saveConfig } from './save-config';
-import { fieldsToSave } from '@/core/electron/store/defaults';
 import electronStore from '@/apps/main/config';
+import { fieldsToSave } from '@/core/electron/store/defaults';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { saveConfig } from './save-config';
 
 describe('saveConfig', () => {
   const getUserMock = partialSpyOn(authServiceModule, 'getUser');

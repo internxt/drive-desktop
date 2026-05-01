@@ -1,9 +1,9 @@
-import { createEngine } from './create-antivirus-engine';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
-import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AntivirusClamAV } from '../antivirus-clam-av';
+import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
+import { createEngine } from './create-antivirus-engine';
 
 describe('createEngine', () => {
   const mockDefenderInstance = mockDeep<AntivirusWindowsDefender>();

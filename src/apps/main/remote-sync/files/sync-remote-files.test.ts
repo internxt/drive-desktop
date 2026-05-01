@@ -1,8 +1,8 @@
 import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { syncRemoteFiles } from './sync-remote-files';
 import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { syncRemoteFiles } from './sync-remote-files';
 
 describe('sync-remote-files', () => {
   const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
@@ -13,7 +13,7 @@ describe('sync-remote-files', () => {
 
   beforeEach(() => {
     getFilesMock.mockResolvedValue({ data: [] });
-    createOrUpdateFilesMock.mockResolvedValue({ data: [] });
+    createOrUpdateFilesMock.mockResolvedValue(undefined);
   });
 
   it('should not fetch again if we fetch less than 1000 files', async () => {
@@ -61,7 +61,7 @@ describe('sync-remote-files', () => {
 
   it('should not update checkpoint if save to database fails', async () => {
     // Given
-    createOrUpdateFilesMock.mockResolvedValue({ error: new Error() });
+    createOrUpdateFilesMock.mockResolvedValue(new Error());
     // When
     await syncRemoteFiles({ ctx });
     // Then

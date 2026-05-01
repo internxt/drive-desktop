@@ -1,36 +1,71 @@
-import { folderRepository } from '../drive-folder';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call } from '@/tests/vitest/utils.helper.test';
+import { db, runMigrations } from '../../migrations/run-migrations';
+import { DriveFolder } from '../../schema';
+import { upsertQuery } from './queries';
 import { updateByUuid } from './update-by-uuid';
 
 describe('update-by-uuid', () => {
-  const updateSpy = partialSpyOn(folderRepository, 'update');
+  const date = new Date().toISOString();
+  const folder: DriveFolder = {
+    uuid: 'uuid',
+    id: 1,
+    status: 'EXISTS',
+    plainName: 'folder',
+    parentUuid: 'parentUuid',
+    parentId: 0,
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+    createdAt: date,
+    updatedAt: date,
+  };
 
-  const props = mockProps<typeof updateByUuid>({ payload: {} });
+  let props: Parameters<typeof updateByUuid>[0];
 
-  it('should return NOT_FOUND when no folder has been affected', async () => {
-    // Given
-    updateSpy.mockResolvedValue({ affected: 0 });
+  beforeAll(() => {
+    runMigrations();
+  });
+
+  afterAll(() => {
+    db.close();
+  });
+
+  beforeEach(() => {
+    db.exec('DELETE FROM drive_folder');
+
+    props = {
+      uuid: 'uuid' as FolderUuid,
+      payload: { status: 'EXISTS' },
+    };
+  });
+
+  it('should return NOT_FOUND when no folder has been affected', () => {
     // When
-    const { error } = await updateByUuid(props);
+    const { error } = updateByUuid(props);
     // Then
     expect(error?.code).toBe('NOT_FOUND');
   });
 
-  it('should return UNKNOWN when error is thrown', async () => {
+  it('should update folder status and return affected count', () => {
     // Given
-    updateSpy.mockRejectedValue(new Error());
+    db.prepare(upsertQuery).run(folder);
+    props.payload = { status: 'TRASHED' };
     // When
-    const { error } = await updateByUuid(props);
+    const { data } = updateByUuid(props);
     // Then
-    expect(error?.code).toBe('UNKNOWN');
+    expect(data).toBe(1);
+    expect({ ...db.prepare(`SELECT status FROM drive_folder WHERE uuid = 'uuid'`).get() }).toStrictEqual({ status: 'TRASHED' });
   });
 
-  it('should return the number of folders affected', async () => {
+  it('should return UNKNOWN when error is thrown', () => {
     // Given
-    updateSpy.mockResolvedValue({ affected: 1 });
+    db.prepare(upsertQuery).run(folder);
+    props.payload = { status: null as any };
     // When
-    const { data } = await updateByUuid(props);
+    const { error } = updateByUuid(props);
     // Then
-    expect(data).toBeDefined();
+    expect(error?.code).toBe('UNKNOWN');
+    call(loggerMock.error).toMatchObject({ exc: { message: 'NOT NULL constraint failed: drive_folder.status' } });
   });
 });

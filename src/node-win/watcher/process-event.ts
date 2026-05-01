@@ -1,35 +1,48 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { onUnlink } from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
-import { stat } from 'node:fs/promises';
-import { onAdd } from './events/on-add.service';
+import { Watcher } from '../addon';
 import { onAddDir } from './events/on-add-dir.service';
-import { debounceOnRaw } from './events/debounce-on-raw';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { onChange } from './events/on-change';
 
 type Props = {
   ctx: ProcessSyncContext;
-  event: 'create' | 'update' | 'delete';
   path: AbsolutePath;
+  event: Watcher.SuccessEvent;
 };
+
+// We receive a delete event when:
+// - delete a file or a folder.
+
+// We receive a create event when:
+// - create an empty file.
+// - create a folder.
+// - move a file or a folder.
+
+// We receive an update event when:
+// - create a file with content.
+// - hydrate or dehydrate file or folder.
+// - modify a file (we may lose the placeholderId). We can recreate this use case by editing
+// an image with Paint.
+
+// We receive a rename_old and rename_new event when:
+// - rename a file or a folder.
+// - modify a file (we may lose the placeholderId).
 
 export async function processEvent({ ctx, event, path }: Props) {
   try {
-    if (event === 'delete') {
-      await onUnlink({ ctx, path });
+    if (event.action === 'delete') {
+      await onUnlink({ ctx, path, type: event.type });
       return;
     }
 
-    const stats = await stat(path);
-
-    if (event === 'update' && stats.isFile()) {
-      debounceOnRaw({ ctx, path, stats });
+    if (event.type === 'file' && event.action !== 'rename_old') {
+      await onChange({ ctx, event, path });
       return;
     }
 
-    if (event === 'create') {
-      if (stats.isFile()) {
-        await onAdd({ ctx, path, stats });
-      } else if (stats.isDirectory()) {
+    if (event.type === 'folder') {
+      if (event.action === 'create' || event.action === 'rename_new') {
         await onAddDir({ ctx, path });
       }
     }

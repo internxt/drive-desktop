@@ -1,10 +1,10 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { Stats } from 'node:fs';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Drive } from '../../drive';
 
 type Props = {
@@ -54,7 +54,7 @@ export async function checkIfModified({ ctx, remote, local, isFirstExecution }: 
     if (!fileInfo) return;
 
     if (localSize === fileInfo.onDiskSize) {
-      await Drive.Actions.replaceFile({ ctx, stats: local.stats, path, uuid: remote.uuid });
+      await Drive.Actions.replaceFile({ ctx, path, uuid: remote.uuid });
     } else {
       ctx.logger.error({
         msg: 'Cannot update file contents id, not hydrated',

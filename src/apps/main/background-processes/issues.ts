@@ -1,24 +1,24 @@
 import { ipcMain } from 'electron';
-import { showNotEnoughSpaceNotification } from './process-issues';
 import { broadcastToWindows } from '../windows';
+import { showNotEnoughSpaceNotification } from './process-issues';
 
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'ABORTED' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
+  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
 };
 
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error: 'CREATE_FOLDER_FAILED' | 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | 'FOLDER_DOES_NOT_EXIST';
+  error: 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED';
 };
 
 export type GeneralIssue = {
   tab: 'general';
   name: string;
-  error: 'NOT_ENOUGH_SPACE' | 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
+  error: 'NOT_ENOUGH_SPACE' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
 };
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
@@ -70,14 +70,22 @@ export function setupIssueHandlers() {
   ipcMain.handle('get-issues', () => issues);
 }
 
-export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
+function removeIssue(issue: Issue) {
   const initialLength = issues.length;
 
   issues = issues.filter((i) => {
-    return !(i.tab === 'general' && i.error === issue.error);
+    return !(i.tab === issue.tab && i.error === issue.error && i.name === issue.name);
   });
 
   if (issues.length < initialLength) {
     onIssuesChanged();
   }
+}
+
+export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
+  removeIssue({ ...issue, tab: 'sync' });
+}
+
+export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
+  removeIssue({ ...issue, tab: 'general' });
 }

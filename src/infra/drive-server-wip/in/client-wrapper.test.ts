@@ -1,11 +1,11 @@
 import { mockProps } from 'tests/vitest/utils.helper.test';
-import { clientWrapper } from './client-wrapper.service';
-import { handleRemoveErrors } from './helpers/error-helpers';
-import { errorWrapper } from './error-wrapper';
-import { DriveServerWipError } from '../defs';
 import { sleep } from '@/apps/main/util';
+import { DriveServerWipError } from '../defs';
+import { clientWrapper } from './client-wrapper.service';
+import { errorWrapper } from './error-wrapper';
 import { exceptionWrapper } from './exception-wrapper';
 import { getInFlightRequest } from './get-in-flight-request';
+import { handleRemoveErrors } from './helpers/error-helpers';
 
 vi.mock(import('./error-wrapper'));
 vi.mock(import('./exception-wrapper'));
@@ -20,7 +20,7 @@ describe('client-wrapper', () => {
   const sleepMock = vi.mocked(sleep);
   const getInFlightRequestMock = vi.mocked(getInFlightRequest);
 
-  const response = {} as unknown as Response;
+  const response = { headers: new Map() } as unknown as Response;
 
   beforeEach(() => {
     getInFlightRequestMock.mockImplementation(({ promiseFn }) => ({ reused: false, promise: promiseFn() }));

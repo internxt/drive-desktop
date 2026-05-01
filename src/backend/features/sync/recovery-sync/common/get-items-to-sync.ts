@@ -1,22 +1,13 @@
 import { ParsedFileDto, ParsedFolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FileProps, FolderProps } from '../recovery-sync.types';
 import { isItemToSync } from './is-item-to-sync';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = FileProps | FolderProps;
 
-export async function getItemsToSync(props: FolderProps): Promise<ParsedFolderDto[]>;
-export async function getItemsToSync(props: FileProps): Promise<ParsedFileDto[]>;
+export function getItemsToSync(props: FolderProps): ParsedFolderDto[];
+export function getItemsToSync(props: FileProps): ParsedFileDto[];
 
-export async function getItemsToSync({ ctx, type, remotes, locals }: Props) {
-  const { data: checkpoint } = await SqliteModule.CheckpointModule.getCheckpoint({
-    userUuid: ctx.userUuid,
-    workspaceId: ctx.workspaceId,
-    type,
-  });
-
-  if (!checkpoint) return [];
-
+export function getItemsToSync({ ctx, type, remotes, locals, checkpoint }: Props) {
   const checkpointDate = new Date(checkpoint.updatedAt);
 
   const localsMap = new Map(locals.map((file) => [file.uuid, file]));

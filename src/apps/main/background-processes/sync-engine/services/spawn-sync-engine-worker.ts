@@ -1,34 +1,32 @@
-import { SyncContext } from '@/apps/sync-engine/config';
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
-import { scheduleSync } from './schedule-sync';
-import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { Addon } from '@/node-win/addon-wrapper';
-import { addSyncIssue } from '../../issues';
-import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
-import { initWatcher } from '@/node-win/watcher/watcher';
-import { VirtualDrive } from '@/node-win/virtual-drive';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { refreshWorkspaceToken } from '@/apps/sync-engine/refresh-workspace-token';
+import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import { initWatcher } from '@/node-win/watcher/watcher';
+import { loadVirtualDrive } from './load-virtual-drive';
+import { scheduleSync } from './schedule-sync';
 
 type TProps = {
   ctx: SyncContext;
 };
 
 export async function spawnSyncEngineWorker({ ctx }: TProps) {
-  ctx.logger.debug({ msg: 'Spawn sync engine worker' });
-
-  let connectionKey: bigint;
+  ctx.logger.debug({ msg: 'Spawn sync engine worker', rootUuid: ctx.rootUuid });
 
   try {
-    try {
-      await VirtualDrive.createSyncRootFolder({ rootPath: ctx.rootPath });
-      await Addon.registerSyncRoot({ rootPath: ctx.rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
-      connectionKey = Addon.connectSyncRoot({ ctx });
-    } catch (error) {
-      addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: ctx.rootPath });
-      throw error;
-    }
+    const connectionKey = await loadVirtualDrive({ ctx });
+    if (!connectionKey) return;
+
+    const worker: WorkerConfig = {
+      ctx,
+      connectionKey,
+      syncSchedule: scheduleSync({ ctx }),
+      workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
+    };
+
+    workers.set(ctx.workspaceId, worker);
 
     /**
      * Jonathan Arce v2.5.1
@@ -39,6 +37,8 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      */
     await refreshItemPlaceholders({ ctx, isFirstExecution: true });
 
+    worker.watcher = initWatcher({ ctx });
+
     /**
      * v2.5.7 Daniel Jiménez
      * If the cloud provider was not registered before it means that all items that
@@ -46,18 +46,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * all item placeholders and then execute this function.
      */
     void addPendingItems({ ctx });
-
-    const manager = addRemoteSyncManager({ context: ctx });
-
-    const worker: WorkerConfig = {
-      ctx,
-      connectionKey,
-      syncSchedule: scheduleSync({ ctx, manager }),
-      watcher: initWatcher({ ctx }),
-      workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
-    };
-
-    workers.set(ctx.workspaceId, worker);
 
     /**
      * v2.5.6 Daniel Jiménez

@@ -1,0 +1,61 @@
+name: Windows E2E testing
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e_tests:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Create .env file
+        shell: bash
+        env:
+          ANALYZE: ${{ vars.ANALYZE }}
+          BRIDGE_URL: ${{ vars.BRIDGE_URL }}
+          DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
+          DRIVE_URL: ${{ vars.DRIVE_URL }}
+          NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
+          NOTIFICATIONS_URL: ${{ vars.NOTIFICATIONS_URL }}
+          PAYMENTS_URL: ${{ vars.PAYMENTS_URL }}
+          PORT: ${{ vars.PORT }}
+          SM_API_KEY: ${{ secrets.SM_API_KEY }}
+          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+          SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
+          E2E_TEST_USER: ${{ secrets.E2E_TEST_USER }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+        run: |
+          echo "ANALYZE=$ANALYZE" > .env
+          echo "BRIDGE_URL=$BRIDGE_URL" >> .env
+          echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
+          echo "DRIVE_URL=$DRIVE_URL" >> .env
+          echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
+          echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL" >> .env
+          echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
+          echo "PORT=$PORT" >> .env
+          echo "SM_API_KEY=$SM_API_KEY" >> .env
+          echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
+          echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
+          echo "E2E_TEST_USER=$E2E_TEST_USER" >> .env
+          echo "E2E_TEST_PASSWORD=$E2E_TEST_PASSWORD" >> .env
+
+      - name: Install dependencies and build
+        run: npm run init:e2e
+
+      - name: Install Playwright browsers
+        run: npx playwright install
+
+      - name: Run tests
+        run: npm run test:e2e

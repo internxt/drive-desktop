@@ -1,8 +1,8 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { handleDehydrate } from './handle-dehydrate';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { handleDehydrate } from './handle-dehydrate';
 
 describe('handle-dehydrate', () => {
   const dehydrateFileMock = partialSpyOn(Addon, 'dehydrateFile');

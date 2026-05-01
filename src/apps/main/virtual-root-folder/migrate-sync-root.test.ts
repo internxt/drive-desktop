@@ -1,10 +1,10 @@
-import { existsSync } from 'node:fs';
-import { migrateSyncRoot } from './migrate-sync-root';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { electronStore } from '../config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { existsSync } from 'node:fs';
 import { rename } from 'node:fs/promises';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { electronStore } from '../config';
+import { migrateSyncRoot } from './migrate-sync-root';
 
 vi.mock(import('node:fs'));
 vi.mock(import('node:fs/promises'));

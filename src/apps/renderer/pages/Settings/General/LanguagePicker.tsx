@@ -1,6 +1,6 @@
+import { Language } from '@/apps/main/config/language.types';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { Language } from '@/apps/main/config/language.types';
 
 export function LanguagePicker() {
   const { translate, language } = useI18n();
@@ -17,6 +17,10 @@ export function LanguagePicker() {
     {
       value: 'fr',
       name: translate('settings.general.language.options.fr'),
+    },
+    {
+      value: 'de',
+      name: translate('settings.general.language.options.de'),
     },
   ];
 

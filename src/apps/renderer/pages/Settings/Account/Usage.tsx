@@ -1,8 +1,8 @@
+import { WarningCircle } from '@phosphor-icons/react';
 import bytes from 'bytes';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { Usage as UsageType } from '../../../../main/usage/Usage';
 import Button from '../../../components/Button';
-import { WarningCircle } from '@phosphor-icons/react';
-import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInBytes }: UsageType) {
   const { translate } = useI18n();

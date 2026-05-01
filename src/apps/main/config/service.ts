@@ -1,9 +1,9 @@
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { Language } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 import { AppStore } from '@/core/electron/store/app-store.interface';
 import store from '../config';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { broadcastTheme } from './theme';
-import { Language } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 import { broadcastLanguage } from './language';
+import { broadcastTheme } from './theme';
 import { ConfigTheme } from './theme.types';
 
 export type StoredValues = keyof AppStore;

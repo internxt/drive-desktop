@@ -1,5 +1,6 @@
-import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import Bottleneck from 'bottleneck';
 import { z } from 'zod';
+import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 
 /*
  * v2.5.3
@@ -23,12 +24,12 @@ import { z } from 'zod';
  *     code: 'ENOTFOUND'
  */
 export const fetchExceptionSchema = z.object({
-  code: z.string().optional(),
   message: z.string().optional(),
-  cause: z.object({ code: z.string().optional() }).optional(),
+  cause: z.object({ code: z.string() }),
 });
 
 const errorCodes = [
+  'EAI_AGAIN',
   'ENOTFOUND',
   'ECONNREFUSED',
   'ETIMEDOUT',
@@ -57,17 +58,9 @@ export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
   const parsedError = fetchExceptionSchema.safeParse(exc);
   if (!parsedError.success) return false;
 
-  const { code, message, cause } = parsedError.data;
+  const { cause } = parsedError.data;
 
-  if (code && errorCodes.includes(code)) {
-    return true;
-  }
-
-  if (cause?.code && errorCodes.includes(cause.code)) {
-    return true;
-  }
-
-  return !!(message && message.includes('Failed to fetch'));
+  return errorCodes.includes(cause.code);
 }
 
 export function isServerError({ response: { status } }: { response: Response }): boolean {
@@ -75,8 +68,15 @@ export function isServerError({ response: { status } }: { response: Response }):
   return status >= 500 && status < 600;
 }
 
-export function isAbortError({ exc }: { exc: unknown }): boolean {
-  return exc instanceof DOMException && exc.name === 'AbortError';
+export function isAbortError({ error }: { error: unknown }): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
+export function isBottleneckStop({ error }: { error: unknown }): boolean {
+  return (
+    error instanceof Bottleneck.BottleneckError &&
+    (error.message === 'This limiter has been stopped.' || error.message === 'This limiter has been stopped and cannot accept new jobs.')
+  );
 }
 
 export function handleRemoveErrors() {

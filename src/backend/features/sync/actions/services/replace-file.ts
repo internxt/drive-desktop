@@ -1,22 +1,20 @@
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { CommonContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { Stats } from 'node:fs';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { uploadFile } from './upload-file';
 
 type Props = {
   ctx: CommonContext;
   path: AbsolutePath;
   uuid: FileUuid;
-  stats: Stats;
 };
 
-export async function replaceFile({ ctx, path, stats: { size, mtime }, uuid }: Props) {
-  const upload = await uploadFile({ ctx, size, path });
+export async function replaceFile({ ctx, path, uuid }: Props) {
+  const upload = await uploadFile({ ctx, path });
 
   if (!upload) return;
 
@@ -26,8 +24,8 @@ export async function replaceFile({ ctx, path, stats: { size, mtime }, uuid }: P
       path,
       uuid,
       contentsId: upload.contentsId,
-      size,
-      modificationTime: mtime.toISOString(),
+      size: upload.size,
+      modificationTime: upload.mtime.toISOString(),
     },
   });
 

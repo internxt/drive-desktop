@@ -1,24 +1,33 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { logger } from '@/apps/shared/logger/logger';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
+import { BackupsStatus } from '../BackupsProcessStatus/BackupsStatus';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class BackupsProcessTracker {
+  status: BackupsStatus = 'STANDBY';
   processed = 0;
   total = 0;
 
-  private current: IndividualBackupProgress = {
+  current: IndividualBackupProgress = {
     total: 0,
     processed: 0,
   };
 
   private abortController: AbortController | undefined;
 
-  notify() {
+  notify(path?: AbsolutePath) {
     if (this.abortController && !this.abortController.signal.aborted) {
-      logger.debug({ tag: 'BACKUPS', msg: 'Progress', progress: this.progress() });
       broadcastToWindows({ name: 'backup-progress', data: this.progress() });
+      logger.debug({
+        tag: 'BACKUPS',
+        msg: 'Progress',
+        ...(path && { path }),
+        total: this.current.total,
+        processed: this.current.processed,
+      });
     }
   }
 
@@ -35,14 +44,20 @@ export class BackupsProcessTracker {
     this.abortController = abortController;
   }
 
-  currentTotal(total: number) {
+  currentTotal(total: number, backed: number) {
     this.current.total = total;
+    this.current.processed = backed;
+    this.notify();
   }
 
-  currentProcessed(processed: number) {
-    this.current.processed = processed;
+  currentProcessed(path: AbsolutePath) {
+    this.current.processed++;
+    this.notify(path);
+  }
 
-    this.notify();
+  setStatus(status: BackupsStatus) {
+    this.status = status;
+    broadcastToWindows({ name: 'backups-status-changed', data: status });
   }
 
   backing() {

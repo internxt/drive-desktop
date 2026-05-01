@@ -145,9 +145,7 @@ module.exports = {
           const value = colorObj[colorKey];
 
           const newVars =
-            typeof value === 'string'
-              ? { [`--color${colorGroup}-${colorKey}`]: value }
-              : extractColorVars(value, `-${colorKey}`);
+            typeof value === 'string' ? { [`--color${colorGroup}-${colorKey}`]: value } : extractColorVars(value, `-${colorKey}`);
 
           return { ...vars, ...newVars };
         }, {});

@@ -1,42 +1,36 @@
-import { RemoteSyncStatus } from './helpers';
-import { broadcastSyncStatus } from './services/broadcast-sync-status';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 import { syncRemoteFiles } from './files/sync-remote-files';
 import { syncRemoteFolders } from './folders/sync-remote-folders';
-import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { RemoteSyncStatus } from './helpers';
+import { broadcastSyncStatus } from './services/broadcast-sync-status';
 
-export class RemoteSyncManager {
-  status: RemoteSyncStatus = 'IDLE';
+export async function startSyncByCheckpoint({ ctx }: { ctx: SyncContext }) {
+  ctx.logger.debug({ msg: 'Starting sync by checkpoint' });
 
-  constructor(public readonly ctx: SyncContext) {}
+  const syncFilesPromise = syncRemoteFiles({
+    ctx,
+    from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'file' }),
+  });
 
-  async startRemoteSync({ ctx }: { ctx: SyncContext }) {
-    ctx.logger.debug({ msg: 'Starting sync by checkpoint' });
+  const syncFoldersPromise = syncRemoteFolders({
+    ctx,
+    from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'folder' }),
+  });
 
-    const syncFilesPromise = syncRemoteFiles({
-      ctx,
-      from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'file' }),
-    });
+  await Promise.all([syncFilesPromise, syncFoldersPromise]);
+}
 
-    const syncFoldersPromise = syncRemoteFolders({
-      ctx,
-      from: await RemoteSyncModule.getCheckpoint({ ctx, type: 'folder' }),
-    });
+export function changeSyncStatus({ ctx, status }: { ctx: SyncContext; status: RemoteSyncStatus }) {
+  if (status === ctx.status) return;
 
-    await Promise.all([syncFilesPromise, syncFoldersPromise]);
-  }
+  ctx.logger.debug({
+    msg: 'Change syncing status',
+    current: ctx.status,
+    new: status,
+  });
 
-  changeStatus(newStatus: RemoteSyncStatus) {
-    if (newStatus === this.status) return;
+  ctx.status = status;
 
-    this.ctx.logger.debug({
-      msg: 'RemoteSyncManager change status',
-      current: this.status,
-      newStatus,
-    });
-
-    this.status = newStatus;
-
-    broadcastSyncStatus();
-  }
+  broadcastSyncStatus();
 }

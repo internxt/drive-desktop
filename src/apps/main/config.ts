@@ -1,7 +1,7 @@
 import Store, { Schema } from 'electron-store';
+import { PATHS } from '@/core/electron/paths';
 import { AppStore } from '@/core/electron/store/app-store.interface';
 import { defaults } from '@/core/electron/store/defaults';
-import { PATHS } from '@/core/electron/paths';
 
 const schema: Schema<AppStore> = {
   backupInterval: { type: 'number' },
@@ -11,18 +11,12 @@ const schema: Schema<AppStore> = {
   backupList: { type: 'object' },
 
   newToken: { type: 'string' },
-  newTokenEncrypted: { type: 'boolean' },
   userData: { type: 'object' },
-  mnemonic: { type: 'string' },
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },
   preferedLanguage: { type: 'string' },
   preferedTheme: { type: 'string' },
-  'patch-executed-2-5-1': { type: 'boolean' },
-  'migrations.v2-5-1-add-user-uuid-to-database': { type: 'boolean' },
-  'migrations.v2-5-7-remove-antivirus-table': { type: 'boolean' },
-  'migrations.v2-6-3-move-checkpoint-to-sqlite': { type: 'boolean' },
 } as const;
 
 const configStore = new Store({

@@ -1,59 +1,63 @@
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { ReadStream } from 'node:fs';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { processError } from './process-error';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { ActionState } from '@internxt/inxt-js/build/api';
-import { fileSystem } from '@/infra/file-system/file-system.module';
-import { LocalSync } from '@/backend/features';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { LocalSync } from '@/backend/features';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { processError } from './process-error';
 
 type Props = {
   ctx: CommonContext;
-  fn: UploadStrategyFunction;
   readable: ReadStream;
   size: number;
   path: AbsolutePath;
+  abortController: AbortController;
+  retry?: number;
+  sleepMs?: number;
 };
 
-export function uploadFile({ ctx, fn, readable, size, path }: Props) {
-  function stopUpload(state: ActionState) {
-    state.stop();
-    readable.destroy();
-  }
+export async function uploadFile({ ctx, readable, size, path, abortController, retry = 1, sleepMs = 5000 }: Props) {
+  ctx.logger.debug({
+    msg: 'Uploading file to the bucket',
+    path,
+    size,
+    bucket: ctx.bucket,
+    ...(retry > 1 && { retry }),
+  });
 
-  return new Promise<ContentsId | void>((resolve) => {
-    const state = fn(ctx.bucket, {
-      source: readable,
-      fileSize: size,
-      progressCallback: (progress) => void progressCallback(progress),
-      finishedCallback: (error, contentsId) => {
-        readable.close();
+  async function progressCallback(progress: number) {
+    const { data: stats } = await fileSystem.stat({ absolutePath: path });
 
-        if (contentsId) return resolve(contentsId as ContentsId);
-
-        processError({ path, error });
-        return resolve();
-      },
-    });
-
-    async function progressCallback(progress: number) {
-      const { data: stats } = await fileSystem.stat({ absolutePath: path });
-
-      if (stats && stats.size !== size) {
-        logger.debug({ msg: 'Upload file aborted on change size', path, oldSize: size, newSize: stats.size });
-        stopUpload(state);
-        return resolve();
-      }
-
-      LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
+    if (stats && stats.size !== size) {
+      ctx.logger.debug({ msg: 'File size changed during upload', path, oldSize: size, newSize: stats.size });
+      abortController.abort();
+      return;
     }
 
-    ctx.abortController.signal.addEventListener('abort', () => {
-      logger.debug({ msg: 'Aborting upload', path });
-      stopUpload(state);
-      resolve();
+    LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
+  }
+
+  try {
+    const contentsId = await ctx.environment.upload(ctx.bucket, {
+      source: readable,
+      fileSize: size,
+      abortSignal: abortController.signal,
+      progressCallback: (progress) => void progressCallback(progress),
     });
-  });
+
+    return contentsId as ContentsId;
+  } catch (error) {
+    const retryFn = () =>
+      uploadFile({
+        ctx,
+        readable,
+        size,
+        path,
+        abortController,
+        retry: retry + 1,
+        sleepMs: sleepMs * 2,
+      });
+
+    return processError({ ctx, path, error, sleepMs, retryFn });
+  }
 }

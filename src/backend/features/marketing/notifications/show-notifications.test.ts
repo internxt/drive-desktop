@@ -1,7 +1,7 @@
+import { Notification } from 'electron';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { showNotifications } from './show-notifications';
-import { Notification } from 'electron';
 
 describe('show-notifications', () => {
   const NotificationMock = vi.mocked(Notification);

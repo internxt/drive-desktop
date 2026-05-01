@@ -1,26 +1,27 @@
-import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { ipcMain } from 'electron';
-import { FromMain, FromProcess } from './ipc';
-import { calculateUsage } from '../usage/service';
-import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { getAvailableProducts } from '../payments/get-available-products';
-import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
-import { setConfigKey } from '../config/service';
-import { getLanguage } from '../config/language';
-import { getTheme } from '../config/theme';
-import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
-import { downloadBackup } from '@/backend/features/backups/download/download-backup';
-import { openLoginUrl } from '../auth/open-login-url';
-import { deleteBackupsFromDevice } from '../device/service';
 import { AuthContext } from '@/apps/sync-engine/config';
-import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
-import { updateAllRemoteSync } from '../remote-sync/handlers';
-import { getWorkArea, hideFrontend } from '../windows/widget';
+import { downloadBackup } from '@/backend/features/backups/download/download-backup';
+import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { isUserLoggedIn } from '../auth/handlers';
+import { openLoginUrl } from '../auth/open-login-url';
+import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { backupsSetInterval, backupsStartProcess } from '../background-processes/backups/setUpBackups';
+import { getLanguage } from '../config/language';
+import { setConfigKey } from '../config/service';
+import { getTheme } from '../config/theme';
+import { deleteBackupsFromDevice } from '../device/service';
+import { getAvailableProducts } from '../payments/get-available-products';
+import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
+import { calculateUsage } from '../usage/service';
+import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 import { finishOnboarding } from '../windows';
+import { getWorkArea, hideFrontend } from '../windows/widget';
+import { FromMain, FromProcess } from './ipc';
 
-const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
+export const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupPreloadIpc() {
   ipcPreloadMain.handle('getWorkArea', () => Promise.resolve(getWorkArea()));
@@ -39,18 +40,24 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('getLanguage', () => Promise.resolve(getLanguage()));
   ipcPreloadMain.handle('setConfigKey', (_, props) => Promise.resolve(setConfigKey(props)));
   ipcPreloadMain.handle('driveGetSyncRoot', () => getRootVirtualDrive());
-  ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog());
   ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
-  ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup(props));
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
   ipcPreloadMain.handle('getRemoteSyncStatus', () => Promise.resolve(getSyncStatus()));
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
-  ipcMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
+  ipcPreloadMain.handle('backupsStartProcess', () => backupsStartProcess({ ctx }));
+  ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup({ ctx, ...props }));
+  ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog({ ctx }));
 }
 
 export function clearLoggedPreloadIpc() {
-  ipcMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('backupsSetInterval');
+  ipcPreloadMain.removeHandler('backupsStartProcess');
+  ipcPreloadMain.removeHandler('downloadBackup');
+  ipcPreloadMain.removeHandler('driveChooseSyncRootWithDialog');
 }

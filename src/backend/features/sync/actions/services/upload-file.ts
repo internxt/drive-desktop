@@ -1,17 +1,27 @@
+import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { stat } from 'node:fs/promises';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { CommonContext } from '@/apps/sync-engine/config';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
-import { AbsolutePath, SyncModule } from '@internxt/drive-desktop-core/build/backend';
+import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
   ctx: CommonContext;
   path: AbsolutePath;
-  size: number;
 };
 
-export async function uploadFile({ ctx, path, size }: Props) {
+export async function uploadFile({ ctx, path }: Props) {
+  const isReady = await waitUntilReady({ path });
+  if (!isReady) {
+    ctx.logger.error({ msg: 'Wait until ready, timeout', path });
+    return;
+  }
+
+  const { size, mtime } = await stat(path);
+
   if (size === 0) {
-    return { contentsId: undefined };
+    return { contentsId: undefined, size, mtime };
   }
 
   if (size > SyncModule.MAX_FILE_SIZE) {
@@ -20,9 +30,15 @@ export async function uploadFile({ ctx, path, size }: Props) {
     return;
   }
 
-  const contentsId = await EnvironmentFileUploader.run({ ctx, size, path });
+  try {
+    const contentsId = await ctx.uploadBottleneck.schedule(() => environmentFileUpload({ ctx, path, size }));
 
-  if (!contentsId) return;
+    if (!contentsId) return;
 
-  return { contentsId };
+    return { contentsId, size, mtime };
+  } catch (error) {
+    if (isBottleneckStop({ error })) return;
+
+    throw error;
+  }
 }

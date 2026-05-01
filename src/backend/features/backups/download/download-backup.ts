@@ -1,20 +1,21 @@
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Device, getPathFromDialog } from '@/apps/main/device/service';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ipcMain, shell } from 'electron';
-import { downloadFolder } from './download-folder';
-import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { getUserOrThrow } from '@/apps/main/auth/service';
+import { buildBackupsEnvironment } from '@/apps/main/background-processes/backups/build-environment';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Device, getPathFromDialog } from '@/apps/main/device/service';
 import { broadcastToWindows } from '@/apps/main/windows';
-import { buildUserEnvironment } from '@/apps/main/background-processes/backups/build-environment';
+import { AuthContext } from '@/apps/sync-engine/config';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { downloadFolder } from './download-folder';
 
 type Props = {
+  ctx: AuthContext;
   device: Device;
   folderUuids?: FolderUuid[];
 };
 
-export async function downloadBackup({ device, folderUuids = [] }: Props) {
-  const user = getUserOrThrow();
+export async function downloadBackup({ ctx, device, folderUuids = [] }: Props) {
+  const { user } = ctx;
   const chosenItem = await getPathFromDialog();
 
   if (!chosenItem) {
@@ -25,7 +26,7 @@ export async function downloadBackup({ device, folderUuids = [] }: Props) {
 
   const abortController = new AbortController();
 
-  const { contentsDownloader } = buildUserEnvironment({ user, type: 'backups' });
+  const { contentsDownloader } = buildBackupsEnvironment({ user, device });
 
   function eventListener() {
     logger.debug({ tag: 'BACKUPS', msg: 'Abort download for device', deviceName: device.plainName });

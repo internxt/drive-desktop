@@ -24,11 +24,11 @@ export function getInFlightRequest<T>({ key, promiseFn }: { key: string; promise
     };
   }
 
-  const promise = promiseFn();
-  inFlightRequests.set(key, promise);
-  promise.finally(() => {
+  const promise = promiseFn().finally(() => {
     inFlightRequests.delete(key);
   });
+
+  inFlightRequests.set(key, promise);
 
   return {
     reused: false,

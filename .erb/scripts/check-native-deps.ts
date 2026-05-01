@@ -1,6 +1,6 @@
-import fs from 'node:fs';
 import chalk from 'chalk';
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import { nativeDeps } from '../configs/webpack.paths';
 
 const depsWithBindingGyp = fs.readdirSync('node_modules').filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));
@@ -9,9 +9,10 @@ const realNativeDeps = Object.keys(dependencies).concat(['@packages/addon']);
 
 if (JSON.stringify(realNativeDeps) !== JSON.stringify(nativeDeps)) {
   console.log(chalk.whiteBright.bgRed.bold('Make sure you have these dependencies listed in your nativeDeps'));
-  console.log(realNativeDeps);
+  console.log('nativeDeps:', nativeDeps);
+  console.log('realNativeDeps:', realNativeDeps);
   process.exit(1);
 } else {
   console.log(chalk.whiteBright.bgGreen.bold('Dependencies listed in your nativeDeps'));
-  console.log(realNativeDeps);
+  console.log('realNativeDeps:', realNativeDeps);
 }

@@ -1,8 +1,8 @@
 import { io, Socket } from 'socket.io-client';
-import { obtainToken } from './auth/service';
-import { logger } from '../shared/logger/logger';
 import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import { RemoteNotificationsModule } from '@/backend/features/remote-notifications/remote-notifications.module';
+import { logger } from '../shared/logger/logger';
+import { obtainToken } from './auth/service';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;

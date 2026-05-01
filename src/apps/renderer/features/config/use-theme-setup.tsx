@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
-
-import { configStore } from './config.store';
 import { ThemeData } from '@/apps/main/config/theme.types';
+import { configStore } from './config.store';
 
 function updateTheme(themeData: ThemeData) {
   configStore.setState(themeData);

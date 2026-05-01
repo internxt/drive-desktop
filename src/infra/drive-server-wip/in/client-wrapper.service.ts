@@ -1,10 +1,10 @@
+import { sleep } from '@/apps/main/util';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { DriveServerWipError } from '../defs';
 import { errorWrapper } from './error-wrapper';
-import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
 import { getInFlightRequest } from './get-in-flight-request';
-import { DriveServerWipError } from '../defs';
 
 const MAX_RETRIES = 3;
 
@@ -44,15 +44,16 @@ export async function clientWrapper<T>({
   try {
     const { reused, promise } = getInFlightRequest({ key, promiseFn });
 
+    const { data, error, response } = await promise;
+
     if (!skipLog) {
       logger.debug({
         ...loggerBody,
+        xRequestId: response.headers.get('x-request-id'),
         ...(reused && { reused }),
         ...(retry > 1 && { retry }),
       });
     }
-
-    const { data, error, response } = await promise;
 
     if (data) {
       handleRemoveErrors();

@@ -1,19 +1,22 @@
-import { checkIfModified } from './check-if-modified';
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { v4 } from 'uuid';
-import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
+import { randomUUID } from 'node:crypto';
 import { stat, writeFile } from 'node:fs/promises';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Addon } from '@/node-win/addon-wrapper';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import * as onChange from '@/node-win/watcher/events/on-change';
 import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
+import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { checkIfModified } from './check-if-modified';
 
 describe('check-if-modified', () => {
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
+
   const providerName = 'Internxt Drive';
-  const providerId = v4();
-  const rootPath = join(TEST_FILES, v4());
+  const providerId = randomUUID();
+  const rootPath = join(TEST_FILES, randomUUID());
   const path = join(rootPath, 'file.txt');
 
   beforeEach(async () => {
@@ -48,14 +51,15 @@ describe('check-if-modified', () => {
     // When
     await sleep(100);
     await checkIfModified(props);
-    await sleep(100);
+    await sleep(2200);
 
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(loggerMock.debug).toStrictEqual([
+    calls(loggerMock.debug).toMatchObject([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Register sync root', rootPath },
+      { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
+      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'Sync remote changes to local',
         path,
@@ -64,11 +68,13 @@ describe('check-if-modified', () => {
         remoteDate: new Date('2000-01-02T00:00:00.000Z'),
         localDate: new Date('2000-01-01T00:00:00.000Z'),
       },
+      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
     ]);
 
     const stats = await stat(path);
     const fileInfo = await Addon.getPlaceholderState({ path });
     expect(stats.size).toBe(1000);
     expect(fileInfo.onDiskSize).toBe(0);
+    calls(onChangeMock).toMatchObject([{ event: { action: 'update', size: 7 } }, { event: { action: 'update', size: 1000 } }]);
   });
 });

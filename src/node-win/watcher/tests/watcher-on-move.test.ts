@@ -1,24 +1,29 @@
-import { mkdir, rename, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
-
-import { setupWatcher, getEvents } from './watcher.helper.test';
-import { sleep } from '@/apps/main/util';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { randomUUID } from 'node:crypto';
+import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { sleep } from '@/apps/main/util';
+import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as onAddDir from '../events/on-add-dir.service';
+import * as onChange from '../events/on-change';
+import { setupWatcher, onEventSpy } from './watcher.helper.test';
 
-describe('watcher on move', () => {
+describe('watcher-on-move', () => {
+  const onChangeMock = partialSpyOn(onChange, 'onChange');
+  const onAddDirMock = partialSpyOn(onAddDir, 'onAddDir');
+
   let rootPath: AbsolutePath;
   let parent: AbsolutePath;
 
   beforeEach(async () => {
-    rootPath = join(TEST_FILES, v4());
+    rootPath = join(TEST_FILES, randomUUID());
     parent = join(rootPath, 'parent');
     await mkdir(rootPath);
     await mkdir(parent);
   });
 
-  it('should emit create and delete events when rename file', async () => {
+  it('should emit rename_new event when rename file', async () => {
     // Given
     const file1 = join(rootPath, 'file1');
     const file2 = join(rootPath, 'file2');
@@ -26,15 +31,16 @@ describe('watcher on move', () => {
     await setupWatcher(rootPath);
     // When
     await rename(file1, file2);
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2 },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'rename_old', type: 'file', size: 7 } },
+      { event: { action: 'rename_new', type: 'file', size: 7 } },
     ]);
+    call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file' }, path: file2 });
   });
 
-  it('should emit create and delete events when move file', async () => {
+  it('should emit create event when move file', async () => {
     // Given
     const file1 = join(rootPath, 'file');
     const file2 = join(parent, 'file');
@@ -42,15 +48,16 @@ describe('watcher on move', () => {
     await setupWatcher(rootPath);
     // When
     await rename(file1, file2);
-    await sleep(150);
+    await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: file1 },
-      { event: 'create', path: file2 },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'file', size: 7 } },
+      { event: { action: 'create', type: 'file', size: 7 } },
     ]);
+    call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file' }, path: file2 });
   });
 
-  it('should emit create and delete events when rename folder', async () => {
+  it('should emit rename_new event when rename folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder1');
     const folder2 = join(rootPath, 'folder2');
@@ -60,13 +67,14 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2 },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'rename_old', type: 'folder', size: 0 } },
+      { event: { action: 'rename_new', type: 'folder', size: 0 } },
     ]);
+    call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 
-  it('should emit create and delete events when move folder', async () => {
+  it('should emit create event when move folder', async () => {
     // Given
     const folder1 = join(rootPath, 'folder');
     const folder2 = join(parent, 'folder');
@@ -76,9 +84,10 @@ describe('watcher on move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    getEvents().toMatchObject([
-      { event: 'delete', path: folder1 },
-      { event: 'create', path: folder2 },
+    calls(onEventSpy).toMatchObject([
+      { event: { action: 'delete', type: 'folder', size: 0 } },
+      { event: { action: 'create', type: 'folder', size: 0 } },
     ]);
+    call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 });

@@ -1,9 +1,9 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'node:path';
-import { toggleWidgetVisibility } from '../windows/widget';
-import { quitApp } from '../quit';
 import { cwd } from 'node:process';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { quitApp } from '../quit';
+import { toggleWidgetVisibility } from '../windows/widget';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -18,30 +18,18 @@ export class TrayMenu {
     this.setState('LOADING');
 
     this.tray.setToolTip(`Internxt ${INTERNXT_VERSION}`);
-    this.tray.setIgnoreDoubleClickEvents(true);
-
-    this.tray.on('click', () => {
-      toggleWidgetVisibility();
-      this.tray.setContextMenu(null);
-    });
-
-    this.tray.on('right-click', () => {
-      this.updateContextMenu();
-      this.tray.popUpContextMenu();
-    });
+    this.tray.on('click', () => toggleWidgetVisibility());
+    this.tray.on('right-click', () => this.tray.popUpContextMenu());
+    this.tray.setContextMenu(
+      Menu.buildFromTemplate([
+        { label: 'Show/Hide', click: () => toggleWidgetVisibility() },
+        { label: 'Quit', click: () => void quitApp() },
+      ]),
+    );
   }
 
   getIconPath(state: TrayMenuState) {
     return path.join(this.iconsPath, `${state.toLowerCase()}.png`);
-  }
-
-  updateContextMenu() {
-    this.tray.setContextMenu(
-      Menu.buildFromTemplate([
-        { label: 'Show/Hide', click: toggleWidgetVisibility },
-        { label: 'Quit', click: () => void quitApp() },
-      ]),
-    );
   }
 
   setState(state: TrayMenuState) {

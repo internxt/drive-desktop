@@ -1,8 +1,8 @@
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { SyncContext } from './config';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { measurePerfomance } from '@/core/utils/measure-performance';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { SyncContext } from './config';
 
 type Props = {
   ctx: SyncContext;
@@ -11,10 +11,21 @@ type Props = {
 
 export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
   try {
-    ctx.logger.debug({ msg: 'Refresh item placeholders', isFirstExecution });
-
     const time = await measurePerfomance(async () => {
       const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
+
+      ctx.logger.debug({
+        msg: 'Refresh item placeholders',
+        isFirstExecution,
+        database: {
+          files: database.files.length,
+          folders: database.folders.length,
+        },
+        fileExplorer: {
+          files: fileExplorer.files.size,
+          folders: fileExplorer.folders.size,
+        },
+      });
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
 

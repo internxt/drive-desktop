@@ -1,9 +1,9 @@
-import { useContext } from 'react';
-import { DeviceContext } from '../../../context/DeviceContext';
 import { Question } from '@phosphor-icons/react';
-import { useDevices } from '../../../hooks/devices/useDevices';
+import { useContext } from 'react';
 import { Device } from '../../../../main/device/service';
 import { ScrollableContent } from '../../../components/ScrollableContent';
+import { DeviceContext } from '../../../context/DeviceContext';
+import { useDevices } from '../../../hooks/devices/useDevices';
 
 interface DevicePillProps {
   device: Device;

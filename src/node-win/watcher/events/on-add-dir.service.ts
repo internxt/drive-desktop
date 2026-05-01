@@ -1,9 +1,8 @@
-import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { NodeWin } from '@/infra/node-win/node-win.module';
-import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
-import { trackAddEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
+import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
+import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -11,25 +10,17 @@ type TProps = {
 };
 
 export async function onAddDir({ ctx, path }: TProps) {
-  try {
-    const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
+  const { data: folderInfo } = await NodeWin.getFolderInfo({ ctx, path });
 
-    if (folderInfo) {
-      trackAddEvent({ uuid: folderInfo.uuid });
-      await moveFolder({ ctx, path, uuid: folderInfo.uuid });
-      return;
-    }
+  if (folderInfo) {
+    await moveFolder({ ctx, path, uuid: folderInfo.uuid });
+    return;
+  }
 
-    const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: dirname(path) });
+  const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: dirname(path) });
 
-    if (parentInfo) {
-      await Drive.Actions.createFolder({
-        ctx,
-        path,
-        parentUuid: parentInfo.uuid,
-      });
-    }
-  } catch (error) {
-    ctx.logger.error({ msg: 'Error on addDir event', path, error });
+  if (parentInfo) {
+    const parentUuid = parentInfo.uuid;
+    await Drive.Actions.createFolder({ ctx, path, parentUuid });
   }
 }
