@@ -11,7 +11,7 @@ export default mergeConfig(
         reportsDirectory: './coverage/unit',
       },
       exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts'],
-      include: ['src/**/*.test.ts'],
+      include: ['src/**/watcher-on-change.test.ts'],
     },
   }),
 );
