@@ -11,205 +11,194 @@
 #include <string>
 #include <thread>
 
+static napi_threadsafe_function g_explorerTsfn = nullptr;
+static IShellWindows* g_shellWindows = nullptr;
+static std::set<IUnknown*> g_advisedWindows;
+
+inline void explorerFire(const std::wstring& path)
+{
+    napi_call_threadsafe_function(g_explorerTsfn, new std::wstring(path), napi_tsfn_nonblocking);
+}
+
 inline void callExplorerJsCallback(napi_env env, napi_value jsCallback, void*, void* data)
 {
     auto* path = static_cast<std::wstring*>(data);
-
-    int utf8Len = WideCharToMultiByte(CP_UTF8, 0, path->c_str(), -1, nullptr, 0, nullptr, nullptr);
-    std::string utf8Path(utf8Len - 1, '\0');
-    WideCharToMultiByte(CP_UTF8, 0, path->c_str(), -1, utf8Path.data(), utf8Len, nullptr, nullptr);
-
-    napi_value str, undefined;
-    napi_create_string_utf8(env, utf8Path.c_str(), utf8Path.size(), &str);
-    napi_get_undefined(env, &undefined);
-    napi_call_function(env, undefined, jsCallback, 1, &str, nullptr);
-
+    napi_value str, undef;
+    napi_create_string_utf16(env, (char16_t*)path->c_str(), path->size(), &str);
+    napi_get_undefined(env, &undef);
+    napi_call_function(env, undef, jsCallback, 1, &str, nullptr);
     delete path;
 }
 
 inline std::wstring getPathFromDispatch(IDispatch* dispatch)
 {
-    if (!dispatch) return L"";
+    CComQIPtr<IWebBrowserApp> app(dispatch);
+    if (!app) winrt::check_hresult(E_NOINTERFACE);
 
-    CComPtr<IWebBrowserApp> browserApp;
-    if (FAILED(dispatch->QueryInterface(IID_IWebBrowserApp, (void**)&browserApp))) return L"";
-
-    CComPtr<IServiceProvider> sp;
-    if (FAILED(browserApp->QueryInterface(IID_IServiceProvider, (void**)&sp))) return L"";
+    CComQIPtr<IServiceProvider> sp(app);
+    if (!sp) winrt::check_hresult(E_NOINTERFACE);
 
     CComPtr<IShellBrowser> sb;
-    if (FAILED(sp->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&sb))) return L"";
+    winrt::check_hresult(sp->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&sb));
 
     CComPtr<IShellView> sv;
-    if (FAILED(sb->QueryActiveShellView(&sv))) return L"";
+    winrt::check_hresult(sb->QueryActiveShellView(&sv));
 
-    CComPtr<IFolderView> fv;
-    if (FAILED(sv->QueryInterface(IID_IFolderView, (void**)&fv))) return L"";
+    CComQIPtr<IFolderView> fv(sv);
+    if (!fv) winrt::check_hresult(E_NOINTERFACE);
 
     CComPtr<IPersistFolder2> pf;
-    if (FAILED(fv->GetFolder(IID_IPersistFolder2, (void**)&pf))) return L"";
+    winrt::check_hresult(fv->GetFolder(IID_IPersistFolder2, (void**)&pf));
 
     LPITEMIDLIST pidl = nullptr;
-    if (FAILED(pf->GetCurFolder(&pidl))) return L"";
+    winrt::check_hresult(pf->GetCurFolder(&pidl));
 
-    wchar_t path[MAX_PATH];
-    SHGetPathFromIDListW(pidl, path);
+    wchar_t path[MAX_PATH] = {};
+    BOOL ok = SHGetPathFromIDListW(pidl, path);
     CoTaskMemFree(pidl);
-
+    if (!ok) winrt::check_hresult(E_FAIL);
     return path;
 }
 
-// Fires tsfn on DWebBrowserEvents2::NavigateComplete2 for a single Explorer window.
-// Released automatically by the connection point when the window closes.
-class NavigationSink : public IDispatch {
-    std::atomic<ULONG> refCount{1};
+inline void adviseNavigation(IDispatch* dispatch);
 
-public:
-    napi_threadsafe_function tsfn = nullptr;
+// ---- COM sinks ----
 
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) override
+struct DispatchBase : IDispatch {
+    HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT* p) override
     {
-        if (riid == IID_IUnknown || riid == IID_IDispatch) { *ppv = this; AddRef(); return S_OK; }
-        *ppv = nullptr;
-        return E_NOINTERFACE;
-    }
-
-    ULONG STDMETHODCALLTYPE AddRef() override { return ++refCount; }
-    ULONG STDMETHODCALLTYPE Release() override { ULONG r = --refCount; if (!r) delete this; return r; }
-
-    HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT* p) override { *p = 0; return S_OK; }
-    HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo**) override { return E_NOTIMPL; }
-    HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR*, UINT, LCID, DISPID*) override { return E_NOTIMPL; }
-
-    HRESULT STDMETHODCALLTYPE Invoke(
-        DISPID dispId, REFIID, LCID, WORD,
-        DISPPARAMS* p, VARIANT*, EXCEPINFO*, UINT*) override
-    {
-        if (dispId != DISPID_NAVIGATECOMPLETE2 || !p || p->cArgs < 2) return S_OK;
-        if (p->rgvarg[1].vt != VT_DISPATCH) return S_OK;
-
-        std::wstring path = getPathFromDispatch(p->rgvarg[1].pdispVal);
-        if (!path.empty())
-            napi_call_threadsafe_function(tsfn, new std::wstring(path), napi_tsfn_blocking);
-
+        *p = 0;
         return S_OK;
     }
-};
-
-// Listens to DShellWindowsEvents and hooks a NavigationSink onto each new Explorer window.
-class ShellWindowsSink : public IDispatch {
-    std::atomic<ULONG> refCount{1};
-    std::set<IUnknown*> advisedWindows;  // raw ptrs for dedup only, no addref needed
-
-public:
-    void adviseWindow(IDispatch* dispatch)
-    {
-        if (!dispatch) return;
-
-        CComPtr<IUnknown> id;
-        if (FAILED(dispatch->QueryInterface(IID_IUnknown, (void**)&id)) || !id) return;
-        if (!advisedWindows.insert(id.p).second) return;  // already advised
-
-        CComPtr<IConnectionPointContainer> cpc;
-        if (FAILED(dispatch->QueryInterface(IID_IConnectionPointContainer, (void**)&cpc))) return;
-
-        CComPtr<IConnectionPoint> cp;
-        if (FAILED(cpc->FindConnectionPoint(DIID_DWebBrowserEvents2, &cp))) return;
-
-        auto* sink = new NavigationSink();
-        sink->tsfn = tsfn;
-
-        DWORD cookie = 0;
-        if (FAILED(cp->Advise(sink, &cookie)))
-            sink->Release();
-        // cp and cookie not stored — window closing releases the sink via COM
-    }
-
-public:
-    IShellWindows* shellWindows = nullptr;
-    napi_threadsafe_function tsfn = nullptr;
-
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) override
-    {
-        if (riid == IID_IUnknown || riid == IID_IDispatch) { *ppv = this; AddRef(); return S_OK; }
-        *ppv = nullptr;
-        return E_NOINTERFACE;
-    }
-
-    ULONG STDMETHODCALLTYPE AddRef() override { return ++refCount; }
-    ULONG STDMETHODCALLTYPE Release() override { ULONG r = --refCount; if (!r) delete this; return r; }
-
-    HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT* p) override { *p = 0; return S_OK; }
     HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo**) override { return E_NOTIMPL; }
     HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR*, UINT, LCID, DISPID*) override { return E_NOTIMPL; }
+};
 
-    HRESULT STDMETHODCALLTYPE Invoke(
-        DISPID dispId, REFIID, LCID, WORD,
-        DISPPARAMS*, VARIANT*, EXCEPINFO*, UINT*) override
+struct NavigationSink : DispatchBase {
+    std::atomic<ULONG> ref{1};
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) override
     {
-        if (dispId != 200) return S_OK;  // only WindowRegistered
-
-        long count = 0;
-        shellWindows->get_Count(&count);
-
-        for (long i = 0; i < count; i++) {
-            CComVariant idx(i);
-            CComPtr<IDispatch> dispatch;
-            if (FAILED(shellWindows->Item(idx, &dispatch)) || !dispatch) continue;
-
-            adviseWindow(dispatch);
-
-            std::wstring path = getPathFromDispatch(dispatch);
-            if (!path.empty())
-                napi_call_threadsafe_function(tsfn, new std::wstring(path), napi_tsfn_blocking);
+        if (riid == IID_IUnknown || riid == IID_IDispatch) {
+            *ppv = this;
+            AddRef();
+            return S_OK;
         }
-
+        *ppv = nullptr;
+        return E_NOINTERFACE;
+    }
+    ULONG STDMETHODCALLTYPE AddRef() override { return ++ref; }
+    ULONG STDMETHODCALLTYPE Release() override
+    {
+        ULONG r = --ref;
+        if (!r) delete this;
+        return r;
+    }
+    HRESULT STDMETHODCALLTYPE Invoke(DISPID id, REFIID, LCID, WORD, DISPPARAMS* p, VARIANT*, EXCEPINFO*, UINT*) override
+    {
+        if (id != DISPID_NAVIGATECOMPLETE2 || !p || p->cArgs < 2 || p->rgvarg[1].vt != VT_DISPATCH) return S_OK;
+        try {
+            explorerFire(getPathFromDispatch(p->rgvarg[1].pdispVal));
+        } catch (...) {
+            wprintf(L"[explorer] navigation error\n");
+        }
         return S_OK;
     }
 };
+
+inline void adviseNavigation(IDispatch* dispatch)
+{
+    CComPtr<IUnknown> id;
+    winrt::check_hresult(dispatch->QueryInterface(IID_IUnknown, (void**)&id));
+    if (!g_advisedWindows.insert(id.p).second) return;
+
+    CComQIPtr<IConnectionPointContainer> cpc(dispatch);
+    if (!cpc) winrt::check_hresult(E_NOINTERFACE);
+    CComPtr<IConnectionPoint> cp;
+    winrt::check_hresult(cpc->FindConnectionPoint(DIID_DWebBrowserEvents2, &cp));
+
+    auto* sink = new NavigationSink();
+    DWORD cookie = 0;
+    HRESULT hr = cp->Advise(sink, &cookie);
+    sink->Release();
+    winrt::check_hresult(hr);
+}
+
+struct ShellWindowsSink : DispatchBase {
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) override
+    {
+        if (riid == IID_IUnknown || riid == IID_IDispatch) {
+            *ppv = this;
+            return S_OK;
+        }
+        *ppv = nullptr;
+        return E_NOINTERFACE;
+    }
+    ULONG STDMETHODCALLTYPE AddRef() override { return 1; }
+    ULONG STDMETHODCALLTYPE Release() override { return 1; }
+    HRESULT STDMETHODCALLTYPE Invoke(DISPID dispId, REFIID, LCID, WORD, DISPPARAMS*, VARIANT*, EXCEPINFO*, UINT*) override
+    {
+        if (dispId != DISPID_WINDOWREGISTERED) return S_OK;
+        long count = 0;
+        g_shellWindows->get_Count(&count);
+        for (long i = 0; i < count; i++) {
+            try {
+                CComVariant idx(i);
+                CComPtr<IDispatch> dispatch;
+                if (FAILED(g_shellWindows->Item(idx, &dispatch)) || !dispatch) continue;
+                CComPtr<IUnknown> id;
+                if (FAILED(dispatch->QueryInterface(IID_IUnknown, (void**)&id)) || g_advisedWindows.count(id.p)) continue;
+                adviseNavigation(dispatch);
+                explorerFire(getPathFromDispatch(dispatch));
+            } catch (...) {
+                wprintf(L"[explorer] window register error\n");
+            }
+        }
+        return S_OK;
+    }
+} g_shellWindowsSink;
+
+// ---- entry point ----
 
 inline napi_value WatchFileExplorersWrapper(napi_env env, napi_callback_info info)
 {
     auto [onEventCallback] = napi_extract_args<napi_value>(env, info);
+    g_explorerTsfn = registerThreadsafeCallback("WatchFileExplorersCallback", env, onEventCallback, callExplorerJsCallback);
+    napi_unref_threadsafe_function(env, g_explorerTsfn);
 
-    auto tsfn = registerThreadsafeCallback("WatchFileExplorersCallback", env, onEventCallback, callExplorerJsCallback);
-    napi_unref_threadsafe_function(env, tsfn);  // don't block Node exit
+    std::thread([]() {
+        try {
+            winrt::check_hresult(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
+            winrt::check_hresult(CoCreateInstance(CLSID_ShellWindows, nullptr, CLSCTX_ALL, IID_IShellWindows, (void**)&g_shellWindows));
 
-    std::thread([tsfn]() {
-        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+            CComQIPtr<IConnectionPointContainer> cpc(g_shellWindows);
+            if (!cpc) winrt::check_hresult(E_NOINTERFACE);
+            CComPtr<IConnectionPoint> cp;
+            winrt::check_hresult(cpc->FindConnectionPoint(DIID_DShellWindowsEvents, &cp));
 
-        CComPtr<IShellWindows> shellWindows;
-        CoCreateInstance(CLSID_ShellWindows, nullptr, CLSCTX_ALL, IID_IShellWindows, (void**)&shellWindows);
+            long count = 0;
+            g_shellWindows->get_Count(&count);
+            for (long i = 0; i < count; i++) {
+                try {
+                    CComVariant idx(i);
+                    CComPtr<IDispatch> dispatch;
+                    if (SUCCEEDED(g_shellWindows->Item(idx, &dispatch)) && dispatch)
+                        adviseNavigation(dispatch);
+                } catch (...) {
+                    wprintf(L"[explorer] startup advise error\n");
+                }
+            }
 
-        CComPtr<IConnectionPointContainer> cpc;
-        shellWindows->QueryInterface(IID_IConnectionPointContainer, (void**)&cpc);
+            DWORD cookie = 0;
+            winrt::check_hresult(cp->Advise(&g_shellWindowsSink, &cookie));
 
-        CComPtr<IConnectionPoint> cp;
-        cpc->FindConnectionPoint(DIID_DShellWindowsEvents, &cp);
-
-        auto* sink = new ShellWindowsSink();
-        sink->shellWindows = shellWindows;
-        sink->tsfn = tsfn;
-
-        // Hook navigation on already-open Explorer windows
-        long count = 0;
-        shellWindows->get_Count(&count);
-        for (long i = 0; i < count; i++) {
-            CComVariant idx(i);
-            CComPtr<IDispatch> dispatch;
-            if (SUCCEEDED(shellWindows->Item(idx, &dispatch)) && dispatch)
-                sink->adviseWindow(dispatch);
+            MSG msg;
+            while (GetMessage(&msg, nullptr, 0, 0) > 0) {
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+        } catch (...) {
+            wprintf(L"[explorer] fatal error\n");
         }
-
-        DWORD adviseCookie = 0;
-        cp->Advise(sink, &adviseCookie);
-
-        MSG msg;
-        while (GetMessage(&msg, nullptr, 0, 0) > 0) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
         CoUninitialize();
     }).detach();
 
