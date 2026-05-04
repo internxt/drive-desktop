@@ -38,19 +38,19 @@ describe('create-or-update-batch', () => {
     };
   });
 
-  it('should ignore if no files', () => {
+  it('should ignore if no files', async () => {
     // Given
     props.files = [];
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should insert new files', () => {
+  it('should insert new files', async () => {
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 450 });
@@ -72,12 +72,12 @@ describe('create-or-update-batch', () => {
     });
   });
 
-  it('should update existing files', () => {
+  it('should update existing files', async () => {
     // Given
     props.files[1].uuid = 'uuid0';
     props.files[1].plainName = 'file';
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 449 });
@@ -85,11 +85,11 @@ describe('create-or-update-batch', () => {
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file WHERE uuid = ?').get('uuid1') }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should return UNKNOWN when error is thrown', () => {
+  it('should return UNKNOWN when error is thrown', async () => {
     // Given
     props.files.push({} as any);
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 400 });

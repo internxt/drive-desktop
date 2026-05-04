@@ -34,19 +34,19 @@ describe('create-or-update-batch', () => {
     };
   });
 
-  it('should ignore if no folders', () => {
+  it('should ignore if no folders', async () => {
     // Given
     props.folders = [];
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should insert new folders', () => {
+  it('should insert new folders', async () => {
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 450 });
@@ -64,23 +64,23 @@ describe('create-or-update-batch', () => {
     });
   });
 
-  it('should update existing folders', () => {
+  it('should update existing folders', async () => {
     // Given
     props.folders[1].uuid = 'uuid0';
     props.folders[1].plainName = 'folder';
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 449 });
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder WHERE uuid = ?').get('uuid1') }).toStrictEqual({ 'COUNT(*)': 0 });
   });
 
-  it('should return UNKNOWN when error is thrown', () => {
+  it('should return UNKNOWN when error is thrown', async () => {
     // Given
     props.folders.push({} as any);
     // When
-    const error = createOrUpdateBatch(props);
+    const error = await createOrUpdateBatch(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 400 });
