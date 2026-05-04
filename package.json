@@ -162,7 +162,7 @@
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^2.2.5",
     "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-0.1.13.tgz",
-    "@internxt/inxt-js": "3.0.4",
+    "@internxt/inxt-js": "3.1.0",
     "@internxt/scan": "1.0.7",
     "@packages/addon": "file:packages/addon/packages-addon-1.0.0.tgz",
     "@phosphor-icons/react": "2.0.9",
