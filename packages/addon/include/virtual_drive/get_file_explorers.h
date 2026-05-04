@@ -1,11 +1,5 @@
 #pragma once
 
-#include <ShlObj.h>
-#include <atlbase.h>
-#include <exdisp.h>
-#include <external.h>
-#include <shlguid.h>
-
 inline std::wstring getPathFromDispatch(IDispatch* dispatch)
 {
     CComQIPtr<IWebBrowserApp> app(dispatch);
@@ -37,18 +31,18 @@ inline std::wstring getPathFromDispatch(IDispatch* dispatch)
     return path;
 }
 
-inline napi_value getFileExplorers(napi_env env, napi_callback_info)
+inline std::vector<std::wstring> getFileExplorers()
 {
+    HRESULT coHr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    winrt::check_hresult(coHr);
+
     CComPtr<IShellWindows> shellWindows;
     winrt::check_hresult(CoCreateInstance(CLSID_ShellWindows, nullptr, CLSCTX_ALL, IID_IShellWindows, (void**)&shellWindows));
 
     long count = 0;
     shellWindows->get_Count(&count);
 
-    napi_value result;
-    napi_create_array(env, &result);
-
-    uint32_t out = 0;
+    std::vector<std::wstring> paths;
     for (long i = 0; i < count; i++) {
         try {
             CComVariant idx(i);
@@ -56,19 +50,23 @@ inline napi_value getFileExplorers(napi_env env, napi_callback_info)
             shellWindows->Item(idx, &dispatch);
 
             std::wstring path = getPathFromDispatch(dispatch);
-            if (path.empty()) continue;
-
-            napi_value str;
-            napi_create_string_utf16(env, (char16_t*)path.c_str(), path.size(), &str);
-            napi_set_element(env, result, out++, str);
+            if (!path.empty()) {
+                paths.push_back(std::move(path));
+            }
         } catch (...) {
         }
     }
 
-    return result;
+    CoUninitialize();
+    return paths;
 }
 
-inline napi_value GetFileExplorersWrapper(napi_env env, napi_callback_info args)
+inline napi_value getFileExplorersWrapper(napi_env env, napi_callback_info)
 {
-    return NAPI_SAFE_WRAP(env, args, getFileExplorers);
+    return run_async(env, "GetFileExplorers", getFileExplorers);
+}
+
+inline napi_value GetFileExplorersWrapper(napi_env env, napi_callback_info info)
+{
+    return NAPI_SAFE_WRAP(env, info, getFileExplorersWrapper);
 }

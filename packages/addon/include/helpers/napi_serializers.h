@@ -29,6 +29,19 @@ struct NapiSerializer<std::optional<std::wstring>> {
     }
 };
 
+template <>
+struct NapiSerializer<std::vector<std::wstring>> {
+    static napi_value serialize(napi_env env, const std::vector<std::wstring>& values)
+    {
+        napi_value result;
+        napi_create_array_with_length(env, values.size(), &result);
+        for (uint32_t i = 0; i < values.size(); i++) {
+            napi_set_element(env, result, i, NapiSerializer<std::wstring>::serialize(env, values[i]));
+        }
+        return result;
+    }
+};
+
 inline void napiSetString(napi_env env, napi_value obj, const char* key, const std::string& value)
 {
     napi_value val;
