@@ -1,10 +1,5 @@
 #pragma once
 
-#include <exdisp.h>
-#include <external.h>
-
-#include "dispatch_path.h"
-
 inline napi_value getFileExplorers(napi_env env, napi_callback_info)
 {
     CComPtr<IShellWindows> shellWindows;
@@ -24,9 +19,9 @@ inline napi_value getFileExplorers(napi_env env, napi_callback_info)
             shellWindows->Item(idx, &dispatch);
 
             std::wstring path = getPathFromDispatch(dispatch);
-            napi_value pathStr;
-            napi_create_string_utf16(env, (char16_t*)path.c_str(), path.size(), &pathStr);
-            napi_set_element(env, result, out++, pathStr);
+            napi_value str;
+            napi_create_string_utf16(env, (char16_t*)path.c_str(), path.size(), &str);
+            napi_set_element(env, result, out++, str);
         } catch (...) {
         }
     }

@@ -1,17 +1,5 @@
 #pragma once
 
-#include <ShlObj.h>
-#include <atlbase.h>
-#include <exdisp.h>
-#include <exdispid.h>
-#include <external.h>
-#include <shlguid.h>
-
-#include <set>
-#include <thread>
-
-#include "dispatch_path.h"
-
 static napi_threadsafe_function g_explorerTsfn = nullptr;
 static IShellWindows* g_shellWindows = nullptr;
 static std::set<IUnknown*> g_advisedWindows;
@@ -32,8 +20,6 @@ inline void callExplorerJsCallback(napi_env env, napi_value jsCallback, void*, v
 }
 
 inline void adviseNavigation(IDispatch* dispatch);
-
-// ---- COM sinks ----
 
 struct DispatchBase : IDispatch {
     HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT* p) override
@@ -128,8 +114,6 @@ struct ShellWindowsSink : DispatchBase {
     }
 } g_shellWindowsSink;
 
-// ---- entry point ----
-
 inline napi_value WatchFileExplorersWrapper(napi_env env, napi_callback_info info)
 {
     auto [onEventCallback] = napi_extract_args<napi_value>(env, info);
@@ -153,10 +137,12 @@ inline napi_value WatchFileExplorersWrapper(napi_env env, napi_callback_info inf
                 try {
                     CComVariant idx(i);
                     CComPtr<IDispatch> dispatch;
-                    if (SUCCEEDED(g_shellWindows->Item(idx, &dispatch)) && dispatch)
+                    if (SUCCEEDED(g_shellWindows->Item(idx, &dispatch)) && dispatch) {
                         adviseNavigation(dispatch);
+                    }
                 } catch (...) {
-                    wprintf(L"[explorer] startup advise error\n");
+                    auto error = format_exception_message("WatchFileExplorersLoop");
+                    wprintf(L"Error in watch file explorers loop: %s\n", error.c_str());
                 }
             }
 
@@ -169,8 +155,10 @@ inline napi_value WatchFileExplorersWrapper(napi_env env, napi_callback_info inf
                 DispatchMessage(&msg);
             }
         } catch (...) {
-            wprintf(L"[explorer] fatal error\n");
+            auto error = format_exception_message("WatchFileExplorersThread");
+            wprintf(L"Error in watch file explorers thread: %s\n", error.c_str());
         }
+
         CoUninitialize();
     }).detach();
 

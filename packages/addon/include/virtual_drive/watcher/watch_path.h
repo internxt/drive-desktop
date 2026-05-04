@@ -1,6 +1,6 @@
 #pragma once
 
-inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, void* data)
+inline void callWatcherJsCallback(napi_env env, napi_value jsCallback, void* context, void* data)
 {
     WatcherEvent* event = static_cast<WatcherEvent*>(data);
 
@@ -125,7 +125,7 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
 {
     auto [rootPath, onEventCallback] = napi_extract_args<std::wstring, napi_value>(env, info);
 
-    auto tsfn = registerThreadsafeCallback("WatchPathCallback", env, onEventCallback, callJsCallback);
+    auto tsfn = registerThreadsafeCallback("WatchPathCallback", env, onEventCallback, callWatcherJsCallback);
 
     auto ctx = new WatcherContext{tsfn, false};
 

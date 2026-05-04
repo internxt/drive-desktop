@@ -1,13 +1,5 @@
 #pragma once
 
-#include <ShlObj.h>
-#include <atlbase.h>
-#include <exdisp.h>
-#include <external.h>
-#include <shlguid.h>
-
-#include <string>
-
 inline std::wstring getPathFromDispatch(IDispatch* dispatch)
 {
     CComQIPtr<IWebBrowserApp> app(dispatch);
