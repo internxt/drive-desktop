@@ -142,8 +142,7 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
             napi_release_threadsafe_function(ctx->tsfn, napi_tsfn_release);
             delete ctx;
         } catch (...) {
-            auto error = format_exception_message("WatchPathThread");
-            wprintf(L"Error in watch path thread: %s\n", error.c_str());
+            wprintf(L"%S\n", format_exception_message("WatchPathThread").c_str());
         }
     }).detach();
 
