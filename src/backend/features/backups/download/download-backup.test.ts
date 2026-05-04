@@ -22,15 +22,13 @@ describe('download-backup', () => {
   });
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2025-01-01T12:00:00Z'));
+
     getPathFromDialogMock.mockResolvedValue({ path: '/backup' });
   });
 
-  beforeAll(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2025-01-01T12:00:00Z'));
-  });
-
-  afterAll(() => {
+  afterEach(() => {
     vi.useRealTimers();
   });
 
