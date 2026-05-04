@@ -8,8 +8,9 @@
 #include <shlguid.h>
 
 #include <set>
-#include <string>
 #include <thread>
+
+#include "dispatch_path.h"
 
 static napi_threadsafe_function g_explorerTsfn = nullptr;
 static IShellWindows* g_shellWindows = nullptr;
@@ -28,36 +29,6 @@ inline void callExplorerJsCallback(napi_env env, napi_value jsCallback, void*, v
     napi_get_undefined(env, &undef);
     napi_call_function(env, undef, jsCallback, 1, &str, nullptr);
     delete path;
-}
-
-inline std::wstring getPathFromDispatch(IDispatch* dispatch)
-{
-    CComQIPtr<IWebBrowserApp> app(dispatch);
-    if (!app) winrt::check_hresult(E_NOINTERFACE);
-
-    CComQIPtr<IServiceProvider> sp(app);
-    if (!sp) winrt::check_hresult(E_NOINTERFACE);
-
-    CComPtr<IShellBrowser> sb;
-    winrt::check_hresult(sp->QueryService(SID_STopLevelBrowser, IID_IShellBrowser, (void**)&sb));
-
-    CComPtr<IShellView> sv;
-    winrt::check_hresult(sb->QueryActiveShellView(&sv));
-
-    CComQIPtr<IFolderView> fv(sv);
-    if (!fv) winrt::check_hresult(E_NOINTERFACE);
-
-    CComPtr<IPersistFolder2> pf;
-    winrt::check_hresult(fv->GetFolder(IID_IPersistFolder2, (void**)&pf));
-
-    LPITEMIDLIST pidl = nullptr;
-    winrt::check_hresult(pf->GetCurFolder(&pidl));
-
-    wchar_t path[MAX_PATH] = {};
-    BOOL ok = SHGetPathFromIDListW(pidl, path);
-    CoTaskMemFree(pidl);
-    if (!ok) winrt::check_hresult(E_FAIL);
-    return path;
 }
 
 inline void adviseNavigation(IDispatch* dispatch);
@@ -162,6 +133,7 @@ struct ShellWindowsSink : DispatchBase {
 inline napi_value WatchFileExplorersWrapper(napi_env env, napi_callback_info info)
 {
     auto [onEventCallback] = napi_extract_args<napi_value>(env, info);
+
     g_explorerTsfn = registerThreadsafeCallback("WatchFileExplorersCallback", env, onEventCallback, callExplorerJsCallback);
     napi_unref_threadsafe_function(env, g_explorerTsfn);
 
