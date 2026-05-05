@@ -1,0 +1,13 @@
+{
+  "entry": ["src/backend/index.ts", "src/frontend/index.ts"],
+  "exclude": ["devDependencies"],
+  "ignore": ["**/*.test.{ts,tsx}", "src/frontend/core/i18n/**/*", "src/backend/core/sentry/sentry.ts"],
+  "ignoreExportsUsedInFile": true,
+  "project": ["src/**/*.{ts,tsx}"],
+  "vitest": false,
+  "webpack": false,
+  "rules": {
+    "duplicates": "off",
+    "enumMembers": "off"
+  }
+}
