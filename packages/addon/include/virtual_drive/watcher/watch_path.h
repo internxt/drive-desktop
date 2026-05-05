@@ -82,7 +82,7 @@ inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstri
 
 inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
 {
-    auto hDirectory = Placeholders::OpenFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
+    auto hDirectory = openFileHandle(rootPath.c_str(), FILE_LIST_DIRECTORY, false);
 
     BYTE buffer[64 * 1024];
 
@@ -152,4 +152,9 @@ inline napi_value watchPathWrapper(napi_env env, napi_callback_info info)
     napi_value external;
     napi_create_external(env, ctx, nullptr, nullptr, &external);
     return external;
+}
+
+inline napi_value WatchPathWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, watchPathWrapper);
 }

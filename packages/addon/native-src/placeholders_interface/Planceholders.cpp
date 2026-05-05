@@ -1,6 +1,7 @@
 #include <Placeholders.h>
 #include <Utilities.h>
 #include <check_hresult.h>
+#include <open_file_handle.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <stdafx.h>
@@ -17,36 +18,9 @@
 #include <string>
 #include <vector>
 
-winrt::file_handle Placeholders::OpenFileHandle(const std::wstring& path, DWORD dwDesiredAccess, bool openAsPlaceholder)
-{
-    bool isDirectory = std::filesystem::is_directory(path);
-
-    DWORD dwFlagsAndAttributes = 0;
-    if (openAsPlaceholder)
-        dwFlagsAndAttributes |= FILE_FLAG_OPEN_REPARSE_POINT;
-    if (isDirectory)
-        dwFlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
-
-    winrt::file_handle fileHandle{CreateFileW(
-        path.c_str(),
-        dwDesiredAccess,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        nullptr,
-        OPEN_EXISTING,
-        dwFlagsAndAttributes,
-        nullptr)};
-
-    if (!fileHandle) {
-        // https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-
-        throw std::runtime_error("Failed to open file handle: " + std::to_string(GetLastError()));
-    }
-
-    return fileHandle;
-}
-
 FileState Placeholders::GetPlaceholderInfo(const std::wstring& path)
 {
-    auto fileHandle = OpenFileHandle(path, FILE_READ_ATTRIBUTES, true);
+    auto fileHandle = openFileHandle(path, FILE_READ_ATTRIBUTES, true);
 
     constexpr DWORD fileIdMaxLength = 400;
     constexpr DWORD infoSize = sizeof(CF_PLACEHOLDER_STANDARD_INFO) + fileIdMaxLength;
