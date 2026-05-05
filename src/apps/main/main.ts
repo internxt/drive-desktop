@@ -1,4 +1,5 @@
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
+import { initSentry } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import 'core-js/stable';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
@@ -10,7 +11,6 @@ import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
 import 'regenerator-runtime/runtime';
-import { captureSentryException, initSentry } from '@/apps/shared/sentry/sentry';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
@@ -109,13 +109,11 @@ if (process.env.NODE_ENV === 'production') {
 process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
-  logger.error({ msg: 'Unhandled rejection', error, promise });
-  captureSentryException(error, { promise, type: 'unhandledRejection' });
+  logger.sentryError({ msg: 'Unhandled rejection', error }, { promise, type: 'unhandledRejection' });
 });
 
 process.on('uncaughtException', (error, origin) => {
-  logger.error({ msg: 'Uncaught exception', error, origin });
-  captureSentryException(error, { origin, type: 'uncaughtException' });
+  logger.sentryError({ msg: 'Uncaught exception', error }, { origin, type: 'uncaughtException' });
 });
 
 app

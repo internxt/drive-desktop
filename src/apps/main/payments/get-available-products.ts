@@ -1,5 +1,4 @@
 import { PaymentsModule, logger } from '@internxt/drive-desktop-core/build/backend';
-import { captureSentryException } from '@/apps/shared/sentry/sentry';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { onUserUnauthorized } from '../auth/handlers';
 import { obtainToken } from '../auth/service';
@@ -21,9 +20,7 @@ export async function getAvailableProducts() {
       },
     });
   } catch (error) {
-    await captureSentryException(error, {
-      service: 'Payments getAvailableProducts',
-    });
+    logger.sentryError({ msg: 'Get user products error', error }, { service: 'Payments getAvailableProducts' });
     throw error;
   }
 }

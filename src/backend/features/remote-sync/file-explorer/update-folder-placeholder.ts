@@ -1,5 +1,4 @@
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryPlaceholderSyncError } from '@/apps/shared/sentry/sentry';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -35,13 +34,10 @@ export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
     await checkIfMoved({ ctx, type: 'folder', remote, localPath: local.path });
     return true;
   } catch (exc) {
-    ctx.logger.error({ msg: 'Error updating folder placeholder', path, exc });
-    await captureSentryPlaceholderSyncError({
-      error: exc,
-      uuid: remote.uuid,
-      type: 'folder',
-      operationType: 'update',
-    });
+    ctx.logger.sentryError(
+      { msg: 'Error updating folder placeholder', path },
+      { error: exc, uuid: remote.uuid, type: 'folder', operationType: 'update' },
+    );
     return false;
   }
 }

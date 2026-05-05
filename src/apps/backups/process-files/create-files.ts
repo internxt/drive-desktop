@@ -2,7 +2,6 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { captureSentryUploadError } from '@/apps/shared/sentry/sentry';
 import { Sync } from '@/backend/features/sync';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
@@ -22,17 +21,12 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
       try {
         await scheduleRequest({ ctx, path, fn: () => createFile(ctx, path, remoteTree) });
       } catch (error) {
-        ctx.logger.error({ msg: 'Error creating file', path, error });
-
         const fileStats = await stat(path).catch(() => null);
 
-        await captureSentryUploadError({
-          error,
-          fileUuid: '',
-          fileSize: fileStats?.size ?? 0,
-          sourcePath: path,
-          uploadSource: 'backup-upload',
-        });
+        ctx.logger.sentryError(
+          { msg: 'Error creating file', path, error },
+          { fileUuid: '', fileSize: fileStats?.size ?? 0, sourcePath: path, uploadSource: 'backup-upload' },
+        );
       }
     }),
   );

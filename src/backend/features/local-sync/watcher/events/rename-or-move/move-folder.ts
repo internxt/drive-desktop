@@ -1,6 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryFolderError } from '@/apps/shared/sentry/sentry';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { moveItem } from './move-item';
@@ -19,12 +18,6 @@ export async function moveFolder({ ctx, path, uuid }: TProps) {
 
     await moveItem({ ctx, path, uuid, item, type: 'folder' });
   } catch (exc) {
-    ctx.logger.error({ msg: 'Error moving folder', path, uuid, exc });
-    await captureSentryFolderError({
-      error: exc,
-      uuid,
-      operationType: 'move',
-      path,
-    });
+    ctx.logger.sentryError({ msg: 'Error moving folder', path, exc }, { uuid, operationType: 'move' });
   }
 }

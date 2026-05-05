@@ -1,5 +1,4 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { captureSentryDehydrationError } from '@/apps/shared/sentry/sentry';
 import { Addon } from '@/node-win/addon-wrapper';
 import { ProcessSyncContext } from '../config';
 
@@ -14,10 +13,6 @@ export async function handleDehydrate({ ctx, path }: TProps) {
 
     await Addon.dehydrateFile({ path });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error dehydrating file', path, error });
-    await captureSentryDehydrationError({
-      error,
-      path,
-    });
+    ctx.logger.sentryError({ msg: 'Error dehydrating file', path, error });
   }
 }

@@ -2,7 +2,6 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryFolderError } from '@/apps/shared/sentry/sentry';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
@@ -28,12 +27,7 @@ export async function deleteFolderByUuid({ ctx, path, uuid }: { ctx: CommonConte
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });
-    await captureSentryFolderError({
-      error: res.error,
-      uuid,
-      operationType: 'delete',
-      path,
-    });
+    ctx.logger.sentryError({ msg: 'Error deleting folder by uuid', path }, { error: res.error, uuid, operationType: 'delete' });
   } else {
     LocalSync.SyncState.addItem({ action: 'DELETED', path });
     await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
@@ -58,12 +52,7 @@ export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }:
 
   if (res.error) {
     addMoveEvent(false, action, path);
-    await captureSentryFolderError({
-      error: res.error,
-      uuid,
-      operationType: 'move',
-      path,
-    });
+    ctx.logger.sentryError({ msg: 'Error moving folder', path }, { error: res.error, uuid, operationType: 'move' });
   } else {
     addMoveEvent(true, action, path);
     await createOrUpdateFolder({ ctx, folderDto: res.data });

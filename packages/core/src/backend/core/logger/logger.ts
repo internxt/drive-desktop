@@ -1,5 +1,6 @@
 import ElectronLog from 'electron-log';
 import { inspect } from 'node:util';
+import { captureException } from '../sentry/sentry';
 
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'PRODUCTS' | 'CLEANER';
 type TLevel = 'debug' | 'warn' | 'error';
@@ -9,6 +10,7 @@ export type TLoggerBody = {
   msg: string;
   workspaceId?: string;
   context?: Record<string, unknown>;
+  error?: unknown;
   [key: string]: unknown;
 };
 
@@ -98,8 +100,23 @@ function error(rawBody: TLoggerBody) {
   return new Error(rawBody.msg, { cause: rawBody.exc });
 }
 
+function sentryError(rawBody: TLoggerBody, sentryExtras?: Record<string, unknown>) {
+  const err = error(rawBody);
+
+  if (process.type === 'browser') {
+    const { tag, msg, header, workspaceId, error, exc, ...rest } = rawBody;
+    captureException(error ?? err, {
+      tags: { msg },
+      extra: { ...rest, ...sentryExtras },
+    });
+  }
+
+  return err;
+}
+
 export const logger = {
   debug,
   warn,
   error,
+  sentryError,
 };

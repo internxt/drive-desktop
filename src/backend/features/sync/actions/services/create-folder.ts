@@ -1,7 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryFolderError } from '@/apps/shared/sentry/sentry';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
@@ -36,12 +35,7 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
-    await captureSentryFolderError({
-      error: res.error,
-      uuid: parentUuid,
-      operationType: 'create',
-      path,
-    });
+    ctx.logger.sentryError({ msg: 'Error creating folder', path }, { error: res.error, uuid: parentUuid, operationType: 'create' });
     return;
   }
 

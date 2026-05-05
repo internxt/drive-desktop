@@ -7,5 +7,6 @@ export function createLogger(root: Partial<TLoggerBody>) {
     debug: (body: TLoggerBody) => logger.debug({ ...root, ...body }),
     warn: (body: TLoggerBody) => logger.warn({ ...root, ...body }),
     error: (body: TLoggerBody) => logger.error({ ...root, ...body }),
+    sentryError: (body: TLoggerBody, sentryExtras?: Record<string, unknown>) => logger.sentryError({ ...root, ...body }, sentryExtras),
   };
 }

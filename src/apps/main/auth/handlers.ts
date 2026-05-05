@@ -1,9 +1,9 @@
+import { clearSentryUserContext, setSentryUserContext } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
 import { setMaxListeners } from 'node:events';
 import { createWipClient } from '@/apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
-import { clearSentryUserContext, setSentryUserContext } from '@/apps/shared/sentry/sentry';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';

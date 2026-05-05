@@ -1,6 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { captureSentryDownloadError } from '@/apps/shared/sentry/sentry';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { CallbackDownload } from '@/node-win/addon';
@@ -61,16 +60,16 @@ export async function downloadContents({
       return;
     }
 
-    ctx.logger.error({ msg: 'Error downloading file', path, size: file.size, chunk: chunk?.length, error });
+    ctx.logger.sentryError(
+      { msg: 'Error downloading file', path, error },
+      {
+        fileUuid: file.uuid,
+        contentsId: file.contentsId,
+        fileSize: file.size,
+        destinationPath: path,
+        downloadFailureSource: 'sync-download',
+      },
+    );
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
-
-    await captureSentryDownloadError({
-      error,
-      fileUuid: file.uuid,
-      contentsId: file.contentsId,
-      fileSize: file.size,
-      destinationPath: path,
-      downloadFailureSource: 'sync-download',
-    });
   }
 }

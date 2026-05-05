@@ -1,5 +1,4 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { captureSentryPlaceholderSyncError } from '@/apps/shared/sentry/sentry';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
@@ -55,12 +54,9 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       }
     }
   } catch (error) {
-    ctx.logger.error({ msg: 'Error updating file placeholder', path, error });
-    await captureSentryPlaceholderSyncError({
-      error,
-      uuid: remote.uuid,
-      type: 'file',
-      operationType: 'update',
-    });
+    ctx.logger.sentryError(
+      { msg: 'Error updating file placeholder', path, error },
+      { uuid: remote.uuid, type: 'file', operationType: 'update' },
+    );
   }
 }

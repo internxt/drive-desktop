@@ -1,7 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryPlaceholderSyncError } from '@/apps/shared/sentry/sentry';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
@@ -35,12 +34,9 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     const { default: trash } = await import('trash');
     await trash(local.path);
   } catch (error) {
-    ctx.logger.error({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error });
-    await captureSentryPlaceholderSyncError({
-      error,
-      uuid: remote.uuid,
-      type,
-      operationType: 'delete',
-    });
+    ctx.logger.sentryError(
+      { msg: 'Error deleting placeholder', path: remote.absolutePath, type, error },
+      { uuid: remote.uuid, operationType: 'delete' },
+    );
   }
 }
