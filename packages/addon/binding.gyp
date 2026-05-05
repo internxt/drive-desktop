@@ -16,20 +16,9 @@
       "sources": [
         "native-src/main.cpp",
         "native-src/placeholders_interface/Planceholders.cpp",
-        "native-src/virtual_drive/convert_to_placeholder.cpp",
-        "native-src/virtual_drive/create_file_placeholder.cpp",
-        "native-src/virtual_drive/create_folder_placeholder.cpp",
-        "native-src/virtual_drive/dehydrate_file.cpp",
-        "native-src/virtual_drive/disconnect_sync_root.cpp",
         "native-src/virtual_drive/get_placeholder_state.cpp",
         "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots.cpp",
-        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp",
-        "native-src/virtual_drive/hydrate_file.cpp",
-        "native-src/virtual_drive/register_sync_root.cpp",
-        "native-src/virtual_drive/set_pin_state.cpp",
-        "native-src/virtual_drive/unregister_sync_root.cpp",
-        "native-src/virtual_drive/update_placeholder.cpp",
-        "native-src/virtual_drive/update_sync_status.cpp"
+        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp"
       ],
       "include_dirs": [
         "include",
