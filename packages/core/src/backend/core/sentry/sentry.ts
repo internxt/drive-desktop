@@ -1,5 +1,6 @@
 import { init, setUser, captureException as sentryCaptureException } from '@sentry/electron/main';
 import { arch, release, version } from 'node:os';
+
 import { logger } from '../logger/logger';
 
 let isInitialized = false;

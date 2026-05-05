@@ -1,5 +1,6 @@
 import ElectronLog from 'electron-log';
 import { inspect } from 'node:util';
+
 import { captureException } from '../sentry/sentry';
 
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'PRODUCTS' | 'CLEANER';
