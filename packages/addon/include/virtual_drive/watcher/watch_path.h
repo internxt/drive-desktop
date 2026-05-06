@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Placeholders.h>
-
 inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, void* data)
 {
     WatcherEvent* event = static_cast<WatcherEvent*>(data);

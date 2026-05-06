@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 inline void convert_to_placeholder(const std::wstring& path, const std::wstring& placeholderId)
 {
     auto fileHandle = openFileHandle(path, FILE_READ_ATTRIBUTES | FILE_WRITE_ATTRIBUTES, false);

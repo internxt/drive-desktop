@@ -14,18 +14,11 @@
         }
       },
       "sources": [
-        "native-src/main.cpp",
-        "native-src/placeholders_interface/Planceholders.cpp",
-        "native-src/virtual_drive/get_placeholder_state.cpp",
-        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots.cpp",
-        "native-src/virtual_drive/get_registered_sync_roots/get_registered_sync_roots_wrapper.cpp"
+        "native-src/main.cpp"
       ],
       "include_dirs": [
         "include",
         "include/helpers",
-        "include/placeholders_interface",
-        "include/sync_root_interface",
-        "include/sync_root_interface/callbacks",
         "include/virtual_drive",
         "include/virtual_drive/watcher"
       ],

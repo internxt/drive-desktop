@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Placeholders.h>
 #include <external.h>
 #include <napi_extract_args.h>
 #include <napi_safe_wrap.h>
