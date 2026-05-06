@@ -1,9 +1,5 @@
 #pragma once
 
-#include <stdafx.h>
-
-#include <tuple>
-
 template <typename T>
 T napi_extract_value(napi_env env, napi_value value);
 
