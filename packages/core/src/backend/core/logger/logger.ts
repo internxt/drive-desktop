@@ -105,7 +105,7 @@ function sentryError(rawBody: TLoggerBody, sentryExtras?: Record<string, unknown
   const err = error(rawBody);
 
   if (process.type === 'browser') {
-    const { tag, msg, header, workspaceId, error, exc, ...rest } = rawBody;
+    const { msg, error, ...rest } = rawBody;
     captureException(error ?? err, {
       tags: { msg },
       extra: { ...rest, ...sentryExtras },
