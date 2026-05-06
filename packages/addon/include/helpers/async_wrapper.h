@@ -1,14 +1,5 @@
 #pragma once
 
-#include <napi_safe_wrap.h>
-#include <napi_serializers.h>
-#include <node_api.h>
-
-#include <functional>
-#include <memory>
-#include <string>
-#include <type_traits>
-
 template <typename R>
 struct AsyncWorkWrapper {
     napi_async_work work;
