@@ -1,13 +1,13 @@
-import { init, setUser, captureException as sentryCaptureException } from '@sentry/electron/main';
+import { init, setUser, captureException } from '@sentry/electron/main';
 import { arch, release, version } from 'node:os';
 
 import { logger } from '../logger/logger';
 
 let isInitialized = false;
 
-export function captureException(exception: unknown, options?: Record<string, unknown>): void {
+export function captureSentryException(exception: unknown, options?: Record<string, unknown>): void {
   if (!isInitialized) return;
-  sentryCaptureException(exception, options);
+  captureException(exception, options);
 }
 
 export function getSentryEnvironment(): string {

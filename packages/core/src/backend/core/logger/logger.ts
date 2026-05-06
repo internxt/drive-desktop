@@ -1,7 +1,7 @@
 import ElectronLog from 'electron-log';
 import { inspect } from 'node:util';
 
-import { captureException } from '../sentry/sentry';
+import { captureSentryException } from '../sentry/sentry';
 
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'PRODUCTS' | 'CLEANER';
 type TLevel = 'debug' | 'warn' | 'error';
@@ -106,7 +106,7 @@ function sentryError(rawBody: TLoggerBody, sentryExtras?: Record<string, unknown
 
   if (process.type === 'browser') {
     const { msg, error, ...rest } = rawBody;
-    captureException(error ?? err, {
+    captureSentryException(error ?? err, {
       tags: { msg },
       extra: { ...rest, ...sentryExtras },
     });
