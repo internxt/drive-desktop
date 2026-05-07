@@ -1,12 +1,11 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { app } from 'electron';
 import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getE2EPaths } from '@/tests/e2e/helpers/e2e-configuration.helper';
 
 const e2ePaths = getE2EPaths();
 
-const HOME_FOLDER_PATH = (e2ePaths?.e2eHomePath ?? abs(app.getPath('home'))) as AbsolutePath;
-const APP_DATA_PATH = (e2ePaths?.e2eAppDataPath ?? abs(app.getPath('appData'))) as AbsolutePath;
+const HOME_FOLDER_PATH = abs(e2ePaths?.e2eHomePath ?? app.getPath('home'));
+const APP_DATA_PATH = abs(e2ePaths?.e2eAppDataPath ?? app.getPath('appData'));
 
 const INTERNXT = join(APP_DATA_PATH, 'internxt-drive');
 const SQLITE_DB = join(INTERNXT, 'internxt_desktop.db');
