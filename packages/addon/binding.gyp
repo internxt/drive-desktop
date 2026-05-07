@@ -20,7 +20,6 @@
         "include",
         "include/helpers",
         "include/virtual_drive",
-        "include/virtual_drive/file_explorer",
         "include/virtual_drive/watcher"
       ],
       "libraries": [

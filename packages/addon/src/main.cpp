@@ -21,7 +21,6 @@ napi_value init(napi_env env, napi_value exports)
         {"unwatchPath", nullptr, UnwatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updatePlaceholder", nullptr, UpdatePlaceholderWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"updateSyncStatus", nullptr, UpdateSyncStatusWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
-        {"watchFileExplorers", nullptr, WatchFileExplorersWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
         {"watchPath", nullptr, WatchPathWrapper, nullptr, nullptr, nullptr, napi_default, nullptr},
     };
 

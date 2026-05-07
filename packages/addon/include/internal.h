@@ -15,7 +15,6 @@
 #include <helpers/napi_extract_args.h>
 #include <helpers/register_threadsafe_callback.h>
 
-#include <virtual_drive/file_explorer/dispatch_path.h>
 #include <virtual_drive/open_file_handle.h>
 #include <virtual_drive/register_fetch_data_callback.h>
 #include <virtual_drive/watcher/watcher_defs.h>
@@ -26,8 +25,7 @@
 #include <virtual_drive/create_folder_placeholder.h>
 #include <virtual_drive/dehydrate_file.h>
 #include <virtual_drive/disconnect_sync_root.h>
-#include <virtual_drive/file_explorer/get_file_explorers.h>
-#include <virtual_drive/file_explorer/watch_file_explorers.h>
+#include <virtual_drive/get_file_explorers.h>
 #include <virtual_drive/get_first_non_placeholder.h>
 #include <virtual_drive/get_placeholder_state.h>
 #include <virtual_drive/get_registered_sync_roots.h>

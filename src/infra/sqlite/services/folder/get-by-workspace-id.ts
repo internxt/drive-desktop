@@ -18,7 +18,7 @@ export function getByWorkspaceId({ userUuid, workspaceId }: Props) {
     return { data: items.map((item) => parseData({ data: item as DriveFolder })) };
   } catch (exc) {
     logger.error({
-      msg: 'Error getting folders by workspace id',
+      msg: 'Error getting folders by workspaceId',
       workspaceId,
       exc,
     });
