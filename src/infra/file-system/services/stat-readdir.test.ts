@@ -1,13 +1,13 @@
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { statReaddir } from './stat-readdir';
 
 describe('stat-readdir', () => {
-  const root = join(TEST_FILES, v4());
+  const root = join(TEST_FILES, randomUUID());
 
   const folder1 = join(root, 'folder1');
   const folder2 = join(root, 'folder2');

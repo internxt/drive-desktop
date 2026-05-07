@@ -1,8 +1,8 @@
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cwd } from 'node:process';
-import { v4 } from 'uuid';
 
 import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 
@@ -25,7 +25,7 @@ describe('readdir', () => {
 
   it('If folder access is denied (EPERM)', async () => {
     // Given
-    const folder = join(TEST_FILES, v4());
+    const folder = join(TEST_FILES, randomUUID());
     await mkdir(folder);
     execSync(`icacls "${folder}" /deny "${process.env.USERNAME}":F`);
     // When

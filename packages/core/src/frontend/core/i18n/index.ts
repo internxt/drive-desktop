@@ -1,3 +1,4 @@
+import { de } from './locales/de';
 import { en } from './locales/en';
 import { es } from './locales/es';
 import { fr } from './locales/fr';
@@ -8,4 +9,5 @@ export const I18nModule = {
   en,
   es,
   fr,
+  de,
 };

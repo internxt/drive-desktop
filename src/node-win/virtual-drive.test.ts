@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import { iconPath } from '@/apps/utils/icon';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -18,7 +18,7 @@ describe('addon', () => {
   it('should call addon.registerSyncRoot', async () => {
     // Given
     const rootPath = abs('C:/Users/user/InternxtDrive');
-    const providerId = v4();
+    const providerId = randomUUID();
     const providerName = 'InternxtDrive';
     // When
     await Addon.registerSyncRoot({ rootPath, providerId, providerName });
@@ -52,7 +52,7 @@ describe('addon', () => {
 
   it('should call addon.getRegisteredSyncRoots', async () => {
     // Given
-    const providerId = v4();
+    const providerId = randomUUID();
     // When
     await Addon.unregisterSyncRoot({ providerId });
     // Then

@@ -24,12 +24,12 @@ describe('create-or-update-batch', () => {
         uuid: `uuid${idx}`,
         status: 'EXISTS',
         parentId: null,
-        parentUuid: null,
+        parentUuid: 'parentUuid',
         userUuid: 'userUuid',
-        workspaceId: null,
+        workspaceId: 'workspaceId',
         createdAt: date,
         updatedAt: date,
-        plainName: null,
+        plainName: 'plainName',
       })),
     };
   });
@@ -50,6 +50,18 @@ describe('create-or-update-batch', () => {
     // Then
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_folder').get() }).toStrictEqual({ 'COUNT(*)': 450 });
+    expect({ ...db.prepare('SELECT * FROM drive_folder').get() }).toStrictEqual({
+      id: 0,
+      uuid: 'uuid0',
+      status: 'EXISTS',
+      plainName: 'plainName',
+      createdAt: date,
+      updatedAt: date,
+      parentUuid: 'parentUuid',
+      workspaceId: 'workspaceId',
+      parentId: null,
+      userUuid: 'userUuid',
+    });
   });
 
   it('should update existing folders', () => {

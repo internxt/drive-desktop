@@ -30,7 +30,6 @@ export async function loadVirtualDrive({ ctx }: Props) {
   } catch (error) {
     addSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: rootPath });
     ctx.logger.error({ msg: 'Error loading virtual drive', error });
-    return;
   }
 }
 
@@ -41,6 +40,5 @@ async function getSyncRootFromPath(ctx: SyncContext) {
     return info;
   } catch (error) {
     ctx.logger.error({ msg: 'Error getting sync root from path', error });
-    return;
   }
 }

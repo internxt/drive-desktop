@@ -1,5 +1,5 @@
+import { randomUUID } from 'node:crypto';
 import { stat, writeFile } from 'node:fs/promises';
-import { v4 } from 'uuid';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -15,8 +15,8 @@ describe('check-if-modified', () => {
   const onChangeMock = partialSpyOn(onChange, 'onChange');
 
   const providerName = 'Internxt Drive';
-  const providerId = v4();
-  const rootPath = join(TEST_FILES, v4());
+  const providerId = randomUUID();
+  const rootPath = join(TEST_FILES, randomUUID());
   const path = join(rootPath, 'file.txt');
 
   beforeEach(async () => {

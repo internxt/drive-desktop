@@ -1,15 +1,15 @@
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
-import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
-import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import * as updateFilePlaceholder from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import * as updateFolderPlaceholder from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { traverse } from './Traverser';
 
 describe('traverse', () => {
   const deleteItemPlaceholderMock = partialSpyOn(deleteItemPlaceholder, 'deleteItemPlaceholder');
-  const updateFilePlaceholderMock = partialSpyOn(FilePlaceholderUpdater, 'update');
-  const updateFolderPlaceholderMock = partialSpyOn(FolderPlaceholderUpdater, 'update');
+  const updateFilePlaceholderMock = partialSpyOn(updateFilePlaceholder, 'updateFilePlaceholder');
+  const updateFolderPlaceholderMock = partialSpyOn(updateFolderPlaceholder, 'updateFolderPlaceholder');
 
   let props: Parameters<typeof traverse>[0];
 
@@ -58,7 +58,7 @@ describe('traverse', () => {
     calls(updateFilePlaceholderMock).toMatchObject([{ remote: { absolutePath: '/drive/child1' } }]);
   });
 
-  it('should include some childreen if first parent succeed', async () => {
+  it('should include some children if first parent succeed', async () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     // When
@@ -84,7 +84,7 @@ describe('traverse', () => {
     ]);
   });
 
-  it('should include all childreen if all parents succeed', async () => {
+  it('should include all children if all parents succeed', async () => {
     // Given
     updateFolderPlaceholderMock.mockResolvedValue(true);
     // When

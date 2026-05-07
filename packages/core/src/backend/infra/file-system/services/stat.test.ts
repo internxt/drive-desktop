@@ -1,8 +1,8 @@
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { cwd } from 'node:process';
-import { v4 } from 'uuid';
 
 import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 
@@ -25,7 +25,7 @@ describe('stat', () => {
 
   it('If file access is denied (EPERM)', async () => {
     // Given
-    const folder = join(TEST_FILES, v4());
+    const folder = join(TEST_FILES, randomUUID());
     const file = join(folder, 'file.txt');
 
     await mkdir(folder);

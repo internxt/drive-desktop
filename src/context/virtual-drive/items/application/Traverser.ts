@@ -2,8 +2,8 @@ import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
-import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
-import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
@@ -31,7 +31,7 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     if (file.status === 'DELETED' || file.status === 'TRASHED') {
       await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
     } else {
-      await FilePlaceholderUpdater.update({ ctx, remote, files: fileExplorer.files, isFirstExecution });
+      await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
     }
   });
 
@@ -42,7 +42,7 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
       await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: fileExplorer.folders });
     } else {
-      const success = await FolderPlaceholderUpdater.update({ ctx, remote, folders: fileExplorer.folders });
+      const success = await updateFolderPlaceholder({ ctx, remote, folders: fileExplorer.folders });
       if (success) {
         await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution });
       }

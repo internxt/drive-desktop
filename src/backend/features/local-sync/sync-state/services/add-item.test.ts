@@ -16,7 +16,6 @@ describe('add-item', () => {
   });
 
   afterEach(() => {
-    vi.clearAllTimers();
     vi.useRealTimers();
   });
 

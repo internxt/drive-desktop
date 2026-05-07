@@ -143,6 +143,7 @@ export const en = {
           es: 'Español (Spanish)',
           en: 'English (English)',
           fr: 'Français (French)',
+          de: 'Deutsch (German)',
         },
       },
       theme: {
@@ -197,7 +198,6 @@ export const en = {
     },
     backups: {
       title: 'Backup folders',
-      'selected-folder_one': '{{count}} folder',
       'selected-folder_other': '{{count}} folders',
       'add-folders': 'Click + to select the folders\n you want to back up',
       activate: 'Back up your folders and files',
@@ -231,7 +231,7 @@ export const en = {
         warning: "Folders won't automatically backup until you click 'Backup now'. This mode is not recommended.",
       },
       folders: {
-        'no-folders': 'empty folder, no folder available',
+        'no-folders': 'No folders available',
         'no-folders-to-download': 'No folders available for download',
         save: 'Save',
         cancel: 'Cancel',
