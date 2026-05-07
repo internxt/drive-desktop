@@ -6,7 +6,6 @@ import 'core-js/stable';
 // via webpack in prod
 import 'dotenv/config';
 import { app, crashReporter } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
@@ -25,6 +24,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
 import { setupDeviceIpc } from './device/handlers';
+import { checkForUpdates } from './electron/autoupdater/check-for-updates';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
@@ -62,8 +62,7 @@ if (process.defaultApp) {
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-  app.quit();
-  process.exit(0);
+  app.exit(0);
 } else {
   app.on('second-instance', (event, argv) => {
     processDeeplink({ argv });
@@ -90,16 +89,6 @@ logger.debug({
   arch: arch(),
 });
 
-async function checkForUpdates() {
-  autoUpdater.logger = {
-    debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    info: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
-    warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
-  };
-  await autoUpdater.checkForUpdatesAndNotify();
-}
-
 if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
@@ -116,9 +105,12 @@ process.on('uncaughtException', (error, origin) => {
   logger.sentryError({ msg: 'Uncaught exception', error }, { origin, type: 'uncaughtException' });
 });
 
-app
-  .whenReady()
-  .then(async () => {
+async function start() {
+  try {
+    const installing = await checkForUpdates();
+    if (installing) return;
+
+    await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
 
     measureHealth();
@@ -136,8 +128,9 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
+  } catch (error) {
+    logger.error({ msg: 'Error starting app', error });
+  }
+}
 
-    await checkForUpdates();
-    setInterval(checkForUpdates, 60 * 60 * 1000);
-  })
-  .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
+void start();

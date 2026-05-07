@@ -14,3 +14,8 @@ inline napi_value unwatchPathWrapper(napi_env env, napi_callback_info info)
 
     return nullptr;
 }
+
+inline napi_value UnwatchPathWrapper(napi_env env, napi_callback_info args)
+{
+    return NAPI_SAFE_WRAP(env, args, unwatchPathWrapper);
+}

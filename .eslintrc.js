@@ -28,6 +28,7 @@ module.exports = {
         'sonarjs/no-alphabetical-sort': 'off',
         'sonarjs/no-empty-test-file': 'off',
         'sonarjs/os-command': 'off',
+        'sonarjs/publicly-writable-directories': 'off',
       },
     },
   ],

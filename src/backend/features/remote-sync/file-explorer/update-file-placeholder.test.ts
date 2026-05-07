@@ -4,7 +4,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { testLogger, testLoggerFn } from '@/tests/vitest/mocks.helper.test';
+import { loggerMock, loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import * as needsToBeMoved from './needs-to-be-moved';
 import { updateFilePlaceholder } from './update-file-placeholder';
@@ -27,7 +27,7 @@ describe('update-file-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = {
-      ctx: { logger: testLogger },
+      ctx: { logger: loggerMock },
       isFirstExecution: false,
       files: new Map([['uuid' as FileUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
@@ -77,7 +77,7 @@ describe('update-file-placeholder', () => {
     // When
     await updateFilePlaceholder(props as any);
     // Then
-    call(testLoggerFn).toStrictEqual({ msg: 'File stuck in hydrated state', onDiskSize: 512, size: 1024, path: 'remotePath' });
+    call(loggerFn).toStrictEqual({ msg: 'File stuck in hydrated state', onDiskSize: 512, size: 1024, path: 'remotePath' });
     call(setPinStateMock).toStrictEqual({ path: 'remotePath', pinState: PinState.Unspecified });
   });
 
@@ -111,6 +111,6 @@ describe('update-file-placeholder', () => {
     await updateFilePlaceholder(props as any);
     // Then
     calls(needsToBeMovedMock).toHaveLength(0);
-    call(testLoggerFn).toMatchObject({ msg: 'Error updating file placeholder' });
+    call(loggerFn).toMatchObject({ msg: 'Error updating file placeholder' });
   });
 });

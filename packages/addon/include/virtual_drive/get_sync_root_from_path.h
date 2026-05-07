@@ -1,7 +1,5 @@
 #pragma once
 
-#include <external.h>
-
 struct SyncRoot {
     bool allowPinning;
     bool showSiblingsAsGroup;

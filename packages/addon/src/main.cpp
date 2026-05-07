@@ -1,7 +1,4 @@
-#include <Wrappers.h>
-#include <node_api.h>
-
-#include <iterator>
+#include <internal.h>
 
 napi_value init(napi_env env, napi_value exports)
 {
