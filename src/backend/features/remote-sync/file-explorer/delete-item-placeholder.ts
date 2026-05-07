@@ -42,17 +42,13 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
       return;
     }
 
-    let nonPlaceholderItem: string | undefined;
-
-    const time = await measurePerfomance(async () => {
-      nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
-    });
+    const nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
 
     if (nonPlaceholderItem) {
-      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', time, nonPlaceholderItem });
+      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', nonPlaceholderItem });
       return;
     } else {
-      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders', time });
+      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders' });
     }
 
     /**
