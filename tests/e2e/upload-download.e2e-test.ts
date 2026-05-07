@@ -100,12 +100,12 @@ describe('Upload-Download scenario test', () => {
 
     await assertLoggedIn(electronApp, email);
 
-    // Wait for the file to be downloaded
-    await sleep(4000);
-
     const syncFolderPath = await getSyncFolderPath(electronApp);
 
     await waitForSyncStatus(electronApp, 'SYNCED', 180000);
+
+    // Wait for the file to be downloaded
+    await sleep(5000);
 
     const testFilePath = `${syncFolderPath}/${TEST_FILE_NAME}`;
 
