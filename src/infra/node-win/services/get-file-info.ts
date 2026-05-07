@@ -3,6 +3,8 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Addon } from '@/node-win/addon-wrapper';
 
+export type FilePlaceholder = NonNullable<Awaited<ReturnType<typeof getFileInfo>>['data']>;
+
 export class GetFileInfoError extends Error {
   constructor(
     public readonly code: 'NOT_A_PLACEHOLDER' | 'UNKNOWN',
@@ -12,11 +14,7 @@ export class GetFileInfoError extends Error {
   }
 }
 
-type TProps = {
-  path: AbsolutePath;
-};
-
-export async function getFileInfo({ path }: TProps) {
+export async function getFileInfo({ path }: { path: AbsolutePath }) {
   try {
     const data = await Addon.getPlaceholderState({ path });
 

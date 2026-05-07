@@ -145,6 +145,7 @@ export const fr: Translation = {
           es: 'Español (Espagnole)',
           en: 'English (Anglaise)',
           fr: 'Français (Français)',
+          de: 'Deutsch (Allemand)',
         },
       },
       theme: {
@@ -200,7 +201,6 @@ export const fr: Translation = {
     backups: {
       title: 'Dossiers de sauvegarde',
       'add-folders': 'Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder',
-      'selected-folder_one': '{{count}} dossier',
       'selected-folder_other': '{{count}} dossiers',
       activate: 'Sauvegarder vos dossiers',
       'view-backups': 'Parcourir les backups',

@@ -7,6 +7,7 @@ const translations = {
   en: I18nModule.en,
   es: I18nModule.es,
   fr: I18nModule.fr,
+  de: I18nModule.de,
 };
 
 export function getI18nValue(language: Language, path: TranslationPath, args?: TranslationArgs) {

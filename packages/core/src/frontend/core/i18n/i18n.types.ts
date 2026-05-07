@@ -1,6 +1,6 @@
 import { en } from './locales/en';
 
-export type Language = 'es' | 'en' | 'fr';
+export type Language = 'es' | 'en' | 'fr' | 'de';
 export type Translation = typeof en;
 
 /**

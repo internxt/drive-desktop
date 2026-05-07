@@ -38,12 +38,12 @@ export type DriveFile = {
   id: number;
   uuid: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
-  plainName: string | null;
-  type: string | null;
+  plainName: string;
+  type: string;
   createdAt: string;
   updatedAt: string;
-  folderUuid: string | null;
-  workspaceId: string | null;
+  folderUuid: string;
+  workspaceId: string;
   fileId: string;
   size: number;
   folderId: number;
@@ -54,14 +54,14 @@ export type DriveFile = {
 export type DriveFolder = {
   id: number;
   uuid: string;
-  workspaceId: string | null;
-  parentId: number | null;
-  parentUuid: string | null;
-  userUuid: string;
+  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+  plainName: string;
   createdAt: string;
   updatedAt: string;
-  plainName: string | null;
-  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+  parentUuid: string;
+  workspaceId: string;
+  parentId: number | null;
+  userUuid: string;
 };
 
 export type Checkpoint = {

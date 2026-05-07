@@ -1,5 +1,5 @@
+import { randomUUID } from 'node:crypto';
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { v4 } from 'uuid';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
@@ -11,10 +11,10 @@ describe('traverser', () => {
   const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
   const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
 
-  const folder = v4() as FolderUuid;
-  const folder1 = v4() as FolderUuid;
-  const folder2 = v4() as FolderUuid;
-  const folder3 = v4() as FolderUuid;
+  const folder = randomUUID() as FolderUuid;
+  const folder1 = randomUUID() as FolderUuid;
+  const folder2 = randomUUID() as FolderUuid;
+  const folder3 = randomUUID() as FolderUuid;
 
   beforeEach(() => {
     getFilesMock.mockResolvedValue({
