@@ -70,7 +70,9 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     const trashPath = join(trashDir, randomUUID());
     // Move operations are not allowed across different volumes.
     await rename(local.path, trashPath);
-    await rm(trashPath, { recursive: true, force: true });
+
+    const { default: trash } = await import('trash');
+    await trash(trashPath);
   } catch (error) {
     ctx.logger.error({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error });
   }
