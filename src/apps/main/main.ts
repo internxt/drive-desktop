@@ -89,7 +89,7 @@ if (process.env.NODE_ENV === 'production') {
 process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
-  logger.error({ msg: 'Unhandled rejection', error, promise });
+  logger.error({ msg: 'Unhandled rejection2', error, promise });
 });
 
 process.on('uncaughtException', (error, origin) => {
