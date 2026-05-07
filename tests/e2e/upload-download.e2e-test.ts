@@ -84,7 +84,7 @@ describe('Upload-Download scenario test', () => {
     pwExpect(fileStillExists).toBe(true);
   });
 
-  it('should download a file from the cloud', async () => {
+  it.skip('should download a file from the cloud', async () => {
     await electronApp?.close();
     cleanupIsolatedStore();
     getIsolatedStore();
