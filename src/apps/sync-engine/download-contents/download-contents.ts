@@ -61,7 +61,7 @@ export async function downloadContents({
     }
 
     ctx.logger.sentryError(
-      { msg: 'Error downloading file', path, error },
+      { msg: 'Error downloading file', path, size: file.size, chunk: chunk?.length, error },
       {
         fileUuid: file.uuid,
         contentsId: file.contentsId,

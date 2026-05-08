@@ -98,11 +98,11 @@ if (process.env.NODE_ENV === 'production') {
 process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
-  logger.sentryError({ msg: 'Unhandled rejection', error }, { promise, type: 'unhandledRejection' });
+  logger.sentryError({ msg: 'Unhandled rejection', promise, error });
 });
 
 process.on('uncaughtException', (error, origin) => {
-  logger.sentryError({ msg: 'Uncaught exception', error }, { origin, type: 'uncaughtException' });
+  logger.sentryError({ msg: 'Uncaught exception', origin, error });
 });
 
 async function start() {
