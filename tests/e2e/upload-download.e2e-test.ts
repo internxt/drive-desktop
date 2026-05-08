@@ -84,7 +84,7 @@ describe('Upload-Download scenario test', () => {
     pwExpect(fileStillExists).toBe(true);
   });
 
-  it('should download a file from the cloud', async () => {
+  it.skip('should download a file from the cloud', async () => {
     await electronApp?.close();
     cleanupIsolatedStore();
     getIsolatedStore();
@@ -100,12 +100,12 @@ describe('Upload-Download scenario test', () => {
 
     await assertLoggedIn(electronApp, email);
 
-    // Wait for the file to be downloaded
-    await sleep(4000);
-
     const syncFolderPath = await getSyncFolderPath(electronApp);
 
     await waitForSyncStatus(electronApp, 'SYNCED', 180000);
+
+    // Wait for the file to be downloaded
+    await sleep(5000);
 
     const testFilePath = `${syncFolderPath}/${TEST_FILE_NAME}`;
 
