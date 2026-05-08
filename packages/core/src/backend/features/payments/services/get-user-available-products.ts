@@ -9,11 +9,7 @@ export async function getUserAvailableProducts({ paymentsClientConfig }: { payme
     const userProductsInfo = await paymentsClient.getUserTier();
     return userAvailableProductsMapper(userProductsInfo.featuresPerService);
   } catch (error) {
-    logger.error({
-      tag: 'PRODUCTS',
-      msg: 'Failed to get user available products with error:',
-      error,
-    });
+    logger.sentryError({ TAG: 'PRODUCTS', msg: 'Get user products error', error });
     return undefined;
   }
 }

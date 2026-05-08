@@ -33,11 +33,8 @@ export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
 
     await checkIfMoved({ ctx, type: 'folder', remote, localPath: local.path });
     return true;
-  } catch (exc) {
-    ctx.logger.sentryError(
-      { msg: 'Error updating folder placeholder', path },
-      { error: exc, uuid: remote.uuid, type: 'folder', operationType: 'update' },
-    );
+  } catch (error) {
+    ctx.logger.sentryError({ msg: 'Error updating folder placeholder', path, error }, { uuid: remote.uuid });
     return false;
   }
 }

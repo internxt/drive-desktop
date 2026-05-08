@@ -5,19 +5,19 @@ import { logger } from '../logger/logger';
 
 let isInitialized = false;
 
-export function captureSentryException(exception: unknown, options?: Record<string, unknown>): void {
+export function captureSentryException(exception: unknown, options?: Record<string, unknown>) {
   if (!isInitialized) return;
   captureException(exception, options);
 }
 
-export function getSentryEnvironment(): string {
+export function getSentryEnvironment() {
   if (process.env.NODE_ENV === 'production') {
     return process.env.SENTRY_ENVIRONMENT || 'prod';
   }
   return process.env.SENTRY_ENVIRONMENT || 'dev';
 }
 
-export function initSentry(): void {
+export function initSentry() {
   const dsn = process.env.SENTRY_DSN;
 
   if (!dsn) {
@@ -34,16 +34,6 @@ export function initSentry(): void {
     defaultIntegrations: false,
     integrations: (integrations) => {
       return integrations;
-    },
-    beforeSend(event) {
-      logger.error({
-        msg: 'Sentry event captured',
-        eventId: event.event_id,
-        environment: event.environment,
-        release: event.release,
-        exception: event.exception?.values?.[0],
-      });
-      return event;
     },
     initialScope: {
       tags: {
@@ -65,7 +55,7 @@ export function initSentry(): void {
   });
 }
 
-export function setSentryUserContext(email: string, uuid: string): void {
+export function setSentryUserContext(email: string, uuid: string) {
   if (!isInitialized) return;
 
   setUser({ email, id: uuid });
@@ -77,7 +67,7 @@ export function setSentryUserContext(email: string, uuid: string): void {
   });
 }
 
-export function clearSentryUserContext(): void {
+export function clearSentryUserContext() {
   if (!isInitialized) return;
 
   setUser(null);

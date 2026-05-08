@@ -17,7 +17,7 @@ export async function moveFolder({ ctx, path, uuid }: TProps) {
     if (error) throw error;
 
     await moveItem({ ctx, path, uuid, item, type: 'folder' });
-  } catch (exc) {
-    ctx.logger.sentryError({ msg: 'Error moving folder', path, exc }, { uuid, operationType: 'move' });
+  } catch (error) {
+    ctx.logger.sentryError({ msg: 'Error moving folder', path, error }, { uuid });
   }
 }

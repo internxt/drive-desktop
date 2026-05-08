@@ -44,8 +44,6 @@ export async function downloadFile({ file, contentsDownloader }: Props) {
         fileUuid: file.uuid,
         contentsId: file.contentsId,
         fileSize: file.size,
-        destinationPath: file.absolutePath,
-        downloadFailureSource: 'backup-download',
       },
     );
   }

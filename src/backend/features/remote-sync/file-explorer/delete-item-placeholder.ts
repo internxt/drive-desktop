@@ -34,9 +34,6 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     const { default: trash } = await import('trash');
     await trash(local.path);
   } catch (error) {
-    ctx.logger.sentryError(
-      { msg: 'Error deleting placeholder', path: remote.absolutePath, type, error },
-      { uuid: remote.uuid, operationType: 'delete' },
-    );
+    ctx.logger.sentryError({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error }, { uuid: remote.uuid });
   }
 }

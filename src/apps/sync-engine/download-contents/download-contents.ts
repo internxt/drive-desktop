@@ -67,7 +67,6 @@ export async function downloadContents({
         contentsId: file.contentsId,
         fileSize: file.size,
         destinationPath: path,
-        downloadFailureSource: 'sync-download',
       },
     );
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });

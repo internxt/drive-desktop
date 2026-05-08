@@ -11,8 +11,11 @@ export type TLoggerBody = {
   msg: string;
   workspaceId?: string;
   context?: Record<string, unknown>;
-  error?: unknown;
   [key: string]: unknown;
+};
+
+export type LoggerSentryErrorBody = TLoggerBody & {
+  error: unknown;
 };
 
 function getLevelStr(level: TLevel): string {
@@ -58,6 +61,7 @@ function getTagStr(tag?: TTag): string {
     case 'PRODUCTS':
       return 'prod';
     case undefined:
+    default:
       return '    ';
   }
 }
@@ -101,16 +105,14 @@ function error(rawBody: TLoggerBody) {
   return new Error(rawBody.msg, { cause: rawBody.exc });
 }
 
-function sentryError(rawBody: TLoggerBody, sentryExtras?: Record<string, unknown>) {
+function sentryError(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
   const err = error(rawBody);
 
-  if (process.type === 'browser') {
-    const { msg, error, ...rest } = rawBody;
-    captureSentryException(error ?? err, {
-      tags: { msg },
-      extra: { ...rest, ...sentryExtras },
-    });
-  }
+  const { tag, error: exception, ...rest } = rawBody;
+  captureSentryException(exception ?? err, {
+    tags: { tag },
+    extra: { ...rest, ...sentryExtras },
+  });
 
   return err;
 }
