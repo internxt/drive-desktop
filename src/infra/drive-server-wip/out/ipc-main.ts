@@ -52,7 +52,7 @@ export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }:
 
   if (res.error) {
     addMoveEvent(false, action, path);
-    ctx.logger.sentryError({ TAG: 'SYNC-ENGINE', msg: 'Error moving folder', error: res.error }, { path, uuid });
+    ctx.logger.sentryError({ TAG: 'SYNC-ENGINE', msg: 'Error moving folder', path, error: res.error }, { uuid });
   } else {
     addMoveEvent(true, action, path);
     await createOrUpdateFolder({ ctx, folderDto: res.data });
