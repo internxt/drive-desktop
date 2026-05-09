@@ -10,7 +10,7 @@ type Props = {
   files: DriveFile[];
 };
 
-export function createOrUpdateBatch({ files }: Props) {
+export async function createOrUpdateBatch({ files }: Props) {
   if (files.length === 0) return;
 
   try {
@@ -39,15 +39,12 @@ export function createOrUpdateBatch({ files }: Props) {
         });
       }
       db.exec('COMMIT');
+
+      await new Promise((resolve) => setImmediate(resolve));
     }
   } catch (error) {
     db.exec('ROLLBACK');
-    logger.error({
-      msg: 'Error batch creating or updating files',
-      count: files.length,
-      error,
-    });
-
+    logger.error({ msg: 'Error batch creating or updating files', count: files.length, error });
     return new SqliteError('UNKNOWN', error);
   }
 }

@@ -1,20 +1,19 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, rm } from 'node:fs/promises';
 import { join, parse } from 'node:path';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { Addon } from '@/node-win/addon-wrapper';
-import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
-type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: FileExplorerFiles };
-type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder; locals: FileExplorerFolders };
+type FileProps = { type: 'file'; remote: ExtendedDriveFile };
+type FolderProps = { type: 'folder'; remote: ExtendedDriveFolder };
 type Props = { ctx: SyncContext } & (FileProps | FolderProps);
 
-export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props) {
+export async function deleteItemPlaceholder({ ctx, type, remote }: Props) {
   try {
-    const local = (locals as Map<string, { path: AbsolutePath }>).get(remote.uuid);
+    const local = Lmdb.get(remote.uuid);
 
     if (!local) return;
 
@@ -25,7 +24,6 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
        * so instead of deleting the placeholder, we are going to send the item to the trash
        * so the user can decide whether to delete it or recover it.
        */
-
       ctx.logger.error({
         msg: 'Path does not match when deleting placeholder',
         remotePath: remote.absolutePath,
