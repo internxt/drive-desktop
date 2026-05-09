@@ -1,9 +1,6 @@
 import { afterAll } from 'vitest';
 import { cleanupIsolatedStore, getIsolatedStore } from '../e2e/helpers/isolated-store.helper';
 
-// We do not want to create the lmdb database
-vi.mock(import('lmdb'));
-
 cleanupIsolatedStore();
 
 const store = getIsolatedStore();
