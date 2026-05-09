@@ -2,15 +2,17 @@ import { rename } from 'node:fs/promises';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import * as needsToBeMoved from './needs-to-be-moved';
 import { updateFolderPlaceholder } from './update-folder-placeholder';
 
 vi.mock(import('node:fs/promises'));
 
 describe('update-folder-placeholder', () => {
+  const lmdbGet = partialSpyOn(Lmdb, 'get');
   const createFolderPlaceholderMock = partialSpyOn(Addon, 'createFolderPlaceholder');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
@@ -19,28 +21,27 @@ describe('update-folder-placeholder', () => {
 
   const date = '2000-01-01T00:00:00.000Z';
   const time = new Date(date).getTime();
-
-  let props: Parameters<typeof updateFolderPlaceholder>[0];
+  let props: TestProps<typeof updateFolderPlaceholder>;
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
+    lmdbGet.mockReturnValue({ path: 'localPath' as AbsolutePath });
 
-    props = mockProps<typeof updateFolderPlaceholder>({
-      folders: new Map([['uuid' as FolderUuid, { path: 'localPath' as AbsolutePath }]]),
+    props = {
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FolderUuid,
         createdAt: date,
         updatedAt: date,
       },
-    });
+    };
   });
 
   it('should do nothing if name is invalid', async () => {
     // Given
     validateWindowsNameMock.mockReturnValue({ isValid: false });
     // When
-    const res = await updateFolderPlaceholder(props);
+    const res = await updateFolderPlaceholder(props as any);
     // Then
     expect(res).toBe(false);
     expect(needsToBeMovedMock).toBeCalledTimes(0);
@@ -48,9 +49,9 @@ describe('update-folder-placeholder', () => {
 
   it('should create placeholder if folder does not exist locally', async () => {
     // Given
-    props.folders = new Map();
+    lmdbGet.mockReturnValue(undefined);
     // When
-    const res = await updateFolderPlaceholder(props);
+    const res = await updateFolderPlaceholder(props as any);
     // Then
     expect(res).toBe(true);
     expect(needsToBeMovedMock).toBeCalledTimes(0);
@@ -67,7 +68,7 @@ describe('update-folder-placeholder', () => {
     // Given
     needsToBeMovedMock.mockResolvedValue(true);
     // When
-    const res = await updateFolderPlaceholder(props);
+    const res = await updateFolderPlaceholder(props as any);
     // Then
     expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
@@ -80,7 +81,7 @@ describe('update-folder-placeholder', () => {
     // Given
     needsToBeMovedMock.mockResolvedValue(false);
     // When
-    const res = await updateFolderPlaceholder(props);
+    const res = await updateFolderPlaceholder(props as any);
     // Then
     expect(res).toBe(true);
     expect(createFolderPlaceholderMock).toBeCalledTimes(0);
@@ -93,7 +94,7 @@ describe('update-folder-placeholder', () => {
       throw new Error('Something failed');
     });
     // When
-    const res = await updateFolderPlaceholder(props);
+    const res = await updateFolderPlaceholder(props as any);
     // Then
     expect(res).toBe(false);
     expect(needsToBeMovedMock).toBeCalledTimes(0);

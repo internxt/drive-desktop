@@ -2,14 +2,17 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as statReaddir from '@/infra/file-system/services/stat-readdir';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
 
 describe('load-in-memory-paths', () => {
   const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const lmdbAddFile = partialSpyOn(Lmdb, 'addFile');
+  const lmdbAddFolder = partialSpyOn(Lmdb, 'addFolder');
 
   const props = mockProps<typeof loadInMemoryPaths>({ ctx: {} });
 
@@ -31,14 +34,12 @@ describe('load-in-memory-paths', () => {
       .mockResolvedValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } })
       .mockResolvedValueOnce({ data: { uuid: 'fileUuid3' as FileUuid } });
     // When
-    const { files, folders } = await loadInMemoryPaths(props);
+    await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1' }]]));
-    expect(files).toMatchObject(
-      new Map([
-        ['fileUuid2', { path: '/file2' }],
-        ['fileUuid3', { path: '/file3' }],
-      ]),
-    );
+    call(lmdbAddFolder).toStrictEqual(['folderUuid', { path: '/folder1' }]);
+    calls(lmdbAddFile).toMatchObject([
+      ['fileUuid2', { path: '/file2' }],
+      ['fileUuid3', { path: '/file3' }],
+    ]);
   });
 });

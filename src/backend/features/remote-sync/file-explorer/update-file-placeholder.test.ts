@@ -2,6 +2,7 @@ import { rename } from 'node:fs/promises';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { loggerMock, loggerFn } from '@/tests/vitest/mocks.helper.test';
@@ -12,6 +13,7 @@ import { updateFilePlaceholder } from './update-file-placeholder';
 vi.mock(import('node:fs/promises'));
 
 describe('update-file-placeholder', () => {
+  const lmdbGet = partialSpyOn(Lmdb, 'get');
   const createFilePlaceholderMock = partialSpyOn(Addon, 'createFilePlaceholder');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const setPinStateMock = partialSpyOn(Addon, 'setPinState');
@@ -25,11 +27,11 @@ describe('update-file-placeholder', () => {
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
+    lmdbGet.mockReturnValue({ path: 'localPath' as AbsolutePath });
 
     props = {
       ctx: { logger: loggerMock },
       isFirstExecution: false,
-      files: new Map([['uuid' as FileUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
@@ -51,7 +53,7 @@ describe('update-file-placeholder', () => {
 
   it('should create placeholder if file does not exist locally', async () => {
     // Given
-    props.files = new Map();
+    lmdbGet.mockReturnValue(undefined);
     // When
     await updateFilePlaceholder(props as any);
     // Then
@@ -68,12 +70,7 @@ describe('update-file-placeholder', () => {
   it('should reset pin state if file is partially hydrated', async () => {
     // Given
     props.isFirstExecution = true;
-    props.files = new Map([
-      [
-        'uuid' as FileUuid,
-        { path: 'remotePath' as AbsolutePath, stats: { size: 1024 }, placeholder: { pinState: PinState.AlwaysLocal, onDiskSize: 512 } },
-      ],
-    ]);
+    lmdbGet.mockReturnValue({ path: 'remotePath' as AbsolutePath, size: 1024, pinState: PinState.AlwaysLocal, onDiskSize: 512 });
     // When
     await updateFilePlaceholder(props as any);
     // Then
