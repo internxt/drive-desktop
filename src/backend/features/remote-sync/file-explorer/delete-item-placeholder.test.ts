@@ -1,23 +1,20 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, rm } from 'node:fs/promises';
-import trash from 'trash';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, deepMocked, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { deleteItemPlaceholder } from './delete-item-placeholder';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:crypto'));
-vi.mock(import('trash'));
 
 describe('delete-item-placeholder', () => {
-  const mkdirMock = deepMocked(mkdir);
-  const renameMock = deepMocked(rename);
-  const rmMock = deepMocked(rm);
-  const trashMock = deepMocked(trash);
-  const randomUUIDMock = deepMocked(randomUUID);
+  const mkdirMock = vi.mocked(mkdir);
+  const renameMock = vi.mocked(rename);
+  const rmMock = vi.mocked(rm);
+  const randomUUIDMock = vi.mocked(randomUUID);
   const getFirstNonPlaceholderMock = partialSpyOn(Addon, 'getFirstNonPlaceholder');
 
   const uuid = 'uuid' as FileUuid;
@@ -74,7 +71,7 @@ describe('delete-item-placeholder', () => {
       { msg: 'Delete placeholder' },
       { msg: 'Folder cannot be deleted because it contains a non placeholder item' },
     ]);
-    calls(trashMock).toHaveLength(0);
+    calls(rmMock).toHaveLength(0);
   });
 
   it('should delete folder if all folder items are placeholders', async () => {
@@ -86,6 +83,6 @@ describe('delete-item-placeholder', () => {
     calls(loggerFn).toMatchObject([{ msg: 'Delete placeholder' }, { msg: 'Folder can be deleted, all items are placeholders' }]);
     call(mkdirMock).toStrictEqual([trashDir, { recursive: true }]);
     call(renameMock).toStrictEqual([localPath, trashPath]);
-    call(trashMock).toStrictEqual(trashPath);
+    call(rmMock).toStrictEqual([trashPath, { recursive: true, force: true }]);
   });
 });

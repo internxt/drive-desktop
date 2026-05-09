@@ -4,7 +4,9 @@
 
 #include <ShlObj_core.h>
 #include <Windows.h>
+#include <atlbase.h>
 #include <cfapi.h>
+#include <exdispid.h>
 #include <node_api.h>
 #include <ntstatus.h>
 #include <propkey.h>
@@ -16,6 +18,7 @@
 #include <filesystem>
 #include <functional>
 #include <mutex>
+#include <set>
 #include <string>
 
 namespace winrt

@@ -5,6 +5,7 @@ import { join, parse } from 'node:path';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { measurePerfomance } from '@/core/utils/measure-performance';
 import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
@@ -41,13 +42,17 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
       return;
     }
 
-    const nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
+    let nonPlaceholderItem: string | undefined;
+
+    const time = await measurePerfomance(async () => {
+      nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
+    });
 
     if (nonPlaceholderItem) {
-      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', nonPlaceholderItem });
+      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', time, nonPlaceholderItem });
       return;
     } else {
-      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders' });
+      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders', time });
     }
 
     /**
@@ -65,9 +70,7 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     const trashPath = join(trashDir, randomUUID());
     // Move operations are not allowed across different volumes.
     await rename(local.path, trashPath);
-
-    const { default: trash } = await import('trash');
-    await trash(trashPath);
+    await rm(trashPath, { recursive: true, force: true });
   } catch (error) {
     ctx.logger.error({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error });
   }
