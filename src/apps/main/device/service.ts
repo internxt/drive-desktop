@@ -207,6 +207,8 @@ export async function deleteBackupsFromDevice({ ctx, device, isCurrent }: { ctx:
 }
 
 export async function disableBackup(folderId: number): Promise<void> {
+  logger.debug({ msg: 'Disable backup', folderId });
+
   const backupsList = electronStore.get('backupList');
   const pathname = findBackupPathnameFromId(folderId)!;
 
