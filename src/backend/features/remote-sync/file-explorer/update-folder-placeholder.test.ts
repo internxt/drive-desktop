@@ -12,7 +12,7 @@ import { updateFolderPlaceholder } from './update-folder-placeholder';
 vi.mock(import('node:fs/promises'));
 
 describe('update-folder-placeholder', () => {
-  const lmdbGet = partialSpyOn(Lmdb, 'get');
+  const lmdbGetFolder = partialSpyOn(Lmdb, 'getFolder');
   const createFolderPlaceholderMock = partialSpyOn(Addon, 'createFolderPlaceholder');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
@@ -25,9 +25,10 @@ describe('update-folder-placeholder', () => {
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
-    lmdbGet.mockReturnValue({ path: 'localPath' as AbsolutePath });
+    lmdbGetFolder.mockReturnValue({ path: 'localPath' as AbsolutePath });
 
     props = {
+      ctx: { logger: loggerMock },
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FolderUuid,
@@ -49,7 +50,7 @@ describe('update-folder-placeholder', () => {
 
   it('should create placeholder if folder does not exist locally', async () => {
     // Given
-    lmdbGet.mockReturnValue(undefined);
+    lmdbGetFolder.mockReturnValue(undefined);
     // When
     const res = await updateFolderPlaceholder(props as any);
     // Then

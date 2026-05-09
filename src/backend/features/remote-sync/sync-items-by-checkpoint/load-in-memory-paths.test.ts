@@ -20,11 +20,11 @@ describe('load-in-memory-paths', () => {
     // Given
     statReaddirMock
       .mockResolvedValueOnce({
-        files: [{ path: abs('/file1') }, { path: abs('/file2') }],
+        files: [{ path: abs('/file1') }, { path: abs('/file2'), stats: {} }],
         folders: [{ path: abs('/folder1') }, { path: abs('/folder2') }],
       })
       .mockResolvedValueOnce({
-        files: [{ path: abs('/file3') }],
+        files: [{ path: abs('/file3'), stats: {} }],
         folders: [],
       });
 

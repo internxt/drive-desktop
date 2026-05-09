@@ -17,7 +17,6 @@ describe('traverse', () => {
     props = mockProps<typeof traverse>({
       ctx: { abortController: new AbortController() },
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
-      fileExplorer: {},
       database: {
         files: [
           { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },
