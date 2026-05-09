@@ -2,13 +2,14 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { open } from 'lmdb';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { PATHS } from '@/core/electron/paths';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 export type LmdbFile = { path: AbsolutePath; pinState: PinState; onDiskSize: number; size: number; mtime: Date };
 export type LmdbFolder = { path: AbsolutePath };
 
 export class Lmdb {
-  static db = open({ path: './cache.lmdb', encoding: 'json' });
+  static db = open({ path: PATHS.LMDB_DB, encoding: 'json' });
 
   static get(uuid: FileUuid | FolderUuid) {
     return this.db.get(uuid) as LmdbFile | LmdbFolder | undefined;
