@@ -100,8 +100,5 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   ipcMain.removeAllListeners('stop-backups-process');
 
-  logger.debug({
-    tag: 'BACKUPS',
-    msg: 'Backup finished',
-  });
+  logger.debug({ tag: 'BACKUPS', msg: 'Backup finished' });
 }
