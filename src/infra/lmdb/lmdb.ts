@@ -9,10 +9,10 @@ export type LmdbFile = { path: AbsolutePath; pinState: PinState; onDiskSize: num
 export type LmdbFolder = { path: AbsolutePath };
 
 export class Lmdb {
-  static db = open({ path: PATHS.LMDB_DB, encoding: 'json' });
+  static db = open<LmdbFile | LmdbFolder>({ path: PATHS.LMDB_DB, encoding: 'json' });
 
   static get(uuid: FileUuid | FolderUuid) {
-    return this.db.get(uuid) as LmdbFile | LmdbFolder | undefined;
+    return this.db.get(uuid);
   }
 
   static getFile(uuid: FileUuid) {
