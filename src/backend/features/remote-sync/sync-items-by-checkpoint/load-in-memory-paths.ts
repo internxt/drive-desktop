@@ -21,7 +21,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
       }
     });
 
-    const folderPromises = items.folders.map(async ({ path }) => {
+    for (const { path } of items.folders) {
       const { data: placeholder } = await NodeWin.getFolderInfo({ ctx, path });
       if (placeholder) {
         await Lmdb.addFolder(placeholder.uuid, { path });
