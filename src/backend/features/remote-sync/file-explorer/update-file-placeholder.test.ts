@@ -111,6 +111,6 @@ describe('update-file-placeholder', () => {
     await updateFilePlaceholder(props as any);
     // Then
     calls(needsToBeMovedMock).toHaveLength(0);
-    call(loggerFn).toMatchObject({ msg: 'Error updating file placeholder' });
+    call(loggerFn).toMatchObject([{ msg: 'Error updating file placeholder' }, { uuid: 'uuid' }]);
   });
 });
