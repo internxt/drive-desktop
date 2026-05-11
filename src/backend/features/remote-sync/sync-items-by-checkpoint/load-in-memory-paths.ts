@@ -27,7 +27,9 @@ export async function loadInMemoryPaths({ ctx }: Props) {
       items.files.map(({ path, stats }) =>
         limit(async () => {
           const { data: placeholder } = await NodeWin.getFileInfo({ path });
-          if (placeholder) files.set(placeholder.uuid, { stats, path, placeholder });
+          if (placeholder) {
+            files.set(placeholder.uuid, { stats, path, placeholder });
+          }
         }),
       ),
     );
