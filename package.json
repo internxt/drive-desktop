@@ -16,7 +16,7 @@
     "init:e2e": "npm ci --ignore-scripts && node node_modules/electron/install.js && npm run build && npm run rebuild:electron",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run rebuild:electron",
     "========== Code style ==========": "",
-    "lint": "eslint src --ext .ts,.tsx --max-warnings 276",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 261",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier . --check",
     "format:fix": "prettier . --write",

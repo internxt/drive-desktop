@@ -23,7 +23,7 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
       } catch (error) {
         const fileStats = await stat(path).catch(() => null);
 
-        ctx.logger.sentryError({ msg: 'Error creating file', path, error }, { fileUuid: '', fileSize: fileStats?.size ?? 0 });
+        ctx.logger.sentryError({ msg: 'Error creating file', path, error }, { fileSize: fileStats?.size });
       }
     }),
   );

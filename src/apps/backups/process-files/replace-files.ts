@@ -19,7 +19,7 @@ export async function replaceFiles({ ctx, modified }: Props) {
       } catch (error) {
         const fileStats = await stat(path).catch(() => null);
 
-        ctx.logger.sentryError({ msg: 'Error replacing file', path, error }, { fileUuid: remote.uuid, fileSize: fileStats?.size ?? 0 });
+        ctx.logger.sentryError({ msg: 'Error replacing file', path, error }, { fileUuid: remote.uuid, fileSize: fileStats?.size });
       }
     }),
   );
