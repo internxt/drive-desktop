@@ -1,4 +1,5 @@
 import { Stats } from 'node:fs';
+import pLimit from 'p-limit';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -17,26 +18,27 @@ type Props = {
 export async function loadInMemoryPaths({ ctx }: Props) {
   const files: FileExplorerFiles = new Map();
   const folders: FileExplorerFolders = new Map();
+  const limit = pLimit(20);
 
   async function walk(parentPath: AbsolutePath) {
     const items = await statReaddir({ folder: parentPath });
 
-    const filePromises = items.files.map(async ({ path, stats }) => {
-      const { data: placeholder } = await NodeWin.getFileInfo({ path });
-      if (placeholder) {
-        files.set(placeholder.uuid, { stats, path, placeholder });
-      }
-    });
+    await Promise.all(
+      items.files.map(({ path, stats }) =>
+        limit(async () => {
+          const { data: placeholder } = await NodeWin.getFileInfo({ path });
+          if (placeholder) files.set(placeholder.uuid, { stats, path, placeholder });
+        }),
+      ),
+    );
 
-    const folderPromises = items.folders.map(async ({ path }) => {
+    for (const { path } of items.folders) {
       const { data: placeholder } = await NodeWin.getFolderInfo({ ctx, path });
       if (placeholder) {
         folders.set(placeholder.uuid, { path });
         await walk(path);
       }
-    });
-
-    await Promise.all(filePromises.concat(folderPromises));
+    }
   }
 
   await walk(ctx.rootPath);
