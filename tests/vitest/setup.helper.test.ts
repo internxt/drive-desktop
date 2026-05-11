@@ -7,6 +7,11 @@ const TEST_FILES = join(abs(cwd()), 'test-files');
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'test';
 
+// We do not want to make network calls
+vi.mock(import('@/apps/shared/HttpClient/client'));
+// We don't want sentry in tests
+vi.mock(import('@internxt/drive-desktop-core/build/backend/core/sentry/sentry'), () => ({}));
+
 function mockModule() {
   const fns = new Map<string, ReturnType<typeof vi.fn>>();
   return new Proxy({} as Record<string, ReturnType<typeof vi.fn>>, {
@@ -45,16 +50,10 @@ function mockModule() {
   });
 }
 
-// @ts-expect-error
+// @ts-expect-error needed because of sentry
 vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
-  const logger = { debug: vi.fn(), warn: vi.fn(), error: vi.fn(), sentryError: vi.fn() };
-  // @ts-expect-error
-  logger.sentryError = (...args: unknown[]) => {
-    logger.error(args[0]);
-    return new Error();
-  };
   return {
-    logger,
+    logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn(), sentryError: vi.fn() },
     setupElectronLog: vi.fn(),
     throwWrapper: vi.fn(),
     FileSystemModule: mockModule(),
@@ -64,22 +63,12 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
   };
 });
 
-vi.mock(import('@internxt/drive-desktop-core/build/backend/core/sentry/sentry'), () => ({
-  captureSentryException: vi.fn(),
-  getSentryEnvironment: vi.fn(() => 'test'),
-  initSentry: vi.fn(),
-  setSentryUserContext: vi.fn(),
-  clearSentryUserContext: vi.fn(),
-}));
-vi.mock(import('@/apps/shared/HttpClient/client'));
-
 vi.mock(import('electron'), () => {
   const actual = vi.importActual<typeof import('electron')>('electron');
 
   return {
     ...actual,
     app: {
-      getAppPath: vi.fn(() => TEST_FILES),
       getPath: vi.fn((string) => {
         return join(TEST_FILES, string);
       }),
