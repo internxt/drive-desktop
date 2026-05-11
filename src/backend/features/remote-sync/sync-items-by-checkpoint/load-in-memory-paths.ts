@@ -27,9 +27,9 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
         await Lmdb.addFolder(placeholder.uuid, { path });
         await walk(path);
       }
-    });
+    }
 
-    await Promise.all([...filePromises, ...folderPromises]);
+    await Promise.all(filePromises);
   }
 
   await walk(ctx.rootPath);
