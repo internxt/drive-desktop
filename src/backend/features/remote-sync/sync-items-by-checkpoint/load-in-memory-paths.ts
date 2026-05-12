@@ -34,7 +34,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
             files.set(placeholder.uuid, {
               path,
               parentUuid,
-              mtimeMs: stats.mtime.getTime(),
+              mtimeMs: stats.mtimeMs,
               size: stats.size,
               onDiskSize: placeholder.onDiskSize,
               pinState: placeholder.pinState,
