@@ -10,7 +10,7 @@ type Props = {
   folders: DriveFolder[];
 };
 
-export function createOrUpdateBatch({ folders }: Props) {
+export async function createOrUpdateBatch({ folders }: Props) {
   if (folders.length === 0) return;
 
   try {
@@ -35,15 +35,12 @@ export function createOrUpdateBatch({ folders }: Props) {
         });
       }
       db.exec('COMMIT');
+
+      await new Promise((resolve) => setImmediate(resolve));
     }
   } catch (error) {
     db.exec('ROLLBACK');
-    logger.error({
-      msg: 'Error batch creating or updating folders',
-      count: folders.length,
-      error,
-    });
-
+    logger.error({ msg: 'Error batch creating or updating folders', count: folders.length, error });
     return new SqliteError('UNKNOWN', error);
   }
 }

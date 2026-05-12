@@ -10,7 +10,7 @@ type Props = {
   files: DriveFile[];
 };
 
-export function createOrUpdateBatch({ files }: Props) {
+export async function createOrUpdateBatch({ files }: Props) {
   if (files.length === 0) return;
 
   try {
@@ -39,15 +39,18 @@ export function createOrUpdateBatch({ files }: Props) {
         });
       }
       db.exec('COMMIT');
+
+      /**
+       * v2.6.9 Daniel Jiménez
+       * Since node:sqlite is synchronous it will block the main thread if we try to create
+       * a lot of files. By awaiting this promise we release the main thread and wait the
+       * next iteration of the event loop.
+       */
+      await new Promise((resolve) => setImmediate(resolve));
     }
   } catch (error) {
     db.exec('ROLLBACK');
-    logger.error({
-      msg: 'Error batch creating or updating files',
-      count: files.length,
-      error,
-    });
-
+    logger.error({ msg: 'Error batch creating or updating files', count: files.length, error });
     return new SqliteError('UNKNOWN', error);
   }
 }
