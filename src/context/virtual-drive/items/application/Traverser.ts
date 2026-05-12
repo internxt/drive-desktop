@@ -1,4 +1,4 @@
-import pLimit, { LimitFunction } from 'p-limit';
+import { LimitFunction } from 'p-limit';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
@@ -17,14 +17,10 @@ type Props = {
   fileExplorer: FileExplorer;
   currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
   isFirstExecution: boolean;
+  limit: LimitFunction;
 };
 
-export async function traverse(props: Props) {
-  const limit = pLimit(20);
-  await _traverse({ ...props, limit });
-}
-
-async function _traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props & { limit: LimitFunction }) {
+export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
   if (ctx.abortController.signal.aborted) return;
 
   const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
@@ -54,7 +50,7 @@ async function _traverse({ ctx, database, fileExplorer, currentFolder, isFirstEx
     } else {
       const success = await updateFolderPlaceholder({ ctx, remote, folders: fileExplorer.folders });
       if (success) {
-        await _traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution, limit });
+        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution, limit });
       }
     }
   }
