@@ -1,15 +1,15 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { Drive } from '../../drive';
+import { FileExplorerFile } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 type Props = {
   ctx: SyncContext;
   remote: ExtendedDriveFile;
-  local: { path: AbsolutePath; mtime: Date; size: number };
+  local: FileExplorerFile;
   isFirstExecution: boolean;
 };
 
@@ -17,9 +17,9 @@ export async function checkIfModified({ ctx, remote, local, isFirstExecution }: 
   const path = remote.absolutePath;
 
   const localSize = local.size;
-  const localDate = local.mtime;
+  const localDate = local.mtimeMs;
   const remoteSize = remote.size;
-  const remoteDate = new Date(remote.updatedAt);
+  const remoteDate = new Date(remote.updatedAt).getTime();
 
   if (remoteSize === localSize) return;
 

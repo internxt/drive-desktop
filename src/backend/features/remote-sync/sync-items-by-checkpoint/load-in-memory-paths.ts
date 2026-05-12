@@ -13,7 +13,7 @@ export type FileExplorerFile = FileExplorerItem & {
   pinState: PinState;
   onDiskSize: number;
   size: number;
-  mtime: Date;
+  mtimeMs: number;
 };
 export type FileExplorerFiles = Map<FileUuid, FileExplorerFile>;
 export type FileExplorerFolders = Map<FolderUuid, FileExplorerItem>;
@@ -34,7 +34,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
             files.set(placeholder.uuid, {
               path,
               parentUuid,
-              mtime: stats.mtime,
+              mtimeMs: stats.mtime.getTime(),
               size: stats.size,
               onDiskSize: placeholder.onDiskSize,
               pinState: placeholder.pinState,
