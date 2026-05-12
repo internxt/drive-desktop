@@ -73,9 +73,9 @@ describe('traverse', () => {
 
     calls(updateFolderPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/parent1' } },
-      { remote: { absolutePath: '/drive/child1' } },
       { remote: { absolutePath: '/drive/parent1/parent2' } },
       { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/child1' } },
     ]);
 
     calls(updateFilePlaceholderMock).toMatchObject([
@@ -99,10 +99,10 @@ describe('traverse', () => {
 
     calls(updateFolderPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/parent1' } },
-      { remote: { absolutePath: '/drive/child1' } },
       { remote: { absolutePath: '/drive/parent1/parent2' } },
-      { remote: { absolutePath: '/drive/parent1/child2' } },
       { remote: { absolutePath: '/drive/parent1/parent2/child3' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/child1' } },
     ]);
 
     calls(updateFilePlaceholderMock).toMatchObject([
