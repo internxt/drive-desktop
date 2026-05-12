@@ -8,6 +8,7 @@ let isInitialized = false;
 const DEDUP_TTL_MS = 60 * 60 * 1000;
 const sentryDedupCache = new Map<string, number>();
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function generateFingerprint(error: unknown, options?: Record<string, any>): string {
   const tag = error instanceof Error ? (options?.tags?.tag ?? 'UnknownTag') : 'UnknownTag';
   const errorType = error instanceof Error ? error.name : 'UnknownType';
