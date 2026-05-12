@@ -7,6 +7,7 @@ import { statReaddir } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { PinState } from '@/node-win/types/placeholder.type';
 
+// Store just the required properties to reduce RAM usage
 export type FileExplorerFiles = Map<FileUuid, { path: AbsolutePath; pinState: PinState; onDiskSize: number; size: number; mtime: Date }>;
 export type FileExplorerFolders = Map<FolderUuid, { path: AbsolutePath }>;
 
