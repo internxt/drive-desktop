@@ -5,22 +5,19 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
-import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
-type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
 
 type Props = {
   ctx: ProcessSyncContext;
   database: Database;
-  fileExplorer: FileExplorer;
   currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
   isFirstExecution: boolean;
   limit: LimitFunction;
 };
 
-export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
+export async function traverse({ ctx, database, currentFolder, isFirstExecution, limit }: Props) {
   if (ctx.abortController.signal.aborted) return;
 
   const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
@@ -33,9 +30,9 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
         const remote = { ...file, absolutePath };
 
         if (file.status === 'DELETED' || file.status === 'TRASHED') {
-          await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
+          await deleteItemPlaceholder({ ctx, type: 'file', remote });
         } else {
-          await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
+          await updateFilePlaceholder({ ctx, remote, isFirstExecution });
         }
       }),
     ),
@@ -46,11 +43,11 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     const remote = { ...folder, absolutePath };
 
     if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
-      await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: fileExplorer.folders });
+      await deleteItemPlaceholder({ ctx, type: 'folder', remote });
     } else {
-      const success = await updateFolderPlaceholder({ ctx, remote, folders: fileExplorer.folders });
+      const success = await updateFolderPlaceholder({ ctx, remote });
       if (success) {
-        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution, limit });
+        await traverse({ ctx, database, currentFolder: remote, isFirstExecution, limit });
       }
     }
   }

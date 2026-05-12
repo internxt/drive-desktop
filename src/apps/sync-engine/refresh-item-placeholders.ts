@@ -2,6 +2,7 @@ import pLimit from 'p-limit';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { measurePerfomance } from '@/core/utils/measure-performance';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { SyncContext } from './config';
 
@@ -13,7 +14,7 @@ type Props = {
 export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
   try {
     const time = await measurePerfomance(async () => {
-      const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
+      const [database] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
 
       ctx.logger.debug({
         msg: 'Refresh item placeholders',
@@ -22,15 +23,11 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
           files: database.files.length,
           folders: database.folders.length,
         },
-        fileExplorer: {
-          files: fileExplorer.files.size,
-          folders: fileExplorer.folders.size,
-        },
       });
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
-
-      await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution, limit: pLimit(20) });
+      await traverse({ ctx, currentFolder, database, isFirstExecution, limit: pLimit(20) });
+      await Lmdb.clear();
     });
 
     ctx.logger.debug({ msg: 'Finish refresh placeholders in seconds', time });

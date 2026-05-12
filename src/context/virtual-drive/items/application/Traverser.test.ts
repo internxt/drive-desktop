@@ -19,7 +19,6 @@ describe('traverse', () => {
       ctx: { abortController: new AbortController() },
       limit: pLimit(20),
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
-      fileExplorer: {},
       database: {
         files: [
           { parentUuid: 'root' as FolderUuid, name: 'deleted', status: 'DELETED' },

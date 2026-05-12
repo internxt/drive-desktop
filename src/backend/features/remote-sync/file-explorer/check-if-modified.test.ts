@@ -2,7 +2,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { Drive } from '../../drive';
 import { checkIfModified } from './check-if-modified';
@@ -40,7 +40,7 @@ describe('check-if-modified', () => {
     // When
     await checkIfModified(props);
     // Then
-    calls(loggerMock.debug).toHaveLength(0);
+    calls(loggerFn).toHaveLength(0);
   });
 
   it('should sync when remote file is newer', async () => {
@@ -49,7 +49,7 @@ describe('check-if-modified', () => {
     // When
     await checkIfModified(props);
     // Then
-    call(loggerMock.debug).toMatchObject({ msg: 'Sync remote changes to local' });
+    call(loggerFn).toMatchObject({ msg: 'Sync remote changes to local' });
     call(updatePlaceholderMock).toStrictEqual({ path: 'remotePath', placeholderId: 'FILE:uuid', size: 1024 });
   });
 
@@ -64,7 +64,7 @@ describe('check-if-modified', () => {
       // When
       await checkIfModified(props);
       // Then
-      calls(loggerMock.debug).toHaveLength(0);
+      calls(loggerFn).toHaveLength(0);
     });
 
     it('should not sync when local file is dehydrated', async () => {
@@ -74,8 +74,7 @@ describe('check-if-modified', () => {
       // When
       await checkIfModified(props);
       // Then
-      call(loggerMock.debug).toMatchObject({ msg: 'Sync local changes to remote' });
-      call(loggerMock.error).toMatchObject({ msg: 'Cannot update file contents id, not hydrated' });
+      calls(loggerFn).toMatchObject([{ msg: 'Sync local changes to remote' }, { msg: 'Cannot update file contents id, not hydrated' }]);
     });
 
     it('should sync when local file is hydrated', async () => {
@@ -85,7 +84,7 @@ describe('check-if-modified', () => {
       // When
       await checkIfModified(props);
       // Then
-      call(loggerMock.debug).toMatchObject({ msg: 'Sync local changes to remote' });
+      call(loggerFn).toMatchObject({ msg: 'Sync local changes to remote' });
       call(replaceFileMock).toMatchObject({ path: 'remotePath', uuid: 'uuid' });
     });
   });

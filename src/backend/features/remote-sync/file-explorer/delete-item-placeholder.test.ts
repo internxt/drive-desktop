@@ -3,6 +3,7 @@ import { mkdir, rename, rm } from 'node:fs/promises';
 import trash from 'trash';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, deepMocked, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
@@ -18,6 +19,7 @@ describe('delete-item-placeholder', () => {
   const rmMock = deepMocked(rm);
   const trashMock = deepMocked(trash);
   const randomUUIDMock = deepMocked(randomUUID);
+  const lmdbGet = partialSpyOn(Lmdb, 'get');
   const getFirstNonPlaceholderMock = partialSpyOn(Addon, 'getFirstNonPlaceholder');
 
   const uuid = 'uuid' as FileUuid;
@@ -29,17 +31,18 @@ describe('delete-item-placeholder', () => {
 
   beforeEach(() => {
     randomUUIDMock.mockReturnValue('randomUUID' as any);
+    lmdbGet.mockReturnValue({ path: localPath });
+
     props = {
       ctx: { logger: loggerMock },
       remote: { absolutePath: localPath, uuid },
-      locals: new Map([[uuid, { path: localPath }]]),
       type: 'file',
     };
   });
 
   it('should skip if local item does not exist', async () => {
     // Given
-    props.locals = new Map();
+    lmdbGet.mockReturnValue(undefined);
     // When
     await deleteItemPlaceholder(props as any);
     // Then

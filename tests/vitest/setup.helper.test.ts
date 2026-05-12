@@ -11,6 +11,8 @@ process.env.NODE_ENV = 'test';
 vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 // We do not want to make network calls
 vi.mock(import('@/apps/shared/HttpClient/client'));
+// We do not want to create the lmdb database
+vi.mock(import('lmdb'));
 
 vi.mock(import('electron'), () => {
   const actual = vi.importActual<typeof import('electron')>('electron');

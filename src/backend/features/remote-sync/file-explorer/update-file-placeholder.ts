@@ -1,20 +1,19 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
+import { Lmdb } from '@/infra/lmdb/lmdb';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { FileExplorerFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { checkIfModified } from './check-if-modified';
 import { checkIfMoved } from './check-if-moved';
 
 type Props = {
   ctx: SyncContext;
   remote: ExtendedDriveFile;
-  files: FileExplorerFiles;
   isFirstExecution: boolean;
 };
 
-export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecution }: Props) {
+export async function updateFilePlaceholder({ ctx, remote, isFirstExecution }: Props) {
   const path = remote.absolutePath;
   const { size } = remote;
 
@@ -22,7 +21,7 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
     const { isValid } = validateWindowsName({ path, name: remote.name });
     if (!isValid) return;
 
-    const local = files.get(remote.uuid);
+    const local = Lmdb.getFile(remote.uuid);
 
     if (!local) {
       await Addon.createFilePlaceholder({

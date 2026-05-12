@@ -9,13 +9,13 @@ const APP_DATA_PATH = abs(e2ePaths?.e2eAppDataPath ?? app.getPath('appData'));
 
 const INTERNXT = join(APP_DATA_PATH, 'internxt-drive');
 const SQLITE_DB = join(INTERNXT, 'internxt_desktop.db');
-const LOKIJS_DB = join(INTERNXT, 'internxt_desktop.json');
+const LMDB_DB = join(INTERNXT, 'internxt_desktop.lmdb');
 const LOGS = join(INTERNXT, 'logs');
 
 export const PATHS = {
   HOME_FOLDER_PATH,
   INTERNXT,
   SQLITE_DB,
-  LOKIJS_DB,
+  LMDB_DB,
   LOGS,
 };

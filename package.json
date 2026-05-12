@@ -178,6 +178,7 @@
     "electron-store": "^8.0.1",
     "framer-motion": "^5.6.0",
     "jwt-decode": "^3.1.2",
+    "lmdb": "^3.5.4",
     "openapi-fetch": "^0.13.4",
     "openpgp": "5.11.3",
     "p-limit": "^7.3.0",

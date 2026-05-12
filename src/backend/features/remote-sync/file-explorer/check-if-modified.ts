@@ -1,6 +1,6 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { LmdbFile } from '@/infra/lmdb/lmdb';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
@@ -9,7 +9,7 @@ import { Drive } from '../../drive';
 type Props = {
   ctx: SyncContext;
   remote: ExtendedDriveFile;
-  local: { path: AbsolutePath; mtime: Date; size: number };
+  local: LmdbFile;
   isFirstExecution: boolean;
 };
 
