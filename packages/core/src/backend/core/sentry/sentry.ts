@@ -1,46 +1,45 @@
 import { init, setUser, captureException } from '@sentry/electron/main';
 import { arch, release, version } from 'node:os';
 
-import { logger } from '../logger/logger';
+import { logger, type LoggerSentryErrorBody } from '../logger/logger';
 
 let isInitialized = false;
 
 const DEDUP_TTL_MS = 60 * 60 * 1000;
 const sentryDedupCache = new Map<string, number>();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function generateFingerprint(error: unknown, options?: Record<string, any>): string {
-  const tag = error instanceof Error ? (options?.tags?.tag ?? 'UnknownTag') : 'UnknownTag';
-  const errorType = error instanceof Error ? error.name : 'UnknownType';
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  return `${tag}|${errorType}|${errorMessage}`;
+function generateFingerprint(tag?: string, message?: string) {
+  return `${tag ?? 'UnknownTag'}|${message}`;
 }
 
-function shouldCaptureSentryError(fingerprint: string): boolean {
+function shouldCaptureSentryError(fingerprint: string) {
   const now = Date.now();
+  const entryTimestamp = sentryDedupCache.get(fingerprint);
 
-  for (const [key, timestamp] of sentryDedupCache) {
-    if (now - timestamp >= DEDUP_TTL_MS) {
-      sentryDedupCache.delete(key);
+  if (entryTimestamp !== undefined) {
+    if (entryTimestamp < now + DEDUP_TTL_MS) {
+      return false;
     }
-  }
-
-  if (sentryDedupCache.has(fingerprint)) {
-    logger.debug({ msg: 'Sentry exception throttled (duplicate)', ttlMs: DEDUP_TTL_MS, fingerprint });
-    return false;
   }
 
   sentryDedupCache.set(fingerprint, now);
   return true;
 }
 
-export function captureSentryException(exception: unknown, options?: Record<string, unknown>) {
+export function captureSentryException(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
   if (!isInitialized) return;
 
-  const fingerprint = generateFingerprint(exception, options);
+  const { tag, error, ...rest } = rawBody;
+  const options = {
+    tags: { tag },
+    extra: { ...rest, ...sentryExtras },
+  };
+
+  const fingerprint = generateFingerprint(options.tags?.tag, rawBody.msg);
 
   if (shouldCaptureSentryError(fingerprint)) {
-    captureException(exception, options);
+    const err = new Error(rawBody.msg);
+    captureException(error ?? err, options);
   }
 }
 

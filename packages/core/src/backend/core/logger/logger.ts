@@ -108,11 +108,7 @@ function error(rawBody: TLoggerBody) {
 function sentryError(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
   const err = error(rawBody);
 
-  const { tag, error: exception, ...rest } = rawBody;
-  captureSentryException(exception ?? err, {
-    tags: { tag },
-    extra: { ...rest, ...sentryExtras },
-  });
+  captureSentryException(rawBody, sentryExtras);
 
   return err;
 }
