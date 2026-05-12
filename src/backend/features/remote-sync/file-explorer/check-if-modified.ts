@@ -1,4 +1,3 @@
-import { Stats } from 'node:fs';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -10,15 +9,15 @@ import { Drive } from '../../drive';
 type Props = {
   ctx: SyncContext;
   remote: ExtendedDriveFile;
-  local: { path: AbsolutePath; stats: Stats };
+  local: { path: AbsolutePath; mtime: Date; size: number };
   isFirstExecution: boolean;
 };
 
 export async function checkIfModified({ ctx, remote, local, isFirstExecution }: Props) {
   const path = remote.absolutePath;
 
-  const localSize = local.stats.size;
-  const localDate = local.stats.mtime;
+  const localSize = local.size;
+  const localDate = local.mtime;
   const remoteSize = remote.size;
   const remoteDate = new Date(remote.updatedAt);
 

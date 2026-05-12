@@ -23,7 +23,7 @@ describe('check-if-modified', () => {
     props = mockProps<typeof checkIfModified>({
       local: {
         path: 'localPath' as AbsolutePath,
-        stats: { size: 512 },
+        size: 512,
       },
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
@@ -36,7 +36,7 @@ describe('check-if-modified', () => {
 
   it('should not sync when file sizes are equal', async () => {
     // Given
-    props.local.stats.size = 1024;
+    props.local.size = 1024;
     // When
     await checkIfModified(props);
     // Then
@@ -45,7 +45,7 @@ describe('check-if-modified', () => {
 
   it('should sync when remote file is newer', async () => {
     // Given
-    props.local.stats.mtime = new Date('2000-01-01');
+    props.local.mtime = new Date('2000-01-01');
     // When
     await checkIfModified(props);
     // Then
@@ -55,7 +55,7 @@ describe('check-if-modified', () => {
 
   describe('what happens when local file is newer', () => {
     beforeEach(() => {
-      props.local.stats.mtime = new Date('2000-01-03');
+      props.local.mtime = new Date('2000-01-03');
     });
 
     it('should not sync when is not first execution', async () => {
