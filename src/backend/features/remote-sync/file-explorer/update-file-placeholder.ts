@@ -36,7 +36,7 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       return;
     }
 
-    await checkIfMoved({ ctx, type: 'file', remote, localPath: local.path });
+    await checkIfMoved({ ctx, type: 'file', remote, local });
     await checkIfModified({ ctx, local, remote, isFirstExecution });
 
     if (isFirstExecution) {
