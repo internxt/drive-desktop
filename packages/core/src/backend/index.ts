@@ -1,4 +1,4 @@
-export { logger, TLoggerBody } from './core/logger/logger';
+export { logger, TLoggerBody, LoggerSentryErrorBody } from './core/logger/logger';
 export { setupElectronLog } from './core/logger/setup-electron-log';
 export { throwWrapper } from './core/utils/throw-wrapper';
 

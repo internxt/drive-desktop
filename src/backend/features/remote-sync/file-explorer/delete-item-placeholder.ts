@@ -1,8 +1,11 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { randomUUID } from 'node:crypto';
+import { mkdir, rename, rm } from 'node:fs/promises';
+import { join, parse } from 'node:path';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { captureSentryPlaceholderSyncError } from '@/apps/shared/sentry/sentry';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerFiles, FileExplorerFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 type FileProps = { type: 'file'; remote: ExtendedDriveFile; locals: FileExplorerFiles };
@@ -32,15 +35,40 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
     }
 
     ctx.logger.debug({ msg: 'Delete placeholder', path: local.path, type });
+
+    if (type === 'file') {
+      await rm(local.path);
+      return;
+    }
+
+    const nonPlaceholderItem = await Addon.getFirstNonPlaceholder({ parentPath: local.path });
+
+    if (nonPlaceholderItem) {
+      ctx.logger.debug({ msg: 'Folder cannot be deleted because it contains a non placeholder item', nonPlaceholderItem });
+      return;
+    } else {
+      ctx.logger.debug({ msg: 'Folder can be deleted, all items are placeholders' });
+    }
+
+    /**
+     * v2.6.9 Daniel Jiménez
+     * We have tried with different approaches and all of them have pros and cons. The main con
+     * of `rm` and `trash` is that they generate a `delete` event for every item inside the
+     * folder we are trying to delete. This is not a problem with 5 items, but with folders that
+     * have more than 5k items events can be delayed in the watcher which can lead to unexpected
+     * delete operations and they also freeze the app. So, the solution is to move the folder to a
+     * tmp folder and then delete there. We will receive just one `delete` event of the root.
+     * */
+    const volumeRoot = parse(local.path).root;
+    const trashDir = join(volumeRoot, '.internxt-trash');
+    await mkdir(trashDir, { recursive: true });
+    const trashPath = join(trashDir, randomUUID());
+    // Move operations are not allowed across different volumes.
+    await rename(local.path, trashPath);
+
     const { default: trash } = await import('trash');
-    await trash(local.path);
+    await trash(trashPath);
   } catch (error) {
-    ctx.logger.error({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error });
-    await captureSentryPlaceholderSyncError({
-      error,
-      uuid: remote.uuid,
-      type,
-      operationType: 'delete',
-    });
+    ctx.logger.sentryError({ msg: 'Error deleting placeholder', path: remote.absolutePath, type, error }, { uuid: remote.uuid });
   }
 }

@@ -1,7 +1,7 @@
 import { Sync } from '@/backend/features/sync';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as scheduleRequest from '../schedule-request';
 import { replaceFiles } from './replace-files';
 
@@ -27,7 +27,7 @@ describe('replace-files', () => {
     // When
     await replaceFiles(props);
     // Then
-    calls(loggerMock.error).toHaveLength(1);
+    call(loggerFn).toMatchObject([{ msg: 'Error replacing file' }, {}]);
   });
 
   it('should replace file', async () => {

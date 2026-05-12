@@ -38,7 +38,7 @@ describe('process-error', () => {
 
   it('should retry in case of server unavailable', async () => {
     // Given
-    props.error = new Error('Server unavailable');
+    props.error = new Error('Request failed with status code 409');
     // When
     await processError(props);
     // Then

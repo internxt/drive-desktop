@@ -3,7 +3,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { Addon } from '@/node-win/addon-wrapper';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as needsToBeMoved from './needs-to-be-moved';
 import { updateFolderPlaceholder } from './update-folder-placeholder';
@@ -97,6 +97,6 @@ describe('update-folder-placeholder', () => {
     // Then
     expect(res).toBe(false);
     expect(needsToBeMovedMock).toBeCalledTimes(0);
-    expect(loggerMock.error).toBeCalledTimes(1);
+    call(loggerFn).toMatchObject([{ msg: 'Error updating folder placeholder' }, { uuid: 'uuid' }]);
   });
 });

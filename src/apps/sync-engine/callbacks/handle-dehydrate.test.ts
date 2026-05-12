@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { handleDehydrate } from './handle-dehydrate';
 
 describe('handle-dehydrate', () => {
@@ -15,7 +15,7 @@ describe('handle-dehydrate', () => {
     await handleDehydrate(props);
     // Then
     expect(dehydrateFileMock).toBeCalledWith({ path });
-    expect(loggerMock.error).toBeCalledTimes(0);
+    call(loggerFn).toMatchObject({ msg: 'Dehydrating file' });
   });
 
   it('should call logger.error if dehydrateFile throws', async () => {
@@ -25,6 +25,6 @@ describe('handle-dehydrate', () => {
     await handleDehydrate(props);
     // Then
     expect(dehydrateFileMock).toBeCalledWith({ path });
-    expect(loggerMock.error).toBeCalledTimes(1);
+    calls(loggerFn).toMatchObject([{ msg: 'Dehydrating file' }, { msg: 'Error dehydrating file' }]);
   });
 });

@@ -1,11 +1,4 @@
-#ifndef NAPI_SAFE_WRAP_H
-#define NAPI_SAFE_WRAP_H
-
-#include <node_api.h>
-#include <stdafx.h>
-
-#include <exception>
-#include <string>
+#pragma once
 
 inline std::string format_exception_message(const char* function_name)
 {
@@ -34,5 +27,3 @@ napi_value napi_safe_wrap(napi_env env, napi_callback_info info, Fn&& fn, const 
 
 #define NAPI_SAFE_WRAP(env, info, fn) \
     napi_safe_wrap(env, info, fn, __FUNCTION__)
-
-#endif

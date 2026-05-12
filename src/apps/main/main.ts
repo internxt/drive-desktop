@@ -1,23 +1,21 @@
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
+import { initSentry } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import 'core-js/stable';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
 // via webpack in prod
 import 'dotenv/config';
 import { app, crashReporter } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
 import 'regenerator-runtime/runtime';
-import { captureSentryException, initSentry } from '@/apps/shared/sentry/sentry';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { runMigrations } from '@/infra/sqlite/migrations/run-migrations';
-import { applyE2EConfiguration } from '@/tests/e2e/helpers/e2e-configuration.helper';
 import { logger } from '../shared/logger/logger';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -25,6 +23,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
 import { setupDeviceIpc } from './device/handlers';
+import { checkForUpdates } from './electron/autoupdater/check-for-updates';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
@@ -32,11 +31,6 @@ import { setupQuitHandlers } from './quit';
 import { setupRemoteSyncIpc } from './remote-sync/handlers';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { createWidget, showFrontend } from './windows/widget';
-
-if (process.env.E2E_TEST === 'true') {
-  logger.debug({ msg: 'Applying e2e configuration for playwright tests' });
-  applyE2EConfiguration();
-}
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
@@ -62,8 +56,7 @@ if (process.defaultApp) {
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-  app.quit();
-  process.exit(0);
+  app.exit(0);
 } else {
   app.on('second-instance', (event, argv) => {
     processDeeplink({ argv });
@@ -90,16 +83,6 @@ logger.debug({
   arch: arch(),
 });
 
-async function checkForUpdates() {
-  autoUpdater.logger = {
-    debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    info: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
-    warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
-  };
-  await autoUpdater.checkForUpdatesAndNotify();
-}
-
 if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
@@ -109,18 +92,19 @@ if (process.env.NODE_ENV === 'production') {
 process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
-  logger.error({ msg: 'Unhandled rejection', error, promise });
-  captureSentryException(error, { promise, type: 'unhandledRejection' });
+  logger.sentryError({ msg: 'Unhandled rejection', promise, error });
 });
 
 process.on('uncaughtException', (error, origin) => {
-  logger.error({ msg: 'Uncaught exception', error, origin });
-  captureSentryException(error, { origin, type: 'uncaughtException' });
+  logger.sentryError({ msg: 'Uncaught exception', origin, error });
 });
 
-app
-  .whenReady()
-  .then(async () => {
+async function start() {
+  try {
+    const installing = await checkForUpdates();
+    if (installing) return;
+
+    await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
 
     measureHealth();
@@ -138,8 +122,9 @@ app
       showFrontend();
       setTrayStatus('IDLE');
     }
+  } catch (error) {
+    logger.error({ msg: 'Error starting app', error });
+  }
+}
 
-    await checkForUpdates();
-    setInterval(checkForUpdates, 60 * 60 * 1000);
-  })
-  .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
+void start();

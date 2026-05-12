@@ -74,6 +74,10 @@ export class Addon {
     return parseAddonZod('getPlaceholderState', result);
   }
 
+  static async getFirstNonPlaceholder({ parentPath }: { parentPath: AbsolutePath }) {
+    return await addon.getFirstNonPlaceholder(toWin32DevicePath(parentPath));
+  }
+
   static async getSyncRootFromPath({ rootPath }: { rootPath: AbsolutePath }) {
     const result = await addon.getSyncRootFromPath(toWin32Path(rootPath));
     return parseAddonZod('getSyncRootFromPath', result);

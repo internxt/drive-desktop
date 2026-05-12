@@ -7,13 +7,64 @@ const TEST_FILES = join(abs(cwd()), 'test-files');
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'test';
 
-// We do not want to log anything
-vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 // We do not want to make network calls
 vi.mock(import('@/apps/shared/HttpClient/client'));
+// We don't want sentry in tests
+vi.mock(import('@internxt/drive-desktop-core/build/backend/core/sentry/sentry'), () => ({}));
+
+function mockModule() {
+  const fns = new Map<string, ReturnType<typeof vi.fn>>();
+  return new Proxy({} as Record<string, ReturnType<typeof vi.fn>>, {
+    get(_, prop) {
+      if (typeof prop === 'string') {
+        if (!fns.has(prop)) fns.set(prop, vi.fn());
+        return fns.get(prop);
+      }
+      return undefined;
+    },
+    set(_, prop, value) {
+      if (typeof prop === 'string') fns.set(prop, value);
+      return true;
+    },
+    has(_, prop) {
+      return typeof prop === 'string';
+    },
+    getOwnPropertyDescriptor(_, prop) {
+      if (typeof prop === 'string' && fns.has(prop)) {
+        return { configurable: true, enumerable: true, writable: true, value: fns.get(prop) };
+      }
+      if (typeof prop === 'string') {
+        const fn = vi.fn();
+        fns.set(prop, fn);
+        return { configurable: true, enumerable: true, writable: true, value: fn };
+      }
+      return undefined;
+    },
+    defineProperty(_, prop, desc) {
+      if (typeof prop === 'string' && desc.value) {
+        fns.set(prop, desc.value);
+        return true;
+      }
+      return false;
+    },
+  });
+}
+
+// @ts-expect-error needed because of sentry
+vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
+  return {
+    logger: { debug: vi.fn(), warn: vi.fn(), error: vi.fn(), sentryError: vi.fn() },
+    setupElectronLog: vi.fn(),
+    throwWrapper: vi.fn(),
+    FileSystemModule: mockModule(),
+    PaymentsModule: mockModule(),
+    CleanerModule: mockModule(),
+    SyncModule: mockModule(),
+  };
+});
 
 vi.mock(import('electron'), () => {
-  const actual = vi.importActual<typeof import('electron')>('electron');
+  const actual = vi.importActual('electron');
 
   return {
     ...actual,
