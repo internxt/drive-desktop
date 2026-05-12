@@ -40,6 +40,12 @@ export async function createOrUpdateBatch({ files }: Props) {
       }
       db.exec('COMMIT');
 
+      /**
+       * v2.6.9 Daniel Jiménez
+       * Since node:sqlite is synchronous it will block the main thread if we try to create
+       * a lot of files. By awaiting this promise we release the main thread and wait the
+       * next iteration of the event loop.
+       */
       await new Promise((resolve) => setImmediate(resolve));
     }
   } catch (error) {
