@@ -69,10 +69,7 @@ describe('update-file-placeholder', () => {
     // Given
     props.isFirstExecution = true;
     props.files = new Map([
-      [
-        'uuid' as FileUuid,
-        { path: 'remotePath' as AbsolutePath, stats: { size: 1024 }, placeholder: { pinState: PinState.AlwaysLocal, onDiskSize: 512 } },
-      ],
+      ['uuid' as FileUuid, { path: 'remotePath' as AbsolutePath, size: 1024, pinState: PinState.AlwaysLocal, onDiskSize: 512 }],
     ]);
     // When
     await updateFilePlaceholder(props as any);

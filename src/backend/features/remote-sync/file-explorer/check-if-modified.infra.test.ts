@@ -44,7 +44,8 @@ describe('check-if-modified', () => {
       },
       local: {
         path,
-        stats: { mtime: new Date('2000-01-01'), size: 7 },
+        mtime: new Date('2000-01-01'),
+        size: 7,
       },
     });
 

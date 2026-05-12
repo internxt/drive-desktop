@@ -25,7 +25,6 @@ export async function deleteItemPlaceholder({ ctx, type, remote, locals }: Props
        * so instead of deleting the placeholder, we are going to send the item to the trash
        * so the user can decide whether to delete it or recover it.
        */
-
       ctx.logger.error({
         msg: 'Path does not match when deleting placeholder',
         remotePath: remote.absolutePath,
