@@ -1,3 +1,4 @@
+import pLimit from 'p-limit';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { measurePerfomance } from '@/core/utils/measure-performance';
@@ -25,7 +26,7 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
       });
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
-      await traverse({ ctx, database, currentFolder, isFirstExecution });
+      await traverse({ ctx, currentFolder, database, isFirstExecution, limit: pLimit(20) });
       await Lmdb.clear();
     });
 
