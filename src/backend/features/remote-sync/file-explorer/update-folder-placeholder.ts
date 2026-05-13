@@ -31,7 +31,7 @@ export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
       return true;
     }
 
-    await checkIfMoved({ ctx, type: 'folder', remote, localPath: local.path });
+    await checkIfMoved({ ctx, type: 'folder', remote, local });
     return true;
   } catch (exc) {
     ctx.logger.error({ msg: 'Error updating folder placeholder', path, exc });
