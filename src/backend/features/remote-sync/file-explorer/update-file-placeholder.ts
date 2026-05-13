@@ -36,7 +36,7 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       return;
     }
 
-    await checkIfMoved({ ctx, type: 'file', remote, localPath: local.path });
+    await checkIfMoved({ ctx, type: 'file', remote, local });
     await checkIfModified({ ctx, local, remote, isFirstExecution });
 
     if (isFirstExecution) {
@@ -47,8 +47,8 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       // the opposite, that the user wants to continue after opening the app again. We will keep the first use
       // case since it's easier to implement, consumes less resources and in case the user wants to hydrate the
       // folder he can perform the action again.
-      const { onDiskSize } = local.placeholder;
-      if (local.placeholder.pinState === PinState.AlwaysLocal && onDiskSize < size) {
+      const { onDiskSize } = local;
+      if (local.pinState === PinState.AlwaysLocal && onDiskSize < size) {
         ctx.logger.debug({ msg: 'File stuck in hydrated state', onDiskSize, size, path });
         await Addon.setPinState({ path, pinState: PinState.Unspecified });
       }

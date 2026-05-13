@@ -1,3 +1,4 @@
+import { LimitFunction } from 'p-limit';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
@@ -16,26 +17,31 @@ type Props = {
   fileExplorer: FileExplorer;
   currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
   isFirstExecution: boolean;
+  limit: LimitFunction;
 };
 
-export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution }: Props) {
+export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
   if (ctx.abortController.signal.aborted) return;
 
   const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
   const foldersInThisFolder = database.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
-  const filePromises = filesInThisFolder.map(async (file) => {
-    const absolutePath = join(currentFolder.absolutePath, file.name);
-    const remote = { ...file, absolutePath };
+  await Promise.all(
+    filesInThisFolder.map((file) =>
+      limit(async () => {
+        const absolutePath = join(currentFolder.absolutePath, file.name);
+        const remote = { ...file, absolutePath };
 
-    if (file.status === 'DELETED' || file.status === 'TRASHED') {
-      await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
-    } else {
-      await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
-    }
-  });
+        if (file.status === 'DELETED' || file.status === 'TRASHED') {
+          await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
+        } else {
+          await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
+        }
+      }),
+    ),
+  );
 
-  const folderPromises = foldersInThisFolder.map(async (folder) => {
+  for (const folder of foldersInThisFolder) {
     const absolutePath = join(currentFolder.absolutePath, folder.name);
     const remote = { ...folder, absolutePath };
 
@@ -44,10 +50,8 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     } else {
       const success = await updateFolderPlaceholder({ ctx, remote, folders: fileExplorer.folders });
       if (success) {
-        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution });
+        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution, limit });
       }
     }
-  });
-
-  await Promise.all(filePromises.concat(folderPromises));
+  }
 }

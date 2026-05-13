@@ -1,3 +1,4 @@
+import pLimit from 'p-limit';
 import { calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as deleteItemPlaceholder from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
@@ -16,6 +17,7 @@ describe('traverse', () => {
   beforeEach(() => {
     props = mockProps<typeof traverse>({
       ctx: { abortController: new AbortController() },
+      limit: pLimit(20),
       currentFolder: { absolutePath: abs('/drive'), uuid: 'root' as FolderUuid },
       fileExplorer: {},
       database: {
@@ -73,9 +75,9 @@ describe('traverse', () => {
 
     calls(updateFolderPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/parent1' } },
-      { remote: { absolutePath: '/drive/child1' } },
       { remote: { absolutePath: '/drive/parent1/parent2' } },
       { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/child1' } },
     ]);
 
     calls(updateFilePlaceholderMock).toMatchObject([
@@ -99,10 +101,10 @@ describe('traverse', () => {
 
     calls(updateFolderPlaceholderMock).toMatchObject([
       { remote: { absolutePath: '/drive/parent1' } },
-      { remote: { absolutePath: '/drive/child1' } },
       { remote: { absolutePath: '/drive/parent1/parent2' } },
-      { remote: { absolutePath: '/drive/parent1/child2' } },
       { remote: { absolutePath: '/drive/parent1/parent2/child3' } },
+      { remote: { absolutePath: '/drive/parent1/child2' } },
+      { remote: { absolutePath: '/drive/child1' } },
     ]);
 
     calls(updateFilePlaceholderMock).toMatchObject([

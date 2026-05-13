@@ -1,3 +1,4 @@
+import pLimit from 'p-limit';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { measurePerfomance } from '@/core/utils/measure-performance';
@@ -29,7 +30,7 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
 
-      await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution });
+      await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution, limit: pLimit(20) });
     });
 
     ctx.logger.debug({ msg: 'Finish refresh placeholders in seconds', time });
