@@ -45,7 +45,7 @@ describe('check-if-modified', () => {
 
   it('should sync when remote file is newer', async () => {
     // Given
-    props.local.mtime = new Date('2000-01-01');
+    props.local.mtimeMs = new Date('2000-01-01').getTime();
     // When
     await checkIfModified(props);
     // Then
@@ -55,7 +55,7 @@ describe('check-if-modified', () => {
 
   describe('what happens when local file is newer', () => {
     beforeEach(() => {
-      props.local.mtime = new Date('2000-01-03');
+      props.local.mtimeMs = new Date('2000-01-03').getTime();
     });
 
     it('should not sync when is not first execution', async () => {

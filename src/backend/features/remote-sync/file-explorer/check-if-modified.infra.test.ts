@@ -7,8 +7,8 @@ import { Addon } from '@/node-win/addon-wrapper';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import * as onChange from '@/node-win/watcher/events/on-change';
 import { setupWatcher } from '@/node-win/watcher/tests/watcher.helper.test';
-import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { loggerFn, loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
+import { calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { checkIfModified } from './check-if-modified';
 
 describe('check-if-modified', () => {
@@ -34,7 +34,8 @@ describe('check-if-modified', () => {
     await writeFile(path, 'content');
     await Addon.convertToPlaceholder({ path, placeholderId: 'FILE:uuid' });
 
-    const props = mockProps<typeof checkIfModified>({
+    const props: TestProps<typeof checkIfModified> = {
+      ctx: { logger: loggerMock },
       isFirstExecution: false,
       remote: {
         uuid: 'uuid' as FileUuid,
@@ -44,19 +45,18 @@ describe('check-if-modified', () => {
       },
       local: {
         path,
-        mtime: new Date('2000-01-01'),
+        mtimeMs: new Date('2000-01-01').getTime(),
         size: 7,
       },
-    });
+    };
 
     // When
     await sleep(100);
-    await checkIfModified(props);
+    await checkIfModified(props as any);
     await sleep(2200);
 
     // Then
-    calls(loggerMock.error).toHaveLength(0);
-    calls(loggerMock.debug).toMatchObject([
+    calls(loggerFn).toMatchObject([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
@@ -66,8 +66,8 @@ describe('check-if-modified', () => {
         path,
         remoteSize: 1000,
         localSize: 7,
-        remoteDate: new Date('2000-01-02T00:00:00.000Z'),
-        localDate: new Date('2000-01-01T00:00:00.000Z'),
+        remoteDate: new Date('2000-01-02').getTime(),
+        localDate: new Date('2000-01-01').getTime(),
       },
       { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
     ]);

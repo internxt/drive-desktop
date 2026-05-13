@@ -8,15 +8,22 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 // Store just the required properties to reduce RAM usage
-export type FileExplorerFiles = Map<FileUuid, { path: AbsolutePath; pinState: PinState; onDiskSize: number; size: number; mtime: Date }>;
-export type FileExplorerFolders = Map<FolderUuid, { path: AbsolutePath }>;
+export type FileExplorerItem = { path: AbsolutePath; parentUuid: FolderUuid };
+export type FileExplorerFile = FileExplorerItem & {
+  pinState: PinState;
+  onDiskSize: number;
+  size: number;
+  mtimeMs: number;
+};
+export type FileExplorerFiles = Map<FileUuid, FileExplorerFile>;
+export type FileExplorerFolders = Map<FolderUuid, FileExplorerItem>;
 
 export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   const files: FileExplorerFiles = new Map();
   const folders: FileExplorerFolders = new Map();
   const limit = pLimit(20);
 
-  async function walk(parentPath: AbsolutePath) {
+  async function walk(parentPath: AbsolutePath, parentUuid: FolderUuid) {
     const items = await statReaddir({ folder: parentPath });
 
     await Promise.all(
@@ -26,7 +33,8 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
           if (placeholder) {
             files.set(placeholder.uuid, {
               path,
-              mtime: stats.mtime,
+              parentUuid,
+              mtimeMs: stats.mtimeMs,
               size: stats.size,
               onDiskSize: placeholder.onDiskSize,
               pinState: placeholder.pinState,
@@ -39,13 +47,13 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
     for (const { path } of items.folders) {
       const { data: placeholder } = await NodeWin.getFolderInfo({ ctx, path });
       if (placeholder) {
-        folders.set(placeholder.uuid, { path });
-        await walk(path);
+        folders.set(placeholder.uuid, { path, parentUuid });
+        await walk(path, placeholder.uuid);
       }
     }
   }
 
-  await walk(ctx.rootPath);
+  await walk(ctx.rootPath, ctx.rootUuid);
 
   return { files, folders };
 }
