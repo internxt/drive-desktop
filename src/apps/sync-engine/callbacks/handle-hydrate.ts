@@ -19,7 +19,7 @@ export async function handleHydrate({ ctx, path }: TProps) {
 
     ctx.logger.debug({ msg: 'File hydrated', path });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error hydrating file', path, error });
+    ctx.logger.sentryError({ msg: 'Error hydrating file', path, error });
   }
 }
 

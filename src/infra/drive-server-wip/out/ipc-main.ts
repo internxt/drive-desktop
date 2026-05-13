@@ -27,6 +27,7 @@ export async function deleteFolderByUuid({ ctx, path, uuid }: { ctx: CommonConte
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'DELETE_ERROR', path });
+    ctx.logger.sentryError({ msg: 'Error deleting folder by uuid', path, error: res.error }, { uuid });
   } else {
     LocalSync.SyncState.addItem({ action: 'DELETED', path });
     await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
@@ -51,6 +52,7 @@ export async function persistMoveFolder({ ctx, path, uuid, parentUuid, action }:
 
   if (res.error) {
     addMoveEvent(false, action, path);
+    ctx.logger.sentryError({ TAG: 'SYNC-ENGINE', msg: 'Error moving folder', path, error: res.error }, { uuid });
   } else {
     addMoveEvent(true, action, path);
     await createOrUpdateFolder({ ctx, folderDto: res.data });

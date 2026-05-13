@@ -60,7 +60,15 @@ export async function downloadContents({
       return;
     }
 
-    ctx.logger.error({ msg: 'Error downloading file', path, size: file.size, chunk: chunk?.length, error });
+    ctx.logger.sentryError(
+      { msg: 'Error downloading file', path, size: file.size, chunk: chunk?.length, error },
+      {
+        fileUuid: file.uuid,
+        contentsId: file.contentsId,
+        fileSize: file.size,
+        destinationPath: path,
+      },
+    );
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
   }
 }

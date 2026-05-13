@@ -1,9 +1,10 @@
 import { createWriteStream } from 'node:fs';
 import { mockDeep } from 'vitest-mock-extended';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as pipeline from '@/core/utils/pipeline';
 import { ContentsDownloader } from '@/infra/inxt-js';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { LocalSync } from '../..';
 import { downloadFile } from './download-file';
@@ -20,6 +21,7 @@ describe('download-file', () => {
     contentsDownloader,
     file: {
       absolutePath: abs('/parent/file.txt'),
+      uuid: 'uuid' as FileUuid,
     },
   });
 
@@ -34,7 +36,7 @@ describe('download-file', () => {
     // When
     await downloadFile(props);
     // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Error downloading file' });
+    calls(loggerFn).toMatchObject([{ msg: 'Download file' }, [{ msg: 'Error downloading file' }, { fileUuid: 'uuid' }]]);
     call(addItemMock).toMatchObject({ action: 'DOWNLOAD_ERROR', path: '/parent/file.txt' });
   });
 
@@ -44,7 +46,7 @@ describe('download-file', () => {
     // When
     await downloadFile(props);
     // Then
-    calls(loggerMock.error).toHaveLength(0);
+    call(loggerFn).toMatchObject({ msg: 'Download file' });
     call(addItemMock).toMatchObject({ action: 'DOWNLOAD_CANCEL', path: '/parent/file.txt' });
   });
 
@@ -54,7 +56,7 @@ describe('download-file', () => {
     // When
     await downloadFile(props);
     // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Error downloading file' });
+    calls(loggerFn).toMatchObject([{ msg: 'Download file' }, [{ msg: 'Error downloading file' }, { fileUuid: 'uuid' }]]);
     call(addItemMock).toMatchObject({ action: 'DOWNLOAD_ERROR', path: '/parent/file.txt' });
   });
 
@@ -62,7 +64,7 @@ describe('download-file', () => {
     // When
     await downloadFile(props);
     // Then
-    calls(loggerMock.error).toHaveLength(0);
+    call(loggerFn).toMatchObject({ msg: 'Download file' });
     call(addItemMock).toMatchObject({ action: 'DOWNLOADED', path: '/parent/file.txt' });
   });
 });

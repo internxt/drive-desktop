@@ -1,4 +1,5 @@
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
+import { initSentry } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import 'core-js/stable';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
@@ -35,6 +36,8 @@ app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
 
 setupElectronLog({ logsPath: PATHS.LOGS });
+
+initSentry();
 
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
@@ -89,11 +92,11 @@ if (process.env.NODE_ENV === 'production') {
 process.on('unhandledRejection', (error, promise) => {
   if (isAbortError({ error })) return;
 
-  logger.error({ msg: 'Unhandled rejection', error, promise });
+  logger.sentryError({ msg: 'Unhandled rejection', promise, error });
 });
 
 process.on('uncaughtException', (error, origin) => {
-  logger.error({ msg: 'Uncaught exception', error, origin });
+  logger.sentryError({ msg: 'Uncaught exception', origin, error });
 });
 
 async function start() {

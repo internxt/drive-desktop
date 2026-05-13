@@ -76,6 +76,6 @@ describe('update-folder-placeholder', () => {
     // Then
     expect(res).toBe(false);
     expect(checkIfMovedMock).toBeCalledTimes(0);
-    call(loggerFn).toMatchObject({ msg: 'Error updating folder placeholder' });
+    call(loggerFn).toMatchObject([{ msg: 'Error updating folder placeholder' }, { uuid: 'uuid' }]);
   });
 });

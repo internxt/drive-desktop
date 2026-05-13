@@ -1,3 +1,4 @@
+import { clearSentryUserContext, setSentryUserContext } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
 import { setMaxListeners } from 'node:events';
@@ -67,6 +68,7 @@ export async function emitUserLoggedIn(user: User) {
   logger.debug({ tag: 'AUTH', msg: 'User logged in' });
 
   setIsLoggedIn(user);
+  setSentryUserContext(user.email, user.uuid);
   showFrontend();
 
   TokenScheduler.schedule();
@@ -89,6 +91,7 @@ export async function emitUserLoggedIn(user: User) {
 
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
+    clearSentryUserContext();
     clearLoggedPreloadIpc();
     TokenScheduler.stop();
     BackupScheduler.stop();

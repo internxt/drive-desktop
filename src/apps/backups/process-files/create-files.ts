@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { Sync } from '@/backend/features/sync';
@@ -20,7 +21,9 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
       try {
         await scheduleRequest({ ctx, path, fn: () => createFile(ctx, path, remoteTree) });
       } catch (error) {
-        ctx.logger.error({ msg: 'Error creating file', path, error });
+        const fileStats = await stat(path).catch(() => null);
+
+        ctx.logger.sentryError({ msg: 'Error creating file', path, error }, { fileSize: fileStats?.size });
       }
     }),
   );

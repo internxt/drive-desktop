@@ -35,6 +35,7 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
 
   if (res.error) {
     LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
+    ctx.logger.sentryError({ msg: 'Error creating folder', path, error: res.error }, { uuid: parentUuid });
     return;
   }
 

@@ -1,6 +1,8 @@
 import ElectronLog from 'electron-log';
 import { inspect } from 'node:util';
 
+import { captureSentryException } from '../sentry/sentry';
+
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'PRODUCTS' | 'CLEANER';
 type TLevel = 'debug' | 'warn' | 'error';
 
@@ -10,6 +12,10 @@ export type TLoggerBody = {
   workspaceId?: string;
   context?: Record<string, unknown>;
   [key: string]: unknown;
+};
+
+export type LoggerSentryErrorBody = TLoggerBody & {
+  error: unknown;
 };
 
 function getLevelStr(level: TLevel): string {
@@ -55,6 +61,7 @@ function getTagStr(tag?: TTag): string {
     case 'PRODUCTS':
       return 'prod';
     case undefined:
+    default:
       return '    ';
   }
 }
@@ -98,8 +105,17 @@ function error(rawBody: TLoggerBody) {
   return new Error(rawBody.msg, { cause: rawBody.exc });
 }
 
+function sentryError(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
+  const err = error(rawBody);
+
+  captureSentryException(rawBody, sentryExtras);
+
+  return err;
+}
+
 export const logger = {
   debug,
   warn,
   error,
+  sentryError,
 };

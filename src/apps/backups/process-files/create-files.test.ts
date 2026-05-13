@@ -1,7 +1,7 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Sync } from '@/backend/features/sync';
 import { abs, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as scheduleRequest from '../schedule-request';
 import { createFiles } from './create-files';
@@ -32,7 +32,7 @@ describe('create-files', () => {
     // When
     await createFiles(props);
     // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Error creating file' });
+    call(loggerFn).toMatchObject([{ msg: 'Error creating file' }, {}]);
   });
 
   it('should ignore if parent is not found', async () => {

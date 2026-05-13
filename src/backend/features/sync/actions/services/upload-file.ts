@@ -39,6 +39,8 @@ export async function uploadFile({ ctx, path }: Props) {
   } catch (error) {
     if (isBottleneckStop({ error })) return;
 
+    ctx.logger.sentryError({ msg: 'Error uploading file', path, error }, { fileSize: size });
+
     throw error;
   }
 }

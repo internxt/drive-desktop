@@ -13,6 +13,6 @@ export async function handleDehydrate({ ctx, path }: TProps) {
 
     await Addon.dehydrateFile({ path });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error dehydrating file', path, error });
+    ctx.logger.sentryError({ msg: 'Error dehydrating file', path, error });
   }
 }

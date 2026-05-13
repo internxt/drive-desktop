@@ -38,6 +38,13 @@ export async function downloadFile({ file, contentsDownloader }: Props) {
     throw error;
   } catch (error) {
     LocalSync.SyncState.addItem({ action: 'DOWNLOAD_ERROR', path });
-    logger.error({ tag: 'BACKUPS', msg: 'Error downloading file', path, error });
+    logger.sentryError(
+      { tag: 'BACKUPS', msg: 'Error downloading file', path, error },
+      {
+        fileUuid: file.uuid,
+        contentsId: file.contentsId,
+        fileSize: file.size,
+      },
+    );
   }
 }

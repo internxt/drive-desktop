@@ -11,3 +11,4 @@ export const loggerFn = vi.fn();
 loggerMock.debug.mockImplementation(loggerFn);
 loggerMock.warn.mockImplementation(loggerFn);
 loggerMock.error.mockImplementation(loggerFn);
+loggerMock.sentryError.mockImplementation(loggerFn);

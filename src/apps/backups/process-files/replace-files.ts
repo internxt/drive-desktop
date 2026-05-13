@@ -1,3 +1,4 @@
+import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 import { Sync } from '@/backend/features/sync';
@@ -16,7 +17,9 @@ export async function replaceFiles({ ctx, modified }: Props) {
       try {
         await scheduleRequest({ ctx, path, fn: () => Sync.Actions.replaceFile({ ctx, path, uuid: remote.uuid }) });
       } catch (error) {
-        ctx.logger.error({ msg: 'Error replacing file', path, error });
+        const fileStats = await stat(path).catch(() => null);
+
+        ctx.logger.sentryError({ msg: 'Error replacing file', path, error }, { fileUuid: remote.uuid, fileSize: fileStats?.size });
       }
     }),
   );

@@ -54,6 +54,6 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       }
     }
   } catch (error) {
-    ctx.logger.error({ msg: 'Error updating file placeholder', path, error });
+    ctx.logger.sentryError({ msg: 'Error updating file placeholder', path, error }, { uuid: remote.uuid });
   }
 }
