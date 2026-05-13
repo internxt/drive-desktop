@@ -1,13 +1,46 @@
 import { init, setUser, captureException } from '@sentry/electron/main';
 import { arch, release, version } from 'node:os';
 
-import { logger } from '../logger/logger';
+import { logger, type LoggerSentryErrorBody } from '../logger/logger';
 
 let isInitialized = false;
 
-export function captureSentryException(exception: unknown, options?: Record<string, unknown>) {
+const DEDUP_TTL_MS = 60 * 60 * 1000;
+const sentryDedupCache = new Map<string, number>();
+
+function generateFingerprint(tag?: string, message?: string) {
+  return `${tag ?? 'UnknownTag'}|${message}`;
+}
+
+function shouldCaptureSentryError(fingerprint: string) {
+  const now = Date.now();
+  const entryTimestamp = sentryDedupCache.get(fingerprint);
+
+  if (entryTimestamp !== undefined) {
+    if (entryTimestamp < now + DEDUP_TTL_MS) {
+      return false;
+    }
+  }
+
+  sentryDedupCache.set(fingerprint, now);
+  return true;
+}
+
+export function captureSentryException(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
   if (!isInitialized) return;
-  captureException(exception, options);
+
+  const { tag, error, ...rest } = rawBody;
+  const options = {
+    tags: { tag },
+    extra: { ...rest, ...sentryExtras },
+  };
+
+  const fingerprint = generateFingerprint(options.tags?.tag, rawBody.msg);
+
+  if (shouldCaptureSentryError(fingerprint)) {
+    const err = new Error(rawBody.msg);
+    captureException(error ?? err, options);
+  }
 }
 
 export function getSentryEnvironment() {
