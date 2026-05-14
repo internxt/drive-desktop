@@ -59,7 +59,7 @@ describe('getUserAvailableProducts', () => {
     expect(paymentsClientMock.getUserTier).toHaveBeenCalledTimes(1);
     expect(userAvailableProductsMapperMock).not.toHaveBeenCalled();
     expect(loggerErrorMock).toHaveBeenCalledWith({
-      TAG: 'PRODUCTS',
+      tag: 'PRODUCTS',
       msg: 'Get user products error',
       error: mockError,
     });

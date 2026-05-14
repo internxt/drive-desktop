@@ -1,8 +1,6 @@
 import ElectronLog from 'electron-log';
 import { inspect } from 'node:util';
 
-import { captureSentryException } from '../sentry/sentry';
-
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'PRODUCTS' | 'CLEANER';
 type TLevel = 'debug' | 'warn' | 'error';
 
@@ -108,6 +106,8 @@ function error(rawBody: TLoggerBody) {
 function sentryError(rawBody: LoggerSentryErrorBody, sentryExtras?: Record<string, unknown>) {
   const err = error(rawBody);
 
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { captureSentryException } = require('../sentry/sentry') as typeof import('../sentry/sentry');
   captureSentryException(rawBody, sentryExtras);
 
   return err;
