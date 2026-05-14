@@ -20,7 +20,7 @@ export async function getAvailableProducts() {
       },
     });
   } catch (error) {
-    logger.sentryError({ TAG: 'PRODUCTS', msg: 'Get user products error', error });
+    logger.sentryError({ tag: 'PRODUCTS', msg: 'Get user products error', error });
     throw error;
   }
 }
