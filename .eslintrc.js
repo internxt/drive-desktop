@@ -58,6 +58,7 @@ module.exports = {
     'sonarjs/cognitive-complexity': 'warn',
     'sonarjs/different-types-comparison': 'warn',
     'sonarjs/function-return-type': 'off',
+    'sonarjs/no-commented-code': 'off',
     'sonarjs/no-empty-collection': 'off',
     'sonarjs/no-identical-functions': 'off',
     'sonarjs/no-ignored-exceptions': 'error',
