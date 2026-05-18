@@ -4,6 +4,7 @@ import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerItem } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { needsToBeMoved } from './needs-to-be-moved';
 
 type Props = {
   ctx: SyncContext;
@@ -13,7 +14,9 @@ type Props = {
 };
 
 export async function checkIfMoved({ ctx, type, remote, local }: Props) {
-  if (remote.parentUuid !== local.parentUuid) {
+  const isMoved = needsToBeMoved({ remote, local });
+
+  if (isMoved) {
     const remotePath = remote.absolutePath;
     const localPath = local.path;
 
