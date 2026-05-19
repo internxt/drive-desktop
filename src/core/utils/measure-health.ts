@@ -2,6 +2,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import os from 'node:os';
 
 const INTERVAL = 60 * 1000;
+const cpus = os.cpus();
 
 function measureEventLoopLag() {
   return new Promise<number>((resolve) => {
@@ -29,7 +30,6 @@ function getWarnings(lag: number, memUsage: NodeJS.MemoryUsage) {
 async function logHealth() {
   const memUsage = process.memoryUsage();
   const lag = await measureEventLoopLag();
-  const cpus = os.cpus();
   const avgCpuLoad = os.loadavg()[0];
 
   logger.debug({
