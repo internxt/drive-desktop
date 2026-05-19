@@ -50,7 +50,7 @@ export function getSentryEnvironment() {
   return process.env.SENTRY_ENVIRONMENT || 'dev';
 }
 
-export function initSentry(tags: Record<string, Primitive>) {
+export function initSentry(release: string, tags: Record<string, Primitive>) {
   const dsn = process.env.SENTRY_DSN;
 
   if (!dsn) {
@@ -63,7 +63,7 @@ export function initSentry(tags: Record<string, Primitive>) {
   init({
     dsn,
     environment,
-    release: process.env.INTERNXT_VERSION,
+    release,
     defaultIntegrations: false,
     integrations: (integrations) => {
       return integrations;

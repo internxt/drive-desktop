@@ -70,7 +70,7 @@ const tags = {
   nodeVersion: process.versions.node,
 };
 
-initSentry(tags);
+initSentry(INTERNXT_VERSION, tags);
 
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
