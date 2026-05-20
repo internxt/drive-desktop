@@ -87,7 +87,7 @@ describe('get-file-info', () => {
     );
   });
 
-  it('should return error UNKNOWN when path does not exist', async () => {
+  it('should return error UNKNOWN when item does not exist', async () => {
     // Given
     props.path = join(rootPath, randomUUID());
     // When
@@ -95,5 +95,15 @@ describe('get-file-info', () => {
     // Then
     expect(data).toBeUndefined();
     expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 2'));
+  });
+
+  it('should return error UNKNOWN when parent does not exist', async () => {
+    // Given
+    props.path = join(rootPath, 'parent', randomUUID());
+    // When
+    const { data, error } = await getFileInfo(props);
+    // Then
+    expect(data).toBeUndefined();
+    expect(error).toStrictEqual(new GetFileInfoError('UNKNOWN', '[GetPlaceholderInfoAsync] Failed to open file handle: 3'));
   });
 });
