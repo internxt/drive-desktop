@@ -1,5 +1,5 @@
 import { init, setUser, captureException } from '@sentry/electron/main';
-import { arch, release, version } from 'node:os';
+import { Primitive } from 'ts-essentials';
 
 import { logger, type LoggerSentryErrorBody } from '../logger/logger';
 
@@ -50,7 +50,7 @@ export function getSentryEnvironment() {
   return process.env.SENTRY_ENVIRONMENT || 'dev';
 }
 
-export function initSentry() {
+export function initSentry(release: string, tags: Record<string, Primitive>) {
   const dsn = process.env.SENTRY_DSN;
 
   if (!dsn) {
@@ -63,20 +63,12 @@ export function initSentry() {
   init({
     dsn,
     environment,
-    release: process.env.INTERNXT_VERSION,
+    release,
     defaultIntegrations: false,
     integrations: (integrations) => {
       return integrations;
     },
-    initialScope: {
-      tags: {
-        app: 'drive-desktop',
-        arch: arch(),
-        osRelease: release(),
-        osVersion: version(),
-        nodeVersion: process.versions.node,
-      },
-    },
+    initialScope: { tags },
   });
 
   isInitialized = true;
@@ -84,7 +76,6 @@ export function initSentry() {
   logger.debug({
     msg: 'Sentry initialized',
     environment,
-    release: process.env.INTERNXT_VERSION,
   });
 }
 

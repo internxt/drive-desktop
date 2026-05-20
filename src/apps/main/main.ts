@@ -1,5 +1,4 @@
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
-import { initSentry } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import 'core-js/stable';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
@@ -37,8 +36,6 @@ crashReporter.start({ uploadToServer: false, compress: false });
 
 setupElectronLog({ logsPath: PATHS.LOGS });
 
-initSentry();
-
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
     /**
@@ -63,6 +60,17 @@ if (!gotTheLock) {
   });
 }
 
+const tags = {
+  version: INTERNXT_VERSION,
+  isPackaged: app.isPackaged,
+  arch: arch(),
+  osVersion: version(),
+  osRelease: release(),
+  nodeVersion: process.versions.node,
+};
+
+// initSentry(INTERNXT_VERSION, tags);
+
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
@@ -76,11 +84,7 @@ setupRemoteSyncIpc();
 logger.debug({
   msg: 'Starting app',
   gotTheLock,
-  version: INTERNXT_VERSION,
-  isPackaged: app.isPackaged,
-  osVersion: version(),
-  osRelease: release(),
-  arch: arch(),
+  ...tags,
 });
 
 async function checkForUpdates() {
