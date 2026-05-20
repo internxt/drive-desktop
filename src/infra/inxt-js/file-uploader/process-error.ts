@@ -13,7 +13,6 @@ type TProps = {
   sleepMs: number;
   retryFn: () => Promise<ContentsId | undefined>;
 };
-a;
 
 export async function processError({ ctx, path, error, sleepMs, retryFn }: TProps) {
   if (isAbortError({ error })) return;
