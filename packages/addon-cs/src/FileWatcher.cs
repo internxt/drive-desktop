@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.JavaScript.NodeApi;
@@ -35,7 +34,7 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
     {
         try
         {
-            using var handle = OpenDirectoryHandle(rootPath);
+            using var handle = FileHandleHelper.OpenFileHandle(rootPath, FILE_ACCESS_RIGHTS.FILE_LIST_DIRECTORY, false);
             WatchLoop(handle);
         }
         catch (Exception ex)
@@ -46,23 +45,6 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
         {
             _syncCtx.Post(_ => _callbackRef.Dispose(), null);
         }
-    }
-
-    private static SafeFileHandle OpenDirectoryHandle(string path)
-    {
-        var handle = PInvoke.CreateFile(
-            path,
-            (uint)FILE_ACCESS_RIGHTS.FILE_LIST_DIRECTORY,
-            FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE | FILE_SHARE_MODE.FILE_SHARE_DELETE,
-            null,
-            FILE_CREATION_DISPOSITION.OPEN_EXISTING,
-            FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_BACKUP_SEMANTICS,
-            null);
-
-        if (handle.IsInvalid)
-            throw new Win32Exception(Marshal.GetLastWin32Error(), $"Failed to open directory: {path}");
-
-        return handle;
     }
 
     private const FILE_NOTIFY_CHANGE NotifyFilter =
@@ -129,7 +111,6 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
             FILE_ACTION.FILE_ACTION_ADDED => "create",
             FILE_ACTION.FILE_ACTION_REMOVED => "delete",
             FILE_ACTION.FILE_ACTION_MODIFIED => "update",
-            FILE_ACTION.FILE_ACTION_RENAMED_OLD_NAME => "rename_old",
             FILE_ACTION.FILE_ACTION_RENAMED_NEW_NAME => "rename_new",
             _ => null,
         };
@@ -146,8 +127,6 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
     {
         _syncCtx.Post(_ =>
         {
-            var cb = _callbackRef.GetValue();
-
             var evt = JSValue.CreateObject();
             evt["action"] = action;
             evt["type"] = type;
@@ -157,7 +136,7 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
             evt["ctimeMs"] = ctimeMs;
             evt["mtimeMs"] = mtimeMs;
 
-            cb.Call(JSValue.Undefined, evt);
+            _callbackRef.GetValue().Call(JSValue.Undefined, evt);
         }, null);
     }
 
@@ -165,14 +144,11 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
     {
         _syncCtx.Post(_ =>
         {
-            var cb = _callbackRef.GetValue();
-
             var evt = JSValue.CreateObject();
             evt["action"] = "error";
-            evt["type"] = "error";
             evt["path"] = message;
 
-            cb.Call(JSValue.Undefined, evt);
+            _callbackRef.GetValue().Call(JSValue.Undefined, evt);
         }, null);
     }
 }

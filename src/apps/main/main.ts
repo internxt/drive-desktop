@@ -10,12 +10,13 @@ import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
 import 'regenerator-runtime/runtime';
-import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abs, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
 import { INTERNXT_APP_ID, INTERNXT_PROTOCOL, INTERNXT_VERSION } from '@/core/utils/utils';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { runMigrations } from '@/infra/sqlite/migrations/run-migrations';
+import { Addon } from '@/node-win/addon-wrapper';
 import { logger } from '../shared/logger/logger';
 import { checkIfUserIsLoggedIn, emitUserLoggedIn, setIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -117,6 +118,8 @@ async function start() {
   try {
     // const installing = await checkForUpdates();
     // if (installing) return;
+
+    // await Addon.hydrateFile({ path: abs('C:/Users/dajim/InternxtDrive - 658594fe-68bd-4905-8598-5adc73e930fb/test_renamed') });
 
     await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);

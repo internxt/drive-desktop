@@ -49,7 +49,7 @@ inline void sendEvent(WatcherContext* ctx, const std::string& action, const std:
 inline void sendError(WatcherContext* ctx, const std::string& error)
 {
     std::wstring wError(error.begin(), error.end());
-    auto event = new WatcherEvent{"error", wError, "error"};
+    auto event = new WatcherEvent{"error", wError};
     napi_call_threadsafe_function(ctx->tsfn, event, napi_tsfn_blocking);
 }
 
@@ -68,9 +68,6 @@ inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstri
             break;
         case FILE_ACTION_MODIFIED:
             sendEvent(ctx, "update", path, fni);
-            break;
-        case FILE_ACTION_RENAMED_OLD_NAME:
-            sendEvent(ctx, "rename_old", path, fni);
             break;
         case FILE_ACTION_RENAMED_NEW_NAME:
             sendEvent(ctx, "rename_new", path, fni);
