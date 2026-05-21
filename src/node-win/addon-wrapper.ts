@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon as AddonCs } from '@packages/addon-cs';
 import { posix, win32 } from 'node:path';
-import { Addon as AddonCs } from 'packages/addon-cs';
 import { logger } from '@/apps/shared/logger/logger';
 import { iconPath } from '@/apps/utils/icon';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
