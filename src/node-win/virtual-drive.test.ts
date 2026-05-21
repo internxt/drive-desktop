@@ -1,3 +1,4 @@
+import { Addon as AddonCs } from '@packages/addon-cs';
 import { randomUUID } from 'node:crypto';
 import { iconPath } from '@/apps/utils/icon';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -9,11 +10,19 @@ import { fetchDataFn } from './callbacks';
 import { InSyncState, PinState } from './types/placeholder.type';
 
 vi.mock(import('@/node-win/addon'));
+vi.mock(import('@packages/addon-cs'), () => ({
+  Addon: {
+    watchPath: vi.fn(),
+    unwatchPath: vi.fn(),
+    hydrateFile: vi.fn(),
+    dehydrateFile: vi.fn(),
+  },
+}));
 
 describe('addon', () => {
   const getRegisteredSyncRootsMock = deepMocked(addon.getRegisteredSyncRoots);
   const getPlaceholderStateMock = deepMocked(addon.getPlaceholderState);
-  const watchPathMock = deepMocked(addon.watchPath);
+  const watchPathMock = deepMocked(AddonCs.watchPath);
 
   it('should call addon.registerSyncRoot', async () => {
     // Given
@@ -149,21 +158,21 @@ describe('addon', () => {
     call(addon.convertToPlaceholder).toStrictEqual([String.raw`\\?\\parent\file.txt`, 'FILE:uuid']);
   });
 
-  it('should call addon.hydrateFile', async () => {
+  it('should call AddonCs.hydrateFile', async () => {
     // When
     await Addon.hydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(addon.hydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
+    call(AddonCs.hydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
   });
 
-  it('should call addon.dehydrateFile', async () => {
+  it('should call AddonCs.dehydrateFile', async () => {
     // When
     await Addon.dehydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(addon.dehydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
+    call(AddonCs.dehydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
   });
 
-  it('should call addon.watchPath', () => {
+  it('should call AddonCs.watchPath', () => {
     // Given
     watchPathMock.mockReturnValue({});
     const rootPath = abs('C:/Users/user/InternxtDrive');
@@ -172,13 +181,13 @@ describe('addon', () => {
     // When
     Addon.watchPath(props);
     // Then
-    call(addon.watchPath).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, onEvent]);
+    call(AddonCs.watchPath).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, onEvent]);
   });
 
-  it('should call addon.unwatchPath', () => {
+  it('should call AddonCs.unwatchPath', () => {
     // When
     Addon.unwatchPath({ handle: {} });
     // Then
-    call(addon.unwatchPath).toStrictEqual({});
+    call(AddonCs.unwatchPath).toStrictEqual({});
   });
 });
