@@ -1,0 +1,4 @@
+CreateFile
+CfHydratePlaceholder
+CfDehydratePlaceholder
+FILE_ACCESS_RIGHTS

@@ -4,15 +4,6 @@
 
 
 export namespace Addon {
-	export function hello(name: string): string;
-
-	export function add(
-		a: number,
-		b: number,
-	): number;
-
-	export function platform(): string;
-
 	export function hydrateFile(path: string): Promise<void>;
 
 	export function dehydrateFile(path: string): Promise<void>;

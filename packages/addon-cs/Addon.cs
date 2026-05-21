@@ -8,13 +8,6 @@ namespace Intx.Addon;
 [JSExport]
 public static class Addon
 {
-    public static string Hello(string name) => $"Hello, {name}! From C#.";
-
-    public static int Add(int a, int b) => a + b;
-
-    public static string Platform() =>
-        $"{RuntimeInformation.OSDescription} | .NET {Environment.Version}";
-
     public static Task HydrateFile(string path) => Task.Run(() =>
     {
         if (Directory.Exists(path))
@@ -22,10 +15,7 @@ public static class Addon
 
         using var handle = OpenFileHandle(path, Native.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
 
-        if (!Native.GetFileSizeEx(handle, out long length))
-            throw new Win32Exception(Marshal.GetLastWin32Error(), "GetFileSizeEx failed");
-
-        int hr = Native.CfHydratePlaceholder(handle, 0, length, Native.CF_HYDRATE_FLAG_NONE, IntPtr.Zero);
+        int hr = Native.CfHydratePlaceholder(handle, 0, -1, Native.CF_HYDRATE_FLAG_NONE, IntPtr.Zero);
         if (hr < 0)
             throw Marshal.GetExceptionForHR(hr) ?? new Exception($"CfHydratePlaceholder failed: 0x{hr:X8}");
     });
