@@ -165,6 +165,7 @@
     "@internxt/inxt-js": "3.2.2",
     "@internxt/scan": "1.0.7",
     "@packages/addon": "file:packages/addon/packages-addon-1.0.0.tgz",
+    "@packages/addon-cs": "file:packages/addon-cs",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@tanstack/react-query": "^4.43.0",

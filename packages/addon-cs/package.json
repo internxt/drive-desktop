@@ -1,0 +1,20 @@
+{
+  "name": "@packages/addon-cs",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "bin/IntxAddon.js",
+  "types": "bin/IntxAddon.d.ts",
+  "files": [
+    "bin/IntxAddon.js",
+    "bin/IntxAddon.d.ts",
+    "bin/IntxAddon.dll",
+    "bin/IntxAddon.runtimeconfig.json",
+    "bin/IntxAddon.deps.json"
+  ],
+  "scripts": {
+    "build": "dotnet build -c Release"
+  },
+  "dependencies": {
+    "node-api-dotnet": "^0.9.0"
+  }
+}
