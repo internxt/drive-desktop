@@ -6,6 +6,7 @@
 
 // All internal libraries are imported here.
 
+// These helper files are used inside the other helper files so they need to be imported first.
 #include <helpers/napi_safe_wrap.h>
 #include <helpers/napi_serializers.h>
 
@@ -15,6 +16,7 @@
 #include <helpers/napi_extract_args.h>
 #include <helpers/register_threadsafe_callback.h>
 
+// These virtual_drive files are used inside the other virtual_drive files so they need to be imported first.
 #include <virtual_drive/open_file_handle.h>
 #include <virtual_drive/register_fetch_data_callback.h>
 
