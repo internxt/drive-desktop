@@ -1,9 +1,3 @@
-/bin/*
-/obj/
-/node_modules/
-
-!/bin/IntxAddon.dll
-!/bin/IntxAddon.deps.json
-!/bin/IntxAddon.js
-!/bin/IntxAddon.d.ts
-!/bin/import.cjs
+/bin
+/obj
+/node_modules

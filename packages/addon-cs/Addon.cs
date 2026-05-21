@@ -1,7 +1,12 @@
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.JavaScript.NodeApi;
 using Microsoft.Win32.SafeHandles;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Storage.CloudFilters;
+using Windows.Win32.Storage.FileSystem;
 
 namespace Intx.Addon;
 
@@ -13,11 +18,11 @@ public static class Addon
         if (Directory.Exists(path))
             throw new InvalidOperationException("Cannot hydrate folder");
 
-        using var handle = OpenFileHandle(path, Native.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
+        using var handle = OpenFileHandle(path, FILE_ACCESS_RIGHTS.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
 
-        int hr = Native.CfHydratePlaceholder(handle, 0, -1, Native.CF_HYDRATE_FLAG_NONE, IntPtr.Zero);
-        if (hr < 0)
-            throw Marshal.GetExceptionForHR(hr) ?? new Exception($"CfHydratePlaceholder failed: 0x{hr:X8}");
+        HRESULT hr = PInvoke.CfHydratePlaceholder(handle, 0, -1, CF_HYDRATE_FLAGS.CF_HYDRATE_FLAG_NONE, ref Unsafe.NullRef<NativeOverlapped>());
+        if (hr.Value < 0)
+            throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfHydratePlaceholder failed: 0x{hr.Value:X8}");
     });
 
     public static Task DehydrateFile(string path) => Task.Run(() =>
@@ -25,74 +30,31 @@ public static class Addon
         if (Directory.Exists(path))
             throw new InvalidOperationException("Cannot dehydrate folder");
 
-        using var handle = OpenFileHandle(path, Native.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
+        using var handle = OpenFileHandle(path, FILE_ACCESS_RIGHTS.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
 
-        int hr = Native.CfDehydratePlaceholder(handle, 0, -1, Native.CF_DEHYDRATE_FLAG_NONE, IntPtr.Zero);
-        if (hr < 0)
-            throw Marshal.GetExceptionForHR(hr) ?? new Exception($"CfDehydratePlaceholder failed: 0x{hr:X8}");
+        HRESULT hr = PInvoke.CfDehydratePlaceholder(handle, 0, -1, CF_DEHYDRATE_FLAGS.CF_DEHYDRATE_FLAG_NONE, ref Unsafe.NullRef<NativeOverlapped>());
+        if (hr.Value < 0)
+            throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfDehydratePlaceholder failed: 0x{hr.Value:X8}");
     });
 
-    private static SafeFileHandle OpenFileHandle(string path, uint dwDesiredAccess, bool openAsPlaceholder)
+    private static SafeFileHandle OpenFileHandle(string path, FILE_ACCESS_RIGHTS dwDesiredAccess, bool openAsPlaceholder)
     {
-        uint flags = 0;
-        if (openAsPlaceholder) flags |= Native.FILE_FLAG_OPEN_REPARSE_POINT;
-        if (Directory.Exists(path)) flags |= Native.FILE_FLAG_BACKUP_SEMANTICS;
+        FILE_FLAGS_AND_ATTRIBUTES flags = 0;
+        if (openAsPlaceholder) flags |= FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_OPEN_REPARSE_POINT;
+        if (Directory.Exists(path)) flags |= FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_BACKUP_SEMANTICS;
 
-        var handle = Native.CreateFileW(
+        var handle = PInvoke.CreateFile(
             path,
-            dwDesiredAccess,
-            Native.FILE_SHARE_READ | Native.FILE_SHARE_WRITE | Native.FILE_SHARE_DELETE,
-            IntPtr.Zero,
-            Native.OPEN_EXISTING,
+            (uint)dwDesiredAccess,
+            FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE | FILE_SHARE_MODE.FILE_SHARE_DELETE,
+            null,
+            FILE_CREATION_DISPOSITION.OPEN_EXISTING,
             flags,
-            IntPtr.Zero);
+            null);
 
         if (handle.IsInvalid)
             throw new Win32Exception(Marshal.GetLastWin32Error(), $"Failed to open file handle: {path}");
 
         return handle;
-    }
-
-    private static class Native
-    {
-        public const uint FILE_WRITE_ATTRIBUTES = 0x100;
-        public const uint FILE_SHARE_READ = 0x1;
-        public const uint FILE_SHARE_WRITE = 0x2;
-        public const uint FILE_SHARE_DELETE = 0x4;
-        public const uint OPEN_EXISTING = 0x3;
-        public const uint FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000;
-        public const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
-        public const uint CF_HYDRATE_FLAG_NONE = 0;
-        public const uint CF_DEHYDRATE_FLAG_NONE = 0;
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern SafeFileHandle CreateFileW(
-            string lpFileName,
-            uint dwDesiredAccess,
-            uint dwShareMode,
-            IntPtr lpSecurityAttributes,
-            uint dwCreationDisposition,
-            uint dwFlagsAndAttributes,
-            IntPtr hTemplateFile);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetFileSizeEx(SafeFileHandle hFile, out long lpFileSize);
-
-        [DllImport("cldapi.dll")]
-        public static extern int CfHydratePlaceholder(
-            SafeFileHandle fileHandle,
-            long startingOffset,
-            long length,
-            uint hydrateFlags,
-            IntPtr overlapped);
-
-        [DllImport("cldapi.dll")]
-        public static extern int CfDehydratePlaceholder(
-            SafeFileHandle fileHandle,
-            long startingOffset,
-            long length,
-            uint dehydrateFlags,
-            IntPtr overlapped);
     }
 }

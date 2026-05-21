@@ -12,7 +12,10 @@
     "bin/IntxAddon.deps.json"
   ],
   "scripts": {
-    "build": "dotnet build -c Release --no-incremental"
+    "========== Build ==========": "",
+    "compile": "dotnet build -c Release --no-incremental",
+    "refresh": "npm pack && cd ../.. && npm update @packages/addon-cs",
+    "build": "npm run compile && npm run refresh"
   },
   "dependencies": {
     "node-api-dotnet": "^0.9.0"

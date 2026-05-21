@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <RootNamespace>Intx.Addon</RootNamespace>
     <AssemblyName>IntxAddon</AssemblyName>
     <Nullable>enable</Nullable>
@@ -10,6 +10,8 @@
     <OutputPath>bin</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +19,9 @@
     <PackageReference Include="Microsoft.JavaScript.NodeApi.Generator" Version="0.9.*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.*">
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
 
