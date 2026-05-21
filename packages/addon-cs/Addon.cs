@@ -30,6 +30,18 @@ public static class Addon
             throw Marshal.GetExceptionForHR(hr) ?? new Exception($"CfHydratePlaceholder failed: 0x{hr:X8}");
     });
 
+    public static Task DehydrateFile(string path) => Task.Run(() =>
+    {
+        if (Directory.Exists(path))
+            throw new InvalidOperationException("Cannot dehydrate folder");
+
+        using var handle = OpenFileHandle(path, Native.FILE_WRITE_ATTRIBUTES, openAsPlaceholder: true);
+
+        int hr = Native.CfDehydratePlaceholder(handle, 0, -1, Native.CF_DEHYDRATE_FLAG_NONE, IntPtr.Zero);
+        if (hr < 0)
+            throw Marshal.GetExceptionForHR(hr) ?? new Exception($"CfDehydratePlaceholder failed: 0x{hr:X8}");
+    });
+
     private static SafeFileHandle OpenFileHandle(string path, uint dwDesiredAccess, bool openAsPlaceholder)
     {
         uint flags = 0;
@@ -61,6 +73,7 @@ public static class Addon
         public const uint FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000;
         public const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
         public const uint CF_HYDRATE_FLAG_NONE = 0;
+        public const uint CF_DEHYDRATE_FLAG_NONE = 0;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern SafeFileHandle CreateFileW(
@@ -82,6 +95,14 @@ public static class Addon
             long startingOffset,
             long length,
             uint hydrateFlags,
+            IntPtr overlapped);
+
+        [DllImport("cldapi.dll")]
+        public static extern int CfDehydratePlaceholder(
+            SafeFileHandle fileHandle,
+            long startingOffset,
+            long length,
+            uint dehydrateFlags,
             IntPtr overlapped);
     }
 }

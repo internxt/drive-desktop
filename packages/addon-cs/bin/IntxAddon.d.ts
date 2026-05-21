@@ -14,4 +14,6 @@ export namespace Addon {
 	export function platform(): string;
 
 	export function hydrateFile(path: string): Promise<void>;
+
+	export function dehydrateFile(path: string): Promise<void>;
 }

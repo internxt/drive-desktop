@@ -145,7 +145,7 @@ export class Addon {
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.dehydrateFile(toWin32Path(path));
+    await AddonCs.dehydrateFile(toWin32Path(path));
   }
 
   static async hydrateFile({ path }: { path: AbsolutePath }) {
