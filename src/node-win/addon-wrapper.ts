@@ -153,11 +153,10 @@ export class Addon {
   }
 
   static watchPath({ rootPath, onEvent }: { rootPath: AbsolutePath; onEvent: Watcher.OnEvent }) {
-    const result = addon.watchPath(toWin32Path(rootPath), onEvent);
-    return parseAddonZod('watchPath', result);
+    return AddonCs.watchPath(toWin32Path(rootPath), onEvent);
   }
 
   static unwatchPath({ handle }: { handle: object }) {
-    addon.unwatchPath(handle);
+    AddonCs.unwatchPath(handle);
   }
 }

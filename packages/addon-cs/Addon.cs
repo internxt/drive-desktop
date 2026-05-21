@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -13,6 +14,29 @@ namespace Intx.Addon;
 [JSExport]
 public static class Addon
 {
+    private static readonly ConcurrentDictionary<string, FileWatcher> _watchers = new();
+
+    public static JSValue WatchPath(string rootPath, JSValue onEvent)
+    {
+        var id = Guid.NewGuid().ToString("N");
+        var watcher = new FileWatcher(rootPath, onEvent);
+        _watchers[id] = watcher;
+        watcher.Start();
+
+        var handle = JSValue.CreateObject();
+        handle["id"] = id;
+        return handle;
+    }
+
+    public static void UnwatchPath(JSValue handle)
+    {
+        var id = (string)handle["id"];
+        if (_watchers.TryRemove(id, out var w))
+        {
+            w.Stop();
+        }
+    }
+
     public static Task HydrateFile(string path) => Task.Run(() =>
     {
         if (Directory.Exists(path))
