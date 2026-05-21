@@ -10,29 +10,20 @@ using Windows.Win32.Storage.FileSystem;
 
 namespace Intx.Addon;
 
-internal sealed class FileWatcher
+internal sealed class FileWatcher(string rootPath, JSValue onEvent)
 {
     private const int BufferSize = 64 * 1024;
+    // number of 100-ns intervals between 1601 and 1970
     private const long EpochOffsetTicks = 116444736000000000L;
 
-    private readonly string _rootPath;
-    private readonly JSReference _callbackRef;
-    private readonly JSSynchronizationContext _syncCtx;
-    private readonly CancellationTokenSource _cts = new();
-    private Thread? _thread;
-
-    public FileWatcher(string rootPath, JSValue onEvent)
-    {
-        _rootPath = rootPath;
-        _callbackRef = new JSReference(onEvent);
-        _syncCtx = JSSynchronizationContext.Current
+    private readonly JSReference _callbackRef = new(onEvent);
+    private readonly JSSynchronizationContext _syncCtx = JSSynchronizationContext.Current
             ?? throw new InvalidOperationException("No JSSynchronizationContext on current thread");
-    }
+    private readonly CancellationTokenSource _cts = new();
 
     public void Start()
     {
-        _thread = new Thread(Run) { IsBackground = true, Name = "FileWatcher" };
-        _thread.Start();
+        new Thread(Run) { IsBackground = true, Name = "FileWatcher" }.Start();
     }
 
     public void Stop()
@@ -44,7 +35,7 @@ internal sealed class FileWatcher
     {
         try
         {
-            using var handle = OpenDirectoryHandle(_rootPath);
+            using var handle = OpenDirectoryHandle(rootPath);
             WatchLoop(handle);
         }
         catch (Exception ex)
@@ -65,7 +56,7 @@ internal sealed class FileWatcher
             FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE | FILE_SHARE_MODE.FILE_SHARE_DELETE,
             null,
             FILE_CREATION_DISPOSITION.OPEN_EXISTING,
-            FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_OVERLAPPED,
+            FILE_FLAGS_AND_ATTRIBUTES.FILE_FLAG_BACKUP_SEMANTICS,
             null);
 
         if (handle.IsInvalid)
@@ -74,44 +65,41 @@ internal sealed class FileWatcher
         return handle;
     }
 
+    private const FILE_NOTIFY_CHANGE NotifyFilter =
+        FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_FILE_NAME |
+        FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_DIR_NAME |
+        FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_SIZE |
+        FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_ATTRIBUTES;
+
     private unsafe void WatchLoop(SafeFileHandle hDirectory)
     {
         byte[] buffer = new byte[BufferSize];
-        const FILE_NOTIFY_CHANGE filter =
-            FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_FILE_NAME |
-            FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_DIR_NAME |
-            FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_SIZE |
-            FILE_NOTIFY_CHANGE.FILE_NOTIFY_CHANGE_ATTRIBUTES;
 
         while (!_cts.IsCancellationRequested)
         {
             uint bytesReturned;
-            BOOL success;
 
             fixed (byte* pBuffer = buffer)
             {
-                success = PInvoke.ReadDirectoryChangesEx(
+                BOOL success = PInvoke.ReadDirectoryChangesEx(
                     (HANDLE)hDirectory.DangerousGetHandle(),
                     pBuffer,
                     BufferSize,
                     bWatchSubtree: true,
-                    filter,
+                    NotifyFilter,
                     &bytesReturned,
                     lpOverlapped: null,
                     lpCompletionRoutine: null,
                     READ_DIRECTORY_NOTIFY_INFORMATION_CLASS.ReadDirectoryNotifyExtendedInformation);
-            }
 
-            if (!success)
-            {
-                SendError($"ReadDirectoryChangesExW failed: {Marshal.GetLastWin32Error()}");
-                break;
-            }
+                if (!success)
+                {
+                    SendError($"ReadDirectoryChangesEx failed: {Marshal.GetLastWin32Error()}");
+                    break;
+                }
 
-            if (_cts.IsCancellationRequested) break;
+                if (_cts.IsCancellationRequested) break;
 
-            fixed (byte* pBuffer = buffer)
-            {
                 var fni = (FILE_NOTIFY_EXTENDED_INFORMATION*)pBuffer;
                 while (true)
                 {
@@ -127,22 +115,22 @@ internal sealed class FileWatcher
     {
         int nameLen = (int)fni->FileNameLength / sizeof(char);
         char* pName = (char*)Unsafe.AsPointer(ref Unsafe.AsRef(in fni->FileName));
-        string filename = new string(pName, 0, nameLen);
+        string filename = new(pName, 0, nameLen);
 
-        string path = (_rootPath + "/" + filename).Replace('\\', '/');
-        string type = ((uint)fni->FileAttributes & 0x10) != 0 ? "folder" : "file";
+        string path = (rootPath + "/" + filename).Replace('\\', '/');
+        string type = (fni->FileAttributes & (uint)FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_DIRECTORY) != 0 ? "folder" : "file";
         long internalId = fni->FileId;
         long size = fni->FileSize;
         double ctimeMs = FileTimeToUnixMs(fni->LastChangeTime);
         double mtimeMs = FileTimeToUnixMs(fni->LastModificationTime);
 
-        string? action = (uint)fni->Action switch
+        string? action = fni->Action switch
         {
-            1 => "create",
-            2 => "delete",
-            3 => "update",
-            4 => "rename_old",
-            5 => "rename_new",
+            FILE_ACTION.FILE_ACTION_ADDED => "create",
+            FILE_ACTION.FILE_ACTION_REMOVED => "delete",
+            FILE_ACTION.FILE_ACTION_MODIFIED => "update",
+            FILE_ACTION.FILE_ACTION_RENAMED_OLD_NAME => "rename_old",
+            FILE_ACTION.FILE_ACTION_RENAMED_NEW_NAME => "rename_new",
             _ => null,
         };
 
