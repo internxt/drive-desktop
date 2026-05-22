@@ -1,9 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { paths } from '@/apps/shared/HttpClient/schema';
 
-type Key = `request${string}` | `createFile${string}`;
+export type DedupeKey = `request${string}` | `createFile${string}`;
 
-const inFlightRequests = new Map<Key, Promise<unknown>>();
+const inFlightRequests = new Map<DedupeKey, Promise<unknown>>();
 
 export function getRequestKey({
   endpoint,
@@ -13,15 +13,15 @@ export function getRequestKey({
   endpoint: keyof paths;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   context?: Record<string, unknown>;
-}): Key {
+}): DedupeKey {
   return `request${endpoint}-${method}-${JSON.stringify(context)}`;
 }
 
-export function getCreateFileKey({ path }: { path: AbsolutePath }): Key {
+export function getCreateFileKey({ path }: { path: AbsolutePath }): DedupeKey {
   return `createFile${path}`;
 }
 
-export function getInFlightRequest<T>({ key, promiseFn }: { key: Key; promiseFn: () => Promise<T> }) {
+export function getInFlightRequest<T>({ key, promiseFn }: { key: DedupeKey; promiseFn: () => Promise<T> }) {
   const inFlightRequest = inFlightRequests.get(key);
 
   if (inFlightRequest) {
