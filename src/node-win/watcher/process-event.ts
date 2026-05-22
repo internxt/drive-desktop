@@ -40,6 +40,7 @@ export async function processEvent({ ctx, event, path }: Props) {
 
     if (event.type === 'file') {
       await onChange({ ctx, event, path });
+      return;
     }
 
     if (event.type === 'folder') {
