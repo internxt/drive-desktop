@@ -1,9 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Addon } from '@/node-win/addon-wrapper';
-import { ProcessSyncContext } from '../config';
+import { SyncContext } from '../config';
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
 };
 

@@ -2,11 +2,11 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { CallbackDownload } from '@/node-win/addon';
-import { ProcessSyncContext } from '../config';
+import { SyncContext } from '../config';
 import { downloadContents } from '../download-contents/download-contents';
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
   callback: CallbackDownload;
 };

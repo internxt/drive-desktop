@@ -1,5 +1,6 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Notification } from 'electron';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -29,8 +30,8 @@ function showNotification(notification: MarketingNotification) {
   popup.show();
 }
 
-export async function showNotifications() {
-  const { data: notifications = [] } = await DriveServerWipModule.NotificationModule.getAll();
+export async function showNotifications({ ctx }: { ctx: AuthContext }) {
+  const { data: notifications = [] } = await DriveServerWipModule.NotificationModule.getAll({ ctx });
 
   logger.debug({ msg: 'Show marketing notifications', notifications: notifications.length });
 

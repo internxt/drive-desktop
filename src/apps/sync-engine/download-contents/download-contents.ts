@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { CallbackDownload } from '@/node-win/addon';
 
@@ -10,7 +10,7 @@ export async function downloadContents({
   path,
   callback,
 }: {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   file: SimpleDriveFile;
   path: AbsolutePath;
   callback: CallbackDownload;
