@@ -45,7 +45,6 @@ describe('watcher-on-change', () => {
     // Then
     calls(onEventSpy).toMatchObject([
       { event: { action: 'delete', type: 'file', size: 7 } },
-      { event: { action: 'rename_old', type: 'file', size: 10 } },
       { event: { action: 'rename_new', type: 'file', size: 10 } },
     ]);
     call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file', size: 10 }, path: file1 });

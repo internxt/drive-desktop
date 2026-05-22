@@ -4,7 +4,7 @@ import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-he
 import { DriveServerWipError } from '../defs';
 import { errorWrapper } from './error-wrapper';
 import { exceptionWrapper } from './exception-wrapper';
-import { getInFlightRequest } from './get-in-flight-request';
+import { getInFlightRequest, DedupeKey } from './get-in-flight-request';
 
 const MAX_RETRIES = 3;
 
@@ -13,7 +13,7 @@ type TErrorResponse = { data?: undefined; error: unknown; response: Response };
 type TPromise<T> = Promise<TValidResponse<T> | TErrorResponse>;
 type TProps<T> = {
   loggerBody: TLoggerBody;
-  key: string;
+  key: DedupeKey;
   promiseFn: () => TPromise<T>;
   sleepMs?: number;
   retry?: number;

@@ -11,7 +11,7 @@ inline void hydrate_file(const std::wstring& path)
     LARGE_INTEGER offset;
     offset.QuadPart = 0;
     LARGE_INTEGER length;
-    GetFileSizeEx(fileHandle.get(), &length);
+    length.QuadPart = -1;
 
     check_hresult(
         "CfHydratePlaceholder",
