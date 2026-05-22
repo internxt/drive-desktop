@@ -3,7 +3,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 
 export type DedupeKey = `request${string}` | `createFile${string}`;
 
-const inFlightRequests = new Map<DedupeKey, Promise<unknown>>();
+const inFlightPromises = new Map<DedupeKey, Promise<unknown>>();
 
 export function getRequestKey({
   endpoint,
@@ -22,7 +22,7 @@ export function getCreateFileKey({ path }: { path: AbsolutePath }): DedupeKey {
 }
 
 export function getInFlightRequest<T>({ key, promiseFn }: { key: DedupeKey; promiseFn: () => Promise<T> }) {
-  const inFlightRequest = inFlightRequests.get(key);
+  const inFlightRequest = inFlightPromises.get(key);
 
   if (inFlightRequest) {
     return {
@@ -32,10 +32,10 @@ export function getInFlightRequest<T>({ key, promiseFn }: { key: DedupeKey; prom
   }
 
   const promise = promiseFn().finally(() => {
-    inFlightRequests.delete(key);
+    inFlightPromises.delete(key);
   });
 
-  inFlightRequests.set(key, promise);
+  inFlightPromises.set(key, promise);
 
   return {
     reused: false,
