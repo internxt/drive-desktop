@@ -16,7 +16,7 @@ describe('getBackupsFromDevice', () => {
   const getPathMock = partialSpyOn(app, 'getPath');
 
   beforeEach(() => {
-    props = mockProps<typeof getBackupsFromDevice>({});
+    props = mockProps<typeof getBackupsFromDevice>({ device: {} });
   });
 
   it('should return filtered and mapped backups when isCurrent is true', async () => {

@@ -50,7 +50,7 @@ describe('Device Service', () => {
       // When
       const { data, error } = await createUniqueDevice(props);
       // Then
-      call(createDeviceMock).toStrictEqual({ deviceName: 'hostname' });
+      call(createDeviceMock).toMatchObject({ context: { deviceName: 'hostname' } });
       expect(data).toBeDefined();
       expect(error).toBeUndefined();
     });
@@ -68,11 +68,11 @@ describe('Device Service', () => {
       // Then
       expect(data).toBeDefined();
       expect(error).toBeUndefined();
-      calls(createDeviceMock).toStrictEqual([
-        { deviceName: 'hostname' },
-        { deviceName: 'hostname (1)' },
-        { deviceName: 'hostname (2)' },
-        { deviceName: 'hostname (3)' },
+      calls(createDeviceMock).toMatchObject([
+        { context: { deviceName: 'hostname' } },
+        { context: { deviceName: 'hostname (1)' } },
+        { context: { deviceName: 'hostname (2)' } },
+        { context: { deviceName: 'hostname (3)' } },
       ]);
     });
 
@@ -81,14 +81,17 @@ describe('Device Service', () => {
       createDeviceMock
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
-        .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
-        .mockResolvedValueOnce({ data: {} });
+        .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') });
       // When
       const { data, error } = await createUniqueDevice(props);
       // Then
       expect(data).toBeUndefined();
       expect(error?.message).toBe('Could not create device trying different names');
-      calls(createDeviceMock).toStrictEqual([{ deviceName: 'hostname' }, { deviceName: 'hostname (1)' }, { deviceName: 'hostname (2)' }]);
+      calls(createDeviceMock).toMatchObject([
+        { context: { deviceName: 'hostname' } },
+        { context: { deviceName: 'hostname (1)' } },
+        { context: { deviceName: 'hostname (2)' } },
+      ]);
     });
   });
 });
