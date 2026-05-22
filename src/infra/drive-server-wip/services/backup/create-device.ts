@@ -30,14 +30,7 @@ export async function createDevice({ ctx, context }: Props) {
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Create device as folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Create device as folder request', context },
   });
 
   if (error) {

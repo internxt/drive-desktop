@@ -1,5 +1,5 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { clientWrapper } from '../../in/client-wrapper.service';
@@ -29,7 +29,7 @@ export async function checkExistence({ ctx, context }: Props) {
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.POST(endpoint, {
+    ctx.client.POST(endpoint, {
       signal: ctx.abortController.signal,
       headers: getWorkspaceHeader({ ctx }),
       params: { path: { uuid: context.parentUuid } },

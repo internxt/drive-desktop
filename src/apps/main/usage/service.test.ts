@@ -1,5 +1,6 @@
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { calculateUsage } from './service';
 
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
@@ -8,11 +9,13 @@ describe('UserUsageService', () => {
   const getUsageMock = vi.mocked(driveServerWip.user.getUsage);
   const getLimitMock = vi.mocked(driveServerWip.user.getLimit);
 
+  const props = mockProps<typeof calculateUsage>({});
+
   it('should calculate usage correctly', async () => {
     getUsageMock.mockResolvedValueOnce({ data: { drive: 5000, backup: 1000, total: 6000 } });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 10000 } });
 
-    const result = await calculateUsage();
+    const result = await calculateUsage(props);
 
     expect(result).toEqual({
       usageInBytes: 5000,
@@ -26,7 +29,7 @@ describe('UserUsageService', () => {
     getUsageMock.mockResolvedValueOnce({ data: { drive: 5000, backup: 1000, total: 6000 } });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 108851651149824 } });
 
-    const result = await calculateUsage();
+    const result = await calculateUsage(props);
 
     expect(result.isInfinite).toBe(true);
     expect(result.offerUpgrade).toBe(false);
@@ -36,6 +39,6 @@ describe('UserUsageService', () => {
     getUsageMock.mockResolvedValueOnce({ error: new DriveServerWipError('UNKNOWN', 'cause') });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 10000 } });
 
-    await expect(calculateUsage()).rejects.toThrow('UNKNOWN');
+    await expect(calculateUsage(props)).rejects.toThrow('UNKNOWN');
   });
 });
