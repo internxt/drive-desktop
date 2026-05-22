@@ -69,7 +69,7 @@ async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {
     const nameWithExtension = basename(path);
     const parentUuid = parentInfo.uuid;
 
-    const { data: file } = SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension });
+    const { data: file } = await SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension });
 
     if (file) {
       await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
