@@ -8,15 +8,15 @@ describe('get-in-flight-response', () => {
     const promise3 = Promise.resolve('third');
     const promise4 = Promise.resolve('fourth');
 
-    const { promise: res1 } = getInFlightRequest({ key: 'key1', promiseFn: () => promise1 });
-    const { promise: res2 } = getInFlightRequest({ key: 'key1', promiseFn: () => promise2 });
-    const { promise: res3 } = getInFlightRequest({ key: 'key2', promiseFn: () => promise3 });
+    const { promise: res1 } = getInFlightRequest({ key: 'requestKey1', promiseFn: () => promise1 });
+    const { promise: res2 } = getInFlightRequest({ key: 'requestKey1', promiseFn: () => promise2 });
+    const { promise: res3 } = getInFlightRequest({ key: 'requestKey2', promiseFn: () => promise3 });
 
     const val1 = await res1;
     const val2 = await res2;
     const val3 = await res3;
 
-    const { promise: res4 } = getInFlightRequest({ key: 'key1', promiseFn: () => promise4 });
+    const { promise: res4 } = getInFlightRequest({ key: 'requestKey1', promiseFn: () => promise4 });
 
     const val4 = await res4;
 

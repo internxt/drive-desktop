@@ -21,8 +21,6 @@ export async function registerSyncRoot({ ctx }: TProps) {
       providerId: ctx.providerId,
       providerName: ctx.providerName,
     });
-
-    return;
   } catch (error) {
     ctx.logger.error({ msg: 'Error registering sync root', error });
 

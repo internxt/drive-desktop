@@ -15,7 +15,7 @@ export type FetchDataCallback = (connectionKey: bigint, path: Win32Path, callbac
 
 export namespace Watcher {
   export type SuccessEvent = {
-    action: 'create' | 'update' | 'delete' | 'rename_old' | 'rename_new';
+    action: 'create' | 'update' | 'delete' | 'rename_new';
     type: 'file' | 'folder';
     path: AbsolutePath;
     size: number;
@@ -23,7 +23,7 @@ export namespace Watcher {
     ctimeMs: number;
     mtimeMs: number;
   };
-  export type ErrorEvent = { action: 'error'; type: 'error'; path: string };
+  export type ErrorEvent = { action: 'error'; path: string };
   export type Event = SuccessEvent | ErrorEvent;
   export type OnEvent = (event: Event) => void;
   export type Subscription = {

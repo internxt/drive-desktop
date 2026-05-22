@@ -8,7 +8,7 @@ const events = new Map<number, { event: Watcher.SuccessEvent; timer: NodeJS.Time
 const DEBOUNCE_MS = process.env.NODE_ENV === 'test' ? 50 : 2000;
 
 export function onEvent({ ctx, event }: { ctx: SyncContext; event: Watcher.Event }) {
-  if (event.type === 'error') {
+  if (event.action === 'error') {
     ctx.logger.error({ msg: 'Error in watcher', event });
     return;
   }

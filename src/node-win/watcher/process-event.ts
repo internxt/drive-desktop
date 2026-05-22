@@ -11,23 +11,25 @@ type Props = {
   event: Watcher.SuccessEvent;
 };
 
-// We receive a delete event when:
-// - delete a file or a folder.
-
-// We receive a create event when:
-// - create an empty file.
-// - create a folder.
-// - move a file or a folder.
-
-// We receive an update event when:
-// - create a file with content.
-// - hydrate or dehydrate file or folder.
-// - modify a file (we may lose the placeholderId). We can recreate this use case by editing
-// an image with Paint.
-
-// We receive a rename_old and rename_new event when:
-// - rename a file or a folder.
-// - modify a file (we may lose the placeholderId).
+/**
+ * We receive a delete event when:
+ * - delete a file or a folder.
+ *
+ * We receive a create event when:
+ * - create an empty file.
+ * - create a folder.
+ * - move a file or a folder.
+ *
+ * We receive an update event when:
+ * - create a file with content.
+ * - hydrate or dehydrate file or folder.
+ * - modify a file (we may lose the placeholderId). We can recreate this use case by editing
+ * an image with Paint.
+ *
+ * We receive a rename_new event when:
+ * - rename a file or a folder.
+ * - modify a file (we may lose the placeholderId).
+ */
 
 export async function processEvent({ ctx, event, path }: Props) {
   try {
@@ -36,7 +38,7 @@ export async function processEvent({ ctx, event, path }: Props) {
       return;
     }
 
-    if (event.type === 'file' && event.action !== 'rename_old') {
+    if (event.type === 'file') {
       await onChange({ ctx, event, path });
       return;
     }
