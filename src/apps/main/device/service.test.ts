@@ -1,5 +1,5 @@
 import os from 'node:os';
-import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { CreateDeviceError } from '@/infra/drive-server-wip/services/backup/create-device';
 import configStore from '../config';
@@ -23,8 +23,12 @@ describe('Device Service', () => {
     lastBackupAt: '2023-01-01',
   };
 
+  let props: Parameters<typeof createUniqueDevice>[0];
+
   beforeEach(() => {
     hostnameMock.mockReturnValue('hostname');
+
+    props = mockProps<typeof createUniqueDevice>({});
   });
 
   describe('saveDeviceToConfig', () => {
@@ -44,7 +48,7 @@ describe('Device Service', () => {
       // Given
       createDeviceMock.mockResolvedValue({ data: {} });
       // When
-      const { data, error } = await createUniqueDevice();
+      const { data, error } = await createUniqueDevice(props);
       // Then
       call(createDeviceMock).toStrictEqual({ deviceName: 'hostname' });
       expect(data).toBeDefined();
@@ -53,13 +57,14 @@ describe('Device Service', () => {
 
     it('should try multiple times to create a unique device with the name of the hostname plus the number of try', async () => {
       // Given
+      props.attempts = 4;
       createDeviceMock
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ data: {} });
       // When
-      const { data, error } = await createUniqueDevice(4);
+      const { data, error } = await createUniqueDevice(props);
       // Then
       expect(data).toBeDefined();
       expect(error).toBeUndefined();
@@ -72,13 +77,14 @@ describe('Device Service', () => {
     });
 
     it('should return an error if the device creation fails', async () => {
+      props.attempts = 2;
       createDeviceMock
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ error: new CreateDeviceError('ALREADY_EXISTS') })
         .mockResolvedValueOnce({ data: {} });
       // When
-      const { data, error } = await createUniqueDevice(2);
+      const { data, error } = await createUniqueDevice(props);
       // Then
       expect(data).toBeUndefined();
       expect(error?.message).toBe('Could not create device trying different names');

@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
@@ -12,13 +12,18 @@ export class CreateDeviceError extends DriveServerWipError {
   }
 }
 
-export async function createDevice(context: { deviceName: string }) {
+type Props = {
+  ctx: AuthContext;
+  context: { deviceName: string };
+};
+
+export async function createDevice({ ctx, context }: Props) {
   const method = 'POST';
   const endpoint = '/backup/deviceAsFolder';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.POST(endpoint, {
+    ctx.client.POST(endpoint, {
       body: { deviceName: context.deviceName },
     });
 

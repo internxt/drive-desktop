@@ -6,7 +6,7 @@ import { getBackupsFromDevice } from './get-backups-from-device';
 import * as serviceModule from './service';
 
 describe('getBackupsFromDevice', () => {
-  const props = mockProps<typeof getBackupsFromDevice>({});
+  let props: Parameters<typeof getBackupsFromDevice>[0];
   const backupChild = { id: 1, uuid: 'folder-uuid' };
   const folder = { children: [backupChild] };
   const fetchFolderMock = partialSpyOn(driveServerWip.backup, 'fetchFolder');
@@ -15,6 +15,10 @@ describe('getBackupsFromDevice', () => {
   const configStoreMock = partialSpyOn(configStore, 'get');
   const getPathMock = partialSpyOn(app, 'getPath');
 
+  beforeEach(() => {
+    props = mockProps<typeof getBackupsFromDevice>({});
+  });
+
   it('should return filtered and mapped backups when isCurrent is true', async () => {
     fetchFolderMock.mockResolvedValueOnce({ data: folder });
     findBackupPathnameFromIdMock.mockReturnValueOnce('/path/to/backup1');
@@ -22,7 +26,8 @@ describe('getBackupsFromDevice', () => {
     configStoreMock.mockReturnValueOnce({ '/path/to/backup1': { enabled: true } });
     getPathMock.mockReturnValueOnce('/tmp');
 
-    const result = await getBackupsFromDevice(props, true);
+    props.isCurrent = true;
+    const result = await getBackupsFromDevice(props);
     expect(result).toStrictEqual([
       {
         ...backupChild,
@@ -35,7 +40,8 @@ describe('getBackupsFromDevice', () => {
 
   it('should return mapped backups when isCurrent is false', async () => {
     fetchFolderMock.mockResolvedValueOnce({ data: folder });
-    const result = await getBackupsFromDevice(props, false);
+    props.isCurrent = false;
+    const result = await getBackupsFromDevice(props);
     expect(result).toStrictEqual([
       {
         ...backupChild,
@@ -49,14 +55,15 @@ describe('getBackupsFromDevice', () => {
   it('should throw and log error if fetchFolder fails', async () => {
     const error = new Error('fetch error');
     fetchFolderMock.mockRejectedValue(error);
-
-    await expect(getBackupsFromDevice(props, true)).rejects.toThrow('error getting backups');
+    props.isCurrent = true;
+    await expect(getBackupsFromDevice(props)).rejects.toThrow('error getting backups');
   });
 
   it('should throw and log error if folder is null or error is present', async () => {
     const error = new Error('folder fetch failed');
     fetchFolderMock.mockResolvedValueOnce({ error });
 
-    await expect(getBackupsFromDevice(props, true)).rejects.toThrow('folder fetch failed');
+    props.isCurrent = true;
+    await expect(getBackupsFromDevice(props)).rejects.toThrow('folder fetch failed');
   });
 });

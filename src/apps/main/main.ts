@@ -22,12 +22,10 @@ import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
-import { setupDeviceIpc } from './device/handlers';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupQuitHandlers } from './quit';
-import { setupRemoteSyncIpc } from './remote-sync/handlers';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { createWidget, showFrontend } from './windows/widget';
 
@@ -77,9 +75,7 @@ setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
 setupIssueHandlers();
-setupDeviceIpc();
 setupAntivirusIpc();
-setupRemoteSyncIpc();
 
 logger.debug({
   msg: 'Starting app',

@@ -23,7 +23,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     window.electron
-      .getOrCreateDevice()
+      .getOrCreateDevice({})
       .then(({ data: device }) => {
         if (device) {
           setDeviceState({ status: 'SUCCESS', device });
@@ -42,7 +42,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     setDeviceState({ status: 'LOADING' });
 
     try {
-      const updatedDevice = await window.electron.renameDevice(deviceName);
+      const updatedDevice = await window.electron.renameDevice({ deviceName });
       setDeviceState({ status: 'SUCCESS', device: updatedDevice });
       setCurrent(updatedDevice);
       setSelected(updatedDevice);

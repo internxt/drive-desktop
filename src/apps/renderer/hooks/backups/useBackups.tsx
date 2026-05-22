@@ -30,9 +30,9 @@ export function useBackups(): BackupContextProps {
     if (!selected) {
       if (!current) return;
 
-      backups = await window.electron.getBackupsFromDevice(current, true);
+      backups = await window.electron.getBackupsFromDevice({ device: current, isCurrent: true });
     } else {
-      backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
+      backups = await window.electron.getBackupsFromDevice({ device: selected, isCurrent: selected.id === current?.id });
     }
     window.electron.logger.debug({ msg: 'Backups fetched', length: backups.length });
     setBackups(backups);
@@ -68,7 +68,7 @@ export function useBackups(): BackupContextProps {
 
   async function addBackup(): Promise<void> {
     try {
-      await window.electron.addBackup();
+      await window.electron.addBackup({});
       await loadBackups();
     } catch {
       setBackupsState('ERROR');
@@ -76,7 +76,7 @@ export function useBackups(): BackupContextProps {
   }
 
   async function disableBackup(folderId: number) {
-    await window.electron.disableBackup(folderId);
+    await window.electron.disableBackup({ folderId });
     await loadBackups();
   }
 

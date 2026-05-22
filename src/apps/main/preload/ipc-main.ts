@@ -11,9 +11,10 @@ import { backupsSetInterval, backupsStartProcess } from '../background-processes
 import { getLanguage } from '../config/language';
 import { setConfigKey } from '../config/service';
 import { getTheme } from '../config/theme';
-import { deleteBackupsFromDevice } from '../device/service';
+import { getBackupsFromDevice } from '../device/get-backups-from-device';
+import { addBackup, deleteBackupsFromDevice, disableBackup, getDevices, getOrCreateDevice, renameDevice } from '../device/service';
 import { getAvailableProducts } from '../payments/get-available-products';
-import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getItemsByFolderUuid, updateAllRemoteSync } from '../remote-sync/handlers';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { calculateUsage } from '../usage/service';
 import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
@@ -44,20 +45,37 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
   ipcPreloadMain.handle('getRemoteSyncStatus', () => Promise.resolve(getSyncStatus()));
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
+  ipcPreloadMain.handle('disableBackup', (_, props) => Promise.resolve(disableBackup(props)));
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
-  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog({ ctx }));
+
+  // Backups
   ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
   ipcPreloadMain.handle('backupsStartProcess', () => backupsStartProcess({ ctx }));
   ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup({ ctx, ...props }));
-  ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog({ ctx }));
+  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('getDevices', (_, props) => getDevices({ ctx, ...props }));
+  ipcPreloadMain.handle('getBackupsFromDevice', (_, props) => getBackupsFromDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('getOrCreateDevice', (_, props) => getOrCreateDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('renameDevice', (_, props) => renameDevice({ ctx, ...props }));
+  ipcPreloadMain.handle('addBackup', (_, props) => addBackup({ ctx, ...props }));
+  ipcPreloadMain.handle('getItemsByFolderUuid', (_, props) => getItemsByFolderUuid({ ctx, ...props }));
 }
 
 export function clearLoggedPreloadIpc() {
-  ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('driveChooseSyncRootWithDialog');
+
+  // Backups
   ipcPreloadMain.removeHandler('backupsSetInterval');
   ipcPreloadMain.removeHandler('backupsStartProcess');
   ipcPreloadMain.removeHandler('downloadBackup');
-  ipcPreloadMain.removeHandler('driveChooseSyncRootWithDialog');
+  ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
+  ipcPreloadMain.removeHandler('getDevices');
+  ipcPreloadMain.removeHandler('getBackupsFromDevice');
+  ipcPreloadMain.removeHandler('getOrCreateDevice');
+  ipcPreloadMain.removeHandler('renameDevice');
+  ipcPreloadMain.removeHandler('addBackup');
+  ipcPreloadMain.removeHandler('getItemsByFolderUuid');
 }

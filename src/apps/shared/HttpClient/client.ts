@@ -35,7 +35,7 @@ export const client = createClient<paths>({
 client.use(middleware);
 
 export function createWipClient() {
-  const driveApiBottleneck = new Bottleneck({ maxConcurrent: 2, minTime: 500 });
+  const driveApiBottleneck = new Bottleneck({ maxConcurrent: 3, minTime: 333 });
 
   const client = createClient<paths>({
     baseUrl: process.env.DRIVE_URL,
