@@ -33,10 +33,7 @@ describe('watcher-on-move', () => {
     await rename(file1, file2);
     await sleep(100);
     // Then
-    calls(onEventSpy).toMatchObject([
-      { event: { action: 'rename_old', type: 'file', size: 7 } },
-      { event: { action: 'rename_new', type: 'file', size: 7 } },
-    ]);
+    call(onEventSpy).toMatchObject({ event: { action: 'rename_new', type: 'file', size: 7 } });
     call(onChangeMock).toMatchObject({ event: { action: 'rename_new', type: 'file' }, path: file2 });
   });
 
@@ -67,10 +64,7 @@ describe('watcher-on-move', () => {
     await rename(folder1, folder2);
     await sleep(100);
     // Then
-    calls(onEventSpy).toMatchObject([
-      { event: { action: 'rename_old', type: 'folder', size: 0 } },
-      { event: { action: 'rename_new', type: 'folder', size: 0 } },
-    ]);
+    call(onEventSpy).toMatchObject({ event: { action: 'rename_new', type: 'folder', size: 0 } });
     call(onAddDirMock).toMatchObject({ path: folder2 });
   });
 

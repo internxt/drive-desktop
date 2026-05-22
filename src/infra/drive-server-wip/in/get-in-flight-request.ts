@@ -1,6 +1,9 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { paths } from '@/apps/shared/HttpClient/schema';
 
-const inFlightRequests = new Map<string, Promise<unknown>>();
+export type DedupeKey = `request${string}` | `createFile${string}`;
+
+const inFlightPromises = new Map<DedupeKey, Promise<unknown>>();
 
 export function getRequestKey({
   endpoint,
@@ -10,12 +13,16 @@ export function getRequestKey({
   endpoint: keyof paths;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   context?: Record<string, unknown>;
-}) {
-  return `${endpoint}-${method}-${JSON.stringify(context)}`;
+}): DedupeKey {
+  return `request${endpoint}-${method}-${JSON.stringify(context)}`;
 }
 
-export function getInFlightRequest<T>({ key, promiseFn }: { key: string; promiseFn: () => Promise<T> }) {
-  const inFlightRequest = inFlightRequests.get(key);
+export function getCreateFileKey({ path }: { path: AbsolutePath }): DedupeKey {
+  return `createFile${path}`;
+}
+
+export function getInFlightRequest<T>({ key, promiseFn }: { key: DedupeKey; promiseFn: () => Promise<T> }) {
+  const inFlightRequest = inFlightPromises.get(key);
 
   if (inFlightRequest) {
     return {
@@ -25,10 +32,10 @@ export function getInFlightRequest<T>({ key, promiseFn }: { key: string; promise
   }
 
   const promise = promiseFn().finally(() => {
-    inFlightRequests.delete(key);
+    inFlightPromises.delete(key);
   });
 
-  inFlightRequests.set(key, promise);
+  inFlightPromises.set(key, promise);
 
   return {
     reused: false,
