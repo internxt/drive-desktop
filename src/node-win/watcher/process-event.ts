@@ -26,7 +26,7 @@ type Props = {
  * - modify a file (we may lose the placeholderId). We can recreate this use case by editing
  * an image with Paint.
  *
- * We receive a rename_old and rename_new event when:
+ * We receive a rename_new event when:
  * - rename a file or a folder.
  * - modify a file (we may lose the placeholderId).
  */
@@ -39,10 +39,8 @@ export async function processEvent({ ctx, event, path }: Props) {
     }
 
     if (event.type === 'file') {
-      if (event.action === 'create' || event.action === 'update' || event.action === 'rename_new') {
-        await onChange({ ctx, event, path });
-        return;
-      }
+      await onChange({ ctx, event, path });
+      return;
     }
 
     if (event.type === 'folder') {

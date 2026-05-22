@@ -22,7 +22,11 @@ export async function processError({ ctx, path, error, sleepMs, retryFn }: TProp
 
   if (!(error instanceof Error)) return;
 
-  if (error.message === 'Request failed with status code 409' || error.message === 'Request failed with status code 500') {
+  if (
+    error.message === 'read ECONNRESET' ||
+    error.message === 'Request failed with status code 409' ||
+    error.message === 'Request failed with status code 500'
+  ) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
     await sleep(sleepMs);
     return retryFn();
