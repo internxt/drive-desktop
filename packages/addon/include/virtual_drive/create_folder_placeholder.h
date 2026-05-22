@@ -3,6 +3,10 @@
 inline void create_folder_placeholder(const std::wstring& path, const std::wstring& placeholderId, int64_t creationTimeMs, int64_t lastWriteTimeMs)
 {
     if (std::filesystem::exists(path)) {
+        if (!std::filesystem::is_directory(path)) {
+            throw std::runtime_error("Path already exists as a file, not a folder");
+        }
+
         convert_to_placeholder(path, placeholderId);
         return;
     }
