@@ -29,7 +29,6 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('isUserLoggedIn', () => Promise.resolve(isUserLoggedIn()));
   ipcPreloadMain.handle('finishOnboarding', () => finishOnboarding());
   ipcPreloadMain.handle('getLastBackupProgress', () => Promise.resolve(getLastBackupProgress()));
-  ipcPreloadMain.handle('getUsage', () => calculateUsage());
   ipcPreloadMain.handle('getAvailableProducts', () => getAvailableProducts());
   ipcPreloadMain.handle('cleanerGenerateReport', (_, props) => CleanerModule.generateCleanerReport(props));
   ipcPreloadMain.handle('cleanerStartCleanup', (_, props) => CleanerModule.startCleanup(props));
@@ -47,6 +46,7 @@ export function setupPreloadIpc() {
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
+  ipcPreloadMain.handle('getUsage', () => calculateUsage({ ctx }));
   ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
   ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
   ipcPreloadMain.handle('backupsStartProcess', () => backupsStartProcess({ ctx }));
@@ -55,6 +55,7 @@ export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
 }
 
 export function clearLoggedPreloadIpc() {
+  ipcPreloadMain.removeHandler('getUsage');
   ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
   ipcPreloadMain.removeHandler('backupsSetInterval');
   ipcPreloadMain.removeHandler('backupsStartProcess');

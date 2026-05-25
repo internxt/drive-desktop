@@ -21,8 +21,10 @@ export function logout({ ctx }: Props) {
   try {
     logger.debug({ tag: 'AUTH', msg: 'Drive API bottleneck jobs', jobs: ctx.driveApiBottleneck.counts() });
     logger.debug({ tag: 'AUTH', msg: 'Upload bottleneck jobs', jobs: ctx.uploadBottleneck.counts() });
+    logger.debug({ tag: 'AUTH', msg: 'Download bottleneck jobs', jobs: ctx.downloadBottleneck.counts() });
     void ctx.driveApiBottleneck.stop({ dropWaitingJobs: true });
     void ctx.uploadBottleneck.stop({ dropWaitingJobs: true });
+    void ctx.downloadBottleneck.stop({ dropWaitingJobs: true });
     ctx.abortController.abort();
 
     setTrayStatus('IDLE');
@@ -39,7 +41,7 @@ export function logout({ ctx }: Props) {
     void cleanSyncEngineWorkers();
 
     saveConfig();
-    void DriveServerWipModule.auth.logout();
+    void DriveServerWipModule.auth.logout({ ctx });
     resetConfig();
   } catch (error) {
     logger.error({ tag: 'AUTH', msg: 'Error logging out', error });

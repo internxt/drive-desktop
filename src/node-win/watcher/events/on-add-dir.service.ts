@@ -1,11 +1,11 @@
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { Drive } from '@/backend/features/drive';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
 };
 

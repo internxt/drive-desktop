@@ -1,6 +1,6 @@
 import { Notification } from 'electron';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { call, calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { showNotifications } from './show-notifications';
 
 describe('show-notifications', () => {
@@ -10,6 +10,8 @@ describe('show-notifications', () => {
   const mockShow = vi.fn();
   const mockOn = vi.fn();
 
+  const props = mockProps<typeof showNotifications>({});
+
   beforeEach(() => {
     NotificationMock.mockReturnValue({ show: mockShow, on: mockOn } as Partial<Notification> as Notification);
   });
@@ -18,7 +20,7 @@ describe('show-notifications', () => {
     // Given
     getAllMock.mockResolvedValue({ data: [{ link: 'https://internxt.com/deals/black-friday-internxt?next=another-url&prop=value' }] });
     // When
-    await showNotifications();
+    await showNotifications(props);
     // Then
     calls(mockShow).toHaveLength(1);
     calls(mockOn).toHaveLength(1);

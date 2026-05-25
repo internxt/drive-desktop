@@ -1,16 +1,14 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import Bottleneck from 'bottleneck';
+import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { Addon } from '@/node-win/addon-wrapper';
-import { ProcessSyncContext } from '../config';
+import { SyncContext } from '../config';
 
-const limiter = new Bottleneck({ maxConcurrent: 1 });
-
-type TProps = {
-  ctx: ProcessSyncContext;
+type Props = {
+  ctx: SyncContext;
   path: AbsolutePath;
 };
 
-export async function handleHydrate({ ctx, path }: TProps) {
+export async function handleHydrate({ ctx, path }: Props) {
   try {
     ctx.logger.debug({ msg: 'Hydrating file', path });
 
@@ -23,6 +21,12 @@ export async function handleHydrate({ ctx, path }: TProps) {
   }
 }
 
-export async function throttleHydrate(props: TProps) {
-  return await limiter.schedule(() => handleHydrate(props));
+export async function throttleHydrate({ ctx, path }: Props) {
+  try {
+    return await ctx.downloadBottleneck.schedule(() => handleHydrate({ ctx, path }));
+  } catch (error) {
+    if (isBottleneckStop({ error })) return;
+
+    throw error;
+  }
 }

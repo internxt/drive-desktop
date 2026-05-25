@@ -2,14 +2,14 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
 import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { persistMoveFile, persistMoveFolder } from '@/infra/drive-server-wip/out/ipc-main';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 
 type TProps = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
   item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });

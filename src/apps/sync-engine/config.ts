@@ -14,6 +14,7 @@ export type AuthContext = {
   readonly abortController: AbortController;
   readonly driveApiBottleneck: Bottleneck;
   readonly uploadBottleneck: Bottleneck;
+  readonly downloadBottleneck: Bottleneck;
   readonly client: Client<paths, `${string}/${string}`>;
   workspaceToken: string;
 };
@@ -36,5 +37,3 @@ export type SyncContext = CommonContext & {
   readonly bridgePass: string;
   readonly contentsDownloader: InxtJs.ContentsDownloader;
 };
-
-export type ProcessSyncContext = SyncContext;
