@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
@@ -12,13 +12,18 @@ class FetchFolderError extends DriveServerWipError {
   }
 }
 
-export async function fetchFolder(context: { folderUuid: string }) {
+type Props = {
+  ctx: AuthContext;
+  context: { folderUuid: string };
+};
+
+export async function fetchFolder({ ctx, context }: Props) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid } },
     });
 

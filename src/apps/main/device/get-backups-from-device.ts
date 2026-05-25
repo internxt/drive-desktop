@@ -1,14 +1,21 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
 import { Device, findBackupPathnameFromId } from './service';
 
-export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
+type Props = {
+  ctx: AuthContext;
+  device: Device;
+  isCurrent?: boolean;
+};
+
+export async function getBackupsFromDevice({ ctx, device, isCurrent }: Props): Promise<Array<BackupInfo>> {
   try {
-    const { data: folder, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: device.uuid });
+    const { data: folder, error } = await driveServerWipModule.backup.fetchFolder({ ctx, context: { folderUuid: device.uuid } });
 
     if (error) {
       throw error;

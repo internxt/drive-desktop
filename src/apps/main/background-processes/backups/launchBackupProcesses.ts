@@ -31,7 +31,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
     return;
   }
 
-  const { data: device } = await getOrCreateDevice();
+  const { data: device } = await getOrCreateDevice({ ctx });
   if (!device) return;
 
   const bottleneck = new Bottleneck({ maxConcurrent: 4 });
@@ -50,7 +50,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   tracker.setStatus('RUNNING');
 
-  const backups = await getBackupsFromDevice(device, true);
+  const backups = await getBackupsFromDevice({ ctx, device, isCurrent: true });
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 

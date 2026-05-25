@@ -9,9 +9,10 @@ import { backupsSetInterval, backupsStartProcess } from '../background-processes
 import { getLanguage } from '../config/language';
 import { setConfigKey } from '../config/service';
 import { getTheme } from '../config/theme';
-import { deleteBackupsFromDevice } from '../device/service';
+import { getBackupsFromDevice } from '../device/get-backups-from-device';
+import { addBackup, deleteBackupsFromDevice, disableBackup, getDevices, getOrCreateDevice, renameDevice } from '../device/service';
 import { getAvailableProducts } from '../payments/get-available-products';
-import { updateAllRemoteSync } from '../remote-sync/handlers';
+import { getItemsByFolderUuid, updateAllRemoteSync } from '../remote-sync/handlers';
 import { getSyncStatus } from '../remote-sync/services/broadcast-sync-status';
 import { calculateUsage } from '../usage/service';
 import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
@@ -43,14 +44,22 @@ export type FromProcess = {
   driveGetSyncRoot: AsyncMirror<typeof getRootVirtualDrive>;
   driveChooseSyncRootWithDialog: AsyncMirror<typeof chooseSyncRootWithDialog>;
   driveOpenSyncRootFolder: AsyncMirror<typeof openVirtualDriveRootFolder>;
-  downloadBackup: AsyncMirror<typeof downloadBackup>;
   openLoginUrl: Mirror<typeof openLoginUrl>;
   getRemoteSyncStatus: Mirror<typeof getSyncStatus>;
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
 
-  deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
+  // Backups
   backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
   backupsSetInterval: Mirror<typeof backupsSetInterval>;
+  downloadBackup: AsyncMirror<typeof downloadBackup>;
+  deleteBackupsFromDevice: AsyncMirror<typeof deleteBackupsFromDevice>;
+  getDevices: AsyncMirror<typeof getDevices>;
+  getBackupsFromDevice: AsyncMirror<typeof getBackupsFromDevice>;
+  getOrCreateDevice: AsyncMirror<typeof getOrCreateDevice>;
+  renameDevice: AsyncMirror<typeof renameDevice>;
+  addBackup: AsyncMirror<typeof addBackup>;
+  disableBackup: Mirror<typeof disableBackup>;
+  getItemsByFolderUuid: AsyncMirror<typeof getItemsByFolderUuid>;
 };
 
 export type FromMain = {};
