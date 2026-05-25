@@ -4,6 +4,6 @@ import { queryKeys } from '../core/tanstack-query/query-keys';
 export function useGetUsage() {
   return useQuery({
     queryKey: queryKeys.usage(),
-    queryFn: () => globalThis.window.electron.getUsage(),
+    queryFn: () => globalThis.window.electron.getUsage({}),
   });
 }
