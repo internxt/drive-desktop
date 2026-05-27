@@ -162,14 +162,14 @@ describe('addon', () => {
     // When
     await Addon.hydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(AddonCs.hydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
+    call(AddonCs.hydrateFile).toStrictEqual(String.raw`\\?\\parent\file.txt`);
   });
 
   it('should call AddonCs.dehydrateFile', async () => {
     // When
     await Addon.dehydrateFile({ path: abs('/parent/file.txt') });
     // Then
-    call(AddonCs.dehydrateFile).toStrictEqual(String.raw`\parent\file.txt`);
+    call(AddonCs.dehydrateFile).toStrictEqual(String.raw`\\?\\parent\file.txt`);
   });
 
   it('should call AddonCs.watchPath', () => {
