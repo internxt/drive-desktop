@@ -38,21 +38,24 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toBe('contentsId');
-    calls(addItemMock).toHaveLength(0);
+    call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 1 });
     calls(processErrorMock).toHaveLength(0);
   });
 
   it('should send progress', async () => {
     // Given
     environment.upload.mockImplementation((_, opts) => {
-      opts.progressCallback(50, 0, 0);
+      opts.progressCallback(0.5, 0, 0);
       return Promise.resolve('contentsId');
     });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBe('contentsId');
-    call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 50 });
+    calls(addItemMock).toMatchObject([
+      { action: 'UPLOADING', progress: 0.5 },
+      { action: 'UPLOADING', progress: 1 },
+    ]);
     calls(processErrorMock).toHaveLength(0);
   });
 
@@ -78,7 +81,7 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
-    calls(addItemMock).toHaveLength(0);
+    call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 1 });
     calls(loggerMock.debug).toMatchObject([{ msg: 'Uploading file to the bucket' }, { msg: 'File size changed during upload' }]);
   });
 });

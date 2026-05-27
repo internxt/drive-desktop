@@ -67,7 +67,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     calls(unregisterSyncRootMock).toHaveLength(0);
     calls(AddonRegisterSyncRootMock).toHaveLength(0);
     calls(loggerMock.error).toHaveLength(0);
