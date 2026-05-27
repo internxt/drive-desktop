@@ -9,15 +9,16 @@ import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers'
 type TProps = {
   ctx: CommonContext;
   path: AbsolutePath;
+  size: number;
   error: unknown;
   sleepMs: number;
   retryFn: () => Promise<ContentsId | undefined>;
 };
 
-export async function processError({ ctx, path, error, sleepMs, retryFn }: TProps) {
+export async function processError({ ctx, path, error, sleepMs, size, retryFn }: TProps) {
   if (isAbortError({ error })) return;
 
-  ctx.logger.error({ msg: 'Failed to upload file to the bucket', path, error });
+  ctx.logger.sentryError({ msg: 'Failed to upload file to the bucket', path, error }, { size });
   LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
   if (!(error instanceof Error)) return;

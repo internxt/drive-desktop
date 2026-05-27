@@ -16,7 +16,7 @@ export async function deleteFolders({ ctx, deleted }: TProps) {
       try {
         await scheduleRequest({ ctx, path, fn: () => deleteFolderByUuid({ ctx, uuid: folder.uuid, path }) });
       } catch (error) {
-        ctx.logger.error({ msg: 'Error deleting folder', path, error });
+        ctx.logger.sentryError({ msg: 'Error deleting folder', path, error }, { uuid: folder.uuid });
       }
     }),
   );
