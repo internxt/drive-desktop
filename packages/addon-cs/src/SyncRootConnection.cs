@@ -35,9 +35,6 @@ internal sealed class SyncRootConnection
         var hr = PInvoke.CfDisconnectSyncRoot((CF_CONNECTION_KEY)connectionKey);
         if (hr.Value < 0)
             throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfDisconnectSyncRoot failed: 0x{hr.Value:X8}");
-
-        if (_connections.TryRemove(connectionKey, out var conn))
-            conn._onFetchData.Dispose();
     });
 
     private unsafe long Connect(string syncRootPath)
@@ -71,7 +68,7 @@ internal sealed class SyncRootConnection
 
             var path = info->VolumeDosName.ToString() + info->NormalizedPath.ToString();
 
-            var ctx = new FetchData
+            using var ctx = new FetchData
             {
                 Owner = conn,
                 ConnectionKey = info->ConnectionKey,

@@ -23,7 +23,7 @@ export namespace Watcher {
     ctimeMs: number;
     mtimeMs: number;
   };
-  export type ErrorEvent = { action: 'error'; path: string };
+  export type ErrorEvent = { action: 'error'; message: string };
   export type Event = SuccessEvent | ErrorEvent;
   export type OnEvent = (event: Event) => void;
   export type Subscription = {

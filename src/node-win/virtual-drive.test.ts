@@ -176,7 +176,7 @@ describe('addon', () => {
 
   it('should call AddonCs.watchPath', () => {
     // Given
-    watchPathMock.mockReturnValue({});
+    watchPathMock.mockReturnValue('watcherId');
     const rootPath = abs('C:/Users/user/InternxtDrive');
     const onEvent = vi.fn();
     const props = mockProps<typeof Addon.watchPath>({ rootPath, onEvent });
@@ -188,8 +188,8 @@ describe('addon', () => {
 
   it('should call AddonCs.unwatchPath', () => {
     // When
-    Addon.unwatchPath({ handle: {} });
+    Addon.unwatchPath({ watcherId: 'watcherId' });
     // Then
-    call(AddonCs.unwatchPath).toStrictEqual({});
+    call(AddonCs.unwatchPath).toStrictEqual('watcherId');
   });
 });

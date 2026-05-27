@@ -155,7 +155,7 @@ export class Addon {
     return AddonCs.watchPath(toWin32Path(rootPath), onEvent);
   }
 
-  static unwatchPath({ handle }: { handle: object }) {
-    AddonCs.unwatchPath(handle);
+  static unwatchPath({ watcherId }: { watcherId: string }) {
+    AddonCs.unwatchPath(watcherId);
   }
 }

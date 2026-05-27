@@ -5,12 +5,12 @@ import { onEvent } from './on-event';
 export function initWatcher({ ctx }: { ctx: SyncContext }) {
   ctx.logger.debug({ msg: 'Setup watcher' });
 
-  const handle = Addon.watchPath({
+  const watcherId = Addon.watchPath({
     rootPath: ctx.rootPath,
     onEvent: (event) => onEvent({ ctx, event }),
   });
 
   return {
-    unsubscribe: () => Addon.unwatchPath({ handle }),
+    unsubscribe: () => Addon.unwatchPath({ watcherId }),
   };
 }

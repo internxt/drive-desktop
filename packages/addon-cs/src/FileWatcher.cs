@@ -99,7 +99,7 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
         char* pName = (char*)Unsafe.AsPointer(ref Unsafe.AsRef(in fni->FileName));
         string filename = new(pName, 0, nameLen);
 
-        string path = (rootPath + "/" + filename).Replace('\\', '/');
+        string path = Path.Combine(rootPath, filename).Replace('\\', '/');
         string type = (fni->FileAttributes & (uint)FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_DIRECTORY) != 0 ? "folder" : "file";
         long internalId = fni->FileId;
         long size = fni->FileSize;
@@ -146,7 +146,7 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
         {
             var evt = JSValue.CreateObject();
             evt["action"] = "error";
-            evt["path"] = message;
+            evt["message"] = message;
 
             _callbackRef.GetValue().Call(JSValue.Undefined, evt);
         }, null);

@@ -8,21 +8,17 @@ public static class Addon
 {
     private static readonly ConcurrentDictionary<string, FileWatcher> _watchers = new();
 
-    public static JSValue WatchPath(string rootPath, JSValue onEvent)
+    public static string WatchPath(string rootPath, JSValue onEvent)
     {
         var id = Guid.NewGuid().ToString("N");
         var watcher = new FileWatcher(rootPath, onEvent);
         _watchers[id] = watcher;
         watcher.Start();
-
-        var handle = JSValue.CreateObject();
-        handle["id"] = id;
-        return handle;
+        return id;
     }
 
-    public static void UnwatchPath(JSValue handle)
+    public static void UnwatchPath(string id)
     {
-        var id = (string)handle["id"];
         if (_watchers.TryRemove(id, out var w))
         {
             w.Stop();

@@ -6,7 +6,7 @@ using Windows.Win32.Storage.CloudFilters;
 
 namespace Intx.Addon;
 
-internal sealed class FetchData
+internal sealed class FetchData : IDisposable
 {
     public required SyncRootConnection Owner { get; init; }
     public required CF_CONNECTION_KEY ConnectionKey { get; init; }
@@ -16,6 +16,8 @@ internal sealed class FetchData
     public required long RequiredOffset { get; init; }
     public required string Path { get; init; }
     public ManualResetEventSlim Done { get; } = new(false);
+
+    public void Dispose() => Done.Dispose();
 
     public void InvokeJsCallback()
     {
