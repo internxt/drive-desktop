@@ -11,7 +11,7 @@ export type Win32Path = Brand<string, 'Win32Path'>;
 export type Win32DevicePath = Brand<string, 'Win32DevicePath'>;
 
 export type CallbackDownload = (buffer: Buffer, offset: number) => void;
-export type FetchDataCallback = (connectionKey: bigint, path: Win32Path, callback: CallbackDownload) => void;
+export type FetchDataCallback = (connectionKey: number, path: Win32Path, callback: CallbackDownload) => void;
 
 export namespace Watcher {
   export type SuccessEvent = {

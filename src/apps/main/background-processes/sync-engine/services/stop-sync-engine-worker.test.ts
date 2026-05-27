@@ -12,7 +12,7 @@ describe('stop-sync-engine-worker', () => {
 
   const props = mockProps<typeof cleanSyncEngineWorker>({
     worker: {
-      connectionKey: 1n,
+      connectionKey: 1,
       watcher: { unsubscribe },
       ctx: {
         logger: loggerMock,
