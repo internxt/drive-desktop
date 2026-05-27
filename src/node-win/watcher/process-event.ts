@@ -1,12 +1,12 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { onUnlink } from '@/backend/features/local-sync/watcher/events/unlink/on-unlink';
 import { Watcher } from '../addon';
 import { onAddDir } from './events/on-add-dir.service';
 import { onChange } from './events/on-change';
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   path: AbsolutePath;
   event: Watcher.SuccessEvent;
 };

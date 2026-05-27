@@ -3,14 +3,11 @@ import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/feat
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
-import { ItemBackup } from '../shared/types/items';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { Issue } from './background-processes/issues';
 import { StoredValues } from './config/service';
-import { getBackupsFromDevice } from './device/get-backups-from-device';
-import { Device, getOrCreateDevice, renameDevice } from './device/service';
 import { FromProcess } from './preload/ipc';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { RemoteSyncStatus } from './remote-sync/helpers';
@@ -74,26 +71,6 @@ const api = {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getOrCreateDevice(): ReturnType<typeof getOrCreateDevice> {
-    return ipcRenderer.invoke('get-or-create-device');
-  },
-  renameDevice(deviceName: Parameters<typeof renameDevice>[0]): ReturnType<typeof renameDevice> {
-    return ipcRenderer.invoke('rename-device', deviceName);
-  },
-  devices: {
-    getDevices: () => {
-      return ipcRenderer.invoke('devices.get-all');
-    },
-  },
-  getBackupsFromDevice: (device: Device, isCurrent?: boolean): ReturnType<typeof getBackupsFromDevice> => {
-    return ipcRenderer.invoke('get-backups-from-device', device, isCurrent);
-  },
-  addBackup(): Promise<void> {
-    return ipcRenderer.invoke('add-backup');
-  },
-  disableBackup(folderId: number): Promise<void> {
-    return ipcRenderer.invoke('disable-backup', folderId);
-  },
   getLastBackupTimestamp(): Promise<number> {
     return ipcRenderer.invoke('get-last-backup-timestamp');
   },
@@ -111,9 +88,6 @@ const api = {
   },
   abortDownloadBackups(deviceUuid: string) {
     ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
-  },
-  getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
-    return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
@@ -171,7 +145,7 @@ const api = {
   isUserLoggedIn: async () => await ipcPreloadRenderer.invoke('isUserLoggedIn'),
   finishOnboarding: async () => await ipcPreloadRenderer.invoke('finishOnboarding'),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
-  getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+  getUsage: async (props) => await ipcPreloadRenderer.invoke('getUsage', props),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke('cleanerGenerateReport', props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
@@ -192,14 +166,22 @@ const api = {
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
   driveChooseSyncRootWithDialog: async (props) => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog', props),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
-  downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke('getRemoteSyncStatus'),
   syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
 
-  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
+  // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke('backupsSetInterval', props),
   backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke('backupsStartProcess', props),
+  downloadBackup: async (props) => await ipcPreloadRenderer.invoke('downloadBackup', props),
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('deleteBackupsFromDevice', props),
+  getDevices: async (props) => await ipcPreloadRenderer.invoke('getDevices', props),
+  getBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke('getBackupsFromDevice', props),
+  getOrCreateDevice: async (props) => await ipcPreloadRenderer.invoke('getOrCreateDevice', props),
+  renameDevice: async (props) => await ipcPreloadRenderer.invoke('renameDevice', props),
+  addBackup: async (props) => await ipcPreloadRenderer.invoke('addBackup', props),
+  disableBackup: async (props) => await ipcPreloadRenderer.invoke('disableBackup', props),
+  getItemsByFolderUuid: async (props) => await ipcPreloadRenderer.invoke('getItemsByFolderUuid', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

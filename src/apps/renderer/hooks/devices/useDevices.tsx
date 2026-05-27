@@ -5,7 +5,7 @@ export function useDevices() {
   const [devices, setDevices] = useState<Array<Device>>([]);
 
   useEffect(() => {
-    window.electron.devices.getDevices().then(setDevices);
+    window.electron.getDevices({}).then(setDevices);
   }, []);
 
   return { devices };

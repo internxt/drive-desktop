@@ -3,7 +3,7 @@ import createClient, { Middleware } from 'openapi-fetch';
 import { onUserUnauthorized } from '@/apps/main/auth/handlers';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
 import { AuthContext } from '@/apps/sync-engine/config';
-import { getRequestPriority, scheduleFetch } from './schedule-fetch';
+import { getRequestPriority } from './schedule-fetch';
 import { paths } from './schema';
 
 export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
@@ -29,13 +29,12 @@ const middleware: Middleware = {
 
 export const client = createClient<paths>({
   baseUrl: process.env.DRIVE_URL,
-  fetch: scheduleFetch,
 });
 
 client.use(middleware);
 
 export function createWipClient() {
-  const driveApiBottleneck = new Bottleneck({ maxConcurrent: 2, minTime: 500 });
+  const driveApiBottleneck = new Bottleneck({ maxConcurrent: 3, minTime: 333 });
 
   const client = createClient<paths>({
     baseUrl: process.env.DRIVE_URL,

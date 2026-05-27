@@ -1,7 +1,7 @@
 import { LimitFunction } from 'p-limit';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholder';
 import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
@@ -12,7 +12,7 @@ type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
 type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
   database: Database;
   fileExplorer: FileExplorer;
   currentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;

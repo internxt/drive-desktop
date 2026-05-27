@@ -1,9 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { ipcMain } from 'electron';
-import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { logger } from '../../shared/logger/logger';
 import { ItemBackup } from '../../shared/types/items';
 import { changeSyncStatus, startSyncByCheckpoint } from './RemoteSyncManager';
 import { workers } from './store';
@@ -36,19 +34,15 @@ export async function updateAllRemoteSync() {
   );
 }
 
-export function setupRemoteSyncIpc() {
-  ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
-    logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
+export async function getItemsByFolderUuid({ ctx, folderUuid }: { ctx: AuthContext; folderUuid: string }): Promise<ItemBackup[]> {
+  const { data: folder } = await driveServerWip.backup.fetchFolder({ ctx, context: { folderUuid } });
 
-    const { data: folder } = await driveServerWip.backup.fetchFolder({ folderUuid });
+  if (!folder) return [];
 
-    if (!folder) return [];
-
-    return folder.children.map((folder) => ({
-      id: folder.id,
-      uuid: folder.uuid,
-      plainName: folder.plainName,
-      pathname: '' as AbsolutePath,
-    }));
-  });
+  return folder.children.map((folder) => ({
+    id: folder.id,
+    uuid: folder.uuid,
+    plainName: folder.plainName,
+    pathname: '' as AbsolutePath,
+  }));
 }

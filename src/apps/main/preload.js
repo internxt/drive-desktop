@@ -89,26 +89,6 @@ var api = {
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
   },
-  getOrCreateDevice() {
-    return import_electron2.ipcRenderer.invoke("get-or-create-device");
-  },
-  renameDevice(deviceName) {
-    return import_electron2.ipcRenderer.invoke("rename-device", deviceName);
-  },
-  devices: {
-    getDevices: () => {
-      return import_electron2.ipcRenderer.invoke("devices.get-all");
-    }
-  },
-  getBackupsFromDevice: (device, isCurrent) => {
-    return import_electron2.ipcRenderer.invoke("get-backups-from-device", device, isCurrent);
-  },
-  addBackup() {
-    return import_electron2.ipcRenderer.invoke("add-backup");
-  },
-  disableBackup(folderId) {
-    return import_electron2.ipcRenderer.invoke("disable-backup", folderId);
-  },
   getLastBackupTimestamp() {
     return import_electron2.ipcRenderer.invoke("get-last-backup-timestamp");
   },
@@ -126,9 +106,6 @@ var api = {
   },
   abortDownloadBackups(deviceUuid) {
     import_electron2.ipcRenderer.send("abort-download-backups-" + deviceUuid, deviceUuid);
-  },
-  getItemByFolderUuid(folderUuid) {
-    return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
@@ -167,7 +144,7 @@ var api = {
   isUserLoggedIn: async () => await ipcPreloadRenderer.invoke("isUserLoggedIn"),
   finishOnboarding: async () => await ipcPreloadRenderer.invoke("finishOnboarding"),
   getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
-  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
+  getUsage: async (props) => await ipcPreloadRenderer.invoke("getUsage", props),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
@@ -188,12 +165,20 @@ var api = {
   driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
   driveChooseSyncRootWithDialog: async (props) => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog", props),
   driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder"),
-  downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
   openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
-  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props),
+  // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
-  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props)
+  backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props),
+  downloadBackup: async (props) => await ipcPreloadRenderer.invoke("downloadBackup", props),
+  deleteBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("deleteBackupsFromDevice", props),
+  getDevices: async (props) => await ipcPreloadRenderer.invoke("getDevices", props),
+  getBackupsFromDevice: async (props) => await ipcPreloadRenderer.invoke("getBackupsFromDevice", props),
+  getOrCreateDevice: async (props) => await ipcPreloadRenderer.invoke("getOrCreateDevice", props),
+  renameDevice: async (props) => await ipcPreloadRenderer.invoke("renameDevice", props),
+  addBackup: async (props) => await ipcPreloadRenderer.invoke("addBackup", props),
+  disableBackup: async (props) => await ipcPreloadRenderer.invoke("disableBackup", props),
+  getItemsByFolderUuid: async (props) => await ipcPreloadRenderer.invoke("getItemsByFolderUuid", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

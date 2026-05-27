@@ -1,9 +1,9 @@
 import { Drive } from '@/backend/features/drive';
 import { measurePerfomance } from '@/core/utils/measure-performance';
-import { ProcessSyncContext } from '../config';
+import { SyncContext } from '../config';
 
 type Props = {
-  ctx: ProcessSyncContext;
+  ctx: SyncContext;
 };
 
 export async function addPendingItems({ ctx }: Props) {

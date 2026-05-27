@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { AuthContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError, TDriveServerWipError } from '../../defs';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
@@ -12,27 +12,25 @@ export class GetDeviceError extends DriveServerWipError {
   }
 }
 
-export async function getDevice(context: { deviceUuid: string }) {
+type Props = {
+  ctx: AuthContext;
+  context: { deviceUuid: string };
+};
+
+export async function getDevice({ ctx, context }: Props) {
   const method = 'GET';
   const endpoint = '/backup/deviceAsFolder/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
-    client.GET(endpoint, {
+    ctx.client.GET(endpoint, {
       params: { path: { uuid: context.deviceUuid } },
     });
 
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get device as folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Get device as folder request', context },
   });
 
   if (error) {

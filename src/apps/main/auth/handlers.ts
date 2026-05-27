@@ -78,6 +78,7 @@ export async function emitUserLoggedIn(user: User) {
 
   const { driveApiBottleneck, client } = createWipClient();
   const uploadBottleneck = new Bottleneck({ maxConcurrent: 4 });
+  const downloadBottleneck = new Bottleneck({ maxConcurrent: 1 });
 
   const ctx: AuthContext = {
     user,
@@ -85,6 +86,7 @@ export async function emitUserLoggedIn(user: User) {
     abortController,
     driveApiBottleneck,
     uploadBottleneck,
+    downloadBottleneck,
     client,
     workspaceToken: '',
   };
@@ -106,5 +108,5 @@ export async function emitUserLoggedIn(user: User) {
 
   BackupScheduler.start({ ctx });
   await spawnSyncEngineWorkers({ ctx });
-  void Marketing.showNotifications();
+  void Marketing.showNotifications({ ctx });
 }

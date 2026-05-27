@@ -3,7 +3,6 @@
 import { dialog } from 'electron';
 import os from 'node:os';
 import path from 'node:path';
-import { client } from '@/apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -23,8 +22,8 @@ export type Device = {
   bucket: string;
 };
 
-export async function getDevices(): Promise<Array<Device>> {
-  const { data } = await driveServerWipModule.backup.getDevices();
+export async function getDevices({ ctx }: { ctx: AuthContext }): Promise<Array<Device>> {
+  const { data } = await driveServerWipModule.backup.getDevices({ ctx });
   const devices = data ?? [];
   return devices.filter(({ removed, hasBackups }) => !removed && hasBackups);
 }
@@ -34,18 +33,12 @@ export function saveDeviceToConfig(device: Device) {
   electronStore.set('backupList', {});
 }
 
-/**
- * Creates a new device with a unique name
- * @returns The an object with the created device or
- * an object with the error if device creation fails after multiple attempts
- * @param attempts The number of attempts to create a device with a unique name, defaults to 1000
- */
-export async function createUniqueDevice(attempts = 1000) {
+export async function createUniqueDevice({ ctx, attempts = 1000 }: { ctx: AuthContext; attempts?: number }) {
   const baseName = os.hostname();
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const deviceName of nameVariants) {
-    const { data, error } = await driveServerWipModule.backup.createDevice({ deviceName });
+    const { data, error } = await driveServerWipModule.backup.createDevice({ ctx, context: { deviceName } });
 
     if (data) return { data };
     if (error.code !== 'ALREADY_EXISTS') return { error };
@@ -56,8 +49,8 @@ export async function createUniqueDevice(attempts = 1000) {
   return { error: new Error(msg) };
 }
 
-async function createNewDevice() {
-  const { data, error } = await createUniqueDevice();
+async function createNewDevice({ ctx }: { ctx: AuthContext }) {
+  const { data, error } = await createUniqueDevice({ ctx });
   if (data) {
     saveDeviceToConfig(data);
     return { data };
@@ -65,35 +58,35 @@ async function createNewDevice() {
   return { error };
 }
 
-export async function getOrCreateDevice() {
+export async function getOrCreateDevice({ ctx }: { ctx: AuthContext }) {
   const deviceUuid = electronStore.get('deviceUuid');
   logger.debug({ tag: 'BACKUPS', msg: 'Saved device', deviceUuid });
 
   if (deviceUuid === '') {
-    return createNewDevice();
+    return createNewDevice({ ctx });
   }
 
-  const { data, error } = await driveServerWipModule.backup.getDevice({ deviceUuid });
+  const { data, error } = await driveServerWipModule.backup.getDevice({ ctx, context: { deviceUuid } });
 
   if (error) {
     if (error.code === 'NOT_FOUND') {
-      return createNewDevice();
+      return createNewDevice({ ctx });
     } else {
       return { error };
     }
   }
 
   if (data.removed) {
-    return createNewDevice();
+    return createNewDevice({ ctx });
   }
 
   return { data };
 }
 
-export async function renameDevice(deviceName: string): Promise<Device> {
+export async function renameDevice({ ctx, deviceName }: { ctx: AuthContext; deviceName: string }): Promise<Device> {
   const deviceUuid = getDeviceUuid();
 
-  const res = await driveServerWipModule.backup.updateDevice({ deviceUuid, deviceName });
+  const res = await driveServerWipModule.backup.updateDevice({ ctx, context: { deviceUuid, deviceName } });
 
   if (res.data) {
     return res.data;
@@ -108,10 +101,10 @@ export async function renameDevice(deviceName: string): Promise<Device> {
  * @param name Name of the backup folder
  * @returns
  */
-async function postBackup(name: string) {
+async function postBackup(ctx: AuthContext, name: string) {
   const deviceUuid = getDeviceUuid();
 
-  const res = await client.POST('/folders', {
+  const res = await ctx.client.POST('/folders', {
     body: { parentFolderUuid: deviceUuid, plainName: name },
   });
 
@@ -126,10 +119,10 @@ async function postBackup(name: string) {
  * Creates a backup given a local folder path
  * @param pathname Path to the local folder for the backup
  */
-async function createBackup(pathname: string): Promise<void> {
+async function createBackup(ctx: AuthContext, pathname: string): Promise<void> {
   const { base } = path.parse(pathname);
 
-  const newBackup = await postBackup(base);
+  const newBackup = await postBackup(ctx, base);
 
   logger.debug({ msg: '[BACKUPS] Created backup', base, uuid: newBackup.uuid });
 
@@ -142,7 +135,7 @@ async function createBackup(pathname: string): Promise<void> {
   electronStore.set('backupList', backupList);
 }
 
-export async function addBackup(): Promise<void> {
+export async function addBackup({ ctx }: { ctx: AuthContext }): Promise<void> {
   try {
     const chosenItem = await getPathFromDialog();
     if (!chosenItem || !chosenItem.path) {
@@ -160,16 +153,16 @@ export async function addBackup(): Promise<void> {
     logger.debug({ msg: '[BACKUPS] Existing backup', existingBackup });
 
     if (!existingBackup) {
-      return createBackup(chosenPath);
+      return createBackup(ctx, chosenPath);
     }
 
-    const { data } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
+    const { data } = await driveServerWipModule.backup.fetchFolder({ ctx, context: { folderUuid: existingBackup.folderUuid } });
 
     if (data && data.status === 'EXISTS') {
       backupList[chosenPath].enabled = true;
       electronStore.set('backupList', backupList);
     } else {
-      return createBackup(chosenPath);
+      return createBackup(ctx, chosenPath);
     }
   } catch (error) {
     logger.error({ tag: 'BACKUPS', msg: 'Error adding backup', error });
@@ -201,16 +194,16 @@ async function deleteBackup({ ctx, backup, isCurrent }: { ctx: AuthContext; back
 }
 
 export async function deleteBackupsFromDevice({ ctx, device, isCurrent }: { ctx: AuthContext; device: Device; isCurrent?: boolean }) {
-  const backups = await getBackupsFromDevice(device, isCurrent);
+  const backups = await getBackupsFromDevice({ ctx, device, isCurrent });
   const deletionPromises = backups.map((backup) => deleteBackup({ ctx, backup, isCurrent }));
   await Promise.all(deletionPromises);
 }
 
-export async function disableBackup(folderId: number): Promise<void> {
-  logger.debug({ msg: 'Disable backup', folderId });
-
+export function disableBackup({ folderId }: { folderId: number }) {
   const backupsList = electronStore.get('backupList');
   const pathname = findBackupPathnameFromId(folderId)!;
+
+  logger.debug({ msg: 'Disable backup', pathname });
 
   backupsList[pathname].enabled = false;
 
