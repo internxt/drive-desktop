@@ -145,11 +145,11 @@ export class Addon {
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {
-    await AddonCs.dehydrateFile(toWin32Path(path));
+    await AddonCs.dehydrateFile(toWin32DevicePath(path));
   }
 
   static async hydrateFile({ path }: { path: AbsolutePath }) {
-    await AddonCs.hydrateFile(toWin32Path(path));
+    await AddonCs.hydrateFile(toWin32DevicePath(path));
   }
 
   static watchPath({ rootPath, onEvent }: { rootPath: AbsolutePath; onEvent: Watcher.OnEvent }) {
