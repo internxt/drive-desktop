@@ -16,6 +16,8 @@ vi.mock(import('@packages/addon-cs'), () => ({
     unwatchPath: vi.fn(),
     hydrateFile: vi.fn(),
     dehydrateFile: vi.fn(),
+    connectSyncRoot: vi.fn(),
+    disconnectSyncRoot: vi.fn(),
   },
 }));
 
@@ -50,11 +52,11 @@ describe('addon', () => {
     call(addon.getRegisteredSyncRoots).toStrictEqual([]);
   });
 
-  it('should call addon.connectSyncRoot', () => {
+  it('should call addon.connectSyncRoot', async () => {
     // Given
     const rootPath = abs('C:/Users/user/InternxtDrive');
     // When
-    Addon.connectSyncRoot({ rootPath });
+    await Addon.connectSyncRoot({ rootPath });
     // Then
     call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
   });
@@ -70,9 +72,9 @@ describe('addon', () => {
 
   it('should call addon.disconnectSyncRoot', async () => {
     // When
-    await Addon.disconnectSyncRoot({ connectionKey: 1n });
+    await Addon.disconnectSyncRoot({ connectionKey: 1 });
     // Then
-    call(addon.disconnectSyncRoot).toStrictEqual(1n);
+    call(AddonCs.disconnectSyncRoot).toStrictEqual(1);
   });
 
   it('should call addon.getPlaceholderState', async () => {

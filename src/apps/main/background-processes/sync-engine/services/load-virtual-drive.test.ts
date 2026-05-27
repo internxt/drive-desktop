@@ -21,7 +21,7 @@ describe('load-virtual-drive', () => {
   beforeEach(() => {
     AddonRegisterSyncRootMock.mockResolvedValue();
     getSyncRootFromPathMock.mockResolvedValue({ id: 'oldProviderId' });
-    connectSyncRootMock.mockReturnValue(1n);
+    connectSyncRootMock.mockResolvedValue(1);
   });
 
   it('should add sync issue if register fails twice', async () => {

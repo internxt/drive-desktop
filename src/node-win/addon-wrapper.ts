@@ -63,9 +63,8 @@ export class Addon {
     return parseAddonZod('getRegisteredSyncRoots', result);
   }
 
-  static connectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
-    const result = addon.connectSyncRoot(toWin32Path(rootPath), fetchDataFn);
-    const connectionKey = parseAddonZod('connectSyncRoot', result);
+  static async connectSyncRoot({ rootPath }: { rootPath: AbsolutePath }) {
+    const connectionKey = await AddonCs.connectSyncRoot(toWin32Path(rootPath), fetchDataFn);
     return connectionKey;
   }
 
@@ -74,8 +73,8 @@ export class Addon {
     await addon.unregisterSyncRoot(providerId);
   }
 
-  static async disconnectSyncRoot({ connectionKey }: { connectionKey: bigint }) {
-    await addon.disconnectSyncRoot(connectionKey);
+  static async disconnectSyncRoot({ connectionKey }: { connectionKey: number }) {
+    await AddonCs.disconnectSyncRoot(connectionKey);
   }
 
   static async getPlaceholderState({ path }: { path: AbsolutePath }) {

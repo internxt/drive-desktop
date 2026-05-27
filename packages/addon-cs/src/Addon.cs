@@ -58,4 +58,10 @@ public static class Addon
         if (hr.Value < 0)
             throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfDehydratePlaceholder failed: 0x{hr.Value:X8}");
     });
+
+    public static Task<long> ConnectSyncRoot(string syncRootPath, JSValue onFetchData)
+        => SyncRootConnection.ConnectAsync(syncRootPath, onFetchData);
+
+    public static Task DisconnectSyncRoot(long connectionKey)
+        => SyncRootConnection.DisconnectAsync(connectionKey);
 }

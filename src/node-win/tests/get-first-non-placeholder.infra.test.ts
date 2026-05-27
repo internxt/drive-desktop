@@ -6,7 +6,7 @@ import { Addon } from '../addon-wrapper';
 import { VirtualDrive } from '../virtual-drive';
 
 describe('get-first-non-placeholder', () => {
-  let connectionKey: bigint;
+  let connectionKey: number;
 
   const providerId = randomUUID();
   const testPath = join(TEST_FILES, randomUUID());
@@ -19,7 +19,7 @@ describe('get-first-non-placeholder', () => {
     await VirtualDrive.createSyncRootFolder({ rootPath });
     await Addon.registerSyncRoot({ rootPath, providerId, providerName: 'Internxt Drive' });
     // For some reason we need to connect the sync root to make `getFirstNonPlaceholder` work
-    connectionKey = Addon.connectSyncRoot({ rootPath });
+    connectionKey = await Addon.connectSyncRoot({ rootPath });
   });
 
   afterAll(async () => {

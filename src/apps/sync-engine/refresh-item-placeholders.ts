@@ -40,6 +40,12 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
 }
 
 async function getDatabaseItems({ ctx }: { ctx: SyncContext }) {
+  /**
+   * v2.6.9 Daniel Jiménez
+   * Here there is an issue because we are loading all items for that workspace.
+   * In case of non worspace (empty) we load all drive items and also the ones from backups.
+   * This is happening because we don't have a way of differenciate drive and backup items.
+   */
   const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
     SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
     SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),

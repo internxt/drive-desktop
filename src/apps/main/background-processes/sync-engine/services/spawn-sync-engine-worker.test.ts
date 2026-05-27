@@ -45,7 +45,7 @@ describe('spawn-sync-engine-worker', () => {
 
   it('should start sync engine process if load virtual drive success', async () => {
     // Given
-    loadVirtualDriveMock.mockResolvedValue(1n);
+    loadVirtualDriveMock.mockResolvedValue(1);
     // When
     await spawnSyncEngineWorker(props);
     // Then
