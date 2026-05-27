@@ -20,8 +20,8 @@ export function toWin32Path(path: AbsolutePath) {
  * There is an issue with paths longer than 255 characters and C++ is not able to handle them correctly.
  * Basically it contains a path check and when it has more than 255 characters then it cannot process
  * that path. To skip that check we need to include \\?\ at the beginning of the path. However, there
- * are some functions that do not allow this, like dehydrate or hydrate, so right now, dehydrate and
- * hydrate are broken for paths longer than 255 characters.
+ * are some functions that do not allow this, like the fetch data, so right now, hydrate is broken for paths
+ * longer than 255 characters.
  */
 function toWin32DevicePath(path: AbsolutePath) {
   return ('\\\\?\\' + toWin32Path(path)) as Win32DevicePath;
