@@ -22,24 +22,12 @@ Make sure you have the following tools installed before running the project:
 
 - [**NVM**](https://github.com/coreybutler/nvm-windows)
 
-- [**Python 3.10**](https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)
-
 - **Node.js 24**
 
 ```bash
 nvm install 24
 nvm use 24
 ```
-
-- **node-gyp**
-
-```bash
-npm install -g node-gyp
-```
-
-- [**Visual Studio**](https://visualstudio.microsoft.com/es/downloads) (not VS Code)
-
-![alt text](public/image-1.png) ![alt text](public/image.png)
 
 ### Environment variables
 
@@ -50,15 +38,40 @@ Before running the application for the first time, you must create a .env file.
 
 ### Install and run
 
-Initialize the development environment:
-
 ```bash
+# Install dependencies
 npm run init:dev
-npm run clamav # optional
+npm run clamav # optional (only for the antivirus)
+# Start
+npm run start
+# Create package (.exe)
+npm run package
 ```
 
-Start the application:
+## Addon C++
+
+- [**Python 3.10**](https://apps.microsoft.com/detail/9pjpw5ldxlz5?hl=en-US&gl=ES)
+
+- [**Visual Studio**](https://visualstudio.microsoft.com/es/downloads) (not VS Code)
+
+![alt text](public/image-1.png) ![alt text](public/image.png)
 
 ```bash
-npm run start
+# Install dependencies
+npm install
+# Build
+npm run build
+```
+
+## Addon C#
+
+- [**.NET 8.0 SDK**](https://dotnet.microsoft.com/es-es/download/dotnet/8.0)
+
+In you `.vscode/settings.json` add the following setting:
+
+`"dotnet.defaultSolution": "drive-desktop/packages/addon-cs/IntxAddon.sln"`
+
+```bash
+# Build
+npm run build
 ```
