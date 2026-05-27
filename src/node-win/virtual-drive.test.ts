@@ -52,13 +52,13 @@ describe('addon', () => {
     call(addon.getRegisteredSyncRoots).toStrictEqual([]);
   });
 
-  it('should call addon.connectSyncRoot', async () => {
+  it('should call AddonCs.connectSyncRoot', async () => {
     // Given
     const rootPath = abs('C:/Users/user/InternxtDrive');
     // When
     await Addon.connectSyncRoot({ rootPath });
     // Then
-    call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
+    call(AddonCs.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
   });
 
   it('should call addon.getRegisteredSyncRoots', async () => {
@@ -70,7 +70,7 @@ describe('addon', () => {
     call(addon.unregisterSyncRoot).toStrictEqual(providerId);
   });
 
-  it('should call addon.disconnectSyncRoot', async () => {
+  it('should call AddonCs.disconnectSyncRoot', async () => {
     // When
     await Addon.disconnectSyncRoot({ connectionKey: 1 });
     // Then

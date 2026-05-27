@@ -28,7 +28,7 @@ describe('stop-sync-engine-worker', () => {
     // When
     await cleanSyncEngineWorker(props);
     // Then
-    call(disconnectSyncRootMock).toMatchObject({ connectionKey: 1n });
+    call(disconnectSyncRootMock).toMatchObject({ connectionKey: 1 });
     call(unregisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     calls(unsubscribe).toHaveLength(1);
     expect(workers.size).toBe(0);

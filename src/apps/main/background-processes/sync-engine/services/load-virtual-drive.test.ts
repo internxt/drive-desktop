@@ -43,7 +43,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     call(unregisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     call(loggerMock.error).toMatchObject({ msg: 'Error getting sync root from path' });
@@ -55,7 +55,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     call(unregisterSyncRootMock).toStrictEqual({ providerId: 'oldProviderId' });
     call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     calls(loggerMock.error).toHaveLength(0);
