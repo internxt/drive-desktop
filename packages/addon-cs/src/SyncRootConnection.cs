@@ -71,7 +71,7 @@ internal sealed class SyncRootConnection
 
             var path = info->VolumeDosName.ToString() + info->NormalizedPath.ToString();
 
-            var ctx = new TransferContext
+            var ctx = new FetchData
             {
                 Owner = conn,
                 ConnectionKey = info->ConnectionKey,

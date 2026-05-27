@@ -6,7 +6,7 @@ using Windows.Win32.Storage.CloudFilters;
 
 namespace Intx.Addon;
 
-internal sealed class TransferContext
+internal sealed class FetchData
 {
     public required SyncRootConnection Owner { get; init; }
     public required CF_CONNECTION_KEY ConnectionKey { get; init; }
