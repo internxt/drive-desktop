@@ -12,8 +12,6 @@ namespace Intx.Addon;
 internal sealed class FileWatcher(string rootPath, JSValue onEvent)
 {
     private const int BufferSize = 64 * 1024;
-    // number of 100-ns intervals between 1601 and 1970
-    private const long EpochOffsetTicks = 116444736000000000L;
 
     private readonly JSReference _callbackRef = new(onEvent);
     private readonly JSSynchronizationContext _syncCtx = JSSynchronizationContext.Current
@@ -120,8 +118,10 @@ internal sealed class FileWatcher(string rootPath, JSValue onEvent)
         SendSuccess(action, type, path, internalId, size, ctimeMs, mtimeMs);
     }
 
+    // Converts a Windows FILETIME (100-ns intervals since 1601-01-01) to Unix milliseconds
+    // 116444736000000000 = number of 100-ns intervals between 1601 and 1970
     private static double FileTimeToUnixMs(long fileTime)
-        => (fileTime - EpochOffsetTicks) / 10000.0;
+        => (fileTime - 116444736000000000L) / 10000.0;
 
     private void SendSuccess(string action, string type, string path, long internalId, long size, double ctimeMs, double mtimeMs)
     {
