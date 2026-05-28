@@ -9,6 +9,7 @@ const schema: Schema<AppStore> = {
   syncRoot: { type: 'string' },
   deviceUuid: { type: 'string' },
   backupList: { type: 'object' },
+  maxUploadFileSizeInBytes: { type: 'number' },
 
   newToken: { type: 'string' },
   userData: { type: 'object' },

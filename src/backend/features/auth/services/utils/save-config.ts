@@ -16,6 +16,7 @@ export function saveConfig() {
     backupList: electronStore.get('backupList'),
     deviceUuid: electronStore.get('deviceUuid'),
     lastBackup: electronStore.get('lastBackup'),
+    maxUploadFileSizeInBytes: electronStore.get('maxUploadFileSizeInBytes'),
     syncRoot: electronStore.get('syncRoot'),
   };
 
