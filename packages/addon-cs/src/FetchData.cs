@@ -8,7 +8,6 @@ namespace Intx.Addon;
 
 internal sealed class FetchData : IDisposable
 {
-    public required SyncRootConnection Owner { get; init; }
     public required CF_CONNECTION_KEY ConnectionKey { get; init; }
     public required long TransferKey { get; init; }
     public required long FileSize { get; init; }
@@ -22,7 +21,7 @@ internal sealed class FetchData : IDisposable
     public void InvokeJsCallback()
     {
         var responder = JSValue.CreateFunction("respondFetchData", Respond);
-        Owner.Callback.Call(
+        SyncRootConnection.CallbackRef!.GetValue().Call(
             JSValue.Undefined,
             ConnectionKey.Value,
             Path,

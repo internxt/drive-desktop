@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using Microsoft.JavaScript.NodeApi;
 using Microsoft.JavaScript.NodeApi.Interop;
@@ -7,27 +6,16 @@ using Windows.Win32.Storage.CloudFilters;
 
 namespace Intx.Addon;
 
-internal sealed class SyncRootConnection
+internal static class SyncRootConnection
 {
-    private static readonly ConcurrentDictionary<long, SyncRootConnection> _connections = new();
-
-    private readonly JSReference _onFetchData;
-    public JSSynchronizationContext SyncCtx { get; }
-    public long ConnectionKey { get; private set; }
-
-    private SyncRootConnection(JSValue onFetchData)
-    {
-        _onFetchData = new JSReference(onFetchData);
-        SyncCtx = JSSynchronizationContext.Current
+    public static JSReference? CallbackRef;
+    public static JSSynchronizationContext SyncCtx = JSSynchronizationContext.Current
             ?? throw new InvalidOperationException("No JSSynchronizationContext on current thread");
-    }
-
-    public JSValue Callback => _onFetchData.GetValue();
 
     public static Task<long> ConnectAsync(string rootPath, JSValue onFetchData)
     {
-        var conn = new SyncRootConnection(onFetchData);
-        return Task.Run(() => conn.Connect(rootPath));
+        CallbackRef = new JSReference(onFetchData);
+        return Task.Run(() => Connect(rootPath));
     }
 
     public static Task DisconnectAsync(long connectionKey) => Task.Run(() =>
@@ -37,7 +25,7 @@ internal sealed class SyncRootConnection
             throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfDisconnectSyncRoot failed: 0x{hr.Value:X8}");
     });
 
-    private unsafe long Connect(string rootPath)
+    private static unsafe long Connect(string rootPath)
     {
         var callbacks = new CF_CALLBACK_REGISTRATION[]
         {
@@ -55,22 +43,17 @@ internal sealed class SyncRootConnection
         if (hr.Value < 0)
             throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfConnectSyncRoot failed: 0x{hr.Value:X8}");
 
-        ConnectionKey = key.Value;
-        _connections[ConnectionKey] = this;
-        return ConnectionKey;
+        return key.Value;
     }
 
     private static unsafe void FetchDataNative(CF_CALLBACK_INFO* info, CF_CALLBACK_PARAMETERS* parameters)
     {
         try
         {
-            if (!_connections.TryGetValue(info->ConnectionKey.Value, out var conn)) return;
-
             var path = info->VolumeDosName.ToString() + info->NormalizedPath.ToString();
 
             using var ctx = new FetchData
             {
-                Owner = conn,
                 ConnectionKey = info->ConnectionKey,
                 TransferKey = info->TransferKey,
                 FileSize = info->FileSize,
@@ -79,7 +62,7 @@ internal sealed class SyncRootConnection
                 Path = path,
             };
 
-            conn.SyncCtx.Post(_ => ctx.InvokeJsCallback(), null);
+            SyncCtx.Post(_ => ctx.InvokeJsCallback(), null);
             ctx.Done.Wait();
         }
         catch
