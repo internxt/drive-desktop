@@ -68,7 +68,7 @@ const tags = {
 };
 
 // initSentry(INTERNXT_VERSION, tags);
-
+a;
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
