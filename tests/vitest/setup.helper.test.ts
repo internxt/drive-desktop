@@ -63,7 +63,8 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
   };
 });
 
-// @ts-expect-error something
+// @ts-expect-error we cannot do importActual('electron') and use it inside the mock because sometimes it throws
+// Error: Electron failed to install correctly, please delete node_modules/electron and try installing again
 vi.mock(import('electron'), () => {
   return {
     app: {
