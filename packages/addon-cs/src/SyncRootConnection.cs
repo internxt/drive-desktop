@@ -24,10 +24,10 @@ internal sealed class SyncRootConnection
 
     public JSValue Callback => _onFetchData.GetValue();
 
-    public static Task<long> ConnectAsync(string syncRootPath, JSValue onFetchData)
+    public static Task<long> ConnectAsync(string rootPath, JSValue onFetchData)
     {
         var conn = new SyncRootConnection(onFetchData);
-        return Task.Run(() => conn.Connect(syncRootPath));
+        return Task.Run(() => conn.Connect(rootPath));
     }
 
     public static Task DisconnectAsync(long connectionKey) => Task.Run(() =>
@@ -37,7 +37,7 @@ internal sealed class SyncRootConnection
             throw Marshal.GetExceptionForHR(hr.Value) ?? new Exception($"CfDisconnectSyncRoot failed: 0x{hr.Value:X8}");
     });
 
-    private unsafe long Connect(string syncRootPath)
+    private unsafe long Connect(string rootPath)
     {
         var callbacks = new CF_CALLBACK_REGISTRATION[]
         {
@@ -46,7 +46,7 @@ internal sealed class SyncRootConnection
         };
 
         var hr = PInvoke.CfConnectSyncRoot(
-            syncRootPath,
+            rootPath,
             callbacks,
             null,
             CF_CONNECT_FLAGS.CF_CONNECT_FLAG_REQUIRE_PROCESS_INFO | CF_CONNECT_FLAGS.CF_CONNECT_FLAG_REQUIRE_FULL_FILE_PATH,
