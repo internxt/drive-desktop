@@ -14,7 +14,7 @@ const distRendererPath = path.join(distPath, 'renderer');
 
 const buildPath = path.join(rootPath, 'build');
 
-export const nativeDeps = ['@packages/addon', '@packages/addon-cs'];
+export const nativeDeps = ['@packages/addon'];
 
 export default {
   rootPath,
