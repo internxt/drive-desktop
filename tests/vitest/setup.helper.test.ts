@@ -63,11 +63,9 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
   };
 });
 
+// @ts-expect-error something
 vi.mock(import('electron'), () => {
-  const actual = vi.importActual('electron');
-
   return {
-    ...actual,
     app: {
       getPath: vi.fn((string) => {
         return join(TEST_FILES, string);
