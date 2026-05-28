@@ -399,5 +399,25 @@ export const fr: Translation = {
   },
   common: {
     cancel: 'Annuler',
+    close: 'Fermer',
+  },
+  maxFileSizeRejectionModal: {
+    single: {
+      title: 'Ce fichier est trop volumineux pour votre plan actuel',
+      description: "Votre plan permet de télécharger des fichiers jusqu'à {{limit}}. Mettez à jour votre plan pour télécharger ce fichier.",
+      description_no_suggested_plan: "Votre plan permet de télécharger des fichiers jusqu'à {{limit}}",
+      description_unknown_limit:
+        'Ce fichier depasse la taille de telechargement autorisee pour votre plan actuel. Mettez a jour votre plan pour telecharger des fichiers plus volumineux.',
+    },
+    multiple: {
+      title: 'Certains fichiers sont trop volumineux pour votre plan actuel',
+      description:
+        "Votre plan permet de télécharger des fichiers jusqu'à {{limit}}. Mettez à jour votre plan pour télécharger des fichiers plus volumineux.",
+      description_no_suggested_plan: "Votre plan permet de télécharger des fichiers jusqu'à {{limit}}",
+      description_unknown_limit:
+        'Certains fichiers depassent la taille de telechargement autorisee pour votre plan actuel. Mettez a jour votre plan pour telecharger des fichiers plus volumineux.',
+    },
+    ctaUpgrade: 'Mettre à jour le plan',
+    plan: "{{planName}} -> jusqu'à {{planMaxFileSize}}",
   },
 };

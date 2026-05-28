@@ -394,5 +394,24 @@ export const en = {
   },
   common: {
     cancel: 'Cancel',
+    close: 'Close',
+  },
+  maxFileSizeRejectionModal: {
+    single: {
+      title: 'This file is too large for your current plan',
+      description: 'Your plan allows uploading files up to {{limit}}. Upgrade your plan to upload this file.',
+      description_no_suggested_plan: 'Your plan allows uploading files up to {{limit}}',
+      description_unknown_limit:
+        'This file exceeds the upload size allowed for your current plan. Upgrade your plan to upload larger files.',
+    },
+    multiple: {
+      title: 'Some files are too large for your current plan',
+      description: 'Your plan allows uploading files up to {{limit}}. Upgrade your plan to upload larger files.',
+      description_no_suggested_plan: 'Your plan allows uploading files up to {{limit}}',
+      description_unknown_limit:
+        'Some files exceed the upload size allowed for your current plan. Upgrade your plan to upload larger files.',
+    },
+    ctaUpgrade: 'Upgrade plan',
+    plan: '{{planName}} -> up to {{planMaxFileSize}}',
   },
 };

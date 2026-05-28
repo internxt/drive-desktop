@@ -11,7 +11,7 @@ export default mergeConfig(
         reportsDirectory: './coverage/renderer',
       },
       environment: 'jsdom',
-      include: ['src/**/*.test.tsx'],
+      include: ['src/**/*.test.tsx', 'src/**/*.test.ts'],
       setupFiles: ['./tests/vitest/setup.helper.test.ts', './tests/vitest/setup.dom.helper.test.ts'],
     },
   }),
