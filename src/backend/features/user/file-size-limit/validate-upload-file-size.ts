@@ -1,5 +1,3 @@
-import { isValidMaxUploadFileSize } from './is-valid-max-upload-file-size';
-
 const BYTES_IN_GB = 1024 ** 3;
 
 export const ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT = 100 * BYTES_IN_GB;
@@ -28,7 +26,7 @@ export function validateUploadFileSize({ size, maxUploadFileSize }: Props): Uplo
     };
   }
 
-  if (isValidMaxUploadFileSize(maxUploadFileSize) && size > maxUploadFileSize) {
+  if (maxUploadFileSize && size > maxUploadFileSize) {
     return {
       allowed: false,
       reason: 'PLAN_LIMIT_EXCEEDED',

@@ -102,7 +102,7 @@ export async function emitUserLoggedIn(user: User) {
   });
 
   setupLoggedPreloadIpc({ ctx });
-  await resolveUserFileSizeLimit({ ctx });
+  void resolveUserFileSizeLimit({ ctx });
   cleanAndStartRemoteNotifications({ ctx });
 
   const lastOnboardingShown = electronStore.get('lastOnboardingShown');

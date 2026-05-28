@@ -1,14 +1,13 @@
-import configStore from '@/apps/main/config';
+import { electronStore } from '@/apps/main/config';
 import { logger } from '@/apps/shared/logger/logger';
 import { type AuthContext } from '@/apps/sync-engine/config';
 import { getUserFileSizeLimit } from '@/infra/drive-server-wip/services/files/get-user-file-size-limit';
-import { isValidMaxUploadFileSize } from './is-valid-max-upload-file-size';
 
 export async function resolveUserFileSizeLimit({ ctx }: { ctx: AuthContext }) {
   const { data, error } = await getUserFileSizeLimit({ ctx });
 
-  if (data && isValidMaxUploadFileSize(data.maxUploadFileSize)) {
-    configStore.set('maxUploadFileSizeInBytes', data.maxUploadFileSize);
+  if (data && data.maxUploadFileSize) {
+    electronStore.set('maxUploadFileSizeInBytes', data.maxUploadFileSize);
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Resolved user file size limit from API',
@@ -18,8 +17,8 @@ export async function resolveUserFileSizeLimit({ ctx }: { ctx: AuthContext }) {
     return { data: { maxUploadFileSize: data.maxUploadFileSize } };
   }
 
-  const lastKnownFileSizeLimit = configStore.get('maxUploadFileSizeInBytes');
-  if (isValidMaxUploadFileSize(lastKnownFileSizeLimit)) {
+  const lastKnownFileSizeLimit = electronStore.get('maxUploadFileSizeInBytes');
+  if (lastKnownFileSizeLimit) {
     logger.warn({
       tag: 'SYNC-ENGINE',
       msg: 'Using stored user file size limit because API Returned invalid value',
