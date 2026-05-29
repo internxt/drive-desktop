@@ -8,7 +8,6 @@
     "bin/IntxAddon.js",
     "bin/IntxAddon.d.ts",
     "bin/IntxAddon.dll",
-    "bin/IntxAddon.runtimeconfig.json",
     "bin/IntxAddon.deps.json"
   ],
   "scripts": {
