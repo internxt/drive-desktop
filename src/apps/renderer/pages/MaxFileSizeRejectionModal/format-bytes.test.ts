@@ -1,4 +1,4 @@
-import { formatBytes } from '../../utils/format-bytes';
+import { formatBytes } from './format-bytes';
 
 describe('formatBytes', () => {
   it('should format whole GB values without decimals', () => {
