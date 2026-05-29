@@ -3,7 +3,7 @@ import { Watcher } from '@/node-win/addon';
 
 export type WorkerConfig = {
   ctx: SyncContext;
-  connectionKey: bigint;
+  connectionKey: number;
   syncSchedule: NodeJS.Timeout;
   watcher?: Watcher.Subscription;
   workspaceTokenInterval: NodeJS.Timeout | undefined;

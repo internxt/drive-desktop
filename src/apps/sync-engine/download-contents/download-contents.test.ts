@@ -58,7 +58,7 @@ describe('download-contents', () => {
   it('should ignore error if operation is cancelled by user', async () => {
     // Given
     callback.mockImplementation(() => {
-      throw new Error('0x8007018e');
+      throw new Error('0x8007018E');
     });
     // When
     await downloadContents(props);

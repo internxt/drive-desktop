@@ -54,7 +54,7 @@ export async function downloadContents({
      * v2.6.5 Daniel Jiménez
      * WinRT error: [transfer_data] The cloud operation was canceled by user. (HRESULT: 0x8007018e)
      */
-    if (error instanceof Error && error.message.includes('0x8007018e')) {
+    if (error instanceof Error && error.message.includes('0x8007018E')) {
       ctx.logger.debug({ msg: 'Fetch data cancelled by user', path });
       LocalSync.SyncState.addItem({ action: 'DOWNLOAD_CANCEL', path });
       return;

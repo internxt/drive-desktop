@@ -23,7 +23,7 @@ export async function loadVirtualDrive({ ctx }: Props) {
       await Addon.registerSyncRoot({ rootPath, providerId: ctx.providerId, providerName: ctx.providerName });
     }
 
-    const connectionKey = Addon.connectSyncRoot({ rootPath });
+    const connectionKey = await Addon.connectSyncRoot({ rootPath });
     ctx.logger.debug({ msg: 'Connection key', connectionKey });
     removeSyncIssue({ error: 'CANNOT_REGISTER_VIRTUAL_DRIVE', name: rootPath });
     return connectionKey;

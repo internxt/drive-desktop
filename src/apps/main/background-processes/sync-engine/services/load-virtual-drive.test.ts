@@ -21,7 +21,7 @@ describe('load-virtual-drive', () => {
   beforeEach(() => {
     AddonRegisterSyncRootMock.mockResolvedValue();
     getSyncRootFromPathMock.mockResolvedValue({ id: 'oldProviderId' });
-    connectSyncRootMock.mockReturnValue(1n);
+    connectSyncRootMock.mockResolvedValue(1);
   });
 
   it('should add sync issue if register fails twice', async () => {
@@ -43,7 +43,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     call(unregisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     call(loggerMock.error).toMatchObject({ msg: 'Error getting sync root from path' });
@@ -55,7 +55,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     call(unregisterSyncRootMock).toStrictEqual({ providerId: 'oldProviderId' });
     call(AddonRegisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     calls(loggerMock.error).toHaveLength(0);
@@ -67,7 +67,7 @@ describe('load-virtual-drive', () => {
     // When
     const connectionkey = await loadVirtualDrive(props);
     // Then
-    expect(connectionkey).toBe(1n);
+    expect(connectionkey).toBe(1);
     calls(unregisterSyncRootMock).toHaveLength(0);
     calls(AddonRegisterSyncRootMock).toHaveLength(0);
     calls(loggerMock.error).toHaveLength(0);

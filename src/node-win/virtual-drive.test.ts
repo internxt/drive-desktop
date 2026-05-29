@@ -16,6 +16,8 @@ vi.mock(import('@packages/addon-cs'), () => ({
     unwatchPath: vi.fn(),
     hydrateFile: vi.fn(),
     dehydrateFile: vi.fn(),
+    connectSyncRoot: vi.fn(),
+    disconnectSyncRoot: vi.fn(),
   },
 }));
 
@@ -50,13 +52,13 @@ describe('addon', () => {
     call(addon.getRegisteredSyncRoots).toStrictEqual([]);
   });
 
-  it('should call addon.connectSyncRoot', () => {
+  it('should call AddonCs.connectSyncRoot', async () => {
     // Given
     const rootPath = abs('C:/Users/user/InternxtDrive');
     // When
-    Addon.connectSyncRoot({ rootPath });
+    await Addon.connectSyncRoot({ rootPath });
     // Then
-    call(addon.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
+    call(AddonCs.connectSyncRoot).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, fetchDataFn]);
   });
 
   it('should call addon.getRegisteredSyncRoots', async () => {
@@ -68,11 +70,11 @@ describe('addon', () => {
     call(addon.unregisterSyncRoot).toStrictEqual(providerId);
   });
 
-  it('should call addon.disconnectSyncRoot', async () => {
+  it('should call AddonCs.disconnectSyncRoot', async () => {
     // When
-    await Addon.disconnectSyncRoot({ connectionKey: 1n });
+    await Addon.disconnectSyncRoot({ connectionKey: 1 });
     // Then
-    call(addon.disconnectSyncRoot).toStrictEqual(1n);
+    call(AddonCs.disconnectSyncRoot).toStrictEqual(1);
   });
 
   it('should call addon.getPlaceholderState', async () => {
@@ -174,7 +176,7 @@ describe('addon', () => {
 
   it('should call AddonCs.watchPath', () => {
     // Given
-    watchPathMock.mockReturnValue({});
+    watchPathMock.mockReturnValue('watcherId');
     const rootPath = abs('C:/Users/user/InternxtDrive');
     const onEvent = vi.fn();
     const props = mockProps<typeof Addon.watchPath>({ rootPath, onEvent });
@@ -186,8 +188,8 @@ describe('addon', () => {
 
   it('should call AddonCs.unwatchPath', () => {
     // When
-    Addon.unwatchPath({ handle: {} });
+    Addon.unwatchPath({ watcherId: 'watcherId' });
     // Then
-    call(AddonCs.unwatchPath).toStrictEqual({});
+    call(AddonCs.unwatchPath).toStrictEqual('watcherId');
   });
 });

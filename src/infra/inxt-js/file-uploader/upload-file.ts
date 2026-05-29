@@ -45,6 +45,8 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
       progressCallback: (progress) => void progressCallback(progress),
     });
 
+    LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 1 });
+
     return contentsId as ContentsId;
   } catch (error) {
     const retryFn = () =>
