@@ -65,7 +65,6 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
 
 vi.mock(import('electron'), () => {
   const actual = vi.importActual('electron');
-
   return {
     ...actual,
     app: {

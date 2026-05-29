@@ -95,10 +95,10 @@ export async function emitUserLoggedIn(user: User) {
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearSentryUserContext();
-    clearLoggedPreloadIpc();
     TokenScheduler.stop();
     BackupScheduler.stop();
     logout({ ctx });
+    clearLoggedPreloadIpc();
   });
 
   setupLoggedPreloadIpc({ ctx });
