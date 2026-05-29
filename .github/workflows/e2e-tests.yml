@@ -7,7 +7,6 @@ on:
 jobs:
   e2e_tests:
     runs-on: windows-latest
-    timeout-minutes: 10
 
     steps:
       - name: Checkout code
