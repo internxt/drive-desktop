@@ -8,6 +8,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { resolveUserFileSizeLimit } from '@/backend/features/user/file-size-limit';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import electronStore from '../config';
@@ -94,14 +95,15 @@ export async function emitUserLoggedIn(user: User) {
   eventBus.once('USER_LOGGED_OUT', () => {
     logger.debug({ tag: 'AUTH', msg: 'Received logout event' });
     clearSentryUserContext();
-    clearLoggedPreloadIpc();
     TokenScheduler.stop();
     BackupScheduler.stop();
     logout({ ctx });
+    clearLoggedPreloadIpc();
   });
 
   setupLoggedPreloadIpc({ ctx });
-  cleanAndStartRemoteNotifications();
+  void resolveUserFileSizeLimit({ ctx });
+  cleanAndStartRemoteNotifications({ ctx });
 
   const lastOnboardingShown = electronStore.get('lastOnboardingShown');
   if (!lastOnboardingShown) void openOnboardingWindow();

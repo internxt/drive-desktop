@@ -398,5 +398,24 @@ export const es: Translation = {
   },
   common: {
     cancel: 'Cancelar',
+    close: 'Cerrar',
+  },
+  maxFileSizeRejectionModal: {
+    single: {
+      title: 'Este archivo es demasiado grande para su plan actual',
+      description: 'Su plan permite subir archivos de hasta {{limit}}. Actualice su plan para cargar este archivo.',
+      description_no_suggested_plan: 'Su plan permite subir archivos de hasta {{limit}}',
+      description_unknown_limit:
+        'Este archivo supera el tamano de subida permitido para su plan actual. Actualice su plan para subir archivos mas grandes.',
+    },
+    multiple: {
+      title: 'Algunos archivos son demasiado grandes para su plan actual',
+      description: 'Su plan permite subir archivos de hasta {{limit}}. Actualice su plan para cargar archivos más grandes.',
+      description_no_suggested_plan: 'Su plan permite subir archivos de hasta {{limit}}',
+      description_unknown_limit:
+        'Algunos archivos superan el tamano de subida permitido para su plan actual. Actualice su plan para subir archivos mas grandes.',
+    },
+    ctaUpgrade: 'Mejorar plan',
+    plan: '{{planName}} -> hasta {{planMaxFileSize}}',
   },
 };

@@ -396,5 +396,24 @@ export const de: Translation = {
   },
   common: {
     cancel: 'Abbrechen',
+    close: 'Schließen',
+  },
+  maxFileSizeRejectionModal: {
+    single: {
+      title: 'Diese Datei ist für Ihren aktuellen Plan zu groß',
+      description: 'Ihr Plan erlaubt das Hochladen von Dateien bis zu {{limit}}. Upgraden Sie Ihren Plan, um diese Datei hochzuladen.',
+      description_no_suggested_plan: 'Ihr Plan erlaubt das Hochladen von Dateien bis zu {{limit}}',
+      description_unknown_limit:
+        'Diese Datei ueberschreitet die fuer Ihren aktuellen Plan erlaubte Upload-Groesse. Upgraden Sie Ihren Plan, um groessere Dateien hochzuladen.',
+    },
+    multiple: {
+      title: 'Einige Dateien sind für Ihren aktuellen Plan zu groß',
+      description: 'Ihr Plan erlaubt das Hochladen von Dateien bis zu {{limit}}. Upgraden Sie Ihren Plan, um größere Dateien hochzuladen.',
+      description_no_suggested_plan: 'Ihr Plan erlaubt das Hochladen von Dateien bis zu {{limit}}',
+      description_unknown_limit:
+        'Einige Dateien ueberschreiten die fuer Ihren aktuellen Plan erlaubte Upload-Groesse. Upgraden Sie Ihren Plan, um groessere Dateien hochzuladen.',
+    },
+    ctaUpgrade: 'Plan upgraden',
+    plan: '{{planName}} -> bis zu {{planMaxFileSize}}',
   },
 };

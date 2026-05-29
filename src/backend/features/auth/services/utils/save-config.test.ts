@@ -38,6 +38,7 @@ describe('saveConfig', () => {
       syncRoot: '/Users/john/Internxt',
       deviceUuid: 'uuid-laptop-001',
       backupList: ['Documents', 'Pictures'],
+      maxUploadFileSizeInBytes: 5,
     };
 
     const existingConfigs = {
@@ -71,6 +72,7 @@ describe('saveConfig', () => {
       syncRoot: undefined,
       deviceUuid: 'uuid-mobile-001',
       backupList: [],
+      maxUploadFileSizeInBytes: 5,
     };
 
     configGetMock.mockImplementation((key): any => {
@@ -101,6 +103,7 @@ describe('saveConfig', () => {
       syncRoot: '/Users/jane/Internxt',
       deviceUuid: 'uuid-desktop-002',
       backupList: ['Work Files'],
+      maxUploadFileSizeInBytes: 5,
     };
 
     configGetMock.mockImplementation((key): any => {
