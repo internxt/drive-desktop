@@ -1,7 +1,7 @@
 import Button from '../../components/Button';
 import { useI18n } from '../../localize/use-i18n';
-import { formatBytes } from '../../utils/format-bytes';
 import { PLANS_URL } from './constants';
+import { formatBytes } from './format-bytes';
 import { getModalPropsFromUrlParams, getSuggestedUpgradePlan } from './service';
 import { getDescriptionTranslationKey } from './service';
 import { UpgradePlanList } from './upgrade-plan-list';

@@ -1,6 +1,6 @@
 import { useI18n } from '../../localize/use-i18n';
-import { formatBytes } from '../../utils/format-bytes';
 import { upgradePlans } from './constants';
+import { formatBytes } from './format-bytes';
 import { getSuggestedUpgradePlan } from './service';
 
 export function UpgradePlanList({ suggestedPlan }: { suggestedPlan: ReturnType<typeof getSuggestedUpgradePlan> }) {
