@@ -2,17 +2,30 @@
 
 ## Table of Contents
 
-- [Architecture](#architecture)
-- [Code](#code)
-  - [File template](#file-template)
-  - [Testing](#testing)
-  - [Imports](#imports)
-  - [Use function instead of arrow functions by default](#use-function-instead-of-arrow-functions-by-default)
-  - [Use object props instead of multiple props](#use-object-props-instead-of-multiple-props)
-  - [Never use return types if the function infers the type correctly](#never-use-return-types-if-the-function-infers-the-type-correctly)
-  - [Logger](#logger)
-  - [Comments](#comments)
-  - [Frontend](#frontend)
+- [Contributing](#contributing)
+  - [Table of Contents](#table-of-contents)
+  - [Reporting issues](#reporting-issues)
+  - [Architecture](#architecture)
+  - [Code](#code)
+    - [File template](#file-template)
+    - [Testing](#testing)
+    - [Imports](#imports)
+    - [Use function instead of arrow functions by default](#use-function-instead-of-arrow-functions-by-default)
+    - [Use object props instead of multiple props](#use-object-props-instead-of-multiple-props)
+    - [Never use return types if the function infers the type correctly](#never-use-return-types-if-the-function-infers-the-type-correctly)
+    - [Logger](#logger)
+    - [Comments](#comments)
+    - [Frontend](#frontend)
+
+## Reporting issues
+
+We no longer use GitHub Issues as the main place to report problems with the app.
+
+If you run into an issue, please contact our customer support team instead ad hello@internxt.com. This helps us keep all reports in one place, understand how often an issue happens, and follow up more effectively.
+
+GitHub Issues are not ideal for support requests because they can make it harder to track duplicates, measure impact, and protect sensitive information. They also take time away from development when used as a support channel.
+
+Thank you for helping us keep issue reporting clear, safe, and useful for everyone.
 
 ## Architecture
 
