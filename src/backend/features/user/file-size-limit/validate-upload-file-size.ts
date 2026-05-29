@@ -24,7 +24,7 @@ export function validateUploadFileSize({ size, maxUploadFileSize }: Props): Uplo
     };
   }
 
-  if (size > maxUploadFileSize) {
+  if (maxUploadFileSize && size > maxUploadFileSize) {
     return {
       allowed: false,
       reason: 'PLAN_LIMIT_EXCEEDED',

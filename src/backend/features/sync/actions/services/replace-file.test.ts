@@ -2,10 +2,10 @@ import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import * as fileSizeLimit from '@/backend/features/user/file-size-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { replaceFile } from './replace-file';
 import * as uploadFile from './upload-file';
 
@@ -13,7 +13,7 @@ describe('replace-file', () => {
   const uploadMock = partialSpyOn(uploadFile, 'uploadFile');
   const persistMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
-  const handleFileUploadSizeExceededMock = partialSpyOn(fileSizeLimit, 'handleFileUploadSizeExceeded');
+  const handleFileUploadSizeExceededMock = partialSpyOn(handleFileUploadSizeExceeded, 'handleFileUploadSizeExceeded');
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
