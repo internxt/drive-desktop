@@ -52,4 +52,11 @@ const FOLDER_EVENT = EVENT.extend({
   }),
 });
 
-export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_EVENT, FOLDER_EVENT]);
+const PLAN_UPDATED_EVENT = EVENT.extend({
+  event: z.enum(['PLAN_UPDATED']),
+  payload: z.object({
+    maxSpaceBytes: z.number(),
+  }),
+});
+
+export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_EVENT, FOLDER_EVENT, PLAN_UPDATED_EVENT]);

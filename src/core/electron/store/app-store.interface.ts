@@ -9,6 +9,7 @@ export type SavedConfig = {
   syncRoot: string;
   deviceUuid: string;
   backupList: BackupList;
+  maxUploadFileSizeInBytes: number;
 };
 
 export type AppStore = {
@@ -17,6 +18,7 @@ export type AppStore = {
   syncRoot: string;
   deviceUuid: string;
   backupList: BackupList;
+  maxUploadFileSizeInBytes: number;
 
   newToken: string;
   userData: User;

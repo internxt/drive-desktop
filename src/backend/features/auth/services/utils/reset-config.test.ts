@@ -14,6 +14,7 @@ describe('resetConfig', () => {
       ['syncRoot', ''],
       ['deviceUuid', ''],
       ['backupList', {}],
+      ['maxUploadFileSizeInBytes', 0],
       ['newToken', ''],
       ['userData', {}],
     ]);

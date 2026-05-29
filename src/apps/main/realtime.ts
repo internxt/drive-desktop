@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import { type AuthContext } from '@/apps/sync-engine/config';
 import { RemoteNotificationsModule } from '@/backend/features/remote-notifications/remote-notifications.module';
 import { logger } from '../shared/logger/logger';
 import { obtainToken } from './auth/service';
@@ -10,7 +11,7 @@ type XHRRequest = {
 
 let socket: Socket | undefined;
 
-export function cleanAndStartRemoteNotifications() {
+export function cleanAndStartRemoteNotifications({ ctx }: { ctx: AuthContext }) {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
@@ -67,7 +68,7 @@ export function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('event', (data) => {
-    void RemoteNotificationsModule.processWebSocketEvent({ data });
+    void RemoteNotificationsModule.processWebSocketEvent({ ctx, data });
   });
 }
 

@@ -8,6 +8,7 @@ export const defaults: AppStore = {
   syncRoot: '',
   deviceUuid: '',
   backupList: {},
+  maxUploadFileSizeInBytes: 0,
 
   newToken: '',
   userData: {} as User,
@@ -18,5 +19,12 @@ export const defaults: AppStore = {
   preferedTheme: 'system',
 };
 
-export const fieldsToSave: Array<keyof AppStore> = ['backupInterval', 'lastBackup', 'syncRoot', 'deviceUuid', 'backupList'];
+export const fieldsToSave: Array<keyof AppStore> = [
+  'backupInterval',
+  'lastBackup',
+  'syncRoot',
+  'deviceUuid',
+  'backupList',
+  'maxUploadFileSizeInBytes',
+];
 export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'userData'];
