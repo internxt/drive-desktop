@@ -52,7 +52,6 @@ export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
   ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog({ ctx }));
 
   // Backups
-  ipcPreloadMain.handle('deleteBackupsFromDevice', (_, props) => deleteBackupsFromDevice({ ctx, ...props }));
   ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
   ipcPreloadMain.handle('backupsStartProcess', () => backupsStartProcess({ ctx }));
   ipcPreloadMain.handle('downloadBackup', (_, props) => downloadBackup({ ctx, ...props }));
@@ -70,7 +69,6 @@ export function clearLoggedPreloadIpc() {
   ipcPreloadMain.removeHandler('driveChooseSyncRootWithDialog');
 
   // Backups
-  ipcPreloadMain.removeHandler('deleteBackupsFromDevice');
   ipcPreloadMain.removeHandler('backupsSetInterval');
   ipcPreloadMain.removeHandler('backupsStartProcess');
   ipcPreloadMain.removeHandler('downloadBackup');
