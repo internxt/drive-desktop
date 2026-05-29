@@ -3,6 +3,7 @@ import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { CommonContext } from '@/apps/sync-engine/config';
+import { DriveServerWipError } from '../defs';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto } from '../out/dto';
@@ -85,6 +86,8 @@ async function replaceFile({
 
   if (data) {
     return { data: parseFileDto({ fileDto: data }) };
+  } else if (error?.response?.status === 402) {
+    return { error: new DriveServerWipError('FILE_UPLOAD_SIZE_EXCEEDED', error.cause, error.response) };
   } else {
     return { error };
   }
