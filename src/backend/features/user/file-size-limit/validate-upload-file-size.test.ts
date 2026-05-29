@@ -1,4 +1,5 @@
-import { ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT, validateUploadFileSize } from './validate-upload-file-size';
+import { ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT } from './constants';
+import { validateUploadFileSize } from './validate-upload-file-size';
 
 describe('validateUploadFileSize', () => {
   it('should allow file if size is under stored plan limit', () => {
