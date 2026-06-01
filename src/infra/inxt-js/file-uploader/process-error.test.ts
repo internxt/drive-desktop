@@ -53,7 +53,10 @@ describe('process-error', () => {
     // When
     await processError(props);
     // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Failed to upload file to the bucket' });
+    expect(loggerMock.sentryError).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'Failed to upload file to the bucket' }),
+      expect.any(Object),
+    );
     call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR' });
   });
 });
