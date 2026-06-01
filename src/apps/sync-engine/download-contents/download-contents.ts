@@ -65,7 +65,6 @@ export async function downloadContents({
       {
         fileUuid: file.uuid,
         contentsId: file.contentsId,
-        fileSize: file.size,
         destinationPath: path,
       },
     );

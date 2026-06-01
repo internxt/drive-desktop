@@ -109,7 +109,7 @@ async function postBackup(ctx: AuthContext, name: string) {
   });
 
   if (!res.data) {
-    throw logger.error({ tag: 'BACKUPS', msg: 'Post backup request was not successful', error: res.error });
+    throw logger.sentryError({ tag: 'BACKUPS', msg: 'Post backup request was not successful', error: res.error });
   }
 
   return res.data;
@@ -165,7 +165,7 @@ export async function addBackup({ ctx }: { ctx: AuthContext }): Promise<void> {
       return createBackup(ctx, chosenPath);
     }
   } catch (error) {
-    logger.error({ tag: 'BACKUPS', msg: 'Error adding backup', error });
+    logger.sentryError({ tag: 'BACKUPS', msg: 'Error adding backup', error });
   }
 }
 
