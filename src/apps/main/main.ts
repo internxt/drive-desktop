@@ -1,4 +1,5 @@
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
+import { initSentry } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
 import 'core-js/stable';
 // Only effective during development
 // the variables are injected if process.env.NODE_ENV === 'production'
@@ -67,7 +68,7 @@ const tags = {
   nodeVersion: process.versions.node,
 };
 
-// initSentry(INTERNXT_VERSION, tags);
+initSentry(INTERNXT_VERSION, tags);
 
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
@@ -136,7 +137,7 @@ async function start() {
     await checkForUpdates();
     setInterval(checkForUpdates, 60 * 60 * 1000);
   } catch (error) {
-    logger.error({ msg: 'Error starting app', error });
+    logger.sentryError({ msg: 'Error starting app', error });
   }
 }
 
