@@ -6,6 +6,7 @@ import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import * as addFolderToTrashModule from '../../../../infra/drive-server/services/folder/services/add-folder-to-trash';
 import { call, partialSpyOn } from 'tests/vitest/utils.helper';
+import { DriveServerError } from 'src/infra/drive-server/drive-server.error';
 
 describe('Folder deleter', () => {
   let repository: FolderRepositoryMock;
@@ -69,7 +70,7 @@ describe('Folder deleter', () => {
 
     repository.searchByUuidMock.mockResolvedValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
-    addFolderToTrashMock.mockResolvedValue({ error: new Error('Error during the deletion') } as any);
+    addFolderToTrashMock.mockResolvedValue({ error: new DriveServerError('UNKNOWN') });
 
     await SUT.run(folder.uuid);
 

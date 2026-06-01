@@ -27,6 +27,126 @@ const MAX_SERVER_START_ATTEMPTS = 3;
 let lastRestartTime = 0;
 const MIN_RESTART_INTERVAL = 30000; // 30 seconds minimum between restarts
 
+export const ensureDirectories = () => {
+  const dirs = [configDir, logDir, dbDir];
+  for (const dir of dirs) {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true, mode: DIRECTORY_MODE });
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[CLAM_AVD] Created directory: ${dir}`,
+      });
+    }
+  }
+
+  if (!fs.existsSync(logFilePath)) {
+    fs.writeFileSync(logFilePath, '', { mode: FILE_MODE });
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] Created log file: ${logFilePath}`,
+    });
+  }
+
+  const resourceDbDir = path.join(RESOURCES_PATH, 'db');
+  if (fs.existsSync(resourceDbDir)) {
+    const files = fs.readdirSync(resourceDbDir);
+    for (const file of files) {
+      const srcPath = path.join(resourceDbDir, file);
+      const destPath = path.join(dbDir, file);
+      if (!fs.existsSync(destPath)) {
+        fs.copyFileSync(srcPath, destPath);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] Copied database file: ${file}`,
+        });
+      }
+    }
+  }
+};
+
+/**
+ * Prepares the configuration files by replacing placeholder variables with actual paths
+ * This allows config files to be portable and work in any user environment
+ */
+export const prepareConfigFiles = (): {
+  clamdConfigPath: string;
+  freshclamConfigPath: string;
+} => {
+  // Create temporary modified configs in the user's config directory
+  const tempClamdConfigPath = path.join(configDir, 'clamd.conf');
+  const tempFreshclamConfigPath = path.join(configDir, 'freshclam.conf');
+
+  // Read the original config files from resources
+  const originalClamdConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/clamd.conf'), 'utf8');
+  const originalFreshclamConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/freshclam.conf'), 'utf8');
+
+  const modifiedClamdConfig = originalClamdConfig
+    .replace('LOGFILE_PATH', logFilePath)
+    .replace('DATABASE_DIRECTORY', dbDir);
+
+  const modifiedFreshclamConfig = originalFreshclamConfig
+    .replace('DATABASE_DIRECTORY', dbDir)
+    .replace('FRESHCLAM_LOG_PATH', freshclamLogPath);
+
+  fs.writeFileSync(tempClamdConfigPath, modifiedClamdConfig);
+  fs.writeFileSync(tempFreshclamConfigPath, modifiedFreshclamConfig);
+
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: `[CLAM_AVD] Created modified config files in ${configDir}`,
+  });
+
+  return {
+    clamdConfigPath: tempClamdConfigPath,
+    freshclamConfigPath: tempFreshclamConfigPath,
+  };
+};
+
+export const getEnvWithLibraryPath = () => {
+  const env = { ...process.env };
+  const libPath = path.join(RESOURCES_PATH, 'lib');
+
+  env.LD_LIBRARY_PATH = `${libPath}:${env.LD_LIBRARY_PATH || ''}`;
+
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: `[CLAM_AVD] Setting library path to: ${libPath}`,
+  });
+  return env;
+};
+
+export const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const client = new net.Socket();
+
+    client.connect(port, host, () => {
+      client.end();
+      resolve(true);
+    });
+
+    client.on('error', () => {
+      client.destroy();
+      resolve(false);
+    });
+  });
+};
+
+const stopClamdServer = (): void => {
+  if (clamdProcess) {
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[CLAM_AVD] Stopping clamd server...',
+    });
+    clamdProcess.kill();
+    clamdProcess = null;
+  }
+
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
+};
+
 const startClamdServer = async (): Promise<void> => {
   logger.debug({
     tag: 'ANTIVIRUS',
@@ -145,97 +265,6 @@ const startClamdServer = async (): Promise<void> => {
   }
 };
 
-const stopClamdServer = (): void => {
-  if (clamdProcess) {
-    logger.debug({
-      tag: 'ANTIVIRUS',
-      msg: '[CLAM_AVD] Stopping clamd server...',
-    });
-    clamdProcess.kill();
-    clamdProcess = null;
-  }
-
-  if (timer) {
-    clearTimeout(timer);
-    timer = null;
-  }
-};
-
-export const ensureDirectories = () => {
-  const dirs = [configDir, logDir, dbDir];
-  for (const dir of dirs) {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true, mode: DIRECTORY_MODE });
-      logger.debug({
-        tag: 'ANTIVIRUS',
-        msg: `[CLAM_AVD] Created directory: ${dir}`,
-      });
-    }
-  }
-
-  if (!fs.existsSync(logFilePath)) {
-    fs.writeFileSync(logFilePath, '', { mode: FILE_MODE });
-    logger.debug({
-      tag: 'ANTIVIRUS',
-      msg: `[CLAM_AVD] Created log file: ${logFilePath}`,
-    });
-  }
-
-  const resourceDbDir = path.join(RESOURCES_PATH, 'db');
-  if (fs.existsSync(resourceDbDir)) {
-    const files = fs.readdirSync(resourceDbDir);
-    for (const file of files) {
-      const srcPath = path.join(resourceDbDir, file);
-      const destPath = path.join(dbDir, file);
-      if (!fs.existsSync(destPath)) {
-        fs.copyFileSync(srcPath, destPath);
-        logger.debug({
-          tag: 'ANTIVIRUS',
-          msg: `[CLAM_AVD] Copied database file: ${file}`,
-        });
-      }
-    }
-  }
-};
-
-/**
- * Prepares the configuration files by replacing placeholder variables with actual paths
- * This allows config files to be portable and work in any user environment
- */
-export const prepareConfigFiles = (): {
-  clamdConfigPath: string;
-  freshclamConfigPath: string;
-} => {
-  // Create temporary modified configs in the user's config directory
-  const tempClamdConfigPath = path.join(configDir, 'clamd.conf');
-  const tempFreshclamConfigPath = path.join(configDir, 'freshclam.conf');
-
-  // Read the original config files from resources
-  const originalClamdConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/clamd.conf'), 'utf8');
-  const originalFreshclamConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/freshclam.conf'), 'utf8');
-
-  const modifiedClamdConfig = originalClamdConfig
-    .replace('LOGFILE_PATH', logFilePath)
-    .replace('DATABASE_DIRECTORY', dbDir);
-
-  const modifiedFreshclamConfig = originalFreshclamConfig
-    .replace('DATABASE_DIRECTORY', dbDir)
-    .replace('FRESHCLAM_LOG_PATH', freshclamLogPath);
-
-  fs.writeFileSync(tempClamdConfigPath, modifiedClamdConfig);
-  fs.writeFileSync(tempFreshclamConfigPath, modifiedFreshclamConfig);
-
-  logger.debug({
-    tag: 'ANTIVIRUS',
-    msg: `[CLAM_AVD] Created modified config files in ${configDir}`,
-  });
-
-  return {
-    clamdConfigPath: tempClamdConfigPath,
-    freshclamConfigPath: tempFreshclamConfigPath,
-  };
-};
-
 const restartClamdServerIfNeeded = async (): Promise<boolean> => {
   const now = Date.now();
 
@@ -281,35 +310,6 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
     });
     return false;
   }
-};
-
-export const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const client = new net.Socket();
-
-    client.connect(port, host, () => {
-      client.end();
-      resolve(true);
-    });
-
-    client.on('error', () => {
-      client.destroy();
-      resolve(false);
-    });
-  });
-};
-
-export const getEnvWithLibraryPath = () => {
-  const env = { ...process.env };
-  const libPath = path.join(RESOURCES_PATH, 'lib');
-
-  env.LD_LIBRARY_PATH = `${libPath}:${env.LD_LIBRARY_PATH || ''}`;
-
-  logger.debug({
-    tag: 'ANTIVIRUS',
-    msg: `[CLAM_AVD] Setting library path to: ${libPath}`,
-  });
-  return env;
 };
 
 const waitForClamd = async (

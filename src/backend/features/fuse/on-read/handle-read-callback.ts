@@ -1,127 +1,113 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { type Readable } from 'stream';
 import { type TemporalFile } from '../../../../context/storage/TemporalFiles/domain/TemporalFile';
 import { type File } from '../../../../context/virtual-drive/files/domain/File';
-import { left, right, type Either } from '../../../../context/shared/domain/Either';
-import { type FuseError, FuseNoSuchFileOrDirectoryError } from '../../../../apps/drive/fuse/callbacks/FuseErrors';
-import { tryCatch } from '../../../../shared/try-catch';
-import { createDownloadToDisk } from './create-download-to-disk';
-import { deleteHydration, getHydration, HydrationEntry, setHydration } from './hydration-registry';
+import {
+  type FuseError,
+  FuseIOError,
+  FuseNoSuchFileOrDirectoryError,
+} from '../../../../apps/drive/fuse/callbacks/FuseErrors';
+import { downloadFileRange } from '../../../../infra/environment/download-file/download-file';
+import { type Result } from '../../../../context/shared/domain/Result';
 import { readChunkFromDisk } from './read-chunk-from-disk';
-import { shouldDownload } from '../on-open/open-flags-tracker';
 import nodePath from 'node:path';
 import { PATHS } from '../../../../core/electron/paths';
-import { formatBytes } from '../../../../shared/format-bytes';
-
-export type HandleReadCallbackDeps = {
+import { EMPTY } from './constants';
+import { readOrHydrate } from './read-or-hydrate';
+import { type HandleReadDeps, type ReadRange } from './types';
+import { isThumbnailProcess } from './thumbnail-processes';
+export type HandleReadCallbackProps = HandleReadDeps & {
   findVirtualFile: (path: string) => Promise<File | undefined>;
   findTemporalFile: (path: string) => Promise<TemporalFile | undefined>;
-  existsOnDisk: (contentsId: string) => Promise<boolean>;
-  startDownload: (virtualFile: File) => Promise<{ stream: Readable; elapsedTime: () => number }>;
-  onDownloadProgress: (name: string, extension: string, progress: { percentage: number; elapsedTime: number }) => void;
-  saveToRepository: (contentsId: string, size: number, uuid: string, name: string, extension: string) => Promise<void>;
+  path: string;
+  range: ReadRange;
+  processName: string;
 };
 
-const EMPTY = Buffer.alloc(0);
-
-async function startHydration(
-  deps: HandleReadCallbackDeps,
-  virtualFile: File,
-  filePath: string,
-): Promise<HydrationEntry> {
-  const { stream, elapsedTime } = await deps.startDownload(virtualFile);
-  const writer = createDownloadToDisk(stream, filePath, {
-    onProgress: (bytesWritten) => {
-      deps.onDownloadProgress(virtualFile.name, virtualFile.type, {
-        percentage: Math.min(bytesWritten / virtualFile.size, 1),
-        elapsedTime: elapsedTime(),
-      });
-    },
-    onFinished: () => {
-      deleteHydration(virtualFile.contentsId);
-      deps.saveToRepository(
-        virtualFile.contentsId,
-        virtualFile.size,
-        virtualFile.uuid,
-        virtualFile.name,
-        virtualFile.type,
-      );
-    },
-    onError: (err) => {
-      logger.error({ msg: '[startHydration] onError', error: err });
-      tryCatch(() => writer.destroy());
-      deleteHydration(virtualFile.contentsId);
-    },
-  });
-
-  setHydration(virtualFile.contentsId, { writer });
-  return { writer };
-}
-export async function handleReadCallback(
-  deps: HandleReadCallbackDeps,
-  path: string,
-  length: number,
-  position: number,
-): Promise<Either<FuseError, Buffer>> {
-  const virtualFile = await deps.findVirtualFile(path);
+/**
+ * Routes reads between virtual-drive files and temporal local files.
+ *
+ * Virtual-file reads enforce process policy: blocklisted processes are cache-only
+ * readers, while normal processes may hydrate missing cache blocks and finalize the
+ * file once the full contents are available.
+ */
+export async function handleReadCallback({
+  findVirtualFile,
+  findTemporalFile,
+  onDownloadProgress,
+  saveToRepository,
+  bucketId,
+  mnemonic,
+  network,
+  path,
+  range,
+  processName,
+}: HandleReadCallbackProps): Promise<Result<Buffer, FuseError>> {
+  const virtualFile = await findVirtualFile(path);
 
   if (!virtualFile) {
-    const temporalFile = await deps.findTemporalFile(path);
-
-    if (!temporalFile || !temporalFile.contentFilePath) {
-      logger.error({ msg: '[ReadCallback] File not found', path });
-      return left(new FuseNoSuchFileOrDirectoryError(path));
-    }
-
-    const chunk = await readChunkFromDisk(temporalFile.contentFilePath, length, position);
-    return right(chunk);
+    return readFromTemporalFile(findTemporalFile, path, range.length, range.position);
   }
 
-  if (!shouldDownload(path)) {
-    logger.debug({ msg: '[ReadCallback] Download blocked - system open', path });
-    return right(EMPTY);
+  if (isThumbnailProcess(processName)) {
+    logger.debug({
+      msg: '[ReadCallback] thumbnail process, downloading exact range',
+      process: processName,
+      file: virtualFile.nameWithExtension,
+    });
+    return readExactRangeForThumbnail({ bucketId, mnemonic, network, virtualFile, range });
   }
 
   const filePath = nodePath.join(PATHS.DOWNLOADED, virtualFile.contentsId);
 
-  logger.debug({
-    msg: '[ReadCallback] read request:',
-    file: virtualFile.nameWithExtension,
-    position,
-    length,
-    targetByte: position + length,
+  return readOrHydrate({
+    bucketId,
+    mnemonic,
+    network,
+    onDownloadProgress,
+    saveToRepository,
+    virtualFile,
+    filePath,
+    range,
   });
+}
 
-  if (await deps.existsOnDisk(virtualFile.contentsId)) {
-    const chunk = await readChunkFromDisk(filePath, length, position);
-    return right(chunk);
+async function readFromTemporalFile(
+  findTemporalFile: HandleReadCallbackProps['findTemporalFile'],
+  path: string,
+  length: number,
+  position: number,
+): Promise<Result<Buffer, FuseError>> {
+  const temporalFile = await findTemporalFile(path);
+
+  if (!temporalFile || !temporalFile.contentFilePath) {
+    logger.error({ msg: '[ReadCallback] File not found', path });
+    return { error: new FuseNoSuchFileOrDirectoryError(path) };
   }
 
-  const hydration = getHydration(virtualFile.contentsId) ?? (await startHydration(deps, virtualFile, filePath));
-  const targetByte = position + length;
-  const bytesAvailable = hydration.writer.getBytesAvailable();
-  const waitStart = Date.now();
+  const chunk = await readChunkFromDisk(temporalFile.contentFilePath, length, position);
+  return { data: chunk ?? EMPTY };
+}
 
-  if (bytesAvailable < targetByte) {
-    logger.debug({
-      msg: '[ReadCallback] waiting for download to catch up',
-      file: virtualFile.nameWithExtension,
-      position: formatBytes(position),
-      targetByte: formatBytes(targetByte),
-      bytesAvailable: formatBytes(bytesAvailable),
-      bytesAhead: formatBytes(targetByte - bytesAvailable),
-    });
-  }
+type ThumbnailRangeProps = Pick<HandleReadCallbackProps, 'bucketId' | 'mnemonic' | 'network' | 'range'> & {
+  virtualFile: File;
+};
 
-  await hydration.writer.waitForBytes(position, length);
-
-  logger.debug({
-    msg: '[ReadCallback] wait resolved',
-    file: virtualFile.nameWithExtension,
-    position: formatBytes(position),
-    waitedMs: Date.now() - waitStart,
+async function readExactRangeForThumbnail({
+  bucketId,
+  mnemonic,
+  network,
+  virtualFile,
+  range,
+}: ThumbnailRangeProps): Promise<Result<Buffer, FuseError>> {
+  const { signal } = new AbortController();
+  const result = await downloadFileRange({
+    fileId: virtualFile.contentsId,
+    bucketId,
+    mnemonic,
+    network,
+    range,
+    signal,
   });
-
-  const chunk = await readChunkFromDisk(filePath, length, position);
-  return right(chunk);
+  if (result.error) return { error: new FuseIOError(result.error.message) };
+  return { data: result.data };
 }

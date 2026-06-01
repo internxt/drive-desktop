@@ -1,27 +1,26 @@
 import { BackupInfo } from '../../../apps/backups/BackupInfo';
 import { DiffFilesCalculatorService } from '../../../apps/backups/diff/DiffFilesCalculatorService';
 import { FoldersDiffCalculator } from '../../../apps/backups/diff/FoldersDiffCalculator';
-import LocalTreeBuilder from '../../../context/local/localTree/application/LocalTreeBuilder';
 import { Result } from '../../../context/shared/domain/Result';
 import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
+import { buildLocalTree } from './local-tree';
 
 export async function precalculateBackupItemCount(
   backupInfo: BackupInfo,
-  localTreeBuilder: LocalTreeBuilder,
   remoteTreeBuilder: RemoteTreeBuilder,
 ): Promise<Result<number>> {
   let localTreeEither;
   try {
-    localTreeEither = await localTreeBuilder.run(backupInfo.pathname);
+    localTreeEither = await buildLocalTree(backupInfo.pathname);
   } catch (error) {
     return { error: error instanceof Error ? error : new Error(String(error)) };
   }
 
-  if (localTreeEither.isLeft()) {
+  if (localTreeEither.error) {
     return { error: new Error('Error building local tree during precalculation') };
   }
 
-  const local = localTreeEither.getRight();
+  const local = localTreeEither.data;
 
   let remote;
   try {
@@ -30,8 +29,8 @@ export async function precalculateBackupItemCount(
     return { error: error instanceof Error ? error : new Error(String(error)) };
   }
 
-  const filesDiff = DiffFilesCalculatorService.calculate(local, remote);
-  const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
+  const filesDiff = DiffFilesCalculatorService.calculate(local.tree, remote);
+  const foldersDiff = FoldersDiffCalculator.calculate(local.tree, remote);
 
   return { data: filesDiff.total + foldersDiff.total };
 }

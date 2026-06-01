@@ -74,16 +74,6 @@ vi.mock('@internxt/drive-desktop-core/src/backend', () => ({
   },
 }));
 
-// Mock native modules that require system libraries
-vi.mock('@gcas/fuse', () => ({
-  default: vi.fn(),
-  Fuse: vi.fn().mockImplementation(() => ({
-    mount: vi.fn(),
-    unmount: vi.fn(),
-    ops: {},
-  })),
-}));
-
 // Mock electron-store
 vi.mock('electron-store', () => {
   return {

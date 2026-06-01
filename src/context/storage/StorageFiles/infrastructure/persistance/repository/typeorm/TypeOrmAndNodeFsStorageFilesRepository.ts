@@ -1,6 +1,6 @@
 import { Service } from 'diod';
 import { Readable } from 'form-data';
-import { readFile, unlink } from 'fs/promises';
+import { readFile, readdir, unlink } from 'fs/promises';
 import path from 'path';
 import { DataSource, Repository } from 'typeorm';
 import { tryCatch } from '../../../../../../../shared/try-catch';
@@ -10,6 +10,7 @@ import { StorageFile } from '../../../../domain/StorageFile';
 import { StorageFileId } from '../../../../domain/StorageFileId';
 import { StorageFilesRepository } from '../../../../domain/StorageFilesRepository';
 import { TypeOrmStorageFile } from './entities/TypeOrmStorageFile';
+import { Result } from '../../../../../../shared/domain/Result';
 
 @Service()
 export class TypeOrmAndNodeFsStorageFilesRepository implements StorageFilesRepository {
@@ -78,19 +79,35 @@ export class TypeOrmAndNodeFsStorageFilesRepository implements StorageFilesRepos
     await this.db.delete({ id: id.value });
   }
 
-  async deleteAll(): Promise<void> {
-    const all = await this.db.find();
+  async deleteAll(): Promise<Result<void, Error>> {
+    try {
+      const all = await this.db.find();
 
-    const deleted = all
-      .map((att: { id: string }) => new StorageFileId(att.id))
-      .map((id: StorageFileId) => this.delete(id));
+      const deleted = all
+        .map((att: { id: string }) => new StorageFileId(att.id))
+        .map((id: StorageFileId) => this.delete(id));
 
-    await Promise.all(deleted);
+      await Promise.all(deleted);
+      await this.deleteOrphanFilesFromBaseFolder();
+      return { data: undefined };
+    } catch (error) {
+      return { error: error instanceof Error ? error : new Error('Unknown error during deleteAll') };
+    }
   }
 
   async all(): Promise<StorageFile[]> {
     const all = await this.db.find();
 
     return all.map(StorageFile.from);
+  }
+
+  private async deleteOrphanFilesFromBaseFolder(): Promise<void> {
+    const entries = await readdir(this.baseFolder, { withFileTypes: true });
+    const deleted = entries
+      .filter((entry) => entry.isFile() || entry.isSymbolicLink())
+      .map((entry) => path.join(this.baseFolder, entry.name))
+      .map((pathToUnlink) => tryCatch(() => unlink(pathToUnlink)));
+
+    await Promise.all(deleted);
   }
 }

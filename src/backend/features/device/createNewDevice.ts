@@ -1,5 +1,5 @@
 import { Either, right } from './../../../context/shared/domain/Either';
-import { Device } from '../../../apps/main/device/service';
+import { Device } from '../backup/types/Device';
 import { createUniqueDevice } from './createUniqueDevice';
 import { saveDeviceToConfig } from './saveDeviceToConfig';
 import { DeviceIdentifierDTO } from './device.types';

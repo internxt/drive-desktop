@@ -1,35 +1,11 @@
 {
   "login": {
-    "email": {
-      "section": "Email address"
-    },
-    "password": {
-      "section": "Password",
-      "placeholder": "Password",
-      "forgotten": "Forgot your password?",
-      "hide": "Hide",
-      "show": "Show"
-    },
     "action": {
-      "login": "Log in",
-      "is-logging-in": "Logging you in...",
       "login-in-browser": "Log in with browser"
     },
     "create-account": "Create account",
     "welcome": "Welcome to Internxt",
-    "no-account": "Don't have an account?",
-    "2fa": {
-      "section": "Authentication code",
-      "description": "You have configured two factor authentication, please enter the 6 digit code",
-      "change-account": "Change account",
-      "wrong-code": "Incorrect code, try again"
-    },
-    "error": {
-      "empty-fields": "Incorrect password or email"
-    },
-    "warning": {
-      "no-internet": "No internet connection"
-    }
+    "no-account": "Don't have an account?"
   },
   "onboarding": {
     "slides": {
@@ -68,48 +44,7 @@
       "skip": "Skip",
       "open-drive": "Open Internxt Drive",
       "new": "New",
-      "platform-phrase": {
-        "windows": "file explorer",
-        "linux": "file browser",
-        "macos": "Finder"
-      }
-    }
-  },
-  "migration": {
-    "slides": {
-      "welcome": {
-        "title": "Internxt’s new desktop app is ready to go!",
-        "features": {
-          "title": "Fresh updates:",
-          "feature-1": "Select what you want to download and save hard drive space.",
-          "feature-2": "Native OS look and feel for managing your files and folders."
-        }
-      },
-      "migration": {
-        "title": "Let's make sure all your files are safe",
-        "in-progress": "Uploading pending files",
-        "item-progress": "{{processed_items}} of {{total_items}} items uploaded"
-      },
-      "migration-failed": {
-        "title": "Let's make sure all your files are safe",
-        "message": "Some files could not be uploaded",
-        "description": "We’ve moved these files to your desktop, drag and drop them to your Internxt Drive",
-        "show-files": "Show files"
-      },
-      "delete-old-drive-folder": {
-        "title": "Same Internxt Drive, new location",
-        "message": "Your personal Internxt Drive folder is located in your {{platform_app}} sidebar"
-      },
-      "new-widget": {
-        "title": "Be more productive with our redesigned widget",
-        "message": "We've reimagined and rebuilt our widget to reduce clutter, add convenience, and boost speed.",
-        "message-2": "All changes now update in real time."
-      }
-    },
-    "common": {
-      "continue": "Continue",
-      "cancel": "Cancel",
-      "open-drive": "Open Internxt Drive"
+      "platform-phrase": "file explorer"
     }
   },
   "widget": {
@@ -121,11 +56,9 @@
       "dropdown": {
         "preferences": "Preferences",
         "issues": "Issues",
-        "send-feedback": "Send feedback",
         "support": "Support",
         "logout": "Log out",
         "quit": "Quit",
-        "antivirus": "Antivirus",
         "cleaner": "Cleaner",
         "new": "New",
         "sync": "Sync"
@@ -146,22 +79,12 @@
           "renamed": "Renamed"
         }
       },
-      "no-activity": {
-        "title": "There is no recent activity",
-        "description": "Information will show up here when changes are made to sync your local folder with Internxt Drive"
-      },
       "upToDate": {
         "title": "Your files are up to date",
         "subtitle": "Sync activity will show up here"
       },
       "errors": {
-        "sync": {},
-        "backups": {
-          "folder-not-found": {
-            "text": "Can't upload backup, missing folder",
-            "action": "View error"
-          }
-        }
+        "sync": {}
       }
     },
     "footer": {
@@ -171,7 +94,6 @@
         "failed": "Sync failed"
       },
       "errors": {
-        "lock": "Sync locked by other device",
         "offline": "Not connected to the internet"
       }
     },
@@ -182,9 +104,7 @@
     },
     "virtual-drive-error": {
       "title": "Can't mount your drive",
-      "message": "We are having issues mounting your Internxt Drive, try unmounting it manually and starting the app again",
-      "mounting": "Mounting...",
-      "button": "Mount"
+      "message": "We are having issues mounting your Internxt Drive, try unmounting it manually and starting the app again"
     },
     "banners": {
       "update-available": {
@@ -234,13 +154,8 @@
           "dark": "Dark"
         }
       },
-      "sync": {
-        "folder": "Internxt Drive Folder",
-        "change-folder": "Change folder"
-      },
       "app-info": {
         "open-logs": "Open logs",
-        "open-migration": "Start migration",
         "more": "Learn more about Internxt"
       }
     },
@@ -250,16 +165,10 @@
         "display": "Used {{used}} of {{total}}",
         "upgrade": "Upgrade",
         "change": "Change",
-        "plan": "Current plan",
         "free": "Free",
         "loadError": {
           "title": "Couldn't fetch your usage details",
           "action": "Retry"
-        },
-        "current": {
-          "used": "Used",
-          "of": "of",
-          "in-use": "in use"
         },
         "full": {
           "title": "Your storage is full",
@@ -278,20 +187,17 @@
       "selected-folder_one": "{{count}} folder",
       "selected-folder_other": "{{count}} folders",
       "add-folders": "Click + to select the folders\n you want to back up",
-      "activate": "Back up your folders and files",
       "view-backups": "Browse files",
       "selected-folders-title": "Selected folders",
       "select-folders": "Change folders",
       "last-backup-had-issues": "Last backup had some issues",
       "see-issues": "See issues",
-      "backing-up": "Backing up...",
       "backups-help": "Backups Help",
       "this-device": "This device",
       "devices": "Devices",
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",
-        "running": "Backup in progress {{progress}}",
         "last-run": "Last updated"
       },
       "frequency": {
@@ -334,12 +240,6 @@
         "title": "Something went wrong while scanning the directory",
         "button": "Try again"
       },
-      "deactivateAntivirus": {
-        "title": "Windows Defender is active",
-        "description": "Please disable Windows Defender to be able to use Internxt Antivirus. To do this, open Windows Security > Virus and Threat Protection > Manage settings > disable Real-time protection.",
-        "retry": "Retry",
-        "cancel": "Cancel"
-      },
       "realtimeProtection": {
         "title": "Real-time protection",
         "infoAriaLabel": "About real-time protection",
@@ -380,8 +280,7 @@
           },
           "securityWarning": {
             "title": "Security warning",
-            "description": "Malware is still present, and your device is at risk.",
-            "confirmToCancel": "Are you sure you want to cancel?"
+            "description": "Malware is still present, and your device is at risk."
           }
         }
       },
@@ -389,7 +288,6 @@
         "scanning": "Scanning...",
         "scannedFiles": "Scanned files",
         "detectedFiles": "Detected files",
-        "errorWhileScanning": "An error occurred while scanning the items. Please try again.",
         "noFilesFound": {
           "title": "No threats were found",
           "subtitle": "No further actions are necessary"
@@ -404,11 +302,7 @@
       "filesContainingMalwareModal": {
         "title": "Files containing malware",
         "selectedItems": "Selected {{selectedFiles}} out of {{totalFiles}}",
-        "selectAll": "Select all",
-        "actions": {
-          "cancel": "Cancel",
-          "remove": "Remove"
-        }
+        "selectAll": "Select all"
       }
     },
     "cleaner": {
@@ -465,9 +359,7 @@
     },
     "no-issues": "No issues found",
     "actions": {
-      "select-folder": "Select folder",
-      "find-folder": "Locate folder",
-      "try-again": "Try again"
+      "find-folder": "Locate folder"
     },
     "short-error-messages": {
       "unknown": "Unknown error",
@@ -492,40 +384,8 @@
       "insufficient-permission-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
       "cannot-access-base-directory": "We could not access your local folder",
       "cannot-access-tmp-directory": "We could not access your  local folder",
-      "unknown": "An unknown error ocurred while trying to sync your files",
-      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
-      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
-      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
-      "file-too-big": "Max upload size is 20GB. Please try smaller files.",
-      "file-non-extension": "Files without extensions are not supported. Not synchronized.",
-      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both",
-      "action-not-permitted": "The operation could not be completed, possibly due to a conflict with another file.",
-      "file-already-exists": "Unable to complete the operation. The file already exists on Internxt servers",
-      "not-enough-space": "You have not enough space to complete the operation"
-    },
-    "report-modal": {
-      "actions": {
-        "close": "Close",
-        "cancel": "Cancel",
-        "report": "Report",
-        "send": "Send"
-      },
-      "help-url": "To get help visit",
-      "report": "You can also send a report about this error.",
-      "user-comments": "Comments",
-      "include-logs": "Include the logs of this sync process for debug purposes"
+      "unknown": "An unknown error ocurred while trying to sync your files"
     }
-  },
-  "feedback": {
-    "window-title": "Internxt Desktop feedback",
-    "title": "Share feedback with Internxt",
-    "description": "Your feedback makes Internxt improve and helps us to create better product experiences",
-    "placeholder": "Let us know what's in your mind, what you'd like to improve or describe the bug or issue",
-    "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Send feedback",
-    "sent-title": "Thank you for sharing your feedback",
-    "sent-message": "We really appreciate your time and effort to help us improve our services.",
-    "close": "Close"
   },
   "common": {
     "cancel": "Cancel"

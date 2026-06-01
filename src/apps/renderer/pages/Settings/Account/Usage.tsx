@@ -13,9 +13,9 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
     if (isInfinite) {
       return { amount: '∞', unit: '' };
     } else {
-      const amount = bytes.format(limitInBytes).match(/\d+/g)?.[0] ?? '';
-      const unit = bytes.format(limitInBytes).match(/[a-zA-Z]+/g)?.[0] ?? '';
-      return { amount: amount, unit: unit };
+      const amount = bytes.format(limitInBytes)?.match(/\d+/g)?.[0] ?? '';
+      const unit = bytes.format(limitInBytes)?.match(/[a-zA-Z]+/g)?.[0] ?? '';
+      return { amount, unit };
     }
   };
 
@@ -23,7 +23,10 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
     try {
       await window.electron.openUrl('https://drive.internxt.com/preferences?tab=plans');
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to open upgrade URL from usage section',
+        error,
+      });
     }
   };
 
@@ -52,8 +55,8 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
         <div className="flex items-center justify-between">
           <p className="flex-1 text-sm text-gray-100">
             {translate('settings.account.usage.display', {
-              used: bytes.format(usageInBytes),
-              total: bytes.format(limitInBytes),
+              used: bytes.format(usageInBytes) || '0 B',
+              total: bytes.format(limitInBytes) || '0 B',
             })}
           </p>
 

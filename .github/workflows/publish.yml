@@ -4,27 +4,24 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      publish_to_github:
+        description: "Publish artifacts to GitHub release"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-
-      - name: Create .npmrc file
-        run: |
-          echo "@internxt:registry=https://npm.pkg.github.com/" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Add .env
         run: |
@@ -34,18 +31,109 @@ jobs:
           echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
           echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
           echo "NEW_DRIVE_URL=https://gateway.internxt.com/drive" >> .env
-          echo "DRIVE_API_URL=https://gateway.internxt.com/api" >> .env
           echo "PAYMENTS_URL=https://gateway.internxt.com/payments" >> .env
           echo "INTERNXT_DESKTOP_HEADER_KEY=${{ secrets.INTERNXT_DESKTOP_HEADER_KEY }}" >> .env
           echo "BRIDGE_URL=https://gateway.internxt.com/network" >> .env
-          echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env
-          echo "APP_SEGMENT_KEY_TEST=${{ secrets.APP_SEGMENT_KEY_TEST }}" >> .env
-          echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env
           echo "NOTIFICATIONS_URL=https://notifications.internxt.com" >> .env
-          echo "LOCK_REFRESH_INTERVAL=20000" >> .env
 
-      - name: Build app
-        run: npm run build
+      - name: Build release container image
+        run: docker build -f Dockerfile.release -t internxt-release-builder:24.04 .
 
-      - name: Publish app
-        run: npm run publish
+      - name: Build app inside container
+        run: |
+          if [[ -z "${GH_TOKEN}" ]]; then
+            echo "GH_TOKEN is empty in workflow context"
+            exit 1
+          fi
+
+          docker run --rm \
+            -e CI=true \
+            -e GH_TOKEN \
+            -e GITHUB_TOKEN \
+            -v "$PWD:/workspace" \
+            -w /workspace \
+            internxt-release-builder:24.04 \
+            bash -lc './scripts/run-release-build-in-container.sh'
+
+      - name: Upload artifacts for smoke tests
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-release-artifacts
+          path: |
+            build/*.AppImage
+            build/*.deb
+            build/*.rpm
+            build/*.yml
+
+      - name: Upload build metadata
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metadata
+          path: |
+            build-manifest.json
+            build-checksums.txt
+
+  smoke-test-deb:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-latest]
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release-artifacts
+          path: build
+
+      - name: Install runtime dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb
+
+      - name: Install deb package for smoke test
+        run: |
+          sudo dpkg -i --force-depends build/*.deb
+          test -x /opt/Internxt/internxt
+
+      - name: Start app in headless mode
+        run: |
+          xvfb-run -a /opt/Internxt/internxt --no-sandbox --version &
+          APP_PID=$!
+          sleep 5 # Allow app to initialize
+          kill $APP_PID
+
+  publish-release:
+    needs: smoke-test-deb
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_to_github == 'true' && startsWith(github.ref, 'refs/tags/')) }}
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_TOKEN: ${{ github.token }}
+    permissions:
+      contents: write
+    steps:
+      - name: Validate GitHub token availability
+        run: |
+          if [[ -z "${GH_TOKEN}" ]]; then
+            echo "GH_TOKEN is empty in publish-release context"
+            exit 1
+          fi
+
+      - name: Download tested artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-release-artifacts
+          path: build
+
+      - name: Publish tested artifacts to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/*.AppImage
+            build/*.deb
+            build/*.rpm
+            build/*.yml

@@ -1,11 +1,11 @@
 import { app, ipcMain } from 'electron';
 import { call } from 'tests/vitest/utils.helper';
-import * as driveModule from '../../apps/drive';
+import * as virtualDriveServiceModule from '../../backend/features/virtual-drive/services/virtual-drive.service';
 import { partialSpyOn } from 'tests/vitest/utils.helper';
 import * as registerQuitHandlerModule from './quit.handler';
 
 describe('quit', () => {
-  const stopAndClearFuseAppMock = partialSpyOn(driveModule, 'stopAndClearFuseApp');
+  const stopVirtualDriveMock = partialSpyOn(virtualDriveServiceModule, 'stopVirtualDrive');
   const appQuitMock = partialSpyOn(app, 'quit');
   const appOnMock = partialSpyOn(app, 'on', false);
   const ipcMainOnMock = partialSpyOn(ipcMain, 'on', false);
@@ -13,7 +13,7 @@ describe('quit', () => {
 
   beforeEach(() => {
     registerQuitHandlerMock.mockRestore();
-    stopAndClearFuseAppMock.mockResolvedValue(undefined);
+    stopVirtualDriveMock.mockResolvedValue(undefined);
   });
 
   it('should register user-quit handler', () => {
@@ -32,7 +32,7 @@ describe('quit', () => {
     registerQuitHandlerModule.registerQuitHandler();
     await (ipcMainOnMock.mock.calls[0][1] as () => Promise<void>)();
 
-    expect(stopAndClearFuseAppMock).toBeCalled();
+    expect(stopVirtualDriveMock).toBeCalled();
   });
 
   it('should call app.quit on user-quit event', async () => {
@@ -54,7 +54,7 @@ describe('quit', () => {
     await Promise.resolve();
 
     expect(preventDefault).toBeCalled();
-    expect(stopAndClearFuseAppMock).toBeCalled();
+    expect(stopVirtualDriveMock).toBeCalled();
     expect(appQuitMock).toBeCalled();
   });
 
@@ -71,7 +71,7 @@ describe('quit', () => {
     beforeQuitHandler({ preventDefault } as unknown as Electron.Event);
     await Promise.resolve();
 
-    expect(stopAndClearFuseAppMock).toBeCalledTimes(1);
+    expect(stopVirtualDriveMock).toBeCalledTimes(1);
     expect(preventDefault).not.toBeCalled();
   });
 });

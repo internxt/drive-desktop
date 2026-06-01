@@ -31,7 +31,7 @@ export abstract class FuseCallback<T> {
     },
   ) {}
 
-  protected async executeAndCatch(params: any[]): Promise<Either<FuseError, T>> {
+  protected async executeAndCatch(params: unknown[]): Promise<Either<FuseError, T>> {
     // Ensure that an Either is always returned
 
     const stopwatch = new Stopwatch();
@@ -103,10 +103,10 @@ export abstract class FuseCallback<T> {
     logger.debug({ msg: `${this.name}: `, message });
   }
 
-  async handle(...params: any[]): Promise<void> {
+  async handle(...params: unknown[]): Promise<void> {
     const callback = params.pop() as CallbackWithData<T>;
 
-    if (PathsToIgnore.some((regex) => regex.test(params[0]))) {
+    if (typeof params[0] === 'string' && PathsToIgnore.some((regex) => regex.test(params[0] as string))) {
       return callback(FuseCodes.EINVAL);
     }
 
@@ -126,7 +126,7 @@ export abstract class FuseCallback<T> {
     callback(FuseCallback.OK, data);
   }
 
-  abstract execute(...params: any[]): Promise<Either<FuseError, T>>;
+  abstract execute(...params: unknown[]): Promise<Either<FuseError, T>>;
 }
 
 export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
@@ -134,7 +134,7 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
     return right(undefined);
   }
 
-  async handle(...params: any[]): Promise<void> {
+  async handle(...params: unknown[]): Promise<void> {
     const callback = params.pop() as Callback;
 
     if (this.debug.input) {

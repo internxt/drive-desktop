@@ -7,6 +7,7 @@ import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
 import * as moveFolderModule from '../../../../infra/drive-server/services/folder/services/move-folder';
 import { call, partialSpyOn } from 'tests/vitest/utils.helper';
+import { DriveServerError } from 'src/infra/drive-server/drive-server.error';
 
 describe('Folder Mover', () => {
   let repository: FolderRepositoryMock;
@@ -59,7 +60,7 @@ describe('Folder Mover', () => {
 
       const destinationPath = new FolderPath(path.join(parentDestination.path, original.name));
 
-      moveFolderMock.mockResolvedValue({ data: {} as any });
+      moveFolderMock.mockResolvedValue({ data: {} });
 
       repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parentDestination]);
 
@@ -76,7 +77,7 @@ describe('Folder Mover', () => {
 
       const destinationPath = new FolderPath(path.join(parentDestination.path, original.name));
 
-      moveFolderMock.mockResolvedValue({ data: {} as any });
+      moveFolderMock.mockResolvedValue({ data: {} });
 
       repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parentDestination]);
 
@@ -96,8 +97,8 @@ describe('Folder Mover', () => {
 
       const destinationPath = new FolderPath(path.join(parentDestination.path, original.name));
 
-      const error = new Error('move failed');
-      moveFolderMock.mockResolvedValue({ error } as any);
+      const error = new DriveServerError('UNKNOWN');
+      moveFolderMock.mockResolvedValue({ error });
 
       repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parentDestination]);
 

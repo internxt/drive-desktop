@@ -50,7 +50,7 @@ export class CreateFileOnTemporalFileUploaded implements DomainEventSubscriber<T
 
   async on(event: TemporalFileUploadedDomainEvent): Promise<void> {
     try {
-      this.create(event);
+      await this.create(event);
     } catch (err) {
       logger.error({
         msg: '[CreateFileOnOfflineFileUploaded] Error creating file:',

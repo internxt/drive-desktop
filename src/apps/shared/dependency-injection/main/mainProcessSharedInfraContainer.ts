@@ -14,7 +14,7 @@ export async function mainProcessSharedInfraBuilder(): Promise<ContainerBuilder>
 
   builder.register(UploadProgressTracker).use(MainProcessUploadProgressTracker).private();
 
-  builder.register(RemoteItemsGenerator).use(SQLiteRemoteItemsGenerator).private();
+  builder.register(RemoteItemsGenerator).use(SQLiteRemoteItemsGenerator);
 
   return builder;
 }

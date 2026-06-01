@@ -5,7 +5,7 @@ import { mapError } from '../utils/mapError';
 import { AxiosError } from 'axios';
 import { BackupError } from './backup.error';
 import { mapDeviceAsFolderToDevice } from '../../../../backend/features/device/utils/deviceMapper';
-import { Device } from '../../../../apps/main/device/service';
+import { Device } from '../../../../backend/features/backup/types/Device';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type getDevicesByIdentifierQuery = operations['BackupController_getDevicesAndFolders']['parameters']['query'];

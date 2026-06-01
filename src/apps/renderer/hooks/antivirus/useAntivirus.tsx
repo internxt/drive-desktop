@@ -38,6 +38,41 @@ export const useAntivirus = (): AntivirusContext => {
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
   const [view, setView] = useState<Views>('loading');
 
+  const handleProgress = (progress: {
+    scanId?: string;
+    currentScanPath?: string;
+    infectedFiles?: string[];
+    progress?: number;
+    totalScannedFiles?: number;
+    done?: boolean;
+  }) => {
+    if (!progress) return;
+
+    if (progress.currentScanPath) {
+      setCurrentScanPath(progress.currentScanPath);
+    }
+
+    if (typeof progress.totalScannedFiles === 'number') {
+      setCountScannedFiles(progress.totalScannedFiles);
+    }
+
+    if (typeof progress.progress === 'number') {
+      setProgressRatio(progress.progress);
+    }
+
+    if (Array.isArray(progress.infectedFiles) && progress.infectedFiles.length > 0) {
+      setInfectedFiles(progress.infectedFiles);
+    }
+
+    if (progress.done) {
+      setProgressRatio(100);
+      setTimeout(() => {
+        setIsScanning(false);
+        setIsScanCompleted(true);
+      }, 500);
+    }
+  };
+
   useEffect(() => {
     window.electron.antivirus.onScanProgress(handleProgress);
     return () => {
@@ -103,41 +138,6 @@ export const useAntivirus = (): AntivirusContext => {
     }
   };
 
-  const handleProgress = (progress: {
-    scanId?: string;
-    currentScanPath?: string;
-    infectedFiles?: string[];
-    progress?: number;
-    totalScannedFiles?: number;
-    done?: boolean;
-  }) => {
-    if (!progress) return;
-
-    if (progress.currentScanPath) {
-      setCurrentScanPath(progress.currentScanPath);
-    }
-
-    if (typeof progress.totalScannedFiles === 'number') {
-      setCountScannedFiles(progress.totalScannedFiles);
-    }
-
-    if (typeof progress.progress === 'number') {
-      setProgressRatio(progress.progress);
-    }
-
-    if (Array.isArray(progress.infectedFiles) && progress.infectedFiles.length > 0) {
-      setInfectedFiles(progress.infectedFiles);
-    }
-
-    if (progress.done) {
-      setProgressRatio(100);
-      setTimeout(() => {
-        setIsScanning(false);
-        setIsScanCompleted(true);
-      }, 500);
-    }
-  };
-
   const resetStates = () => {
     setCurrentScanPath('');
     setCountScannedFiles(0);
@@ -192,9 +192,9 @@ export const useAntivirus = (): AntivirusContext => {
           const isDirectory = scanType === 'folders' || !seemsLikeFile;
 
           return {
-            path: path,
+            path,
             itemName: cleanPath.split('/').pop() || cleanPath,
-            isDirectory: isDirectory,
+            isDirectory,
           };
         }
         return item;

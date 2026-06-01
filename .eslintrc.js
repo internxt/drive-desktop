@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['@internxt/eslint-config-internxt'],
-  ignorePatterns: ['src/infra/schemas.d.ts'],
+  ignorePatterns: ['src/infra/schemas.d.ts', 'assets/assets.d.ts'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -14,7 +14,7 @@ module.exports = {
   ],
   rules: {
     'no-await-in-loop': 'warn',
-    'no-use-before-define': 'warn',
+    '@typescript-eslint/no-use-before-define': ['warn', { functions: false, classes: true, variables: true }],
     'array-callback-return': 'warn',
     'max-len': [
       'warn', // TODO: Change back to 'error' after fixing existing violations

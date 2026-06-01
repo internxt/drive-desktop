@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import { setTrayStatus } from '../../../../apps/main/tray/tray';
+import { setTrayStatus } from '../../../../apps/main/tray/tray-setup';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { SyncMessenger } from '../../domain/SyncMessenger';
 import { UploadProgressTracker } from '../../domain/UploadProgressTracker';
@@ -7,6 +7,8 @@ import { UploadProgressTracker } from '../../domain/UploadProgressTracker';
 @Service()
 export class MainProcessUploadProgressTracker extends SyncMessenger implements UploadProgressTracker {
   uploadStarted(name: string, extension: string, size: number): void {
+    setTrayStatus('SYNCING');
+
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     broadcastToWindows('sync-info-update', {

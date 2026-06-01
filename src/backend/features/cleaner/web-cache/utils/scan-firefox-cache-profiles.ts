@@ -25,7 +25,7 @@ export async function scanFirefoxCacheProfiles(firefoxCacheDir: string): Promise
     const profileDirsChecks = await Promise.allSettled(
       entries.map(async (entry) => {
         const isProfileDir = await isFirefoxProfileDirectory(entry, firefoxCacheDir);
-        return { entry: entry, isProfileDir };
+        return { entry, isProfileDir };
       }),
     );
 

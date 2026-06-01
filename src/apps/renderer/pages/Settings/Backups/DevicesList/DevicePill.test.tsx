@@ -1,4 +1,4 @@
-import { Device } from '../../../../../main/device/service';
+import { Device } from '../../../../../../backend/features/backup/types/Device';
 import { screen, render, fireEvent } from '@testing-library/react';
 import DevicePill from './DevicePill';
 
@@ -19,7 +19,7 @@ const mockDevice: Device = {
 
 describe('DevicePill', () => {
   afterAll(() => {
-    // @ts-ignore
+    // @ts-expect-error - window.electron is defined by preload and not deletable by type
     delete window.electron;
   });
 

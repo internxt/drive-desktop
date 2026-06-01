@@ -50,6 +50,16 @@ describe('upload-file-to-backup', () => {
     expect(createFileToBackendMock).not.toHaveBeenCalled();
   });
 
+  it('should return ACTION_NOT_PERMITTED when content upload cannot read the local file', async () => {
+    const uploadError = new DriveDesktopError('ACTION_NOT_PERMITTED', 'permission denied');
+    uploadContentMock.mockResolvedValue({ error: uploadError });
+
+    const result = await uploadFileToBackup({ ...baseParams, signal: abortController.signal });
+
+    expect(result.error).toBe(uploadError);
+    expect(createFileToBackendMock).not.toHaveBeenCalled();
+  });
+
   it('should return error when metadata creation fails and delete the uploaded content', async () => {
     const contentsId = 'contents-id-123';
     const metadataError = new DriveDesktopError('BAD_RESPONSE', 'Metadata failed');

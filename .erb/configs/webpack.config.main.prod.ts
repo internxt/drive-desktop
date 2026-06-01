@@ -38,11 +38,13 @@ const configuration: webpack.Configuration = {
   },
 
   optimization: {
+    chunkIds: 'deterministic',
     minimizer: [
       new TerserPlugin({
-        parallel: true,
+        parallel: false,
       }),
     ],
+    moduleIds: 'deterministic',
   },
 
   plugins: [

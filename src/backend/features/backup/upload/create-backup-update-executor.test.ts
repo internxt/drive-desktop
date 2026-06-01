@@ -4,6 +4,7 @@ import { FileMother } from '../../../../context/virtual-drive/files/domain/__tes
 import { LocalFileMother } from '../../../../context/local/localFile/domain/__test-helpers__/LocalFileMother';
 import { BackupProgressTracker } from '../backup-progress-tracker';
 import { mockDeep } from 'vitest-mock-extended';
+import { Environment } from '@internxt/inxt-js';
 import { createBackupUpdateExecutor, ModifiedFilePair } from './create-backup-update-executor';
 import * as updateFileToBackupModule from './update-file-to-backup';
 import * as backupErrorsTrackerModule from '..';
@@ -14,14 +15,16 @@ describe('createBackupUpdateExecutor', () => {
 
   let tracker: BackupProgressTracker;
   let abortController: AbortController;
+  let environment: Environment;
 
   beforeEach(() => {
     tracker = mockDeep<BackupProgressTracker>();
     abortController = new AbortController();
+    environment = mockDeep<Environment>();
   });
 
   function createExecutor() {
-    return createBackupUpdateExecutor('bucket', {} as any, tracker);
+    return createBackupUpdateExecutor('bucket', environment, tracker);
   }
 
   function createPair(): ModifiedFilePair {
@@ -82,7 +85,7 @@ describe('createBackupUpdateExecutor', () => {
       size: localFile.size,
       bucket: 'bucket',
       fileUuid: remoteFile.uuid,
-      environment: {},
+      environment,
       signal: abortController.signal,
     });
   });

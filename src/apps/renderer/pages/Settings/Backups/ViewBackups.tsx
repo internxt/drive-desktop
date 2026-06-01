@@ -10,7 +10,10 @@ export function ViewBackups({ className }: ViewBackupsProps) {
     try {
       await window.electron.openUrl('https://drive.internxt.com/app/backups');
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to open backups page URL',
+        error,
+      });
     }
   };
 

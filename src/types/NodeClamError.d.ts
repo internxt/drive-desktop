@@ -3,7 +3,6 @@ declare module '@internxt/scan/lib/NodeClamError' {
     constructor(message: string);
     data?: {
       err?: Error;
-      [key: string]: any;
     };
   }
 }

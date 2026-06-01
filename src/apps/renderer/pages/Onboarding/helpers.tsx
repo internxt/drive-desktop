@@ -9,7 +9,6 @@ export type OnboardingSlideProps = {
   backupFolders: BackupFolder[];
   currentSlide: number;
   totalSlides: number;
-  platform: string;
 };
 
 export type OnboardingSlide = {

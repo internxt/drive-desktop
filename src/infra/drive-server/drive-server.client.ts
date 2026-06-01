@@ -57,6 +57,38 @@ type OperationResponse<T, P extends keyof T, M extends HTTPMethod> =
     : never;
 
 /**
+ * Infers the query parameters for an endpoint, if any.
+ */
+type OperationQuery<T, P extends keyof T, M extends HTTPMethod> =
+  MethodShape<T[P], M> extends {
+    parameters: { query: infer Q };
+  }
+    ? Q
+    : never;
+
+/**
+ * Infers the path parameters for an endpoint, if any.
+ */
+type OperationPath<T, P extends keyof T, M extends HTTPMethod> =
+  MethodShape<T[P], M> extends {
+    parameters: { path: infer PP };
+  }
+    ? PP extends Record<string, string>
+      ? PP
+      : never
+    : never;
+
+/**
+ * Options for a typed HTTP request.
+ */
+type RequestOptions<T, P extends keyof T, M extends HTTPMethod> = {
+  path?: OperationPath<T, P, M>;
+  headers?: Record<string, string>;
+  query?: OperationQuery<T, P, M>;
+  body?: OperationRequestBody<T, P, M>;
+};
+
+/**
  * Creates a client bound to a specific OpenAPI `paths` record.
  *
  * @template T The generated `paths` type (from openapi‑typescript).
@@ -86,12 +118,7 @@ export function createClient<T>(opts: ClientOptions) {
   async function request<M extends HTTPMethod, P extends PathsWithMethod<T, M>>(
     method: M,
     path: P,
-    o?: {
-      path?: Record<string, string>;
-      headers?: Record<string, string>;
-      query?: Record<string, any>;
-      body?: OperationRequestBody<T, P, M>;
-    },
+    o?: RequestOptions<T, P, M>,
   ): Promise<Result<OperationResponse<T, P, M>, DriveServerError>> {
     let url = path as string;
 
@@ -120,20 +147,22 @@ export function createClient<T>(opts: ClientOptions) {
       if (isAxiosError(error)) {
         const status = error.response?.status;
         const message = error.response?.data?.message ?? error.message;
-        const cause = status ? mapStatusToErrorCause(status) : 'UNKNOWN';
+        const cause = status ? mapStatusToErrorCause(status) : 'NETWORK_ERROR';
+
         return { error: new DriveServerError(cause, status, message) };
       }
+
       return {
         error: new DriveServerError('UNKNOWN', undefined, error instanceof Error ? error.message : 'Unexpected error'),
       };
     }
   }
-  // TODO: type `o` properly instead of `any` — currently callers get no type checking on body, path, headers, or query
   return {
-    GET: <P extends PathsWithMethod<T, 'get'>>(p: P, o?: any) => request('get', p, o),
-    POST: <P extends PathsWithMethod<T, 'post'>>(p: P, o?: any) => request('post', p, o),
-    PUT: <P extends PathsWithMethod<T, 'put'>>(p: P, o?: any) => request('put', p, o),
-    PATCH: <P extends PathsWithMethod<T, 'patch'>>(p: P, o?: any) => request('patch', p, o),
-    DELETE: <P extends PathsWithMethod<T, 'delete'>>(p: P, o?: any) => request('delete', p, o),
+    GET: <P extends PathsWithMethod<T, 'get'>>(p: P, o?: RequestOptions<T, P, 'get'>) => request('get', p, o),
+    POST: <P extends PathsWithMethod<T, 'post'>>(p: P, o?: RequestOptions<T, P, 'post'>) => request('post', p, o),
+    PUT: <P extends PathsWithMethod<T, 'put'>>(p: P, o?: RequestOptions<T, P, 'put'>) => request('put', p, o),
+    PATCH: <P extends PathsWithMethod<T, 'patch'>>(p: P, o?: RequestOptions<T, P, 'patch'>) => request('patch', p, o),
+    DELETE: <P extends PathsWithMethod<T, 'delete'>>(p: P, o?: RequestOptions<T, P, 'delete'>) =>
+      request('delete', p, o),
   };
 }

@@ -8,7 +8,6 @@ import webpackPaths from './webpack.paths';
 // Only packages that were in release/app/package.json should be external
 // These are native modules or runtime dependencies that cannot/should not be bundled
 const nativeExternals = [
-  '@gcas/fuse',
   'better-sqlite3',
   'reflect-metadata',
   'typeorm',

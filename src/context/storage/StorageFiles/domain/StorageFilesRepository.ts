@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
 import { StorageFileId } from './StorageFileId';
 import { StorageFile } from './StorageFile';
+import { Result } from '../../../shared/domain/Result';
 
 export abstract class StorageFilesRepository {
   abstract exists(id: StorageFileId): Promise<boolean>;
@@ -15,7 +16,7 @@ export abstract class StorageFilesRepository {
 
   abstract delete(id: StorageFileId): Promise<void>;
 
-  abstract deleteAll(): Promise<void>;
+  abstract deleteAll(): Promise<Result<void, Error>>;
 
   abstract all(): Promise<Array<StorageFile>>;
 }

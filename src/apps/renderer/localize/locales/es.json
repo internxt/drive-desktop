@@ -1,35 +1,11 @@
 {
   "login": {
-    "email": {
-      "section": "Correo electrónico"
-    },
-    "password": {
-      "section": "Contraseña",
-      "placeholder": "Contraseña",
-      "forgotten": "¿Has olvidado tu contraseña?",
-      "hide": "Ocultar",
-      "show": "Mostrar"
-    },
     "action": {
-      "login": "Iniciar sesión",
-      "is-logging-in": "Iniciando sesión...",
       "login-in-browser": "Iniciar sesión con el navegador"
     },
     "create-account": "Crear cuenta",
     "welcome": "Bienvenido a Internxt",
-    "no-account": "¿No tienes cuenta?",
-    "2fa": {
-      "section": "Código de autenticación",
-      "description": "Has configurado la autenticación en dos pasos, por favor introduce el código de 6 dígitos",
-      "change-account": "Cambiar cuenta",
-      "wrong-code": "Código incorrecto, inténtalo de nuevo"
-    },
-    "error": {
-      "empty-fields": "Contraseña o correo electrónico incorrectos"
-    },
-    "warning": {
-      "no-internet": "Sin conexión a internet"
-    }
+    "no-account": "¿No tienes cuenta?"
   },
   "onboarding": {
     "slides": {
@@ -68,48 +44,7 @@
       "open-drive": "Abrir Internxt Drive",
       "skip": "Saltar",
       "new": "Nuevo",
-      "platform-phrase": {
-        "windows": "explorador de archivos",
-        "linux": "buscador de archivos",
-        "macos": "Finder"
-      }
-    }
-  },
-  "migration": {
-    "slides": {
-      "welcome": {
-        "title": "Nueva actualización de la aplicación de escritorio de Internxt!",
-        "features": {
-          "title": "Novedades en esta versión:",
-          "feature-1": "Selecciona lo que desees descargar y ahorra espacio en el disco duro.",
-          "feature-2": "Apariencia y sensación nativa del sistema operativo para gestionar tus archivos y carpetas."
-        }
-      },
-      "migration": {
-        "title": "Nos aseguramos de que todos tus archivos están a salvo",
-        "in-progress": "Subiendo archivos pendientes",
-        "item-progress": "{{processed_items}} de {{total_items}} archivos subidos"
-      },
-      "migration-failed": {
-        "title": "Nos aseguramos de que todos tus archivos están a salvo",
-        "message": "No se han podido cargar algunos archivos",
-        "description": "Hemos movido esos archivos a tu escritorio, arrástralos y suéltalos en tu Internxt Drive",
-        "show-files": "Mostrar archivos"
-      },
-      "delete-old-drive-folder": {
-        "title": "Tu Internxt Drive de siempre, en una nueva ubicación",
-        "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
-      },
-      "new-widget": {
-        "title": "Sé más productivo con nuestro widget rediseñado",
-        "message": "Hemos rediseñado y reconstruido nuestro widget para aumentar la productividad, la comodidad y la velocidad.",
-        "message-2": "Todos los cambios se actualizan en tiempo real."
-      }
-    },
-    "common": {
-      "continue": "Continuar",
-      "cancel": "Cancelar",
-      "open-drive": "Abrir Internxt Drive"
+      "platform-phrase": "explorador de archivos"
     }
   },
   "widget": {
@@ -121,11 +56,9 @@
       "dropdown": {
         "preferences": "Preferencias",
         "issues": "Lista de errores",
-        "send-feedback": "Enviar feedback",
         "support": "Ayuda",
         "logout": "Cerrar sesión",
         "quit": "Salir",
-        "antivirus": "Antivirus",
         "cleaner": "Cleaner",
         "new": "Nuevo",
         "sync": "Sincronizar"
@@ -146,22 +79,12 @@
           "renamed": "Renombrado"
         }
       },
-      "no-activity": {
-        "title": "No hay actividad reciente",
-        "description": "La información aparecerá aquí cuando hagas cambios, para sincronizar tu carpeta local con Internxt Drive"
-      },
       "upToDate": {
         "title": "Tus archivos están actualizados",
         "subtitle": "La actividad de sincronización se mostrará aquí"
       },
       "errors": {
-        "sync": {},
-        "backups": {
-          "folder-not-found": {
-            "text": "No se pudo realizar la copia, no se encuentra la carpeta",
-            "action": "Ver error"
-          }
-        }
+        "sync": {}
       }
     },
     "footer": {
@@ -171,7 +94,6 @@
         "failed": "Sincronización fallida"
       },
       "errors": {
-        "lock": "Sincronización bloqueada por otro dispositivo",
         "offline": "No hay conexión a internet"
       }
     },
@@ -182,9 +104,7 @@
     },
     "virtual-drive-error": {
       "title": "No se puede montar tu Drive",
-      "message": "Estamos teniendo problemas al montar tu unidad Internxt. Intenta desmontarla manualmente y luego reiniciar la aplicación.",
-      "mounting": "Montando..",
-      "button": "Montar"
+      "message": "Estamos teniendo problemas al montar tu unidad Internxt. Intenta desmontarla manualmente y luego reiniciar la aplicación."
     },
     "banners": {
       "update-available": {
@@ -234,13 +154,8 @@
           "dark": "Oscuro"
         }
       },
-      "sync": {
-        "folder": "Carpeta Internxt Drive",
-        "change-folder": "Cambiar carpeta"
-      },
       "app-info": {
         "open-logs": "Abrir registros",
-        "open-migration": "Empezar migración",
         "more": "Más información sobre Internxt"
       }
     },
@@ -250,16 +165,10 @@
         "display": "Usado {{used}} de {{total}}",
         "upgrade": "Comprar espacio",
         "change": "Cambiar",
-        "plan": "Plan actual",
         "free": "Gratis",
         "loadError": {
           "title": "No se han podido obtener tus datos de uso",
           "action": "Reintentar"
-        },
-        "current": {
-          "used": "usado",
-          "of": "de",
-          "in-use": "usado"
         },
         "full": {
           "title": "Tu almacenamiento está lleno",
@@ -278,20 +187,17 @@
       "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
       "selected-folder_one": "{{count}} carpeta",
       "selected-folder_other": "{{count}} carpetas",
-      "activate": "Hacer copia de seguridad de tus carpetas",
       "view-backups": "Explorar archivos",
       "selected-folders-title": "Carpetas seleccionadas",
       "select-folders": "Cambiar carpetas",
       "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",
       "see-issues": "Ver problemas",
-      "backing-up": "Haciendo la copia",
       "backups-help": "Ayuda sobre copias de seguridad",
       "this-device": "Este dispositivo",
       "devices": "Dispositivos",
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",
-        "running": "Subiendo backup {{progress}}",
         "last-run": "Última ejecución"
       },
       "frequency": {
@@ -334,12 +240,6 @@
         "title": "Algo salió mal al escanear el directorio",
         "button": "Intentar de nuevo"
       },
-      "deactivateAntivirus": {
-        "title": "Windows Defender está activo",
-        "description": "Por favor, desactiva Windows Defender para poder usar Internxt Antivirus. Para hacerlo, abre Seguridad de Windows > Protección contra virus y amenazas > Administrar configuración > desactiva la Protección en tiempo real.",
-        "retry": "Reintentar",
-        "cancel": "Cancelar"
-      },
       "realtimeProtection": {
         "title": "Protección en tiempo real",
         "infoAriaLabel": "Acerca de la protección en tiempo real",
@@ -380,8 +280,7 @@
           },
           "securityWarning": {
             "title": "Advertencia de seguridad",
-            "description": "El malware sigue presente y tu dispositivo está en riesgo.",
-            "confirmToCancel": "¿Estás seguro de querer cancelar?"
+            "description": "El malware sigue presente y tu dispositivo está en riesgo."
           }
         }
       },
@@ -389,7 +288,6 @@
         "scanning": "Escaneando...",
         "scannedFiles": "Archivos escaneados",
         "detectedFiles": "Archivos detectados",
-        "errorWhileScanning": "Ocurrió un error al escanear los elementos. Por favor, intenta nuevamente.",
         "noFilesFound": {
           "title": "No se encontraron amenazas",
           "subtitle": "No es necesario realizar más acciones"
@@ -404,11 +302,7 @@
       "filesContainingMalwareModal": {
         "title": "Archivos que contienen malware",
         "selectedItems": "Seleccionados {{selectedFiles}} de {{totalFiles}}",
-        "selectAll": "Seleccionar todo",
-        "actions": {
-          "cancel": "Cancelar",
-          "remove": "Eliminar"
-        }
+        "selectAll": "Seleccionar todo"
       }
     },
     "cleaner": {
@@ -431,12 +325,6 @@
         "previewContent": "obtener una vista previa del contenido",
         "saveUpTo": "Ahorra hasta",
         "ofYourSpace": "de tu espacio"
-      },
-      "cleanupConfirmDialog": {
-        "title": "Confirmar borrado",
-        "description": "Esta acción eliminará permanentemente los archivos seleccionados de tu dispositivo. Esta acción no se puede deshacer. Confirme para continuar.",
-        "cancelButton": "Cancelar",
-        "confirmButton": "Eliminar archivos"
       },
       "cleanupConfirmDialogView": {
         "title": "Confirmar limpieza",
@@ -471,9 +359,7 @@
     },
     "no-issues": "No se han encontrado errores",
     "actions": {
-      "select-folder": "Seleccionar carpeta",
-      "find-folder": "Buscar la carpeta",
-      "try-again": "Volver a intentar"
+      "find-folder": "Buscar la carpeta"
     },
     "short-error-messages": {
       "unknown": "Error desconocido",
@@ -498,40 +384,8 @@
       "insufficient-permission-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
       "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
       "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
-      "unknown": "Error desconocido al intentar sincronizar sus archivos",
-      "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
-      "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
-      "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
-      "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
-      "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
-      "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",
-      "action-not-permitted": "La operación no pudo completarse, posiblemente debido a un conflicto con otro archivo.",
-      "file-already-exists": "No se puede completar la operación. El archivo ya existe en los servidores de Internxt.",
-      "not-enough-space": "No tienes suficiente espacio para completar la operación."
-    },
-    "report-modal": {
-      "actions": {
-        "close": "Cerrar",
-        "cancel": "Cancelar",
-        "report": "Informar",
-        "send": "Enviar"
-      },
-      "help-url": "Para obtener ayuda, visita",
-      "report": "También puedes enviar un informe sobre este error",
-      "user-comments": "Comentarios",
-      "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
+      "unknown": "Error desconocido al intentar sincronizar sus archivos"
     }
-  },
-  "feedback": {
-    "window-title": "Comentarios sobre Internxt para Escritorio",
-    "title": "Comparte tus opiniones con Internxt",
-    "description": "Tus comentarios hacen que mejoremos y creemos mejores experiencias de producto",
-    "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
-    "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Enviar comentarios",
-    "sent-title": "Gracias por compartir tus comentarios",
-    "sent-message": "Apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
-    "close": "Cerrar"
   },
   "common": {
     "cancel": "Cancelar"

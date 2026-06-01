@@ -1,6 +1,5 @@
 import { Environment } from '@internxt/inxt-js';
 import { ContainerBuilder } from 'diod';
-import { StorageClearer } from '../../../../context/storage/StorageFiles/application/delete/StorageClearer';
 import { StorageFileDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
 import { MakeStorageFileAvaliableOffline } from '../../../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
 import { StorageFileIsAvailableOffline } from '../../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
@@ -36,6 +35,5 @@ export async function registerStorageFilesServices(builder: ContainerBuilder): P
   builder.registerAndUse(StorageFileIsAvailableOffline);
   builder.registerAndUse(MakeStorageFileAvaliableOffline);
   builder.registerAndUse(StorageFileDeleter);
-  builder.registerAndUse(StorageClearer);
   builder.registerAndUse(StorageRemoteChangesSyncher);
 }

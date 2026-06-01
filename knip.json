@@ -4,7 +4,7 @@
   "ignore": ["**/*.test.{ts,tsx}"],
   "ignoreBinaries": ["esbuild"],
   "ignoreExportsUsedInFile": true,
-  "project": ["src/**/*.{ts,tsx}"],
+  "project": ["src/**/*.{ts,tsx}", "!src/**/*.test.{ts,tsx}"],
   "vitest": false,
   "webpack": false,
   "rules": {

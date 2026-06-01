@@ -9,22 +9,6 @@ const execAsync = promisify(exec);
 
 const DESKTOP_FILE = join(homedir(), '.local/share/applications/internxt-appimage.desktop');
 
-export async function setupAppImageDeeplink() {
-  const appImagePath = process.env.APPIMAGE;
-  if (!appImagePath) return;
-
-  await ensureDotDesktopUpdated(appImagePath);
-}
-
-async function ensureDotDesktopUpdated(currentPath: string) {
-  const previousPath = await extractExecPath();
-
-  if (previousPath !== currentPath) {
-    await installDesktopFile(currentPath);
-    await registerProtocol();
-  }
-}
-
 async function extractExecPath() {
   try {
     await access(DESKTOP_FILE);
@@ -58,4 +42,20 @@ async function registerProtocol() {
   } catch (err) {
     logger.error({ tag: 'AUTH', msg: 'Failed to register protocol:', err });
   }
+}
+
+async function ensureDotDesktopUpdated(currentPath: string) {
+  const previousPath = await extractExecPath();
+
+  if (previousPath !== currentPath) {
+    await installDesktopFile(currentPath);
+    await registerProtocol();
+  }
+}
+
+export async function setupAppImageDeeplink() {
+  const appImagePath = process.env.APPIMAGE;
+  if (!appImagePath) return;
+
+  await ensureDotDesktopUpdated(appImagePath);
 }

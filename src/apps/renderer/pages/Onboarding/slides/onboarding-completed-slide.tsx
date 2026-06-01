@@ -23,7 +23,7 @@ export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = () => {
           <h4
             className={`font-regular text-left text-base leading-[19px] ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
             {translate('onboarding.slides.onboarding-completed.desktop-ready.description', {
-              platform_phrase: translate('onboarding.common.platform-phrase.windows'),
+              platform_phrase: translate('onboarding.common.platform-phrase'),
             })}
           </h4>
         </div>

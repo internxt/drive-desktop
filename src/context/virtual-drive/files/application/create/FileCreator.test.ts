@@ -8,8 +8,11 @@ import { FileSyncNotifierMock } from '../../__mocks__/FileSyncNotifierMock';
 import { RemoteFileSystemMock } from '../../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../../domain/__test-helpers__/FileMother';
 import { FileSizeMother } from '../../domain/__test-helpers__/FileSizeMother';
-import { right } from '../../../../shared/domain/Either';
+import { left, right } from '../../../../shared/domain/Either';
 import { EventBusMock } from '../../../../../context/virtual-drive/shared/__mocks__/EventBusMock';
+import { clearPendingCreations } from '../../../folders/application/create/PendingFolderCreationTracker';
+import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
+import { calls } from '../../../../../../tests/vitest/utils.helper';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -25,6 +28,7 @@ describe('File Creator', () => {
     const parentFolderFinder = FolderFinderFactory.existingFolder();
     eventBus = new EventBusMock();
     notifier = new FileSyncNotifierMock();
+    clearPendingCreations();
 
     SUT = new FileCreator(remoteFileSystemMock, fileRepository, parentFolderFinder, eventBus, notifier);
   });
@@ -69,5 +73,43 @@ describe('File Creator', () => {
 
     expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe('file.created');
     expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(fileAttributes.uuid);
+  });
+
+  it('retries on RATE_LIMITED and only runs side effects once', async () => {
+    const path = new FilePath('/dog.png');
+    const contentsId = BucketEntryIdMother.random();
+    const size = FileSizeMother.random();
+    const fileAttributes = FileMother.fromPartial({
+      path: path.value,
+      contentsId: contentsId.value,
+    }).attributes();
+
+    fileRepository.addMock.mockImplementationOnce(() => Promise.resolve(true));
+    remoteFileSystemMock.persistMock
+      .mockResolvedValueOnce(left(new DriveDesktopError('RATE_LIMITED', '1')))
+      .mockResolvedValueOnce(right(fileAttributes));
+
+    await SUT.run(path.value, contentsId.value, size.value);
+
+    calls(remoteFileSystemMock.persistMock).toHaveLength(2);
+    calls(fileRepository.addMock).toHaveLength(1);
+    calls(eventBus.publishMock).toHaveLength(1);
+    calls(notifier.createdMock).toHaveLength(1);
+  });
+
+  it('does not retry on non-retryable errors', async () => {
+    const path = new FilePath('/bird.png');
+    const contentsId = BucketEntryIdMother.random();
+    const size = FileSizeMother.random();
+
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(left(new DriveDesktopError('UNKNOWN')));
+
+    await expect(SUT.run(path.value, contentsId.value, size.value)).rejects.toThrow();
+
+    calls(remoteFileSystemMock.persistMock).toHaveLength(1);
+    calls(fileRepository.addMock).toHaveLength(0);
+    calls(eventBus.publishMock).toHaveLength(0);
+    calls(notifier.createdMock).toHaveLength(0);
+    calls(notifier.issuesMock).toHaveLength(1);
   });
 });

@@ -26,7 +26,7 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
       const result = await this.repository.find();
       return {
         success: true,
-        result: result,
+        result,
       };
     } catch (error) {
       return {
@@ -44,8 +44,7 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
 
       return {
         success: true,
-
-        result: result,
+        result,
       };
     } catch (error) {
       return {

@@ -8,8 +8,6 @@ import isDev from '../../../core/isDev/isDev';
 let onboardingWindow: BrowserWindow | null = null;
 export const getOnboardingWindow = () => (onboardingWindow?.isDestroyed() ? null : onboardingWindow);
 
-ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
-
 export const openOnboardingWindow = () => {
   if (onboardingWindow) {
     onboardingWindow.focus();
@@ -26,8 +24,7 @@ export const openOnboardingWindow = () => {
       nodeIntegration: true,
       devTools: isDev(),
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
+    frame: false,
     resizable: false,
     maximizable: false,
   });
@@ -45,3 +42,5 @@ export const openOnboardingWindow = () => {
 
   setUpCommonWindowHandlers(onboardingWindow);
 };
+
+ipcMain.on('open-onboarding-window', () => openOnboardingWindow());

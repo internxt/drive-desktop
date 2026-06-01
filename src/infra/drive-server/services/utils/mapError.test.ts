@@ -22,7 +22,7 @@ describe('mapError', () => {
     const err = mapError(axiosError);
     expect(err).toBeInstanceOf(Error);
     expect(err.message).toBe('Invalid token');
-    expect((err as any).cause).toBe(axiosError);
+    expect(err.cause).toBe(axiosError);
   });
 
   it('should fall back to Axios error message if response.data.message is missing', () => {

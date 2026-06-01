@@ -7,7 +7,7 @@ import { uploadContentToEnvironment } from './upload-content-to-environment';
 import { Result } from '../../../../context/shared/domain/Result';
 import { deleteFileFromStorageByFileId } from '../../../../infra/drive-server/services/files/services/delete-file-content-from-bucket';
 import { retryWithBackoff } from '../../../../shared/retry-with-backoff';
-import { createBackupUploadErrorHandler } from './backup-upload-error-handler';
+import { createTransientErrorHandler } from '../../../../backend/common/rate-limit/transient-error-handler';
 
 export type UploadFileParams = {
   path: string;
@@ -29,7 +29,7 @@ async function uploadFile(file: UploadFileParams): Promise<Result<File | null, D
         environment: file.environment,
         signal: file.signal,
       }),
-    createBackupUploadErrorHandler(file.path),
+    createTransientErrorHandler({ tag: 'BACKUPS', context: 'BACKUP UPLOAD RETRY', path: file.path }),
     file.signal,
   );
 
@@ -51,7 +51,7 @@ async function uploadFile(file: UploadFileParams): Promise<Result<File | null, D
         folderUuid: file.folderUuid,
         bucket: file.bucket,
       }),
-    createBackupUploadErrorHandler(file.path),
+    createTransientErrorHandler({ tag: 'BACKUPS', context: 'BACKUP UPLOAD RETRY', path: file.path }),
     file.signal,
   );
 

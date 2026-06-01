@@ -1,25 +1,24 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-import Fuse from '@gcas/fuse';
-
-export enum FuseCodes {
+export const FuseCodes = {
   // Operation not supported (Functionality not implemented)
-  ENOSYS = Fuse.ENOSYS,
+  ENOSYS: 38,
 
   // No such file or directory
-  ENOENT = Fuse.ENOENT,
+  ENOENT: 2,
 
   // File or directory already exists
-  EEXIST = Fuse.EEXIST,
+  EEXIST: 17,
 
   // Input/output error
-  EIO = Fuse.EIO,
+  EIO: 5,
 
   // Invalid argument
-  EINVAL = Fuse.EINVAL,
+  EINVAL: 22,
 
   // Permission denied
-  EACCES = Fuse.EACCES,
+  EACCES: 13,
 
   // Network is down
-  ENETDOWN = Fuse.ENETDOWN,
-}
+  ENETDOWN: 100,
+} as const;
+
+export type FuseCode = (typeof FuseCodes)[keyof typeof FuseCodes];

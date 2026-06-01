@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron';
+import { app, BrowserWindow } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
@@ -27,8 +27,7 @@ export const createAuthWindow = async () => {
       nodeIntegration: true,
       devTools: isDev(),
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
+    frame: false,
     resizable: false,
     maximizable: false,
     skipTaskbar: true,
@@ -42,6 +41,7 @@ export const createAuthWindow = async () => {
 
   authWindow.on('closed', () => {
     authWindow = null;
+    if (!getIsLoggedIn()) app.quit();
   });
   authWindow.on('blur', () => {
     const isLoggedIn = getIsLoggedIn();

@@ -10,7 +10,7 @@ export class LocalTreeMother {
   static onlyRoot(): LocalTree {
     const root = LocalFolderMother.any();
 
-    const tree = new LocalTree(root);
+    const tree = new LocalTree(root.path, root.attributes().modificationTime);
 
     return tree;
   }

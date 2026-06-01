@@ -1,0 +1,23 @@
+name: Golang Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test:
+    name: 🐹 Golang Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: packages/fuse-daemon/go.mod
+
+      - name: Run tests
+        run: go test ./...
+        working-directory: packages/fuse-daemon

@@ -20,11 +20,9 @@ import Zip from './zip.svg';
 
 interface iconLibrary {
   id: string;
-  icon: any;
+  icon: JSX.Element;
   extensions: string[];
 }
-
-// const getSVG = (svg: any) => svg as React.SVGAttributes<SVGElement>;
 
 const file_type: iconLibrary[] = [
   {

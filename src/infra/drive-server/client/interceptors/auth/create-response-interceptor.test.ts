@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosHeaders, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { createResponseInterceptor } from './create-response-interceptor';
 
 vi.unmock('axios');
@@ -6,13 +6,13 @@ vi.unmock('axios');
 describe('createResponseInterceptor', () => {
   it('should return response unchanged on fulfilled', () => {
     const { onFulfilled } = createResponseInterceptor(vi.fn());
-    const response = {
+    const response: AxiosResponse = {
       data: { ok: true },
       status: 200,
       statusText: 'OK',
-      headers: {},
-      config: {},
-    } as any;
+      headers: new AxiosHeaders(),
+      config: { headers: new AxiosHeaders() } as InternalAxiosRequestConfig,
+    };
 
     const result = onFulfilled(response);
 
@@ -27,9 +27,9 @@ describe('createResponseInterceptor', () => {
     error.response = {
       status: 401,
       statusText: 'Unauthorized',
-      headers: {},
+      headers: new AxiosHeaders(),
       data: {},
-      config: {} as any,
+      config: { headers: new AxiosHeaders() } as InternalAxiosRequestConfig,
     };
 
     await expect(onRejected(error)).rejects.toBe(error);
@@ -44,9 +44,9 @@ describe('createResponseInterceptor', () => {
     error.response = {
       status: 500,
       statusText: 'Server Error',
-      headers: {},
+      headers: new AxiosHeaders(),
       data: {},
-      config: {} as any,
+      config: { headers: new AxiosHeaders() } as InternalAxiosRequestConfig,
     };
 
     await expect(onRejected(error)).rejects.toBe(error);

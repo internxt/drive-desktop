@@ -11,6 +11,7 @@ export class FileRepositoryMock implements FileRepository {
   public readonly deleteMock = vi.fn();
   public readonly addMock = vi.fn();
   public readonly updateMock = vi.fn();
+  public readonly deleteByFolderPathMock = vi.fn();
   public readonly clearMock = vi.fn();
 
   all(): Promise<File[]> {
@@ -47,6 +48,10 @@ export class FileRepositoryMock implements FileRepository {
 
   update(file: File): Promise<void> {
     return this.updateMock(file);
+  }
+
+  deleteByFolderPath(folderPath: string): Promise<void> {
+    return this.deleteByFolderPathMock(folderPath);
   }
 
   clear(): Promise<void> {

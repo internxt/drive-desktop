@@ -30,12 +30,21 @@ interface DownloadSharedFileParams extends DownloadFileParams {
   creds?: never;
   mnemonic?: never;
   token: string;
-  encryptionKey: string;
+  encryptionKey: Buffer | string;
 }
 
 type DownloadSharedFileFunction = (params: DownloadSharedFileParams) => DownloadFileResponse;
 type DownloadOwnFileFunction = (params: DownloadOwnFileParams) => DownloadFileResponse;
-type DownloadFileFunction = (params: DownloadSharedFileParams | DownloadOwnFileParams) => DownloadFileResponse;
+type DownloadFileRawParams = {
+  bucketId: string;
+  fileId: string;
+  creds?: NetworkCredentials;
+  mnemonic?: string;
+  token?: string;
+  encryptionKey?: Buffer | string;
+  options?: DownloadFileOptions;
+};
+type DownloadFileFunction = (params: DownloadFileRawParams) => DownloadFileResponse;
 
 const downloadSharedFile: DownloadSharedFileFunction = (params) => {
   const { bucketId, fileId, encryptionKey, token, options } = params;
@@ -55,7 +64,7 @@ const downloadSharedFile: DownloadSharedFileFunction = (params) => {
       },
     ),
   ).download(bucketId, fileId, '', {
-    key: Buffer.from(encryptionKey, 'hex'),
+    key: typeof encryptionKey === 'string' ? Buffer.from(encryptionKey, 'hex') : encryptionKey,
     token,
     downloadingCallback: options?.notifyProgress,
     abortController: options?.abortController,
@@ -95,9 +104,10 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
 
 const downloadFileV2: DownloadFileFunction = (params) => {
   if (params.token && params.encryptionKey) {
-    return downloadSharedFile(params);
+    // This is de facto dead code as its never called with params.token
+    return downloadSharedFile(params as DownloadSharedFileParams);
   } else if (params.creds && params.mnemonic) {
-    return downloadOwnFile(params);
+    return downloadOwnFile(params as DownloadOwnFileParams);
   } else {
     throw new Error('DOWNLOAD ERRNO. 0');
   }

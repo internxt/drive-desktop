@@ -74,8 +74,8 @@ export function logout() {
   const { uuid } = user;
 
   saveConfig({ uuid });
+  void driveServerModule.auth.logout();
   resetConfig();
   resetCredentials();
-  void driveServerModule.auth.logout();
   logger.debug({ msg: '[AUTH] User logged out' });
 }

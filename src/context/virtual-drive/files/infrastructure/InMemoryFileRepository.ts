@@ -112,6 +112,22 @@ export class InMemoryFileRepository implements FileRepository {
     this.upsert(file);
   }
 
+  async deleteByFolderPath(folderPath: string): Promise<void> {
+    const prefix = folderPath.endsWith('/') ? folderPath : `${folderPath}/`;
+    const toDelete: Array<{ uuid: string; contentsId: string }> = [];
+
+    for (const [uuid, attributes] of this.filesByUuid) {
+      if (attributes.path.startsWith(prefix)) {
+        toDelete.push({ uuid, contentsId: attributes.contentsId });
+      }
+    }
+
+    for (const { uuid, contentsId } of toDelete) {
+      this.filesByUuid.delete(uuid);
+      this.filesByContentsId.delete(contentsId);
+    }
+  }
+
   async clear(): Promise<void> {
     this.filesByUuid.clear();
     this.filesByContentsId.clear();

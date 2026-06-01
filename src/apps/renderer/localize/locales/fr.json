@@ -1,35 +1,11 @@
 {
   "login": {
-    "email": {
-      "section": "Adresse électronique"
-    },
-    "password": {
-      "section": "Mot de passe",
-      "placeholder": "Mot de passe",
-      "forgotten": "Vous avez oublié votre mot de passe?",
-      "hide": "Cacher",
-      "show": "Afficher"
-    },
     "action": {
-      "login": "S'identifier",
-      "is-logging-in": "Se connecter...",
       "login-in-browser": "Se connecter avec le navigateur"
     },
     "create-account": "Créer un compte",
     "welcome": "Bienvenue chez Internxt",
-    "no-account": "Vous n'avez pas de compte ?",
-    "2fa": {
-      "section": "Code d'authentification",
-      "description": "Vous avez configuré l'authentification en deux étapes (2FA), veuillez saisir le code à 6 chiffres",
-      "change-account": "Changer de compte",
-      "wrong-code": "Code incorrect, veuillez réessayer"
-    },
-    "error": {
-      "empty-fields": "Mot de passe ou courriel incorrect"
-    },
-    "warning": {
-      "no-internet": "Pas de connexion internet"
-    }
+    "no-account": "Vous n'avez pas de compte ?"
   },
   "onboarding": {
     "slides": {
@@ -68,48 +44,7 @@
       "continue": "Continuer",
       "skip": "Sauter",
       "new": "Nouveau",
-      "platform-phrase": {
-        "windows": "navigateur de fichiers",
-        "linux": "navigateur de fichiers",
-        "macos": "Finder"
-      }
-    }
-  },
-  "migration": {
-    "slides": {
-      "welcome": {
-        "title": "Nouvelle mise à jour de l'application de bureau d’Internxt !",
-        "features": {
-          "title": "Nouvelles mises à jour:",
-          "feature-1": "Sélectionnez ce que vous voulez télécharger et économisez de l'espace sur votre disque dur.",
-          "feature-2": "Un système d'exploitation natif disponible pour gérer vos fichiers et dossiers."
-        }
-      },
-      "migration": {
-        "title": "Nous nous assurons que tous vos fichiers sont en sécurité",
-        "in-progress": "Téléchargement de fichiers en attente",
-        "item-progress": "{{processed_items}} sur {{total_items}} éléments téléchargés"
-      },
-      "migration-failed": {
-        "title": "Nous nous assurons que tous vos fichiers sont en sécurité",
-        "message": "Certains fichiers n'ont pas pu être téléchargés",
-        "description": "Nous avons déplacé ces fichiers sur votre bureau, faites-les glisser et déposez-les sur votre disque interne.",
-        "show-files": "Afficher les fichiers"
-      },
-      "delete-old-drive-folder": {
-        "title": "Même Internxt Drive, nouvel emplacement",
-        "message": "Votre dossier personnel Internxt Drive est situé dans le barre latérale {{platform_app}}."
-      },
-      "new-widget": {
-        "title": "Soyez plus productif grâce à notre widget redessiné",
-        "message": "Nous avons repensé et reconstruit notre widget afin d'accroître la productivité, la commodité et la rapidité.",
-        "message-2": "Tous les changements sont désormais mis à jour en temps réel."
-      }
-    },
-    "common": {
-      "continue": "Continuer",
-      "cancel": "Annuler",
-      "open-drive": "Ouvrir Internxt Drive"
+      "platform-phrase": "navigateur de fichiers"
     }
   },
   "widget": {
@@ -121,11 +56,9 @@
       "dropdown": {
         "preferences": "Préférences",
         "issues": "Liste d'erreurs",
-        "send-feedback": "Envoyer des commentaires",
         "support": "Aide",
         "logout": "Déconnecter",
         "quit": "Fermer",
-        "antivirus": "Antivirus",
         "cleaner": "Cleaner",
         "new": "Nouveau",
         "sync": "Synchroniser"
@@ -146,22 +79,12 @@
           "renamed": "Renommé"
         }
       },
-      "no-activity": {
-        "title": "Aucune activité récente",
-        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
-      },
       "upToDate": {
         "title": "Vos fichiers sont à jour",
         "subtitle": "L'activité de synchronisation s'affichera ici"
       },
       "errors": {
-        "sync": {},
-        "backups": {
-          "folder-not-found": {
-            "text": "Impossible de copier, dossier non trouvé",
-            "action": "Afficher l'erreur"
-          }
-        }
+        "sync": {}
       }
     },
     "footer": {
@@ -171,7 +94,6 @@
         "failed": "Échec de la synchronisation"
       },
       "errors": {
-        "lock": "Synchronisation bloquée par un autre dispositif",
         "offline": "Pas de connexion à internet"
       }
     },
@@ -182,9 +104,7 @@
     },
     "virtual-drive-error": {
       "title": "Impossible de créer le lecteur",
-      "message": "Nous rencontrons des problèmes pour monter votre disque Internxt. Essayez de le démonter manuellement et de relancer l'application. ",
-      "mounting": "Montage...",
-      "button": "Monter"
+      "message": "Nous rencontrons des problèmes pour monter votre disque Internxt. Essayez de le démonter manuellement et de relancer l'application. "
     },
     "banners": {
       "update-available": {
@@ -234,13 +154,8 @@
           "dark": "Sombre"
         }
       },
-      "sync": {
-        "folder": "Dossier Internxt Drive",
-        "change-folder": "Changer de dossier"
-      },
       "app-info": {
         "open-logs": "Ouvrir les registres",
-        "open-migration": "Démarrer la migration",
         "more": "Plus d'informations sur Internxt"
       }
     },
@@ -250,16 +165,10 @@
         "display": "Utilisé {{used}} sur {{total}}",
         "upgrade": "Acheter",
         "change": "Changement",
-        "plan": "Plan actuel",
         "free": "Gratuit",
         "loadError": {
           "title": "Impossible d'obtenir les détails de votre utilisation",
           "action": "Réessayer"
-        },
-        "current": {
-          "used": "utilisés",
-          "of": "de",
-          "in-use": "utilisé"
         },
         "full": {
           "title": "Votre espace de stockage est plein",
@@ -278,20 +187,17 @@
       "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
       "selected-folder_one": "{{count}} dossier",
       "selected-folder_other": "{{count}} dossiers",
-      "activate": "Sauvegarder vos dossiers",
       "view-backups": "Parcourir les fichiers",
       "selected-folders-title": "Dossiers sélectionnés",
       "select-folders": "Changer les dossiers",
       "last-backup-had-issues": "La dernière sauvegarde a rencontré quelques problèmes",
       "see-issues": "Voir des problèmes",
-      "backing-up": "Sauvegarde...",
       "backups-help": "Aide sur les sauvegardes",
       "this-device": "Cet appareil",
       "devices": "Appareils",
       "action": {
         "start": "Faire une copie ",
         "stop": "Arrêter la sauvegarde",
-        "running": "Sauvegarde en cours {{progress}}",
         "last-run": "Dernière exécution"
       },
       "frequency": {
@@ -334,12 +240,6 @@
         "title": "Une erreur s'est produite lors de l'analyse du répertoire",
         "button": "Réessayer"
       },
-      "deactivateAntivirus": {
-        "title": "Windows Defender est actif",
-        "description": "Veuillez désactiver Windows Defender afin de pouvoir utiliser Internxt Antivirus. Pour ce faire, ouvrez Sécurité Windows > Protection contre les virus et menaces > Gérer les paramètres > désactivez la protection en temps réel.",
-        "retry": "Réessayer",
-        "cancel": "Annuler"
-      },
       "realtimeProtection": {
         "title": "Protection en temps réel",
         "infoAriaLabel": "À propos de la protection en temps réel",
@@ -380,8 +280,7 @@
           },
           "securityWarning": {
             "title": "Attention de sécurité",
-            "description": "Le malware est toujours présent et votre appareil est en danger.",
-            "confirmToCancel": "Êtes-vous sûr de vouloir annuler ?"
+            "description": "Le malware est toujours présent et votre appareil est en danger."
           }
         }
       },
@@ -389,7 +288,6 @@
         "scanning": "Analyse en cours...",
         "scannedFiles": "Fichiers analysés",
         "detectedFiles": "Fichiers détectés",
-        "errorWhileScanning": "Une erreur s'est produite lors de l'analyse des éléments. Veuillez réessayer.",
         "noFilesFound": {
           "title": "Aucune menace détectée",
           "subtitle": "Aucune action supplémentaire requise"
@@ -404,11 +302,7 @@
       "filesContainingMalwareModal": {
         "title": "Fichiers contenant des malwares",
         "selectedItems": "Sélectionné {{selectedFiles}} sur {{totalFiles}}",
-        "selectAll": "Tout sélectionner",
-        "actions": {
-          "cancel": "Annuler",
-          "remove": "Supprimer"
-        }
+        "selectAll": "Tout sélectionner"
       }
     },
     "cleaner": {
@@ -431,12 +325,6 @@
         "previewContent": "aperçu du contenu",
         "saveUpTo": "Économisez jusqu'à",
         "ofYourSpace": "de votre espace"
-      },
-      "cleanupConfirmDialog": {
-        "title": "Confirmer le nettoyage",
-        "description": "Cette action supprimera définitivement les fichiers sélectionnés de votre appareil. Cette action ne peut pas être annulée. Veuillez confirmer pour continuer.",
-        "cancelButton": "Annuler",
-        "confirmButton": "Supprimer les fichiers "
       },
       "cleanupConfirmDialogView": {
         "title": "Confirmer le nettoyage",
@@ -471,9 +359,7 @@
     },
     "no-issues": "Aucune erreur trouvée",
     "actions": {
-      "select-folder": "Sélectionner un dossier",
-      "find-folder": "Trouver un dossier",
-      "try-again": "Essayer à nouveau"
+      "find-folder": "Trouver un dossier"
     },
     "short-error-messages": {
       "unknown": "Erreur inconnue",
@@ -498,40 +384,8 @@
       "insufficient-permission-accessing-base-directory": "Internxt App n'a pas la permission d'accéder à votre dossier de synchronisation",
       "cannot-access-base-directory": "Nous n'avons pas pu accéder à votre dossier local",
       "cannot-access-tmp-directory": "Nous n'avons pas pu accéder à votre dossier local",
-      "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers",
-      "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
-      "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
-      "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
-      "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
-      "file-non-extension": "Les archives sans extensions ne sont pas supportées. Non synchronisées",
-      "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux.",
-      "action-not-permitted": "L'opération n'a pas pu être complétée, probablement en raison d'un conflit avec un autre fichier.",
-      "file-already-exists": "Impossible de terminer l'opération. Le fichier existe déjà sur les serveurs Internxt.",
-      "not-enough-space": "Vous n'avez pas assez d'espace pour compléter l'opération."
-    },
-    "report-modal": {
-      "actions": {
-        "close": "Fermer",
-        "cancel": "Annuler",
-        "report": "Rapport",
-        "send": "Envoyer"
-      },
-      "help-url": "Pour obtenir de l'aide, visitez",
-      "report": "Vous pouvez également envoyer un rapport sur cette erreur",
-      "user-comments": "Commentaires",
-      "include-logs": "Inclure les logs de ce processus de synchronisation à des fins de diagnostic"
+      "unknown": "Une erreur inconnue s'est produite lors de la synchronisation de vos fichiers"
     }
-  },
-  "feedback": {
-    "window-title": "Commentaires sur Internxt for Desktop",
-    "title": "Faites-nous part de vos commentaires sur Internxt",
-    "description": "Vos commentaires nous aident à améliorer et à créer de meilleures expériences de produits.",
-    "placeholder": "Laissez-nous savoir ce qui vous préoccupe, ce que vous aimeriez améliorer ou décrivez l'erreur ou le problème.",
-    "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Envoyer les commentaire",
-    "sent-title": "Merci de nous avoir fait part de vos commentaires",
-    "sent-message": "Nous apprécions le temps et les efforts que vous consacrez à l'amélioration de nos services.",
-    "close": "Fermer"
   },
   "common": {
     "cancel": "Annuler"

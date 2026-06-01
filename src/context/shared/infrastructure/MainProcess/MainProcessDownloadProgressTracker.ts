@@ -1,4 +1,4 @@
-import { setTrayStatus } from '../../../../apps/main/tray/tray';
+import { setTrayStatus } from '../../../../apps/main/tray/tray-setup';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { DownloadProgressTracker } from '../../domain/DownloadProgressTracker';
 import { SyncMessenger } from '../../domain/SyncMessenger';

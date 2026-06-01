@@ -10,7 +10,10 @@ const Help: FC = () => {
         'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive',
       );
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to open backups help URL',
+        error,
+      });
     }
   };
 

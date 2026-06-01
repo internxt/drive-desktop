@@ -1,19 +1,21 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
+      // Encryption keys for backups and data protection
       CRYPTO_KEY: string;
       MAGIC_IV: string;
       MAGIC_SALT: string;
       NEW_CRYPTO_KEY: string;
+
+      // Core API endpoints
       NEW_DRIVE_URL: string;
       BRIDGE_URL: string;
-      APP_SEGMENT_KEY: string;
-      APP_SEGMENT_KEY_TEST: string;
-      BUG_REPORTING_URL: string;
-      platform: string;
+      PAYMENTS_URL: string;
       NOTIFICATIONS_URL: string;
-      LOCK_REFRESH_INTERVAL: string;
-      DRIVE_API_URL: string;
+      INTERNXT_DESKTOP_HEADER_KEY: string;
+      ENABLE_ANTIVIRUS?: string;
+      NODE_ENV?: string;
+      PORT?: string;
     }
   }
 }

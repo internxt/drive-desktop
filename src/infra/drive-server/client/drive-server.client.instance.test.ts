@@ -1,22 +1,19 @@
-import { closeUserSession } from '../../../apps/main/auth/handlers';
-import { getNewApiHeaders } from '../../../apps/main/auth/service';
-import { createClient } from '../drive-server.client';
-import { call } from 'tests/vitest/utils.helper';
-
-vi.mock('../drive-server.client', () => ({
-  createClient: vi.fn(() => ({})),
-}));
-
-vi.mock('../../../apps/main/auth/service', () => ({
-  getNewApiHeaders: vi.fn(() => ({ Authorization: 'Bearer token' })),
-}));
-
-vi.mock('../../../apps/main/auth/handlers', () => ({
-  closeUserSession: vi.fn(),
-}));
+import { partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('driveServerClient instance', () => {
   let originalEnv: string | undefined;
+
+  async function importAndSpy() {
+    const driveServerClientModule = await import('../drive-server.client');
+    const createClientMock = partialSpyOn(driveServerClientModule, 'createClient');
+
+    await import('./drive-server.client.instance');
+
+    const authServiceModule = await import('../../../apps/main/auth/service');
+    const authHandlersModule = await import('../../../apps/main/auth/handlers');
+
+    return { createClientMock, authServiceModule, authHandlersModule };
+  }
 
   beforeEach(() => {
     originalEnv = process.env.NEW_DRIVE_URL;
@@ -27,44 +24,41 @@ describe('driveServerClient instance', () => {
     if (originalEnv !== undefined) {
       process.env.NEW_DRIVE_URL = originalEnv;
     } else {
-      delete (process.env as any).NEW_DRIVE_URL;
+      Reflect.deleteProperty(process.env, 'NEW_DRIVE_URL');
     }
   });
 
   it('should call createClient with expected options', async () => {
-    await import('./drive-server.client.instance');
+    const { createClientMock } = await importAndSpy();
 
-    call(createClient).toMatchObject({
-      baseUrl: expect.any(String),
-      authHeadersProvider: expect.any(Function),
-      onUnauthorized: expect.any(Function),
-    });
+    expect(createClientMock).toBeCalledWith(
+      expect.objectContaining({
+        baseUrl: expect.any(String),
+        authHeadersProvider: expect.any(Function),
+        onUnauthorized: expect.any(Function),
+      }),
+    );
   });
 
-  it('should call getNewApiHeaders when authHeadersProvider is triggered', async () => {
-    await import('./drive-server.client.instance');
-    const createClientCalls = vi.mocked(createClient).mock.calls;
-    const [{ authHeadersProvider }] = createClientCalls[0]!;
+  it('should use getNewApiHeaders as authHeadersProvider', async () => {
+    const { createClientMock, authServiceModule } = await importAndSpy();
+    const clientOptions = createClientMock.mock.lastCall![0]!;
 
-    authHeadersProvider!();
-
-    expect(getNewApiHeaders).toHaveBeenCalled();
+    expect(clientOptions.authHeadersProvider).toBe(authServiceModule.getNewApiHeaders);
   });
 
-  it('should call closeUserSession when onUnauthorized is triggered', async () => {
-    await import('./drive-server.client.instance');
-    const [{ onUnauthorized }] = vi.mocked(createClient).mock.calls[0]!;
+  it('should use closeUserSession as onUnauthorized', async () => {
+    const { createClientMock, authHandlersModule } = await importAndSpy();
+    const clientOptions = createClientMock.mock.lastCall![0]!;
 
-    onUnauthorized!();
-
-    expect(closeUserSession).toHaveBeenCalled();
+    expect(clientOptions.onUnauthorized).toBe(authHandlersModule.closeUserSession);
   });
 
   it('should use process.env.NEW_DRIVE_URL as baseUrl', async () => {
     process.env.NEW_DRIVE_URL = 'https://mock.api';
 
-    await import('./drive-server.client.instance');
+    const { createClientMock } = await importAndSpy();
 
-    call(createClient).toMatchObject({ baseUrl: 'https://mock.api' });
+    expect(createClientMock).toBeCalledWith(expect.objectContaining({ baseUrl: 'https://mock.api' }));
   });
 });

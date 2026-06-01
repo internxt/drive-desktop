@@ -15,13 +15,7 @@ function extensionFile() {
   if (process.env.NODE_ENV === 'development') {
     return path.join(__dirname, '../../../../assets/python-nautilus', name);
   } else {
-    return path.join(
-      //@ts-ignore
-      process.resourcesPath,
-      'assets',
-      'python-nautilus',
-      name,
-    );
+    return path.join(process.resourcesPath, 'assets', 'python-nautilus', name);
   }
 }
 

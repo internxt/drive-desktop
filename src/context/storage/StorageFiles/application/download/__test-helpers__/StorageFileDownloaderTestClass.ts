@@ -4,6 +4,7 @@ import { StorageFile } from '../../../domain/StorageFile';
 import { DownloadProgressTrackerMock } from '../../../__mocks__/DownloadProgressTrackerMock';
 import { DownloaderHandlerFactoryMock } from '../../../domain/download/__mocks__/DownloaderHandlerFactoryMock';
 import { DownloaderHandler } from '../../../domain/download/DownloaderHandler';
+import { partialSpyOn } from 'tests/vitest/utils.helper';
 
 export class StorageFileDownloaderTestClass extends StorageFileDownloader {
   private mock = vi.fn();
@@ -24,7 +25,7 @@ export class StorageFileDownloaderTestClass extends StorageFileDownloader {
   returnsAReadable() {
     const factory = new DownloaderHandlerFactoryMock();
     const handler = factory.downloader();
-    (handler.elapsedTime as any).mockReturnValue(1000);
+    partialSpyOn(handler, 'elapsedTime').mockReturnValue(1000);
     this.mock.mockResolvedValue({
       stream: Readable.from('Hello world!'),
       metadata: { name: 'test', type: 'txt', size: 12 },
@@ -39,6 +40,6 @@ export class StorageFileDownloaderTestClass extends StorageFileDownloader {
   }
 
   assertHasNotBeenCalled() {
-    expect(this.mock).not.toHaveBeenCalled();
+    expect(this.mock).not.toBeCalled();
   }
 }

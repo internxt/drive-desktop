@@ -11,7 +11,7 @@ export class TemporalFileWriter {
     const documentPath = new TemporalFilePath(path);
 
     try {
-      this.repository.write(documentPath, buffer, length, position);
+      await this.repository.write(documentPath, buffer, length, position);
     } catch (error: unknown) {
       throw new TemporalFileIOError();
     }

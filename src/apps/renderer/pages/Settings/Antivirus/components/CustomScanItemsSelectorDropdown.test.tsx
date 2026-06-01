@@ -3,7 +3,7 @@ import { CustomScanItemsSelectorDropdown } from './CustomScanItemsSelectorDropdo
 
 // Mock the DropdownItem component
 vi.mock('./DropdownItem', () => ({
-  DropdownItem: ({ children, onClick }: any) => (
+  DropdownItem: ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
     <button data-testid="dropdown-item" onClick={onClick}>
       {children}
     </button>

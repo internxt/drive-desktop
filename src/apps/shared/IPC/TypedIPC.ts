@@ -1,6 +1,6 @@
 import { IpcMainEvent } from 'electron';
 
-type EventHandler = (...args: any) => any;
+type EventHandler = (...args: unknown[]) => unknown;
 
 type CustomIPCEvents = Record<string, EventHandler>;
 

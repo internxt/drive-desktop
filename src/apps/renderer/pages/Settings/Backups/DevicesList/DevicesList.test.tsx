@@ -1,4 +1,4 @@
-import { Device } from '../../../../../main/device/service';
+import { Device } from '../../../../../../backend/features/backup/types/Device';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { DeviceContext, DeviceState } from '../../../../context/DeviceContext';
 import { DevicesList } from './DevicesList';
@@ -73,7 +73,7 @@ describe('DevicesList', () => {
   });
 
   afterAll(() => {
-    // @ts-ignore
+    // @ts-expect-error - window.electron is defined by preload and not deletable by type
     delete window.electron;
   });
 

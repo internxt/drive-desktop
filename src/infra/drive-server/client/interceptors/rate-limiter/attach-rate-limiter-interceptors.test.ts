@@ -3,6 +3,7 @@ import { call } from 'tests/vitest/utils.helper';
 import { attachRateLimiterInterceptors } from './attach-rate-limiter-interceptors';
 import { createRequestInterceptor } from './create-request-interceptor';
 import { createResponseInterceptor } from './create-response-interceptor';
+import { AxiosInstance } from 'axios';
 
 vi.mock('./create-request-interceptor');
 vi.mock('./create-response-interceptor');
@@ -20,7 +21,7 @@ describe('attachRateLimiterInterceptors', () => {
       request: { use: mockRequestUse },
       response: { use: mockResponseUse },
     },
-  } as any;
+  } as unknown as AxiosInstance;
 
   beforeEach(() => {
     (createRequestInterceptor as Mock).mockReturnValue(mockRequestInterceptor);

@@ -8,6 +8,7 @@ import { FolderMother } from '../domain/__test-helpers__/FolderMother';
 import { EventBusMock } from '../../shared/__mocks__/EventBusMock';
 import { FolderDescendantsPathUpdater } from './FolderDescendantsPathUpdater';
 import * as renameFolderModule from '../../../../infra/drive-server/services/folder/services/rename-folder';
+import { DriveServerError } from '../../../../infra/drive-server/drive-server.error';
 import { call, partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('Folder Renamer', () => {
@@ -44,7 +45,7 @@ describe('Folder Renamer', () => {
       path: destination.value,
     });
 
-    renameFolderMock.mockResolvedValue({ data: {} as any });
+    renameFolderMock.mockResolvedValue({ data: {} });
 
     return {
       folder,
@@ -130,8 +131,8 @@ describe('Folder Renamer', () => {
       const folder = FolderMother.any();
       const destination = FolderPathMother.onFolder(folder.dirname);
 
-      const error = new Error('rename failed');
-      renameFolderMock.mockResolvedValue({ error } as any);
+      const error = new DriveServerError('UNKNOWN');
+      renameFolderMock.mockResolvedValue({ error });
 
       await expect(renamer.run(folder, destination)).rejects.toBe(error);
 

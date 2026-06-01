@@ -12,6 +12,8 @@ export abstract class TemporalFileRepository {
 
   abstract write(path: TemporalFilePath, buffer: Buffer, length: number, position: number): Promise<void>;
 
+  abstract truncate(path: TemporalFilePath, size: number): Promise<void>;
+
   abstract read(path: TemporalFilePath): Promise<Buffer>;
 
   abstract stream(path: TemporalFilePath): Promise<Readable>;
@@ -21,4 +23,13 @@ export abstract class TemporalFileRepository {
   abstract watchFile(documentPath: TemporalFilePath, callback: () => void): () => void;
 
   abstract areEqual(doc1: TemporalFilePath, doc2: TemporalFilePath): Promise<boolean>;
+
+  abstract statFs(): Promise<{
+    blocks: number;
+    bfree: number;
+    bavail: number;
+    files: number;
+    ffree: number;
+    bsize: number;
+  }>;
 }

@@ -2,8 +2,6 @@ import { EventEmitter } from 'events';
 import { ProgressData } from './antivirus/types';
 import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
-class EventBus extends EventEmitter {}
-
 interface Events {
   APP_IS_READY: () => void;
 
@@ -37,10 +35,14 @@ interface Events {
   USER_AVAILABLE_PRODUCTS_UPDATED: (products: UserAvailableProducts) => void;
 }
 
-declare interface EventBus {
-  on<U extends keyof Events>(event: U, listener: Events[U]): this;
+class EventBus extends EventEmitter {
+  on<U extends keyof Events>(event: U, listener: Events[U]): this {
+    return super.on(event, listener);
+  }
 
-  emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean;
+  emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean {
+    return super.emit(event, ...args);
+  }
 }
 
 const eventBus = new EventBus();

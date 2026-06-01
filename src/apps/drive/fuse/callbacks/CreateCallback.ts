@@ -7,7 +7,7 @@ export class CreateCallback extends NotifyFuseCallback {
     super('Create');
   }
 
-  async execute(path: string, _mode: number) {
+  async execute(path: string) {
     await this.container.get(TemporalFileCreator).run(path);
 
     return this.right();

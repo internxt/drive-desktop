@@ -1,39 +1,30 @@
+import { IpcMainEvent } from 'electron';
 import { registerAuthIPCHandlers } from './auth-ipc-handlers';
 import { AuthIPCMain } from './auth-ipc-main';
 import { driveServerModule } from '../drive-server/drive-server.module';
-import { LoginResponse } from '../drive-server/services/auth/auth.types';
-import { Mock } from 'vitest';
-
-vi.mock('../drive-server/drive-server.module', () => ({
-  driveServerModule: {
-    auth: {
-      login: vi.fn(),
-      access: vi.fn(),
-    },
-  },
-}));
-
-vi.mock('./auth-ipc-main', () => ({
-  AuthIPCMain: {
-    handle: vi.fn(),
-  },
-}));
+import { LoginAccessResponse, LoginResponse } from '../drive-server/services/auth/auth.types';
+import { partialSpyOn } from 'tests/vitest/utils.helper';
 
 describe('registerAuthIPCHandlers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  const loginMock = partialSpyOn(driveServerModule.auth, 'login');
+  const accessMock = partialSpyOn(driveServerModule.auth, 'access');
+  const authIPCMainHandleMock = partialSpyOn(AuthIPCMain, 'handle');
+
+  function getHandler(eventName: string) {
+    registerAuthIPCHandlers();
+    const call = authIPCMainHandleMock.mock.calls.find(([name]) => name === eventName);
+    if (!call) throw new Error(`Handler for '${eventName}' not registered`);
+    return call[1];
+  }
 
   describe('auth:login', () => {
     it('should register the auth:login handler', () => {
       registerAuthIPCHandlers();
 
-      expect(AuthIPCMain.handle).toHaveBeenCalledWith('auth:login', expect.any(Function));
+      expect(authIPCMainHandleMock).toBeCalledWith('auth:login', expect.any(Function));
     });
 
     it('should return a successful response for auth:login', async () => {
-      registerAuthIPCHandlers();
-      const loginMock = driveServerModule.auth.login as Mock;
       const response: LoginResponse = {
         hasKeys: true,
         sKey: 'test-sKey',
@@ -42,31 +33,28 @@ describe('registerAuthIPCHandlers', () => {
         hasEccKeys: false,
       };
       loginMock.mockResolvedValueOnce({
-        fold: (_onLeft: any, onRight: any) => onRight(response),
+        fold: <T>(_onLeft: (err: Error) => T, onRight: (data: LoginResponse) => T): T => onRight(response),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:login')![1];
+      const handler = getHandler('auth:login');
+      const result = await handler({} as IpcMainEvent, 'test@example.com');
 
-      const result = await handler({}, 'test@example.com');
-
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         success: true,
         data: response,
       });
     });
 
     it('should return an error response for auth:login', async () => {
-      registerAuthIPCHandlers();
-      const loginMock = driveServerModule.auth.login as Mock;
       loginMock.mockResolvedValueOnce({
-        fold: (onLeft: any, _onRight: any) => onLeft(new Error('Login failed')),
+        fold: <T>(onLeft: (err: Error) => T, _onRight: (data: LoginResponse) => T): T =>
+          onLeft(new Error('Login failed')),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:login')![1];
+      const handler = getHandler('auth:login');
+      const result = await handler({} as IpcMainEvent, 'test@example.com');
 
-      const result = await handler({}, 'test@example.com');
-
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         success: false,
         error: 'Login failed',
       });
@@ -76,39 +64,34 @@ describe('registerAuthIPCHandlers', () => {
   describe('auth:access', () => {
     it('should register the auth:access handler', () => {
       registerAuthIPCHandlers();
-      expect(AuthIPCMain.handle).toHaveBeenCalledWith('auth:access', expect.any(Function));
+      expect(authIPCMainHandleMock).toBeCalledWith('auth:access', expect.any(Function));
     });
 
     it('should return a successful response for auth:access', async () => {
-      registerAuthIPCHandlers();
-      const accessMock = driveServerModule.auth.access as Mock;
-      const mockAccessData = { sessionId: 'abc123' };
+      const mockAccessData = { sessionId: 'abc123' } as unknown as LoginAccessResponse;
       accessMock.mockResolvedValueOnce({
-        fold: (_onLeft: any, onRight: any) => onRight(mockAccessData),
+        fold: <T>(_onLeft: (err: Error) => T, onRight: (data: LoginAccessResponse) => T): T => onRight(mockAccessData),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:access')![1];
+      const handler = getHandler('auth:access');
+      const result = await handler({} as IpcMainEvent, { email: 'test@example.com', password: '123456' });
 
-      const result = await handler({}, { email: 'test@example.com', code: '123456' });
-
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         success: true,
         data: mockAccessData,
       });
     });
 
     it('should return an error response for auth:access', async () => {
-      registerAuthIPCHandlers();
-      const accessMock = driveServerModule.auth.access as Mock;
       accessMock.mockResolvedValueOnce({
-        fold: (onLeft: any, _onRight: any) => onLeft(new Error('Access denied')),
+        fold: <T>(onLeft: (err: Error) => T, _onRight: (data: LoginAccessResponse) => T): T =>
+          onLeft(new Error('Access denied')),
       });
 
-      const handler = (AuthIPCMain.handle as Mock).mock.calls.find(([eventName]) => eventName === 'auth:access')![1];
+      const handler = getHandler('auth:access');
+      const result = await handler({} as IpcMainEvent, { email: 'test@example.com', password: '123456' });
 
-      const result = await handler({}, { email: 'test@example.com', code: '123456' });
-
-      expect(result).toEqual({
+      expect(result).toStrictEqual({
         success: false,
         error: 'Access denied',
       });

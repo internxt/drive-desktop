@@ -7,6 +7,7 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { addFolderToTrash } from '../../../../infra/drive-server/services/folder/services/add-folder-to-trash';
+import { FileRepository } from '../../files/domain/FileRepository';
 
 @Service()
 export class FolderDeleter {
@@ -14,6 +15,7 @@ export class FolderDeleter {
     private readonly repository: FolderRepository,
     private readonly local: LocalFileSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
+    private readonly fileRepository: FileRepository,
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
@@ -51,6 +53,7 @@ export class FolderDeleter {
         throw new Error('Error when deleting folder');
       }
       await this.repository.delete(folder.id);
+      await this.fileRepository.deleteByFolderPath(folder.path);
     } catch (error: unknown) {
       logger.error({
         msg: `Error deleting the folder ${folder.name}:`,

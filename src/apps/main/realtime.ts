@@ -22,6 +22,13 @@ export type EventPayload = {
 
 let user = getUser();
 
+function stopRemoteNotifications() {
+  if (socket) {
+    socket.close();
+    socket = undefined;
+  }
+}
+
 function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
   const { newToken } = getCredentials();
@@ -122,13 +129,6 @@ function cleanAndStartRemoteNotifications() {
       payloadPlainName: payload.plain_name,
     });
   });
-}
-
-function stopRemoteNotifications() {
-  if (socket) {
-    socket.close();
-    socket = undefined;
-  }
 }
 
 eventBus.on('USER_LOGGED_IN', cleanAndStartRemoteNotifications);

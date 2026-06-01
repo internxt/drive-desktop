@@ -3,7 +3,7 @@ import { DriveDesktopError } from '../../../../context/shared/domain/errors/Driv
 import { Result } from '../../../../context/shared/domain/Result';
 import { uploadContentToEnvironment } from './upload-content-to-environment';
 import { retryWithBackoff } from '../../../../shared/retry-with-backoff';
-import { createBackupUploadErrorHandler } from './backup-upload-error-handler';
+import { createTransientErrorHandler } from '../../../../backend/common/rate-limit/transient-error-handler';
 import { overrideFileToBackend } from './override-file-to-backend';
 
 export type UpdateFileParams = {
@@ -25,7 +25,7 @@ async function updateFile(file: UpdateFileParams): Promise<Result<void, DriveDes
         environment: file.environment,
         signal: file.signal,
       }),
-    createBackupUploadErrorHandler(file.path),
+    createTransientErrorHandler({ tag: 'BACKUPS', context: 'BACKUP UPLOAD RETRY', path: file.path }),
     file.signal,
   );
 
@@ -44,7 +44,7 @@ async function updateFile(file: UpdateFileParams): Promise<Result<void, DriveDes
         fileContentsId: contentsId,
         fileSize: file.size,
       }),
-    createBackupUploadErrorHandler(file.path),
+    createTransientErrorHandler({ tag: 'BACKUPS', context: 'BACKUP UPLOAD RETRY', path: file.path }),
     file.signal,
   );
 

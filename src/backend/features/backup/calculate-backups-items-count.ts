@@ -1,7 +1,6 @@
 import { precalculateBackupItemCount } from './precalculate-backup-item-count';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '../../../apps/backups/BackupInfo';
-import LocalTreeBuilder from '../../../context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { Container } from 'diod';
 
@@ -13,7 +12,6 @@ type Props = {
 
 export async function calculateBackupsItemsCount({ backups, signal, container }: Props) {
   const itemCounts = new Map<string, number>();
-  const localTreeBuilder = container.get(LocalTreeBuilder);
   const remoteTreeBuilder = container.get(RemoteTreeBuilder);
 
   for (const backup of backups) {
@@ -22,7 +20,8 @@ export async function calculateBackupsItemsCount({ backups, signal, container }:
       break;
     }
 
-    const result = await precalculateBackupItemCount(backup, localTreeBuilder, remoteTreeBuilder);
+    // eslint-disable-next-line no-await-in-loop
+    const result = await precalculateBackupItemCount(backup, remoteTreeBuilder);
     if (result.error) {
       logger.error({
         tag: 'BACKUPS',

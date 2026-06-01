@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
 import { BackupFolder, BackupsFoldersSelector } from '../../components/Backups/BackupsFoldersSelector';
-import useClientPlatform from '../../hooks/ClientPlatform';
 
 // Slide 1 is welcome slide, last slide is summary, doesn't count
 const totalSlides = SLIDES.length - 2;
@@ -10,7 +9,6 @@ export default function Onboarding() {
   const [backupFolders, setBackupFolders] = useState<BackupFolder[]>([]);
   const [slideIndex, setSlideIndex] = useState<number>(0);
   const [backupsModalOpen, setBackupsModalOpen] = useState(false);
-  const desktopPlatform = useClientPlatform();
 
   const finish = () => {
     if (backupFolders?.length) {
@@ -19,9 +17,13 @@ export default function Onboarding() {
        * if this fails, the user can fix this
        * from the Desktop settings
        */
-      window.electron.addBackupsFromLocalPaths(backupFolders.map((backupFolder) => backupFolder.path)).catch((err) => {
-        reportError(err);
-      });
+      window.electron
+        .addBackupsFromLocalPaths(backupFolders.map((backupFolder) => backupFolder.path))
+        .then(({ error }) => {
+          if (error) {
+            window.electron.logger.error({ msg: 'Failed to add backup folders during onboarding', error });
+          }
+        });
     }
 
     window.electron.finishOnboarding();
@@ -64,12 +66,10 @@ export default function Onboarding() {
     }, 300);
   };
 
-  if (!desktopPlatform) return <></>;
   return (
     <div className="relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">
         <SlideContent
-          platform={desktopPlatform}
           onFinish={finish}
           backupFolders={backupFolders}
           onSetupBackups={setupBackups}
@@ -80,7 +80,6 @@ export default function Onboarding() {
         />
         <div className="mt-auto">
           <SlideContentFooter
-            platform={desktopPlatform}
             onFinish={finish}
             backupFolders={backupFolders}
             onSetupBackups={setupBackups}
@@ -94,7 +93,6 @@ export default function Onboarding() {
 
       <div className="flex w-1/2 border-l border-gray-10 bg-gray-5">
         <SlideImage
-          platform={desktopPlatform}
           onFinish={finish}
           backupFolders={backupFolders}
           onSetupBackups={setupBackups}

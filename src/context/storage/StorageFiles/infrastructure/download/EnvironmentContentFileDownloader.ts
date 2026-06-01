@@ -23,12 +23,7 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
   }
 
   forceStop(): void {
-    //@ts-ignore
-    // Logger.debug('Finish emitter type', this.state?.type);
-    // Logger.debug('Finish emitter stop method', this.state?.stop);
     this.state?.stop();
-    // this.eventEmitter.emit('error');
-    // this.eventEmitter.emit('finish');
   }
 
   download(file: StorageFile): Promise<Readable> {

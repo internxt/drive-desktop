@@ -383,4 +383,78 @@ describe('InMemoryFileRepository', () => {
       expect(result.map((f) => f.uuid)).not.toContain('550e8400-e29b-41d4-a716-446655440002');
     });
   });
+
+  describe('deleteByFolderPath', () => {
+    const makeFile = (uuid: string, contentsId: string, path: string) =>
+      File.from({
+        id: 1,
+        uuid,
+        contentsId,
+        folderId: 100,
+        createdAt: '10-03-2025',
+        modificationTime: '10-03-2025',
+        path,
+        size: 1000,
+        updatedAt: '10-03-2025',
+        status: FileStatuses.EXISTS,
+      });
+
+    it('should remove direct children of the deleted folder', async () => {
+      await sut.upsert(makeFile('550e8400-e29b-41d4-a716-446655440010', '21e5ac20-4d87-4458-0010-', '/photos/a.jpg'));
+      await sut.upsert(makeFile('550e8400-e29b-41d4-a716-446655440011', '21e5ac20-4d87-4458-0011-', '/photos/b.jpg'));
+
+      await sut.deleteByFolderPath('/photos');
+
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440010')).toBeUndefined();
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440011')).toBeUndefined();
+    });
+
+    it('should remove files in nested subfolders', async () => {
+      await sut.upsert(
+        makeFile('550e8400-e29b-41d4-a716-446655440012', '21e5ac20-4d87-4458-0012-', '/photos/2024/a.jpg'),
+      );
+      await sut.upsert(
+        makeFile('550e8400-e29b-41d4-a716-446655440013', '21e5ac20-4d87-4458-0013-', '/photos/2024/summer/b.jpg'),
+      );
+
+      await sut.deleteByFolderPath('/photos');
+
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440012')).toBeUndefined();
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440013')).toBeUndefined();
+    });
+
+    it('should not remove files from folders with a similar name prefix', async () => {
+      await sut.upsert(makeFile('550e8400-e29b-41d4-a716-446655440014', '21e5ac20-4d87-4458-0014-', '/photos/a.jpg'));
+      await sut.upsert(
+        makeFile('550e8400-e29b-41d4-a716-446655440015', '21e5ac20-4d87-4458-0015-', '/photos-backup/b.jpg'),
+      );
+
+      await sut.deleteByFolderPath('/photos');
+
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440014')).toBeUndefined();
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440015')).toBeDefined();
+    });
+
+    it('should not remove files from unrelated folders', async () => {
+      await sut.upsert(makeFile('550e8400-e29b-41d4-a716-446655440016', '21e5ac20-4d87-4458-0016-', '/photos/a.jpg'));
+      await sut.upsert(
+        makeFile('550e8400-e29b-41d4-a716-446655440017', '21e5ac20-4d87-4458-0017-', '/documents/report.pdf'),
+      );
+
+      await sut.deleteByFolderPath('/photos');
+
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440016')).toBeUndefined();
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440017')).toBeDefined();
+    });
+
+    it('should do nothing when no files match the folder path', async () => {
+      await sut.upsert(
+        makeFile('550e8400-e29b-41d4-a716-446655440018', '21e5ac20-4d87-4458-0018-', '/documents/report.pdf'),
+      );
+
+      await sut.deleteByFolderPath('/photos');
+
+      expect(await sut.searchByUuid('550e8400-e29b-41d4-a716-446655440018')).toBeDefined();
+    });
+  });
 });

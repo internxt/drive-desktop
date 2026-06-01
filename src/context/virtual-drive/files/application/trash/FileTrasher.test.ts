@@ -94,7 +94,7 @@ describe('FileTrasher', () => {
       expect(syncFileMessengerMock.trashed).toBeCalledWith(file.name, file.type, file.size);
     });
 
-    it('should NOT call remote.trash for files with size 0', async () => {
+    it('should call remote.trash for files with size 0', async () => {
       const file = FileMother.fromPartial({ size: 0 });
       fileRepositoryMock.matchingPartial.mockReturnValue([file]);
       allParentFoldersStatusIsExistsMock.run.mockResolvedValue(true);
@@ -102,7 +102,7 @@ describe('FileTrasher', () => {
       await sut.run(file.contentsId);
 
       expect(syncFileMessengerMock.trashing).toBeCalledWith(file.name, file.type, file.size);
-      expect(addFileToTrashMock).not.toBeCalled();
+      call(addFileToTrashMock).toBe(file.uuid);
       expect(fileRepositoryMock.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
       expect(syncFileMessengerMock.trashed).toBeCalledWith(file.name, file.type, file.size);
     });

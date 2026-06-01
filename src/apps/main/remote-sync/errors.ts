@@ -2,10 +2,10 @@
  * Base class for RemoteSync errors.
  */
 export class RemoteSyncError extends Error {
-  public context?: any;
+  public context?: Record<string, unknown>;
   public code?: string;
 
-  constructor(message: string, code?: string, context?: any) {
+  constructor(message: string, code?: string, context?: Record<string, unknown>) {
     super(message);
     this.name = 'RemoteSyncError';
     this.code = code;
@@ -17,7 +17,7 @@ export class RemoteSyncError extends Error {
  * Error thrown when the response does not contain an array of files.
  */
 export class RemoteSyncInvalidResponseError extends RemoteSyncError {
-  constructor(response: any) {
+  constructor(response: unknown) {
     super(`Expected an array of files, but received: ${JSON.stringify(response, null, 2)}`, 'INVALID_RESPONSE', {
       response,
     });
@@ -39,7 +39,7 @@ export class RemoteSyncNetworkError extends RemoteSyncError {
  * Error thrown when the server responds with an error status (example, status 500).
  */
 export class RemoteSyncServerError extends RemoteSyncError {
-  constructor(status: number, data: any) {
+  constructor(status: number, data: unknown) {
     super(`Server error: request failed with status code ${status} while sync`, 'SERVER_ERROR', { status, data });
     this.name = 'RemoteSyncServerError';
   }

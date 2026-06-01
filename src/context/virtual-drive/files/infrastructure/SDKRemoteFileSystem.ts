@@ -5,6 +5,8 @@ import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopErr
 import { FileDataToPersist, PersistedFileData, RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { CreateFileDto } from '../../../../infra/drive-server/out/dto';
 import { createFile } from '../../../../infra/drive-server/services/files/services/create-file';
+import { parseRetryAfterMs } from '../../../../backend/common/rate-limit/transient-error-handler';
+
 @Service()
 export class SDKRemoteFileSystem implements RemoteFileSystem {
   constructor(private readonly bucket: string) {}
@@ -48,9 +50,10 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         );
       }
       if (errorCause === 'SERVER_ERROR') {
-        return left(
-          new DriveDesktopError('BAD_RESPONSE', `The server could not handle the creation of ${plainName}: ${body}`),
-        );
+        return left(new DriveDesktopError('INTERNAL_SERVER_ERROR', error.message));
+      }
+      if (errorCause === 'TOO_MANY_REQUESTS') {
+        return left(new DriveDesktopError('RATE_LIMITED', String(parseRetryAfterMs(error.message))));
       }
       return left(new DriveDesktopError('UNKNOWN', `Creating file ${plainName}: ${error}`));
     }

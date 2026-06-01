@@ -55,7 +55,7 @@ describe('HydrationApi', () => {
 
       await hydrationApi.start({ debug: true, timeElapsed: false });
 
-      const response = await fetch('http://localhost:4567/hydration/test');
+      await fetch('http://localhost:4567/hydration/test');
       // The request itself may 404, but the debug middleware should have logged
       expect(loggerMock.debug).toBeCalledWith(
         expect.objectContaining({

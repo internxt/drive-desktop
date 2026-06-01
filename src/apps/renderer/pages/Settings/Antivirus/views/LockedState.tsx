@@ -9,7 +9,10 @@ export const LockedState = () => {
     try {
       await window.electron.openUrl('https://internxt.com/pricing');
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to open antivirus pricing page',
+        error,
+      });
     }
   };
 

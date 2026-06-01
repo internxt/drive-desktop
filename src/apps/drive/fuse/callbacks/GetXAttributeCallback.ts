@@ -16,7 +16,7 @@ export class GetXAttributeCallback extends FuseCallback<Buffer> {
     return path === '/';
   }
 
-  async execute(path: string, _name: string, _size: string) {
+  async execute(path: string) {
     if (this.isRootFolder(path)) {
       return this.left(new FuseError(FuseCodes.ENOSYS, 'Cannot get the status of root folder'));
     }

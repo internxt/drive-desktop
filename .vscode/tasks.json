@@ -71,9 +71,24 @@
       }
     },
     {
+      "label": "Build Daemon",
+      "type": "npm",
+      "script": "build:daemon",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "group": "dev"
+      }
+    },
+    {
       "label": "Start Dev Environment",
       "dependsOrder": "sequence",
       "dependsOn": [
+        "Build Daemon",
         "Start Renderer (Debug Mode)",
         "Start Main Process (Debug)"
       ],

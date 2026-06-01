@@ -1,10 +1,10 @@
-import { FuseCodes } from './FuseCodes';
+import { FuseCode, FuseCodes } from './FuseCodes';
 
 export class FuseError extends Error {
   public readonly code: number;
   public readonly timestamp: Date;
 
-  constructor(code: FuseCodes, message: string) {
+  constructor(code: FuseCode, message: string) {
     super(message);
     this.code = code;
     this.timestamp = new Date();

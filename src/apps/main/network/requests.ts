@@ -1,6 +1,12 @@
 import axios, { AxiosBasicCredentials, AxiosRequestConfig } from 'axios';
 import { createHash } from 'crypto';
 
+/**
+ * v.2.5.5
+ * Esteban Galvis Triana
+ * TODO: Move this request logic to driveServerClient
+ */
+
 export interface FileInfo {
   bucket: string;
   mimetype: string;
@@ -99,6 +105,61 @@ export interface Mirror {
   operation: string;
 }
 
+function isFarmerOk(farmer?: Partial<Mirror['farmer']>) {
+  return farmer && farmer.nodeID && farmer.port && farmer.address;
+}
+
+function getFileMirrors(
+  networkApiUrl: string,
+  bucketId: string,
+  fileId: string,
+  limit: number | 3,
+  skip: number | 0,
+  excludeNodes: string[] = [],
+  opts?: AxiosRequestConfig,
+): Promise<Mirror[]> {
+  const excludeNodeIds: string = excludeNodes.join(',');
+  const path = `${networkApiUrl}/buckets/${bucketId}/files/${fileId}`;
+  const queryParams = `?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
+
+  const defaultOpts: AxiosRequestConfig = {
+    responseType: 'json',
+    url: path + queryParams,
+  };
+
+  return axios
+    .request<Mirror[]>({ ...defaultOpts, ...opts })
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+async function replaceMirror(
+  networkApiUrl: string,
+  bucketId: string,
+  fileId: string,
+  pointerIndex: number,
+  excludeNodes: string[] = [],
+  opts?: AxiosRequestConfig,
+): Promise<Mirror> {
+  let mirrorIsOk = false;
+  let mirror: Mirror;
+
+  while (!mirrorIsOk) {
+    const [newMirror] = await getFileMirrors(networkApiUrl, bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
+
+    mirror = newMirror;
+    mirrorIsOk =
+      newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return mirror!;
+}
+
 export async function getMirrors(
   networkApiUrl: string,
   bucketId: string,
@@ -144,59 +205,4 @@ export async function getMirrors(
   }
 
   return mirrors;
-}
-
-async function replaceMirror(
-  networkApiUrl: string,
-  bucketId: string,
-  fileId: string,
-  pointerIndex: number,
-  excludeNodes: string[] = [],
-  opts?: AxiosRequestConfig,
-): Promise<Mirror> {
-  let mirrorIsOk = false;
-  let mirror: Mirror;
-
-  while (!mirrorIsOk) {
-    const [newMirror] = await getFileMirrors(networkApiUrl, bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
-
-    mirror = newMirror;
-    mirrorIsOk =
-      newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  return mirror!;
-}
-
-function getFileMirrors(
-  networkApiUrl: string,
-  bucketId: string,
-  fileId: string,
-  limit: number | 3,
-  skip: number | 0,
-  excludeNodes: string[] = [],
-  opts?: AxiosRequestConfig,
-): Promise<Mirror[]> {
-  const excludeNodeIds: string = excludeNodes.join(',');
-  const path = `${networkApiUrl}/buckets/${bucketId}/files/${fileId}`;
-  const queryParams = `?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
-
-  const defaultOpts: AxiosRequestConfig = {
-    responseType: 'json',
-    url: path + queryParams,
-  };
-
-  return axios
-    .request<Mirror[]>({ ...defaultOpts, ...opts })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
-}
-
-function isFarmerOk(farmer?: Partial<Mirror['farmer']>) {
-  return farmer && farmer.nodeID && farmer.port && farmer.address;
 }

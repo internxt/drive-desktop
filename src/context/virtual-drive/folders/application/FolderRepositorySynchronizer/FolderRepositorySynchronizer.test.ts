@@ -24,7 +24,7 @@ describe('FolderRepositorySynchronizer', () => {
     vi.clearAllMocks();
   });
 
-  const mockFolder = (id: string, path: string, isRoot = false): Folder =>
+  const mockFolder = (id: number | string, path: string, isRoot = false): Folder =>
     ({
       id,
       path,
@@ -32,11 +32,11 @@ describe('FolderRepositorySynchronizer', () => {
     }) as unknown as Folder;
 
   it('should add the remote folders', async () => {
-    const remoteFolders = [mockFolder('1', '/documents'), mockFolder('2', '/projects')];
+    const remoteFolders = [mockFolder(1, '/documents'), mockFolder(2, '/projects')];
 
     folderRepositoryMock.all.mockResolvedValue([]);
 
-    await sut.run(remoteFolders);
+    await sut.run(remoteFolders, new Set());
 
     expect(folderRepositoryMock.add).toHaveBeenCalledTimes(2);
     expect(folderRepositoryMock.add).toHaveBeenCalledWith(remoteFolders[0]);
@@ -44,38 +44,54 @@ describe('FolderRepositorySynchronizer', () => {
     expect(folderRepositoryMock.delete).not.toHaveBeenCalled();
   });
 
-  it('should delete the folders that are not in the remote folders, except root', async () => {
-    const remoteFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents'), mockFolder('2', '/projects')];
+  it('should delete folders the server has marked as deleted, except root', async () => {
+    const remoteFolders = [mockFolder('root', '/', true), mockFolder(1, '/documents'), mockFolder(2, '/projects')];
 
-    const localFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents'), mockFolder('3', '/old-folder')];
+    const localFolders = [mockFolder('root', '/', true), mockFolder(1, '/documents'), mockFolder(3, '/old-folder')];
 
     folderRepositoryMock.all.mockResolvedValue(localFolders);
 
-    await sut.run(remoteFolders);
+    await sut.run(remoteFolders, new Set([3]));
 
     expect(folderRepositoryMock.add).toHaveBeenCalledTimes(3);
     expect(folderRepositoryMock.delete).toHaveBeenCalledTimes(1);
-    expect(folderRepositoryMock.delete).toHaveBeenCalledWith('3');
+    expect(folderRepositoryMock.delete).toHaveBeenCalledWith(3);
     expect(folderRepositoryMock.delete).not.toHaveBeenCalledWith('root');
   });
 
-  it('should delete multiple folders not present in remote, but never delete root', async () => {
-    const remoteFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents')];
+  it('should delete multiple folders the server has trashed, but never delete root', async () => {
+    const remoteFolders = [mockFolder('root', '/', true), mockFolder(1, '/documents')];
 
     const localFolders = [
       mockFolder('root', '/', true),
-      mockFolder('1', '/documents'),
-      mockFolder('2', '/should-be-deleted-1'),
-      mockFolder('3', '/should-be-deleted-2'),
+      mockFolder(1, '/documents'),
+      mockFolder(2, '/should-be-deleted-1'),
+      mockFolder(3, '/should-be-deleted-2'),
     ];
 
     folderRepositoryMock.all.mockResolvedValue(localFolders);
 
-    await sut.run(remoteFolders);
+    await sut.run(remoteFolders, new Set([2, 3]));
 
     expect(folderRepositoryMock.delete).toHaveBeenCalledTimes(2);
-    expect(folderRepositoryMock.delete).toHaveBeenCalledWith('2');
-    expect(folderRepositoryMock.delete).toHaveBeenCalledWith('3');
+    expect(folderRepositoryMock.delete).toHaveBeenCalledWith(2);
+    expect(folderRepositoryMock.delete).toHaveBeenCalledWith(3);
     expect(folderRepositoryMock.delete).not.toHaveBeenCalledWith('root');
+  });
+
+  it('should NOT delete locally created folders absent from remote sync store', async () => {
+    const remoteFolders = [mockFolder('root', '/', true), mockFolder(1, '/documents')];
+
+    const localFolders = [
+      mockFolder('root', '/', true),
+      mockFolder(1, '/documents'),
+      mockFolder(99, '/new-local-folder'), // created locally, not yet in SQLite
+    ];
+
+    folderRepositoryMock.all.mockResolvedValue(localFolders);
+
+    await sut.run(remoteFolders, new Set());
+
+    expect(folderRepositoryMock.delete).not.toHaveBeenCalled();
   });
 });

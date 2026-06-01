@@ -1,4 +1,4 @@
-import { Device } from '../../../apps/main/device/service';
+import { Device } from '../backup/types/Device';
 import configStore from '../../../apps/main/config';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';

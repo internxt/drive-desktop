@@ -1,5 +1,5 @@
 import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
-import { Device } from '../../main/device/service';
+import { Device } from '../../../backend/features/backup/types/Device';
 import { useDevices } from '../hooks/devices/useDevices';
 
 export type DeviceState = { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; device: Device };
@@ -25,14 +25,15 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   const [selected, setSelected] = useState<Device>();
   const { devices, getDevices } = useDevices();
 
-  useEffect(() => {
-    refreshDevice();
-
-    const removeDeviceCreatedListener = window.electron.onDeviceCreated(setCurrentDevice);
-    return () => {
-      removeDeviceCreatedListener();
-    };
-  }, []);
+  const setCurrentDevice = (newDevice: Device) => {
+    try {
+      setDeviceState({ status: 'SUCCESS', device: newDevice });
+      setCurrent(newDevice);
+      setSelected(newDevice);
+    } catch {
+      setDeviceState({ status: 'ERROR' });
+    }
+  };
 
   const refreshDevice = () => {
     setDeviceState({ status: 'LOADING' });
@@ -45,15 +46,14 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const setCurrentDevice = (newDevice: Device) => {
-    try {
-      setDeviceState({ status: 'SUCCESS', device: newDevice });
-      setCurrent(newDevice);
-      setSelected(newDevice);
-    } catch {
-      setDeviceState({ status: 'ERROR' });
-    }
-  };
+  useEffect(() => {
+    refreshDevice();
+
+    const removeDeviceCreatedListener = window.electron.onDeviceCreated(setCurrentDevice);
+    return () => {
+      removeDeviceCreatedListener();
+    };
+  }, []);
 
   const deviceRename = async (deviceName: string) => {
     setDeviceState({ status: 'LOADING' });
@@ -64,7 +64,10 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
       setCurrent(updatedDevice);
       setSelected(updatedDevice);
     } catch (err) {
-      console.log(err);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to rename device',
+        error: err,
+      });
       setDeviceState({ status: 'ERROR' });
     }
   };

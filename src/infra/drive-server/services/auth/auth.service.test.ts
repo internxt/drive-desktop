@@ -1,9 +1,11 @@
 import { AuthService } from './auth.service';
-import { authClient } from './auth.client';
-import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
+import * as authClientModule from './auth.client';
+import * as authServiceModule from '../../../../apps/main/auth/service';
 import { LoginAccessRequest, LoginAccessResponse, LoginResponse } from './auth.types';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { Mock } from 'vitest';
+import { partialSpyOn } from 'tests/vitest/utils.helper';
+import { MockInstance } from 'vitest';
+
 vi.mock('axios', async (importOriginal) => {
   const actual = await importOriginal<typeof import('axios')>();
   return {
@@ -12,39 +14,30 @@ vi.mock('axios', async (importOriginal) => {
   };
 });
 
-vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
-  logger: {
-    error: vi.fn(),
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
+vi.mock('../../drive-server.module', () => ({
+  driveServerModule: {
+    auth: {},
+    backup: {},
+    user: {},
   },
-}));
-
-vi.mock('../../../../apps/main/auth/service', () => ({
-  getNewApiHeaders: vi.fn(),
-  getBaseApiHeaders: vi.fn(),
-}));
-
-vi.mock('./auth.client', () => ({
-  authClient: {
-    GET: vi.fn(),
-    POST: vi.fn(),
-  },
+  DriveServerModule: vi.fn(),
 }));
 
 describe('AuthService', () => {
   let sut: AuthService;
+  const getNewApiHeadersMock = partialSpyOn(authServiceModule, 'getNewApiHeaders');
+  const getBaseApiHeadersMock = partialSpyOn(authServiceModule, 'getBaseApiHeaders');
+  const authGetMock = partialSpyOn(authClientModule.authClient, 'GET') as unknown as MockInstance;
+  const authPostMock = partialSpyOn(authClientModule.authClient, 'POST') as unknown as MockInstance;
 
   beforeEach(() => {
     sut = new AuthService();
-    vi.clearAllMocks();
   });
 
   describe('refresh', () => {
     it('should return token and newToken when response is succesful', async () => {
       const data = { token: 'token', newToken: 'newToken' };
-      (authClient.GET as Mock).mockResolvedValue({ data });
+      authGetMock.mockResolvedValue({ data });
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer newToken',
         'content-type': 'application/json; charset=utf-8',
@@ -52,18 +45,18 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getNewApiHeaders as Mock).mockReturnValue(mockedHeaders);
+      getNewApiHeadersMock.mockReturnValue(mockedHeaders);
       const result = await sut.refresh();
 
       expect(result.isRight()).toEqual(true);
       expect(result.getRight()).toEqual(data);
-      expect(authClient.GET).toHaveBeenCalledWith('/users/refresh', {
+      expect(authGetMock).toHaveBeenCalledWith('/users/refresh', {
         headers: mockedHeaders,
       });
     });
 
     it('should return error when response is not successful', async () => {
-      (authClient.GET as Mock).mockResolvedValue({ data: undefined });
+      authGetMock.mockResolvedValue({ data: undefined });
 
       const result = await sut.refresh();
 
@@ -86,7 +79,7 @@ describe('AuthService', () => {
 
     it('should return error when request throws an exception', async () => {
       const error = new Error('Request failed');
-      (authClient.GET as Mock).mockRejectedValue(error);
+      authGetMock.mockRejectedValue(error);
 
       const result = await sut.refresh();
 
@@ -116,7 +109,7 @@ describe('AuthService', () => {
         hasKyberKeys: false,
         hasEccKeys: false,
       };
-      (authClient.POST as Mock).mockResolvedValue({ data });
+      authPostMock.mockResolvedValue({ data });
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer token',
         'content-type': 'application/json; charset=utf-8',
@@ -124,13 +117,13 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getBaseApiHeaders as Mock).mockReturnValue(mockedHeaders);
+      getBaseApiHeadersMock.mockReturnValue(mockedHeaders);
 
       const result = await sut.login(email);
 
       expect(result.isRight()).toBe(true);
       expect(result.getRight()).toEqual(data);
-      expect(authClient.POST).toHaveBeenCalledWith('/auth/login', {
+      expect(authPostMock).toHaveBeenCalledWith('/auth/login', {
         body: { email },
         headers: mockedHeaders,
       });
@@ -138,9 +131,8 @@ describe('AuthService', () => {
 
     it('should return error when request is not successful', async () => {
       const email = 'test@example.com';
-      (authClient.POST as Mock).mockResolvedValue({ data: undefined });
-      (getBaseApiHeaders as Mock).mockReturnValue({});
-
+      authPostMock.mockResolvedValue({ data: undefined });
+      getBaseApiHeadersMock.mockReturnValue({});
       const result = await sut.login(email);
 
       expect(result.isLeft()).toBe(true);
@@ -162,8 +154,8 @@ describe('AuthService', () => {
     it('should return error when request throws an exception', async () => {
       const email = 'test@example.com';
       const error = new Error('Network error');
-      (authClient.POST as Mock).mockRejectedValue(error);
-      (getBaseApiHeaders as Mock).mockReturnValue({});
+      authPostMock.mockRejectedValue(error);
+      getBaseApiHeadersMock.mockReturnValue({});
 
       const result = await sut.login(email);
 
@@ -191,18 +183,17 @@ describe('AuthService', () => {
         tfa: '123456',
       };
 
-      const data: LoginAccessResponse = {
+      const data = {
         user: {
-          id: 'user-1',
           email: 'test@example.com',
           name: 'Test User',
-        } as any,
+        },
         token: 'jwt-token',
         userTeam: {},
         newToken: 'refresh-jwt',
-      };
+      } as unknown as LoginAccessResponse;
 
-      (authClient.POST as Mock).mockResolvedValue({ data });
+      authPostMock.mockResolvedValue({ data });
 
       const mockedHeaders: Record<string, string> = {
         Authorization: 'Bearer token',
@@ -211,13 +202,13 @@ describe('AuthService', () => {
         'internxt-version': '2.4.8',
         'x-internxt-desktop-header': 'test-header',
       };
-      (getBaseApiHeaders as Mock).mockReturnValue(mockedHeaders);
+      getBaseApiHeadersMock.mockReturnValue(mockedHeaders);
 
       const result = await sut.access(credentials);
 
       expect(result.isRight()).toBe(true);
       expect(result.getRight()).toEqual(data);
-      expect(authClient.POST).toHaveBeenCalledWith('/auth/login/access', {
+      expect(authPostMock).toHaveBeenCalledWith('/auth/login/access', {
         body: credentials,
         headers: mockedHeaders,
       });
@@ -230,8 +221,8 @@ describe('AuthService', () => {
         tfa: '123456',
       };
 
-      (authClient.POST as Mock).mockResolvedValue({ data: undefined });
-      (getBaseApiHeaders as Mock).mockReturnValue({});
+      authPostMock.mockResolvedValue({ data: undefined });
+      getBaseApiHeadersMock.mockReturnValue({});
 
       const result = await sut.access(credentials);
 
@@ -259,8 +250,8 @@ describe('AuthService', () => {
       };
 
       const error = new Error('Network error');
-      (authClient.POST as Mock).mockRejectedValue(error);
-      (getBaseApiHeaders as Mock).mockReturnValue({});
+      authPostMock.mockRejectedValue(error);
+      getBaseApiHeadersMock.mockReturnValue({});
 
       const result = await sut.access(credentials);
 

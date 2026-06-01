@@ -1,4 +1,4 @@
-import { getUserSystemPath } from '../device/service';
+import { homedir } from 'node:os';
 import { Antivirus } from './Antivirus';
 import { getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
@@ -23,7 +23,7 @@ async function scanInBackground() {
   const database = new DBScannerConnection(hashedFilesAdapter);
   const antivirus = await Antivirus.createInstance();
 
-  const userSystemPath = await getUserSystemPath();
+  const userSystemPath = homedir();
   if (!userSystemPath) return;
 
   const scan = async (filePath: string) => {
@@ -67,7 +67,7 @@ async function scanInBackground() {
     const backgroundQueue: QueueObject<string> = queue(scan, BACKGROUND_MAX_CONCURRENCY);
 
     await getFilesFromDirectory({
-      dir: userSystemPath.path,
+      dir: userSystemPath,
       cb: (file: string) => backgroundQueue.pushAsync(file),
       signal: abortController.signal,
     });

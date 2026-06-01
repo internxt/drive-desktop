@@ -25,7 +25,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       const result = await this.repository.find();
       return {
         success: true,
-        result: result,
+        result,
       };
     } catch (error) {
       return {

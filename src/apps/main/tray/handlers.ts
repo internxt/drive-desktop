@@ -1,5 +1,5 @@
 import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
-import { setTrayStatus } from './tray';
+import { setTrayStatus } from './tray-setup';
 
 MainProcessSyncEngineIPC.on('FOLDER_CREATING', () => {
   setTrayStatus('SYNCING');

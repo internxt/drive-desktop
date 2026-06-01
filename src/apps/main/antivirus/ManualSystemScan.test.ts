@@ -7,9 +7,6 @@ import eventBus from '../event-bus';
 import { Mock, Mocked } from 'vitest';
 
 vi.mock('./Antivirus');
-vi.mock('../device/service', () => ({
-  getUserSystemPath: vi.fn(() => '/home/user/Documents'),
-}));
 vi.mock('./utils/getFilesFromDirectory', () => ({
   getFilesFromDirectory: vi.fn(({ cb }: { dir: string; cb: (file: string) => Promise<void>; signal: AbortSignal }) => {
     cb('/path/to/file.txt');

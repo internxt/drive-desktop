@@ -17,13 +17,15 @@ export type TemporalFileAttributes = {
  * Once the file descriptor is closed (FUSE release), the temporal file is uploaded to the cloud
  * (see {@link TemporalFileUploader}) and then deleted from disk (see {@link DeleteTemporalFileOnFileCreated}).
  *
- * Auxiliary files (lock files, .tmp, vim swap, .goutputstream-*) are ignored.
+ * Auxiliary files (lock files, .tmp, vim swap, vim probe/backup files, .goutputstream-*) are ignored.
  */
 export class TemporalFile extends AggregateRoot {
   private static readonly TEMPORAL_EXTENSION = 'tmp';
   private static readonly LOCK_FILE_NAME_PREFIX = '.~lock.';
   private static readonly OUTPUT_STREAM_NAME_PREFIX = '.goutputstream-';
-  private static readonly VIM_SWAP_EXTENSIONS = ['.swp', '.swo', '.swn', '.swm'];
+  private static readonly VIM_SWAP_FILE_PATTERN = /\.sw[a-z]$/i;
+  private static readonly VIM_BACKUP_FILE_SUFFIX = '~';
+  private static readonly VIM_PROBE_FILE_NAME = '4913';
 
   private constructor(
     private _createdAt: Date,
@@ -47,6 +49,10 @@ export class TemporalFile extends AggregateRoot {
 
   public get name() {
     return this._path.name();
+  }
+
+  public get nameWithExtension() {
+    return this._path.nameWithExtension();
   }
 
   public get extension() {
@@ -98,12 +104,14 @@ export class TemporalFile extends AggregateRoot {
     const isTemporal = this.isTemporal();
     const isOutputStream = this.isOutputStream();
     const isVimSwap = this.isVimSwapFile();
+    const isVimBackup = this.isVimBackupFile();
+    const isVimProbe = this.isVimProbeFile();
 
-    return isLockFile || isTemporal || isOutputStream || isVimSwap;
+    return isLockFile || isTemporal || isOutputStream || isVimSwap || isVimBackup || isVimProbe;
   }
 
   isLockFile(): boolean {
-    return this.name.startsWith(TemporalFile.LOCK_FILE_NAME_PREFIX);
+    return this.nameWithExtension.startsWith(TemporalFile.LOCK_FILE_NAME_PREFIX);
   }
 
   isTemporal(): boolean {
@@ -111,11 +119,19 @@ export class TemporalFile extends AggregateRoot {
   }
 
   isOutputStream(): boolean {
-    return this.name.startsWith(TemporalFile.OUTPUT_STREAM_NAME_PREFIX);
+    return this.nameWithExtension.startsWith(TemporalFile.OUTPUT_STREAM_NAME_PREFIX);
   }
 
   isVimSwapFile(): boolean {
-    return TemporalFile.VIM_SWAP_EXTENSIONS.some((ext) => this.name.endsWith(ext));
+    return TemporalFile.VIM_SWAP_FILE_PATTERN.test(this.nameWithExtension);
+  }
+
+  isVimBackupFile(): boolean {
+    return this.nameWithExtension.endsWith(TemporalFile.VIM_BACKUP_FILE_SUFFIX);
+  }
+
+  isVimProbeFile(): boolean {
+    return this.nameWithExtension === TemporalFile.VIM_PROBE_FILE_NAME;
   }
 
   attributes(): TemporalFileAttributes {

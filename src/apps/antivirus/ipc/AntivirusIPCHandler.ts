@@ -1,7 +1,7 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ipcMain } from 'electron';
 import { AntivirusIPCMain } from './AntivirusIPCMain';
-import { getMultiplePathsFromDialog } from '../../main/device/service';
+import { getMultiplePathsFromDialog } from '../../../core/utils/get-multiple-paths-from-dialog';
 import { AntivirusScanService } from '../../main/antivirus/AntivirusScanService';
 import { getAntivirusManager } from '../../main/antivirus/antivirusManager';
 import configStore from '../../main/config';
@@ -98,7 +98,7 @@ export class AntivirusIPCHandler {
         });
 
         const shouldGetFiles = Boolean(getFiles);
-        const result = await getMultiplePathsFromDialog(shouldGetFiles);
+        const result = await getMultiplePathsFromDialog({ allowFiles: shouldGetFiles });
 
         if (!result || !Array.isArray(result)) {
           return [];

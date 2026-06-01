@@ -10,7 +10,7 @@ export function createFolderFromServerFolder(server: ServerFolder, relativePath:
     parentId: server.parentId as number,
     updatedAt: server.updatedAt,
     createdAt: server.createdAt,
-    path: path,
+    path,
     status: server.status,
   });
 }

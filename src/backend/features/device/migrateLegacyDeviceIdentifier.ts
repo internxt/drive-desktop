@@ -1,6 +1,6 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { Device } from './../../../apps/main/device/service';
+import { Device } from '../backup/types/Device';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 import configStore from './../../../apps/main/config';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';

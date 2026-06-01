@@ -10,6 +10,7 @@ describe('useUserAvailableProducts', () => {
     antivirus: false,
     cleaner: true,
   };
+  const loggerErrorMock = vi.mocked(window.electron.logger.error);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -82,17 +83,16 @@ describe('useUserAvailableProducts', () => {
     const error = new Error('Failed to fetch products');
     vi.mocked(window.electron.userAvailableProducts.get).mockRejectedValue(error);
 
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
     const { result } = renderHook(() => useUserAvailableProducts());
 
     // Wait for the promise to reject and be handled
     await vi.waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to fetch user available products:', error);
+      expect(loggerErrorMock).toHaveBeenCalledWith({
+        msg: '[RENDERER] Failed to fetch user available products',
+        error,
+      });
     });
 
     expect(result.current.products).toBeUndefined();
-
-    consoleErrorSpy.mockRestore();
   });
 });

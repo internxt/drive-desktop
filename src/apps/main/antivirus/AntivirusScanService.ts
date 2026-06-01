@@ -1,8 +1,8 @@
+import { homedir } from 'node:os';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { shell } from 'electron';
 import { ScanOrchestrator } from './ScanOrchestrator';
 import { SelectedItemToScanProps } from './Antivirus';
-import { getUserSystemPath } from '../../main/device/service';
 import { cancelBackgroundScan } from './scanCronJob';
 
 let currentScan: ScanOrchestrator | null = null;
@@ -32,14 +32,14 @@ export class AntivirusScanService {
   }
 
   private static async getSystemScanPaths(): Promise<string[]> {
-    const userSystemPath = await getUserSystemPath();
+    const userSystemPath = homedir();
 
     if (!userSystemPath) {
       logger.error({ tag: 'ANTIVIRUS', msg: 'Could not get user system path' });
       return [];
     }
 
-    return [userSystemPath.path];
+    return [userSystemPath];
   }
 
   private static extractPaths(items: SelectedItemToScanProps[]): string[] {

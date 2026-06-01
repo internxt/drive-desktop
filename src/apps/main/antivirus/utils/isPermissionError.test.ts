@@ -49,14 +49,14 @@ describe('isPermissionError', () => {
     nestedError.code = 'EACCES';
 
     const clamError = new NodeClamError('Clam error');
-    (clamError as any).data = { err: nestedError };
+    clamError.data = { err: nestedError };
 
     expect(isPermissionError(clamError)).toBe(true);
   });
 
   it('should handle NodeClamError without nested error', () => {
     const clamError = new NodeClamError('Clam error');
-    (clamError as any).data = {};
+    clamError.data = {};
 
     expect(isPermissionError(clamError)).toBe(false);
   });

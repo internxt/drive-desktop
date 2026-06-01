@@ -3,6 +3,7 @@ import { call } from 'tests/vitest/utils.helper';
 import { attachAuthInterceptors } from './attach-auth-interceptors';
 import { createRequestInterceptor } from './create-request-interceptor';
 import { createResponseInterceptor } from './create-response-interceptor';
+import { AxiosInstance } from 'axios';
 
 vi.mock('./create-request-interceptor');
 vi.mock('./create-response-interceptor');
@@ -20,7 +21,7 @@ describe('attachAuthInterceptors', () => {
       request: { use: mockRequestUse },
       response: { use: mockResponseUse },
     },
-  } as any;
+  } as unknown as AxiosInstance;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,8 +53,8 @@ describe('attachAuthInterceptors', () => {
 
     call(createRequestInterceptor).toMatchObject(authHeadersProvider);
     call(mockRequestUse).toMatchObject(mockRequestInterceptor);
-    expect(createResponseInterceptor).not.toHaveBeenCalled();
-    expect(mockResponseUse).not.toHaveBeenCalled();
+    expect(createResponseInterceptor).not.toBeCalled();
+    expect(mockResponseUse).not.toBeCalled();
   });
 
   it('should only register response interceptor when only onUnauthorized is provided', () => {
@@ -61,8 +62,8 @@ describe('attachAuthInterceptors', () => {
 
     attachAuthInterceptors(instance, { onUnauthorized });
 
-    expect(createRequestInterceptor).not.toHaveBeenCalled();
-    expect(mockRequestUse).not.toHaveBeenCalled();
+    expect(createRequestInterceptor).not.toBeCalled();
+    expect(mockRequestUse).not.toBeCalled();
     call(createResponseInterceptor).toMatchObject(onUnauthorized);
     call(mockResponseUse).toMatchObject([mockOnFulfilled, mockOnRejected]);
   });

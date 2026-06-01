@@ -56,6 +56,16 @@ describe('update-file-to-backup', () => {
     expect(overrideFileMock).not.toHaveBeenCalled();
   });
 
+  it('should return ACTION_NOT_PERMITTED when content upload cannot read the local file', async () => {
+    const uploadError = new DriveDesktopError('ACTION_NOT_PERMITTED', 'permission denied');
+    uploadContentMock.mockResolvedValue({ error: uploadError });
+
+    const result = await updateFileToBackup({ ...baseParams, signal: abortController.signal });
+
+    expect(result.error).toBe(uploadError);
+    expect(overrideFileMock).not.toHaveBeenCalled();
+  });
+
   it('should return error when override fails with non-retryable error', async () => {
     uploadContentMock.mockResolvedValue({ data: BucketEntryIdMother.primitive() });
     overrideFileMock.mockResolvedValue({ error: new DriveServerError('NOT_FOUND', 404) });

@@ -1,11 +1,12 @@
 import { BrowserWindow, ipcMain, screen } from 'electron';
 
 import eventBus from '../event-bus';
-import { TrayMenu } from '../tray/tray';
+import { TrayMenu } from '../tray/tray-menu';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
 import isDev from '../../../core/isDev/isDev';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const widgetConfig: { width: number; height: number; placeUnderTray: boolean } = {
   width: 330,
@@ -66,7 +67,7 @@ export const createWidget = async () => {
   widget.webContents.on('ipc-message', (_, channel, payload) => {
     // Current widget pathname
     if (channel === 'path-changed') {
-      console.log('Renderer navigated to ', payload);
+      logger.error({ msg: '[RENDERER] Renderer navigated', payload });
     }
   });
 

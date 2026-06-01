@@ -3,3 +3,4 @@
 npm run lint
 npm run type-check
 npm run format
+cd packages/fuse-daemon && make lint

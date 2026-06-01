@@ -8,6 +8,7 @@ import { setupRootFolder } from '../../virtual-root-folder/service';
 import { processDeeplink } from './proccess-deeplink';
 import { initializeCurrentUser } from './initialize_current_user';
 import configStore from '../../config';
+import { PATHS } from '../../../../core/electron/paths';
 
 type Props = {
   url: string;
@@ -34,7 +35,7 @@ export async function handleDeeplink({ url }: Props) {
       logger.debug({ tag: 'AUTH', msg: 'Config restoration attempt on login', restored, uuid: userData.uuid });
     }
 
-    await setupRootFolder();
+    setupRootFolder(PATHS.ROOT_DRIVE_FOLDER);
 
     setIsLoggedIn(true);
 

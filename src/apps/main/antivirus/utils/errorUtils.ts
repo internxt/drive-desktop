@@ -16,14 +16,14 @@ export function getErrorMessage(error: unknown): string {
 
   if (error && typeof error === 'object') {
     if ('data' in error) {
-      const data = (error as any).data;
-      if (data && data.err) {
+      const data = (error as Record<string, unknown>).data;
+      if (data && typeof data === 'object' && 'err' in data) {
         return `ClamAV Error: ${getErrorMessage(data.err)}`;
       }
     }
 
-    if ('message' in error && typeof (error as any).message === 'string') {
-      return (error as any).message;
+    if ('message' in error && typeof (error as Record<string, unknown>).message === 'string') {
+      return (error as Record<string, unknown>).message as string;
     }
 
     try {

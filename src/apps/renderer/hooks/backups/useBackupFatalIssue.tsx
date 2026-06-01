@@ -4,6 +4,38 @@ import { BackupInfo } from '../../../backups/BackupInfo';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages } from '../../messages/virtual-drive-error';
 
+type Action = {
+  name: string;
+  fn: undefined | ((backup: BackupInfo) => Promise<void>);
+};
+
+type BackupErrorActionMap = Record<SyncError, Action | undefined>;
+
+export const backupsErrorActions: BackupErrorActionMap = {
+  BASE_DIRECTORY_DOES_NOT_EXIST: {
+    name: 'issues.actions.find-folder',
+    fn: findBackupFolder,
+  },
+  NOT_EXISTS: undefined,
+  NO_INTERNET: undefined,
+  NO_REMOTE_CONNECTION: undefined,
+  BAD_RESPONSE: undefined,
+  EMPTY_FILE: undefined,
+  FILE_TOO_BIG: undefined,
+  FILE_NON_EXTENSION: undefined,
+  UNKNOWN: undefined,
+  DUPLICATED_NODE: undefined,
+  ACTION_NOT_PERMITTED: undefined,
+  FILE_ALREADY_EXISTS: undefined,
+  COULD_NOT_ENCRYPT_NAME: undefined,
+  BAD_REQUEST: undefined,
+  INSUFFICIENT_PERMISSION: undefined,
+  NOT_ENOUGH_SPACE: undefined,
+  ABORTED: undefined,
+  RATE_LIMITED: undefined,
+  INTERNAL_SERVER_ERROR: undefined,
+};
+
 type FixAction = {
   name: string;
   fn: () => Promise<void>;
@@ -48,35 +80,9 @@ export function useBackupFatalIssue(backup: BackupInfo) {
 }
 
 async function findBackupFolder(backup: BackupInfo) {
-  const result = await window.electron.changeBackupPath(backup.pathname);
-  if (result) window.electron.startBackupsProcess();
+  const chosen = await window.electron.getFolderPath();
+  if (!chosen) return;
+
+  const { data } = await window.electron.changeBackupPath({ currentPath: backup.pathname, newPath: chosen.path });
+  if (data) window.electron.startBackupsProcess();
 }
-
-type Action = {
-  name: string;
-  fn: undefined | ((backup: BackupInfo) => Promise<void>);
-};
-
-type BackupErrorActionMap = Record<SyncError, Action | undefined>;
-
-export const backupsErrorActions: BackupErrorActionMap = {
-  BASE_DIRECTORY_DOES_NOT_EXIST: {
-    name: 'issues.actions.find-folder',
-    fn: findBackupFolder,
-  },
-  NOT_EXISTS: undefined,
-  NO_INTERNET: undefined,
-  NO_REMOTE_CONNECTION: undefined,
-  BAD_RESPONSE: undefined,
-  EMPTY_FILE: undefined,
-  FILE_TOO_BIG: undefined,
-  FILE_NON_EXTENSION: undefined,
-  UNKNOWN: undefined,
-  DUPLICATED_NODE: undefined,
-  ACTION_NOT_PERMITTED: undefined,
-  FILE_ALREADY_EXISTS: undefined,
-  COULD_NOT_ENCRYPT_NAME: undefined,
-  BAD_REQUEST: undefined,
-  INSUFFICIENT_PERMISSION: undefined,
-  NOT_ENOUGH_SPACE: undefined,
-};

@@ -1,0 +1,3 @@
+export const INITIAL_RATE_LIMIT_DELAY_MS = 30_000;
+export const INITIAL_SERVER_ERROR_DELAY_MS = 1_000;
+export const MAX_BACKOFF_MS = 480_000;

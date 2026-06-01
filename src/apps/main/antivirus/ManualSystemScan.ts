@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
+import { homedir } from 'node:os';
 import { ScannedItem } from '../database/entities/ScannedItem';
-import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
@@ -470,7 +470,7 @@ export class ManualSystemScan {
       msg: '[SYSTEM_SCAN] Starting full system scan',
     });
 
-    const userSystemPath = await getUserSystemPath();
+    const userSystemPath = homedir();
     if (!userSystemPath) {
       logger.error({
         tag: 'ANTIVIRUS',
@@ -481,13 +481,13 @@ export class ManualSystemScan {
 
     logger.debug({
       tag: 'ANTIVIRUS',
-      msg: `[SYSTEM_SCAN] Using user system path: ${userSystemPath.path}`,
+      msg: `[SYSTEM_SCAN] Using user system path: ${userSystemPath}`,
     });
 
     this.manualQueue = queue(scan, 10);
 
     try {
-      const total = await countSystemFiles(userSystemPath.path);
+      const total = await countSystemFiles(userSystemPath);
       this.totalItemsToScan = total;
 
       logger.debug({
@@ -505,12 +505,12 @@ export class ManualSystemScan {
       );
 
       if (total === 0) {
-        this.emitEmptyDirProgressEvent(userSystemPath.path, currentSession);
+        this.emitEmptyDirProgressEvent(userSystemPath, currentSession);
         return;
       }
 
       await getFilesFromDirectory({
-        dir: userSystemPath.path,
+        dir: userSystemPath,
         cb: (filePath: string) => this.manualQueue!.pushAsync(filePath),
         signal: this.abortController.signal,
       });

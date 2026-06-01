@@ -20,7 +20,12 @@ export function ItemsSection({ numberOfIssues, numberOfIssuesDisplay, onQuitClic
 
   const handleManualSync = () => {
     if (isSyncing) return;
-    window.electron.startRemoteSync().catch(reportError);
+    window.electron.startRemoteSync().catch((error) => {
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to start manual sync from widget menu',
+        error,
+      });
+    });
   };
 
   return (

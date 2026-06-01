@@ -52,7 +52,7 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
       const result = await this.repository.find();
       return {
         success: true,
-        result: result,
+        result,
       };
     } catch (error) {
       logger.error({ msg: 'Error getting all DB items:', error });

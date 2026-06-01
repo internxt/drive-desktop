@@ -1,5 +1,4 @@
 import { Container } from 'diod';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { NextFunction, Request, Response } from 'express';
 import { extname } from 'path';
 import { StorageFileDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageFileDeleter';

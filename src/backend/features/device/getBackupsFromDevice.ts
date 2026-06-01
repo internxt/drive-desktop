@@ -2,9 +2,10 @@ import { FolderDtoWithPathname } from './device.types';
 import { fetchFolder } from '../../../infra/drive-server/services/folder/services/fetch-folder';
 import configStore from '../../../apps/main/config';
 import { BackupInfo } from './../../../apps/backups/BackupInfo';
-import { Device, findBackupPathnameFromId } from './../../../apps/main/device/service';
+import { Device } from '../backup/types/Device';
 import { FolderDto } from '../../../infra/drive-server/out/dto';
 import { mapFolderDtoToBackupInfo } from './utils/mapFolderDtoToBackupInfo';
+import { findBackupPathnameFromId } from '../backup/find-backup-pathname-from-id';
 
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   const { data: folder, error } = await fetchFolder(device.uuid);
@@ -16,7 +17,7 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
     const result = folder.children
       .map((backup: FolderDto) => ({
         ...backup,
-        pathname: findBackupPathnameFromId(backup.id),
+        pathname: findBackupPathnameFromId({ id: backup.id }),
       }))
       .filter((backup): backup is FolderDtoWithPathname => {
         return !!(backup.pathname && backupsList[backup.pathname]?.enabled);

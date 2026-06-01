@@ -94,13 +94,17 @@ const configuration: webpack.Configuration = {
   },
 
   optimization: {
+    chunkIds: 'deterministic',
     minimize: true,
     minimizer: [
       new TerserPlugin({
-        parallel: true,
+        parallel: false,
       }),
-      new CssMinimizerPlugin(),
+      new CssMinimizerPlugin({
+        parallel: false,
+      }),
     ],
+    moduleIds: 'deterministic',
   },
 
   plugins: [

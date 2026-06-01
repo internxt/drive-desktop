@@ -5,6 +5,7 @@ import * as precalculateBackupItemCountModule from './precalculate-backup-item-c
 import { partialSpyOn } from 'tests/vitest/utils.helper';
 import { loggerMock } from 'tests/vitest/mocks.helper';
 import { AbsolutePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
+import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 
 const makeBackup = (folderUuid: string): BackupInfo => ({
   folderUuid,
@@ -17,11 +18,13 @@ const makeBackup = (folderUuid: string): BackupInfo => ({
 
 describe('calculateBackupsItemsCount', () => {
   let container: Container;
+  let remoteTreeBuilder: RemoteTreeBuilder;
   let signal: AbortSignal;
   const precalcuteBackupItemCountMock = partialSpyOn(precalculateBackupItemCountModule, 'precalculateBackupItemCount');
 
   beforeEach(() => {
-    container = { get: vi.fn().mockReturnValue({}) } as unknown as Container;
+    remoteTreeBuilder = {} as RemoteTreeBuilder;
+    container = { get: vi.fn().mockReturnValue(remoteTreeBuilder) } as unknown as Container;
     signal = new AbortController().signal;
   });
 
@@ -43,13 +46,14 @@ describe('calculateBackupsItemsCount', () => {
     expect(result.size).toBe(2);
   });
 
-  it('calls precalculateBackupItemCount with the correct backup and container', async () => {
+  it('calls precalculateBackupItemCount with the correct backup and remote tree builder', async () => {
     const backup = makeBackup('uuid-1');
     precalcuteBackupItemCountMock.mockResolvedValueOnce({ data: 7 });
 
     await calculateBackupsItemsCount({ backups: [backup], signal, container });
 
-    expect(precalcuteBackupItemCountMock).toBeCalledWith(backup, expect.anything(), expect.anything());
+    expect(container.get).toBeCalledWith(RemoteTreeBuilder);
+    expect(precalcuteBackupItemCountMock).toBeCalledWith(backup, remoteTreeBuilder);
   });
 
   it('stops processing when signal is already aborted', async () => {

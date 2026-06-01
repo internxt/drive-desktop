@@ -3,6 +3,7 @@ import { type Mock } from 'vitest';
 import { useTranslationContext } from '../../context/LocalContext';
 import { useUsage } from '../../context/UsageContext/useUsage';
 import { AccountSection } from './AccountSection';
+import { type User } from '../../../main/types';
 
 vi.mock('../../context/LocalContext');
 vi.mock('../../context/UsageContext/useUsage');
@@ -13,7 +14,7 @@ describe('AccountSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useTranslationContext as Mock).mockReturnValue({ translate: (key: string) => key });
-    getUserMock.mockResolvedValue(null as any);
+    getUserMock.mockResolvedValue(null);
   });
 
   it('renders the account section container', () => {
@@ -26,7 +27,11 @@ describe('AccountSection', () => {
 
   it('shows user initials when user is loaded', async () => {
     (useUsage as Mock).mockReturnValue({ status: 'ready', usage: null });
-    getUserMock.mockResolvedValue({ name: 'John', lastname: 'Doe', email: 'john@example.com' } as any);
+    getUserMock.mockResolvedValue({
+      name: 'John',
+      lastname: 'Doe',
+      email: 'john@example.com',
+    } as Partial<User> as User);
 
     render(<AccountSection />);
 
@@ -35,7 +40,11 @@ describe('AccountSection', () => {
 
   it('shows user email when user is loaded', async () => {
     (useUsage as Mock).mockReturnValue({ status: 'ready', usage: null });
-    getUserMock.mockResolvedValue({ name: 'John', lastname: 'Doe', email: 'john@example.com' } as any);
+    getUserMock.mockResolvedValue({
+      name: 'John',
+      lastname: 'Doe',
+      email: 'john@example.com',
+    } as Partial<User> as User);
 
     render(<AccountSection />);
 

@@ -16,7 +16,7 @@ function closeAuxWindows() {
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
 
-export function broadcastToWindows(eventName: string, data: any) {
+export function broadcastToWindows(eventName: string, data: unknown) {
   const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow()];
 
   renderers.forEach((r) => r?.webContents.send(eventName, data));

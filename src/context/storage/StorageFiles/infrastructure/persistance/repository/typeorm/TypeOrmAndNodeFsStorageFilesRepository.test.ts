@@ -1,71 +1,60 @@
-// import 'reflect-metadata';
-// import path from 'node:path';
-// import { DataSource } from 'typeorm';
-// import { TypeOrmAndNodeFsStorageFilesRepository } from './TypeOrmAndNodeFsStorageFilesRepository';
-// import { obtainSqliteDataSource } from './__test-helpers__/sqlDataSource';
-// import { StorageFileMother } from '../../../../../__test-helpers__/StorageFileMother';
-// import { createReadable } from './__test-helpers__/createReadable';
-// import { createFile } from './__test-helpers__/createFile';
+import 'reflect-metadata';
+import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { DataSource } from 'typeorm';
+import { TypeOrmAndNodeFsStorageFilesRepository } from './TypeOrmAndNodeFsStorageFilesRepository';
 
-/**
- * SKIPPED: This test requires better-sqlite3 native module which must be compiled
- * for the specific Node.js version being used.
- *
- * The production app runs on Node.js v16 (NODE_MODULE_VERSION 106), but if you're
- * running tests with a different Node version, better-sqlite3 will fail to load.
- *
- * ADDITIONAL ISSUE: typeorm and better-sqlite3 are installed in release/app/package.json
- * (separate from the main package.json), which creates module resolution issues in the
- * test environment. The proper solution is to consolidate into a single package.json.
- *
- * To fix:
- * 1. Use Node.js v16 to match production: `nvm use 16`
- * 2. Or rebuild the native module: `npm rebuild better-sqlite3`
- * 3. Or run tests in a container with the correct Node version
- *
- * Once you're on Node v16, remove the .skip to enable this test.
- */
-describe.skip('TypeOrmAndNodeFsStorageFilesRepository', () => {
-  //   const directory = 'sqlite';
-  //   // let dataSource: DataSource;
-  //   let repository: TypeOrmAndNodeFsStorageFilesRepository;
-  //   beforeAll(async () => {
-  //     const on = path.join(__dirname, directory);
-  //     dataSource = await obtainSqliteDataSource(on);
-  //     repository = new TypeOrmAndNodeFsStorageFilesRepository(on, dataSource);
-  //   });
-  //   afterAll(async () => {
-  //     await dataSource?.dropDatabase();
-  //   });
-  //   afterEach(async () => {
-  //     await repository.deleteAll();
-  //   });
-  //   it('stores and retrieve a file from database and file system', async () => {
-  //     const file = StorageFileMother.random();
-  //     const content = 'Hello Wold!!';
-  //     await repository.store(file, createReadable(content));
-  //     const retrievedBuffer = await repository.read(file.id);
-  //     expect(retrievedBuffer.toString()).toBe(content);
-  //   });
-  //   it('deletes a stored file', async () => {
-  //     const file = await createFile(repository);
-  //     await repository.delete(file.id);
-  //     const result = await repository.exists(file.id);
-  //     expect(result).toBe(false);
-  //   });
-  //   it('finds a file after being stored', async () => {
-  //     const stored = await createFile(repository);
-  //     const exists = await repository.exists(stored.id);
-  //     expect(exists).toBe(true);
-  //   });
-  //   it('retrieves a stored Storage File', async () => {
-  //     const stored = await createFile(repository);
-  //     const retrieved = await repository.retrieve(stored.id);
-  //     expect(stored).toEqual(retrieved);
-  //   });
-  //   it('returns all files', async () => {
-  //     const files = await Promise.all([createFile(repository), createFile(repository), createFile(repository)]);
-  //     const allFilesRetrieved = await repository.all();
-  //     expect(files).toEqual(expect.arrayContaining(allFilesRetrieved));
-  //   });
+describe('TypeOrmAndNodeFsStorageFilesRepository', () => {
+  let baseFolder: string;
+  let db: {
+    find: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+  let repository: TypeOrmAndNodeFsStorageFilesRepository;
+
+  beforeEach(async () => {
+    baseFolder = await mkdtemp(path.join(os.tmpdir(), 'storage-files-repository-'));
+    db = {
+      find: vi.fn().mockResolvedValue([]),
+      delete: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const dataSource = {
+      getRepository: vi.fn().mockReturnValue(db),
+    } as unknown as DataSource;
+
+    repository = new TypeOrmAndNodeFsStorageFilesRepository(baseFolder, dataSource);
+  });
+
+  afterEach(async () => {
+    await rm(baseFolder, { recursive: true, force: true });
+  });
+
+  it('should delete orphaned files from the storage folder when deleting all', async () => {
+    await writeFile(path.join(baseFolder, 'orphaned-contents-id'), 'partial hydration');
+
+    await repository.deleteAll();
+
+    await expect(readdir(baseFolder)).resolves.toEqual([]);
+  });
+
+  it('should delete registered files and any remaining orphaned files from the storage folder', async () => {
+    db.find.mockResolvedValue([{ id: 'registeredcontentsid0000' }]);
+    await writeFile(path.join(baseFolder, 'registeredcontentsid0000'), 'hydrated file');
+    await writeFile(path.join(baseFolder, 'orphaned-contents-id'), 'partial hydration');
+    await mkdir(path.join(baseFolder, 'nested-directory'));
+
+    await repository.deleteAll();
+
+    expect(db.delete).toHaveBeenCalledWith({ id: 'registeredcontentsid0000' });
+    await expect(readdir(baseFolder)).resolves.toEqual(['nested-directory']);
+  });
+
+  it('should return an error if deleting all files throws', async () => {
+    db.find.mockRejectedValue(new Error('The database connection is not open'));
+    const result = await repository.deleteAll();
+    expect(result).toEqual({ error: new Error('The database connection is not open') });
+    expect(db.delete).not.toHaveBeenCalled();
+  });
 });

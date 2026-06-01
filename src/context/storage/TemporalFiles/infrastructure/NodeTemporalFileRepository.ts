@@ -95,9 +95,9 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
     const fsDeletion = new Promise<void>((resolve, reject) => {
       fs.unlink(pathToDelete, (err: NodeJS.ErrnoException | null) => {
         if (err) {
-          if (err.code !== 'ENOENT') {
+          if (err.code === 'ENOENT') {
             logger.debug({
-              msg: `Could not delete ${pathToDelete}, it already does not exists`,
+              msg: `Could not delete ${pathToDelete}, it already does not exist`,
             });
             resolve();
             return;
@@ -140,12 +140,23 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
     }
 
     const fd = fs.openSync(pathToWrite, 'r+');
+    const bytes = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
 
     try {
-      fs.writeSync(fd, buffer, 0, length, position);
+      fs.writeSync(fd, bytes, 0, length, position);
     } finally {
       fs.closeSync(fd);
     }
+  }
+
+  async truncate(documentPath: TemporalFilePath, size: number): Promise<void> {
+    const pathToWrite = this.map.get(documentPath.value);
+
+    if (!pathToWrite) {
+      throw new Error(`Document with path ${documentPath.value} not found`);
+    }
+
+    fs.truncateSync(pathToWrite, size);
   }
 
   async stream(documentPath: TemporalFilePath): Promise<Readable> {
@@ -166,7 +177,21 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
       return Optional.empty();
     }
 
-    const stat = fs.statSync(pathToSearch);
+    let stat: fs.Stats;
+
+    try {
+      stat = fs.statSync(pathToSearch);
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+        logger.debug({
+          msg: 'Temporal file was removed from disk before reading attributes',
+          documentPath: documentPath.value,
+          pathToSearch,
+        });
+      }
+
+      return Optional.empty();
+    }
 
     const doc = TemporalFile.from({
       createdAt: stat.ctime,
@@ -201,5 +226,25 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
     return () => {
       watcher.close();
     };
+  }
+
+  statFs(): Promise<{ blocks: number; bfree: number; bavail: number; files: number; ffree: number; bsize: number }> {
+    return new Promise((resolve, reject) => {
+      fs.statfs(this.folder, (err, stats) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        resolve({
+          blocks: stats.blocks,
+          bfree: stats.bfree,
+          bavail: stats.bavail,
+          files: stats.files,
+          ffree: stats.ffree,
+          bsize: stats.bsize,
+        });
+      });
+    });
   }
 }

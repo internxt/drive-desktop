@@ -7,13 +7,6 @@ import isDev from '../../../core/isDev/isDev';
 let processIssuesWindow: BrowserWindow | null = null;
 export const getProcessIssuesWindow = () => (processIssuesWindow?.isDestroyed() ? null : processIssuesWindow);
 
-ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
-ipcMain.handle('open-process-issues-window', async () => {
-  await openProcessIssuesWindow();
-
-  return true;
-});
-
 async function openProcessIssuesWindow() {
   if (processIssuesWindow) {
     processIssuesWindow.focus();
@@ -30,8 +23,7 @@ async function openProcessIssuesWindow() {
       nodeIntegration: true,
       devTools: isDev(),
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
+    frame: false,
     resizable: false,
     maximizable: false,
   });
@@ -48,3 +40,10 @@ async function openProcessIssuesWindow() {
 
   setUpCommonWindowHandlers(processIssuesWindow);
 }
+
+ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
+ipcMain.handle('open-process-issues-window', async () => {
+  await openProcessIssuesWindow();
+
+  return true;
+});

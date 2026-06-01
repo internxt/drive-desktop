@@ -12,7 +12,7 @@ export const DriveSlide: React.FC<OnboardingSlideProps> = () => {
       <h3
         className={`font-regular mb-2.5 whitespace-pre-line text-left text-lg leading-[22px] ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
         {translate('onboarding.slides.drive.description', {
-          platform_app: translate('onboarding.common.platform-phrase.windows'),
+          platform_app: translate('onboarding.common.platform-phrase'),
         })}
       </h3>
     </div>

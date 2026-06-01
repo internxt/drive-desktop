@@ -9,13 +9,19 @@ export default function useVirtualDriveStatus() {
       .getVirtualDriveStatus()
       .then((status: FuseDriveStatus) => setVirtualDriveStatus(status))
       .catch((err) => {
-        reportError(err);
+        window.electron.logger.error({
+          msg: '[RENDERER] Failed to fetch virtual drive status',
+          error: err,
+        });
       });
   }, []);
 
   useEffect(() => {
     const removeListener = window.electron.onVirtualDriveStatusChange((status) => {
-      console.debug('status changed');
+      window.electron.logger.debug({
+        msg: '[RENDERER] Virtual drive status changed',
+        status,
+      });
       setVirtualDriveStatus(status.status);
     });
 

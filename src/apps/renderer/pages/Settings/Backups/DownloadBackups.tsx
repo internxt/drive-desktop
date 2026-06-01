@@ -11,18 +11,23 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
     useContext(BackupContext);
 
   const handleDownloadBackup = async () => {
+    if (!selected) return;
+
     if (!thereIsDownloadProgress) {
-      await downloadBackups(selected!);
-    } else {
-      try {
-        abortDownloadBackups(selected!);
-      } catch (err) {
-        // error while aborting (aborting also throws an exception itself)
-      } finally {
-        setTimeout(() => {
-          clearBackupDownloadProgress(selected!.uuid);
-        }, 600);
-      }
+      const chosenFolder = await window.electron.getFolderPath();
+      if (!chosenFolder) return;
+      await downloadBackups(selected, chosenFolder.path);
+      return;
+    }
+
+    try {
+      abortDownloadBackups(selected);
+    } catch (err) {
+      // error while aborting (aborting also throws an exception itself)
+    } finally {
+      setTimeout(() => {
+        clearBackupDownloadProgress(selected.uuid);
+      }, 600);
     }
   };
 

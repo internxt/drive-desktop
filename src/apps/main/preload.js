@@ -164,8 +164,8 @@ contextBridge.exposeInMainWorld('electron', {
   addBackup() {
     return ipcRenderer.invoke('add-backup');
   },
-  downloadBackup(backup) {
-    return ipcRenderer.invoke('download-backup', backup);
+  downloadBackup(backup, pathname) {
+    return ipcRenderer.invoke('download-backup', backup, pathname);
   },
   addBackupsFromLocalPaths(localPaths) {
     return ipcRenderer.invoke('add-multiple-backups', localPaths);
@@ -223,8 +223,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupHadIssues() {
     return ipcRenderer.invoke('get-last-backup-had-issues');
   },
-  changeBackupPath(currentPath) {
-    return ipcRenderer.invoke('change-backup-path', currentPath);
+  changeBackupPath({ currentPath, newPath }) {
+    return ipcRenderer.invoke('change-backup-path', { currentPath, newPath });
   },
   getFolderPath() {
     return ipcRenderer.invoke('get-folder-path');
@@ -238,9 +238,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getUsage() {
     return ipcRenderer.invoke('get-usage');
-  },
-  getPlatform() {
-    return ipcRenderer.invoke('get-platform');
   },
   resizeWindow(dimensions) {
     return ipcRenderer.invoke('resize-focused-window', dimensions);

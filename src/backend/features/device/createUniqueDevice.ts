@@ -1,5 +1,5 @@
-import { Device } from '../../../apps/main/device/service';
-import os from 'os';
+import { Device } from '../backup/types/Device';
+import { hostname } from 'node:os';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { tryCreateDevice } from './tryCreateDevice';
 import { Either, left, right } from '../../../context/shared/domain/Either';
@@ -14,7 +14,7 @@ export async function createUniqueDevice(
   deviceIdentifier: DeviceIdentifierDTO,
   attempts = 1000,
 ): Promise<Either<Error, Device>> {
-  const baseName = os.hostname();
+  const baseName = hostname();
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {

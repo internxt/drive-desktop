@@ -11,7 +11,10 @@ import { InfoBanners } from './InfoBanners/InfoBanners';
 
 const handleRetrySync = () => {
   window.electron.startRemoteSync().catch((err) => {
-    reportError(err);
+    window.electron.logger.error({
+      msg: '[RENDERER] Failed to retry sync from widget',
+      error: err,
+    });
   });
 };
 

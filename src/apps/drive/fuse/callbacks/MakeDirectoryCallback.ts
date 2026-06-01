@@ -9,7 +9,7 @@ export class MakeDirectoryCallback extends NotifyFuseCallback {
     super('Make Directory');
   }
 
-  async execute(path: string, _mode: number) {
+  async execute(path: string) {
     if (path.startsWith('/.Trash')) {
       return this.right();
     }

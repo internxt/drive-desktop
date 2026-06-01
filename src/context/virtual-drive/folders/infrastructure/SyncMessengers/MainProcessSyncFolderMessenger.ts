@@ -1,5 +1,5 @@
 import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
-import { setTrayStatus } from '../../../../../apps/main/tray/tray';
+import { setTrayStatus } from '../../../../../apps/main/tray/tray-setup';
 import { virtualDriveUpdate } from '../../../../../apps/main/windows';
 import { VirtualDriveFolderIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
@@ -35,7 +35,7 @@ export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
     virtualDriveUpdate({
       action: 'CREATING_FOLDER',
       oldName: undefined,
-      name: name,
+      name,
       progress: undefined,
     });
   }
@@ -46,7 +46,7 @@ export class MainProcessSyncFolderMessenger implements SyncFolderMessenger {
     virtualDriveUpdate({
       action: 'FOLDER_CREATED',
       oldName: undefined,
-      name: name,
+      name,
       progress: undefined,
     });
   }

@@ -8,7 +8,6 @@ import {
 import { DEFAULT_CONCURRENCY } from '../../backend/features/backup/upload/constants';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
-import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
@@ -28,11 +27,12 @@ import { RetryError } from '../shared/retry/RetryError';
 import { Either, left, right } from '../../context/shared/domain/Either';
 import { addFileToTrash } from '../../infra/drive-server/services/files/services/add-file-to-trash';
 import { createBackupUploadExecutor } from '../../backend/features/backup/upload/create-backup-upload-executor';
+import { backupErrorsTracker } from '../../backend/features/backup';
+import { buildLocalTree } from '../../backend/features/backup/local-tree';
 
 @Service()
 export class BackupService {
   constructor(
-    private readonly localTreeBuilder: LocalTreeBuilder,
     private readonly remoteTreeBuilder: RemoteTreeBuilder,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly environment: Environment,
@@ -49,15 +49,22 @@ export class BackupService {
 
     try {
       logger.debug({ tag: 'BACKUPS', msg: 'Generating local tree' });
-      const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
-
-      if (localTreeEither.isLeft()) {
-        const error = localTreeEither.getLeft();
+      const { data, error } = await buildLocalTree(info.pathname as AbsolutePath);
+      if (error) {
         logger.error({ tag: 'BACKUPS', msg: 'Error generating local tree:', error });
         return error;
       }
-
-      const local = localTreeEither.getRight();
+      if (data.skippedItems.length > 0) {
+        /** TODO PB-6391:
+         * Extend backup issues window to include
+         * skipped items details so the issues window can show each skipped path
+         */
+        backupErrorsTracker.add(info.folderId, {
+          name: info.name,
+          error: 'ACTION_NOT_PERMITTED',
+        });
+      }
+      const local = data.tree;
       logger.debug({ tag: 'BACKUPS', msg: 'Local tree generated successfully' });
 
       logger.debug({ tag: 'BACKUPS', msg: 'Generating remote tree' });

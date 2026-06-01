@@ -1,5 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { Network as NetworkModule } from '@internxt/sdk';
+import { BinaryData } from '@internxt/sdk/dist/network/types';
 import { createDecipheriv, randomBytes } from 'crypto';
 import { validateMnemonic } from 'bip39';
 import { downloadFile } from '@internxt/sdk/dist/network/download';
@@ -13,6 +14,27 @@ interface DownloadOptions {
   token?: string;
   abortController?: AbortController;
   downloadingCallback?: DownloadProgressCallback;
+}
+
+export function convertToReadableStream(readStream: Readable): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      readStream.on('data', (chunk) => {
+        controller.enqueue(new Uint8Array(chunk));
+      });
+
+      readStream.on('end', () => {
+        controller.close();
+      });
+
+      readStream.on('error', (err) => {
+        controller.error(err);
+      });
+    },
+    cancel() {
+      readStream.destroy();
+    },
+  });
 }
 
 /**
@@ -67,9 +89,12 @@ export class NetworkFacade {
         }
       },
       async (_, key, iv, fileSize) => {
+        const toUint8Array = (data: BinaryData | Buffer): Uint8Array =>
+          Uint8Array.from(Buffer.isBuffer(data) ? data : Buffer.from(data.toString('hex'), 'hex'));
+        const cipherKey = options?.key ?? key;
         const decryptedStream = getDecryptedStream(
           encryptedContentStreams,
-          createDecipheriv('aes-256-ctr', options?.key || (key as Buffer), iv as Buffer),
+          createDecipheriv('aes-256-ctr', toUint8Array(cipherKey), toUint8Array(iv)),
         );
 
         fileStream = buildProgressStream(decryptedStream, (readBytes) => {
@@ -82,29 +107,4 @@ export class NetworkFacade {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return fileStream!;
   }
-}
-
-export function convertToReadableStream(readStream: Readable): ReadableStream<Uint8Array> {
-  return new ReadableStream<Uint8Array>({
-    start(controller) {
-      readStream.on('data', (chunk) => {
-        // Convertir el chunk a Uint8Array y pasarlo al controller
-        controller.enqueue(new Uint8Array(chunk));
-      });
-
-      readStream.on('end', () => {
-        // Señalar que la transmisión ha finalizado
-        controller.close();
-      });
-
-      readStream.on('error', (err) => {
-        // Señalar un error al controller
-        controller.error(err);
-      });
-    },
-    cancel() {
-      // Abortar la lectura del ReadStream de fs
-      readStream.destroy();
-    },
-  });
 }

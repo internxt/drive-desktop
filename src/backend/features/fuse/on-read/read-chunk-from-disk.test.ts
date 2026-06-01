@@ -1,17 +1,18 @@
 import fs from 'fs/promises';
 import { readChunkFromDisk } from './read-chunk-from-disk';
 import { call } from '../../../../../tests/vitest/utils.helper';
+import { mockDeep } from 'vitest-mock-extended';
 
 vi.mock(import('fs/promises'));
 
-const fsMock = vi.mocked(fs);
+const fsMock = mockDeep(fs);
 
 describe('readChunkFromDisk', () => {
   const closeMock = vi.fn();
   const readMock = vi.fn();
 
   beforeEach(() => {
-    fsMock.open.mockResolvedValue({ read: readMock, close: closeMock } as any);
+    fsMock.open.mockResolvedValue({ read: readMock, close: closeMock } as unknown as fs.FileHandle);
   });
 
   it('should open the file in read mode', async () => {

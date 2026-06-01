@@ -2,10 +2,13 @@ import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backen
 import { AuthLoginResponseViewModel } from '../../infra/drive-server/services/auth/auth.types';
 import { CleanerReport } from '../../backend/features/cleaner/cleaner.types';
 import { BackupErrorRecord } from '../../backend/features/backup/backup.types';
+import type { Device } from '../../backend/features/backup/types/Device';
 
 declare interface Window {
   electron: {
-    getConfigKey(key: import('./config/service.types').StoredValues): Promise<any>;
+    getConfigKey<T extends import('./config/service.types').StoredValues>(
+      key: T,
+    ): Promise<import('../../core/electron/store/app-store.interface').AppStore[T]>;
 
     listenToConfigKeyChange<T>(key: import('./config/service.types').StoredValues, fn: (value: T) => void): () => void;
 
@@ -102,26 +105,29 @@ declare interface Window {
     renameDevice: typeof import('../../backend/features/device/device.module').DeviceModule.renameDevice;
 
     devices: {
-      getDevices: () => Promise<Array<import('../main/device/service').Device>>;
+      getDevices: () => Promise<Array<Device>>;
     };
 
-    onDeviceCreated(func: (value: import('../main/device/service').Device) => void): () => void;
+    onDeviceCreated(func: (value: Device) => void): () => void;
 
     getBackupsFromDevice: typeof import('../../backend/features/device/device.module').DeviceModule.getBackupsFromDevice;
 
-    addBackup: typeof import('../main/backups/add-backup').addBackup;
+    addBackup: typeof import('../../backend/features/backup/add-backup').addBackup;
 
-    downloadBackup: typeof import('../main/device/service').downloadBackup;
+    downloadBackup: (
+      device: import('../../backend/features/backup/types/Device').Device,
+      pathname: import('../../context/local/localFile/infrastructure/AbsolutePath').AbsolutePath,
+    ) => Promise<void>;
 
     abortDownloadBackups: (deviceId: string) => void;
 
-    addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
+    addBackupsFromLocalPaths: typeof import('../../backend/features/backup/create-backups-from-local-paths').createBackupsFromLocalPaths;
 
-    deleteBackup: typeof import('../main/device/service').deleteBackup;
+    deleteBackup: typeof import('../../backend/features/backup/delete-backup').deleteBackup;
 
-    deleteBackupsFromDevice: typeof import('../main/device/service').deleteBackupsFromDevice;
+    deleteBackupsFromDevice: typeof import('../../backend/features/backup/delete-device-backups').deleteDeviceBackups;
 
-    disableBackup: typeof import('../main/device/service').disableBackup;
+    disableBackup: typeof import('../../backend/features/backup/disable-backup').disableBackup;
 
     getBackupsEnabled: () => Promise<boolean>;
 
@@ -135,15 +141,14 @@ declare interface Window {
 
     onBackupFatalErrorsChanged(fn: (backupErrors: Array<BackupErrorRecord>) => void): () => void;
 
-    changeBackupPath: typeof import('../main/device/service').changeBackupPath;
+    changeBackupPath: typeof import('../../backend/features/backup/change-backup-path').changeBackupPath;
 
-    getFolderPath: typeof import('../../backend/features/backup/get-path-from-dialog').getPathFromDialog;
+    getFolderPath: typeof import('../../core/utils/get-path-from-dialog').getPathFromDialog;
 
     onRemoteChanges(func: (value: import('../main/realtime').EventPayload) => void): () => void;
 
     getUsage: () => Promise<import('../../backend/features/usage/usage.types').Usage>;
 
-    getPlatform: () => Promise<import('../main/platform/DesktopPlatform').DesktopPlatform>;
     onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
     getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
     getVirtualDriveStatus(): Promise<import('../drive/fuse/FuseDriveStatus').FuseDriveStatus>;

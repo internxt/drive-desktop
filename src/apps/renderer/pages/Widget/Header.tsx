@@ -20,7 +20,10 @@ export default function Header() {
     try {
       await window.electron.openUrl(URL);
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: '[RENDERER] Failed to open URL from widget header',
+        error,
+      });
     }
   };
 

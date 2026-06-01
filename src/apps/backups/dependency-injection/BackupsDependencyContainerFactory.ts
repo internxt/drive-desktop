@@ -5,12 +5,10 @@ import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerFolderServices } from './virtual-drive/registerFolderServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { BackupService } from '../BackupService';
-import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { DownloaderHandlerFactory } from '../../../context/storage/StorageFiles/domain/download/DownloaderHandlerFactory';
 import { EnvironmentFileDownloaderHandlerFactory } from '../../../context/storage/StorageFiles/infrastructure/download/EnvironmentRemoteFileContentsManagersFactory';
-import LocalTreeBuilder from '../../../context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { SimpleFolderCreator } from '../../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 
@@ -30,7 +28,6 @@ export class BackupsDependencyContainerFactory {
     registerRemoteTreeServices(builder);
 
     registerLocalFileServices(builder);
-    registerLocalTreeServices(builder);
 
     builder
       .register(DownloaderHandlerFactory)
@@ -38,7 +35,6 @@ export class BackupsDependencyContainerFactory {
 
     builder.register(BackupService).useFactory((c) => {
       return new BackupService(
-        c.get(LocalTreeBuilder),
         c.get(RemoteTreeBuilder),
         c.get(SimpleFolderCreator),
         c.get(Environment),

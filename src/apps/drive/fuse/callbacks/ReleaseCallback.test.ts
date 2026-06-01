@@ -5,6 +5,7 @@ import { right } from '../../../../context/shared/domain/Either';
 import * as openFlagsTracker from './../../../../backend/features/fuse/on-open/open-flags-tracker';
 import * as handleReleaseModule from '../../../../backend/features/fuse/on-release/handle-release-callback';
 import { partialSpyOn } from '../../../../../tests/vitest/utils.helper';
+import { Container } from 'diod';
 
 vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 
@@ -12,7 +13,7 @@ describe('ReleaseCallback', () => {
   const onReleaseSpy = partialSpyOn(openFlagsTracker, 'onRelease');
   const handleReleaseSpy = partialSpyOn(handleReleaseModule, 'handleReleaseCallback');
 
-  const container = { get: vi.fn() } as any;
+  const container = { get: vi.fn() } as unknown as Container;
   const releaseCallback = new ReleaseCallback(container);
   it('should call onRelease to clean up open flags tracker', async () => {
     handleReleaseSpy.mockResolvedValue(right(undefined));

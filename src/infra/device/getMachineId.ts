@@ -18,11 +18,12 @@ export function getMachineId(): Result<string, MachineIdError> {
   try {
     const id = readFileSync('/etc/machine-id', 'utf-8').trim();
     return id ? { data: id } : { error: new MachineIdError('NON_EXISTS') };
-  } catch (err: any) {
-    if (err.code === 'ENOENT') {
+  } catch (err) {
+    const code = err instanceof Error ? (err as NodeJS.ErrnoException).code : undefined;
+    if (code === 'ENOENT') {
       return { error: new MachineIdError('NON_EXISTS', err) };
     }
-    if (err.code === 'EACCES') {
+    if (code === 'EACCES') {
       return { error: new MachineIdError('NO_ACCESS', err) };
     }
     return { error: new MachineIdError('UNKNOWN', err) };

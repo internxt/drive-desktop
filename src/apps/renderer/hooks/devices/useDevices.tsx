@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Device } from '../../../main/device/service';
+import { Device } from '../../../../backend/features/backup/types/Device';
 
 export function useDevices() {
   const [devices, setDevices] = useState<Array<Device>>([]);

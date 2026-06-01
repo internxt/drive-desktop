@@ -1,5 +1,6 @@
 import { AsyncZipDeflate, Zip } from 'fflate';
 import { ReadableStream, WritableStream } from 'node:stream/web';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type FlatFolderZipOpts = {
   abortController?: AbortController;
@@ -15,48 +16,6 @@ export interface ZipStream {
   addFolder: AddFolderToZipFunction;
   stream: ReadableStream<Uint8Array>;
   end: () => void;
-}
-
-export class FlatFolderZip {
-  private finished!: Promise<void>;
-  private zip: ZipStream;
-  private passThrough: ReadableStream<Uint8Array>;
-  private abortController?: AbortController;
-
-  constructor(destination: WritableStream<Uint8Array>, opts: FlatFolderZipOpts) {
-    this.zip = createFolderWithFilesWritable(opts.progress);
-    this.abortController = opts.abortController;
-
-    this.passThrough = this.zip.stream;
-
-    this.finished = this.passThrough.pipeTo(destination, {
-      signal: opts.abortController?.signal,
-    });
-  }
-
-  addFile(name: string, source: ReadableStream<Uint8Array>): void {
-    if (this.abortController?.signal.aborted) return;
-
-    this.zip.addFile(name, source);
-  }
-
-  addFolder(name: string): void {
-    if (this.abortController?.signal.aborted) return;
-
-    this.zip.addFolder(name);
-  }
-
-  async close(): Promise<void> {
-    if (this.abortController?.signal.aborted) return;
-
-    this.zip.end();
-
-    await this.finished;
-  }
-
-  abort(): void {
-    this.abortController?.abort();
-  }
 }
 
 export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['progress']): ZipStream {
@@ -81,7 +40,7 @@ export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['prog
 
   zip.ondata = (err, data, final) => {
     if (err) {
-      console.error('Error in ZIP data event:', err);
+      logger.error({ msg: 'Error in ZIP data event', err });
       return;
     }
 
@@ -133,4 +92,46 @@ export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['prog
       zip.end();
     },
   };
+}
+
+export class FlatFolderZip {
+  private finished!: Promise<void>;
+  private zip: ZipStream;
+  private passThrough: ReadableStream<Uint8Array>;
+  private abortController?: AbortController;
+
+  constructor(destination: WritableStream<Uint8Array>, opts: FlatFolderZipOpts) {
+    this.zip = createFolderWithFilesWritable(opts.progress);
+    this.abortController = opts.abortController;
+
+    this.passThrough = this.zip.stream;
+
+    this.finished = this.passThrough.pipeTo(destination, {
+      signal: opts.abortController?.signal,
+    });
+  }
+
+  addFile(name: string, source: ReadableStream<Uint8Array>): void {
+    if (this.abortController?.signal.aborted) return;
+
+    this.zip.addFile(name, source);
+  }
+
+  addFolder(name: string): void {
+    if (this.abortController?.signal.aborted) return;
+
+    this.zip.addFolder(name);
+  }
+
+  async close(): Promise<void> {
+    if (this.abortController?.signal.aborted) return;
+
+    this.zip.end();
+
+    await this.finished;
+  }
+
+  abort(): void {
+    this.abortController?.abort();
+  }
 }

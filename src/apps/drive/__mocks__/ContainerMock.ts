@@ -5,11 +5,10 @@ export class ContainerMock implements Partial<Container> {
 
   get = vi.fn((service) => this.services.get(service));
 
-  set<T>(service: any, implementation: T): void {
+  set<T>(service: Identifier<T>, implementation: T): void {
     this.services.set(service, implementation);
   }
 
-  // @ts-ignore
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   findTaggedServiceIdentifiers<T = unknown>(tag: string): Array<Identifier<T>> {
     return [] as Array<Identifier<T>>;

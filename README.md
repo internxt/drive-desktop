@@ -3,36 +3,10 @@
 [![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/internxt/drive-desktop-linux)
 
 ## Compatibility
+
 As of right now, Internxt Drive Desktop for Linux is only compatible with Ubuntu and Debian with the File explorer **Nautilus** (The default file explorer for Gnome).
 
 We cannot guarantee that the app will work properly on other Linux distributions or with other file explorers as our development and testing efforts are focused on ensuring the best experience for Ubuntu and Debian users.
-
-### FUSE 2
-This application requires **FUSE 2** for the virtual drive functionality. FUSE 3 is not supported. On recent Ubuntu versions, `libfuse2` may need to be installed manually:
-
-#### For example, on Debian (>= 13) and Ubuntu (>= 24.04):
-```bash
-sudo add-apt-repository universe
-sudo apt install libfuse2t64
-```
-**Note:** In Ubuntu 24.04, the libfuse2 package was renamed to libfuse2t64.
-
-#### For example, on Ubuntu (>= 22.04):
-```bash
-sudo add-apt-repository universe
-sudo apt install libfuse2
-```
-**Warning:** While libfuse2 is OK, do not install the fuse package as of 22.04 or you may break your system. If the fuse package did break your system, you can recover as described [here](https://github.com/orgs/AppImage/discussions/1339).
-
-#### For example, on Ubuntu (<= 21.10):
-```bash
-sudo apt install fuse libfuse2
-sudo modprobe fuse
-sudo groupadd fuse
-
-user="$(whoami)"
-sudo usermod -a -G fuse $user
-```
 
 ## Installation
 
@@ -43,7 +17,7 @@ Internxt Drive is available for Linux in two formats:
 Download and install the `.deb` package for full compatibility:
 
 ```bash
-sudo dpkg -i internxt_2.5.1_amd64.deb
+sudo dpkg -i internxt_2.6.0_amd64.deb
 ```
 
 ### AppImage
@@ -51,8 +25,8 @@ sudo dpkg -i internxt_2.5.1_amd64.deb
 Alternatively, you can use the AppImage format:
 
 ```bash
-chmod +x Internxt-2.5.1.AppImage
-./Internxt-2.5.1.AppImage
+chmod +x Internxt-2.6.0.AppImage
+./Internxt-2.6.0.AppImage
 ```
 
 #### ⚠️ Important Note about AppImage and SSO Login:
@@ -66,7 +40,9 @@ For the best experience with SSO authentication, we recommend using the .deb pac
 ### Prerequisites
 
 - [NVM](https://github.com/nvm-sh/nvm) (Node Version Manager)
-- Node.js 18
+- Node.js 20
+
+If working on the FUSE daemon (Go), see [packages/fuse-daemon/README.md](packages/fuse-daemon/README.md) for Go and linting tool prerequisites.
 
 ### Install
 
@@ -94,11 +70,33 @@ To package apps for the local platform:
 npm run package
 ```
 
+Building the `.rpm` package requires `rpmbuild`. On Ubuntu or Debian, install the `rpm` package before running the packaging command:
+
+```bash
+sudo apt-get install rpm
+```
+
+### Official Release Build (CI Container)
+
+The official release pipeline builds and publishes artifacts inside a pinned container image (`Dockerfile.release`) to reduce host drift.
+
+Current release flow:
+
+1. Build container image from `ubuntu:24.04`.
+2. Run `npm ci` and `npm run publish` inside the container.
+3. Upload generated artifacts (`.deb`, `.rpm`, `.AppImage`) plus build metadata.
+4. Run smoke tests on the generated `.deb` without rebuilding it.
+
+### Smoke Test Strategy
+
+The release workflow includes a smoke test job that:
+
+1. Downloads the previously built `.deb` artifact.
+2. Installs runtime dependencies for Linux GUI startup checks.
+3. Installs the package and verifies `/opt/Internxt/internxt` exists.
+4. Launches the binary in headless mode (`xvfb-run`) and checks startup.
+
 ## Login Configuration Using Deeplink
-
-To log in via deeplink in development mode, special configuration is required due to limitations in Electron 19.
-
-### Create Entry-Point Script
 
 Create a script in the root of the project named `enable-sso.sh` and add the following content:
 
@@ -108,9 +106,9 @@ export NVM_DIR="$HOME/.nvm"
 # Load nvm manually
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-cd "/your-project-path/drive-desktop-linux"
-nvm use 18
-npm run start:main "$@"
+cd "/your-project-path/drive-desktop-linux/"
+nvm use 20
+npm run start:main -- "$@"
 ```
 
 Use the following command to give the script execution permissions:
@@ -150,3 +148,35 @@ Check that the internxt protocol is correctly registered:
 `gio mime x-scheme-handler/internxt`
 
 Verify by logging into the application.
+
+### Troubleshooting SSO in Development
+
+If opening an `internxt://` URL launches the development command but Electron exits with an error like this:
+
+```
+The SUID sandbox helper binary was found, but is not configured correctly.
+You need to make sure that node_modules/electron/dist/chrome-sandbox is owned by root and has mode 4755.
+```
+
+Or the dev app does not open at all, it may be that the deeplink registration is working, but Electron is aborting before the main process starts because Chromium's Linux sandbox helper has the wrong owner or permissions.
+
+Confirm the current permissions (in the project root):
+
+```bash
+ls -l node_modules/electron/dist/chrome-sandbox
+```
+
+Fix them from the project root:
+
+```bash
+sudo chown root:root node_modules/electron/dist/chrome-sandbox
+sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+```
+
+The expected result is that `chrome-sandbox` is owned by `root` and has the setuid bit enabled:
+
+```bash
+-rwsr-xr-x 1 root root ... node_modules/electron/dist/chrome-sandbox
+```
+
+This may need to be repeated after reinstalling dependencies, because `node_modules/electron` can be recreated with regular user ownership.

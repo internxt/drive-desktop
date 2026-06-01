@@ -46,12 +46,11 @@ export class FileTrasher {
     try {
       file.trash();
 
-      if (file.size > 0) {
-        const { error } = await addFileToTrash(file.uuid);
-        if (error) {
-          throw new Error('Error when deleting file');
-        }
+      const { error } = await addFileToTrash(file.uuid);
+      if (error) {
+        throw new Error('Error when deleting file');
       }
+
       await this.repository.update(file);
       await this.notifier.trashed(file.name, file.type, file.size);
     } catch (error: unknown) {

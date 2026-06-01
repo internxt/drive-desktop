@@ -373,35 +373,29 @@ export class RemoteSyncManager {
     };
   }
 
-  private patchDriveFolderResponseItem = (payload: any): RemoteSyncedFolder => {
-    // We will assume that we received an status
-    let status: RemoteSyncedFolder['status'] = payload.status;
-
-    if (!status && !payload.removed) {
-      status = 'EXISTS';
-    }
-
-    if (!status && payload.removed) {
-      status = 'REMOVED';
-    }
-
-    if (!status && payload.deleted) {
-      status = 'DELETED';
-    }
+  private patchDriveFolderResponseItem = (payload: Record<string, unknown>): RemoteSyncedFolder => {
+    const status = this.resolveFolderStatus(payload);
 
     return {
-      ...payload,
+      ...(payload as Omit<RemoteSyncedFolder, 'status' | 'name'>),
       status,
-      name: payload.name ?? undefined,
+      name: typeof payload.name === 'string' ? payload.name : undefined,
     };
   };
 
-  private patchDriveFileResponseItem = (payload: any): RemoteSyncedFile => {
+  private resolveFolderStatus(payload: Record<string, unknown>): RemoteSyncedFolder['status'] {
+    if (typeof payload.status === 'string' && payload.status) return payload.status;
+    if (payload.removed) return 'REMOVED';
+    if (payload.deleted) return 'DELETED';
+    return 'EXISTS';
+  }
+
+  private readonly patchDriveFileResponseItem = (payload: Record<string, unknown>): RemoteSyncedFile => {
     return {
-      ...payload,
-      fileId: payload.fileId ?? '',
-      size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
-      name: payload.name ?? undefined,
+      ...(payload as Omit<RemoteSyncedFile, 'fileId' | 'size' | 'name'>),
+      fileId: typeof payload.fileId === 'string' ? payload.fileId : '',
+      size: typeof payload.size === 'string' ? Number.parseInt(payload.size) : (payload.size as number),
+      name: typeof payload.name === 'string' ? payload.name : undefined,
     };
   };
 }
