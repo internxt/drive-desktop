@@ -5,6 +5,7 @@ import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sq
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { replaceFile } from './replace-file';
 import * as uploadFile from './upload-file';
 
@@ -12,6 +13,7 @@ describe('replace-file', () => {
   const uploadMock = partialSpyOn(uploadFile, 'uploadFile');
   const persistMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
+  const handleFileUploadSizeExceededMock = partialSpyOn(handleFileUploadSizeExceeded, 'handleFileUploadSizeExceeded');
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
@@ -42,6 +44,16 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Given
     call(addItemMock).toMatchObject({ action: 'MODIFY_ERROR', path });
+  });
+
+  it('should handle file upload size exceeded if metadata replacement rejects file size', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'FILE_UPLOAD_SIZE_EXCEEDED' } });
+    // When
+    await replaceFile(props);
+    // Given
+    call(handleFileUploadSizeExceededMock).toMatchObject({ path, size });
+    calls(addItemMock).toHaveLength(0);
   });
 
   it('should replace the file successfully', async () => {

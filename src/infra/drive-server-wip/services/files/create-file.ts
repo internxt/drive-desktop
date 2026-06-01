@@ -10,7 +10,7 @@ export type CreateFileBody = paths['/files']['post']['requestBody']['content']['
 
 class CreateFileError extends DriveServerWipError {
   constructor(
-    public readonly code: TDriveServerWipError | 'PARENT_NOT_FOUND' | 'FILE_ALREADY_EXISTS',
+    public readonly code: TDriveServerWipError | 'PARENT_NOT_FOUND' | 'FILE_ALREADY_EXISTS' | 'FILE_UPLOAD_SIZE_EXCEEDED',
     cause: unknown,
   ) {
     super(code, cause);
@@ -49,6 +49,8 @@ export function parseCreateFileResponse(res: Awaited<TResponse<FileDto>>) {
         return { error: new CreateFileError('PARENT_NOT_FOUND', res.error.cause) };
       case res.error.response?.status === 409:
         return { error: new CreateFileError('FILE_ALREADY_EXISTS', res.error.cause) };
+      case res.error.response?.status === 402:
+        return { error: new CreateFileError('FILE_UPLOAD_SIZE_EXCEEDED', res.error.cause) };
       default:
         return { error: res.error };
     }

@@ -1,6 +1,4 @@
-const BYTES_IN_GB = 1024 ** 3;
-
-export const ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT = 100 * BYTES_IN_GB;
+import { ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT } from './constants';
 
 export type UploadFileSizeValidation =
   | { allowed: true }

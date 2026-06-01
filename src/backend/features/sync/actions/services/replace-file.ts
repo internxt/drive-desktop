@@ -5,6 +5,7 @@ import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
 
 type Props = {
@@ -30,6 +31,16 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
   });
 
   if (res.error) {
+    if (res.error.code === 'FILE_UPLOAD_SIZE_EXCEEDED') {
+      handleFileUploadSizeExceeded({ path, size: upload.size });
+      ctx.logger.warn({
+        msg: 'File size exceeds upload limit',
+        path,
+        size: upload.size,
+      });
+      return;
+    }
+
     LocalSync.SyncState.addItem({ action: 'MODIFY_ERROR', path });
     return;
   }
