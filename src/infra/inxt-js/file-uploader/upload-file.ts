@@ -58,6 +58,6 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
         sleepMs: sleepMs * 2,
       });
 
-    return processError({ ctx, path, error, sleepMs, retryFn });
+    return processError({ ctx, path, size, error, sleepMs, retryFn });
   }
 }

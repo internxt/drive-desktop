@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   check_pr_size:
     # Ignore PRs with name merge-X-X-X-release
@@ -43,9 +47,44 @@ jobs:
           # Make the total available for later steps
           echo "total=$TOTAL_CHANGED" >> "$GITHUB_OUTPUT"
 
-      - name: Fail if too many changes
+      - name: Comment if PR is large
         if: ${{ steps.diff_check.outputs.total > 500 }}
-        run: |
-          echo "PR has ${{ steps.diff_check.outputs.total }} changed lines, which exceeds the 500-line limit."
-          echo "Please reduce the size of this PR."
-          exit 1
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- pr-size-warning -->';
+            const total = '${{ steps.diff_check.outputs.total }}';
+            const body = [
+              marker,
+              `This PR changes ${total} lines.`,
+              '',
+              'If it contains multiple concerns, consider splitting it. Large PRs are fine when the changes are mechanical, intentionally grouped, or belong together as part of the same feature.',
+              '',
+              'Please make sure the PR description gives reviewers enough context about what matters most to review.',
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.data.find((comment) => comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }

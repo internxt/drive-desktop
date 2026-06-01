@@ -6,6 +6,6 @@ export async function executeBackupWorker(ctx: BackupsContext) {
     await Backup.run({ ctx });
     ctx.logger.debug({ msg: 'Backup completed', folderUuid: ctx.folderUuid });
   } catch (error) {
-    ctx.logger.error({ msg: 'Error executing backup folder', error });
+    ctx.logger.sentryError({ msg: 'Error executing backup folder', error });
   }
 }

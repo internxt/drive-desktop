@@ -22,11 +22,12 @@ export function exceptionWrapper({ loggerBody, exc, retry }: TProps) {
     return new DriveServerWipError('ABORTED', excMessage);
   }
 
-  const loggedError = logger.error({
+  const loggedError = logger.sentryError({
     ...loggerBody,
     msg: `${loggerBody.msg} was not successful`,
     retry,
     exc: excMessage,
+    error: exc,
   });
 
   switch (type) {
