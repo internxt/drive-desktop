@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FuseDriveStatus } from '../../drive/fuse/FuseDriveStatus';
+import { FuseDriveStatus } from '../../../backend/features/virtual-drive';
 
 export default function useVirtualDriveStatus() {
   const [virtualDriveStatus, setVirtualDriveStatus] = useState<FuseDriveStatus>();

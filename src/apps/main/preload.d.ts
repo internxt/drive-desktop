@@ -151,9 +151,9 @@ declare interface Window {
 
     onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
     getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
-    getVirtualDriveStatus(): Promise<import('../drive/fuse/FuseDriveStatus').FuseDriveStatus>;
+    getVirtualDriveStatus(): Promise<import('../../backend/features/virtual-drive').FuseDriveStatus>;
     onVirtualDriveStatusChange(
-      callback: (event: { status: import('../drive/fuse/FuseDriveStatus').FuseDriveStatus }) => void,
+      callback: (event: { status: import('../../backend/features/virtual-drive').FuseDriveStatus }) => void,
     ): () => void;
     startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;

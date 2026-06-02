@@ -1,7 +1,7 @@
 import { spawn, ChildProcess } from 'node:child_process';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { PATHS } from '../../../../core/electron/paths';
-import { FuseDriveStatus } from '../../../../apps/drive/fuse/FuseDriveStatus';
+import { FuseDriveStatus } from '../FuseDriveStatus';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 
 let resolveReady: () => void;

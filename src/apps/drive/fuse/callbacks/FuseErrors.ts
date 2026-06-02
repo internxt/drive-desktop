@@ -17,12 +17,6 @@ export class FuseNoSuchFileOrDirectoryError extends FuseError {
   }
 }
 
-export class FuseFileOrDirectoryAlreadyExistsError extends FuseError {
-  constructor() {
-    super(FuseCodes.EEXIST, 'File or directory already exists.');
-  }
-}
-
 export class FuseIOError extends FuseError {
   constructor(details?: string) {
     super(FuseCodes.EIO, `Input/output error${details ? `: ${details}` : ''}.`);
