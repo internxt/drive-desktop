@@ -4,91 +4,31 @@
  */
 
 export interface paths {
-  '/files': {
+  '/notifications': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get: operations['FileController_getFiles'];
+    /**
+     * Get user notifications
+     * @description Retrieves all notifications for the authenticated user. Notifications will be retrieved just once.
+     */
+    get: operations['NotificationsController_getUserNotifications'];
     put?: never;
-    /** Create File */
-    post: operations['FileController_createFile'];
+    /**
+     * Create a new notification
+     * @description Creates a new notification
+     */
+    post: operations['NotificationsController_createNotification'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/files/count': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['FileController_getFileCount'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/files/limits': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get file limits based on user tier */
-    get: operations['FileController_getLimits'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/files/{uuid}/meta': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['FileController_getFileMetadata'];
-    /** Update File data */
-    put: operations['FileController_updateFileMetadata'];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/files/{uuid}/versions': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get file versions */
-    get: operations['FileController_getFileVersions'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/files/{uuid}/versions/{versionId}': {
+  '/notifications/{id}/expire': {
     parameters: {
       query?: never;
       header?: never;
@@ -98,14 +38,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete a file version */
-    delete: operations['FileController_deleteFileVersion'];
+    delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /**
+     * Mark notification as expired
+     * @description Marks a notification as expired by setting its expiration date to now
+     */
+    patch: operations['NotificationsController_markNotificationAsExpired'];
     trace?: never;
   };
-  '/files/{uuid}/versions/{versionId}/restore': {
+  '/users': {
     parameters: {
       query?: never;
       header?: never;
@@ -114,39 +57,23 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Restore a file version */
-    post: operations['FileController_restoreFileVersion'];
+    /** Create a user */
+    post: operations['UserController_createUser'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/files/{uuid}': {
+  '/users/user/{email}': {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
-    put: operations['FileController_replaceFile'];
-    post?: never;
-    /** Delete file from storage and database */
-    delete: operations['FileController_deleteFileByUuid'];
-    options?: never;
-    head?: never;
-    patch: operations['FileController_moveFile'];
-    trace?: never;
-  };
-  '/files/recents': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['FileController_getRecentFiles'];
+    /** Get the user data by email and check if the user has subscription */
+    get: operations['UserController_getUserByEmail'];
     put?: never;
     post?: never;
     delete?: never;
@@ -155,23 +82,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/files/meta': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['FileController_getFileMetaByPath'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/files/thumbnail': {
+  '/users/pre-created-users/register': {
     parameters: {
       query?: never;
       header?: never;
@@ -180,15 +91,103 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create Thumbnail */
-    post: operations['FileController_createThumbnail'];
+    /** Register Pre Created User */
+    post: operations['UserController_registerPreCreatedUser'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/files/{bucketId}/{fileId}': {
+  '/users/pre-create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Pre create a user */
+    post: operations['UserController_preCreateUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/c/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get user credentials
+     * @deprecated
+     */
+    get: operations['UserController_getUserCredentials'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Refresh session token */
+    get: operations['UserController_refreshToken'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/cli/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** CLI platform refresh session token */
+    get: operations['UserController_cliRefresh'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/avatar/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Refresh avatar token */
+    get: operations['UserController_refreshAvatarUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/password': {
     parameters: {
       query?: never;
       header?: never;
@@ -198,8 +197,390 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete file from storage by fileId */
-    delete: operations['FileController_deleteFileByFileId'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['UserController_updatePassword'];
+    trace?: never;
+  };
+  '/users/recover-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Recover account
+     * @deprecated
+     */
+    put: operations['UserController_recoverAccount'];
+    /** Request account recovery */
+    post: operations['UserController_requestAccountRecovery'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/unblock-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Resets user error login counter to unblock account */
+    put: operations['UserController_accountUnblock'];
+    /** Request account unblock */
+    post: operations['UserController_requestAccountUnblock'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/recover-account-v2': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Recover account */
+    put: operations['UserController_recoverAccountV2'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/legacy-recover-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Recover accocunt with legacy backup file
+     * @description Recover account with legacy backup file, mnemonic only files should be used
+     */
+    put: operations['UserController_requestLegacyAccountRecovery'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/public-key/{email}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get public key by email
+     * @deprecated
+     */
+    get: operations['UserController_getPublicKeyByEmail'];
+    /** Retieve public key (existing users) or pre-create user and retrieve key */
+    put: operations['UserController_getOrPreCreatePublicKeyByEmail'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['UserController_createAttemptChangeEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['UserController_acceptAttemptChangeEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_verifyAttemptChangeEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/meet-token/beta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the user Meet token */
+    get: operations['UserController_getMeetTokenBeta'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/meet-token/anon': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get an anonymous user Meet token */
+    get: operations['UserController_getMeetTokenAnon'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/notification-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add a notification token */
+    post: operations['UserController_addNotificationToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/email-verification/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send account verification email */
+    post: operations['UserController_sendAccountVerifyEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/email-verification': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Verify user email */
+    post: operations['UserController_verifyAccountEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/profile': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update user profile */
+    patch: operations['UserController_updateProfile'];
+    trace?: never;
+  };
+  '/users/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['UserController_uploadAvatar'];
+    post?: never;
+    delete: operations['UserController_deleteAvatar'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/deactivation/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send email to deactivate current user account */
+    post: operations['UserController_sendUserDeactivationEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/deactivation/confirm': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirm user deactivation */
+    post: operations['UserController_confirmUserDeactivation'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/usage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get User used storage space */
+    get: operations['UserController_getUserUsage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/limit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_limit'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/me/upload-status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if user has uploaded any files */
+    get: operations['UserController_getUploadStatus'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/generate-mnemonic': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_generateMnemonic'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/payments/incomplete-checkout': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Handle incomplete checkout event
+     * @description Sends notification email when user abandons checkout process
+     */
+    post: operations['UserController_handleIncompleteCheckout'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -214,7 +595,10 @@ export interface paths {
     };
     get: operations['FolderController_getFolders'];
     put?: never;
-    /** Create Folder */
+    /**
+     * Create one or multiple folders
+     * @description Creates a single folder when `plainName` is provided, or multiple when `folders` array is provided.
+     */
     post: operations['FolderController_createFolder'];
     delete: operations['FolderController_deleteFolders'];
     options?: never;
@@ -504,6 +888,207 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFiles'];
+    put?: never;
+    /** Create File */
+    post: operations['FileController_createFile'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/count': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileCount'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/limits': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get file limits based on user tier */
+    get: operations['FileController_getLimits'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileMetadata'];
+    /** Update File data */
+    put: operations['FileController_updateFileMetadata'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get file versions */
+    get: operations['FileController_getFileVersions'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions/{versionId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a file version */
+    delete: operations['FileController_deleteFileVersion'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/versions/{versionId}/restore': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Restore a file version */
+    post: operations['FileController_restoreFileVersion'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['FileController_replaceFile'];
+    post?: never;
+    /** Delete file from storage and database */
+    delete: operations['FileController_deleteFileByUuid'];
+    options?: never;
+    head?: never;
+    patch: operations['FileController_moveFile'];
+    trace?: never;
+  };
+  '/files/recents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getRecentFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileMetaByPath'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/thumbnail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Thumbnail */
+    post: operations['FileController_createThumbnail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{bucketId}/{fileId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete file from storage by fileId */
+    delete: operations['FileController_deleteFileByFileId'];
     options?: never;
     head?: never;
     patch?: never;
@@ -1764,544 +2349,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/users': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Create a user */
-    post: operations['UserController_createUser'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/user/{email}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get the user data by email and check if the user has subscription */
-    get: operations['UserController_getUserByEmail'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/pre-created-users/register': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Register Pre Created User */
-    post: operations['UserController_registerPreCreatedUser'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/pre-create': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Pre create a user */
-    post: operations['UserController_preCreateUser'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/c/{uuid}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get user credentials
-     * @deprecated
-     */
-    get: operations['UserController_getUserCredentials'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Refresh session token */
-    get: operations['UserController_refreshToken'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/cli/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** CLI platform refresh session token */
-    get: operations['UserController_cliRefresh'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/avatar/refresh': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Refresh avatar token */
-    get: operations['UserController_refreshAvatarUser'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/password': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch: operations['UserController_updatePassword'];
-    trace?: never;
-  };
-  '/users/recover-account': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /**
-     * Recover account
-     * @deprecated
-     */
-    put: operations['UserController_recoverAccount'];
-    /** Request account recovery */
-    post: operations['UserController_requestAccountRecovery'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/unblock-account': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Resets user error login counter to unblock account */
-    put: operations['UserController_accountUnblock'];
-    /** Request account unblock */
-    post: operations['UserController_requestAccountUnblock'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/recover-account-v2': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Recover account */
-    put: operations['UserController_recoverAccountV2'];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/legacy-recover-account': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /**
-     * Recover accocunt with legacy backup file
-     * @description Recover account with legacy backup file, mnemonic only files should be used
-     */
-    put: operations['UserController_requestLegacyAccountRecovery'];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/public-key/{email}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get public key by email
-     * @deprecated
-     */
-    get: operations['UserController_getPublicKeyByEmail'];
-    /** Retieve public key (existing users) or pre-create user and retrieve key */
-    put: operations['UserController_getOrPreCreatePublicKeyByEmail'];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/attempt-change-email': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['UserController_createAttemptChangeEmail'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post: operations['UserController_acceptAttemptChangeEmail'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['UserController_verifyAttemptChangeEmail'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/meet-token/beta': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get the user Meet token */
-    get: operations['UserController_getMeetTokenBeta'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/meet-token/anon': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get an anonymous user Meet token */
-    get: operations['UserController_getMeetTokenAnon'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/notification-token': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Add a notification token */
-    post: operations['UserController_addNotificationToken'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/email-verification/send': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Send account verification email */
-    post: operations['UserController_sendAccountVerifyEmail'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/email-verification': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Verify user email */
-    post: operations['UserController_verifyAccountEmail'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/profile': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Update user profile */
-    patch: operations['UserController_updateProfile'];
-    trace?: never;
-  };
-  '/users/avatar': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put: operations['UserController_uploadAvatar'];
-    post?: never;
-    delete: operations['UserController_deleteAvatar'];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/deactivation/send': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Send email to deactivate current user account */
-    post: operations['UserController_sendUserDeactivationEmail'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/deactivation/confirm': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Confirm user deactivation */
-    post: operations['UserController_confirmUserDeactivation'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/usage': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get User used storage space */
-    get: operations['UserController_getUserUsage'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/limit': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['UserController_limit'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/me/upload-status': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Check if user has uploaded any files */
-    get: operations['UserController_getUploadStatus'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/generate-mnemonic': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations['UserController_generateMnemonic'];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/users/payments/incomplete-checkout': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /**
-     * Handle incomplete checkout event
-     * @description Sends notification email when user abandons checkout process
-     */
-    post: operations['UserController_handleIncompleteCheckout'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   '/storage/share/domains': {
     parameters: {
       query?: never;
@@ -2552,6 +2599,43 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/photos/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all photo devices as folder */
+    get: operations['PhotosController_getPhotoDevicesAsFolder'];
+    put?: never;
+    /** Create a photo device as folder */
+    post: operations['PhotosController_createPhotoDeviceAsFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/photos/devices/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get photo device as folder by uuid */
+    get: operations['PhotosController_getPhotoDeviceAsFolder'];
+    put?: never;
+    post?: never;
+    /** Delete photo device as folder by uuid */
+    delete: operations['PhotosController_deletePhotoDeviceAsFolder'];
+    options?: never;
+    head?: never;
+    /** Update photo device as folder by uuid */
+    patch: operations['PhotosController_updatePhotoDeviceAsFolder'];
+    trace?: never;
+  };
   '/storage/trash/paginated': {
     parameters: {
       query?: never;
@@ -2670,50 +2754,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/notifications': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Get user notifications
-     * @description Retrieves all notifications for the authenticated user. Notifications will be retrieved just once.
-     */
-    get: operations['NotificationsController_getUserNotifications'];
-    put?: never;
-    /**
-     * Create a new notification
-     * @description Creates a new notification
-     */
-    post: operations['NotificationsController_createNotification'];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/notifications/{id}/expire': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /**
-     * Mark notification as expired
-     * @description Marks a notification as expired by setting its expiration date to now
-     */
-    patch: operations['NotificationsController_markNotificationAsExpired'];
-    trace?: never;
-  };
   '/auth/login': {
     parameters: {
       query?: never;
@@ -2810,7 +2850,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** CLI platform login access */
+    /** CLI/Rclone platform login access */
     post: operations['AuthController_cliLoginAccess'];
     delete?: never;
     options?: never;
@@ -3051,239 +3091,708 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/referral/enabled': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if referral feature is enabled for user */
+    get: operations['ReferralController_isEnabled'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/referral/token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Generate referral token */
+    post: operations['ReferralController_generateToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/health/live': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Liveness probe */
+    get: operations['HealthController_live'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/health/ready': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Readiness probe — checks services */
+    get: operations['HealthController_ready'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    CreateFileDto: {
+    NotificationWithStatusDto: {
       /**
-       * @description The bucket where the file is stored
-       * @example my-bucket
+       * @description Unique identifier for the notification
+       * @example 123e4567-e89b-12d3-a456-426614174000
        */
-      bucket: string;
+      id: string;
       /**
-       * @description The ID of the file (required when size > 0)
-       * @example file12345
+       * @description URL link for the notification
+       * @example https://internxt.com/promotions/black-friday
        */
-      fileId?: string;
+      link: string;
       /**
-       * @description The encryption version used for the file
-       * @example 03-aes
+       * @description Notification message content
+       * @example Black Friday Sale - 50% off all plans!
        */
-      encryptVersion: string;
-      /**
-       * Format: uuid
-       * @description The UUID of the folder containing the file
-       * @example 550e8400-e29b-41d4-a716-446655440000
-       */
-      folderUuid: string;
-      /**
-       * Format: bigint
-       * @description The size of the file in bytes
-       * @example 123456789
-       */
-      size: number;
-      /**
-       * @description The plain text name of the file
-       * @example example
-       */
-      plainName: string;
-      /**
-       * @description The type of the file (optional)
-       * @example text
-       */
-      type?: string;
+      message: string;
       /**
        * Format: date-time
-       * @description The last modification time of the file (optional)
+       * @description Optional expiration date for the notification
+       * @example 2024-12-31T23:59:59.000Z
+       */
+      expiresAt: string | null;
+      /**
+       * Format: date-time
+       * @description Creation timestamp
+       * @example 2024-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * @description Whether the notification has been read by the user
+       * @example true
+       */
+      isRead: boolean;
+      /**
+       * Format: date-time
+       * @description When the notification was delivered to the user
+       * @example 2024-01-01T00:00:00.000Z
+       */
+      deliveredAt: string;
+      /**
+       * Format: date-time
+       * @description When the notification was read by the user
+       * @example 2024-01-01T12:00:00.000Z
+       */
+      readAt: string | null;
+    };
+    CreateNotificationDto: {
+      /**
+       * @description URL link for the notification
+       * @example https://internxt.com/promotions/black-friday
+       */
+      link: string;
+      /**
+       * @description Notification message content
+       * @example Black Friday Sale - 50% off all plans!
+       */
+      message: string;
+      /**
+       * @description Target user email, if missing, notification is sent to everyone
+       * @example test@interxt.com
+       */
+      email?: string;
+      /**
+       * @description Optional expiration date for the notification
+       * @example 2024-12-31T23:59:59Z
+       */
+      expiresAt?: string;
+    };
+    NotificationResponseDto: {
+      /**
+       * @description Unique identifier for the notification
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description URL link for the notification
+       * @example https://internxt.com/promotions/black-friday
+       */
+      link: string;
+      /**
+       * @description Notification message content
+       * @example Black Friday Sale - 50% off all plans!
+       */
+      message: string;
+      /**
+       * Format: date-time
+       * @description Optional expiration date for the notification
+       * @example 2024-12-31T23:59:59.000Z
+       */
+      expiresAt: string | null;
+      /**
+       * Format: date-time
+       * @description Creation timestamp
+       * @example 2024-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+    };
+    EccKeysDto: {
+      /**
+       * @description Public key
+       * @example publicKeyExample
+       */
+      publicKey: string;
+      /**
+       * @description Private key
+       * @example privateKeyExample
+       */
+      privateKey: string;
+      /**
+       * @description Revocation key
+       * @example revocationKeyExample
+       */
+      revocationKey: string;
+    };
+    KyberKeysDto: {
+      /**
+       * @description Public key
+       * @example publicKeyExample
+       */
+      publicKey: string;
+      /**
+       * @description Private key
+       * @example privateKeyExample
+       */
+      privateKey: string;
+    };
+    KeysDto: {
+      /** @description ECC keys */
+      ecc: components['schemas']['EccKeysDto'];
+      /** @description Kyber keys */
+      kyber: components['schemas']['KyberKeysDto'];
+    };
+    CreateUserDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+      /**
+       * @description Hashed password
+       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
+       */
+      password: Record<string, never>;
+      /**
+       * @description The mnemonic used to derive encryption keys
+       * @example test test test test test test test test test test test test test test test test test test test test test test test test
+       */
+      mnemonic: Record<string, never>;
+      /**
+       * @description Salt
+       * @example salt
+       */
+      salt: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      privateKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      revocationKey: string;
+      /** @example  */
+      referrer: Record<string, never>;
+      /** @example  */
+      registerCompleted: Record<string, never>;
+      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
+      keys: components['schemas']['KeysDto'];
+    };
+    RegisterPreCreatedUserDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+      /**
+       * @description Hashed password
+       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
+       */
+      password: Record<string, never>;
+      /**
+       * @description The mnemonic used to derive encryption keys
+       * @example test test test test test test test test test test test test test test test test test test test test test test test test
+       */
+      mnemonic: Record<string, never>;
+      /**
+       * @description Salt
+       * @example salt
+       */
+      salt: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      privateKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      revocationKey: string;
+      /** @example  */
+      referrer: Record<string, never>;
+      /** @example  */
+      registerCompleted: Record<string, never>;
+      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
+      keys: components['schemas']['KeysDto'];
+      /**
+       * @description id of the invitation
+       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
+       */
+      invitationId: Record<string, never>;
+    };
+    PreCreateUserDto: {
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+    };
+    UserResponseDto: {
+      email: string;
+      userId: string;
+      mnemonic: string;
+      root_folder_id: number;
+      rootFolderId: string;
+      name: string;
+      lastname: string;
+      uuid: string;
+      credit: number;
+      /** Format: date-time */
+      createdAt: string;
+      registerCompleted: boolean;
+      username: string;
+      bridgeUser: string;
+      bucket: string;
+      backupsBucket: string;
+      avatar: string;
+      emailVerified: boolean;
+      sharedWorkspace: boolean;
+      /** @deprecated */
+      hasReferralsProgram: boolean;
+      /** @deprecated */
+      teams: boolean;
+      /** Format: date-time */
+      lastPasswordChangedAt: string;
+      keys: components['schemas']['KeysDto'];
+      /** @deprecated */
+      privateKey: Record<string, never>;
+      /** @deprecated */
+      publicKey: Record<string, never>;
+      /** @deprecated */
+      revocateKey: Record<string, never>;
+    };
+    RefreshUserCredentialsDto: {
+      /**
+       * @deprecated
+       * @description The old token that has been replaced
+       * @example oldToken1234567890
+       */
+      token?: string;
+      /**
+       * @description The new token to be used for authentication
+       * @example oldToken1234567890
+       */
+      newToken: string;
+      /** @description User information */
+      user: components['schemas']['UserResponseDto'];
+    };
+    RefreshUserTokensDto: {
+      /**
+       * @deprecated
+       * @description The old token that has been replaced
+       * @example oldToken1234567890
+       */
+      oldToken?: string;
+      /**
+       * @description The new token to be used for authentication
+       * @example oldToken1234567890
+       */
+      newToken: string;
+      /** @description User information */
+      user: components['schemas']['UserResponseDto'];
+    };
+    RefreshUserAvatarDto: {
+      /** @description A new avatar URL for the given user */
+      avatar: string;
+    };
+    UpdatePasswordDto: {
+      /**
+       * @description Current password
+       * @example currentPassword
+       */
+      currentPassword: string;
+      /**
+       * @description New password
+       * @example newPassword
+       */
+      newPassword: string;
+      /**
+       * @description New salt
+       * @example newSalt
+       */
+      newSalt: string;
+      /**
+       * @description New mnemonic
+       * @example newMnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description Ecc private key encrypted with new password
+       * @example encryptedPrivateKey
+       */
+      privateKey: string;
+      /**
+       * @description Kyber private key encrypted with new password
+       * @example encryptedPrivateKey
+       */
+      privateKyberKey: string;
+      /**
+       * @deprecated
+       * @description Encrypt version
+       * @example encryptVersion
+       */
+      encryptVersion: string;
+    };
+    RequestRecoverAccountDto: {
+      /**
+       * @description User email
+       * @example hello@internxt.com
+       */
+      email: string;
+    };
+    RequestAccountUnblock: {
+      /**
+       * @description User email
+       * @example hello@internxt.com
+       */
+      email: string;
+    };
+    DeprecatedRecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private key encrypted with the user's plain password
+       * @example encrypted private key
+       */
+      privateKey: string;
+    };
+    PrivateKeysDto: {
+      ecc: string;
+      kyber: string;
+    };
+    PublicKeysDto: {
+      ecc: string;
+      kyber: string;
+    };
+    RecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description User uuid
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      uuid: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private keys encrypted with the user's plain password
+       * @example {
+       *       "ecc": "encrypted private key",
+       *       "kyber": "encrypted kyber private key"
+       *     }
+       */
+      privateKeys: components['schemas']['PrivateKeysDto'];
+      publicKeys: components['schemas']['PublicKeysDto'];
+    };
+    EncryptedMnemonicDto: {
+      /**
+       * @description Mnemonic encrypted with ECC method
+       * @example mnemonic_encrypted_with_ecc_method
+       */
+      ecc: string;
+      /**
+       * @description Mnemonic encrypted with hybrid method
+       * @example mnemonic_encrypted_with_hybrid_method
+       */
+      hybrid: string;
+    };
+    RecoverAccountEccKeysDto: {
+      /**
+       * @description public key
+       * @example public_key
+       */
+      public: string;
+      /**
+       * @description private key encrypted with password
+       * @example private_key
+       */
+      private: string;
+      /**
+       * @description Key used for revocation
+       * @example revocation_key
+       */
+      revocationKey: string;
+    };
+    RecoverAccountKeysPairDto: {
+      /**
+       * @description public key
+       * @example public_key
+       */
+      public: string;
+      /**
+       * @description private key encrypted with password
+       * @example private_key
+       */
+      private: string;
+    };
+    NewGeneratedKeysDto: {
+      /** @description ECC keys (public and private) */
+      ecc: components['schemas']['RecoverAccountEccKeysDto'];
+      /** @description Kyber keys (public and private) */
+      kyber: components['schemas']['RecoverAccountKeysPairDto'];
+    };
+    LegacyRecoverAccountDto: {
+      /**
+       * @description Base64 encoded temporary auth token
+       * @example temporary_auth_token
+       */
+      token: string;
+      /**
+       * @description New user pass hashed
+       * @example hashed_password
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example password_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example password_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /** @description Mnemonic encrypted with asymmetric encryption algorithms */
+      asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
+      /** @description User ecc and kyber keys */
+      keys: components['schemas']['NewGeneratedKeysDto'];
+    };
+    GetOrCreatePublicKeysDto: {
+      /**
+       * @description Public ecc key
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @description Public kyber key
+       * @example
+       */
+      publicKyberKey: string;
+    };
+    CreateAttemptChangeEmailDto: {
+      /**
+       * @description The new email of the user
+       * @example my_new_email@internxt.com
+       */
+      newEmail: string;
+    };
+    RegisterNotificationTokenDto: {
+      /**
+       * @description device token
+       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
+       */
+      token: string;
+      /**
+       * @description device type
+       * @example macos
+       */
+      type: string;
+    };
+    VerifyEmailDto: {
+      /**
+       * @description Token received in verification email
+       * @example token received
+       */
+      verificationToken: string;
+    };
+    UpdateProfileDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      nameNullCheck: string;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastnameNullCheck: string;
+    };
+    ConfirmAccountDeactivationDto: {
+      /**
+       * @description Token sent to user email
+       * @example token
+       */
+      token: string;
+    };
+    GetUserUsageDto: {
+      drive: number;
+      backup: number;
+      total: number;
+    };
+    GetUserLimitDto: {
+      maxSpaceBytes: number;
+    };
+    GetUploadStatusDto: {
+      /**
+       * @description Indicates whether the user has uploaded any files
+       * @example true
+       */
+      hasUploadedFiles: boolean;
+    };
+    GenerateMnemonicResponseDto: {
+      /**
+       * @description A plain mnemonic
+       * @example abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+       */
+      mnemonic: string;
+    };
+    IncompleteCheckoutDto: {
+      /**
+       * @description URL to complete the checkout process
+       * @example https://drive.internxt.com/checkout/complete
+       */
+      completeCheckoutUrl: string;
+      /**
+       * @description Name of the plan being purchased
+       * @example Premium
+       */
+      planName?: string;
+      /**
+       * @description Price of the plan in euros
+       * @example 320
+       */
+      price?: number;
+    };
+    FolderItem: {
+      /** @example Documents */
+      plainName: string;
+      /**
+       * Format: date-time
        * @example 2023-05-30T12:34:56.789Z
        */
       modificationTime?: string;
       /**
        * Format: date-time
-       * @description The date associated with the file (optional)
-       * @example 2023-05-30T12:34:56.789Z
-       */
-      date?: string;
-      /**
-       * Format: date-time
-       * @description The creation time of the file (optional)
        * @example 2023-05-30T12:34:56.789Z
        */
       creationTime?: string;
     };
-    FileDto: {
-      id: number;
-      uuid: string;
-      fileId: string | null;
-      name: string;
-      type: string;
-      size: string;
-      bucket: string;
-      folderId: number;
-      folderUuid: string;
-      encryptVersion: string;
-      userId: number;
-      /** Format: date-time */
-      creationTime: string;
-      /** Format: date-time */
-      modificationTime: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      plainName: string;
-      /** @enum {string} */
-      status: 'EXISTS' | 'TRASHED' | 'DELETED';
-    };
-    VersioningLimitsDto: {
-      /** @description Whether file versioning is enabled for this tier */
-      enabled: boolean;
-      /** @description Maximum file size in bytes that can be versioned */
-      maxFileSize: number;
-      /** @description Number of days versions are retained */
-      retentionDays: number;
-      /** @description Maximum number of versions kept per file */
-      maxVersions: number;
-    };
-    GetFileLimitsDto: {
-      versioning: components['schemas']['VersioningLimitsDto'];
-    };
-    FileVersionDto: {
-      id: string;
-      fileId: string | null;
-      networkFileId: string;
-      size: string;
-      /** @enum {string} */
-      status: 'EXISTS' | 'DELETED';
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      /**
-       * Format: date-time
-       * @description Date when this version expires based on retention policy
-       */
-      expiresAt: string;
-    };
-    ReplaceFileDto: {
-      /**
-       * @description File id (required when size > 0)
-       * @example 651300a2da9b27001f63f384
-       */
-      fileId?: string;
-      /**
-       * Format: int64
-       * @description New file size
-       * @example 3005
-       */
-      size: number;
-      /**
-       * Format: date-time
-       * @description The last modification time of the file (optional)
-       * @example 2023-05-30T12:34:56.789Z
-       */
-      modificationTime?: string;
-    };
-    UpdateFileMetaDto: {
-      /**
-       * @description The name the file is going to be updated to
-       * @example New name
-       */
-      plainName: string;
-      /**
-       * @description The new type that the file is going to have
-       * @example New type
-       */
-      type: string;
-    };
-    MoveFileDto: {
-      /**
-       * @description New Destination Folder UUID
-       * @example 366be646-6d67-436e-8cb6-4b275dfe1729
-       */
-      destinationFolder: string;
-      /**
-       * @description New file name (optional). Specify it to rename the file when moving, or send it empty to remove the current name.
-       * @example newName
-       */
-      name?: string;
-      /**
-       * @description New file extension (optional). Specify it to change the extension when moving the file, or send it empty to remove the extension.
-       * @example pdf
-       */
-      type?: string;
-    };
-    CreateThumbnailDto: {
-      /**
-       * @deprecated
-       * @description The ID of the file. Deprecated in favor of fileUuid
-       * @example 12345
-       */
-      fileId?: number;
-      /**
-       * @description The UUID of the file
-       * @example ebe586db-eb56-429f-a037-6ba712b40c3c
-       */
-      fileUuid: string;
-      /**
-       * @description The type of the file
-       * @example text
-       */
-      type: string;
-      /**
-       * @description The size of the file in bytes
-       * @example 123456789
-       */
-      size: number;
-      /**
-       * @description The max width of the file
-       * @example 123456789
-       */
-      maxWidth: number;
-      /**
-       * @description The max height of the file
-       * @example 123456789
-       */
-      maxHeight: number;
-      /**
-       * @description The bucket id where the file is stored
-       * @example my-bucket
-       */
-      bucketId: string;
-      /**
-       * @description The id of file in the bucket
-       * @example my-bucket
-       */
-      bucketFile: string;
-      /**
-       * @description The encryption version used for the file
-       * @example 03-aes
-       */
-      encryptVersion: string;
-    };
-    ThumbnailDto: {
-      id: number;
-      fileId: number;
-      fileUuid: string;
-      maxWidth: number;
-      maxHeight: number;
-      type: string;
-      size: number;
-      bucketId: string;
-      bucketFile: string;
-      encryptVersion: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-    };
     CreateFolderDto: {
       /**
-       * @description Folder name
+       * @description Folder name (required for single folder creation)
        * @example Untitled Folder
        */
-      plainName: string;
+      plainName?: string;
       /**
        * @description Uuid of the parent folder
        * @example 79a88429-b45a-4ae7-90f1-c351b6882670
@@ -3301,6 +3810,8 @@ export interface components {
        * @example 2023-05-30T12:34:56.789Z
        */
       creationTime?: string;
+      /** @description Array of folders to create in bulk (1-5 items). When provided, plainName is ignored. */
+      folders?: components['schemas']['FolderItem'][];
     };
     Folder: Record<string, never>;
     FolderDto: {
@@ -3328,6 +3839,41 @@ export interface components {
       status: 'EXISTS' | 'TRASHED' | 'DELETED';
       removed: boolean;
       deleted: boolean;
+    };
+    CreateBulkFoldersConflictResponseDto: {
+      /** @example Folders already exist */
+      message: string;
+      /**
+       * @example [
+       *       "Folder A",
+       *       "Folder B"
+       *     ]
+       */
+      existentFolders: string[];
+    };
+    FileDto: {
+      id: number;
+      uuid: string;
+      fileId: string | null;
+      name: string;
+      type: string;
+      size: string;
+      bucket: string;
+      folderId: number;
+      folderUuid: string;
+      encryptVersion: string;
+      userId: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      plainName: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
     };
     FilesDto: {
       files: components['schemas']['FileDto'][];
@@ -3440,6 +3986,217 @@ export interface components {
        * @example newName
        */
       name?: string;
+    };
+    CreateFileDto: {
+      /**
+       * @description The bucket where the file is stored
+       * @example my-bucket
+       */
+      bucket: string;
+      /**
+       * @description The ID of the file (required when size > 0, must not be provided when size = 0)
+       * @example file12345
+       */
+      fileId?: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the folder containing the file
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      folderUuid: string;
+      /**
+       * Format: bigint
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The plain text name of the file
+       * @example example
+       */
+      plainName: string;
+      /**
+       * @description The type of the file (optional)
+       * @example text
+       */
+      type?: string;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+      /**
+       * Format: date-time
+       * @description The date associated with the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      date?: string;
+      /**
+       * Format: date-time
+       * @description The creation time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      creationTime?: string;
+    };
+    PaymentRequiredResponseDto: {
+      /** @example File size exceeds the maximum allowed by your plan */
+      message: string;
+      /** @enum {string} */
+      error: 'FILE_UPLOAD_SIZE_EXCEEDED' | 'FEATURE_NOT_AVAILABLE';
+    };
+    VersioningLimitsDto: {
+      /** @description Whether file versioning is enabled for this tier */
+      enabled: boolean;
+      /** @description Maximum file size in bytes that can be versioned */
+      maxFileSize: number;
+      /** @description Number of days versions are retained */
+      retentionDays: number;
+      /** @description Maximum number of versions kept per file */
+      maxVersions: number;
+    };
+    GetFileLimitsDto: {
+      versioning: components['schemas']['VersioningLimitsDto'];
+      maxUploadFileSize: number | null;
+    };
+    FileVersionDto: {
+      id: string;
+      fileId: string | null;
+      networkFileId: string;
+      size: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'DELETED';
+      /**
+       * Format: date-time
+       * @description Date when the file was last modified before this version was created
+       */
+      modificationTime: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /**
+       * Format: date-time
+       * @description Date when this version expires based on retention policy
+       */
+      expiresAt: string;
+    };
+    ReplaceFileDto: {
+      /**
+       * @description File id (required when size > 0, must not be provided when size = 0)
+       * @example 651300a2da9b27001f63f384
+       */
+      fileId?: string;
+      /**
+       * Format: int64
+       * @description New file size
+       * @example 3005
+       */
+      size: number;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+    };
+    UpdateFileMetaDto: {
+      /**
+       * @description The name the file is going to be updated to
+       * @example New name
+       */
+      plainName: string;
+      /**
+       * @description The new type that the file is going to have
+       * @example New type
+       */
+      type: string;
+    };
+    MoveFileDto: {
+      /**
+       * @description New Destination Folder UUID
+       * @example 366be646-6d67-436e-8cb6-4b275dfe1729
+       */
+      destinationFolder: string;
+      /**
+       * @description New file name (optional). Specify it to rename the file when moving, or send it empty to remove the current name.
+       * @example newName
+       */
+      name?: string;
+      /**
+       * @description New file extension (optional). Specify it to change the extension when moving the file, or send it empty to remove the extension.
+       * @example pdf
+       */
+      type?: string;
+    };
+    CreateThumbnailDto: {
+      /**
+       * @deprecated
+       * @description The ID of the file. Deprecated in favor of fileUuid
+       * @example 12345
+       */
+      fileId?: number;
+      /**
+       * @description The UUID of the file
+       * @example ebe586db-eb56-429f-a037-6ba712b40c3c
+       */
+      fileUuid: string;
+      /**
+       * @description The type of the file
+       * @example text
+       */
+      type: string;
+      /**
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The max width of the file
+       * @example 123456789
+       */
+      maxWidth: number;
+      /**
+       * @description The max height of the file
+       * @example 123456789
+       */
+      maxHeight: number;
+      /**
+       * @description The bucket id where the file is stored
+       * @example my-bucket
+       */
+      bucketId: string;
+      /**
+       * @description The id of file in the bucket
+       * @example my-bucket
+       */
+      bucketFile: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+    };
+    ThumbnailDto: {
+      id: number;
+      fileId: number;
+      fileUuid: string;
+      maxWidth: number;
+      maxHeight: number;
+      type: string;
+      size: number;
+      bucketId: string;
+      bucketFile: string;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
     };
     SetSharingPasswordDto: {
       /**
@@ -3904,7 +4661,7 @@ export interface components {
        */
       bucket: string;
       /**
-       * @description The ID of the file (required when size > 0)
+       * @description The ID of the file (required when size > 0, must not be provided when size = 0)
        * @example file12345
        */
       fileId?: string;
@@ -4012,514 +4769,6 @@ export interface components {
        * @example +34 622 111 333
        */
       phoneNumber: Record<string, never>;
-    };
-    EccKeysDto: {
-      /**
-       * @description Public key
-       * @example publicKeyExample
-       */
-      publicKey: string;
-      /**
-       * @description Private key
-       * @example privateKeyExample
-       */
-      privateKey: string;
-      /**
-       * @description Revocation key
-       * @example revocationKeyExample
-       */
-      revocationKey: string;
-    };
-    KyberKeysDto: {
-      /**
-       * @description Public key
-       * @example publicKeyExample
-       */
-      publicKey: string;
-      /**
-       * @description Private key
-       * @example privateKeyExample
-       */
-      privateKey: string;
-    };
-    KeysDto: {
-      /** @description ECC keys */
-      ecc: components['schemas']['EccKeysDto'];
-      /** @description Kyber keys */
-      kyber: components['schemas']['KyberKeysDto'];
-    };
-    CreateUserDto: {
-      /**
-       * @description Name of the new user
-       * @example Internxt
-       */
-      name: Record<string, never>;
-      /**
-       * @description Last name of the new user
-       * @example Lastname
-       */
-      lastname: Record<string, never>;
-      /**
-       * @description Email of the new account
-       * @example myaccount@internxt.com
-       */
-      email: Record<string, never>;
-      /**
-       * @description Hashed password
-       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
-       */
-      password: Record<string, never>;
-      /**
-       * @description The mnemonic used to derive encryption keys
-       * @example test test test test test test test test test test test test test test test test test test test test test test test test
-       */
-      mnemonic: Record<string, never>;
-      /**
-       * @description Salt
-       * @example salt
-       */
-      salt: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      privateKey: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      publicKey: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      revocationKey: string;
-      /** @example  */
-      referrer: Record<string, never>;
-      /** @example  */
-      registerCompleted: Record<string, never>;
-      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-      keys: components['schemas']['KeysDto'];
-    };
-    RegisterPreCreatedUserDto: {
-      /**
-       * @description Name of the new user
-       * @example Internxt
-       */
-      name: Record<string, never>;
-      /**
-       * @description Last name of the new user
-       * @example Lastname
-       */
-      lastname: Record<string, never>;
-      /**
-       * @description Email of the new account
-       * @example myaccount@internxt.com
-       */
-      email: Record<string, never>;
-      /**
-       * @description Hashed password
-       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
-       */
-      password: Record<string, never>;
-      /**
-       * @description The mnemonic used to derive encryption keys
-       * @example test test test test test test test test test test test test test test test test test test test test test test test test
-       */
-      mnemonic: Record<string, never>;
-      /**
-       * @description Salt
-       * @example salt
-       */
-      salt: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      privateKey: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      publicKey: string;
-      /**
-       * @deprecated
-       * @example
-       */
-      revocationKey: string;
-      /** @example  */
-      referrer: Record<string, never>;
-      /** @example  */
-      registerCompleted: Record<string, never>;
-      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-      keys: components['schemas']['KeysDto'];
-      /**
-       * @description id of the invitation
-       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
-       */
-      invitationId: Record<string, never>;
-    };
-    PreCreateUserDto: {
-      /**
-       * @description Email of the new account
-       * @example myaccount@internxt.com
-       */
-      email: Record<string, never>;
-    };
-    UserResponseDto: {
-      email: string;
-      userId: string;
-      mnemonic: string;
-      root_folder_id: number;
-      rootFolderId: string;
-      name: string;
-      lastname: string;
-      uuid: string;
-      credit: number;
-      /** Format: date-time */
-      createdAt: string;
-      registerCompleted: boolean;
-      username: string;
-      bridgeUser: string;
-      bucket: string;
-      backupsBucket: string;
-      avatar: string;
-      emailVerified: boolean;
-      sharedWorkspace: boolean;
-      /** @deprecated */
-      hasReferralsProgram: boolean;
-      /** @deprecated */
-      teams: boolean;
-      /** Format: date-time */
-      lastPasswordChangedAt: string;
-      keys: components['schemas']['KeysDto'];
-      /** @deprecated */
-      privateKey: Record<string, never>;
-      /** @deprecated */
-      publicKey: Record<string, never>;
-      /** @deprecated */
-      revocateKey: Record<string, never>;
-    };
-    RefreshUserCredentialsDto: {
-      /**
-       * @deprecated
-       * @description The old token that has been replaced
-       * @example oldToken1234567890
-       */
-      token?: string;
-      /**
-       * @description The new token to be used for authentication
-       * @example oldToken1234567890
-       */
-      newToken: string;
-      /** @description User information */
-      user: components['schemas']['UserResponseDto'];
-    };
-    RefreshUserTokensDto: {
-      /**
-       * @deprecated
-       * @description The old token that has been replaced
-       * @example oldToken1234567890
-       */
-      oldToken?: string;
-      /**
-       * @description The new token to be used for authentication
-       * @example oldToken1234567890
-       */
-      newToken: string;
-      /** @description User information */
-      user: components['schemas']['UserResponseDto'];
-    };
-    RefreshUserAvatarDto: {
-      /** @description A new avatar URL for the given user */
-      avatar: string;
-    };
-    UpdatePasswordDto: {
-      /**
-       * @description Current password
-       * @example currentPassword
-       */
-      currentPassword: string;
-      /**
-       * @description New password
-       * @example newPassword
-       */
-      newPassword: string;
-      /**
-       * @description New salt
-       * @example newSalt
-       */
-      newSalt: string;
-      /**
-       * @description New mnemonic
-       * @example newMnemonic
-       */
-      mnemonic: string;
-      /**
-       * @description Ecc private key encrypted with new password
-       * @example encryptedPrivateKey
-       */
-      privateKey: string;
-      /**
-       * @description Kyber private key encrypted with new password
-       * @example encryptedPrivateKey
-       */
-      privateKyberKey: string;
-      /**
-       * @deprecated
-       * @description Encrypt version
-       * @example encryptVersion
-       */
-      encryptVersion: string;
-    };
-    RequestRecoverAccountDto: {
-      /**
-       * @description User email
-       * @example hello@internxt.com
-       */
-      email: string;
-    };
-    RequestAccountUnblock: {
-      /**
-       * @description User email
-       * @example hello@internxt.com
-       */
-      email: string;
-    };
-    DeprecatedRecoverAccountDto: {
-      /**
-       * @description New user pass hashed
-       * @example some_hashed_pass
-       */
-      password: string;
-      /**
-       * @description Hashed password salt
-       * @example some_salt
-       */
-      salt: string;
-      /**
-       * @description User mnemonic encrypted with the new pass
-       * @example some_encrypted_mnemonic
-       */
-      mnemonic: string;
-      /**
-       * @description User's private key encrypted with the user's plain password
-       * @example encrypted private key
-       */
-      privateKey: string;
-    };
-    PrivateKeysDto: {
-      ecc: string;
-      kyber: string;
-    };
-    RecoverAccountDto: {
-      /**
-       * @description New user pass hashed
-       * @example some_hashed_pass
-       */
-      password: string;
-      /**
-       * @description User uuid
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      uuid: string;
-      /**
-       * @description Hashed password salt
-       * @example some_salt
-       */
-      salt: string;
-      /**
-       * @description User mnemonic encrypted with the new pass
-       * @example some_encrypted_mnemonic
-       */
-      mnemonic: string;
-      /**
-       * @description User's private keys encrypted with the user's plain password
-       * @example {
-       *       "ecc": "encrypted private key",
-       *       "kyber": "encrypted kyber private key"
-       *     }
-       */
-      privateKeys: components['schemas']['PrivateKeysDto'];
-    };
-    EncryptedMnemonicDto: {
-      /**
-       * @description Mnemonic encrypted with ECC method
-       * @example mnemonic_encrypted_with_ecc_method
-       */
-      ecc: string;
-      /**
-       * @description Mnemonic encrypted with hybrid method
-       * @example mnemonic_encrypted_with_hybrid_method
-       */
-      hybrid: string;
-    };
-    RecoverAccountEccKeysDto: {
-      /**
-       * @description public key
-       * @example public_key
-       */
-      public: string;
-      /**
-       * @description private key encrypted with password
-       * @example private_key
-       */
-      private: string;
-      /**
-       * @description Key used for revocation
-       * @example revocation_key
-       */
-      revocationKey: string;
-    };
-    RecoverAccountKeysPairDto: {
-      /**
-       * @description public key
-       * @example public_key
-       */
-      public: string;
-      /**
-       * @description private key encrypted with password
-       * @example private_key
-       */
-      private: string;
-    };
-    NewGeneratedKeysDto: {
-      /** @description ECC keys (public and private) */
-      ecc: components['schemas']['RecoverAccountEccKeysDto'];
-      /** @description Kyber keys (public and private) */
-      kyber: components['schemas']['RecoverAccountKeysPairDto'];
-    };
-    LegacyRecoverAccountDto: {
-      /**
-       * @description Base64 encoded temporary auth token
-       * @example temporary_auth_token
-       */
-      token: string;
-      /**
-       * @description New user pass hashed
-       * @example hashed_password
-       */
-      password: string;
-      /**
-       * @description Hashed password salt
-       * @example password_salt
-       */
-      salt: string;
-      /**
-       * @description User mnemonic encrypted with the new pass
-       * @example password_encrypted_mnemonic
-       */
-      mnemonic: string;
-      /** @description Mnemonic encrypted with asymmetric encryption algorithms */
-      asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
-      /** @description User ecc and kyber keys */
-      keys: components['schemas']['NewGeneratedKeysDto'];
-    };
-    GetOrCreatePublicKeysDto: {
-      /**
-       * @description Public ecc key
-       * @example
-       */
-      publicKey: string;
-      /**
-       * @description Public kyber key
-       * @example
-       */
-      publicKyberKey: string;
-    };
-    CreateAttemptChangeEmailDto: {
-      /**
-       * @description The new email of the user
-       * @example my_new_email@internxt.com
-       */
-      newEmail: string;
-    };
-    RegisterNotificationTokenDto: {
-      /**
-       * @description device token
-       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
-       */
-      token: string;
-      /**
-       * @description device type
-       * @example macos
-       */
-      type: string;
-    };
-    VerifyEmailDto: {
-      /**
-       * @description Token received in verification email
-       * @example token received
-       */
-      verificationToken: string;
-    };
-    UpdateProfileDto: {
-      /**
-       * @description Name of the new user
-       * @example Internxt
-       */
-      name: Record<string, never>;
-      /**
-       * @description Name of the new user
-       * @example Internxt
-       */
-      nameNullCheck: string;
-      /**
-       * @description Last name of the new user
-       * @example Lastname
-       */
-      lastname: Record<string, never>;
-      /**
-       * @description Last name of the new user
-       * @example Lastname
-       */
-      lastnameNullCheck: string;
-    };
-    ConfirmAccountDeactivationDto: {
-      /**
-       * @description Token sent to user email
-       * @example token
-       */
-      token: string;
-    };
-    GetUserUsageDto: {
-      drive: number;
-      backup: number;
-      total: number;
-    };
-    GetUserLimitDto: {
-      maxSpaceBytes: number;
-    };
-    GetUploadStatusDto: {
-      /**
-       * @description Indicates whether the user has uploaded any files
-       * @example true
-       */
-      hasUploadedFiles: boolean;
-    };
-    GenerateMnemonicResponseDto: {
-      /**
-       * @description A plain mnemonic
-       * @example abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
-       */
-      mnemonic: string;
-    };
-    IncompleteCheckoutDto: {
-      /**
-       * @description URL to complete the checkout process
-       * @example https://drive.internxt.com/checkout/complete
-       */
-      completeCheckoutUrl: string;
-      /**
-       * @description Name of the plan being purchased
-       * @example Premium
-       */
-      planName?: string;
-      /**
-       * @description Price of the plan in euros
-       * @example 320
-       */
-      price?: number;
     };
     FuzzySearchResult: {
       id: string;
@@ -4703,103 +4952,6 @@ export interface components {
     DeleteItemsDto: {
       /** @description Array of items with files and folders ids */
       items: components['schemas']['DeleteItemDto'][];
-    };
-    NotificationWithStatusDto: {
-      /**
-       * @description Unique identifier for the notification
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description URL link for the notification
-       * @example https://internxt.com/promotions/black-friday
-       */
-      link: string;
-      /**
-       * @description Notification message content
-       * @example Black Friday Sale - 50% off all plans!
-       */
-      message: string;
-      /**
-       * Format: date-time
-       * @description Optional expiration date for the notification
-       * @example 2024-12-31T23:59:59.000Z
-       */
-      expiresAt: string | null;
-      /**
-       * Format: date-time
-       * @description Creation timestamp
-       * @example 2024-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * @description Whether the notification has been read by the user
-       * @example true
-       */
-      isRead: boolean;
-      /**
-       * Format: date-time
-       * @description When the notification was delivered to the user
-       * @example 2024-01-01T00:00:00.000Z
-       */
-      deliveredAt: string;
-      /**
-       * Format: date-time
-       * @description When the notification was read by the user
-       * @example 2024-01-01T12:00:00.000Z
-       */
-      readAt: string | null;
-    };
-    CreateNotificationDto: {
-      /**
-       * @description URL link for the notification
-       * @example https://internxt.com/promotions/black-friday
-       */
-      link: string;
-      /**
-       * @description Notification message content
-       * @example Black Friday Sale - 50% off all plans!
-       */
-      message: string;
-      /**
-       * @description Target user email, if missing, notification is sent to everyone
-       * @example test@interxt.com
-       */
-      email?: string;
-      /**
-       * @description Optional expiration date for the notification
-       * @example 2024-12-31T23:59:59Z
-       */
-      expiresAt?: string;
-    };
-    NotificationResponseDto: {
-      /**
-       * @description Unique identifier for the notification
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description URL link for the notification
-       * @example https://internxt.com/promotions/black-friday
-       */
-      link: string;
-      /**
-       * @description Notification message content
-       * @example Black Friday Sale - 50% off all plans!
-       */
-      message: string;
-      /**
-       * Format: date-time
-       * @description Optional expiration date for the notification
-       * @example 2024-12-31T23:59:59.000Z
-       */
-      expiresAt: string | null;
-      /**
-       * Format: date-time
-       * @description Creation timestamp
-       * @example 2024-01-01T00:00:00.000Z
-       */
-      createdAt: string;
     };
     LoginDto: {
       /**
@@ -5104,41 +5256,27 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  FileController_getFiles: {
+  NotificationsController_getUserNotifications: {
     parameters: {
-      query: {
-        /** @description Items per page */
-        limit: number;
-        /** @description Offset for pagination */
-        offset: number;
-        /** @description File status filter */
-        status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
-        /** @description Bucket ID filter */
-        bucket?: string;
-        /** @description Field to sort by */
-        sort?: 'updatedAt' | 'size' | 'id' | 'plainName' | 'name' | 'uuid';
-        /** @description Sort order */
-        order?: 'ASC' | 'DESC';
-        /** @description Filter files updated after this date */
-        updatedAt?: string;
-      };
+      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
+      /** @description User notifications retrieved successfully */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FileDto'][];
+          'application/json': components['schemas']['NotificationWithStatusDto'][];
         };
       };
     };
   };
-  FileController_createFile: {
+  NotificationsController_createNotification: {
     parameters: {
       query?: never;
       header?: never;
@@ -5147,7 +5285,256 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateFileDto'];
+        'application/json': components['schemas']['CreateNotificationDto'];
+      };
+    };
+    responses: {
+      /** @description Notification created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NotificationResponseDto'];
+        };
+      };
+    };
+  };
+  NotificationsController_markNotificationAsExpired: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notification marked as expired successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['NotificationResponseDto'];
+        };
+      };
+    };
+  };
+  UserController_createUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateUserDto'];
+      };
+    };
+    responses: {
+      /** @description Creates a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get the user data by email */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_registerPreCreatedUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterPreCreatedUserDto'];
+      };
+    };
+    responses: {
+      /** @description Creates Pre Created User */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_preCreateUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PreCreateUserDto'];
+      };
+    };
+    responses: {
+      /** @description Pre creates a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserCredentials: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns the user metadata and the authentication tokens */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserCredentialsDto'];
+        };
+      };
+    };
+  };
+  UserController_refreshToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns the user metadata and the authentication tokens */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserTokensDto'];
+        };
+      };
+    };
+  };
+  UserController_cliRefresh: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns the user metadata and the authentication tokens */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserTokensDto'];
+        };
+      };
+      /** @description This user current tier does not allow CLI access */
+      402: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_refreshAvatarUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new avatar URL */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserAvatarDto'];
+        };
+      };
+    };
+  };
+  UserController_updatePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePasswordDto'];
       };
     };
     responses: {
@@ -5155,17 +5542,58 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
+        content?: never;
       };
     };
   };
-  FileController_getFileCount: {
+  UserController_recoverAccount: {
     parameters: {
       query: {
-        status: string;
+        token: string;
+        reset: string;
       };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestAccountRecovery: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_accountUnblock: {
+    parameters: {
+      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
@@ -5180,170 +5608,18 @@ export interface operations {
       };
     };
   };
-  FileController_getLimits: {
+  UserController_requestAccountUnblock: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GetFileLimitsDto'];
-        };
-      };
-    };
-  };
-  FileController_getFileMetadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
-      };
-    };
-  };
-  FileController_updateFileMetadata: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description file uuid */
-        uuid: string;
-      };
-      cookie?: never;
-    };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateFileMetaDto'];
+        'application/json': components['schemas']['RequestAccountUnblock'];
       };
     };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
-      };
-    };
-  };
-  FileController_getFileVersions: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileVersionDto'][];
-        };
-      };
-    };
-  };
-  FileController_deleteFileVersion: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-        versionId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  FileController_restoreFileVersion: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-        versionId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
-      };
-    };
-  };
-  FileController_replaceFile: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ReplaceFileDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
-      };
-    };
-  };
-  FileController_deleteFileByUuid: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -5353,38 +5629,58 @@ export interface operations {
       };
     };
   };
-  FileController_moveFile: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['MoveFileDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['FileDto'];
-        };
-      };
-    };
-  };
-  FileController_getRecentFiles: {
+  UserController_recoverAccountV2: {
     parameters: {
       query: {
-        limit: number;
+        token: string;
+        reset: string;
       };
       header?: never;
       path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestLegacyAccountRecovery: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LegacyRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getPublicKeyByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5397,28 +5693,29 @@ export interface operations {
       };
     };
   };
-  FileController_getFileMetaByPath: {
+  UserController_getOrPreCreatePublicKeyByEmail: {
     parameters: {
-      query: {
-        path: string;
-      };
+      query?: never;
       header?: never;
-      path?: never;
+      path: {
+        email: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
+      /** @description Returns a public key */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FileDto'];
+          'application/json': components['schemas']['GetOrCreatePublicKeysDto'];
         };
       };
     };
   };
-  FileController_createThumbnail: {
+  UserController_createAttemptChangeEmail: {
     parameters: {
       query?: never;
       header?: never;
@@ -5427,32 +5724,347 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateThumbnailDto'];
+        'application/json': components['schemas']['CreateAttemptChangeEmailDto'];
       };
     };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_acceptAttemptChangeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        encryptedAttemptChangeEmailId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_verifyAttemptChangeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        encryptedAttemptChangeEmailId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getMeetTokenBeta: {
+    parameters: {
+      query: {
+        room: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new meet token related to the beta user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getMeetTokenAnon: {
+    parameters: {
+      query: {
+        room: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new meet anonymous token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_addNotificationToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterNotificationTokenDto'];
+      };
+    };
+    responses: {
+      /** @description Creates a notification token */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_sendAccountVerifyEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Email sent successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_verifyAccountEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VerifyEmailDto'];
+      };
+    };
+    responses: {
+      /** @description Email verified successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_updateProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateProfileDto'];
+      };
+    };
+    responses: {
+      /** @description Updated user profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_uploadAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar added to the user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_deleteAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar deleted from the workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_sendUserDeactivationEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_confirmUserDeactivation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConfirmAccountDeactivationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserUsage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ThumbnailDto'];
+          'application/json': components['schemas']['GetUserUsageDto'];
         };
       };
     };
   };
-  FileController_deleteFileByFileId: {
+  UserController_limit: {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        bucketId: string;
-        fileId: string;
-      };
+      path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
+      /** @description Get user space limit */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUserLimitDto'];
+        };
+      };
+    };
+  };
+  UserController_getUploadStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns whether the user has uploaded any files */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUploadStatusDto'];
+        };
+      };
+    };
+  };
+  UserController_generateMnemonic: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a mnemonic, it is not saved anywhere */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GenerateMnemonicResponseDto'];
+        };
+      };
+    };
+  };
+  UserController_handleIncompleteCheckout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['IncompleteCheckoutDto'];
+      };
+    };
+    responses: {
+      /** @description Incomplete checkout processed successfully */
       200: {
         headers: {
           [name: string]: unknown;
@@ -5514,6 +6126,14 @@ export interface operations {
           'application/json': components['schemas']['FolderDto'];
         };
       };
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CreateBulkFoldersConflictResponseDto'];
+        };
+      };
     };
   };
   FolderController_deleteFolders: {
@@ -5562,7 +6182,7 @@ export interface operations {
         /** @description Offset for pagination */
         offset: number;
         /** @description Field to sort by */
-        sort?: 'updatedAt' | 'size' | 'id' | 'plainName' | 'name' | 'uuid';
+        sort?: 'updatedAt' | 'size' | 'id' | 'plainName' | 'uuid';
         /** @description Sort order */
         order?: 'ASC' | 'DESC';
       };
@@ -5592,7 +6212,7 @@ export interface operations {
         /** @description Offset for pagination */
         offset: number;
         /** @description Field to sort by */
-        sort?: 'updatedAt' | 'size' | 'id' | 'plainName' | 'name' | 'uuid';
+        sort?: 'updatedAt' | 'size' | 'id' | 'plainName' | 'uuid';
         /** @description Sort order */
         order?: 'ASC' | 'DESC';
       };
@@ -5644,7 +6264,7 @@ export interface operations {
         /** @description Offset for pagination */
         offset: number;
         /** @description Field to sort by */
-        sort?: 'updatedAt' | 'id' | 'plainName' | 'name' | 'uuid';
+        sort?: 'updatedAt' | 'id' | 'plainName' | 'uuid';
         /** @description Sort order */
         order?: 'ASC' | 'DESC';
       };
@@ -5773,7 +6393,7 @@ export interface operations {
         /** @description Offset for pagination */
         offset: number;
         /** @description Field to sort by */
-        sort?: 'updatedAt' | 'id' | 'plainName' | 'name' | 'uuid';
+        sort?: 'updatedAt' | 'id' | 'plainName' | 'uuid';
         /** @description Sort order */
         order?: 'ASC' | 'DESC';
       };
@@ -5995,6 +6615,384 @@ export interface operations {
       };
       header?: never;
       path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_getFiles: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit: number;
+        /** @description Offset for pagination */
+        offset: number;
+        /** @description File status filter */
+        status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
+        /**
+         * @deprecated
+         * @description Bucket ID filter
+         */
+        bucket?: string;
+        /** @description Field to sort by */
+        sort?: 'updatedAt' | 'uuid';
+        /** @description Sort order */
+        order?: 'ASC' | 'DESC';
+        /** @description Filter files updated after this date */
+        updatedAt?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'][];
+        };
+      };
+    };
+  };
+  FileController_createFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+      /** @description File size exceeds the maximum allowed by your plan */
+      402: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaymentRequiredResponseDto'];
+        };
+      };
+    };
+  };
+  FileController_getFileCount: {
+    parameters: {
+      query: {
+        status: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_getLimits: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetFileLimitsDto'];
+        };
+      };
+    };
+  };
+  FileController_getFileMetadata: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_updateFileMetadata: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description file uuid */
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateFileMetaDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_getFileVersions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileVersionDto'][];
+        };
+      };
+    };
+  };
+  FileController_deleteFileVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+        versionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_restoreFileVersion: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+        versionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_replaceFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReplaceFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+      /** @description File size exceeds the maximum allowed by your plan */
+      402: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaymentRequiredResponseDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByUuid: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_moveFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MoveFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_getRecentFiles: {
+    parameters: {
+      query: {
+        limit: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_getFileMetaByPath: {
+    parameters: {
+      query: {
+        path: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_createThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateThumbnailDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ThumbnailDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -7955,757 +8953,6 @@ export interface operations {
       };
     };
   };
-  UserController_createUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateUserDto'];
-      };
-    };
-    responses: {
-      /** @description Creates a user */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Missing required fields */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getUserByEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        email: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Get the user data by email */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Missing required fields */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_registerPreCreatedUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RegisterPreCreatedUserDto'];
-      };
-    };
-    responses: {
-      /** @description Creates Pre Created User */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Missing required fields */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_preCreateUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['PreCreateUserDto'];
-      };
-    };
-    responses: {
-      /** @description Pre creates a user */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Missing required fields */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getUserCredentials: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        uuid: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns the user metadata and the authentication tokens */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['RefreshUserCredentialsDto'];
-        };
-      };
-    };
-  };
-  UserController_refreshToken: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns the user metadata and the authentication tokens */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['RefreshUserTokensDto'];
-        };
-      };
-    };
-  };
-  UserController_cliRefresh: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns the user metadata and the authentication tokens */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['RefreshUserTokensDto'];
-        };
-      };
-      /** @description This user current tier does not allow CLI access */
-      402: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_refreshAvatarUser: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns a new avatar URL */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['RefreshUserAvatarDto'];
-        };
-      };
-    };
-  };
-  UserController_updatePassword: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdatePasswordDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_recoverAccount: {
-    parameters: {
-      query: {
-        token: string;
-        reset: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_requestAccountRecovery: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RequestRecoverAccountDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_accountUnblock: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_requestAccountUnblock: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RequestAccountUnblock'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_recoverAccountV2: {
-    parameters: {
-      query: {
-        token: string;
-        reset: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RecoverAccountDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_requestLegacyAccountRecovery: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['LegacyRecoverAccountDto'];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getPublicKeyByEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        email: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getOrPreCreatePublicKeyByEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        email: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns a public key */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GetOrCreatePublicKeysDto'];
-        };
-      };
-    };
-  };
-  UserController_createAttemptChangeEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateAttemptChangeEmailDto'];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_acceptAttemptChangeEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        encryptedAttemptChangeEmailId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_verifyAttemptChangeEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        encryptedAttemptChangeEmailId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getMeetTokenBeta: {
-    parameters: {
-      query: {
-        room: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns a new meet token related to the beta user */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getMeetTokenAnon: {
-    parameters: {
-      query: {
-        room: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns a new meet anonymous token */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_addNotificationToken: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['RegisterNotificationTokenDto'];
-      };
-    };
-    responses: {
-      /** @description Creates a notification token */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_sendAccountVerifyEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Email sent successfully */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_verifyAccountEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['VerifyEmailDto'];
-      };
-    };
-    responses: {
-      /** @description Email verified successfully */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_updateProfile: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['UpdateProfileDto'];
-      };
-    };
-    responses: {
-      /** @description Updated user profile */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_uploadAvatar: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Avatar added to the user */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_deleteAvatar: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Avatar deleted from the workspace */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_sendUserDeactivationEmail: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_confirmUserDeactivation: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['ConfirmAccountDeactivationDto'];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UserController_getUserUsage: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GetUserUsageDto'];
-        };
-      };
-    };
-  };
-  UserController_limit: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Get user space limit */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GetUserLimitDto'];
-        };
-      };
-    };
-  };
-  UserController_getUploadStatus: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns whether the user has uploaded any files */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GetUploadStatusDto'];
-        };
-      };
-    };
-  };
-  UserController_generateMnemonic: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Returns a mnemonic, it is not saved anywhere */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['GenerateMnemonicResponseDto'];
-        };
-      };
-    };
-  };
-  UserController_handleIncompleteCheckout: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['IncompleteCheckoutDto'];
-      };
-    };
-    responses: {
-      /** @description Incomplete checkout email sent successfully */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
   ShareController_getDomains: {
     parameters: {
       query?: never;
@@ -9092,6 +9339,113 @@ export interface operations {
       };
     };
   };
+  PhotosController_getPhotoDevicesAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'][];
+        };
+      };
+    };
+  };
+  PhotosController_createPhotoDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  PhotosController_getPhotoDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  PhotosController_deletePhotoDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PhotosController_updatePhotoDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
   TrashController_getTrashedFilesPaginated: {
     parameters: {
       query: {
@@ -9237,72 +9591,6 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
-      };
-    };
-  };
-  NotificationsController_getUserNotifications: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description User notifications retrieved successfully */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['NotificationWithStatusDto'][];
-        };
-      };
-    };
-  };
-  NotificationsController_createNotification: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['CreateNotificationDto'];
-      };
-    };
-    responses: {
-      /** @description Notification created successfully */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['NotificationResponseDto'];
-        };
-      };
-    };
-  };
-  NotificationsController_markNotificationAsExpired: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Notification marked as expired successfully */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['NotificationResponseDto'];
-        };
       };
     };
   };
@@ -9468,7 +9756,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description CLI user successfully accessed their account */
+      /** @description User successfully accessed their account via CLI or Rclone */
       200: {
         headers: {
           [name: string]: unknown;
@@ -9477,7 +9765,7 @@ export interface operations {
           'application/json': components['schemas']['LoginAccessResponseDto'];
         };
       };
-      /** @description This user current tier does not allow CLI access */
+      /** @description This user current tier does not allow CLI/Rclone access */
       402: {
         headers: {
           [name: string]: unknown;
@@ -9832,6 +10120,76 @@ export interface operations {
     };
     responses: {
       /** @description Limit successfully set for user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReferralController_isEnabled: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Referral feature status */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReferralController_generateToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Referral token generated successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  HealthController_live: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  HealthController_ready: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
       200: {
         headers: {
           [name: string]: unknown;
