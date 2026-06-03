@@ -12,9 +12,6 @@ export type FolderPersistedDto = {
   createdAt: string;
 };
 
-/** @deprecated Use DriveDesktopError instead */
-export type RemoteFileSystemErrors = 'ALREADY_EXISTS' | 'WRONG_DATA' | 'UNHANDLED';
-
 export abstract class RemoteFileSystem {
   abstract persist(plainName: string, parentFolderUuid: string): Promise<Either<DriveDesktopError, FolderPersistedDto>>;
 

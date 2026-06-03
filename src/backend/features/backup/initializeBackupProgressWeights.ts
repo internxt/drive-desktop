@@ -79,13 +79,3 @@ export const getPercentage = (state: BackupProgressState): number => {
 };
 
 export const resetState = (): BackupProgressState => createInitialState();
-
-export const initializeAndSetBackup = (
-  state: BackupProgressState,
-  backupIds: string[],
-  fileCounts: ReadonlyMap<string, number>,
-  firstBackupId: string,
-): BackupProgressState => {
-  const weightedState = initializeBackupProgressWeights(state, backupIds, fileCounts);
-  return setCurrentBackupId(weightedState, firstBackupId);
-};

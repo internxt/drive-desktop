@@ -1,10 +1,27 @@
 {
-  "entry": ["src/apps/main/main.ts", "src/apps/renderer/index.tsx"],
-  "exclude": ["devDependencies"],
-  "ignore": ["**/*.test.{ts,tsx}"],
-  "ignoreBinaries": ["esbuild"],
+  "entry": [
+    "src/apps/main/main.ts",
+    "src/apps/renderer/index.tsx",
+    "src/apps/main/antivirus/ManualSystemScan.ts",
+    "src/apps/main/nautilus-extension/install.ts",
+    "src/apps/main/nautilus-extension/reload.ts",
+    "src/apps/main/nautilus-extension/uninstall.ts",
+    "src/backend/features/virtual-drive/services/virtual-drive.service.ts"
+  ],
+  "exclude": [
+    "devDependencies"
+  ],
+  "ignore": [
+    "**/*.test.{ts,tsx}"
+  ],
+  "ignoreBinaries": [
+    "esbuild"
+  ],
   "ignoreExportsUsedInFile": true,
-  "project": ["src/**/*.{ts,tsx}", "!src/**/*.test.{ts,tsx}"],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "!src/**/*.test.{ts,tsx}"
+  ],
   "vitest": false,
   "webpack": false,
   "rules": {

@@ -8,7 +8,8 @@ import { generateWebCacheReport } from './web-cache/generate-web-cache-report';
 
 export let storedCleanerReport: CleanerReport | null = null;
 
-export function clearCleanerReportCache(): void {
+/** @public */
+export function clearCleanerReport() {
   storedCleanerReport = null;
 }
 

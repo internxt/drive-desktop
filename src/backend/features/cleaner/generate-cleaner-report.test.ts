@@ -1,4 +1,4 @@
-import { generateCleanerReport, clearCleanerReportCache } from './generate-cleaner-report';
+import { generateCleanerReport, clearCleanerReport } from './generate-cleaner-report';
 import { generateAppCacheReport } from './app-cache/generate-app-cache-report';
 import { generateLogsFilesReport } from './log-files/generate-logs-files-report';
 import { generateTrashFilesReport } from './trash-files/generate-trash-files-report';
@@ -96,10 +96,8 @@ describe('generateCleanerReport', () => {
   };
 
   beforeEach(() => {
-    clearCleanerReportCache(); // Ensure clean cache state
-    vi.clearAllMocks(); // Clear all mocks before each test in this describe block
-
-    // Reset all mocks to their default behavior
+    // Reset cache and all mocks to their default behavior
+    clearCleanerReport();
     mockedGenerateAppCacheReport.mockReset();
     mockedGenerateLogsFilesReport.mockReset();
     mockedGenerateTrashFilesReport.mockReset();
@@ -107,13 +105,8 @@ describe('generateCleanerReport', () => {
     mockedGenerateWebCacheReport.mockReset();
   });
 
-  afterEach(() => {
-    clearCleanerReportCache();
-  });
-
   describe('successful report generation', () => {
     beforeEach(() => {
-      clearCleanerReportCache(); // Ensure clean state for this describe block
       mockedGenerateAppCacheReport.mockResolvedValue(mockAppCacheSection);
       mockedGenerateLogsFilesReport.mockResolvedValue(mockLogFilesSection);
       mockedGenerateTrashFilesReport.mockResolvedValue(mockTrashSection);
@@ -300,7 +293,6 @@ describe('generateCleanerReport', () => {
       vi.spyOn(Promise, 'allSettled').mockRestore();
 
       // Clear cache and reset all mocks completely
-      clearCleanerReportCache();
       mockedGenerateAppCacheReport.mockReset();
       mockedGenerateLogsFilesReport.mockReset();
       mockedGenerateTrashFilesReport.mockReset();

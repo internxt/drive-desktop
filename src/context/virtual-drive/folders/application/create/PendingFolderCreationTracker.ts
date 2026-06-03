@@ -75,7 +75,3 @@ export async function runTrackingCreation<T>({ path, action }: ActionProps<T>): 
 
   return creationPromise;
 }
-
-export function clearPendingCreations(): void {
-  pendingFolderCreationByPath.clear();
-}

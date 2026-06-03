@@ -233,13 +233,6 @@ export function abortAllHydrations(): void {
   }
 }
 
-/**
- * Removes the bitmap for a file — call when the file is deleted or cache is cleared.
- */
-export function deleteHydrationState(contentsId: string): void {
-  hydrationState.delete(contentsId);
-}
-
 export function clearHydrationState(): void {
   hydrationState.clear();
 }

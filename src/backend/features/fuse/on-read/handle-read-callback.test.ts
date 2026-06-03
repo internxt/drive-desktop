@@ -1,22 +1,15 @@
 import { handleReadCallback, type HandleReadCallbackProps } from './handle-read-callback';
 import * as readChunkModule from './read-chunk-from-disk';
-import * as processBlocklistModule from '../../../features/virtual-drive/utils/process-blocklist';
 import * as fileExistsModule from './download-cache/file-exists-on-disk';
 import * as allocateFileModule from './download-cache/allocate-file';
 import * as downloadAndSaveBlockModule from './download-cache/download-and-save-block';
 import * as downloadFileModule from '../../../../infra/environment/download-file/download-file';
-import {
-  clearHydrationState,
-  getExistingHydrationState,
-  getOrCreateHydrationState,
-  markBlocksInRangeDownloaded,
-} from './download-cache/hydration-state';
+import { clearHydrationState } from './download-cache/hydration-state';
 import { partialSpyOn, call } from '../../../../../tests/vitest/utils.helper';
 import { type File } from '../../../../context/virtual-drive/files/domain/File';
 import { FuseIOError, FuseNoSuchFileOrDirectoryError } from '../../../../apps/drive/fuse/callbacks/FuseErrors';
 
 const readChunkFromDiskMock = partialSpyOn(readChunkModule, 'readChunkFromDisk');
-const isBlocklistedProcessMock = partialSpyOn(processBlocklistModule, 'isBlocklistedProcess');
 const fileExistsOnDiskMock = partialSpyOn(fileExistsModule, 'fileExistsOnDisk');
 const allocateFileMock = partialSpyOn(allocateFileModule, 'allocateFile');
 const downloadAndCacheBlockMock = partialSpyOn(downloadAndSaveBlockModule, 'downloadAndCacheBlock');
@@ -51,7 +44,6 @@ describe('handleReadCallback', () => {
   beforeEach(() => {
     clearHydrationState();
     vi.clearAllMocks();
-    isBlocklistedProcessMock.mockReturnValue(false);
     fileExistsOnDiskMock.mockResolvedValue(true);
     allocateFileMock.mockResolvedValue(undefined);
     downloadAndCacheBlockMock.mockResolvedValue({ data: undefined });
@@ -96,59 +88,6 @@ describe('handleReadCallback', () => {
       const result = await handleReadCallback({ ...deps, path: '/file.txt' });
 
       expect(result.error).toBeInstanceOf(FuseNoSuchFileOrDirectoryError);
-    });
-  });
-
-  describe.skip('when process is blocklisted', () => {
-    it('should return empty buffer without side effects when the requested range is not cached', async () => {
-      isBlocklistedProcessMock.mockReturnValue(true);
-      fileExistsOnDiskMock.mockResolvedValue(false);
-      const deps = createDeps({ processName: 'pool-org.gnome.' });
-
-      const result = await handleReadCallback(deps);
-
-      expect(result.data).toHaveLength(0);
-      expect(getExistingHydrationState(virtualFile.contentsId)).toBeUndefined();
-      expect(fileExistsOnDiskMock).not.toHaveBeenCalled();
-      expect(allocateFileMock).not.toHaveBeenCalled();
-      expect(downloadAndCacheBlockMock).not.toHaveBeenCalled();
-      expect(deps.onDownloadProgress).not.toHaveBeenCalled();
-      expect(deps.saveToRepository).not.toHaveBeenCalled();
-      expect(readChunkFromDiskMock).not.toHaveBeenCalled();
-    });
-
-    it('should return empty buffer when hydration state exists but the requested range is not cached', async () => {
-      isBlocklistedProcessMock.mockReturnValue(true);
-      getOrCreateHydrationState(virtualFile.contentsId, virtualFile.size);
-      const deps = createDeps({ processName: 'pool-org.gnome.' });
-
-      const result = await handleReadCallback(deps);
-
-      expect(result.data).toHaveLength(0);
-      expect(allocateFileMock).not.toHaveBeenCalled();
-      expect(readChunkFromDiskMock).not.toHaveBeenCalled();
-      expect(downloadAndCacheBlockMock).not.toHaveBeenCalled();
-      expect(deps.onDownloadProgress).not.toHaveBeenCalled();
-      expect(deps.saveToRepository).not.toHaveBeenCalled();
-    });
-
-    it('should return requested bytes when the range is already cached', async () => {
-      isBlocklistedProcessMock.mockReturnValue(true);
-      const state = getOrCreateHydrationState(virtualFile.contentsId, virtualFile.size);
-      markBlocksInRangeDownloaded(state, { position: 0, length: 10 });
-      const cached = Buffer.from('cached');
-      readChunkFromDiskMock.mockResolvedValue(cached);
-      const deps = createDeps({ processName: 'pool-org.gnome.' });
-
-      const result = await handleReadCallback(deps);
-
-      expect(result.data).toBe(cached);
-      expect(fileExistsOnDiskMock).not.toHaveBeenCalled();
-      expect(allocateFileMock).not.toHaveBeenCalled();
-      expect(downloadAndCacheBlockMock).not.toHaveBeenCalled();
-      expect(deps.onDownloadProgress).not.toHaveBeenCalled();
-      expect(deps.saveToRepository).not.toHaveBeenCalled();
-      expect(readChunkFromDiskMock).toHaveBeenCalledWith(expect.stringContaining(virtualFile.contentsId), 10, 0);
     });
   });
 

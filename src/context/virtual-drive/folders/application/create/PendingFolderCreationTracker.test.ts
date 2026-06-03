@@ -1,10 +1,6 @@
-import { clearPendingCreations, runAfterParentCreations, runTrackingCreation } from './PendingFolderCreationTracker';
+import { runAfterParentCreations, runTrackingCreation } from './PendingFolderCreationTracker';
 
 describe('PendingFolderCreationTracker', () => {
-  beforeEach(() => {
-    clearPendingCreations();
-  });
-
   it('waits for a parent folder creation before running child action', async () => {
     let resolveParentCreation: (() => void) | undefined;
     const events: string[] = [];
