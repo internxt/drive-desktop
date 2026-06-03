@@ -13,6 +13,7 @@ import { getUserAvailableProductsAndStore } from '../../backend/features/payment
 import { registerBackupHandlers } from '../../backend/features/backup/register-backup-handlers';
 import { startBackupsIfAvailable } from '../../backend/features/backup/start-backups-if-available';
 import { stopVirtualDrive } from '../../backend/features/virtual-drive/services/virtual-drive.service';
+import { resolveUserFileSizeLimit } from '../../backend/features/user/file-size-limit/resolve-user-file-size-limit';
 
 function onWidgetIsReady() {
   registerBackupHandlers();
@@ -51,6 +52,7 @@ async function onUserLoggedIn() {
     } else if (widget) {
       widget.show();
     }
+    await resolveUserFileSizeLimit();
     await getUserAvailableProductsAndStore();
     await trySetupAntivirusIpcAndInitialize();
   } catch (error) {

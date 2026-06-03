@@ -5,6 +5,7 @@ import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
+import { resolveUserFileSizeLimit } from '../../backend/features/user/file-size-limit/resolve-user-file-size-limit';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -102,6 +103,7 @@ function cleanAndStartRemoteNotifications() {
 
     if (eventPayload.eventName === 'PLAN_UPDATED') {
       void getUserAvailableProductsAndStore();
+      void resolveUserFileSizeLimit();
     }
 
     broadcastToWindows('remote-changes', eventPayload);

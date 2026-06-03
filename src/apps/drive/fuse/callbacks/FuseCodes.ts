@@ -11,6 +11,9 @@ export const FuseCodes = {
   // Input/output error
   EIO: 5,
 
+  // File too large
+  EFBIG: 27,
+
   // Invalid argument
   EINVAL: 22,
 

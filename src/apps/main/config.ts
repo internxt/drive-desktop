@@ -36,6 +36,7 @@ const schema: Schema<AppStore> = {
   nautilusExtensionVersion: { type: 'number' },
   discoveredBackup: { type: 'number' },
   availableUserProducts: { type: 'object' },
+  maxUploadFileSizeInBytes: { type: 'number' },
 } as const;
 
 const configStore = new Store<AppStore>({

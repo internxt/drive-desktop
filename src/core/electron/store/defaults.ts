@@ -38,6 +38,7 @@ export const defaults: AppStore = {
 
   // Drive
   availableUserProducts: undefined,
+  maxUploadFileSizeInBytes: 0,
 };
 
 export const fieldsToSave: Array<keyof AppStore> = [
@@ -54,4 +55,5 @@ export const fieldsToSave: Array<keyof AppStore> = [
   'backupList',
   'nautilusExtensionVersion',
   'discoveredBackup',
+  'maxUploadFileSizeInBytes',
 ];
