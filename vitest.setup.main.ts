@@ -47,11 +47,13 @@ vi.mock('@internxt/drive-desktop-core/src/backend', () => ({
 // Mock electron-store
 vi.mock('electron-store', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      get: vi.fn(),
-      set: vi.fn(),
-      clear: vi.fn(),
-    })),
+    default: vi.fn(function ElectronStoreMock() {
+      return {
+        get: vi.fn(),
+        set: vi.fn(),
+        clear: vi.fn(),
+      };
+    }),
   };
 });
 

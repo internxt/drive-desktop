@@ -28,7 +28,9 @@ const {
     bounds: { x: 1, y: 2, width: 3, height: 4 },
   };
 
-  const TrayMenuMock = vi.fn(() => trayMenuInstance);
+  const TrayMenuMock = vi.fn(function TrayMenuMock() {
+    return trayMenuInstance;
+  });
 
   return {
     mockApp,

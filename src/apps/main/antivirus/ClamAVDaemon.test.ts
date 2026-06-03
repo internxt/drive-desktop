@@ -90,7 +90,9 @@ describe('ClamAVDaemon', () => {
       write: vi.fn(),
     };
 
-    (net.Socket as unknown as Mock) = vi.fn(() => mockSocket);
+    (net.Socket as unknown as Mock) = vi.fn(function SocketMock() {
+      return mockSocket;
+    });
 
     (fs.existsSync as Mock).mockReturnValue(true);
     (fs.mkdirSync as Mock).mockImplementation(() => undefined);
@@ -130,7 +132,9 @@ describe('ClamAVDaemon', () => {
         write: vi.fn(),
       };
 
-      (net.Socket as unknown as Mock) = vi.fn(() => errorSocket);
+      (net.Socket as unknown as Mock) = vi.fn(function SocketMock() {
+        return errorSocket;
+      });
 
       const result = await clamAVServer.checkClamdAvailability();
 

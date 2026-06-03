@@ -17,7 +17,9 @@ const { trayHandlers, trayInstance, buildFromTemplateMock, createFromPathMock, T
 
   const buildFromTemplateMock = vi.fn((template) => ({ template }));
   const createFromPathMock = vi.fn((imagePath: string) => ({ imagePath }));
-  const TrayMock = vi.fn(() => trayInstance);
+  const TrayMock = vi.fn(function TrayMock() {
+    return trayInstance;
+  });
 
   return {
     trayHandlers,

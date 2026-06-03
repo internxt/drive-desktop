@@ -5,9 +5,11 @@ vi.mock('../../../infra/drive-server/client/drive-server.client.instance', () =>
   },
 }));
 vi.mock('./RemoteSyncErrorHandler/RemoteSyncErrorHandler', () => ({
-  RemoteSyncErrorHandler: vi.fn().mockImplementation(() => ({
-    handleSyncError: vi.fn(),
-  })),
+  RemoteSyncErrorHandler: function RemoteSyncErrorHandler() {
+    return {
+      handleSyncError: vi.fn(),
+    };
+  },
 }));
 vi.mock('../../../infra/sqlite/services/file/create-or-update-file-by-batch', () => ({
   createOrUpdateFileByBatch: vi.fn().mockResolvedValue({ data: [] }),

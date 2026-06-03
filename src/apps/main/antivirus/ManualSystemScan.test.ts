@@ -34,24 +34,28 @@ vi.mock('./utils/errorUtils', () => ({
   shouldRethrowError: vi.fn(() => false),
 }));
 vi.mock('./db/DBScannerConnection', () => ({
-  DBScannerConnection: vi.fn().mockImplementation(() => ({
-    getConnection: vi.fn(() => ({
-      getRepository: vi.fn(() => ({
-        save: vi.fn(),
-        find: vi.fn(),
-        findOne: vi.fn(),
+  DBScannerConnection: function DBScannerConnection() {
+    return {
+      getConnection: vi.fn(() => ({
+        getRepository: vi.fn(() => ({
+          save: vi.fn(),
+          find: vi.fn(),
+          findOne: vi.fn(),
+        })),
       })),
-    })),
-    getItemFromDatabase: vi.fn().mockResolvedValue(null),
-    addItemToDatabase: vi.fn().mockResolvedValue(undefined),
-    updateItemToDatabase: vi.fn().mockResolvedValue(undefined),
-  })),
+      getItemFromDatabase: vi.fn().mockResolvedValue(null),
+      addItemToDatabase: vi.fn().mockResolvedValue(undefined),
+      updateItemToDatabase: vi.fn().mockResolvedValue(undefined),
+    };
+  },
 }));
 vi.mock('../database/collections/ScannedItemCollection', () => ({
-  ScannedItemCollection: vi.fn().mockImplementation(() => ({
-    findByPath: vi.fn(),
-    save: vi.fn(),
-  })),
+  ScannedItemCollection: function ScannedItemCollection() {
+    return {
+      findByPath: vi.fn(),
+      save: vi.fn(),
+    };
+  },
 }));
 vi.mock('../database/data-source', () => ({
   AppDataSource: {

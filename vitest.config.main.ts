@@ -44,6 +44,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      src: path.resolve(__dirname, './src'),
+      tests: path.resolve(__dirname, './tests'),
       // Redirect electron to a stub so electron/index.js never runs its binary
       // check (module.exports = getElectronPath() throws at load time if the
       // binary is absent, which breaks test collection before vi.mock applies).

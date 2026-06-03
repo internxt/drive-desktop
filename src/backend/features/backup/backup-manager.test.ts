@@ -13,12 +13,14 @@ vi.mock('./launch-backup-processes', () => ({
 }));
 
 vi.mock('../../../apps/main/background-processes/backups/BackupScheduler/BackupScheduler', () => ({
-  BackupScheduler: vi.fn().mockImplementation(() => ({
-    start: vi.fn().mockResolvedValue(undefined),
-    stop: vi.fn(),
-    reschedule: vi.fn(),
-    isScheduled: vi.fn().mockReturnValue(false),
-  })),
+  BackupScheduler: function BackupScheduler() {
+    return {
+      start: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+      reschedule: vi.fn(),
+      isScheduled: vi.fn().mockReturnValue(false),
+    };
+  },
 }));
 
 describe('BackupManager', () => {
@@ -97,10 +99,12 @@ describe('BackupManager', () => {
     it('should create a new abortController before starting backup', async () => {
       vi.mocked(mockStatus.isIn).mockReturnValue(false);
 
-      const mockAbortController = vi.fn(() => ({
-        signal: { aborted: false },
-        abort: vi.fn(),
-      }));
+      const mockAbortController = vi.fn(function AbortController() {
+        return {
+          signal: { aborted: false },
+          abort: vi.fn(),
+        };
+      });
       vi.stubGlobal('AbortController', mockAbortController);
 
       await backupManager.startBackup();
@@ -197,10 +201,12 @@ describe('BackupManager', () => {
     });
 
     it('should create a new abortController when stopping and clearing backups', () => {
-      const mockAbortController = vi.fn(() => ({
-        signal: { aborted: false },
-        abort: vi.fn(),
-      }));
+      const mockAbortController = vi.fn(function AbortController() {
+        return {
+          signal: { aborted: false },
+          abort: vi.fn(),
+        };
+      });
       vi.stubGlobal('AbortController', mockAbortController);
 
       backupManager.stopAndClearBackups();

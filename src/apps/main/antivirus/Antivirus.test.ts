@@ -58,7 +58,9 @@ describe('Antivirus', () => {
       closeAllSockets: vi.fn().mockResolvedValue(undefined),
     };
 
-    (NodeClam as Mock).mockImplementation(() => mockNodeClam);
+    (NodeClam as Mock).mockImplementation(function NodeClamMock() {
+      return mockNodeClam;
+    });
 
     (clamAVServer.checkClamdAvailability as Mock).mockResolvedValue(true);
     (clamAVServer.startClamdServer as Mock).mockResolvedValue(undefined);
