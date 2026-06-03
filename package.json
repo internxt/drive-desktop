@@ -100,7 +100,7 @@
     "@internxt/eslint-config-internxt": "^1.0.9",
     "@internxt/lib": "^1.1.6",
     "@phosphor-icons/react": "2.0.9",
-    "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.5.17",
     "@radix-ui/react-select": "^1.2.2",
     "@svgr/webpack": "^6.1.2",
     "@tanstack/react-virtual": "^3.13.12",
@@ -192,7 +192,7 @@
     "webpack": "^5.73.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.1",
+    "webpack-dev-server": "^5.2.4",
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
