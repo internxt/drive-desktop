@@ -21,6 +21,11 @@ export default defineConfig({
     globals: true,
     env: {
       NEW_CRYPTO_KEY: 'test-crypto-key-for-vitest',
+      // Prevent electron/index.js from throwing "Electron failed to install" when
+      // the binary is absent (e.g. CI without electron download). The variable
+      // makes getElectronPath() return a path string instead of throwing, so
+      // vi.mock auto-mocking can load @internxt/drive-desktop-core without error.
+      ELECTRON_OVERRIDE_DIST_PATH: '/tmp',
     },
     coverage: {
       provider: 'v8',
@@ -39,6 +44,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Redirect electron to a stub so electron/index.js never runs its binary
+      // check (module.exports = getElectronPath() throws at load time if the
+      // binary is absent, which breaks test collection before vi.mock applies).
+      electron: path.resolve(__dirname, './src/__mocks__/electron.ts'),
     },
   },
 });

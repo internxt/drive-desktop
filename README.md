@@ -40,7 +40,7 @@ For the best experience with SSO authentication, we recommend using the .deb pac
 ### Prerequisites
 
 - [NVM](https://github.com/nvm-sh/nvm) (Node Version Manager)
-- Node.js 22
+- Node.js 24
 
 If working on the FUSE daemon (Go), see [packages/fuse-daemon/README.md](packages/fuse-daemon/README.md) for Go and linting tool prerequisites.
 
@@ -107,7 +107,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 cd "/your-project-path/drive-desktop-linux/"
-nvm use 22
+nvm use 24
 npm run start:main -- "$@"
 ```
 

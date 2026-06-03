@@ -1,39 +1,8 @@
 import 'reflect-metadata';
 import { vi } from 'vitest';
 
-// CRITICAL: Mock electron FIRST before anything else can import it
-vi.mock('electron', () => ({
-  app: {
-    getPath: vi.fn().mockReturnValue('/mock/home'),
-    getName: vi.fn().mockReturnValue('DriveDesktop'),
-    getVersion: vi.fn().mockReturnValue('1.0.0'),
-    quit: vi.fn(),
-    on: vi.fn(),
-  },
-  ipcMain: {
-    on: vi.fn(),
-    handle: vi.fn(),
-  },
-  dialog: {
-    showOpenDialog: vi.fn(),
-  },
-  BrowserWindow: {
-    getFocusedWindow: vi.fn(),
-    getAllWindows: vi.fn(),
-  },
-  safeStorage: {
-    isEncryptionAvailable: vi.fn(),
-    decryptString: vi.fn(),
-    encryptString: vi.fn(),
-  },
-  nativeImage: {
-    createFromBuffer: vi.fn().mockReturnValue({
-      isEmpty: () => false,
-      getSize: () => ({ width: 100, height: 100 }),
-      resize: vi.fn().mockReturnValue({ toPNG: () => Buffer.from('png') }),
-    }),
-  }
-}));
+// electron is aliased to src/__mocks__/electron.ts in vitest.config.main.ts so
+// electron/index.js never runs its binary check during module collection.
 
 // Mock electron-log (depends on electron)
 vi.mock('electron-log', () => ({
@@ -49,8 +18,9 @@ vi.mock('electron-log', () => ({
   },
 }));
 
-// Mock the specific setup-electron-log module that's causing issues
-vi.mock('@internxt/drive-desktop-core/src/backend/core/logger/setup-electron-log', () => ({}));
+// Mock the specific setup-electron-log module that's causing issues.
+// Must use the build/ path since that's the compiled module actually required at runtime.
+vi.mock('@internxt/drive-desktop-core/build/backend/core/logger/setup-electron-log', () => ({}));
 
 // Mock @internxt/drive-desktop-core backend to prevent it from loading electron
 vi.mock('@internxt/drive-desktop-core/build/backend', () => ({

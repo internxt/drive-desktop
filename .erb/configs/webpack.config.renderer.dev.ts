@@ -81,11 +81,10 @@ const configuration: webpack.Configuration = {
         include: /\.module\.s?(c|a)ss$/,
       },
       {
-        test: /\.s?css$/,
+        test: /\.css$/,
         use: [
           'style-loader',
           'css-loader',
-          'sass-loader',
           {
             loader: 'postcss-loader',
             options: {
@@ -95,7 +94,25 @@ const configuration: webpack.Configuration = {
             },
           },
         ],
-        exclude: /\.module\.s?(c|a)ss$/,
+        exclude: /\.module\.css$/,
+      },
+      {
+        // SCSS/SASS files: sass compiles first, then postcss.
+        test: /\.s[ac]ss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [require('tailwindcss'), require('autoprefixer')],
+              },
+            },
+          },
+          'sass-loader',
+        ],
+        exclude: /\.module\.s[ac]ss$/,
       },
       // Fonts
       {
