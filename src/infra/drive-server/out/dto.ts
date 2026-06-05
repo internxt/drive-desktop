@@ -9,3 +9,5 @@ export type CreateThumbnailDto = components['schemas']['CreateThumbnailDto'];
 export type ThumbnailDto = components['schemas']['ThumbnailDto'];
 
 export type GetFolderContentDto = components['schemas']['GetFolderContentDto'];
+
+export type UserFileSizeLimit = components['schemas']['GetFileLimitsDto']['maxUploadFileSize'];
