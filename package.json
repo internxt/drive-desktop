@@ -212,7 +212,7 @@
     "node-schedule": "^2.1.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.26",
-    "uuid": "^11.1.1"
+    "uuid": "^14.0.0"
   },
   "overrides": {
     "@typescript-eslint/typescript-estree": {
