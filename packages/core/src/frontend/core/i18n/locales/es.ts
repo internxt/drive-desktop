@@ -68,6 +68,7 @@ export const es: Translation = {
         support: 'Ayuda',
         antivirus: 'Antivirus',
         logout: 'Cerrar sesión',
+        referAndEarn: 'Recomienda y gana',
         quit: 'Salir',
         'logout-confirmation': {
           title: '¿Cerrar sesión en este dispositivo?',
