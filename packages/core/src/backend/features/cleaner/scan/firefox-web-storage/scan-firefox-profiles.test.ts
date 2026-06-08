@@ -47,7 +47,7 @@ describe('scanFirefoxProfiles', () => {
     const result = await scanFirefoxProfiles(props);
     // Then
     expect(result).toEqual([]);
-    expect(mockedIsFirefoxProfileDirectory).not.toBeCalled();
+    expect(mockedIsFirefoxProfileDirectory).not.toHaveBeenCalled();
   });
 
   it('should scan valid Firefox profile directories and filter files', async () => {

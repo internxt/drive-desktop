@@ -53,9 +53,9 @@ describe('scanSubDirectory', () => {
     const result = await scanSubDirectory(props);
     // Then
     expect(result).toStrictEqual([...mockApp1Items, ...mockApp2Items]);
-    expect(mockedGetFilteredDirectories).toBeCalledWith({ baseDir: mockBaseDir, customDirectoryFilter: undefined });
-    expect(mockedScanDirectory).toBeCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app1/${mockSubDir}` }));
-    expect(mockedScanDirectory).toBeCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app2/${mockSubDir}` }));
+    expect(mockedGetFilteredDirectories).toHaveBeenCalledWith({ baseDir: mockBaseDir, customDirectoryFilter: undefined });
+    expect(mockedScanDirectory).toHaveBeenCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app1/${mockSubDir}` }));
+    expect(mockedScanDirectory).toHaveBeenCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app2/${mockSubDir}` }));
   });
 
   it('should handle scanDirectory errors gracefully', async () => {
@@ -68,6 +68,6 @@ describe('scanSubDirectory', () => {
     const result = await scanSubDirectory(props);
     // Then
     expect(result).toStrictEqual(app2Items);
-    expect(mockedScanDirectory).toBeCalledTimes(2);
+    expect(mockedScanDirectory).toHaveBeenCalledTimes(2);
   });
 });

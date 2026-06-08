@@ -43,8 +43,8 @@ describe('scanFirefoxCacheProfiles', () => {
     const result = await scanFirefoxCacheProfiles(props);
     // Then
     expect(result).toEqual([]);
-    expect(mockedIsFirefoxProfileDirectory).not.toBeCalled();
-    expect(mockedScanDirectory).not.toBeCalled();
+    expect(mockedIsFirefoxProfileDirectory).not.toHaveBeenCalled();
+    expect(mockedScanDirectory).not.toHaveBeenCalled();
   });
 
   it('should scan valid Firefox profile cache directories', async () => {
@@ -70,7 +70,7 @@ describe('scanFirefoxCacheProfiles', () => {
     const result = await scanFirefoxCacheProfiles(props);
     // Then
     expect(result).toStrictEqual(cacheItems);
-    expect(mockedIsFirefoxProfileDirectory).toBeCalledTimes(2);
-    expect(mockedScanDirectory).toBeCalledTimes(3);
+    expect(mockedIsFirefoxProfileDirectory).toHaveBeenCalledTimes(2);
+    expect(mockedScanDirectory).toHaveBeenCalledTimes(3);
   });
 });

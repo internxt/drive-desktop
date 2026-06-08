@@ -132,7 +132,7 @@ describe('startCleanup', () => {
     await startCleanup(props);
     // Then
     calls(mockedDeleteFileSafely).toHaveLength(2);
-    expect(mockEmitProgress).toBeCalledWith({
+    expect(mockEmitProgress).toHaveBeenCalledWith({
       currentCleaningPath: '',
       progress: 100,
       deletedFiles: 1,
@@ -148,8 +148,8 @@ describe('startCleanup', () => {
     // When
     await startCleanup(props);
     // Then
-    expect(mockedDeleteFileSafely).not.toBeCalled();
-    expect(mockEmitProgress).toBeCalledWith({
+    expect(mockedDeleteFileSafely).not.toHaveBeenCalled();
+    expect(mockEmitProgress).toHaveBeenCalledWith({
       currentCleaningPath: '',
       progress: 100,
       deletedFiles: 0,

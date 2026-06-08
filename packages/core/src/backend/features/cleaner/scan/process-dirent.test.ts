@@ -48,8 +48,8 @@ describe('processDirent', () => {
       const result = await processDirent(props);
       // Then
       expect(result).toStrictEqual([mockCleanableItem]);
-      expect(wasAccessedWithinLastHourMock).toBeCalledWith({ fileStats: expect.any(Object) });
-      expect(createCleanableItemMock).toBeCalledWith({ filePath: fullPath, stat: expect.any(Object) });
+      expect(wasAccessedWithinLastHourMock).toHaveBeenCalledWith({ fileStats: expect.any(Object) });
+      expect(createCleanableItemMock).toHaveBeenCalledWith({ filePath: fullPath, stat: expect.any(Object) });
     });
 
     it('should return empty array when file was accessed within last hour', async () => {
@@ -70,7 +70,8 @@ describe('processDirent', () => {
       const result = await processDirent(props);
       // Then
       expect(result).toStrictEqual([]);
-      expect(props.customFileFilter).toBeCalledWith({ fileName: name });
+      expect(props.customFileFilter).toHaveBeenCalledTimes(1);
+      expect(props.customFileFilter).toHaveBeenCalledWith({ fileName: name });
       expect(createCleanableItemMock).not.toHaveBeenCalled();
     });
 
@@ -98,7 +99,7 @@ describe('processDirent', () => {
       const result = await processDirent(props);
       // Then
       expect(result).toStrictEqual([mockCleanableItem]);
-      expect(scanDirectoryMock).toBeCalledTimes(1);
+      expect(scanDirectoryMock).toHaveBeenCalledTimes(1);
       expect(wasAccessedWithinLastHourMock).not.toHaveBeenCalled();
     });
 
@@ -109,7 +110,7 @@ describe('processDirent', () => {
       const result = await processDirent(props);
       // Then
       expect(result).toStrictEqual([]);
-      expect(props.customDirectoryFilter).toBeCalledWith({ folderName: name });
+      expect(props.customDirectoryFilter).toHaveBeenCalledWith({ folderName: name });
       expect(createCleanableItemMock).not.toHaveBeenCalled();
     });
   });
