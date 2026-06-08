@@ -1,0 +1,212 @@
+import { Menu, Transition } from '@headlessui/react';
+import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
+import { MouseEventHandler } from 'react';
+import { useIssues } from '../../hooks/useIssues';
+import { useI18n } from '../../localize/use-i18n';
+import { useIssuesStore } from '../Issues/issues-store';
+import { useSettingsStore } from '../Settings/settings-store';
+
+type Props = {
+  setIsLogoutModalOpen: (isOpen: boolean) => void;
+};
+export function ItemsSection({ setIsLogoutModalOpen }: Props) {
+  const { translate } = useI18n();
+  const { setActiveSection: setSettingsSection } = useSettingsStore();
+  const { setActiveSection: setIssuesSection } = useIssuesStore();
+  const { issues } = useIssues();
+  const numberOfIssues = issues.length;
+  const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
+
+  function onQuitClick() {
+    globalThis.window.electron.quit();
+  }
+
+  function onSyncClick() {
+    void globalThis.window.electron.syncManually();
+  }
+
+  async function handleOpenURL(URL: string) {
+    try {
+      await globalThis.window.electron.shellOpenExternal(URL);
+    } catch (error) {
+      globalThis.window.electron.logger.error({
+        msg: 'Error opening URL',
+        error,
+      });
+    }
+  }
+
+  function handleLogoutModalOpen() {
+    setIsLogoutModalOpen(true);
+  }
+
+  function handleReferAndEarnClick() {
+    void handleOpenURL('https://drive.internxt.com/?referral=open');
+  }
+
+  return (
+    <div className="flex shrink-0 items-center space-x-0.5 text-gray-80">
+      <HeaderItemWrapper onClick={() => handleOpenURL('https://drive.internxt.com')}>
+        <Globe size={22} />
+      </HeaderItemWrapper>
+
+      <HeaderItemWrapper onClick={globalThis.window.electron.driveOpenSyncRootFolder} data-automation-id="openVirtualDriveFolder">
+        <FolderSimple size={22} />
+      </HeaderItemWrapper>
+
+      <Menu as="div" className="relative flex h-8 items-end" data-automation-id="headerDropdown">
+        {({ open }) => (
+          <>
+            <Menu.Button className="outline-none focus-visible:outline-none">
+              <HeaderItemWrapper active={open}>
+                <Gear size={22} />
+              </HeaderItemWrapper>
+            </Menu.Button>
+
+            <Transition
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
+              className="relative z-10">
+              <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('GENERAL')}>
+                        <span>{translate('widget.header.dropdown.preferences')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => {
+                    return (
+                      <div>
+                        <DropdownItem active={active} onClick={onSyncClick} data-automation-id="menuItemSync">
+                          <span>{translate('widget.header.dropdown.sync')}</span>
+                        </DropdownItem>
+                      </div>
+                    );
+                  }}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setIssuesSection('virtualDrive')} data-automation-id="menuItemIssues">
+                        <div className="flex items-center justify-between">
+                          <p>{translate('widget.header.dropdown.issues')}</p>
+                          {numberOfIssues > 0 && <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>}
+                        </div>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={() => handleOpenURL('https://help.internxt.com')}
+                        data-automation-id="menuItemSupport">
+                        <span>{translate('widget.header.dropdown.support')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('ANTIVIRUS')} data-automation-id="menuItemAntivirus">
+                        <span>{translate('widget.header.dropdown.antivirus')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={() => setSettingsSection('CLEANER')} data-automation-id="menuItemCleaner">
+                        <div className="flex flex-row items-center justify-between">
+                          <span>{translate('widget.header.dropdown.cleaner')}</span>
+                          <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
+                            {translate('widget.header.dropdown.new')}
+                          </div>
+                        </div>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div data-automation-id="menuItemLogout">
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
+                        <span>{translate('widget.header.dropdown.logout')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div data-automation-id="menuItemReferAndEarn">
+                      <DropdownItem active={active} onClick={handleReferAndEarnClick}>
+                        <span>{translate('widget.header.dropdown.referAndEarn')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div className="border-t border-t-gray-10">
+                      <DropdownItem active={active} onClick={onQuitClick} data-automation-id="menuItemQuit">
+                        <span>{translate('widget.header.dropdown.quit')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+              </Menu.Items>
+            </Transition>
+          </>
+        )}
+      </Menu>
+    </div>
+  );
+}
+
+function HeaderItemWrapper({
+  children,
+  active = false,
+  onClick,
+  disabled,
+}: {
+  children: JSX.Element;
+  active?: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  disabled?: boolean;
+}) {
+  return (
+    <div
+      className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg before:absolute before:-inset-px hover:bg-surface hover:shadow hover:ring-1 hover:ring-gray-20 dark:hover:bg-gray-10 ${
+        active ? 'bg-surface shadow ring-1 ring-gray-20 dark:bg-gray-10' : undefined
+      } ${disabled ? 'pointer-events-none text-gray-40' : undefined}`}
+      onClick={onClick}>
+      {children}
+    </div>
+  );
+}
+
+function DropdownItem({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
+        active && 'bg-gray-1 dark:bg-gray-5'
+      }`}
+      tabIndex={0}
+      onKeyDown={onClick}
+      onClick={onClick}>
+      {children}
+    </button>
+  );
+}
