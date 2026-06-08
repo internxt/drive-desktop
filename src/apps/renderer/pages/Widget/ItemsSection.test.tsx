@@ -145,4 +145,15 @@ describe('ItemsSection', () => {
 
     expect(window.electron.logout).toHaveBeenCalledOnce();
   });
+
+  it('calls onOpenURL with referral URL when refer and earn is clicked', () => {
+    const onOpenURL = vi.fn();
+
+    render(<ItemsSection {...defaultProps} onOpenURL={onOpenURL} />);
+
+    const referButton = screen.getByText('widget.header.dropdown.referAndEarn').closest('button')!;
+    fireEvent.click(referButton);
+
+    expect(onOpenURL).toHaveBeenCalledWith('https://drive.internxt.com/?referral=open');
+  });
 });

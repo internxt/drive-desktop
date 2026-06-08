@@ -126,6 +126,18 @@ export function ItemsSection({ numberOfIssues, numberOfIssuesDisplay, onQuitClic
                     <div>
                       <DropdownItem
                         active={active}
+                        onClick={() => onOpenURL('https://drive.internxt.com/?referral=open')}
+                        data-automation-id="menuItemReferAndEarn">
+                        <span>{translate('widget.header.dropdown.referAndEarn')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem
+                        active={active}
                         onClick={window.electron.logout}
                         data-automation-id="menuItemLogout">
                         <span>{translate('widget.header.dropdown.logout')}</span>
