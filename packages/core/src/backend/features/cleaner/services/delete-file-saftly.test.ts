@@ -31,7 +31,7 @@ describe('deleteFileSafely', () => {
     call(mockedUnlink).toMatchObject(testFilePath);
     expect(cleanerStore.state.deletedFilesCount).toBe(1);
     expect(cleanerStore.state.totalSpaceGained).toBe(1024);
-    expect(loggerMock.warn).not.toBeCalled();
+    expect(loggerMock.warn).not.toHaveBeenCalled();
   });
 
   it('should handle stat error gracefully', async () => {
@@ -42,7 +42,7 @@ describe('deleteFileSafely', () => {
     // Then
     expect(cleanerStore.state.deletedFilesCount).toBe(0);
     expect(cleanerStore.state.totalSpaceGained).toBe(0);
-    expect(mockedUnlink).not.toBeCalled();
+    expect(mockedUnlink).not.toHaveBeenCalled();
     call(mockedStatThrow).toMatchObject({ absolutePath: testFilePath });
     call(loggerMock.warn).toMatchObject({
       tag: 'CLEANER',

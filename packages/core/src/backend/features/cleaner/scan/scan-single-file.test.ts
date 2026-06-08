@@ -35,9 +35,9 @@ describe('scanSingleFile', () => {
     const result = await scanSingleFile({ filePath: mockFilePath });
     // Then
     expect(result).toStrictEqual([mockCleanableItem]);
-    expect(statMock).toBeCalledWith(mockFilePath);
-    expect(wasAccessedWithinLastHourMock).toBeCalledWith({ fileStats: expect.any(Object) });
-    expect(createCleanableItemMock).toBeCalledWith({ filePath: mockFilePath, stat: expect.any(Object) });
+    expect(statMock).toHaveBeenCalledWith(mockFilePath);
+    expect(wasAccessedWithinLastHourMock).toHaveBeenCalledWith({ fileStats: expect.any(Object) });
+    expect(createCleanableItemMock).toHaveBeenCalledWith({ filePath: mockFilePath, stat: expect.any(Object) });
   });
 
   it('should return empty array when path is not a file', async () => {

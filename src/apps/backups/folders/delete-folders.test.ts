@@ -27,7 +27,7 @@ describe('delete-folders', () => {
     // When
     await deleteFolders(props);
     // Then
-    calls(loggerMock.error).toHaveLength(1);
+    calls(loggerMock.sentryError).toHaveLength(1);
   });
 
   it('should delete file', async () => {
