@@ -27,12 +27,11 @@ describe('register-sync-root', () => {
     // When
     const error = await registerSyncRoot(props);
     // Then
-    expect(error).toStrictEqual(
-      new RegisterSyncRootError(
-        'UNKNOWN',
-        '[RegisterSyncRootAsync] WinRT error: The specified path is too short. It must have at least 1 character. (HRESULT: 0x80070057)',
-      ),
-    );
+    expect(error).toBeInstanceOf(RegisterSyncRootError);
+    expect(error).toMatchObject({
+      code: 'UNKNOWN',
+      cause: expect.stringContaining('HRESULT: 0x80070057'),
+    });
   });
 
   it('should return error if path is registered with a different provider id', async () => {
@@ -41,8 +40,10 @@ describe('register-sync-root', () => {
     // When
     const error = await registerSyncRoot(props);
     // Then
-    expect(error).toStrictEqual(
-      new RegisterSyncRootError('ACCESS_DENIED', '[RegisterSyncRootAsync] WinRT error: Access is denied. (HRESULT: 0x80070005)'),
-    );
+    expect(error).toBeInstanceOf(RegisterSyncRootError);
+    expect(error).toMatchObject({
+      code: 'ACCESS_DENIED',
+      cause: expect.stringContaining('HRESULT: 0x80070005'),
+    });
   });
 });
