@@ -16,6 +16,10 @@ import {
 import { ContentsId } from '../../../../../apps/main/database/entities/DriveFile';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
 import { Result } from '../../../../shared/domain/Result';
+import configStore from '../../../../../apps/main/config';
+import { addMaxFileSizeRejection } from '../../../../../backend/features/user/file-size-limit/add-max-file-size-rejection';
+import { UploadSizeLimitError } from '../../../../../backend/features/user/file-size-limit/upload-size-limit-error';
+import { validateUploadFileSize } from '../../../../../backend/features/user/file-size-limit/validate-upload-file-size';
 
 @Service()
 export class TemporalFileUploader {
@@ -26,6 +30,16 @@ export class TemporalFileUploader {
   ) {}
 
   async run(temporalFile: TemporalFile, replaces?: Replaces): Promise<ContentsId> {
+    const validation = validateUploadFileSize({
+      size: temporalFile.size.value,
+      maxUploadFileSize: configStore.get('maxUploadFileSizeInBytes'),
+    });
+
+    if (!validation.allowed) {
+      addMaxFileSizeRejection({ path: temporalFile.path.value, fileSize: temporalFile.size.value, validation });
+
+      throw new UploadSizeLimitError();
+    }
     const controller = new AbortController();
     const stopWatching = this.repository.watchFile(temporalFile.path, () => controller.abort());
 
@@ -101,6 +115,7 @@ export class TemporalFileUploader {
       path: temporalFile.path.value,
       replaces: replaces?.contentsId,
       fileBuffer,
+      contentFilePath: temporalFile.contentFilePath,
     });
 
     await this.eventBus.publish([contentsUploadedEvent]);

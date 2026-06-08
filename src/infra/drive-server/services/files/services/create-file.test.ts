@@ -32,4 +32,13 @@ describe('createFile', () => {
 
     expect(result.error).toBe(error);
   });
+
+  it('should return FILE_TOO_BIG when the backend rejects the file size', async () => {
+    const error = new DriveServerError('FILE_TOO_BIG', 402);
+    driveServerPostMock.mockResolvedValue({ data: undefined, error } as object);
+
+    const result = await createFile({} as CreateFileDto);
+
+    expect(result.error).toBe(error);
+  });
 });

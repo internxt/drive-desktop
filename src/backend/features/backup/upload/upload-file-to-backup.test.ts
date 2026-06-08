@@ -6,11 +6,15 @@ import * as createFileModule from './create-file-to-backend';
 import * as deleteFileModule from '../../../../infra/drive-server/services/files/services/delete-file-content-from-bucket';
 import { uploadFileToBackup, UploadFileParams } from './upload-file-to-backup';
 import { Environment } from '@internxt/inxt-js';
+import configStore from '../../../../apps/main/config';
+import * as maxFileSizeRejectionModule from '../../user/file-size-limit/add-max-file-size-rejection';
 
 describe('upload-file-to-backup', () => {
   const uploadContentMock = partialSpyOn(uploadContentModule, 'uploadContentToEnvironment');
   const createFileToBackendMock = partialSpyOn(createFileModule, 'createFileToBackend');
   const deleteFileMock = partialSpyOn(deleteFileModule, 'deleteFileFromStorageByFileId');
+  const configGetMock = partialSpyOn(configStore, 'get');
+  const addMaxFileSizeRejectionMock = partialSpyOn(maxFileSizeRejectionModule, 'addMaxFileSizeRejection');
 
   let abortController: AbortController;
 
@@ -26,6 +30,8 @@ describe('upload-file-to-backup', () => {
 
   beforeEach(() => {
     abortController = new AbortController();
+    configGetMock.mockReturnValue(0);
+    addMaxFileSizeRejectionMock.mockClear();
   });
 
   it('should upload the file content and create metadata on backend successfully', async () => {
@@ -38,6 +44,22 @@ describe('upload-file-to-backup', () => {
 
     expect(result.data).toBe(file);
     expect(result.error).toBeUndefined();
+  });
+
+  it('should skip file upload when local upload size validation fails', async () => {
+    configGetMock.mockReturnValue(100);
+
+    const result = await uploadFileToBackup({ ...baseParams, size: 101, signal: abortController.signal });
+
+    expect(result).toStrictEqual({ data: null });
+    expect(uploadContentMock).not.toHaveBeenCalled();
+    expect(createFileToBackendMock).not.toHaveBeenCalled();
+    expect(addMaxFileSizeRejectionMock).toHaveBeenCalledWith({
+      path: baseParams.path,
+      fileSize: 101,
+      validation: { allowed: false, reason: 'PLAN_LIMIT_EXCEEDED', maxFileSize: 100, showUpgradeCta: true },
+      blockUploadPath: false,
+    });
   });
 
   it('should return error when content upload fails with a non-retryable error', async () => {
@@ -71,6 +93,23 @@ describe('upload-file-to-backup', () => {
 
     expect(result.error).toBe(metadataError);
     expect(deleteFileMock).toHaveBeenCalledWith({ bucketId: baseParams.bucket, fileId: contentsId });
+  });
+
+  it('should skip file when backend rejects metadata creation by upload size limit', async () => {
+    const contentsId = 'contents-id-123';
+    uploadContentMock.mockResolvedValue({ data: contentsId });
+    createFileToBackendMock.mockResolvedValue({ error: new DriveDesktopError('FILE_TOO_BIG', 'File too big') });
+    deleteFileMock.mockResolvedValue({ data: true });
+
+    const result = await uploadFileToBackup({ ...baseParams, signal: abortController.signal });
+
+    expect(result).toStrictEqual({ data: null });
+    expect(deleteFileMock).toHaveBeenCalledWith({ bucketId: baseParams.bucket, fileId: contentsId });
+    expect(addMaxFileSizeRejectionMock).toHaveBeenCalledWith({
+      path: baseParams.path,
+      fileSize: baseParams.size,
+      blockUploadPath: false,
+    });
   });
 
   it('should return null data and skip metadata when signal is aborted during content upload', async () => {

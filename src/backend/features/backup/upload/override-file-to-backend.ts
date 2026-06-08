@@ -6,6 +6,7 @@ import { SyncError } from '../../../../shared/issues/SyncErrorCause';
 const causeMap: Record<string, SyncError> = {
   SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
   TOO_MANY_REQUESTS: 'RATE_LIMITED',
+  FILE_TOO_BIG: 'FILE_TOO_BIG',
 };
 
 export async function overrideFileToBackend(params: OverrideFileProps): Promise<Result<void, DriveDesktopError>> {

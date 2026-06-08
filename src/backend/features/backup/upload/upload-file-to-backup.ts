@@ -8,6 +8,9 @@ import { Result } from '../../../../context/shared/domain/Result';
 import { deleteFileFromStorageByFileId } from '../../../../infra/drive-server/services/files/services/delete-file-content-from-bucket';
 import { retryWithBackoff } from '../../../../shared/retry-with-backoff';
 import { createTransientErrorHandler } from '../../../../backend/common/rate-limit/transient-error-handler';
+import configStore from '../../../../apps/main/config';
+import { addMaxFileSizeRejection } from '../../user/file-size-limit/add-max-file-size-rejection';
+import { validateUploadFileSize } from '../../user/file-size-limit/validate-upload-file-size';
 
 export type UploadFileParams = {
   path: string;
@@ -20,6 +23,25 @@ export type UploadFileParams = {
 };
 
 async function uploadFile(file: UploadFileParams): Promise<Result<File | null, DriveDesktopError>> {
+  const validation = validateUploadFileSize({
+    size: file.size,
+    maxUploadFileSize: configStore.get('maxUploadFileSizeInBytes'),
+  });
+
+  if (!validation.allowed) {
+    addMaxFileSizeRejection({ path: file.path, fileSize: file.size, validation, blockUploadPath: false });
+    logger.warn({
+      tag: 'BACKUPS',
+      msg: 'Skipping backup file because it exceeds upload size limit',
+      path: file.path,
+      size: file.size,
+      maxFileSize: validation.maxFileSize,
+      reason: validation.reason,
+      showUpgradeCta: validation.showUpgradeCta,
+    });
+    return { data: null };
+  }
+
   const { data: contentsId, error } = await retryWithBackoff(
     () =>
       uploadContentToEnvironment({
@@ -57,6 +79,18 @@ async function uploadFile(file: UploadFileParams): Promise<Result<File | null, D
 
   if (metadataResult.error) {
     await deleteFileFromStorageByFileId({ bucketId: file.bucket, fileId: contentsId });
+
+    if (metadataResult.error.cause === 'FILE_TOO_BIG') {
+      addMaxFileSizeRejection({ path: file.path, fileSize: file.size, blockUploadPath: false });
+      logger.warn({
+        tag: 'BACKUPS',
+        msg: 'Skipping backup file because backend rejected it by upload size limit',
+        path: file.path,
+        size: file.size,
+      });
+      return { data: null };
+    }
+
     return { error: metadataResult.error };
   }
 

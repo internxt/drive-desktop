@@ -7,7 +7,12 @@ import { TemporalFileUploader } from '../../../../../context/storage/TemporalFil
 import { TemporalFileDeleter } from '../../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
 import { FirstsFileSearcher } from '../../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { FileStatuses } from '../../../../../context/virtual-drive/files/domain/FileStatus';
+import { UploadSizeLimitError } from '../../../user/file-size-limit/upload-size-limit-error';
 
+import {
+  clearUploadSizeLimitBlockedPath,
+  isUploadSizeLimitBlockedPath,
+} from '../../../user/file-size-limit/add-max-file-size-rejection';
 type Props = {
   path: string;
   processName: string;
@@ -38,10 +43,21 @@ export async function release({ path, processName, container }: Props): Promise<
       return { data: undefined };
     }
 
+    if (isUploadSizeLimitBlockedPath(path)) {
+      logger.warn({
+        msg: '[Release] Upload size limit blocked file detected, deleting partial temporal file without upload',
+        path,
+        processName,
+      });
+      await container.get(TemporalFileDeleter).run(path);
+      return { data: undefined };
+    }
+
     if (uploadsInProgress.has(path)) {
       logger.debug({ msg: '[Release] Upload already in progress, skipping duplicate release', path, processName });
       return { data: undefined };
     }
+
     uploadsInProgress.add(path);
 
     try {
@@ -54,6 +70,16 @@ export async function release({ path, processName, container }: Props): Promise<
       logger.debug({ msg: '[Release] Temporal file uploaded', path, processName });
       return { data: undefined };
     } catch (uploadError) {
+      if (uploadError instanceof UploadSizeLimitError) {
+        logger.warn({
+          msg: '[Release] Upload size limit exceeded during upload preflight, preserving temporal file without upload',
+          error: uploadError,
+          path,
+          processName,
+        });
+        return { data: undefined };
+      }
+
       logger.error({ msg: '[Release] Upload failed, deleting temporal file', error: uploadError, path, processName });
       await container.get(TemporalFileDeleter).run(path);
       return { error: new FuseIOError('Upload failed due to insufficient storage or network issues.') };
@@ -63,5 +89,7 @@ export async function release({ path, processName, container }: Props): Promise<
   } catch (err: unknown) {
     logger.error({ msg: '[Release] Unexpected error', error: err, path, processName });
     return { error: new FuseIOError('An unexpected error occurred during file release.') };
+  } finally {
+    clearUploadSizeLimitBlockedPath(path);
   }
 }

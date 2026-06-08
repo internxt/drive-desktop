@@ -71,6 +71,15 @@ describe('createFileToBackend', () => {
     expect(result.error?.cause).toBe('UNKNOWN');
   });
 
+  it('should return FILE_TOO_BIG on FILE_TOO_BIG', async () => {
+    createFileMock.mockResolvedValue({ error: new DriveServerError('FILE_TOO_BIG', 402) });
+
+    const result = await createFileToBackend(baseParams);
+
+    expect(result.error).toBeInstanceOf(DriveDesktopError);
+    expect(result.error?.cause).toBe('FILE_TOO_BIG');
+  });
+
   it('should return INTERNAL_SERVER_ERROR on SERVER_ERROR', async () => {
     createFileMock.mockResolvedValue({ error: new DriveServerError('SERVER_ERROR', 500) });
 

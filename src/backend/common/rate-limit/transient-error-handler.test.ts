@@ -11,6 +11,12 @@ describe('createTransientErrorHandler', () => {
     expect(handler(new DriveDesktopError('FILE_ALREADY_EXISTS'))).toBeNull();
   });
 
+  it('should not retry FILE_TOO_BIG errors', () => {
+    const handler = createTransientErrorHandler({ tag: 'SYNC-ENGINE', context: 'TEST', path: '/file.txt' });
+
+    expect(handler(new DriveDesktopError('FILE_TOO_BIG'))).toBeNull();
+  });
+
   it('should return exponential backoff delay for INTERNAL_SERVER_ERROR', () => {
     const handler = createTransientErrorHandler({ tag: 'BACKUPS', context: 'TEST', path: '/file.txt' });
     const error = new DriveDesktopError('INTERNAL_SERVER_ERROR');

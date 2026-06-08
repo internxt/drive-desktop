@@ -7,10 +7,14 @@ import * as overrideFileModule from '../../../../infra/drive-server/services/fil
 import { BucketEntryIdMother } from '../../../../context/virtual-drive/shared/domain/__test-helpers__/BucketEntryIdMother';
 import { UuidMother } from '../../../../context/shared/domain/__test-helpers__/UuidMother';
 import { Environment } from '@internxt/inxt-js';
+import configStore from '../../../../apps/main/config';
+import * as maxFileSizeRejectionModule from '../../user/file-size-limit/add-max-file-size-rejection';
 
 describe('update-file-to-backup', () => {
   const uploadContentMock = partialSpyOn(uploadContentToEnvironmentModule, 'uploadContentToEnvironment');
   const overrideFileMock = partialSpyOn(overrideFileModule, 'overrideFile');
+  const configGetMock = partialSpyOn(configStore, 'get');
+  const addMaxFileSizeRejectionMock = partialSpyOn(maxFileSizeRejectionModule, 'addMaxFileSizeRejection');
 
   let abortController: AbortController;
 
@@ -25,6 +29,8 @@ describe('update-file-to-backup', () => {
 
   beforeEach(() => {
     abortController = new AbortController();
+    configGetMock.mockReturnValue(0);
+    addMaxFileSizeRejectionMock.mockClear();
   });
 
   it('should update file successfully', async () => {
@@ -35,6 +41,22 @@ describe('update-file-to-backup', () => {
 
     expect(result.data).toBeUndefined();
     expect(result.error).toBeUndefined();
+  });
+
+  it('should skip file update when local upload size validation fails', async () => {
+    configGetMock.mockReturnValue(100);
+
+    const result = await updateFileToBackup({ ...baseParams, size: 101, signal: abortController.signal });
+
+    expect(result).toStrictEqual({ data: undefined });
+    expect(uploadContentMock).not.toHaveBeenCalled();
+    expect(overrideFileMock).not.toHaveBeenCalled();
+    expect(addMaxFileSizeRejectionMock).toHaveBeenCalledWith({
+      path: baseParams.path,
+      fileSize: 101,
+      validation: { allowed: false, reason: 'PLAN_LIMIT_EXCEEDED', maxFileSize: 100, showUpgradeCta: true },
+      blockUploadPath: false,
+    });
   });
 
   it('should return ABORTED error when signal is already aborted', async () => {
@@ -74,6 +96,20 @@ describe('update-file-to-backup', () => {
 
     expect(result.error).toBeInstanceOf(DriveDesktopError);
     expect(result.error?.cause).toBe('UNKNOWN');
+  });
+
+  it('should skip file when backend rejects override by upload size limit', async () => {
+    uploadContentMock.mockResolvedValue({ data: BucketEntryIdMother.primitive() });
+    overrideFileMock.mockResolvedValue({ error: new DriveServerError('FILE_TOO_BIG', 402) });
+
+    const result = await updateFileToBackup({ ...baseParams, signal: abortController.signal });
+
+    expect(result).toStrictEqual({ data: undefined });
+    expect(addMaxFileSizeRejectionMock).toHaveBeenCalledWith({
+      path: baseParams.path,
+      fileSize: baseParams.size,
+      blockUploadPath: false,
+    });
   });
 
   it('should return null data when signal is aborted during content upload', async () => {

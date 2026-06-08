@@ -74,6 +74,7 @@ export async function createFileToBackend({
     CONFLICT: 'FILE_ALREADY_EXISTS',
     SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
     TOO_MANY_REQUESTS: 'RATE_LIMITED',
+    FILE_TOO_BIG: 'FILE_TOO_BIG',
   };
 
   const cause = causeMap[response.error.cause] ?? 'UNKNOWN';

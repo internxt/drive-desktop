@@ -5,6 +5,9 @@ import { uploadContentToEnvironment } from './upload-content-to-environment';
 import { retryWithBackoff } from '../../../../shared/retry-with-backoff';
 import { createTransientErrorHandler } from '../../../../backend/common/rate-limit/transient-error-handler';
 import { overrideFileToBackend } from './override-file-to-backend';
+import configStore from '../../../../apps/main/config';
+import { addMaxFileSizeRejection } from '../../user/file-size-limit/add-max-file-size-rejection';
+import { validateUploadFileSize } from '../../user/file-size-limit/validate-upload-file-size';
 
 export type UpdateFileParams = {
   path: string;
@@ -16,6 +19,16 @@ export type UpdateFileParams = {
 };
 
 async function updateFile(file: UpdateFileParams): Promise<Result<void, DriveDesktopError>> {
+  const validation = validateUploadFileSize({
+    size: file.size,
+    maxUploadFileSize: configStore.get('maxUploadFileSizeInBytes'),
+  });
+
+  if (!validation.allowed) {
+    addMaxFileSizeRejection({ path: file.path, fileSize: file.size, validation, blockUploadPath: false });
+    return { data: undefined };
+  }
+
   const { data: contentsId, error } = await retryWithBackoff(
     () =>
       uploadContentToEnvironment({
@@ -49,6 +62,11 @@ async function updateFile(file: UpdateFileParams): Promise<Result<void, DriveDes
   );
 
   if (overrideResult.error) {
+    if (overrideResult.error.cause === 'FILE_TOO_BIG') {
+      addMaxFileSizeRejection({ path: file.path, fileSize: file.size, blockUploadPath: false });
+      return { data: undefined };
+    }
+
     return { error: overrideResult.error };
   }
 

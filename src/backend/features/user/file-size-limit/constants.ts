@@ -1,0 +1,2 @@
+export const ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT = 100 * 1024 * 1024 * 1024;
+export const MODAL_DEBOUNCE_MS = 2_000;

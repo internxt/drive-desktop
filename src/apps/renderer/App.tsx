@@ -14,6 +14,7 @@ import { useTheme } from './hooks/useTheme';
 import i18next from 'i18next';
 import { isLanguage } from '../shared/Locale/Language';
 import { UsageProvider } from './context/UsageContext/usage-provider';
+import { MaxFileSizeRejectionModal } from './pages/MaxFileSizeRejectionModal';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -28,8 +29,13 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const intendedRoute = useRef<null | string>(null);
+  const isStandaloneModal = pathname === '/max-file-size-rejection-modal';
 
   function onUserLoggedInChanged(isLoggedIn: boolean) {
+    if (isStandaloneModal) {
+      return;
+    }
+
     if (!isLoggedIn) {
       intendedRoute.current = pathname;
       navigate('/login');
@@ -41,7 +47,7 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   useEffect(() => {
     window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
     window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
-  }, []);
+  }, [isStandaloneModal]);
 
   return children;
 }
@@ -84,6 +90,7 @@ export default function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/process-issues" element={<IssuesPage />} />
                     <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/max-file-size-rejection-modal" element={<MaxFileSizeRejectionModal />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/" element={<Widget />} />
                   </Routes>

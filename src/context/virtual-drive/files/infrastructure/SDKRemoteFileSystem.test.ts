@@ -59,6 +59,16 @@ describe('SDKRemoteFileSystem', () => {
     expect(result.getLeft().message).toBe('30000');
   });
 
+  it('maps FILE_TOO_BIG to FILE_TOO_BIG', async () => {
+    createFileMock.mockResolvedValue({ error: new DriveServerError('FILE_TOO_BIG', 402, 'too large') });
+
+    const result = await sut.persist(dataToPersist);
+
+    expect(result.isLeft()).toBe(true);
+    expect(result.getLeft().cause).toBe('FILE_TOO_BIG');
+    expect(result.getLeft().message).toBe('too large');
+  });
+
   it('returns persisted file data on success', async () => {
     createFileMock.mockResolvedValue({ data: fileResponse });
 

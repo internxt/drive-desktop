@@ -39,6 +39,14 @@ describe('override-file-to-backend', () => {
     expect(result.error?.cause).toBe('RATE_LIMITED');
   });
 
+  it('should return FILE_TOO_BIG when server returns FILE_TOO_BIG', async () => {
+    overrideFileMock.mockResolvedValue({ error: new DriveServerError('FILE_TOO_BIG', 402) });
+
+    const result = await overrideFileToBackend(baseParams);
+
+    expect(result.error?.cause).toBe('FILE_TOO_BIG');
+  });
+
   it('should return UNKNOWN for any other server error', async () => {
     overrideFileMock.mockResolvedValue({ error: new DriveServerError('NOT_FOUND', 404) });
 

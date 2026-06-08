@@ -7,10 +7,16 @@ import { FileSizeMother } from '../../domain/__test-helpers__/FileSizeMother';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
 import { FileOverriddenDomainEvent } from '../../domain/events/FileOverriddenDomainEvent';
 import * as overrideFileModule from '../../../../../infra/drive-server/services/files/services/override-file';
+import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
+import { DriveServerError } from '../../../../../infra/drive-server/drive-server.error';
 import { call, partialSpyOn } from '../../../../../../tests/vitest/utils.helper';
 
 describe('File Overrider', () => {
   const overrideFileMock = partialSpyOn(overrideFileModule, 'overrideFile');
+
+  beforeEach(() => {
+    overrideFileMock.mockResolvedValue({ data: true });
+  });
 
   it('throws an error if no file is founded with the given fileId', async () => {
     const repository = new FileRepositoryMock();
@@ -51,6 +57,27 @@ describe('File Overrider', () => {
       fileContentsId: updatedContentsId.value,
       fileSize: updatedSize.value,
     });
+  });
+
+  it('throws FILE_TOO_BIG when backend rejects the override size', async () => {
+    const repository = new FileRepositoryMock();
+    const eventBus = new EventBusMock();
+
+    const overrider = new FileOverrider(repository, eventBus);
+
+    const file = FileMother.any();
+    const updatedContentsId = BucketEntryIdMother.random();
+    const updatedSize = FileSizeMother.random();
+
+    repository.searchByContentsIdMock.mockReturnValueOnce(file);
+    overrideFileMock.mockResolvedValueOnce({ error: new DriveServerError('FILE_TOO_BIG', 402) });
+
+    await expect(overrider.run(file.contentsId, updatedContentsId.value, updatedSize.value)).rejects.toMatchObject({
+      cause: 'FILE_TOO_BIG',
+    } satisfies Partial<DriveDesktopError>);
+
+    expect(repository.updateMock).not.toHaveBeenCalled();
+    expect(eventBus.publishMock).not.toHaveBeenCalled();
   });
 
   it('emits the FileOverridden domain event when successfully overridden ', async () => {
