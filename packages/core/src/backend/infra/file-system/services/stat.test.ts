@@ -1,10 +1,6 @@
-import { execSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
-import { mkdir, writeFile } from 'node:fs/promises';
+import fs from 'node:fs/promises';
 import { join } from 'node:path';
 import { cwd } from 'node:process';
-
-import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 
 import { stat } from './stat';
 
@@ -25,15 +21,9 @@ describe('stat', () => {
 
   it('If file access is denied (EPERM)', async () => {
     // Given
-    const folder = join(TEST_FILES, randomUUID());
-    const file = join(folder, 'file.txt');
-
-    await mkdir(folder);
-    await writeFile(file, 'content');
-
-    execSync(`icacls "${file}" /deny "${process.env.USERNAME}":F`);
+    vi.spyOn(fs, 'stat').mockRejectedValueOnce(new Error('EPERM: operation not permitted'));
     // When
-    const { error } = await stat({ absolutePath: file });
+    const { error } = await stat({ absolutePath: 'restricted-file' });
     // Then
     expect(error?.code).toEqual('NO_ACCESS');
   });

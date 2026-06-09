@@ -8,7 +8,7 @@ process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'test';
 
 // We do not want to make network calls
-vi.mock(import('@/apps/shared/HttpClient/client'));
+vi.mock('@/apps/shared/HttpClient/client');
 // We don't want sentry in tests
 vi.mock(import('@internxt/drive-desktop-core/build/backend/core/sentry/sentry'), () => ({}));
 

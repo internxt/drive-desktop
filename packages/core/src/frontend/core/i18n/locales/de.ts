@@ -68,6 +68,7 @@ export const de: Translation = {
         support: 'Support',
         antivirus: 'Antivirus',
         logout: 'Abmelden',
+        referAndEarn: 'Weiterempfehlen & verdienen',
         quit: 'Beenden',
         'logout-confirmation': {
           title: 'Von diesem Gerät abmelden?',

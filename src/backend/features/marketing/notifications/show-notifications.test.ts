@@ -13,7 +13,13 @@ describe('show-notifications', () => {
   const props = mockProps<typeof showNotifications>({});
 
   beforeEach(() => {
-    NotificationMock.mockReturnValue({ show: mockShow, on: mockOn } as Partial<Notification> as Notification);
+    NotificationMock.mockImplementation(
+      class {
+        constructor() {
+          return { show: mockShow, on: mockOn };
+        }
+      } as unknown as typeof Notification,
+    );
   });
 
   it('should show notification and prepare failed callback', async () => {
