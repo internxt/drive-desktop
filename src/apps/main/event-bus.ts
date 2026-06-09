@@ -10,7 +10,7 @@ interface Events {
   // in on app start and the tokens are correct
   USER_LOGGED_IN: () => void;
 
-  SYNC_ROOT_CHANGED: (newPath: string) => void;
+  SYNC_ROOT_CHANGED: ({ oldPath, newPath }: { oldPath: string; newPath: string }) => void;
 
   USER_LOGGED_OUT: () => void;
 

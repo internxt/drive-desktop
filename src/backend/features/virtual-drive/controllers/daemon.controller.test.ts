@@ -9,11 +9,12 @@ describe('daemonReadyController', () => {
 
   it('should resolve the daemon ready signal and return 200', () => {
     const req = mockDeep<Request>();
+    req.body = { bootId: 'boot-id-1' };
     const res = mockDeep<Response>();
 
     daemonReadyController(req, res);
 
-    expect(resolveDaemonReadyMock).toHaveBeenCalledOnce();
+    expect(resolveDaemonReadyMock).toHaveBeenCalledWith({ bootId: 'boot-id-1' });
     expect(res.sendStatus).toHaveBeenCalledWith(200);
   });
 });

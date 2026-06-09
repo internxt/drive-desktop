@@ -18,7 +18,7 @@ const schema: Schema<AppStore> = {
   backgroundScanEnabled: { type: 'boolean' },
   backupInterval: { type: 'number' },
   lastBackup: { type: 'number' },
-  syncRoot: { type: 'string' },
+  virtualDriveRoot: { type: 'string' },
   lastSavedListing: { type: 'string' },
   lastSync: { type: 'number' },
 

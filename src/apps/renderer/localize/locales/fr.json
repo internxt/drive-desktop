@@ -155,6 +155,10 @@
           "dark": "Sombre"
         }
       },
+      "virtual-drive-root": {
+        "label": "Dossier Internxt",
+        "action": "Changer"
+      },
       "app-info": {
         "open-logs": "Ouvrir les registres",
         "more": "Plus d'informations sur Internxt"

@@ -9,12 +9,14 @@ type Config struct {
 	MountPoint string
 	SocketPath string
 	LogFile    string
+	BootID     string
 }
 func ParseConfig() Config {
 	config := Config{
 		MountPoint: os.Getenv("INTERNXT_MOUNT"),
 		SocketPath: os.Getenv("INTERNXT_SOCKET"),
 		LogFile:    os.Getenv("INTERNXT_LOG_FILE"),
+		BootID:     os.Getenv("INTERNXT_BOOT_ID"),
 	}
 
 	var missing []string
@@ -26,6 +28,9 @@ func ParseConfig() Config {
 	}
 	if config.LogFile == "" {
 		missing = append(missing, "INTERNXT_LOG_FILE")
+	}
+	if config.BootID == "" {
+		missing = append(missing, "INTERNXT_BOOT_ID")
 	}
 
 	if len(missing) > 0 {

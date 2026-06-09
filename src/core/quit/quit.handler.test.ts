@@ -1,11 +1,11 @@
 import { app, ipcMain } from 'electron';
 import { call } from 'tests/vitest/utils.helper';
-import * as virtualDriveServiceModule from '../../backend/features/virtual-drive/services/virtual-drive.service';
+import * as virtualDriveServiceModule from '../../backend/features/virtual-drive/services/drive-folder/virtual-drive.service';
 import { partialSpyOn } from 'tests/vitest/utils.helper';
 import * as registerQuitHandlerModule from './quit.handler';
 
 describe('quit', () => {
-  const stopVirtualDriveMock = partialSpyOn(virtualDriveServiceModule, 'stopVirtualDrive');
+  const stopVirtualDriveMock = partialSpyOn(virtualDriveServiceModule, 'stopVirtualDriveOnce');
   const appQuitMock = partialSpyOn(app, 'quit');
   const appOnMock = partialSpyOn(app, 'on', false);
   const ipcMainOnMock = partialSpyOn(ipcMain, 'on', false);
@@ -28,7 +28,7 @@ describe('quit', () => {
     expect(appOnMock).toBeCalledWith('before-quit', expect.any(Function));
   });
 
-  it('should call stopAndClearFuseApp on user-quit event', async () => {
+  it('should call stopVirtualDriveOnce on user-quit event', async () => {
     registerQuitHandlerModule.registerQuitHandler();
     await (ipcMainOnMock.mock.calls[0][1] as () => Promise<void>)();
 

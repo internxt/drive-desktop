@@ -155,6 +155,10 @@
           "dark": "Oscuro"
         }
       },
+      "virtual-drive-root": {
+        "label": "Directorio de Internxt",
+        "action": "Cambiar"
+      },
       "app-info": {
         "open-logs": "Abrir registros",
         "more": "Más información sobre Internxt"

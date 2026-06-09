@@ -28,7 +28,7 @@ func main() {
 
 	logger.Info("fuse filesystem mounted", "mount", config.MountPoint)
 
-	if err := client.NotifyReady(logger); err != nil {
+	if err := client.NotifyReady(logger, config.BootID); err != nil {
 		logger.Error("failed to notify electron of readiness", "error", err)
 		if err := server.Unmount(); err != nil {
       logger.Error("failed to unmount fuse filesystem", "error", err)

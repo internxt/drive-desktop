@@ -1,20 +1,37 @@
 import { spawn, ChildProcess } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { PATHS } from '../../../../core/electron/paths';
 import { FuseDriveStatus } from '../FuseDriveStatus';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 
-let resolveReady: () => void;
+type DaemonReadyState = {
+  bootId: string;
+  resolve: () => void;
+};
+
+let daemonReadyState: DaemonReadyState | undefined;
 let daemon: ChildProcess | null = null;
 let status: FuseDriveStatus = 'UNMOUNTED';
 const SIGKILL_TIMEOUT_MS = 5_000;
 
-export const daemonReady = new Promise<void>((resolve) => {
-  resolveReady = resolve;
-});
+export function resolveDaemonReady({ bootId }: { bootId: string }): void {
+  if (!daemonReadyState) {
+    logger.warn({ msg: '[FUSE DAEMON] received ready signal before daemon startup' });
+    return;
+  }
 
-export function resolveDaemonReady(): void {
-  resolveReady();
+  if (bootId !== daemonReadyState.bootId) {
+    logger.warn({
+      msg: '[FUSE DAEMON] ignored ready signal with stale boot id',
+      bootId,
+      activeBootId: daemonReadyState.bootId,
+    });
+    return;
+  }
+
+  daemonReadyState.resolve();
+  daemonReadyState = undefined;
 }
 
 export function getVirtualDriveState(): FuseDriveStatus {
@@ -22,12 +39,19 @@ export function getVirtualDriveState(): FuseDriveStatus {
 }
 
 export function startDaemon(mountPoint: string): Promise<void> {
+  const bootId = randomUUID();
+
+  const daemonReady = new Promise<void>((resolve) => {
+    daemonReadyState = { bootId, resolve };
+  });
+
   const spawnedDaemon = spawn(PATHS.FUSE_DAEMON_BINARY, [], {
     env: {
       ...process.env,
       INTERNXT_MOUNT: mountPoint,
       INTERNXT_SOCKET: PATHS.FUSE_DAEMON_SOCKET,
       INTERNXT_LOG_FILE: PATHS.FUSE_DAEMON_LOG,
+      INTERNXT_BOOT_ID: bootId,
     },
   });
 
@@ -44,6 +68,11 @@ export function startDaemon(mountPoint: string): Promise<void> {
     } else {
       status = 'UNMOUNTED';
     }
+
+    if (daemonReadyState?.bootId === bootId) {
+      daemonReadyState = undefined;
+    }
+
     daemon = null;
   });
 

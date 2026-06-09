@@ -20,6 +20,10 @@ type Client struct {
 	socketPath string
 }
 
+type notifyReadyRequest struct {
+	BootID string `json:"bootId"`
+}
+
 func NewClient(socketPath string) *Client {
 	return &Client{
 		http:       NewUnixSocketClient(socketPath),
@@ -38,14 +42,20 @@ func NewUnixSocketClient(socketPath string) *http.Client {
 }
 
 // NotifyReady sends POST /daemon/ready to Electron to signal the daemon is up.
-func (client *Client) NotifyReady(logger *slog.Logger) error {
+func (client *Client) NotifyReady(logger *slog.Logger, bootID string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://localhost/daemon/ready", nil)
+	payload, err := json.Marshal(notifyReadyRequest{BootID: bootID})
+	if err != nil {
+		return fmt.Errorf("marshalling ready payload: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://localhost/daemon/ready", bytes.NewBuffer(payload))
 	if err != nil {
 		return fmt.Errorf("creating ready request: %w", err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := client.http.Do(req)
 	if err != nil {

@@ -148,6 +148,7 @@ export interface IElectronAPI {
     removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
     cancelScan: () => Promise<void>;
   };
+  getVirtualDriveRoot(): Promise<string>;
   chooseSyncRootWithDialog(): Promise<string | null>;
   getBackupErrorByFolder(folderId: number): Promise<BackupErrorRecord | undefined>;
   getLastBackupHadIssues(): Promise<boolean>;

@@ -15,7 +15,7 @@ export const defaults: AppStore = {
   backgroundScanEnabled: true,
   backupInterval: 86_400_000, // 24h
   lastBackup: -1,
-  syncRoot: '',
+  virtualDriveRoot: '',
   lastSavedListing: '',
   lastSync: -1,
 
@@ -47,7 +47,7 @@ export const fieldsToSave: Array<keyof AppStore> = [
   'backgroundScanEnabled',
   'backupInterval',
   'lastBackup',
-  'syncRoot',
+  'virtualDriveRoot',
   'lastSavedListing',
   'lastSync',
   'deviceId',

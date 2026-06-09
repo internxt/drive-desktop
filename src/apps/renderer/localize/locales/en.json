@@ -155,6 +155,10 @@
           "dark": "Dark"
         }
       },
+      "virtual-drive-root": {
+        "label": "Internxt Folder",
+        "action": "Change"
+      },
       "app-info": {
         "open-logs": "Open logs",
         "more": "Learn more about Internxt"
