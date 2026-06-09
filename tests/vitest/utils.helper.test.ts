@@ -1,5 +1,5 @@
 import { DeepPartial } from 'ts-essentials';
-import { MockedFunction, MockInstance } from 'vitest';
+import { MockedFunction } from 'vitest';
 import { loggerMock } from './mocks.helper.test';
 
 export type TestProps<T extends (...args: any) => any> = DeepPartial<Parameters<T>[0]>;
@@ -40,14 +40,4 @@ export function testSleep(ms: number) {
  * Code extracted from vitest
  * https://github.com/vitest-dev/vitest/blob/c1f78d2adc78ef08ef8b61b0dd6a925fb08f20b6/packages/spy/src/index.ts#L464
  */
-type Procedure = (...args: any[]) => any;
-type Methods<T> = keyof { [K in keyof T as T[K] extends Procedure ? K : never]: T[K] };
-type Classes<T> = { [K in keyof T]: T[K] extends new (...args: any[]) => any ? K : never }[keyof T] & (string | symbol);
-export function partialSpyOn<T, M extends Classes<Required<T>> | Methods<Required<T>>>(obj: T, methodName: M, mock = true) {
-  type Fn = Required<T>[M] extends (...args: any[]) => any ? Required<T>[M] : never;
-  const objSpy = vi.spyOn(obj as Required<T>, methodName);
-  // @ts-expect-error by default we want to remove always the real implementation
-  // se we don't run unexpected code
-  if (mock) objSpy.mockImplementation(() => {});
-  return objSpy as MockInstance<(...args: Parameters<Fn>) => DeepPartial<ReturnType<Fn>>>;
-}
+export { partialSpyOn } from './partial-spy-on.helper';
