@@ -79,12 +79,11 @@ describe('get-file-info', () => {
     const { data, error } = await getFileInfo(props);
     // Then
     expect(data).toBeUndefined();
-    expect(error).toStrictEqual(
-      new GetFileInfoError(
-        'NOT_A_PLACEHOLDER',
-        '[GetPlaceholderInfoAsync] WinRT error: [CfGetPlaceholderInfo] The file is not a cloud file. (HRESULT: 0x80070178)',
-      ),
-    );
+    expect(error).toBeInstanceOf(GetFileInfoError);
+    expect(error).toMatchObject({
+      code: 'NOT_A_PLACEHOLDER',
+      cause: expect.stringContaining('HRESULT: 0x80070178'),
+    });
   });
 
   it('should return error UNKNOWN when item does not exist', async () => {

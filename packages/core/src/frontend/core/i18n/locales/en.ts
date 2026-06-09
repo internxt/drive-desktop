@@ -66,6 +66,7 @@ export const en = {
         support: 'Support',
         antivirus: 'Antivirus',
         logout: 'Log out',
+        referAndEarn: 'Refer and Earn',
         quit: 'Quit',
         'logout-confirmation': {
           title: 'Log out from this device?',

@@ -8,6 +8,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       coverage: {
+        include: ['src/**/*.{js,ts,tsx}'],
         reportsDirectory: './coverage/unit',
       },
       exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts'],

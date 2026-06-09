@@ -1,33 +1,39 @@
 import { WriteStream } from 'node:fs';
-import { Readable } from 'node:stream';
-import { calls } from '@/tests/vitest/utils.helper.test';
+import { Readable, Writable } from 'node:stream';
 import { pipeline } from './pipeline';
-
-vi.mock(import('node:fs'));
 
 describe('pipeline', () => {
   const chunks = ['hello', 'world'];
   let readable: Readable;
+  let writtenChunks: string[];
   let writable: WriteStream;
 
   beforeEach(() => {
     readable = Readable.from(chunks);
-    writable = new WriteStream();
+    writtenChunks = [];
+    writable = new Writable({
+      write(chunk, _encoding, callback) {
+        writtenChunks.push(chunk.toString());
+        callback();
+      },
+    }) as WriteStream;
   });
 
   it('should write chunks from readable', async () => {
-    // Given
-    writable.write = vi.fn();
     // When
     const error = await pipeline({ readable, writable });
     // Then
     expect(error).toBeUndefined();
-    calls(writable.write).toStrictEqual(chunks);
+    expect(writtenChunks).toStrictEqual(chunks);
   });
 
   it('should return ABORTED if readable is aborted', async () => {
     // Given
-    readable.destroy(new Error('The operation was aborted'));
+    readable = new Readable({
+      read() {
+        this.destroy(new Error('The operation was aborted'));
+      },
+    });
     // When
     const error = await pipeline({ readable, writable });
     // Then
@@ -36,7 +42,11 @@ describe('pipeline', () => {
 
   it('should return UNKNOWN in case of other error', async () => {
     // Given
-    readable.destroy();
+    readable = new Readable({
+      read() {
+        this.destroy(new Error('Unexpected failure'));
+      },
+    });
     // When
     const error = await pipeline({ readable, writable });
     // Then

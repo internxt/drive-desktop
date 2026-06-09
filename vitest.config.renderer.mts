@@ -8,6 +8,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       coverage: {
+        include: ['src/apps/renderer/**/*.{ts,tsx}'],
         reportsDirectory: './coverage/renderer',
       },
       environment: 'jsdom',

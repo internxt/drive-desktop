@@ -68,6 +68,7 @@ export const fr: Translation = {
         support: 'Aide',
         antivirus: 'Antivirus',
         logout: 'Déconnecter',
+        referAndEarn: 'Parrainez et gagnez',
         quit: 'Fermer',
         'logout-confirmation': {
           title: 'Se déconnecter de cet appareil?',
