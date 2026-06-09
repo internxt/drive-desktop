@@ -9,7 +9,7 @@ import { useSettingsStore } from '../Settings/settings-store';
 type Props = {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
 };
-export function ItemsSection({ setIsLogoutModalOpen }: Props) {
+export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
   const { translate } = useI18n();
   const { setActiveSection: setSettingsSection } = useSettingsStore();
   const { setActiveSection: setIssuesSection } = useIssuesStore();
@@ -180,12 +180,12 @@ function HeaderItemWrapper({
   active = false,
   onClick,
   disabled,
-}: {
+}: Readonly<{
   children: JSX.Element;
   active?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   disabled?: boolean;
-}) {
+}>) {
   return (
     <div
       className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg before:absolute before:-inset-px hover:bg-surface hover:shadow hover:ring-1 hover:ring-gray-20 dark:hover:bg-gray-10 ${
@@ -197,7 +197,7 @@ function HeaderItemWrapper({
   );
 }
 
-function DropdownItem({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) {
+function DropdownItem({ children, active, onClick }: Readonly<{ children: JSX.Element; active?: boolean; onClick?: () => void }>) {
   return (
     <button
       className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
