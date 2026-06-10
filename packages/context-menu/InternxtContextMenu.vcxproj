@@ -39,7 +39,7 @@
       <WarningLevel>Level4</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Shlwapi.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CldApi.lib;Shlwapi.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>src\context_menu.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>

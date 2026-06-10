@@ -1,18 +1,96 @@
 // Windows Shell interfaces such as IExplorerCommand and IShellItemArray.
 #include <shobjidl_core.h>
+// Defines NTSTATUS, which is used by structures declared in cfapi.h.
+#include <winternl.h>
+// Cloud Files API. Windows uses this API to expose which sync provider owns
+// a file or folder inside a registered sync root.
+#include <cfapi.h>
 // Shell helper functions. We use SHStrDupW to return strings using the
 // memory-allocation convention expected by Windows Explorer.
 #include <shlwapi.h>
 // Windows Runtime Library (WRL). RuntimeClass implements the repetitive COM
 // infrastructure, including QueryInterface, AddRef, and Release.
 #include <wrl.h>
+#include <wrl/client.h>
+
+#include <array>
+#include <string>
 
 // Keep the class declaration readable without repeating Microsoft::WRL.
 using Microsoft::WRL::ClassicCom;
+using Microsoft::WRL::ComPtr;
 using Microsoft::WRL::InProc;
 using Microsoft::WRL::Module;
 using Microsoft::WRL::RuntimeClass;
 using Microsoft::WRL::RuntimeClassFlags;
+
+namespace {
+
+// Explorer passes the current selection as an IShellItemArray. The share
+// command supports one item, so this helper rejects empty or multi-selection
+// menus and extracts the selected item's normal filesystem path.
+bool TryGetSingleSelectedPath(IShellItemArray* items, std::wstring& path)
+{
+    if (!items) return false;
+
+    DWORD count = 0;
+    if (FAILED(items->GetCount(&count)) || count != 1) return false;
+
+    ComPtr<IShellItem> item;
+    if (FAILED(items->GetItemAt(0, &item))) return false;
+
+    PWSTR rawPath = nullptr;
+    if (FAILED(item->GetDisplayName(SIGDN_FILESYSPATH, &rawPath))) return false;
+
+    path.assign(rawPath);
+    CoTaskMemFree(rawPath);
+    return true;
+}
+
+// CfGetSyncRootInfoByPath returns the sync root's registered Id in ProviderName,
+// not its user-facing DisplayNameResource. Resolve that Id through the same
+// SyncRootManager metadata Windows creates when Internxt registers the root.
+bool IsInternxtProvider(const WCHAR* providerId)
+{
+    const std::wstring registryPath =
+        L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SyncRootManager\\" +
+        std::wstring(providerId);
+
+    std::array<WCHAR, 256> displayName{};
+    DWORD displayNameSize = static_cast<DWORD>(displayName.size() * sizeof(WCHAR));
+    const LSTATUS result = RegGetValueW(
+        HKEY_LOCAL_MACHINE,
+        registryPath.c_str(),
+        L"DisplayNameResource",
+        RRF_RT_REG_SZ,
+        nullptr,
+        displayName.data(),
+        &displayNameSize);
+
+    if (result != ERROR_SUCCESS) return false;
+
+    return std::wstring(displayName.data()) == L"Internxt Drive" ||
+           std::wstring(displayName.data()) == L"Internxt Drive for Business";
+}
+
+// Asking Windows which sync root owns the path avoids relying on a hard-coded
+// folder location, which differs between users and can change over time.
+bool IsInternxtSyncRootItem(const std::wstring& path)
+{
+    CF_SYNC_ROOT_PROVIDER_INFO providerInfo{};
+    const HRESULT result = CfGetSyncRootInfoByPath(
+        path.c_str(),
+        CF_SYNC_ROOT_INFO_PROVIDER,
+        &providerInfo,
+        sizeof(providerInfo),
+        nullptr);
+
+    if (FAILED(result)) return false;
+
+    return IsInternxtProvider(providerInfo.ProviderName);
+}
+
+} // namespace
 
 // The UUID is the permanent COM identity of this command. Windows registration
 // will refer to this same value when we add registration in a later step.
@@ -55,12 +133,18 @@ public:
         return S_OK;
     }
 
-    // Explorer calls this before rendering the menu to determine whether the
-    // command should be enabled. For now, exactly one selected item is enough.
+    // Explorer calls this before rendering the menu. The DLL is registered for
+    // files and folders globally, so this runtime check is what limits the
+    // visible command to items owned by an Internxt sync root.
     IFACEMETHODIMP GetState(IShellItemArray* items, BOOL, EXPCMDSTATE* state) override
     {
-        DWORD count = 0;
-        *state = items && SUCCEEDED(items->GetCount(&count)) && count == 1 ? ECS_ENABLED : ECS_DISABLED;
+        if (!state) return E_POINTER;
+
+        std::wstring selectedPath;
+        *state = TryGetSingleSelectedPath(items, selectedPath) &&
+                         IsInternxtSyncRootItem(selectedPath)
+                     ? ECS_ENABLED
+                     : ECS_HIDDEN;
         return S_OK;
     }
 
