@@ -26,6 +26,9 @@ using Microsoft::WRL::RuntimeClassFlags;
 
 namespace {
 
+constexpr WCHAR ContextMenuPipePath[] =
+    L"\\\\.\\pipe\\internxt-drive-context-menu";
+
 // Explorer passes the current selection as an IShellItemArray. The share
 // command supports one item, so this helper rejects empty or multi-selection
 // menus and extracts the selected item's normal filesystem path.
@@ -90,6 +93,34 @@ bool IsInternxtSyncRootItem(const std::wstring& path)
     return IsInternxtProvider(providerInfo.ProviderName);
 }
 
+// Electron owns the named-pipe server. The command writes only the selected
+// UTF-16 path and closes the connection; it does not wait for link generation
+// or any response from Electron.
+void SendSelectedPathToElectron(const std::wstring& selectedPath)
+{
+    const HANDLE pipe = CreateFileW(
+        ContextMenuPipePath,
+        GENERIC_WRITE,
+        0,
+        nullptr,
+        OPEN_EXISTING,
+        0,
+        nullptr);
+
+    if (pipe == INVALID_HANDLE_VALUE) return;
+
+    const DWORD messageSize =
+        static_cast<DWORD>(selectedPath.size() * sizeof(WCHAR));
+    DWORD bytesWritten = 0;
+    WriteFile(
+        pipe,
+        selectedPath.data(),
+        messageSize,
+        &bytesWritten,
+        nullptr);
+    CloseHandle(pipe);
+}
+
 } // namespace
 
 // The UUID is the permanent COM identity of this command. Windows registration
@@ -148,10 +179,15 @@ public:
         return S_OK;
     }
 
-    // Explorer calls Invoke after the user clicks the command. It intentionally
-    // performs no action in this first, reviewable implementation step.
-    IFACEMETHODIMP Invoke(IShellItemArray*, IBindCtx*) override
-    { // TODO: The implementation of the actual logic of the command belongs here
+    // File Explorer calls Invoke after the user clicks the command. This layer only
+    // forwards the selected path; Electron owns the sharing workflow.
+    IFACEMETHODIMP Invoke(IShellItemArray* items, IBindCtx*) override
+    {
+        std::wstring selectedPath;
+        if (TryGetSingleSelectedPath(items, selectedPath) && IsInternxtSyncRootItem(selectedPath)) {
+            SendSelectedPathToElectron(selectedPath);
+        }
+
         return S_OK;
     }
 
