@@ -1,0 +1,8 @@
+{
+  "name": "@packages/context-menu",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "compile": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File build.ps1"
+  }
+}
