@@ -119,11 +119,10 @@ async function start() {
     await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
 
-    const contextMenuPipe = startContextMenuPipe((selectedPath) => {
-      logger.debug({ msg: 'Received context-menu path', selectedPath });
-    });
+    const contextMenuPipe = startContextMenuPipe();
     app.once('before-quit', () => {
       logger.debug({ msg: 'App quitting, closing context-menu pipe' });
+      // ? What if we close the app abruptly.
       contextMenuPipe.close();
     });
 

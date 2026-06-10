@@ -2,6 +2,7 @@ import { createServer, Server, Socket } from 'node:net';
 import { win32 } from 'node:path';
 import { logger } from '@/apps/shared/logger/logger';
 import { CONTEXT_MENU_PIPE_PATH, MAX_MESSAGE_BYTES } from './constants';
+import { handleOnPath } from './handle-on-path';
 
 export function parseContextMenuPath(message: Buffer) {
   /**
@@ -24,8 +25,8 @@ export function parseContextMenuPath(message: Buffer) {
   return selectedPath;
 }
 
-export function startContextMenuPipe(onPath: (selectedPath: string) => void): Server {
-  const server = createNamedPipe(onPath);
+export function startContextMenuPipe(): Server {
+  const server = createNamedPipe();
 
   server.on('error', (error) => {
     logger.error({ msg: 'Context-menu pipe server error', error });
@@ -38,7 +39,7 @@ export function startContextMenuPipe(onPath: (selectedPath: string) => void): Se
   return server;
 }
 
-function createNamedPipe(onPath: (selectedPath: string) => void) {
+function createNamedPipe() {
   return createServer((socket) => {
     const chunks: Buffer[] = [];
     let messageSize = 0;
@@ -48,7 +49,7 @@ function createNamedPipe(onPath: (selectedPath: string) => void) {
       handleData({ chunk, messageSize, chunks, socket });
     });
 
-    socket.on('end', () => handleEnd({ chunks, onPath }));
+    socket.on('end', () => void handleEnd(chunks));
 
     socket.on('error', handleError);
   });
@@ -63,7 +64,7 @@ function handleData({ chunk, messageSize, chunks, socket }: { chunk: Buffer; mes
   chunks.push(chunk);
 }
 
-function handleEnd({ chunks, onPath }: { chunks: Buffer[]; onPath: (selectedPath: string) => void }) {
+async function handleEnd(chunks: Buffer[]) {
   const selectedPath = parseContextMenuPath(Buffer.concat(chunks));
   if (!selectedPath) {
     logger.warn({ msg: 'Invalid context-menu pipe message' });
@@ -71,7 +72,7 @@ function handleEnd({ chunks, onPath }: { chunks: Buffer[]; onPath: (selectedPath
   }
 
   try {
-    onPath(selectedPath);
+    await handleOnPath(selectedPath);
   } catch (error) {
     logger.error({ msg: 'Error handling context-menu path', selectedPath, error });
   }
