@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "compile": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File build.ps1"
+    "compile": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File build.ps1",
+    "package": "npm run compile && powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File package.ps1",
+    "prepare:test": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File prepare-test.ps1",
+    "trust:test-certificate": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File trust-test-certificate.ps1"
   }
 }
