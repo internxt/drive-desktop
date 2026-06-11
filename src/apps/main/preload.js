@@ -273,7 +273,7 @@ contextBridge.exposeInMainWorld('electron', {
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
   openUrl: (url) => {
-    ipcRenderer.invoke('open-url', url);
+    return ipcRenderer.invoke('open-url', url);
   },
   getPreferredAppLanguage() {
     return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
@@ -290,6 +290,12 @@ contextBridge.exposeInMainWorld('electron', {
   onBackupFailed(callback) {
     ipcRenderer.on('backup-failed', (_, error) => callback(error));
     return () => ipcRenderer.removeListener('backup-failed', callback);
+  },
+  onMarketingNotifications(callback) {
+    const eventName = 'marketing-notifications';
+    const listener = (_, notifications) => callback(notifications);
+    ipcRenderer.on(eventName, listener);
+    return () => ipcRenderer.removeListener(eventName, listener);
   },
   antivirus: {
     /**

@@ -3,6 +3,7 @@ import { AuthLoginResponseViewModel } from '../../infra/drive-server/services/au
 import { CleanerReport } from '../../backend/features/cleaner/cleaner.types';
 import { BackupErrorRecord } from '../../backend/features/backup/backup.types';
 import type { Device } from '../../backend/features/backup/types/Device';
+import type { UserNotification } from '../../infra/drive-server/out/dto';
 
 declare interface Window {
   electron: {
@@ -163,6 +164,7 @@ declare interface Window {
       discoveredBackups: () => Promise<void>;
     };
     onBackupFailed: (callback: (error: { message: string; cause: string }) => void) => () => void;
+    onMarketingNotifications: (callback: (notifications: Array<UserNotification>) => void) => () => void;
 
     antivirus: {
       isAvailable: () => Promise<boolean>;

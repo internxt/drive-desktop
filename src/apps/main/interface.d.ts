@@ -15,6 +15,7 @@ import { AbsolutePath } from '../../context/local/localFile/infrastructure/Absol
 import { StoredValues } from './config/service.types';
 import { AppStore } from './config';
 import { ConfigTheme } from '../shared/types/Theme';
+import { UserNotification } from '../../infra/drive-server/out/dto';
 
 /** This interface and declare global will replace the preload.d.ts.
  * The thing is that instead of that, we will gradually will be declaring the interface here as we generate tests
@@ -153,6 +154,7 @@ export interface IElectronAPI {
   getBackupErrorByFolder(folderId: number): Promise<BackupErrorRecord | undefined>;
   getLastBackupHadIssues(): Promise<boolean>;
   onBackupFatalErrorsChanged(fn: (backupErrors: Array<BackupErrorRecord>) => void): () => void;
+  onMarketingNotifications(fn: (notifications: Array<UserNotification>) => void): () => void;
   getBackupFatalErrors(): Promise<Array<BackupErrorRecord>>;
   onBackupProgress(func: (value: number) => void): () => void;
   startRemoteSync(): Promise<void>;

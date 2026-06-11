@@ -10,6 +10,7 @@ import IssuesPage from './pages/Issues/IssuesPage';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
 import { useBackupNotifications } from './hooks/useBackupNotifications';
+import { useMarketingNotifications } from './hooks/useMarketingNotifications';
 import { useTheme } from './hooks/useTheme';
 import i18next from 'i18next';
 import { isLanguage } from '../shared/Locale/Language';
@@ -58,6 +59,7 @@ function Loader() {
 
 export default function App() {
   useBackupNotifications();
+  useMarketingNotifications();
   useTheme();
 
   // Global IPC → i18next bridge for language changes
