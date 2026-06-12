@@ -2,7 +2,9 @@ $ErrorActionPreference = "Stop"
 
 $sdkVersion = "10.0.22621.0"
 $projectPath = Join-Path $PSScriptRoot "InternxtContextMenu.vcxproj"
-$outputPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
+$hostProjectPath = Join-Path $PSScriptRoot "InternxtContextMenuHost.vcxproj"
+$dllOutputPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
+$hostOutputPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $vswherePath = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
 $sdkIncludePath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\Include\$sdkVersion"
 
@@ -44,20 +46,25 @@ if (-not (Test-Path -LiteralPath $sdkIncludePath)) {
   throw "Windows SDK $sdkVersion was not found."
 }
 
-& $msbuildPath `
-  $projectPath `
-  /t:Rebuild `
-  /p:Configuration=Release `
-  /p:Platform=x64 `
-  /p:PlatformToolset=$platformToolset `
-  /m
+foreach ($nativeProjectPath in @($projectPath, $hostProjectPath)) {
+  & $msbuildPath `
+    $nativeProjectPath `
+    /t:Rebuild `
+    /p:Configuration=Release `
+    /p:Platform=x64 `
+    /p:PlatformToolset=$platformToolset `
+    /m
 
-if ($LASTEXITCODE -ne 0) {
-  throw "Context-menu DLL build failed."
+  if ($LASTEXITCODE -ne 0) {
+    throw "Context-menu native build failed: $nativeProjectPath"
+  }
 }
 
-if (-not (Test-Path -LiteralPath $outputPath)) {
-  throw "Build completed without producing the expected DLL: $outputPath"
+foreach ($outputPath in @($dllOutputPath, $hostOutputPath)) {
+  if (-not (Test-Path -LiteralPath $outputPath)) {
+    throw "Build completed without producing the expected artifact: $outputPath"
+  }
 }
 
-Write-Host "Context-menu DLL created at $outputPath"
+Write-Host "Context-menu DLL created at $dllOutputPath"
+Write-Host "Context-menu host created at $hostOutputPath"

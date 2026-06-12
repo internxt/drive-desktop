@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $packageName = "com.internxt.drive.contextmenu"
 $certificateSubject = "CN=Internxt Development"
 $packagePath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
-$externalLocation = Join-Path $PSScriptRoot "build\test-install"
+$externalLocation = Join-Path $PSScriptRoot "build\test-install\context-menu"
 $trustScriptPath = Join-Path $PSScriptRoot "trust-test-certificate.ps1"
 
 if (-not (Test-Path -LiteralPath $packagePath)) {
@@ -52,4 +52,4 @@ Add-AppxPackage `
   -ExternalLocation (Resolve-Path $externalLocation).Path `
   -ForceUpdateFromAnyVersion
 
-Write-Host "Context-menu test package installed and Windows Explorer restarted."
+Write-Host "Context-menu test package installed."

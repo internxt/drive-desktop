@@ -7,19 +7,15 @@ $rootPath = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $sdkVersion = "10.0.22621.0"
 $signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $dllPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
+$hostPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $msixPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
 $testInstallPath = Join-Path $PSScriptRoot "build\test-install"
-$testContextMenuPath = Join-Path $testInstallPath "resources\context-menu"
-$testExecutableSourcePath = Join-Path $rootPath "node_modules\electron\dist\electron.exe"
-$testExecutablePath = Join-Path $testInstallPath "Internxt.exe"
+$testContextMenuPath = Join-Path $testInstallPath "context-menu"
 $testDllPath = Join-Path $testContextMenuPath "internxt_context_menu.dll"
+$testHostPath = Join-Path $testContextMenuPath "internxt_context_menu_host.exe"
 
 if (-not (Test-Path -LiteralPath $signToolPath)) {
   throw "SignTool.exe from Windows SDK $sdkVersion was not found."
-}
-
-if (-not (Test-Path -LiteralPath $testExecutableSourcePath)) {
-  throw "Electron executable was not found. Run npm install before preparing the test package."
 }
 
 $certificate = Get-ChildItem $certificateStore |
@@ -60,7 +56,7 @@ if ($LASTEXITCODE -ne 0) {
   throw "Context-menu package generation failed."
 }
 
-foreach ($artifactPath in @($dllPath, $msixPath)) {
+foreach ($artifactPath in @($dllPath, $hostPath, $msixPath)) {
   & $signToolPath sign /fd SHA256 /sha1 $certificate.Thumbprint $artifactPath
 
   if ($LASTEXITCODE -ne 0) {
@@ -73,12 +69,12 @@ if (Test-Path -LiteralPath $testInstallPath) {
 }
 
 New-Item -ItemType Directory -Path $testContextMenuPath -Force | Out-Null
-Copy-Item -LiteralPath $testExecutableSourcePath -Destination $testExecutablePath
 Copy-Item -LiteralPath $dllPath -Destination $testDllPath
+Copy-Item -LiteralPath $hostPath -Destination $testHostPath
 
 Write-Host "Context-menu test artifacts are ready."
 Write-Host "Certificate thumbprint: $($certificate.Thumbprint)"
 Write-Host "Certificate to trust: $certificateExportPath"
 Write-Host "Signed package: $msixPath"
-Write-Host "External location: $testInstallPath"
+Write-Host "External location: $testContextMenuPath"
 Write-Host "Before registration, import the certificate into LocalMachine\TrustedPeople from an administrator PowerShell."

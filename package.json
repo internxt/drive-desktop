@@ -90,6 +90,7 @@
         "to": "context-menu",
           "filter": [
             "internxt_context_menu.dll",
+            "internxt_context_menu_host.exe",
             "InternxtContextMenu.msix",
             "InternxtDevelopment.cer"
           ]

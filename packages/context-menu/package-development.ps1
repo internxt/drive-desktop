@@ -6,6 +6,7 @@ $certificateStore = "Cert:\CurrentUser\My"
 $sdkVersion = "10.0.22621.0"
 $signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $dllPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
+$hostPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $msixPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
 $certificateExportPath = Join-Path $PSScriptRoot "dist\InternxtDevelopment.cer"
 
@@ -63,9 +64,9 @@ if ($LASTEXITCODE -ne 0) {
   throw "Context-menu package generation failed."
 }
 
-# Sign both native code and its MSIX container before Electron Builder bundles
-# them into the main installer. Windows requires the MSIX signature to register it.
-foreach ($artifactPath in @($dllPath, $msixPath)) {
+# Sign the native binaries and their MSIX container before Electron Builder
+# bundles them. Windows requires the MSIX signature to register it.
+foreach ($artifactPath in @($dllPath, $hostPath, $msixPath)) {
   & $signToolPath sign /fd SHA256 /sha1 $certificate.Thumbprint $artifactPath
 
   if ($LASTEXITCODE -ne 0) {

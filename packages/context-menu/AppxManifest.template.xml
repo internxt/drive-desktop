@@ -25,7 +25,8 @@
     <Description>Internxt Drive File Explorer command</Description>
     <Logo>Assets\StoreLogo.png</Logo>
 
-    <!-- The executable and COM DLL remain in the existing NSIS installation. -->
+    <!-- The host executable and COM DLL remain in the isolated context-menu
+         directory inside the existing NSIS installation. -->
     <uap10:AllowExternalContent>true</uap10:AllowExternalContent>
   </Properties>
 
@@ -42,10 +43,11 @@
   </Resources>
 
   <Applications>
-    <!-- Internxt.exe is installed outside this sparse package by NSIS. -->
+    <!-- This minimal host exists only to provide the sparse package identity.
+         Explorer executes the COM DLL for context-menu commands. -->
     <Application
       Id="InternxtDrive"
-      Executable="Internxt.exe"
+      Executable="internxt_context_menu_host.exe"
       uap10:RuntimeBehavior="win32App"
       uap10:TrustLevel="mediumIL">
 
@@ -66,7 +68,7 @@
             <com:SurrogateServer DisplayName="Internxt Drive Context Menu">
               <com:Class
                 Id="F47A034D-852C-4F60-B721-C31C854183F2"
-                Path="resources\context-menu\internxt_context_menu.dll"
+                Path="internxt_context_menu.dll"
                 ThreadingModel="STA" />
             </com:SurrogateServer>
           </com:ComServer>

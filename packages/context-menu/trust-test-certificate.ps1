@@ -5,6 +5,7 @@ $certificatePath = Join-Path $PSScriptRoot "build\InternxtDevelopment.cer"
 $signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $artifactPaths = @(
   (Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"),
+  (Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"),
   (Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix")
 )
 

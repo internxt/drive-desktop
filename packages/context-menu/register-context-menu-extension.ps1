@@ -4,9 +4,9 @@ $packageName = "com.internxt.drive.contextmenu"
 $packagePath = Join-Path $PSScriptRoot "InternxtContextMenu.msix"
 $certificatePath = Join-Path $PSScriptRoot "InternxtDevelopment.cer"
 
-# The script is installed in resources\context-menu, while the sparse MSIX
-# references Internxt.exe and its DLL from the application installation root.
-$externalLocation = Resolve-Path (Join-Path $PSScriptRoot "..\..")
+# Keep the sparse package identity and its ACL changes isolated from Electron.
+# The manifest's host executable and COM DLL both live beside this script.
+$externalLocation = Resolve-Path $PSScriptRoot
 
 if (-not (Test-Path -LiteralPath $packagePath)) {
   throw "Context-menu package was not found: $packagePath"
@@ -57,3 +57,10 @@ Add-AppxPackage `
   -ForceUpdateFromAnyVersion
 
 Write-Host "Internxt context-menu package registered."
+
+# Explorer may need to restart before showing a newly registered extension.
+# We deliberately avoid restarting it during installation because that closes
+# the user's File Explorer windows and briefly refreshes the Windows desktop.
+#
+# Stop-Process -Name explorer -Force
+# Start-Process explorer.exe
