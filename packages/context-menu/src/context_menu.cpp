@@ -14,6 +14,7 @@
 #include <wrl/client.h>
 
 #include <array>
+#include <filesystem>
 #include <string>
 
 // Keep the class declaration readable without repeating Microsoft::WRL.
@@ -91,6 +92,18 @@ bool IsInternxtSyncRootItem(const std::wstring& path)
     if (FAILED(result)) return false;
 
     return IsInternxtProvider(providerInfo.ProviderName);
+}
+
+// A child item and its parent are both owned by the Internxt sync root. For
+// the sync root itself, its parent is outside Internxt. Requiring both paths
+// therefore hides the command on the root without hard-coding its location.
+bool IsInternxtSyncRootDescendant(const std::wstring& path)
+{
+    if (!IsInternxtSyncRootItem(path)) return false;
+
+    const std::wstring parentPath =
+        std::filesystem::path(path).parent_path().wstring();
+    return !parentPath.empty() && IsInternxtSyncRootItem(parentPath);
 }
 
 // Electron owns the named-pipe server. The command writes only the selected
@@ -173,7 +186,7 @@ public:
 
         std::wstring selectedPath;
         *state = TryGetSingleSelectedPath(items, selectedPath) &&
-                         IsInternxtSyncRootItem(selectedPath)
+                         IsInternxtSyncRootDescendant(selectedPath)
                      ? ECS_ENABLED
                      : ECS_HIDDEN;
         return S_OK;
@@ -184,7 +197,7 @@ public:
     IFACEMETHODIMP Invoke(IShellItemArray* items, IBindCtx*) override
     {
         std::wstring selectedPath;
-        if (TryGetSingleSelectedPath(items, selectedPath) && IsInternxtSyncRootItem(selectedPath)) {
+        if (TryGetSingleSelectedPath(items, selectedPath) && IsInternxtSyncRootDescendant(selectedPath)) {
             SendSelectedPathToElectron(selectedPath);
         }
 

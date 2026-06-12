@@ -3,11 +3,16 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { logger } from '@/apps/shared/logger/logger';
 import { Addon } from '@/node-win/addon-wrapper';
+import { getSyncContextFromPath } from './get-sync-context-from-path';
+import { ContextMenuSelection } from './types';
 
-export type ContextMenuItem = { type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid };
-
-export async function resolveContextMenuItem(selectedPath: string): Promise<ContextMenuItem | null> {
+export async function resolveContextMenuItem(selectedPath: string): Promise<ContextMenuSelection | null> {
   try {
+    const ctx = getSyncContextFromPath(selectedPath);
+    if (!ctx) {
+      logger.warn({ msg: 'No active sync context for context-menu path', selectedPath });
+      return null;
+    }
     // CfGetPlaceholderInfo reads Cloud Files metadata only; it does not hydrate
     // or open the selected file's contents.
     const { placeholderId, uuid } = await Addon.getPlaceholderState({
@@ -15,11 +20,11 @@ export async function resolveContextMenuItem(selectedPath: string): Promise<Cont
     });
 
     if (placeholderId.startsWith('FILE:')) {
-      return { type: 'file', uuid: uuid as FileUuid };
+      return { item: { type: 'file', uuid: uuid as FileUuid }, ctx };
     }
 
     if (placeholderId.startsWith('FOLDER:')) {
-      return { type: 'folder', uuid: uuid as FolderUuid };
+      return { item: { type: 'folder', uuid: uuid as FolderUuid }, ctx };
     }
 
     logger.warn({ msg: 'Unknown context-menu placeholder identity', selectedPath, placeholderId });

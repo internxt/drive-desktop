@@ -2,9 +2,9 @@ import { parseContextMenuPath } from './context-menu-pipe';
 
 describe('context menu pipe', () => {
   it('parses an absolute Windows path encoded as UTF-16', () => {
-    const message = Buffer.from(String.raw`C:\Users\alexis\InternxtDrive\document.pdf`, 'utf16le');
+    const message = Buffer.from(String.raw`C:\Users\abc\InternxtDrive\document.pdf`, 'utf16le');
 
-    expect(parseContextMenuPath(message)).toBe(String.raw`C:\Users\alexis\InternxtDrive\document.pdf`);
+    expect(parseContextMenuPath(message)).toBe(String.raw`C:\Users\abc\InternxtDrive\document.pdf`);
   });
 
   it.each([
