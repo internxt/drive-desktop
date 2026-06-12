@@ -20,6 +20,7 @@
     "compile:context-menu": "npm.cmd --prefix packages/context-menu run compile",
     "package:context-menu": "npm.cmd --prefix packages/context-menu run package",
     "prepare:test:context-menu": "npm.cmd --prefix packages/context-menu run prepare:test",
+    "setup:test:context-menu": "npm.cmd --prefix packages/context-menu run setup:test",
     "========== Code style ==========": "",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 261",
     "lint:fix": "npm run lint -- --fix",
@@ -46,7 +47,7 @@
     "rebuild:electron": "electron-rebuild",
     "========== Other ==========": "",
     "clamav": "powershell release/clamAV.ps1",
-    "prepare": "husky install",
+    "prepare": "husky install && npm.cmd --prefix packages/context-menu run ensure:test",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "swagger_prod": "openapi-typescript https://drive-server.internxt.com/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "schema": "sqlite3 %APPDATA%/internxt-drive/internxt_desktop.db .fullschema > src/infra/sqlite/schema.sql"
