@@ -88,6 +88,10 @@
           "internxt_context_menu.dll",
           "InternxtContextMenu.msix"
         ]
+      },
+      {
+        "from": "packages/context-menu/register-context-menu-extension.ps1",
+        "to": "context-menu/register-context-menu-extension.ps1"
       }
     ]
   },
