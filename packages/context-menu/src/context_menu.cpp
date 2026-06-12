@@ -17,6 +17,8 @@
 #include <filesystem>
 #include <string>
 
+#include "resource.h"
+
 // Keep the class declaration readable without repeating Microsoft::WRL.
 using Microsoft::WRL::ClassicCom;
 using Microsoft::WRL::ComPtr;
@@ -29,6 +31,21 @@ namespace {
 
 constexpr WCHAR ContextMenuPipePath[] =
     L"\\\\.\\pipe\\internxt-drive-context-menu";
+HMODULE ContextMenuModule = nullptr;
+
+const WCHAR* GetLocalizedCommandTitle()
+{
+    switch (PRIMARYLANGID(GetUserDefaultUILanguage())) {
+        case LANG_SPANISH:
+            return L"Copiar enlace compartido de Internxt";
+        case LANG_FRENCH:
+            return L"Copier le lien de partage Internxt";
+        case LANG_GERMAN:
+            return L"Internxt-Freigabelink kopieren";
+        default:
+            return L"Copy Internxt share link";
+    }
+}
 
 // Explorer passes the current selection as an IShellItemArray. The share
 // command supports one item, so this helper rejects empty or multi-selection
@@ -147,19 +164,34 @@ public:
     // The first parameter contains selected items but is not needed for a
     // constant title, so its variable name is intentionally omitted.
     IFACEMETHODIMP GetTitle(IShellItemArray*, PWSTR* title) override
-    { // TODO: Translations from en, es, fr, de.
+    {
         // SHStrDupW allocates a copy for Explorer. The L prefix creates a
         // UTF-16 string, which is the native Windows string representation.
-        return SHStrDupW(L"Copy Internxt share link", title);
+        return SHStrDupW(GetLocalizedCommandTitle(), title);
     }
 
-    // No icon is provided in this first step. E_NOTIMPL tells Explorer to use
-    // its default behavior instead of treating this as an error.
+    // Explorer expects an icon location in the form "module-path,-resource-id".
+    // The Internxt icon is embedded in this DLL, so no separate icon file must
+    // be located at runtime.
     IFACEMETHODIMP GetIcon(IShellItemArray*, PWSTR* icon) override
     {
-        // TODO: Provide an icon in a future implementation step. For now, return
-        *icon = nullptr;
-        return E_NOTIMPL;
+        if (!icon) return E_POINTER;
+
+        std::array<WCHAR, 32768> modulePath{};
+        const DWORD length = GetModuleFileNameW(
+            ContextMenuModule,
+            modulePath.data(),
+            static_cast<DWORD>(modulePath.size()));
+
+        if (length == 0 || length == modulePath.size()) {
+            *icon = nullptr;
+            return HRESULT_FROM_WIN32(GetLastError());
+        }
+
+        const std::wstring iconLocation =
+            std::wstring(modulePath.data(), length) + L",-" +
+            std::to_wstring(IDI_CONTEXT_MENU_ICON);
+        return SHStrDupW(iconLocation.c_str(), icon);
     }
 
     // No tooltip is provided yet.
@@ -229,6 +261,7 @@ CoCreatableClass(InternxtPublicLinkShareCommand)
 BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
 {
     if (reason == DLL_PROCESS_ATTACH) {
+        ContextMenuModule = module;
         DisableThreadLibraryCalls(module);
     }
 

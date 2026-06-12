@@ -46,10 +46,12 @@
 
   <ItemGroup>
     <ClCompile Include="src\context_menu.cpp" />
+    <ResourceCompile Include="src\context_menu.rc" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="src\context_menu.def" />
+    <ClInclude Include="src\resource.h" />
   </ItemGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
