@@ -102,6 +102,14 @@
         {
           "from": "packages/context-menu/trust-development-certificate.ps1",
           "to": "context-menu/trust-development-certificate.ps1"
+        },
+        {
+          "from": "packages/context-menu/unregister-context-menu-extension.ps1",
+          "to": "context-menu/unregister-context-menu-extension.ps1"
+        },
+        {
+          "from": "packages/context-menu/untrust-development-certificate.ps1",
+          "to": "context-menu/untrust-development-certificate.ps1"
         }
     ]
   },
