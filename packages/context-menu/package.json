@@ -5,6 +5,7 @@
   "scripts": {
     "compile": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File build.ps1",
     "package": "npm run compile && powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File package.ps1",
+    "package:development": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File package-development.ps1",
     "prepare:test": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File prepare-test.ps1",
     "install:test": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File install-test.ps1",
     "setup:test": "npm run prepare:test && npm run install:test",
