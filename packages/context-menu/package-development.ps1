@@ -7,6 +7,7 @@ $sdkVersion = "10.0.22621.0"
 $signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $dllPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
 $msixPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
+$certificateExportPath = Join-Path $PSScriptRoot "dist\InternxtDevelopment.cer"
 
 if (-not (Test-Path -LiteralPath $signToolPath)) {
   throw "SignTool.exe from Windows SDK $sdkVersion was not found."
@@ -41,6 +42,14 @@ if (-not $certificate) {
     ) `
     -NotAfter (Get-Date).AddYears(1)
 }
+
+# Export only the public certificate. The private signing key remains in the
+# developer's certificate store and is never included in the installer.
+Export-Certificate `
+  -Cert $certificate `
+  -FilePath $certificateExportPath `
+  -Force |
+  Out-Null
 
 # An MSIX manifest publisher must exactly match the subject of the certificate
 # that signs it. The package script writes this value into AppxManifest.xml.

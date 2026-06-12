@@ -88,15 +88,20 @@
       {
         "from": "packages/context-menu/dist",
         "to": "context-menu",
-        "filter": [
-          "internxt_context_menu.dll",
-          "InternxtContextMenu.msix"
-        ]
-      },
-      {
-        "from": "packages/context-menu/register-context-menu-extension.ps1",
-        "to": "context-menu/register-context-menu-extension.ps1"
-      }
+          "filter": [
+            "internxt_context_menu.dll",
+            "InternxtContextMenu.msix",
+            "InternxtDevelopment.cer"
+          ]
+        },
+        {
+          "from": "packages/context-menu/register-context-menu-extension.ps1",
+          "to": "context-menu/register-context-menu-extension.ps1"
+        },
+        {
+          "from": "packages/context-menu/trust-development-certificate.ps1",
+          "to": "context-menu/trust-development-certificate.ps1"
+        }
     ]
   },
   "devDependencies": {
