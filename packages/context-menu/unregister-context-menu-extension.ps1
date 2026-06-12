@@ -34,6 +34,7 @@ if (Test-Path -LiteralPath $certificatePath) {
         "-Thumbprint", $certificate.Thumbprint
       ) `
       -Verb RunAs `
+      -WindowStyle Hidden `
       -Wait `
       -PassThru
 

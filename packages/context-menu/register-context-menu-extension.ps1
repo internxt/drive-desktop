@@ -37,6 +37,7 @@ if (Test-Path -LiteralPath $certificatePath) {
         "-CertificatePath", "`"$certificatePath`""
       ) `
       -Verb RunAs `
+      -WindowStyle Hidden `
       -Wait `
       -PassThru
 
