@@ -73,6 +73,9 @@
       "verifyUpdateCodeSignature": false,
       "artifactName": "Internxt-Setup-${version}.${ext}"
     },
+    "nsis": {
+      "include": "assets/context-menu-installer.nsh"
+    },
     "directories": {
       "buildResources": "assets",
       "output": "build"
