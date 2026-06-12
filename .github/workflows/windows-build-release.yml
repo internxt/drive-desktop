@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
-      - name: Create package
-        run: npm run package
+      - name: Build application and context menu extension
+        run: npm run build:release
 
       - name: Code signing with Software Trust Manager
         uses: digicert/ssm-code-signing@fb61e357690ad6aaa11c372000c37fb74d35c000 #v1.1.1
