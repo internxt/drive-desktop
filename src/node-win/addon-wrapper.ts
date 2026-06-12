@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { Addon as AddonCs } from '@packages/addon-cs';
 import { posix, win32 } from 'node:path';
 import { logger } from '@/apps/shared/logger/logger';
 import { iconPath } from '@/apps/utils/icon';
@@ -14,6 +15,14 @@ export function toWin32Path(path: AbsolutePath) {
   return path.replaceAll(posix.sep, win32.sep) as Win32Path;
 }
 
+/**
+ * v2.6.9 Daniel Jiménez
+ * There is an issue with paths longer than 255 characters and C++ is not able to handle them correctly.
+ * Basically it contains a path check and when it has more than 255 characters then it cannot process
+ * that path. To skip that check we need to include \\?\ at the beginning of the path. However, there
+ * are some functions that do not allow this, like the fetch data, so right now, hydrate is broken for paths
+ * longer than 255 characters.
+ */
 function toWin32DevicePath(path: AbsolutePath) {
   return ('\\\\?\\' + toWin32Path(path)) as Win32DevicePath;
 }
@@ -136,19 +145,18 @@ export class Addon {
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.dehydrateFile(toWin32Path(path));
+    await AddonCs.dehydrateFile(toWin32DevicePath(path));
   }
 
   static async hydrateFile({ path }: { path: AbsolutePath }) {
-    await addon.hydrateFile(toWin32Path(path));
+    await AddonCs.hydrateFile(toWin32DevicePath(path));
   }
 
   static watchPath({ rootPath, onEvent }: { rootPath: AbsolutePath; onEvent: Watcher.OnEvent }) {
-    const result = addon.watchPath(toWin32Path(rootPath), onEvent);
-    return parseAddonZod('watchPath', result);
+    return AddonCs.watchPath(toWin32Path(rootPath), onEvent);
   }
 
   static unwatchPath({ handle }: { handle: object }) {
-    addon.unwatchPath(handle);
+    AddonCs.unwatchPath(handle);
   }
 }
