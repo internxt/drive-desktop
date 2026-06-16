@@ -122,7 +122,6 @@ async function start() {
     const contextMenuPipe = startContextMenuPipe();
     app.once('before-quit', () => {
       logger.debug({ msg: 'App quitting, closing context-menu pipe' });
-      // ? What if we close the app abruptly.
       contextMenuPipe.close();
     });
 
