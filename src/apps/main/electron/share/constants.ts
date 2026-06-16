@@ -9,7 +9,7 @@ export const MAX_MESSAGE_BYTES = 64 * 1024;
 
 export const NOTIFICATION_TITLE = 'Internxt Drive';
 
-// TODO: PB-XXXX - Centralize translations in core/shared i18n.
+// TODO: PB-6496 - Centralize translations in core/shared i18n.
 export const messages: Record<Language, Record<'success' | 'error', string>> = {
   en: {
     success: 'Link copied to clipboard',
