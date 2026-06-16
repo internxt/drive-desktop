@@ -6,8 +6,10 @@ import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { TrayMenuState } from './types';
 import { PATHS } from '../../../core/electron/paths';
+import { onMainI18nLanguageChange } from '../localize/i18n.service';
 
 let tray: TrayMenu | null = null;
+let removeMainI18nListener: (() => void) | null = null;
 
 // v.2.6.0
 // Esteban Galvis Triana
@@ -63,6 +65,12 @@ export function setupTrayIcon() {
   const iconsPath = path.join(PATHS.RESOURCES_PATH, 'tray');
 
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
+
+  if (!removeMainI18nListener) {
+    removeMainI18nListener = onMainI18nLanguageChange(() => {
+      tray?.refreshTranslations();
+    });
+  }
 
   return tray;
 }

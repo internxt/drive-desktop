@@ -15,6 +15,8 @@ declare interface Window {
 
     setConfigKey: typeof import('./config/service').setConfigKey;
 
+    setPreferedLanguage: (language: import('../shared/Locale/Language').Language) => void;
+
     pathChanged(path: string): void;
 
     getGeneralIssues: () => Promise<import('../../shared/issues/AppIssue').AppIssue[]>;

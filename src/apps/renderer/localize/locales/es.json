@@ -433,5 +433,19 @@
     },
     "ctaUpgrade": "Mejorar plan",
     "plan": "{{planName}} -> hasta {{planMaxFileSize}}"
+  },
+  "main": {
+    "tray": {
+      "menu": {
+        "open-app": "Internxt {{version}}",
+        "quit": "Salir"
+      },
+      "tooltip": {
+        "syncing": "Sincronizacion en curso",
+        "idle": "Internxt {{version}}",
+        "alert": "Hay algunos problemas con tu sincronizacion",
+        "loading": "Cargando Internxt..."
+      }
+    }
   }
 }

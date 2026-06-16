@@ -9,6 +9,9 @@ contextBridge.exposeInMainWorld('electron', {
   setConfigKey(key, value) {
     return ipcRenderer.send('set-config-key', { key, value });
   },
+  setPreferedLanguage(language) {
+    return ipcRenderer.send('set-prefered-language', language);
+  },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);

@@ -26,6 +26,7 @@ import { UserNotification } from '../../infra/drive-server/out/dto';
 export interface IElectronAPI {
   getConfigKey<T extends StoredValues>(key: T): Promise<AppStore[T]>;
   setConfigKey<T extends StoredValues>(key: T, value: AppStore[T]): void;
+  setPreferedLanguage(language: AppStore['preferedLanguage']): void;
   listenToConfigKeyChange<T>(key: StoredValues, fn: (value: T) => void): () => void;
   toggleDarkMode(mode: ConfigTheme): Promise<void>;
   getPreferredAppLanguage(): Promise<Array<string>>;
