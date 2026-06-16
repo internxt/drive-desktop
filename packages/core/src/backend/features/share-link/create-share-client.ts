@@ -1,4 +1,5 @@
 import { Share } from '@internxt/sdk/dist/drive';
+
 type Props = {
   apiUrl: string;
   clientName: string;
@@ -6,16 +7,9 @@ type Props = {
   desktopHeader: string;
   token: string;
   workspaceToken?: string;
-}
+};
 
-export function createShareClient({
-  apiUrl,
-  clientName,
-  clientVersion,
-  desktopHeader,
-  token,
-  workspaceToken,
-}: Props) {
+export function createShareClient({ apiUrl, clientName, clientVersion, desktopHeader, token, workspaceToken }: Props) {
   return Share.client(
     apiUrl,
     {
@@ -28,5 +22,4 @@ export function createShareClient({
       workspaceToken,
     },
   );
-
 }

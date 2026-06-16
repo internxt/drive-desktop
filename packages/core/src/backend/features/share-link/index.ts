@@ -1,1 +1,1 @@
-export { createShareClient } from './create-share-client'
+export { createShareClient } from './create-share-client';
