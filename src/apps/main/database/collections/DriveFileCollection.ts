@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
-  private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
+  private repository: Repository<DriveFile> = AppDataSource.getRepository(DriveFile);
 
   async connect(): Promise<{ success: boolean }> {
     return {

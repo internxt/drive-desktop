@@ -48,7 +48,9 @@
     "appId": "com.internxt.drive",
     "asar": true,
     "asarUnpack": [
-      "**\\*.{node,dll}",
+      "**/*.{node,dll}",
+      "**/node_modules/better-sqlite3/**",
+      "**/node_modules/bindings/**",
       "**/node_modules/sharp/**"
     ],
     "files": [
@@ -90,7 +92,28 @@
       "./assets/**",
       "./clamAV/**",
       "./src/apps/nautilus-extension/internxt-virtual-drive.py",
-      "./dist/fuse-daemon"
+      "./dist/fuse-daemon",
+      {
+        "from": "./node_modules/better-sqlite3",
+        "to": "node_modules/better-sqlite3",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "./node_modules/bindings",
+        "to": "node_modules/bindings",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "./node_modules/file-uri-to-path",
+        "to": "node_modules/file-uri-to-path",
+        "filter": [
+          "**/*"
+        ]
+      }
     ]
   },
   "devDependencies": {

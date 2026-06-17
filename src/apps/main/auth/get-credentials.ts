@@ -4,6 +4,10 @@ import ConfigStore from '../config';
 
 const TOKEN_ENCODING = 'latin1';
 
+function emptyCredentials() {
+  return { newToken: '', mnemonic: '' };
+}
+
 export function getCredentials() {
   const newToken = ConfigStore.get('newToken');
   const mnemonic = ConfigStore.get('mnemonic');
@@ -16,11 +20,11 @@ export function getCredentials() {
 
   try {
     if (!safeStorage.isEncryptionAvailable()) {
-      logger.error({
-        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token',
+      logger.warn({
+        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token, falling back to logged-out state',
         tag: 'AUTH',
       });
-      return { newToken, mnemonic };
+      return emptyCredentials();
     }
 
     const decryptedToken = tokenEncrypted ? safeStorage.decryptString(Buffer.from(newToken, TOKEN_ENCODING)) : newToken;
@@ -34,10 +38,12 @@ export function getCredentials() {
       mnemonic: decryptedMnemonic,
     };
   } catch (err) {
-    throw logger.error({
-      msg: '[AUTH] Failed to decrypt token',
+    logger.debug({
+      msg: '[AUTH] Failed to decrypt token, falling back to logged-out state',
       tag: 'AUTH',
       error: err,
     });
+
+    return emptyCredentials();
   }
 }

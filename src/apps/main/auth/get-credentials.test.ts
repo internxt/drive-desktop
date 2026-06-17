@@ -1,14 +1,13 @@
 import { safeStorage } from 'electron';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getCredentials } from './get-credentials';
 import ConfigStore, { AppStore } from '../config';
 import { calls, call, partialSpyOn } from 'tests/vitest/utils.helper';
+import { loggerMock } from 'tests/vitest/mocks.helper';
 
 describe('getCredentials', () => {
   const configGetMock = partialSpyOn(ConfigStore, 'get');
   const safeStorageIsAvailableMock = partialSpyOn(safeStorage, 'isEncryptionAvailable');
   const safeStorageDecryptMock = partialSpyOn(safeStorage, 'decryptString');
-  const loggerErrorMock = partialSpyOn(logger, 'error');
 
   const plainToken = 'plain-token-123';
   const plainMnemonic = 'plain mnemonic words here';
@@ -120,7 +119,7 @@ describe('getCredentials', () => {
   });
 
   describe('when safeStorage is not available', () => {
-    it('should return plaintext values and log error', () => {
+    it('should return empty values and log warning', () => {
       configGetMock.mockImplementation((key: keyof AppStore) => {
         const values: Record<string, unknown> = {
           newToken: encryptedToken,
@@ -136,11 +135,11 @@ describe('getCredentials', () => {
       const result = getCredentials();
 
       expect(result).toMatchObject({
-        newToken: encryptedToken,
-        mnemonic: encryptedMnemonic,
+        newToken: '',
+        mnemonic: '',
       });
-      call(loggerErrorMock).toMatchObject({
-        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token',
+      call(loggerMock.warn).toMatchObject({
+        msg: '[AUTH] Safe Storage was not available when decrypting encrypted token, falling back to logged-out state',
         tag: 'AUTH',
       });
       calls(safeStorageDecryptMock).toHaveLength(0);
@@ -148,7 +147,7 @@ describe('getCredentials', () => {
   });
 
   describe('when decryption fails', () => {
-    it('should throw error and log it', () => {
+    it('should return empty values and log warning', () => {
       configGetMock.mockImplementation((key: keyof AppStore) => {
         const values: Record<string, unknown> = {
           newToken: encryptedToken,
@@ -165,9 +164,14 @@ describe('getCredentials', () => {
         throw decryptError;
       });
 
-      expect(() => getCredentials()).toThrow();
-      call(loggerErrorMock).toMatchObject({
-        msg: '[AUTH] Failed to decrypt token',
+      const result = getCredentials();
+
+      expect(result).toMatchObject({
+        newToken: '',
+        mnemonic: '',
+      });
+      call(loggerMock.debug).toMatchObject({
+        msg: '[AUTH] Failed to decrypt token, falling back to logged-out state',
         tag: 'AUTH',
         error: decryptError,
       });

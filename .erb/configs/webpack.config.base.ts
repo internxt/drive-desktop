@@ -5,13 +5,9 @@
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 
-// Only packages that were in release/app/package.json should be external
-// These are native modules or runtime dependencies that cannot/should not be bundled
-const nativeExternals = [
-  'better-sqlite3',
-  'reflect-metadata',
-  'typeorm',
-];
+// Keep JS deps bundled, but leave native modules as externals.
+// better-sqlite3 relies on runtime native loading (bindings), which breaks when bundled.
+const nativeExternals = ['better-sqlite3'];
 
 const configuration: webpack.Configuration = {
   externals: nativeExternals,
