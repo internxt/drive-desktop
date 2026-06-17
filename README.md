@@ -62,3 +62,21 @@ Start the application:
 ```bash
 npm run start
 ```
+
+### Troubleshooting
+
+#### Electron Builder cannot create symbolic links
+
+When running `npm run package`, Electron Builder may fail while extracting `winCodeSign` with an error similar to:
+
+```text
+ERROR: Cannot create symbolic link: The client does not have a required privilege.
+```
+
+Enable **Developer Mode** in **Windows Settings > System > For developers**. Then clear Electron Builder's incomplete `winCodeSign` cache from PowerShell:
+
+```powershell
+Remove-Item "$env:LOCALAPPDATA\electron-builder\Cache\winCodeSign" -Recurse -Force
+```
+
+Run `npm run package` again. Alternatively, run the terminal as Administrator.
