@@ -16,6 +16,7 @@ import { StoredValues } from './config/service.types';
 import { AppStore } from './config';
 import { ConfigTheme } from '../shared/types/Theme';
 import { UserNotification } from '../../infra/drive-server/out/dto';
+import { ChooseSyncRootResult } from './virtual-root-folder/service';
 
 /** This interface and declare global will replace the preload.d.ts.
  * The thing is that instead of that, we will gradually will be declaring the interface here as we generate tests
@@ -151,7 +152,7 @@ export interface IElectronAPI {
     cancelScan: () => Promise<void>;
   };
   getVirtualDriveRoot(): Promise<string>;
-  chooseSyncRootWithDialog(): Promise<string | null>;
+  chooseSyncRootWithDialog(): Promise<ChooseSyncRootResult>;
   getBackupErrorByFolder(folderId: number): Promise<BackupErrorRecord | undefined>;
   getLastBackupHadIssues(): Promise<boolean>;
   onBackupFatalErrorsChanged(fn: (backupErrors: Array<BackupErrorRecord>) => void): () => void;

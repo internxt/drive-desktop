@@ -6,9 +6,15 @@ import eventBus from '../event-bus';
 import { exec } from 'node:child_process';
 import { ensureFolderExists } from '../../shared/fs/ensure-folder-exists';
 import { PATHS } from '../../../core/electron/paths';
+import { ChooseSyncRootFailureCode, isPermissionError, validateRootFolderChange } from './validate-root-folder-change';
 
 const VIRTUAL_DRIVE_FOLDER = PATHS.ROOT_DRIVE_FOLDER;
 const VIRTUAL_DRIVE_FOLDER_NAME = PATHS.VIRTUAL_DRIVE_FOLDER_NAME;
+
+export type ChooseSyncRootResult =
+  | { status: 'cancelled' }
+  | { status: 'success'; path: string }
+  | { status: 'error'; code: ChooseSyncRootFailureCode };
 
 export async function clearDirectory(pathname: string): Promise<boolean> {
   try {
@@ -57,12 +63,24 @@ export function getRootVirtualDrive(): string {
   return normalizePathname(mountPath);
 }
 
-export async function chooseSyncRootWithDialog(): Promise<string | null> {
+export async function chooseSyncRootWithDialog(): Promise<ChooseSyncRootResult> {
   const previousPath = getRootVirtualDrive();
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 
-  if (!result.canceled) {
+  if (result.canceled) {
+    return { status: 'cancelled' };
+  }
+
+  try {
     const chosenPath = result.filePaths[0];
+    const validationResult = await validateRootFolderChange({
+      pathname: chosenPath,
+      virtualDriveFolderName: VIRTUAL_DRIVE_FOLDER_NAME,
+    });
+
+    if (validationResult) {
+      return validationResult;
+    }
 
     setupRootFolder(chosenPath);
     const nextPath = getRootVirtualDrive();
@@ -71,10 +89,14 @@ export async function chooseSyncRootWithDialog(): Promise<string | null> {
       eventBus.emit('SYNC_ROOT_CHANGED', { oldPath: previousPath, newPath: nextPath });
     }
 
-    return nextPath;
-  }
+    return { status: 'success', path: nextPath };
+  } catch (error) {
+    if (isPermissionError(error)) {
+      return { status: 'error', code: 'INSUFFICIENT_PERMISSION' };
+    }
 
-  return null;
+    return { status: 'error', code: 'UNKNOWN' };
+  }
 }
 
 export async function openVirtualDriveRootFolder() {

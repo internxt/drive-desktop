@@ -161,7 +161,14 @@
       },
       "virtual-drive-root": {
         "label": "Internxt Folder",
-        "action": "Change"
+        "action": "Change",
+        "errors": {
+          "title": "Path change is not allowed",
+          "removable-device": "You cannot mount Internxt Drive inside a removable device.",
+          "other-cloud-provider": "You cannot mount Internxt Drive inside folders owned by other cloud providers.",
+          "insufficient-permission": "You do not have enough permissions to use this path.",
+          "unknown": "The selected path could not be applied."
+        }
       },
       "app-info": {
         "open-logs": "Open logs",

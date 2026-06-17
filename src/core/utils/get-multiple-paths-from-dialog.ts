@@ -3,6 +3,7 @@ import type { OpenDialogOptions } from 'electron';
 import path from 'node:path';
 import { PathTypeChecker } from '../../apps/shared/fs/PathTypeChecker ';
 import type { PathInfo } from '../../context/shared/domain/system-path/PathInfo';
+import { createAbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
 
 type Props = {
   allowFiles?: boolean;
@@ -26,7 +27,7 @@ export async function getMultiplePathsFromDialog({ allowFiles = false }: Props =
       const itemName = path.basename(filePath);
 
       return {
-        path: filePath,
+        path: createAbsolutePath(filePath),
         itemName,
         isDirectory: isFolder,
       };

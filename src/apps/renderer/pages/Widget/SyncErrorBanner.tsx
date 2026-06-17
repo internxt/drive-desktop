@@ -13,7 +13,7 @@ const fatalErrorActionMap: Record<FatalError, { name: string; func: () => void }
     name: 'Select folder',
     func: async () => {
       const result = await window.electron.chooseSyncRootWithDialog();
-      if (result) {
+      if (result.status === 'success') {
         window.electron.startRemoteSync();
       }
     },
@@ -22,7 +22,7 @@ const fatalErrorActionMap: Record<FatalError, { name: string; func: () => void }
     name: 'Change folder',
     func: async () => {
       const result = await window.electron.chooseSyncRootWithDialog();
-      if (result) {
+      if (result.status === 'success') {
         window.electron.startRemoteSync();
       }
     },

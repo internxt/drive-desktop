@@ -161,7 +161,14 @@
       },
       "virtual-drive-root": {
         "label": "Dossier Internxt",
-        "action": "Changer"
+        "action": "Changer",
+        "errors": {
+          "title": "Changement de chemin non autorise",
+          "removable-device": "Vous ne pouvez pas monter Internxt Drive dans un peripherique amovible.",
+          "other-cloud-provider": "Vous ne pouvez pas monter Internxt Drive dans un dossier gere par un autre fournisseur cloud.",
+          "insufficient-permission": "Vous n'avez pas les permissions necessaires pour utiliser ce chemin.",
+          "unknown": "Le chemin selectionne n'a pas pu etre applique."
+        }
       },
       "app-info": {
         "open-logs": "Ouvrir les registres",

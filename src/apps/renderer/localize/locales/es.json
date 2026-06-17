@@ -161,7 +161,14 @@
       },
       "virtual-drive-root": {
         "label": "Directorio de Internxt",
-        "action": "Cambiar"
+        "action": "Cambiar",
+        "errors": {
+          "title": "No se puede cambiar la ruta",
+          "removable-device": "No puedes montar Internxt Drive dentro de un dispositivo extraible.",
+          "other-cloud-provider": "No puedes montar Internxt Drive dentro de carpetas de otros proveedores cloud.",
+          "insufficient-permission": "No tienes permisos suficientes para usar esta ruta.",
+          "unknown": "No se ha podido cambiar la ruta seleccionada."
+        }
       },
       "app-info": {
         "open-logs": "Abrir registros",
