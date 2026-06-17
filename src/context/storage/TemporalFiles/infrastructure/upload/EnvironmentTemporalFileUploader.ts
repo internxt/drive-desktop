@@ -26,36 +26,42 @@ export class EnvironmentTemporalFileUploader {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 
-    return new Promise((resolve, reject) => {
-      const state = this.fn(this.bucket, {
+    const abortHandler = () => {
+      contents.destroy();
+    };
+
+    if (this.abortSignal) {
+      this.abortSignal.addEventListener('abort', abortHandler, { once: true });
+    }
+
+    try {
+      const contentsId = await this.fn(this.bucket, {
         source: contents,
         fileSize: size,
-        finishedCallback: (err: Error | null, contentsId: string) => {
-          this.stopwatch.finish();
-
-          if (err) {
-            this.eventEmitter.emit('error', err);
-            return reject(err);
-          }
-          this.eventEmitter.emit('finish', contentsId);
-          resolve(contentsId);
-        },
+        abortSignal: this.abortSignal,
         progressCallback: (progress: number) => {
           this.eventEmitter.emit('progress', progress);
         },
       });
 
-      if (this.abortSignal) {
-        this.abortSignal.addEventListener(
-          'abort',
-          () => {
-            state.stop();
-            contents.destroy();
-          },
-          { once: true },
-        );
+      this.eventEmitter.emit('finish', contentsId);
+      return contentsId;
+    } catch (error) {
+      const uploadError = error instanceof Error ? error : new Error('Upload failed');
+
+      if (!contents.destroyed) {
+        contents.destroy(uploadError);
       }
-    });
+
+      this.eventEmitter.emit('error', uploadError);
+      throw uploadError;
+    } finally {
+      this.stopwatch.finish();
+
+      if (this.abortSignal) {
+        this.abortSignal.removeEventListener('abort', abortHandler);
+      }
+    }
   }
 
   on(event: keyof UploadEvents, handler: UploadEvents[keyof UploadEvents]): void {

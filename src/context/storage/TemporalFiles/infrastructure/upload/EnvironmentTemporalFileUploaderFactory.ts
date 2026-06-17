@@ -7,7 +7,6 @@ import { EnvironmentTemporalFileUploader } from './EnvironmentTemporalFileUpload
 import { TemporalFileUploaderFactory } from '../../domain/upload/TemporalFileUploaderFactory';
 import { Replaces } from '../../domain/upload/Replaces';
 import { TemporalFile } from '../../domain/TemporalFile';
-import { MULTIPART_UPLOAD_SIZE_THRESHOLD } from '../../../../shared/domain/UploadConstants';
 
 @Service()
 export class EnvironmentTemporalFileUploaderFactory implements TemporalFileUploaderFactory {
@@ -92,11 +91,7 @@ export class EnvironmentTemporalFileUploaderFactory implements TemporalFileUploa
       throw new Error('Readable is needed to upload a file');
     }
 
-    const fn =
-      document.size.value > MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile.bind(this.environment)
-        : this.environment.upload.bind(this.environment);
-
+    const fn = this.environment.upload.bind(this.environment);
     const uploader = new EnvironmentTemporalFileUploader(fn, this.bucket, this._abortController?.signal);
 
     this.registerEvents(uploader);

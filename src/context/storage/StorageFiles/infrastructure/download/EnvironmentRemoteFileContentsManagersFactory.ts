@@ -12,6 +12,6 @@ export class EnvironmentFileDownloaderHandlerFactory implements DownloaderHandle
   ) {}
 
   downloader(): DownloaderHandler {
-    return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);
+    return new EnvironmentContentFileDownloader(this.environment, this.bucket);
   }
 }

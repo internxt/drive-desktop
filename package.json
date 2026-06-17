@@ -220,7 +220,7 @@
   },
   "dependencies": {
     "@internxt/drive-desktop-core": "0.1.7",
-    "@internxt/inxt-js": "^3.2.2",
+    "@internxt/inxt-js": "^3.3.1",
     "@internxt/scan": "^1.0.7",
     "@internxt/sdk": "1.17.4",
     "async": "^3.2.4",

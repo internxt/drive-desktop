@@ -3,34 +3,37 @@ import { Readable } from 'node:stream';
 import { Result } from '../../../context/shared/domain/Result';
 import { UPLOAD_TIMEOUT_MS } from './thumbnail.constants';
 
-export function uploadThumbnailToBucket(
+export async function uploadThumbnailToBucket(
   environment: Environment,
   bucket: string,
   buffer: Buffer,
 ): Promise<Result<string, Error>> {
-  let timeoutId: ReturnType<typeof setTimeout>;
+  const abortController = new AbortController();
+  const timeoutId = setTimeout(() => {
+    abortController.abort();
+  }, UPLOAD_TIMEOUT_MS);
 
-  const upload = new Promise<Result<string, Error>>((resolve) => {
-    environment.upload(bucket, {
+  try {
+    const contentsId = await environment.upload(bucket, {
       source: Readable.from(buffer),
       fileSize: buffer.length,
-      finishedCallback: (err: Error | null, contentsId: string | null) => {
-        clearTimeout(timeoutId);
-        if (err) {
-          return resolve({ error: err });
-        }
-        if (!contentsId) {
-          return resolve({ error: new Error('Upload finished but no contentsId returned') });
-        }
-        resolve({ data: contentsId });
-      },
+      abortSignal: abortController.signal,
       progressCallback: () => {},
     });
-  });
 
-  const timeout = new Promise<Result<string, Error>>((resolve) => {
-    timeoutId = setTimeout(() => resolve({ error: new Error('Thumbnail bucket upload timed out') }), UPLOAD_TIMEOUT_MS);
-  });
+    if (!contentsId) {
+      return { error: new Error('Upload finished but no contentsId returned') };
+    }
 
-  return Promise.race([upload, timeout]);
+    return { data: contentsId };
+  } catch (error: unknown) {
+    if (abortController.signal.aborted) {
+      return { error: new Error('Thumbnail bucket upload timed out') };
+    }
+
+    const uploadError = error instanceof Error ? error : new Error('Thumbnail bucket upload failed');
+    return { error: uploadError };
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
