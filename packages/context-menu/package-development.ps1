@@ -9,6 +9,7 @@ $dllPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
 $hostPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $msixPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
 $certificateExportPath = Join-Path $PSScriptRoot "dist\InternxtDevelopment.cer"
+$certificateExportDirectory = Split-Path $certificateExportPath
 
 if (-not (Test-Path -LiteralPath $signToolPath)) {
   throw "SignTool.exe from Windows SDK $sdkVersion was not found."
@@ -46,6 +47,7 @@ if (-not $certificate) {
 
 # Export only the public certificate. The private signing key remains in the
 # developer's certificate store and is never included in the installer.
+New-Item -ItemType Directory -Path $certificateExportDirectory -Force | Out-Null
 Export-Certificate `
   -Cert $certificate `
   -FilePath $certificateExportPath `
