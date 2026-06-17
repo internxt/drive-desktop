@@ -108,6 +108,10 @@
       "message": "We are having issues mounting your Internxt Drive, try unmounting it manually and starting the app again"
     },
     "banners": {
+      "nautilus-unavailable": {
+        "body": "File explorer not supported. Some features may not work properly.",
+        "action": "Learn more"
+      },
       "update-available": {
         "body": "A new version is available.",
         "action": "Download update"

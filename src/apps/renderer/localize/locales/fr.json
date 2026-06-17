@@ -108,6 +108,10 @@
       "message": "Nous rencontrons des problèmes pour monter votre disque Internxt. Essayez de le démonter manuellement et de relancer l'application. "
     },
     "banners": {
+      "nautilus-unavailable": {
+        "body": "Explorateur de fichiers non pris en charge. Certaines fonctionnalités peuvent ne pas fonctionner correctement.",
+        "action": "En savoir plus"
+      },
       "update-available": {
         "body": "Une nouvelle version est disponible.",
         "action": "Télécharger la mise à jour"

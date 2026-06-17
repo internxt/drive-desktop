@@ -11,4 +11,6 @@ export type ThumbnailDto = components['schemas']['ThumbnailDto'];
 export type GetFolderContentDto = components['schemas']['GetFolderContentDto'];
 
 export type UserFileSizeLimit = components['schemas']['GetFileLimitsDto']['maxUploadFileSize'];
+
+export type CreateSharingPayload = components['schemas']['CreateSharingDto'];
 export type UserNotification = components['schemas']['NotificationWithStatusDto'];

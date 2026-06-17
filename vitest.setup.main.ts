@@ -79,6 +79,7 @@ vi.mock('axios', () => {
       create: vi.fn(() => mockAxiosInstance),
     },
     create: vi.fn(() => mockAxiosInstance),
+    isAxiosError: vi.fn((error) => Boolean(error && typeof error === 'object' && 'isAxiosError' in error)),
   };
 });
 

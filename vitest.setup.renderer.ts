@@ -12,14 +12,7 @@ vi.mock('@internxt/drive-desktop-core/build/backend', () => ({
     debug: vi.fn(),
   },
 }));
-// Type-safe deep mock creator that recursively mocks all properties
-type DeepMock<T> = T extends (...args: any[]) => any
-  ? ReturnType<typeof vi.fn>
-  : T extends object
-  ? { [K in keyof T]: DeepMock<T[K]> }
-  : T;
-
-function createTypedMock<T extends object>(): DeepMock<T> {
+function createTypedMock<T extends object>() {
   return new Proxy({} as any, {
     get: (target: any, prop: string | symbol) => {
       if (typeof prop === 'symbol' || prop === 'then' || prop === 'catch') {
@@ -50,7 +43,7 @@ function createTypedMock<T extends object>(): DeepMock<T> {
       }
       return target[prop];
     },
-  }) as DeepMock<T>;
+  }) as T;
 }
 
 // Setup global window.electron mock with type safety

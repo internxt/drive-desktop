@@ -1,9 +1,9 @@
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import fs from 'fs/promises';
-import os from 'os';
-import path from 'path';
-import { doesFileExist } from '../../shared/fs/fileExists';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { doesFileExist } from '../../../apps/shared/fs/fileExists';
 
 const name = 'internxt-virtual-drive.py';
 

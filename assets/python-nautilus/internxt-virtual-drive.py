@@ -162,13 +162,13 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
           active_items.append(clear)
 
-        if len(remote_files) > 0:
-          download = Nautilus.MenuItem(
-                name="InternxtVirtualDrive::DOWNLOAD" + group,
-                label="Make Available Offline",
+        if len(files) == 1 and len(remote_files) == 1:
+          copy_link = Nautilus.MenuItem(
+                name="InternxtVirtualDrive::COPY_LINK" + group,
+                label="Copy Internxt Link",
             )
-          download.connect("activate", self._make_locally_available, remote_files)
-          active_items.append(download)
+          copy_link.connect("activate", self._copy_internxt_link, remote_files)
+          active_items.append(copy_link)
 
         return active_items
 
@@ -198,6 +198,31 @@ class InternxtVirtualDrive(GObject.Object, Nautilus.MenuProvider, Nautilus.Colum
 
             # if (response.status_code == 202):
             #   self._setItemStatus(file, 'on_local')
+
+    def _copy_internxt_link(self, menu, files):
+      base64_encoded = self._encode_file_path(files[0])
+
+      url = base_url + 'copy-link/' + base64_encoded
+
+      try:
+        response = requests.post(url)
+
+        if response.status_code != 202:
+          print(response.status_code)
+          print(response.text)
+          return
+
+        data = response.json()
+        link = data.get('link')
+
+        if not link:
+          print('Copy link failed: missing link in response')
+          return
+
+        self.display.get_clipboard().set(link)
+        print('link copied')
+      except Exception as error:
+        print('Copy link failed:', error)
 
     def _make_remote_only(self, menu, files):
         for file in files:

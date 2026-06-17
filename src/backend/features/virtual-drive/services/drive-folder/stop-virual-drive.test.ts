@@ -1,6 +1,7 @@
 import type { Container } from 'diod';
 import * as daemonServiceModule from '../daemon.service';
 import * as serverServiceModule from '../server.service';
+import * as hydrationApiServiceModule from '../hydration-api.service';
 import * as hydrationStateModule from '../../../fuse/on-read/download-cache/hydration-state';
 import { stopVirtualDrive } from './stop-virual-drive';
 import { partialSpyOn, calls } from '../../../../../../tests/vitest/utils.helper';
@@ -8,6 +9,7 @@ import { partialSpyOn, calls } from '../../../../../../tests/vitest/utils.helper
 describe('stop-virual-drive', () => {
   const stopDaemon = partialSpyOn(daemonServiceModule, 'stopDaemon');
   const stopFuseDaemonServer = partialSpyOn(serverServiceModule, 'stopFuseDaemonServer');
+  const stopHydrationApi = partialSpyOn(hydrationApiServiceModule, 'stopHydrationApi');
   const abortAllHydrations = partialSpyOn(hydrationStateModule, 'abortAllHydrations');
   const clearHydrationState = partialSpyOn(hydrationStateModule, 'clearHydrationState');
 
@@ -22,6 +24,7 @@ describe('stop-virual-drive', () => {
   beforeEach(() => {
     stopDaemon.mockResolvedValue(undefined);
     stopFuseDaemonServer.mockResolvedValue(undefined);
+    stopHydrationApi.mockResolvedValue(undefined);
     deleteAll.mockResolvedValue(undefined);
   });
 
@@ -43,6 +46,7 @@ describe('stop-virual-drive', () => {
 
     // Then
     calls(stopDaemon).toHaveLength(1);
+    calls(stopHydrationApi).toHaveLength(1);
     calls(stopFuseDaemonServer).toHaveLength(1);
     expect(stopDaemon.mock.invocationCallOrder[0]).toBeLessThan(stopFuseDaemonServer.mock.invocationCallOrder[0]);
   });

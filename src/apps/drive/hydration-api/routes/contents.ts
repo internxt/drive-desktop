@@ -18,5 +18,8 @@ export function buildHydrationRouter(container: Container): Router {
   router.delete('/files/:path', controllers.removeFile);
   router.post('/files/:path', controllers.downloadFile);
 
+  // link
+  router.post('/copy-link/:path', controllers.copyLink);
+
   return router;
 }

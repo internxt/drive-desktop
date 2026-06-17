@@ -1,7 +1,7 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { deleteNautilusExtensionFile } from './service';
 
-import configStore, { defaults } from '../config';
+import configStore, { defaults } from '../../../apps/main/config';
 
 export async function uninstallNautilusExtension() {
   try {

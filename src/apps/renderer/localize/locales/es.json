@@ -108,6 +108,10 @@
       "message": "Estamos teniendo problemas al montar tu unidad Internxt. Intenta desmontarla manualmente y luego reiniciar la aplicación."
     },
     "banners": {
+      "nautilus-unavailable": {
+        "body": "Explorador de archivos no compatible. Algunas funciones pueden no funcionar correctamente.",
+        "action": "Más información"
+      },
       "update-available": {
         "body": "Hay una nueva versión disponible.",
         "action": "Descargar actualización"

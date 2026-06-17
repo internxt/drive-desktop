@@ -5,6 +5,7 @@ import * as stopVirtualDriveModule from './stop-virual-drive';
 import * as remountVirtualDriveModule from './remount-virtual-drive';
 import * as daemonServiceModule from '../daemon.service';
 import * as serverServiceModule from '../server.service';
+import * as hydrationApiServiceModule from '../hydration-api.service';
 import * as hydrationStateModule from '../../../fuse/on-read/download-cache/hydration-state';
 import * as virtualRootFolderModule from '../../../../../apps/main/virtual-root-folder/service';
 import * as updateVirtualDriveContainerModule from '../update-virtual-drive-container.service';
@@ -16,6 +17,7 @@ describe('virtual-drive.service', () => {
   const remountVirtualDrive = partialSpyOn(remountVirtualDriveModule, 'remountVirtualDrive');
   const startDaemon = partialSpyOn(daemonServiceModule, 'startDaemon');
   const startFuseDaemonServer = partialSpyOn(serverServiceModule, 'startFuseDaemonServer');
+  const startHydrationApi = partialSpyOn(hydrationApiServiceModule, 'startHydrationApi');
   const clearHydrationState = partialSpyOn(hydrationStateModule, 'clearHydrationState');
   const getRootVirtualDrive = partialSpyOn(virtualRootFolderModule, 'getRootVirtualDrive');
   const updateVirtualDriveContainer = partialSpyOn(updateVirtualDriveContainerModule, 'updateVirtualDriveContainer');
@@ -32,6 +34,7 @@ describe('virtual-drive.service', () => {
     remountVirtualDrive.mockResolvedValue(undefined);
     startDaemon.mockResolvedValue(undefined);
     startFuseDaemonServer.mockResolvedValue(undefined);
+    startHydrationApi.mockResolvedValue(undefined);
     getRootVirtualDrive.mockReturnValue('/mock/root/');
     getUser.mockReturnValue({} as never);
     updateVirtualDriveContainer.mockResolvedValue({});
@@ -40,13 +43,14 @@ describe('virtual-drive.service', () => {
   });
 
   describe('startVirtualDrive', () => {
-    it('builds container and starts server and daemon', async () => {
+    it('builds container and starts server, hydration api and daemon', async () => {
       // When
       await startVirtualDrive();
 
       // Then
       calls(buildContainer).toHaveLength(1);
       calls(startFuseDaemonServer).toHaveLength(1);
+      calls(startHydrationApi).toHaveLength(1);
       calls(startDaemon).toHaveLength(1);
     });
 

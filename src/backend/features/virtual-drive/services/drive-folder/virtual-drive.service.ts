@@ -9,6 +9,7 @@ import { clearHydrationState } from '../../../fuse/on-read/download-cache/hydrat
 import { StorageFilesRepository } from '../../../../../context/storage/StorageFiles/domain/StorageFilesRepository';
 import { remountVirtualDrive } from './remount-virtual-drive';
 import { stopVirtualDrive } from './stop-virual-drive';
+import { startHydrationApi } from '../hydration-api.service';
 
 let container: Container | undefined;
 let stopInFlight: Promise<void> | undefined;
@@ -29,6 +30,7 @@ export async function startVirtualDrive() {
   clearHydrationState();
   await container.get(StorageFilesRepository).deleteAll();
   await startFuseDaemonServer(container);
+  await startHydrationApi({ container });
   await startDaemon(localRoot);
 }
 

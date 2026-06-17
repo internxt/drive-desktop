@@ -8,6 +8,7 @@ import { StorageFileIsAvailableOffline } from '../../../../context/storage/Stora
 import { Optional } from '../../../../shared/types/Optional';
 import { MakeFolderAvaliableOffline } from '../../../../context/storage/StorageFolders/application/offline/MakeFolderAvaliableOffline';
 import { StorageFolderDeleter } from '../../../../context/storage/StorageFolders/application/delete/StorageFolderDeleter';
+import { generateLink } from '../../../../backend/features/nautilus-extension/create-sharing-link/generate-link';
 
 export function buildContentsController(container: Container) {
   async function isFileLocallyAvailable(path: string): Promise<Optional<boolean>> {
@@ -141,7 +142,24 @@ export function buildContentsController(container: Container) {
     }
   };
 
+  async function copyLink(req: Request, res: Response, next: NextFunction) {
+    try {
+      const decodedBuffer = Buffer.from(req.params.path, 'base64');
+
+      const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
+
+      const { error, data: link } = await generateLink({ path });
+      if (error) return res.status(500).json({ error: 'Error generating sharing link' });
+
+      return res.status(202).json({ path, link });
+    } catch (error) {
+      next(error);
+      return;
+    }
+  }
+
   return {
+    copyLink,
     downloadFile,
     removeFile,
     get,
