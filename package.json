@@ -10,11 +10,20 @@
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.prod.ts",
     "build:preload": "npx esbuild src/apps/main/preload.ts --outfile=src/apps/main/preload.js --bundle --platform=node --format=cjs --external:electron --external:electron-log --external:path --external:@internxt",
+    "trust:test-certificate:context-menu": "npm.cmd --prefix packages/context-menu run trust:test-certificate",
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.dev.dll.ts",
-    "package": "rimraf dist && npm run build && electron-builder build --publish never",
+    "package": "rimraf dist && npm run build && npm run package:context-menu:development && electron-builder build --publish never",
+    "build:release": "rimraf dist && npm run build && npm run compile:context-menu",
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:e2e": "npm run init:ci && npm run build && npm run rebuild:electron",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run rebuild:electron",
+    "========== Context Menu ==========": "",
+    "compile:context-menu": "npm.cmd --prefix packages/context-menu run compile",
+    "package:context-menu": "npm.cmd --prefix packages/context-menu run package",
+    "package:context-menu:development": "npm.cmd --prefix packages/context-menu run package:development",
+    "package:context-menu:production": "npm.cmd --prefix packages/context-menu run package:production",
+    "prepare:test:context-menu": "npm.cmd --prefix packages/context-menu run prepare:test",
+    "setup:test:context-menu": "npm.cmd --prefix packages/context-menu run setup:test",
     "========== Code style ==========": "",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 261",
     "lint:fix": "npm run lint -- --fix",
@@ -41,7 +50,7 @@
     "rebuild:electron": "electron-rebuild",
     "========== Other ==========": "",
     "clamav": "powershell release/clamAV.ps1",
-    "prepare": "husky install",
+    "prepare": "husky install && npm.cmd --prefix packages/context-menu run ensure:test",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "swagger_prod": "openapi-typescript https://drive-server.internxt.com/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "schema": "sqlite3 %APPDATA%/internxt-drive/internxt_desktop.db .fullschema > src/infra/sqlite/schema.sql"
@@ -67,6 +76,9 @@
       "verifyUpdateCodeSignature": false,
       "artifactName": "Internxt-Setup-${version}.${ext}"
     },
+    "nsis": {
+      "include": "assets/context-menu-installer.nsh"
+    },
     "directories": {
       "buildResources": "assets",
       "output": "build"
@@ -74,7 +86,33 @@
     "extraResources": [
       "./assets/**",
       "./clamAV/**",
-      "./migrations/**"
+      "./migrations/**",
+      {
+        "from": "packages/context-menu/dist",
+        "to": "context-menu",
+        "filter": [
+          "internxt_context_menu.dll",
+          "internxt_context_menu_host.exe",
+          "InternxtContextMenu.msix",
+          "InternxtDevelopment.cer"
+        ]
+      },
+      {
+        "from": "packages/context-menu/register-context-menu-extension.ps1",
+        "to": "context-menu/register-context-menu-extension.ps1"
+      },
+      {
+        "from": "packages/context-menu/trust-development-certificate.ps1",
+        "to": "context-menu/trust-development-certificate.ps1"
+      },
+      {
+        "from": "packages/context-menu/unregister-context-menu-extension.ps1",
+        "to": "context-menu/unregister-context-menu-extension.ps1"
+      },
+      {
+        "from": "packages/context-menu/untrust-development-certificate.ps1",
+        "to": "context-menu/untrust-development-certificate.ps1"
+      }
     ]
   },
   "devDependencies": {
@@ -163,7 +201,9 @@
     "@iconscout/react-unicons": "^2.2.5",
     "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-0.1.14.tgz",
     "@internxt/inxt-js": "3.2.2",
+    "@internxt/lib": "^1.4.2",
     "@internxt/scan": "1.0.7",
+    "@internxt/sdk": "^1.17.5",
     "@packages/addon": "file:packages/addon/packages-addon-1.0.0.tgz",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",

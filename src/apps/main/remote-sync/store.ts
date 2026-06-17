@@ -12,3 +12,10 @@ export type WorkerConfig = {
 export const workers = new Map<string, WorkerConfig>();
 
 export const FETCH_LIMIT_1000 = 1000;
+
+export function getSyncContexts(): Array<SyncContext> {
+  if (workers.size === 0) {
+    return [];
+  }
+  return Array.from(workers.values(), (worker) => worker.ctx);
+}

@@ -24,6 +24,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
 import { processDeeplink } from './electron/deeplink/process-deeplink';
+import { startContextMenuPipe } from './electron/share/context-menu-pipe';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupQuitHandlers } from './quit';
@@ -117,6 +118,12 @@ async function start() {
 
     await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
+
+    const contextMenuPipe = startContextMenuPipe();
+    app.once('before-quit', () => {
+      logger.debug({ msg: 'App quitting, closing context-menu pipe' });
+      contextMenuPipe.close();
+    });
 
     measureHealth();
     runMigrations();
