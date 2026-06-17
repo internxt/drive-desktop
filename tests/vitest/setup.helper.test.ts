@@ -99,6 +99,9 @@ vi.mock(import('electron'), () => {
       isDestroyed: vi.fn(),
     })),
     Notification: vi.fn(),
+    clipboard: {
+      writeText: vi.fn(),
+    },
     ipcRenderer: {
       on: vi.fn(),
       send: vi.fn(),

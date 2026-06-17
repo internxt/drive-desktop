@@ -1,5 +1,5 @@
 {
-  "entry": ["src/backend/index.ts", "src/frontend/index.ts"],
+  "entry": ["src/backend/index.ts", "src/backend/features/share-link/index.ts", "src/frontend/index.ts"],
   "exclude": ["devDependencies"],
   "ignore": ["**/*.test.{ts,tsx}", "src/frontend/core/i18n/**/*", "src/backend/core/sentry/sentry.ts"],
   "project": ["src/**/*.{ts,tsx}"],

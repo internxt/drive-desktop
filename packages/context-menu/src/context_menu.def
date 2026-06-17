@@ -1,0 +1,5 @@
+LIBRARY "internxt_context_menu"
+
+EXPORTS
+    DllCanUnloadNow PRIVATE
+    DllGetClassObject PRIVATE
