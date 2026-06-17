@@ -4,8 +4,8 @@ import { obtainToken } from '@/apps/main/auth/service';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { createPublicShareLink } from './create-public-share-link';
 import { INTERNXT_VERSION } from '../../../../core/utils/utils';
+import { createPublicShareLink } from './create-public-share-link';
 
 vi.mock(import('@internxt/drive-desktop-core/build/backend/features/share-link'));
 vi.mock(import('@internxt/lib'));
