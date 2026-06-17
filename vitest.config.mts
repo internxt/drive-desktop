@@ -9,9 +9,10 @@ export default mergeConfig(
     test: {
       coverage: {
         include: ['src/**/*.{js,ts,tsx}'],
+        exclude: ['**/performance-test/**'],
         reportsDirectory: './coverage/unit',
       },
-      exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts'],
+      exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts', '**/performance-test/**'],
       include: ['src/**/*.test.ts'],
     },
   }),
