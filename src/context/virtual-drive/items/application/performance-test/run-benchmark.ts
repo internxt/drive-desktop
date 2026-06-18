@@ -1,13 +1,27 @@
 import pLimit from 'p-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { traverse } from '../Traverser';
-import { createDataset, TraverserTestDataset } from './create-datasets';
-import { snapshot } from './performance-metrics';
+import { createTree, TreeOptions, TraverserTestDataset } from './create-datasets';
+import { MemorySnapshot, snapshot } from './performance-metrics';
 
-export const TRAVERSER_PERF_FOLDERS = 10_000;
-export const TRAVERSER_PERF_FILES = 130_000;
+export const CUSTOMER_SCALE_TREE: TreeOptions = {
+  folderCount: 18_602,
+  fileCount: 205_958,
+  maxDepth: 17,
+  hotFolderCount: 3,
+  filesPerHotFolder: 30_000,
+};
 
-export async function runBenchmark(label: string, dataset: TraverserTestDataset) {
+export async function generateDatasetAndRunBenchmakr(options: TreeOptions = CUSTOMER_SCALE_TREE) {
+  collectGarbage();
+  const beforeGenerate = snapshot('before dataset generation');
+  const dataset = createTree(options);
+  const afterGenerate = snapshot('after dataset generation');
+
+  return await runBenchmark(dataset, [beforeGenerate, afterGenerate]);
+}
+
+async function runBenchmark(dataset: TraverserTestDataset, initialMemory: MemorySnapshot[]) {
   const { rootUuid, files, folders } = dataset;
   const ctx = {
     rootPath: abs('/drive'),
@@ -19,40 +33,33 @@ export async function runBenchmark(label: string, dataset: TraverserTestDataset)
     },
   };
 
-  globalThis.gc?.();
-  const beforeTraverse = snapshot('before traverse');
+  collectGarbage();
+  const beforeTraverse = snapshot('before traversal');
   const start = performance.now();
 
   await traverse({
     ctx: ctx as never,
     database: { files, folders },
-    fileExplorer: {
-      files: new Map(),
-      folders: new Map(),
-    },
+    fileExplorer: { files: new Map(), folders: new Map() },
     currentFolder: { absolutePath: abs('/drive'), uuid: rootUuid },
     isFirstExecution: true,
     limit: pLimit(20),
   });
 
-  globalThis.gc?.();
-
-  const afterTraverse = snapshot('after traverse');
   const durationMs = Math.round(performance.now() - start);
+  const afterTraverse = snapshot('after traversal');
+  collectGarbage();
+  const afterGc = snapshot('after explicit GC');
+  const memory = [...initialMemory, beforeTraverse, afterTraverse, afterGc];
 
-  console.log(`Test for ${label} for files: ${files.length} folders: ${folders.length}`);
-  console.table([beforeTraverse, afterTraverse]);
-  console.log(`Result: durationMs: ${durationMs}`);
+  console.log(`\n Traverser performance benchmark`);
+  console.log(`Items: ${files.length.toLocaleString()} files, ${folders.length.toLocaleString()} folders`);
+  console.table(memory);
+  console.log(`Traversal duration: ${durationMs.toLocaleString()} ms`);
+
+  return { durationMs, files: files.length, folders: folders.length, memory };
 }
 
-export async function runScenario(mode: 'broad' | 'deep') {
+function collectGarbage() {
   globalThis.gc?.();
-  const beforeGenerate = snapshot('before generate');
-  const dataset = createDataset({ folderCount: TRAVERSER_PERF_FOLDERS, fileCount: TRAVERSER_PERF_FILES, mode });
-  const afterGenerate = snapshot('after generate');
-
-  console.log(`Generating ${mode} dataset for files: ${TRAVERSER_PERF_FILES} folders: ${TRAVERSER_PERF_FOLDERS}`);
-  console.table([beforeGenerate, afterGenerate]);
-
-  await runBenchmark(`${mode} result`, dataset);
 }

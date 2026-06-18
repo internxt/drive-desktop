@@ -1,3 +1,5 @@
+export type MemorySnapshot = ReturnType<typeof snapshot>;
+
 export function mb(bytes: number) {
   return Math.round((bytes / 1024 / 1024) * 10) / 10;
 }
@@ -9,6 +11,7 @@ export function snapshot(label: string) {
     label,
     heapUsedMB: mb(memory.heapUsed),
     heapTotalMB: mb(memory.heapTotal),
-    processMemoryMB: mb(memory.rss),
+    rssMB: mb(memory.rss),
+    externalMB: mb(memory.external),
   };
 }
