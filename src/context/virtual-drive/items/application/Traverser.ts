@@ -19,39 +19,51 @@ type Props = {
   isFirstExecution: boolean;
   limit: LimitFunction;
 };
-
+type StackItem =
+  | { folder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>; requiresPlaceholderUpdate: false }
+  | { folder: ExtendedDriveFolder; requiresPlaceholderUpdate: true };
 export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
-  if (ctx.abortController.signal.aborted) return;
+  const stack: StackItem[] = [{ folder: currentFolder, requiresPlaceholderUpdate: false }];
 
-  const filesInThisFolder = database.files.filter((file) => file.parentUuid === currentFolder.uuid);
-  const foldersInThisFolder = database.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
+  while (stack.length > 0) {
+    if (ctx.abortController.signal.aborted) return;
 
-  await Promise.all(
-    filesInThisFolder.map((file) =>
-      limit(async () => {
-        const absolutePath = join(currentFolder.absolutePath, file.name);
-        const remote = { ...file, absolutePath };
+    const item = stack.pop();
+    if (!item) return;
 
-        if (file.status === 'DELETED' || file.status === 'TRASHED') {
-          await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
-        } else {
-          await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
-        }
-      }),
-    ),
-  );
-
-  for (const folder of foldersInThisFolder) {
-    const absolutePath = join(currentFolder.absolutePath, folder.name);
-    const remote = { ...folder, absolutePath };
-
-    if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
-      await deleteItemPlaceholder({ ctx, type: 'folder', remote, locals: fileExplorer.folders });
-    } else {
-      const success = await updateFolderPlaceholder({ ctx, remote, folders: fileExplorer.folders });
-      if (success) {
-        await traverse({ ctx, database, fileExplorer, currentFolder: remote, isFirstExecution, limit });
+    if (item.requiresPlaceholderUpdate) {
+      if (item.folder.status === 'DELETED' || item.folder.status === 'TRASHED') {
+        await deleteItemPlaceholder({ ctx, type: 'folder', remote: item.folder, locals: fileExplorer.folders });
+        continue;
       }
+
+      const success = await updateFolderPlaceholder({ ctx, remote: item.folder, folders: fileExplorer.folders });
+      if (!success || ctx.abortController.signal.aborted) continue;
+    }
+
+    const { folder } = item;
+    const filesInThisFolder = database.files.filter((file) => file.parentUuid === folder.uuid);
+    const foldersInThisFolder = database.folders.filter((child) => child.parentUuid === folder.uuid);
+
+    await Promise.all(
+      filesInThisFolder.map((file) =>
+        limit(async () => {
+          const absolutePath = join(folder.absolutePath, file.name);
+          const remote = { ...file, absolutePath };
+
+          if (file.status === 'DELETED' || file.status === 'TRASHED') {
+            await deleteItemPlaceholder({ ctx, type: 'file', remote, locals: fileExplorer.files });
+          } else {
+            await updateFilePlaceholder({ ctx, remote, files: fileExplorer.files, isFirstExecution });
+          }
+        }),
+      ),
+    );
+
+    for (let index = foldersInThisFolder.length - 1; index >= 0; index -= 1) {
+      const child = foldersInThisFolder[index];
+      const absolutePath = join(folder.absolutePath, child.name);
+      stack.push({ folder: { ...child, absolutePath }, requiresPlaceholderUpdate: true });
     }
   }
 }
