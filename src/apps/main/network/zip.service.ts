@@ -7,7 +7,7 @@ type FlatFolderZipOpts = {
   progress?: (loadedBytes: number) => void;
 };
 
-type AddFileToZipFunction = (name: string, source: ReadableStream<Uint8Array>) => void;
+type AddFileToZipFunction = (name: string, source: ReadableStream<Uint8Array>) => Promise<void>;
 
 type AddFolderToZipFunction = (name: string) => void;
 
@@ -21,6 +21,7 @@ export interface ZipStream {
 export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['progress']): ZipStream {
   const zip = new Zip();
   let passthroughController: ReadableStreamDefaultController<Uint8Array> | null = null;
+  const pendingFiles = new Set<Promise<void>>();
 
   const passthrough = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -58,27 +59,35 @@ export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['prog
 
   // todo: abort with .terminate()
   return {
-    addFile: (name: string, source: ReadableStream<Uint8Array>): void => {
+    addFile: (name: string, source: ReadableStream<Uint8Array>) => {
       const writer = new AsyncZipDeflate(name, {
         level: 0,
       });
 
       zip.add(writer);
 
-      source.pipeTo(
-        new WritableStream({
-          write(chunk) {
-            processedSize += chunk.length;
+      const pendingFile = source
+        .pipeTo(
+          new WritableStream({
+            write(chunk) {
+              processedSize += chunk.length;
 
-            progress?.(processedSize);
+              progress?.(processedSize);
 
-            writer.push(chunk, false);
-          },
-          close() {
-            writer.push(new Uint8Array(0), true);
-          },
-        }),
-      );
+              writer.push(chunk, false);
+            },
+            close() {
+              writer.push(new Uint8Array(0), true);
+            },
+          }),
+        )
+        .finally(() => {
+          pendingFiles.delete(pendingFile);
+        });
+
+      pendingFiles.add(pendingFile);
+
+      return pendingFile;
     },
     addFolder: (name: string): void => {
       const writer = new AsyncZipDeflate(name + '/', {
@@ -88,7 +97,8 @@ export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['prog
       writer.push(new Uint8Array(0), true);
     },
     stream: passthrough,
-    end: () => {
+    end: async () => {
+      await Promise.all(pendingFiles);
       zip.end();
     },
   };
@@ -114,7 +124,7 @@ export class FlatFolderZip {
   addFile(name: string, source: ReadableStream<Uint8Array>): void {
     if (this.abortController?.signal.aborted) return;
 
-    this.zip.addFile(name, source);
+    void this.zip.addFile(name, source);
   }
 
   addFolder(name: string): void {
@@ -126,7 +136,7 @@ export class FlatFolderZip {
   async close(): Promise<void> {
     if (this.abortController?.signal.aborted) return;
 
-    this.zip.end();
+    await this.zip.end();
 
     await this.finished;
   }

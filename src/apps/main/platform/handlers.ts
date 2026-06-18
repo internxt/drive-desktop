@@ -1,12 +1,5 @@
-import { ipcMain } from 'electron';
-import { exec } from 'child_process';
+import { ipcMain, shell } from 'electron';
 
 ipcMain.handle('open-url', (_, url: string) => {
-  return new Promise<void>((resolve, reject) => {
-    exec(`xdg-open ${url} &`, (error) => {
-      if (error) reject(error);
-
-      resolve();
-    });
-  });
+  return shell.openExternal(url);
 });

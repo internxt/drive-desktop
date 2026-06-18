@@ -42,6 +42,20 @@ export interface IDownloadParams {
   };
 }
 
+function createEmptyReadableStream() {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.close();
+    },
+  });
+}
+
+function isEmptyBackupFileWithoutFileId(file: { size: number | string; fileId: string | null }) {
+  const fileSize = typeof file.size === 'string' ? Number(file.size) : file.size;
+
+  return fileSize === 0 && !file.fileId;
+}
+
 function convertToWritableStream(writeStream: fs.WriteStream): WritableStream<Uint8Array> {
   return new WritableStream<Uint8Array>({
     async write(chunk) {
@@ -322,10 +336,23 @@ export async function downloadFolderAsZip(
         type: file.type,
       });
 
+      if (isEmptyBackupFileWithoutFileId(file)) {
+        logger.warn({
+          tag: 'BACKUPS',
+          msg: 'Skipping remote fetch for empty backup file without fileId',
+          fileId: file.fileId,
+          bucketId: file.bucket,
+          fileName: displayFilename,
+        });
+
+        zip.addFile(folderPath + '/' + displayFilename, createEmptyReadableStream());
+        continue;
+      }
+
       const fileStreamPromise = downloadFile({
         networkApiUrl,
         bucketId: file.bucket,
-        fileId: file.fileId,
+        fileId: file.fileId ?? '',
         creds: {
           pass: bridgePass,
           user: bridgeUser,
