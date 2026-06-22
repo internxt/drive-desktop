@@ -384,7 +384,7 @@ export const en = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'Cannot register virtual drive',
-      FILE_SIZE_TOO_BIG: 'File size too big (max 40GB)',
+      FILE_SIZE_TOO_BIG: 'File size too big (max 100GB)',
       FOLDER_ACCESS_DENIED: 'The app does not have permission to access this folder',
       INVALID_WINDOWS_NAME: String.raw`Windows does not allow names that include \ / : * ? " < > | or start/end with spaces`,
       NETWORK_CONNECTIVITY_ERROR: 'Network connectivity error.',

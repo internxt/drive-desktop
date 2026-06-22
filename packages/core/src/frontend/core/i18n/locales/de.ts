@@ -386,7 +386,7 @@ export const de: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'Virtuelles Laufwerk kann nicht registriert werden',
-      FILE_SIZE_TOO_BIG: 'Datei zu groß (max. 40 GB)',
+      FILE_SIZE_TOO_BIG: 'Datei zu groß (max. 100 GB)',
       FOLDER_ACCESS_DENIED: 'Die App hat keine Berechtigung, auf diesen Ordner zuzugreifen',
       INVALID_WINDOWS_NAME: String.raw`Windows erlaubt keine Namen, die \ / : * ? " < > | enthalten oder mit Leerzeichen beginnen/enden`,
       NETWORK_CONNECTIVITY_ERROR: 'Netzwerkverbindungsfehler.',
