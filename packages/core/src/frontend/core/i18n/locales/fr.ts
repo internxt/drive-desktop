@@ -389,7 +389,7 @@ export const fr: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'Le lecteur virtuel ne peut pas être enregistré',
-      FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 100GB)',
+      FILE_SIZE_TOO_BIG: 'Le fichier est trop grand',
       FOLDER_ACCESS_DENIED: "L'app n'a pas le droit d'accéder à cette dossier",
       INVALID_WINDOWS_NAME: String.raw`Windows ne permet pas les noms contenant \ / : * ? " < > | ou commençant/terminant par des espaces`,
       NETWORK_CONNECTIVITY_ERROR: 'Erreur de connectivité réseau',

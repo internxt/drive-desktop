@@ -388,7 +388,7 @@ export const es: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'No se puede registrar el drive virtual',
-      FILE_SIZE_TOO_BIG: 'Archivo es demasiado grande (máximo 100GB)',
+      FILE_SIZE_TOO_BIG: 'Archivo es demasiado grande',
       FOLDER_ACCESS_DENIED: 'La app no tiene permiso para acceder a esta carpeta',
       INVALID_WINDOWS_NAME: String.raw`Windows no permite nombres que incluyan \ / : * ? " < > | o que comiencen/terminen con espacios`,
       NETWORK_CONNECTIVITY_ERROR: 'Error de conectividad de red',
