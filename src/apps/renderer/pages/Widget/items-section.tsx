@@ -141,18 +141,18 @@ export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div data-automation-id="menuItemLogout">
-                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
-                        <span>{translate('widget.header.dropdown.logout')}</span>
+                    <div data-automation-id="menuItemReferAndEarn">
+                      <DropdownItem active={active} onClick={handleReferAndEarnClick}>
+                        <span>{translate('widget.header.dropdown.referAndEarn')}</span>
                       </DropdownItem>
                     </div>
                   )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
-                    <div data-automation-id="menuItemReferAndEarn">
-                      <DropdownItem active={active} onClick={handleReferAndEarnClick}>
-                        <span>{translate('widget.header.dropdown.referAndEarn')}</span>
+                    <div data-automation-id="menuItemLogout">
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
+                        <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>
                   )}
