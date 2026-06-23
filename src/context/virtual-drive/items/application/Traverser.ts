@@ -23,6 +23,27 @@ type StackItem =
   | { folder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>; requiresPlaceholderUpdate: false }
   | { folder: ExtendedDriveFolder; requiresPlaceholderUpdate: true };
 export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
+  const filesByParentUuid = new Map<string | undefined, SimpleDriveFile[]>();
+  const foldersByParentUuid = new Map<string | undefined, SimpleDriveFolder[]>();
+
+  for (const file of database.files) {
+    const files = filesByParentUuid.get(file.parentUuid);
+    if (files) {
+      files.push(file);
+    } else {
+      filesByParentUuid.set(file.parentUuid, [file]);
+    }
+  }
+
+  for (const folder of database.folders) {
+    const folders = foldersByParentUuid.get(folder.parentUuid);
+    if (folders) {
+      folders.push(folder);
+    } else {
+      foldersByParentUuid.set(folder.parentUuid, [folder]);
+    }
+  }
+
   const stack: StackItem[] = [{ folder: currentFolder, requiresPlaceholderUpdate: false }];
 
   while (stack.length > 0) {
@@ -42,8 +63,8 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     }
 
     const { folder } = item;
-    const filesInThisFolder = database.files.filter((file) => file.parentUuid === folder.uuid);
-    const foldersInThisFolder = database.folders.filter((child) => child.parentUuid === folder.uuid);
+    const filesInThisFolder = filesByParentUuid.get(folder.uuid) ?? [];
+    const foldersInThisFolder = foldersByParentUuid.get(folder.uuid) ?? [];
 
     await Promise.all(
       filesInThisFolder.map((file) =>

@@ -1,8 +1,8 @@
 import pLimit from 'p-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { traverse } from '../Traverser';
-import { createTree, TreeOptions, TraverserTestDataset } from './create-datasets';
-import { MemorySnapshot, snapshot } from './performance-metrics';
+import { createTree, TreeOptions } from './create-datasets';
+import { BenchmarkMetrics, measure } from './performance-metrics';
 
 export const CUSTOMER_SCALE_TREE: TreeOptions = {
   folderCount: 18_602,
@@ -12,20 +12,17 @@ export const CUSTOMER_SCALE_TREE: TreeOptions = {
   filesPerHotFolder: 30_000,
 };
 
-export async function generateDatasetAndRunBenchmakr(options: TreeOptions = CUSTOMER_SCALE_TREE) {
-  collectGarbage();
-  const beforeGenerate = snapshot('before dataset generation');
+export async function generateDatasetAndRunBenchmark(options: TreeOptions = CUSTOMER_SCALE_TREE) {
   const dataset = createTree(options);
-  const afterGenerate = snapshot('after dataset generation');
-
-  return await runBenchmark(dataset, [beforeGenerate, afterGenerate]);
+  const result = await runBenchmark(dataset);
+  printResult(result, dataset);
+  return result;
 }
 
-async function runBenchmark(dataset: TraverserTestDataset, initialMemory: MemorySnapshot[]) {
-  const { rootUuid, files, folders } = dataset;
+async function runBenchmark(dataset: ReturnType<typeof createTree>) {
   const ctx = {
     rootPath: abs('/drive'),
-    rootUuid,
+    rootUuid: dataset.rootUuid,
     abortController: new AbortController(),
     logger: {
       debug: () => undefined,
@@ -33,33 +30,35 @@ async function runBenchmark(dataset: TraverserTestDataset, initialMemory: Memory
     },
   };
 
-  collectGarbage();
-  const beforeTraverse = snapshot('before traversal');
-  const start = performance.now();
-
-  await traverse({
-    ctx: ctx as never,
-    database: { files, folders },
-    fileExplorer: { files: new Map(), folders: new Map() },
-    currentFolder: { absolutePath: abs('/drive'), uuid: rootUuid },
-    isFirstExecution: true,
-    limit: pLimit(20),
+  return await measure(async () => {
+    await traverse({
+      ctx: ctx as never,
+      database: { files: dataset.files, folders: dataset.folders },
+      fileExplorer: { files: new Map(), folders: new Map() },
+      currentFolder: { absolutePath: abs('/drive'), uuid: dataset.rootUuid },
+      isFirstExecution: true,
+      limit: pLimit(20),
+    });
   });
-
-  const durationMs = Math.round(performance.now() - start);
-  const afterTraverse = snapshot('after traversal');
-  collectGarbage();
-  const afterGc = snapshot('after explicit GC');
-  const memory = [...initialMemory, beforeTraverse, afterTraverse, afterGc];
-
-  console.log(`\n Traverser performance benchmark`);
-  console.log(`Items: ${files.length.toLocaleString()} files, ${folders.length.toLocaleString()} folders`);
-  console.table(memory);
-  console.log(`Traversal duration: ${durationMs.toLocaleString()} ms`);
-
-  return { durationMs, files: files.length, folders: folders.length, memory };
 }
 
-function collectGarbage() {
-  globalThis.gc?.();
+function printResult(metrics: BenchmarkMetrics, dataset: ReturnType<typeof createTree>) {
+  console.log('\nTraverser performance benchmark');
+  console.log(`Items: ${dataset.files.length.toLocaleString()} files, ${dataset.folders.length.toLocaleString()} folders`);
+
+  console.table([
+    {
+      durationMs: round(metrics.durationMs),
+      cpuTotalMs: round(metrics.cpuTotalMs),
+      peakHeapUsedMB: round(metrics.peakHeapUsedMB),
+      peakRssMB: round(metrics.peakRssMB),
+      gcCount: metrics.gcCount,
+      gcTotalMs: round(metrics.gcTotalDurationMs),
+      eventLoopMaxMs: round(metrics.eventLoopDelayMaxMs),
+    },
+  ]);
+}
+
+function round(value: number) {
+  return Math.round(value * 10) / 10;
 }
