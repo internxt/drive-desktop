@@ -3,10 +3,27 @@ $ErrorActionPreference = "Stop"
 $packageName = "com.internxt.drive.contextmenu"
 $packagePath = Join-Path $PSScriptRoot "InternxtContextMenu.msix"
 $certificatePath = Join-Path $PSScriptRoot "InternxtDevelopment.cer"
+$minimumWindows10Build = 10240
+$minimumWindows11Build = 22000
 
 # Keep the sparse package identity and its ACL changes isolated from Electron.
 # The manifest's host executable and COM DLL both live beside this script.
 $externalLocation = Resolve-Path $PSScriptRoot
+
+$windowsVersion = Get-ItemProperty `
+  -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" `
+  -Name CurrentBuildNumber
+$windowsBuild = [int] $windowsVersion.CurrentBuildNumber
+
+if ($windowsBuild -lt $minimumWindows10Build) {
+  Write-Host "Internxt context-menu integration requires Windows 10 or newer. Current build is $windowsBuild; skipping registration."
+  exit 0
+}
+
+if ($windowsBuild -lt $minimumWindows11Build) {
+  Write-Host "Internxt Windows 10 context-menu integration is not available yet. Current build is $windowsBuild; skipping registration."
+  exit 0
+}
 
 if (-not (Test-Path -LiteralPath $packagePath)) {
   throw "Context-menu package was not found: $packagePath"
