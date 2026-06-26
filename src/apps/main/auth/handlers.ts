@@ -47,8 +47,8 @@ export function checkIfUserIsLoggedIn() {
     return;
   }
 
-  const msToRenew = TokenScheduler.getMillisecondsToRenew();
-  if (msToRenew === null || msToRenew <= 0) {
+  const msToExpire = TokenScheduler.getMillisecondsToExpire();
+  if (msToExpire === null || msToExpire <= 0) {
     logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
     saveConfig();
     resetConfig();
