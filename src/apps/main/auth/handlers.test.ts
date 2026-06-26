@@ -5,7 +5,7 @@ import * as getUser from './service';
 
 describe('handlers', () => {
   const getUserMock = partialSpyOn(getUser, 'getUser');
-  const getMillisecondsToRenewMock = partialSpyOn(TokenScheduler, 'getMillisecondsToRenew');
+  const getMillisecondsToExpireMock = partialSpyOn(TokenScheduler, 'getMillisecondsToExpire');
 
   describe('checkUserIsLoggedIn', () => {
     beforeEach(() => {
@@ -23,7 +23,7 @@ describe('handlers', () => {
 
     it('should return undefined if token is expired', () => {
       // Given
-      getMillisecondsToRenewMock.mockReturnValue(-1);
+      getMillisecondsToExpireMock.mockReturnValue(-1);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
@@ -32,7 +32,7 @@ describe('handlers', () => {
 
     it('should return undefined if cannot get token', () => {
       // Given
-      getMillisecondsToRenewMock.mockReturnValue(null);
+      getMillisecondsToExpireMock.mockReturnValue(null);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
@@ -41,7 +41,16 @@ describe('handlers', () => {
 
     it('should return user if token is not expired', () => {
       // Given
-      getMillisecondsToRenewMock.mockReturnValue(100);
+      getMillisecondsToExpireMock.mockReturnValue(100);
+      // When
+      const res = checkIfUserIsLoggedIn();
+      // Then
+      expect(res).toStrictEqual({ uuid: 'uuid' });
+    });
+
+    it('should return user if token needs renewal but is not expired', () => {
+      // Given
+      getMillisecondsToExpireMock.mockReturnValue(3 * 60 * 60 * 1000);
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
