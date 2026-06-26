@@ -3,12 +3,76 @@ $ErrorActionPreference = "Stop"
 $packageName = "com.internxt.drive.contextmenu"
 $packagePath = Join-Path $PSScriptRoot "InternxtContextMenu.msix"
 $certificatePath = Join-Path $PSScriptRoot "InternxtDevelopment.cer"
+$contextMenuDllPath = Join-Path $PSScriptRoot "internxt_context_menu.dll"
+$contextMenuClsid = "{F47A034D-852C-4F60-B721-C31C854183F2}"
+$contextMenuVerbId = "InternxtCopyShareLink"
+$contextMenuTitle = "Copy Internxt share link"
+$contextMenuIconResourceId = 101
 $minimumWindows10Build = 10240
 $minimumWindows11Build = 22000
 
 # Keep the sparse package identity and its ACL changes isolated from Electron.
 # The manifest's host executable and COM DLL both live beside this script.
 $externalLocation = Resolve-Path $PSScriptRoot
+
+function Set-CurrentUserRegistryValue {
+  param(
+    [Parameter(Mandatory)]
+    [string] $SubKeyPath,
+    [Parameter(Mandatory)]
+    [string] $Name,
+    [Parameter(Mandatory)]
+    [string] $Value
+  )
+
+  $registryKey = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($SubKeyPath)
+  if (-not $registryKey) {
+    throw "Registry key could not be created: HKCU\$SubKeyPath"
+  }
+
+  try {
+    $registryKey.SetValue($Name, $Value, [Microsoft.Win32.RegistryValueKind]::String)
+  } finally {
+    $registryKey.Dispose()
+  }
+}
+
+function Register-Windows10ContextMenuExtension {
+  if (-not (Test-Path -LiteralPath $contextMenuDllPath)) {
+    throw "Context-menu DLL was not found: $contextMenuDllPath"
+  }
+
+  Set-CurrentUserRegistryValue `
+    -SubKeyPath "Software\Classes\CLSID\$contextMenuClsid\InprocServer32" `
+    -Name "" `
+    -Value $contextMenuDllPath
+
+  Set-CurrentUserRegistryValue `
+    -SubKeyPath "Software\Classes\CLSID\$contextMenuClsid\InprocServer32" `
+    -Name "ThreadingModel" `
+    -Value "Apartment"
+
+  foreach ($itemType in @("*", "Directory")) {
+    $verbKeyPath = "Software\Classes\$itemType\shell\$contextMenuVerbId"
+
+    Set-CurrentUserRegistryValue `
+      -SubKeyPath $verbKeyPath `
+      -Name "ExplorerCommandHandler" `
+      -Value $contextMenuClsid
+
+    Set-CurrentUserRegistryValue `
+      -SubKeyPath $verbKeyPath `
+      -Name "MUIVerb" `
+      -Value $contextMenuTitle
+
+    Set-CurrentUserRegistryValue `
+      -SubKeyPath $verbKeyPath `
+      -Name "Icon" `
+      -Value "$contextMenuDllPath,-$contextMenuIconResourceId"
+  }
+
+  Write-Host "Internxt Windows 10 context-menu extension registered."
+}
 
 $windowsVersion = Get-ItemProperty `
   -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" `
@@ -21,7 +85,7 @@ if ($windowsBuild -lt $minimumWindows10Build) {
 }
 
 if ($windowsBuild -lt $minimumWindows11Build) {
-  Write-Host "Internxt Windows 10 context-menu integration is not available yet. Current build is $windowsBuild; skipping registration."
+  Register-Windows10ContextMenuExtension
   exit 0
 }
 
