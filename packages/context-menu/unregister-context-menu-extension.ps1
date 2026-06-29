@@ -1,5 +1,34 @@
 $ErrorActionPreference = "Stop"
 
+function Test-ShouldRelaunchWithNativePowerShell {
+  return [Environment]::Is64BitOperatingSystem -and -not [Environment]::Is64BitProcess
+}
+
+function Invoke-NativePowerShellUnregistration {
+  $nativePowerShellPath = Join-Path $env:WINDIR "sysnative\WindowsPowerShell\v1.0\powershell.exe"
+
+  if (-not (Test-Path -LiteralPath $nativePowerShellPath)) {
+    return $false
+  }
+
+  $nativePowerShell = Start-Process `
+    -FilePath $nativePowerShellPath `
+    -ArgumentList @(
+      "-NoLogo",
+      "-NoProfile",
+      "-ExecutionPolicy", "Bypass",
+      "-File", "`"$PSCommandPath`""
+    ) `
+    -Wait `
+    -PassThru
+
+  exit $nativePowerShell.ExitCode
+}
+
+if (Test-ShouldRelaunchWithNativePowerShell) {
+  Invoke-NativePowerShellUnregistration | Out-Null
+}
+
 $packageName = "com.internxt.drive.contextmenu"
 $certificatePath = Join-Path $PSScriptRoot "InternxtDevelopment.cer"
 $contextMenuClsid = "{F47A034D-852C-4F60-B721-C31C854183F2}"
@@ -23,9 +52,27 @@ function Remove-CurrentUserRegistryTree {
 }
 
 function Unregister-Windows10ContextMenuExtension {
-  foreach ($itemType in @("*", "Directory")) {
+  foreach ($itemType in @("*", "Directory", "AllFileSystemObjects")) {
+    Remove-CurrentUserRegistryTree `
+      -SubKeyPath "Software\Classes\$itemType\shellex\ContextMenuHandlers\$contextMenuVerbId"
+
     Remove-CurrentUserRegistryTree `
       -SubKeyPath "Software\Classes\$itemType\shell\$contextMenuVerbId"
+  }
+
+  Remove-CurrentUserRegistryTree `
+    -SubKeyPath "Software\Classes\AllFileSystemObjects\shell\$contextMenuVerbId"
+
+  $approvedShellExtensionsKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey(
+    "Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved",
+    $true)
+
+  if ($approvedShellExtensionsKey) {
+    try {
+      $approvedShellExtensionsKey.DeleteValue($contextMenuClsid, $false)
+    } finally {
+      $approvedShellExtensionsKey.Dispose()
+    }
   }
 
   Remove-CurrentUserRegistryTree `
