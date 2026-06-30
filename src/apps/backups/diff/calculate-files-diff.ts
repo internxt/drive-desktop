@@ -56,7 +56,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
 }
 
 function isLocalFileNewer({ local, remote }: { local: StatItem; remote: ExtendedDriveFile }) {
-  const remoteTime = remote.modificationTime || remote.updatedAt;
+  const remoteTime = remote.modificationTime ?? remote.updatedAt;
   if (!remoteTime) return true;
   const remoteModificationTime = Math.trunc(new Date(remoteTime).getTime() / 1000);
   const localModificationTime = Math.trunc(local.stats.mtime.getTime() / 1000);
