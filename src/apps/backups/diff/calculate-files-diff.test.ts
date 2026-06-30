@@ -61,7 +61,7 @@ describe('calculate-files-diff', () => {
     expect(diff.unmodified).toStrictEqual([]);
   });
 
-  it('should not mark same-size files as modified when remote modification time is newer', () => {
+  it('should not mark same-size files as modified when remote and local modification time are the same', () => {
     // Given
     const props = mockProps<typeof calculateFilesDiff>({
       local: {
@@ -76,7 +76,7 @@ describe('calculate-files-diff', () => {
             {
               absolutePath: abs('/file'),
               size: 7,
-              modificationTime: '2026-06-30T12:00:02.900Z',
+              modificationTime: '2026-06-30T12:00:01.100Z',
             },
           ],
         ]),
