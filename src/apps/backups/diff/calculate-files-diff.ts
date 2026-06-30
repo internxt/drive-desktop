@@ -30,7 +30,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       return;
     }
 
-    if (remoteFile.size !== local.stats.size) {
+    if (remoteFile.size !== local.stats.size || isLocalFileNewer({ local, remote: remoteFile })) {
       modified.push({ local, remote: remoteFile });
       return;
     }
@@ -53,4 +53,13 @@ export function calculateFilesDiff({ local, remote }: TProps) {
     unmodified,
     total,
   };
+}
+
+function isLocalFileNewer({ local, remote }: { local: StatItem; remote: ExtendedDriveFile }) {
+  const remoteTime = remote.modificationTime || remote.updatedAt;
+  if (!remoteTime) return true;
+  const remoteModificationTime = Math.trunc(new Date(remoteTime).getTime() / 1000);
+  const localModificationTime = Math.trunc(local.stats.mtime.getTime() / 1000);
+  if (Number.isNaN(remoteModificationTime) || Number.isNaN(localModificationTime)) return true;
+  return remoteModificationTime < localModificationTime;
 }
