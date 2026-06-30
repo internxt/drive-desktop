@@ -7,7 +7,7 @@ describe('calculate-files-diff', () => {
   const props = mockProps<typeof calculateFilesDiff>({
     local: {
       files: {
-        [abs('/file1')]: { path: abs('/file1'), stats: {} },
+        [abs('/file1')]: { path: abs('/file1'), stats: { size: 7, mtime: date('2026-06-30T12:00:01.100Z') } },
         [abs('/file2')]: { path: abs('/file2'), stats: {} },
         [abs('/file6')]: { path: abs('/file6'), stats: { size: 12 } },
       },
@@ -15,7 +15,7 @@ describe('calculate-files-diff', () => {
     },
     remote: {
       files: new Map([
-        [abs('/file1'), { absolutePath: abs('/file1') }],
+        [abs('/file1'), { absolutePath: abs('/file1'), size: 7, modificationTime: '2026-06-30T12:00:01.100Z' }],
         [abs('/file3'), { absolutePath: abs('/file3') }],
         [abs('/file6'), { absolutePath: abs('/file6'), size: 10 }],
       ]),
