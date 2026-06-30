@@ -2,6 +2,6 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npm run lint
-npm run format:fix
+npm run format
 npm run type-check
 npm run test -- --run
