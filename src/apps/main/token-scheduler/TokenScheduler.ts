@@ -3,20 +3,35 @@ import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { obtainToken, updateCredentials } from '../auth/service';
 
-const DAYS_BEFORE = 1;
+const TOKEN_RENEW_INTERVAL_4H_IN_MS = 4 * 60 * 60 * 1000;
 
 export class TokenScheduler {
   static timeout: NodeJS.Timeout | undefined;
 
+  private static getTokenExpirationTime() {
+    const token = obtainToken();
+    const decoded = jwtDecode<JwtPayload>(token);
+    if (!decoded.exp) throw new Error('Token does not have expiration time');
+
+    return decoded.exp * 1000;
+  }
+
+  static getMillisecondsToExpire() {
+    try {
+      return this.getTokenExpirationTime() - Date.now();
+    } catch (error) {
+      logger.error({ tag: 'AUTH', msg: 'Error getting token', error });
+      return null;
+    }
+  }
+
   static getMillisecondsToRenew() {
     try {
-      const token = obtainToken();
-      const decoded = jwtDecode<JwtPayload>(token);
-      if (!decoded.exp) throw new Error('Token does not have expiration time');
-
-      const expiresAt = decoded.exp * 1000;
-      const renewAt = expiresAt - DAYS_BEFORE * 24 * 60 * 60 * 1000;
-      const msToRenew = renewAt - Date.now();
+      const expiresAt = this.getTokenExpirationTime();
+      const now = Date.now();
+      const msToExpire = expiresAt - now;
+      const msToRenew = this.getMillisecondsUntilNextRenew(msToExpire);
+      const renewAt = now + msToRenew;
 
       logger.debug({
         tag: 'AUTH',
@@ -34,6 +49,8 @@ export class TokenScheduler {
   }
 
   static schedule() {
+    this.stop();
+
     const msToRenew = this.getMillisecondsToRenew();
     if (msToRenew === null) return;
 
@@ -49,5 +66,12 @@ export class TokenScheduler {
 
   static stop() {
     clearTimeout(this.timeout);
+  }
+
+  private static getMillisecondsUntilNextRenew(msToExpire: number) {
+    if (msToExpire <= 0) return msToExpire;
+    if (msToExpire <= TOKEN_RENEW_INTERVAL_4H_IN_MS) return 0;
+
+    return TOKEN_RENEW_INTERVAL_4H_IN_MS;
   }
 }

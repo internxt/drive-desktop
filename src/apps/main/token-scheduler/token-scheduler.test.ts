@@ -54,12 +54,16 @@ describe('token-scheduler', () => {
     });
   });
 
-  it('should refresh if token is expired', async () => {
+  it('should renew tokens every 4 hours', async () => {
     // Given
-    obtainTokenMock.mockReturnValueOnce(createToken('1 day')).mockReturnValueOnce(createToken('31 day'));
+    obtainTokenMock.mockImplementationOnce(() => createToken('12 hours')).mockImplementationOnce(() => createToken('12 hours'));
     refreshMock.mockResolvedValue({ data: { newToken: 'token' } });
     // When
     TokenScheduler.schedule();
+    await vi.advanceTimersByTimeAsync(4 * 60 * 60 * 1000 - 1);
+    // Then
+    expect(refreshMock).not.toHaveBeenCalled();
+    // When
     await vi.runOnlyPendingTimersAsync();
     // Then
     expect(TokenScheduler.timeout).not.toBe(undefined);
@@ -67,14 +71,47 @@ describe('token-scheduler', () => {
     calls(loggerMock.debug).toMatchObject([
       {
         msg: 'Token renew date',
-        expiresAt: new Date('1970-01-02'),
-        renewAt: new Date('1970-01-01'),
+        expiresAt: new Date('1970-01-01T12:00:00.000Z'),
+        renewAt: new Date('1970-01-01T04:00:00.000Z'),
       },
       {
         msg: 'Token renew date',
-        expiresAt: new Date('1970-02-01'),
-        renewAt: new Date('1970-01-31'),
+        expiresAt: new Date('1970-01-01T16:00:00.000Z'),
+        renewAt: new Date('1970-01-01T08:00:00.000Z'),
       },
     ]);
+  });
+
+  it('should renew immediately if token expires in less than 4 hours', async () => {
+    // Given
+    obtainTokenMock.mockImplementationOnce(() => createToken('3 hours')).mockImplementationOnce(() => createToken('12 hours'));
+    refreshMock.mockResolvedValue({ data: { newToken: 'token' } });
+    // When
+    TokenScheduler.schedule();
+    await vi.runOnlyPendingTimersAsync();
+    // Then
+    call(updateCredentialsMock).toStrictEqual({ newToken: 'token' });
+    calls(loggerMock.debug).toMatchObject([
+      {
+        msg: 'Token renew date',
+        expiresAt: new Date('1970-01-01T03:00:00.000Z'),
+        renewAt: new Date('1970-01-01T00:00:00.000Z'),
+        msToRenew: 0,
+      },
+      {
+        msg: 'Token renew date',
+        expiresAt: new Date('1970-01-01T12:00:00.000Z'),
+        renewAt: new Date('1970-01-01T04:00:00.000Z'),
+      },
+    ]);
+  });
+
+  it('should return a negative delay if token is expired', () => {
+    // Given
+    obtainTokenMock.mockReturnValue(createToken('-1 second'));
+    // When
+    const result = TokenScheduler.getMillisecondsToRenew();
+    // Then
+    expect(result).toBeLessThan(0);
   });
 });
