@@ -17,6 +17,8 @@
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:e2e": "npm run init:ci && npm run build && npm run rebuild:electron",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run rebuild:electron",
+    "========== Core ==========": "",
+    "build:core": "npm.cmd --prefix packages/core run build",
     "========== Context Menu ==========": "",
     "compile:context-menu": "npm.cmd --prefix packages/context-menu run compile",
     "package:context-menu": "npm.cmd --prefix packages/context-menu run package",
