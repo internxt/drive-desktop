@@ -42,6 +42,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-unused-expressions': 'error',
+    '@typescript-eslint/prefer-nullish-coalescing': 'warn',
     'array-callback-return': 'warn',
     'import/no-default-export': 'warn',
     'max-len': ['error', { code: 140, ignoreStrings: true, ignoreTemplateLiterals: true }],
