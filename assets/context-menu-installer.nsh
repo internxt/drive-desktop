@@ -3,7 +3,8 @@
   Pop $0
 
   ${If} $0 != 0
-    DetailPrint "The Internxt Drive context-menu extension could not be registered. Continuing without context-menu integration."
+    MessageBox MB_ICONSTOP "The Internxt Drive context-menu extension could not be registered."
+    Abort
   ${EndIf}
 !macroend
 
