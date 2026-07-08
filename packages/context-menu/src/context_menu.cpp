@@ -1,5 +1,7 @@
 // Windows Shell interfaces such as IExplorerCommand and IShellItemArray.
 #include <shobjidl_core.h>
+// Shell drag-drop helpers used by the classic Windows 10 IContextMenu path.
+#include <shellapi.h>
 // Defines NTSTATUS, which is used by structures declared in cfapi.h.
 #include <winternl.h>
 // Cloud Files API. Windows uses this API to expose which sync provider owns
@@ -14,8 +16,8 @@
 #include <wrl/client.h>
 
 #include <array>
-#include <filesystem>
 #include <string>
+#include <vector>
 
 #include "resource.h"
 
@@ -32,6 +34,7 @@ namespace {
 constexpr WCHAR ContextMenuPipePath[] =
     L"\\\\.\\pipe\\internxt-drive-context-menu";
 HMODULE ContextMenuModule = nullptr;
+HBITMAP ContextMenuBitmap = nullptr;
 
 const WCHAR* GetLocalizedCommandTitle()
 {
@@ -71,16 +74,11 @@ bool TryGetSingleSelectedPath(IShellItemArray* items, std::wstring& path)
 // CfGetSyncRootInfoByPath returns the sync root's registered Id in ProviderName,
 // not its user-facing DisplayNameResource. Resolve that Id through the same
 // SyncRootManager metadata Windows creates when Internxt registers the root.
-bool IsInternxtProvider(const WCHAR* providerId)
+bool TryReadSyncRootDisplayName(HKEY rootKey, const std::wstring& registryPath, std::array<WCHAR, 256>& displayName)
 {
-    const std::wstring registryPath =
-        L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SyncRootManager\\" +
-        std::wstring(providerId);
-
-    std::array<WCHAR, 256> displayName{};
     DWORD displayNameSize = static_cast<DWORD>(displayName.size() * sizeof(WCHAR));
     const LSTATUS result = RegGetValueW(
-        HKEY_LOCAL_MACHINE,
+        rootKey,
         registryPath.c_str(),
         L"DisplayNameResource",
         RRF_RT_REG_SZ,
@@ -88,10 +86,25 @@ bool IsInternxtProvider(const WCHAR* providerId)
         displayName.data(),
         &displayNameSize);
 
-    if (result != ERROR_SUCCESS) return false;
+    return result == ERROR_SUCCESS;
+}
 
-    return std::wstring(displayName.data()) == L"Internxt Drive" ||
-           std::wstring(displayName.data()) == L"Internxt Drive for Business";
+bool IsInternxtProvider(const WCHAR* providerId)
+{
+    const std::wstring registryPath =
+        L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\SyncRootManager\\" +
+        std::wstring(providerId);
+
+    std::array<WCHAR, 256> displayName{};
+    const bool foundDisplayName =
+        TryReadSyncRootDisplayName(HKEY_LOCAL_MACHINE, registryPath, displayName) ||
+        TryReadSyncRootDisplayName(HKEY_CURRENT_USER, registryPath, displayName);
+
+    if (!foundDisplayName) return false;
+
+    const std::wstring resolvedDisplayName(displayName.data());
+    return resolvedDisplayName == L"Internxt Drive" ||
+           resolvedDisplayName == L"Internxt Drive for Business";
 }
 
 // Asking Windows which sync root owns the path avoids relying on a hard-coded
@@ -116,11 +129,14 @@ bool IsInternxtSyncRootItem(const std::wstring& path)
 // therefore hides the command on the root without hard-coding its location.
 bool IsInternxtSyncRootDescendant(const std::wstring& path)
 {
-    if (!IsInternxtSyncRootItem(path)) return false;
+    std::array<WCHAR, 32768> parentPathBuffer{};
+    if (path.size() >= parentPathBuffer.size()) return false;
 
-    const std::wstring parentPath =
-        std::filesystem::path(path).parent_path().wstring();
-    return !parentPath.empty() && IsInternxtSyncRootItem(parentPath);
+    wcscpy_s(parentPathBuffer.data(), parentPathBuffer.size(), path.c_str());
+    if (!PathRemoveFileSpecW(parentPathBuffer.data())) return false;
+
+    const std::wstring parentPath(parentPathBuffer.data());
+    return !parentPath.empty() && parentPath != path && IsInternxtSyncRootItem(parentPath);
 }
 
 // Electron owns the named-pipe server. The command writes only the selected
@@ -151,6 +167,39 @@ void SendSelectedPathToElectron(const std::wstring& selectedPath)
     CloseHandle(pipe);
 }
 
+HBITMAP GetContextMenuBitmap()
+{
+    if (ContextMenuBitmap) return ContextMenuBitmap;
+
+    const int iconSize = GetSystemMetrics(SM_CXSMICON);
+    HICON icon = static_cast<HICON>(LoadImageW(
+        ContextMenuModule,
+        MAKEINTRESOURCEW(IDI_CONTEXT_MENU_ICON),
+        IMAGE_ICON,
+        iconSize,
+        iconSize,
+        LR_DEFAULTCOLOR));
+
+    if (!icon) return nullptr;
+
+    HDC screenDc = GetDC(nullptr);
+    HDC memoryDc = CreateCompatibleDC(screenDc);
+    HBITMAP bitmap = CreateCompatibleBitmap(screenDc, iconSize, iconSize);
+    HGDIOBJ previousBitmap = SelectObject(memoryDc, bitmap);
+
+    RECT rect{0, 0, iconSize, iconSize};
+    FillRect(memoryDc, &rect, reinterpret_cast<HBRUSH>(COLOR_MENU + 1));
+    DrawIconEx(memoryDc, 0, 0, icon, iconSize, iconSize, 0, nullptr, DI_NORMAL);
+
+    SelectObject(memoryDc, previousBitmap);
+    DeleteDC(memoryDc);
+    ReleaseDC(nullptr, screenDc);
+    DestroyIcon(icon);
+
+    ContextMenuBitmap = bitmap;
+    return ContextMenuBitmap;
+}
+
 } // namespace
 
 // The UUID is the permanent COM identity of this command. Windows registration
@@ -158,8 +207,101 @@ void SendSelectedPathToElectron(const std::wstring& selectedPath)
 class __declspec(uuid("F47A034D-852C-4F60-B721-C31C854183F2")) InternxtPublicLinkShareCommand final
     // RuntimeClass supplies COM lifetime/interface behavior. IExplorerCommand
     // is the contract Explorer calls to render and execute a menu command.
-    : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IExplorerCommand> {
+    : public RuntimeClass<RuntimeClassFlags<ClassicCom>, IExplorerCommand, IShellExtInit, IContextMenu> {
 public:
+    // Windows 10 legacy shell path. Explorer calls Initialize before showing
+    // the classic context menu and provides the selected items through
+    // IDataObject/CF_HDROP rather than IShellItemArray.
+    IFACEMETHODIMP Initialize(LPCITEMIDLIST, IDataObject* dataObject, HKEY) override
+    {
+        legacySelectedPath_.clear();
+        legacyCommandVisible_ = false;
+
+        if (!dataObject) return S_OK;
+
+        FORMATETC format{};
+        format.cfFormat = CF_HDROP;
+        format.ptd = nullptr;
+        format.dwAspect = DVASPECT_CONTENT;
+        format.lindex = -1;
+        format.tymed = TYMED_HGLOBAL;
+
+        STGMEDIUM storage{};
+        if (FAILED(dataObject->GetData(&format, &storage))) return S_OK;
+
+        const HDROP drop = static_cast<HDROP>(GlobalLock(storage.hGlobal));
+        if (drop) {
+            const UINT count = DragQueryFileW(drop, 0xFFFFFFFF, nullptr, 0);
+            if (count == 1) {
+                const UINT pathLength = DragQueryFileW(drop, 0, nullptr, 0);
+                std::vector<WCHAR> buffer(static_cast<size_t>(pathLength) + 1);
+                if (DragQueryFileW(drop, 0, buffer.data(), static_cast<UINT>(buffer.size())) > 0) {
+                    legacySelectedPath_.assign(buffer.data());
+                    legacyCommandVisible_ = IsInternxtSyncRootDescendant(legacySelectedPath_);
+                }
+            }
+
+            GlobalUnlock(storage.hGlobal);
+        }
+
+        ReleaseStgMedium(&storage);
+        return S_OK;
+    }
+
+    // Windows 10 legacy shell path. Explorer gives us the menu handle and the
+    // insertion index; we add one command only when the selected item belongs
+    // to an Internxt sync-root child.
+    IFACEMETHODIMP QueryContextMenu(HMENU menu, UINT indexMenu, UINT commandIdFirst, UINT, UINT flags) override
+    {
+        if ((flags & CMF_DEFAULTONLY) || !legacyCommandVisible_) {
+            return MAKE_HRESULT(SEVERITY_SUCCESS, 0, 0);
+        }
+
+        if (!InsertMenuW(
+                menu,
+                indexMenu,
+                MF_BYPOSITION | MF_STRING,
+                commandIdFirst,
+                GetLocalizedCommandTitle())) {
+            return HRESULT_FROM_WIN32(GetLastError());
+        }
+
+        MENUITEMINFOW menuItemInfo{};
+        menuItemInfo.cbSize = sizeof(menuItemInfo);
+        menuItemInfo.fMask = MIIM_BITMAP;
+        menuItemInfo.hbmpItem = GetContextMenuBitmap();
+
+        if (menuItemInfo.hbmpItem) {
+            SetMenuItemInfoW(menu, commandIdFirst, FALSE, &menuItemInfo);
+        }
+
+        return MAKE_HRESULT(SEVERITY_SUCCESS, 0, 1);
+    }
+
+    // Windows 10 legacy shell path. Explorer calls this after the user clicks
+    // the inserted command. Command id 0 is the only verb this handler adds.
+    IFACEMETHODIMP InvokeCommand(LPCMINVOKECOMMANDINFO commandInfo) override
+    {
+        if (!commandInfo) return E_INVALIDARG;
+
+        if (HIWORD(commandInfo->lpVerb) != 0 || LOWORD(commandInfo->lpVerb) != 0) {
+            return E_FAIL;
+        }
+
+        if (!legacySelectedPath_.empty() && IsInternxtSyncRootDescendant(legacySelectedPath_)) {
+            SendSelectedPathToElectron(legacySelectedPath_);
+        }
+
+        return S_OK;
+    }
+
+    // Windows 10 legacy shell path. We do not expose status-bar help text or
+    // canonical verb strings for this command.
+    IFACEMETHODIMP GetCommandString(UINT_PTR, UINT, UINT*, LPSTR, UINT) override
+    {
+        return E_NOTIMPL;
+    }
+
     // Windows calls this to obtain the text displayed in the context menu.
     // The first parameter contains selected items but is not needed for a
     // constant title, so its variable name is intentionally omitted.
@@ -249,6 +391,10 @@ public:
         *commands = nullptr;
         return E_NOTIMPL;
     }
+
+private:
+    std::wstring legacySelectedPath_;
+    bool legacyCommandVisible_ = false;
 };
 
 // Adds this class to WRL's internal map of COM classes. When Explorer asks the
@@ -263,6 +409,9 @@ BOOL APIENTRY DllMain(HMODULE module, DWORD reason, LPVOID)
     if (reason == DLL_PROCESS_ATTACH) {
         ContextMenuModule = module;
         DisableThreadLibraryCalls(module);
+    } else if (reason == DLL_PROCESS_DETACH && ContextMenuBitmap) {
+        DeleteObject(ContextMenuBitmap);
+        ContextMenuBitmap = nullptr;
     }
 
     return TRUE;
