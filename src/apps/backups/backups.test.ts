@@ -1,6 +1,6 @@
 import Bottleneck from 'bottleneck';
 import { randomUUID } from 'node:crypto';
-import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { beforeAll } from 'vitest';
 import { Sync } from '@/backend/features/sync';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -51,8 +51,6 @@ describe('backups', () => {
 
   it('should perform a complete backup', async () => {
     // Given
-    const unmodifiedFileStats = await stat(unmodifiedFile);
-
     getFoldersMock.mockResolvedValue({
       data: [
         { uuid: 'folder' as FolderUuid, parentUuid: rootUuid, name: 'folder', status: 'EXISTS' },
@@ -63,14 +61,7 @@ describe('backups', () => {
 
     getFilesMock.mockResolvedValue({
       data: [
-        {
-          uuid: 'unmodifiedFile' as FileUuid,
-          parentUuid: rootUuid,
-          name: 'unmodifiedFile',
-          size: 7,
-          modificationTime: unmodifiedFileStats.mtime.toISOString(),
-          status: 'EXISTS',
-        },
+        { uuid: 'unmodifiedFile' as FileUuid, parentUuid: rootUuid, name: 'unmodifiedFile', size: 7, status: 'EXISTS' },
         { uuid: 'modifiedFile' as FileUuid, parentUuid: rootUuid, name: 'modifiedFile', size: 12, status: 'EXISTS' },
         { uuid: 'deletedFile' as FileUuid, parentUuid: 'folder', name: 'deleted', status: 'EXISTS' },
         { status: 'DELETED' },
