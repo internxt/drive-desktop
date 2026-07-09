@@ -39,6 +39,7 @@
     "start:reload": "npm run build:preload && npm run start:main",
     "start:main": "cross-env NODE_ENV=development electron .erb/scripts/electron-launcher.js",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config .erb/configs/webpack.config.renderer.dev.ts",
+    "start:renderer:only": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true DEBUG_MODE=true webpack serve --config .erb/configs/webpack.config.renderer.dev.ts",
     "========== Testing ==========": "",
     "test": "vitest",
     "test:one": "vitest --watch related x",

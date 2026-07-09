@@ -1,0 +1,57 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kill Existing Electron",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "try { Get-Process electron -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue } catch {}; exit 0"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "echo": false,
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "Start Renderer (Debug Mode)",
+      "type": "process",
+      "command": "npm.cmd",
+      "args": ["run", "start:renderer:only"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "DEBUG_MODE": "true"
+        }
+      },
+      "isBackground": true,
+      "dependsOn": ["Kill Existing Electron"],
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "zzzzzzzzzzzzz"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*(Project is running at:|Loopback:|compiled successfully|webpack compiled successfully|Compiled successfully).*"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true,
+        "group": "dev"
+      }
+    }
+  ]
+}
