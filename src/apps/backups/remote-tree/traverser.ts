@@ -27,6 +27,12 @@ export class Traverser {
   }
 
   private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
+    /**
+     * Alexis Mora v2.6.13
+     * TODO: Move backups to the same indexed tree traversal used by placeholder refresh.
+     * The current per-folder filters repeatedly scan all items and can become expensive
+     * for large backup trees. Keep this as a separate task to avoid widening this change.
+     */
     const filesInThisFolder = items.files.filter((file) => file.parentUuid === parent.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
 

@@ -22,6 +22,15 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     const worker: WorkerConfig = {
       ctx,
       connectionKey,
+      /**
+       * Alexis Mora v2.6.13
+       * TODO: Prevent overlapping placeholder refreshes for the same sync root.
+       * scheduleSync immediately starts updateRemoteSync, which runs another
+       * refreshItemPlaceholders after checkpoint sync. Gate refreshItemPlaceholders
+       * behind a single-flight/queue keyed by the sync root identity, or start the
+       * initial remote sync only after the first-execution refresh finishes.
+       * Basically: wait for one refresh to finish before starting the next one, to avoid overlapping refreshes.
+       */
       syncSchedule: scheduleSync({ ctx }),
       workspaceTokenInterval: refreshWorkspaceToken({ ctx }),
     };
