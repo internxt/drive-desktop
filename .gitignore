@@ -2,12 +2,16 @@
 /.erb/dll
 /.github/copilot-instructions.md
 /.idea
-/.vscode
+/.vscode/*
+!/.vscode/launch.json
+!/.vscode/tasks.json
+/.zed
 /build
 /clamAV/*
 /CLAUDE.md
 /coverage
 /dist
+/.debug
 /node_modules
 /test-files
 
