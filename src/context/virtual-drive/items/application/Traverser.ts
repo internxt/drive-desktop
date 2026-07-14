@@ -105,13 +105,18 @@ async function processFilesInFolder({
   isFirstExecution: boolean;
   limit: LimitFunction;
 }) {
-  await Promise.all(
-    files.map((file) =>
-      limit(async () => {
-        await processFile({ ctx, folder, file, fileExplorer, isFirstExecution });
-      }),
-    ),
-  );
+  let nextFileIndex = 0;
+  const workerCount = getFileProcessingWorkerCount({ limit, fileCount: files.length });
+
+  async function processNextFile() {
+    while (nextFileIndex < files.length) {
+      const file = files[nextFileIndex];
+      nextFileIndex += 1;
+      await processFile({ ctx, folder, file, fileExplorer, isFirstExecution });
+    }
+  }
+
+  await Promise.all(Array.from({ length: workerCount }, () => limit(processNextFile)));
 }
 
 async function processFile({
@@ -155,4 +160,9 @@ function pushChildFoldersToStack({
 
 function isDeletedOrTrashed(status: SimpleDriveFile['status'] | SimpleDriveFolder['status']) {
   return status === 'DELETED' || status === 'TRASHED';
+}
+
+function getFileProcessingWorkerCount({ limit, fileCount }: { limit: LimitFunction; fileCount: number }) {
+  const concurrency = Number.isFinite(limit.concurrency) ? limit.concurrency : fileCount;
+  return Math.min(concurrency, fileCount);
 }

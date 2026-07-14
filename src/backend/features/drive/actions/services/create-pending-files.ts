@@ -11,6 +11,8 @@ type Props = {
 };
 
 export async function createPendingFiles({ ctx, files, parentUuid }: Props) {
+  // TODO PB-6612: Bound pending file processing. Large local folders can fan out
+  // too many NodeWin/upload/config reads and hit EMFILE before bottlenecks apply.
   await Promise.all(
     files.map(async ({ path }) => {
       const { error } = await NodeWin.getFileInfo({ path });
