@@ -7,6 +7,7 @@ import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explo
 import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getWorkerCount } from '@/core/utils/concurrency';
 
 type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
 type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
@@ -106,7 +107,7 @@ async function processFilesInFolder({
   limit: LimitFunction;
 }) {
   let nextFileIndex = 0;
-  const workerCount = getFileProcessingWorkerCount({ limit, fileCount: files.length });
+  const workerCount = getWorkerCount({ concurrency: limit.concurrency, itemCount: files.length });
 
   async function processNextFile() {
     while (nextFileIndex < files.length) {
@@ -161,9 +162,4 @@ function pushChildFoldersToStack({
 
 function isDeletedOrTrashed(status: SimpleDriveFile['status'] | SimpleDriveFolder['status']) {
   return status === 'DELETED' || status === 'TRASHED';
-}
-
-function getFileProcessingWorkerCount({ limit, fileCount }: { limit: LimitFunction; fileCount: number }) {
-  const concurrency = Number.isFinite(limit.concurrency) ? limit.concurrency : fileCount;
-  return Math.min(concurrency, fileCount);
 }
