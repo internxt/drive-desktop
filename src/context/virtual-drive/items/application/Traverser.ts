@@ -110,6 +110,7 @@ async function processFilesInFolder({
 
   async function processNextFile() {
     while (nextFileIndex < files.length) {
+      if (ctx.abortController.signal.aborted) return;
       const file = files[nextFileIndex];
       nextFileIndex += 1;
       await processFile({ ctx, folder, file, fileExplorer, isFirstExecution });
