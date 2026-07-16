@@ -162,8 +162,12 @@ const configuration: Configuration = {
     static: { publicPath: '/' },
     historyApiFallback: { verbose: true },
     setupMiddlewares: (middlewares) => {
+      if (process.env.DEBUG_MODE === 'true') {
+        return middlewares;
+      }
+
       console.log('Starting Main Process...');
-      spawn('npm', ['run', 'start:nodemon'], {
+      spawn('npm', ['run', process.env.ELECTRON_START_SCRIPT || 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

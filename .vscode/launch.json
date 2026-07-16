@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Electron App",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd",
+      "args": ["--disable-gpu", ".erb/scripts/electron-launcher-debug.js"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "TS_NODE_TRANSPILE_ONLY": "true",
+        "E2E_TEST": "true",
+        "E2E_HOME_PATH": "${workspaceFolder}/.debug/home",
+        "E2E_APPDATA_PATH": "${workspaceFolder}/.debug/appdata",
+        "DEBUG_USER_DATA_PATH": "${workspaceFolder}/.debug/userData",
+        "DEBUG_DISABLE_HARDWARE_ACCELERATION": "true"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "pauseForSourceMap": true,
+      "smartStep": false,
+      "sourceMapPathOverrides": {
+        "src/*": "${workspaceFolder}/src/*",
+        "./src/*": "${workspaceFolder}/src/*",
+        "webpack:///src/*": "${workspaceFolder}/src/*",
+        "file:///${workspaceFolder}/src/*": "${workspaceFolder}/src/*",
+        "${workspaceFolder}/src/*": "${workspaceFolder}/src/*"
+      },
+      "autoAttachChildProcesses": true,
+      "preLaunchTask": "Start Renderer (Debug Mode)",
+      "postDebugTask": "Kill Existing Electron",
+      "presentation": {
+        "group": "main",
+        "order": 1
+      }
+    }
+  ]
+}
