@@ -11,6 +11,7 @@ type Props = {
 };
 
 export async function createPendingFiles({ ctx, files, parentUuid }: Props) {
+  /* TODO PB-6612: When adding 250k+ folder, this method starts to throw: EMFILE too many files open. */
   await Promise.all(
     files.map(async ({ path }) => {
       const { error } = await NodeWin.getFileInfo({ path });
