@@ -1,5 +1,10 @@
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import {
+  DriveItemsByParentUuid,
+  indexDriveItemsByParentUuid,
+} from '@/backend/features/virtual-drive/tree-traversal/index-drive-items-by-parent-uuid';
+import { traverseDepthFirst } from '@/backend/features/virtual-drive/tree-traversal/traverse-depth-first';
 import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
@@ -26,23 +31,47 @@ export class Traverser {
     };
   }
 
-  private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
-    const filesInThisFolder = items.files.filter((file) => file.parentUuid === parent.uuid);
-    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
+  private static async traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
+    const { filesByParentUuid, foldersByParentUuid } = indexDriveItemsByParentUuid(items);
 
-    filesInThisFolder.forEach((file) => {
-      const absolutePath = join(parent.absolutePath, file.name);
+    await traverseDepthFirst({
+      root: parent,
+      processNode: (currentFolder) => this.processFolder({ tree, currentFolder }),
+      processChildren: (currentFolder) => this.processFolderChildren({ tree, currentFolder, filesByParentUuid, foldersByParentUuid }),
+    });
+  }
+
+  private static processFolder({ tree, currentFolder }: { tree: RemoteTree; currentFolder: ExtendedDriveFolder }) {
+    tree.folders.set(currentFolder.absolutePath, currentFolder);
+    return true;
+  }
+
+  private static processFolderChildren({
+    tree,
+    currentFolder,
+    filesByParentUuid,
+    foldersByParentUuid,
+  }: {
+    tree: RemoteTree;
+    currentFolder: ExtendedDriveFolder;
+    filesByParentUuid: DriveItemsByParentUuid['filesByParentUuid'];
+    foldersByParentUuid: DriveItemsByParentUuid['foldersByParentUuid'];
+  }) {
+    const filesInThisFolder = filesByParentUuid.get(currentFolder.uuid);
+    const foldersInThisFolder = foldersByParentUuid.get(currentFolder.uuid);
+
+    filesInThisFolder?.forEach((file) => {
+      const absolutePath = join(currentFolder.absolutePath, file.name);
       const extendedFile = { ...file, absolutePath };
 
       tree.files.set(absolutePath, extendedFile);
     });
 
-    foldersInThisFolder.forEach((folder) => {
-      const absolutePath = join(parent.absolutePath, folder.name);
-      const extendedFolder = { ...folder, absolutePath };
+    if (!foldersInThisFolder || foldersInThisFolder.length === 0) return [];
 
-      tree.folders.set(absolutePath, extendedFolder);
-      this.traverse(tree, items, extendedFolder);
+    return foldersInThisFolder.map((folder) => {
+      const absolutePath = join(currentFolder.absolutePath, folder.name);
+      return { ...folder, absolutePath };
     });
   }
 
@@ -61,10 +90,10 @@ export class Traverser {
 
     const tree: RemoteTree = {
       files: new Map(),
-      folders: new Map([[rootFolder.absolutePath, rootFolder]]),
+      folders: new Map(),
     };
 
-    this.traverse(tree, items, rootFolder);
+    await this.traverse(tree, items, rootFolder);
 
     return tree;
   }
