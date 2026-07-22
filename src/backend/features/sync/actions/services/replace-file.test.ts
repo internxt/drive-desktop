@@ -19,13 +19,14 @@ describe('replace-file', () => {
 
   const path = abs('/file.txt');
   const size = 1024;
-  const mtime = new Date('2000-01-01');
+  const mtime = new Date('2000-01-01T00:00:00.000Z');
+  const creationTime = new Date('1999-01-01T00:00:00.000Z');
   let props: Parameters<typeof replaceFile>[0];
 
   beforeEach(() => {
     props = mockProps<typeof replaceFile>({ path });
 
-    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime });
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime, creationTime });
   });
 
   it('should not persist if the file upload fails', async () => {
@@ -63,7 +64,15 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Given
     call(uploadMock).toMatchObject({ path });
-    call(persistMock).toMatchObject({ context: { path, contentsId: 'contentsId', size, modificationTime: '2000-01-01T00:00:00.000Z' } });
+    call(persistMock).toMatchObject({
+      context: {
+        path,
+        contentsId: 'contentsId',
+        size,
+        modificationTime: '2000-01-01T00:00:00.000Z',
+        creationTime: '1999-01-01T00:00:00.000Z',
+      },
+    });
     call(addItemMock).toMatchObject({ action: 'MODIFIED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });
     call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });

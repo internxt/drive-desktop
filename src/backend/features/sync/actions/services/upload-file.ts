@@ -20,10 +20,10 @@ export async function uploadFile({ ctx, path }: Props) {
     return;
   }
 
-  const { size, mtime } = await stat(path);
+  const { size, mtime, birthtime } = await stat(path);
 
   if (size === 0) {
-    return { contentsId: undefined, size, mtime };
+    return { contentsId: undefined, size, mtime, creationTime: birthtime };
   }
 
   const validation = validateUploadFileSize({ size, maxUploadFileSize: electronStore.get('maxUploadFileSizeInBytes') });
@@ -45,7 +45,7 @@ export async function uploadFile({ ctx, path }: Props) {
 
     if (!contentsId) return;
 
-    return { contentsId, size, mtime };
+    return { contentsId, size, mtime, creationTime: birthtime };
   } catch (error) {
     if (isBottleneckStop({ error })) return;
 
