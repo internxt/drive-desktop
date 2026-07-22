@@ -10,6 +10,8 @@ import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-na
 import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-file';
+import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
+import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { uploadFile } from './upload-file';
 
 type Props = {
@@ -58,6 +60,24 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
       msg: 'File size exceeds upload limit',
       path,
       size: upload.size,
+    });
+    return;
+  }
+
+  if (res.error?.code === 'EMPTY_FILES_NOT_ALLOWED') {
+    handleEmptyFilesNotAllowedForUser({ path });
+    ctx.logger.warn({
+      msg: 'Empty files for user not allowed',
+      path,
+    });
+    return;
+  }
+
+  if (res.error?.code === 'EMPTY_FILES_EXCEEDED') {
+    handleEmptyFilesAmoutForUser({ path });
+    ctx.logger.warn({
+      msg: 'Empty files amount for user exceeded',
+      path,
     });
     return;
   }

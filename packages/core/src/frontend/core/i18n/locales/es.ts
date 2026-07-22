@@ -388,6 +388,8 @@ export const es: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'No se puede registrar el drive virtual',
+      EMPTY_FILES_EXCEEDED: 'Se ha superado el limite de archivos vacios',
+      EMPTY_FILES_NOT_ALLOWED: 'No se permiten archivos vacios. Mejora tu plan para obtener mas funciones',
       FILE_SIZE_TOO_BIG: 'Archivo es demasiado grande',
       FOLDER_ACCESS_DENIED: 'La app no tiene permiso para acceder a esta carpeta',
       INVALID_WINDOWS_NAME: String.raw`Windows no permite nombres que incluyan \ / : * ? " < > | o que comiencen/terminen con espacios`,

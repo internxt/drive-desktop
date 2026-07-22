@@ -5,7 +5,12 @@ import { showNotEnoughSpaceNotification } from './process-issues';
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'FILE_SIZE_TOO_BIG' | 'CANNOT_REGISTER_VIRTUAL_DRIVE';
+  error:
+    | 'INVALID_WINDOWS_NAME'
+    | 'FILE_SIZE_TOO_BIG'
+    | 'CANNOT_REGISTER_VIRTUAL_DRIVE'
+    | 'EMPTY_FILES_NOT_ALLOWED'
+    | 'EMPTY_FILES_EXCEEDED';
 };
 
 export type BackupsIssue = {

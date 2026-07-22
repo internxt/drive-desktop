@@ -5,6 +5,8 @@ import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
+import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
 
@@ -37,6 +39,24 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
         msg: 'File size exceeds upload limit',
         path,
         size: upload.size,
+      });
+      return;
+    }
+
+    if (res.error.code === 'EMPTY_FILES_NOT_ALLOWED') {
+      handleEmptyFilesNotAllowedForUser({ path });
+      ctx.logger.warn({
+        msg: 'Empty files for user not allowed',
+        path,
+      });
+      return;
+    }
+
+    if (res.error.code === 'EMPTY_FILES_EXCEEDED') {
+      handleEmptyFilesAmoutForUser({ path });
+      ctx.logger.warn({
+        msg: 'Empty files amount for user exceeded',
+        path,
       });
       return;
     }
