@@ -6,7 +6,9 @@ import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explo
 import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { traverseDepthFirst } from '@/backend/features/virtual-drive/tree-traversal/traverse-depth-first';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getWorkerCount } from '@/core/utils/concurrency';
 
 type Database = { files: SimpleDriveFile[]; folders: SimpleDriveFolder[] };
 type FileExplorer = { files: FileExplorerFiles; folders: FileExplorerFolders };
@@ -29,28 +31,15 @@ type DatabaseChildrenIndex = {
 
 export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
   const { filesByParentUuid, foldersByParentUuid } = indexDatabaseChildren(database);
-  const stack: StackItem[] = [{ folder: currentFolder, requiresPlaceholderUpdate: false }];
+  const root: StackItem = { folder: currentFolder, requiresPlaceholderUpdate: false };
 
-  while (stack.length > 0) {
-    if (ctx.abortController.signal.aborted) return;
-
-    const item = stack.pop();
-    if (!item) return;
-
-    const canTraverseFolder = await processFolderPlaceHolder({ ctx, item, fileExplorer });
-    if (!canTraverseFolder) continue;
-
-    const { folder } = item;
-    const filesInThisFolder = filesByParentUuid.get(folder.uuid);
-    const foldersInThisFolder = foldersByParentUuid.get(folder.uuid);
-
-    if (filesInThisFolder && filesInThisFolder.length > 0) {
-      await processFilesInFolder({ ctx, folder, files: filesInThisFolder, fileExplorer, isFirstExecution, limit });
-    }
-    if (foldersInThisFolder && foldersInThisFolder.length > 0) {
-      pushChildFoldersToStack({ stack, parentFolder: folder, folders: foldersInThisFolder });
-    }
-  }
+  await traverseDepthFirst<StackItem>({
+    root,
+    abortSignal: ctx.abortController.signal,
+    processNode: (item) => processFolderPlaceHolder({ ctx, item, fileExplorer }),
+    processChildren: (item) =>
+      processFolderChildren({ ctx, item, filesByParentUuid, foldersByParentUuid, fileExplorer, isFirstExecution, limit }),
+  });
 }
 
 function indexDatabaseChildren(database: Database): DatabaseChildrenIndex {
@@ -106,7 +95,7 @@ async function processFilesInFolder({
   limit: LimitFunction;
 }) {
   let nextFileIndex = 0;
-  const workerCount = getFileProcessingWorkerCount({ limit, fileCount: files.length });
+  const workerCount = getWorkerCount({ concurrency: limit.concurrency, itemCount: files.length });
 
   async function processNextFile() {
     while (nextFileIndex < files.length) {
@@ -118,6 +107,38 @@ async function processFilesInFolder({
   }
 
   await Promise.all(Array.from({ length: workerCount }, () => limit(processNextFile)));
+}
+
+async function processFolderChildren({
+  ctx,
+  item,
+  filesByParentUuid,
+  foldersByParentUuid,
+  fileExplorer,
+  isFirstExecution,
+  limit,
+}: {
+  ctx: SyncContext;
+  item: StackItem;
+  filesByParentUuid: DatabaseChildrenIndex['filesByParentUuid'];
+  foldersByParentUuid: DatabaseChildrenIndex['foldersByParentUuid'];
+  fileExplorer: FileExplorer;
+  isFirstExecution: boolean;
+  limit: LimitFunction;
+}): Promise<StackItem[]> {
+  const { folder } = item;
+  const filesInThisFolder = filesByParentUuid.get(folder.uuid);
+  const foldersInThisFolder = foldersByParentUuid.get(folder.uuid);
+
+  if (filesInThisFolder && filesInThisFolder.length > 0) {
+    await processFilesInFolder({ ctx, folder, files: filesInThisFolder, fileExplorer, isFirstExecution, limit });
+  }
+  if (!foldersInThisFolder || foldersInThisFolder.length === 0) return [];
+
+  return foldersInThisFolder.map((child) => {
+    const absolutePath = join(folder.absolutePath, child.name);
+    return { folder: { ...child, absolutePath }, requiresPlaceholderUpdate: true };
+  });
 }
 
 async function processFile({
@@ -143,27 +164,6 @@ async function processFile({
   }
 }
 
-function pushChildFoldersToStack({
-  stack,
-  parentFolder,
-  folders,
-}: {
-  stack: StackItem[];
-  parentFolder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>;
-  folders: SimpleDriveFolder[];
-}) {
-  for (let index = folders.length - 1; index >= 0; index -= 1) {
-    const child = folders[index];
-    const absolutePath = join(parentFolder.absolutePath, child.name);
-    stack.push({ folder: { ...child, absolutePath }, requiresPlaceholderUpdate: true });
-  }
-}
-
 function isDeletedOrTrashed(status: SimpleDriveFile['status'] | SimpleDriveFolder['status']) {
   return status === 'DELETED' || status === 'TRASHED';
-}
-
-function getFileProcessingWorkerCount({ limit, fileCount }: { limit: LimitFunction; fileCount: number }) {
-  const concurrency = Number.isFinite(limit.concurrency) ? limit.concurrency : fileCount;
-  return Math.min(concurrency, fileCount);
 }
