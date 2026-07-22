@@ -29,6 +29,7 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
       contentsId: upload.contentsId,
       size: upload.size,
       modificationTime: upload.mtime.toISOString(),
+      creationTime: upload.creationTime.toISOString(),
     },
   });
 

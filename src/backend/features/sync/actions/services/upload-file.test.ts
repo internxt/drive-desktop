@@ -23,10 +23,12 @@ describe('upload-file', () => {
 
   const path = abs('/file.txt');
   const size = 1024;
+  const mtime = new Date('2000-01-01T00:00:00.000Z');
+  const birthtime = new Date('1999-01-01T00:00:00.000Z');
   let props: Parameters<typeof uploadFile>[0];
 
   beforeEach(() => {
-    statMock.mockResolvedValue({ size });
+    statMock.mockResolvedValue({ size, mtime, birthtime });
     isTemporaryFileMock.mockReturnValue(false);
     waitUntilReadyMock.mockResolvedValue(true);
     environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
@@ -51,17 +53,17 @@ describe('upload-file', () => {
 
   it('should return empty contents id if the file is empty', async () => {
     // Given
-    statMock.mockResolvedValue({ size: 0 });
+    statMock.mockResolvedValue({ size: 0, mtime, birthtime });
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toMatchObject({ contentsId: undefined, size: 0 });
+    expect(res).toStrictEqual({ contentsId: undefined, size: 0, mtime, creationTime: birthtime });
     calls(environmentFileUploadMock).toHaveLength(0);
   });
 
   it('should return undefined if the file exceeds stored plan limit', async () => {
     // Given
-    statMock.mockResolvedValue({ size: 6 });
+    statMock.mockResolvedValue({ size: 6, mtime, birthtime });
     electronStoreGetMock.mockReturnValue(5);
     // When
     const res = await uploadFile(props);
@@ -82,7 +84,7 @@ describe('upload-file', () => {
 
   it('should return undefined if the file exceeds absolute upload cap', async () => {
     // Given
-    statMock.mockResolvedValue({ size: ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT + 1 });
+    statMock.mockResolvedValue({ size: ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT + 1, mtime, birthtime });
     // When
     const res = await uploadFile(props);
     // Then
@@ -126,7 +128,7 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toMatchObject({ contentsId: 'contentsId', size });
+    expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
     call(environmentFileUploadMock).toMatchObject({ path, size });
   });
 });

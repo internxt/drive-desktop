@@ -60,6 +60,7 @@ async function replaceFile({
     contentsId: ContentsId | undefined;
     size: number;
     modificationTime: string;
+    creationTime: string;
   };
 }) {
   const method = 'PUT';
@@ -75,6 +76,7 @@ async function replaceFile({
         fileId: context.contentsId,
         size: context.size,
         modificationTime: context.modificationTime,
+        creationTime: context.creationTime,
       },
     });
 

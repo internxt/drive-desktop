@@ -42,6 +42,8 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
     plainName: name,
     size: upload.size,
     type: extension,
+    modificationTime: upload.mtime.toISOString(),
+    creationTime: upload.creationTime.toISOString(),
   };
 
   let res = ctx.workspaceId

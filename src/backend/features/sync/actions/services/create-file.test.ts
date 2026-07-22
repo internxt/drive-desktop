@@ -25,13 +25,15 @@ describe('create-file', () => {
 
   const path = abs('/parent/file.txt');
   const size = 1024;
+  const mtime = new Date('2000-01-01T00:00:00.000Z');
+  const creationTime = new Date('1999-01-01T00:00:00.000Z');
   let props: Parameters<typeof createFile>[0];
 
   beforeEach(() => {
     props = mockProps<typeof createFile>({ path });
 
     isTemporaryFileMock.mockReturnValue(false);
-    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size });
+    uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime, creationTime });
   });
 
   it('should not upload if the file is temporary', async () => {
@@ -100,7 +102,19 @@ describe('create-file', () => {
     await createFile(props);
     // Given
     call(uploadMock).toMatchObject({ path });
-    call(persistMock).toMatchObject({ context: { path, body: { fileId: 'contentsId', size, plainName: 'file', type: 'txt' } } });
+    call(persistMock).toMatchObject({
+      context: {
+        path,
+        body: {
+          fileId: 'contentsId',
+          size,
+          plainName: 'file',
+          type: 'txt',
+          modificationTime: '2000-01-01T00:00:00.000Z',
+          creationTime: '1999-01-01T00:00:00.000Z',
+        },
+      },
+    });
     call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });
     call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
