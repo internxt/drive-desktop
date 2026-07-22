@@ -88,7 +88,12 @@ async function replaceFile({
 
   if (data) {
     return { data: parseFileDto({ fileDto: data }) };
+  } else if (error?.response?.status === 400 && error.message.includes('You can not have more empty files')) {
+    return { error: new DriveServerWipError('EMPTY_FILES_EXCEEDED', error.cause) };
   } else if (error?.response?.status === 402) {
+    if (error.message.includes('You can not have empty files')) {
+      return { error: new DriveServerWipError('EMPTY_FILES_NOT_ALLOWED', error.cause) };
+    }
     return { error: new DriveServerWipError('FILE_UPLOAD_SIZE_EXCEEDED', error.cause, error.response) };
   } else {
     return { error };

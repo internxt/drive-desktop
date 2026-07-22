@@ -389,6 +389,8 @@ export const fr: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'Le lecteur virtuel ne peut pas être enregistré',
+      EMPTY_FILES_EXCEEDED: 'La limite de fichiers vides est depassee',
+      EMPTY_FILES_NOT_ALLOWED: 'Les fichiers vides ne sont pas autorises. Mettez a niveau votre plan pour obtenir plus de fonctionnalites',
       FILE_SIZE_TOO_BIG: 'Le fichier est trop grand',
       FOLDER_ACCESS_DENIED: "L'app n'a pas le droit d'accéder à cette dossier",
       INVALID_WINDOWS_NAME: String.raw`Windows ne permet pas les noms contenant \ / : * ? " < > | ou commençant/terminant par des espaces`,
