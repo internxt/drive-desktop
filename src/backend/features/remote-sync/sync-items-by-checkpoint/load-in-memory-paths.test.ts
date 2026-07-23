@@ -10,8 +10,11 @@ describe('load-in-memory-paths', () => {
   const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const rootUuid = 'rootUuid' as FolderUuid;
 
-  const props = mockProps<typeof loadInMemoryPaths>({ ctx: {} });
+  const props = mockProps<typeof loadInMemoryPaths>({
+    ctx: { rootPath: abs('/root'), rootUuid, abortController: new AbortController() },
+  });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
@@ -33,7 +36,7 @@ describe('load-in-memory-paths', () => {
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1' }]]));
+    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1', parentUuid: rootUuid }]]));
     expect(files).toMatchObject(
       new Map([
         ['fileUuid2', { path: '/file2' }],
@@ -75,7 +78,7 @@ describe('load-in-memory-paths', () => {
     expect(statReaddirMock).not.toHaveBeenCalledWith({ folder: '/folderSkipped' });
     expect(folders).toStrictEqual(
       new Map([
-        ['folderAUuid', { path: '/folderA', parentUuid: props.ctx.rootUuid }],
+        ['folderAUuid', { path: '/folderA', parentUuid: rootUuid }],
         ['folderBUuid', { path: '/folderA/folderB', parentUuid: 'folderAUuid' }],
       ]),
     );

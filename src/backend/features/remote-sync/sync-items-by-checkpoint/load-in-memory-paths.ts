@@ -39,10 +39,6 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   return { files, folders };
 }
 
-function getFolderUuid(item: StackItem): FolderUuid {
-  return item.uuid as FolderUuid;
-}
-
 async function loadFolder({ ctx, folders, item }: { ctx: SyncContext; folders: FileExplorerFolders; item: StackItem }): Promise<boolean> {
   if (!item.requiresPlaceholderLoad) return true;
 
@@ -63,7 +59,8 @@ async function processChildren({
   files: FileExplorerFiles;
   limit: LimitFunction;
 }): Promise<Array<StackItem>> {
-  const parentUuid = getFolderUuid(item);
+  const parentUuid = item.uuid;
+  if (!parentUuid) return [];
 
   const items = await statReaddir({ folder: item.path });
 
