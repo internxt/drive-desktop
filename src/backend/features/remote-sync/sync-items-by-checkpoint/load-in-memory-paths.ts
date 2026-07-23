@@ -1,7 +1,7 @@
-import pLimit, { LimitFunction } from 'p-limit';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY } from '@/backend/features/virtual-drive/tree-traversal/concurrency';
 import { traverseDepthFirst } from '@/backend/features/virtual-drive/tree-traversal/traverse-depth-first';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { statReaddir } from '@/infra/file-system/services/stat-readdir';
@@ -26,14 +26,13 @@ type StackItem =
 export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
   const files: FileExplorerFiles = new Map();
   const folders: FileExplorerFolders = new Map();
-  const limit = pLimit(20);
   const root: StackItem = { path: ctx.rootPath, uuid: ctx.rootUuid, requiresPlaceholderLoad: false };
 
   await traverseDepthFirst<StackItem>({
     root,
     abortSignal: ctx.abortController?.signal,
     processNode: (item) => loadFolder({ ctx, folders, item }),
-    processChildren: (item) => processChildren({ item, files, limit }),
+    processChildren: (item) => processChildren({ item, files }),
   });
 
   return { files, folders };
@@ -50,20 +49,17 @@ async function loadFolder({ ctx, folders, item }: { ctx: SyncContext; folders: F
   return true;
 }
 
-async function processChildren({
-  item,
-  files,
-  limit,
-}: {
-  item: StackItem;
-  files: FileExplorerFiles;
-  limit: LimitFunction;
-}): Promise<Array<StackItem>> {
+async function processChildren({ item, files }: { item: StackItem; files: FileExplorerFiles }): Promise<Array<StackItem>> {
   const parentUuid = item.uuid;
   if (!parentUuid) return [];
 
-  const items = await statReaddir({ folder: item.path });
+  const items = await statReaddir({ folder: item.path, concurrency: VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY });
 
-  await loadFileExplorerFiles({ files, items: items.files, limit, parentUuid });
+  await loadFileExplorerFiles({
+    concurrency: VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY,
+    files,
+    items: items.files,
+    parentUuid,
+  });
   return items.folders.map<StackItem>(({ path }) => ({ path, parentUuid, requiresPlaceholderLoad: true }));
 }

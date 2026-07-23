@@ -1,5 +1,4 @@
 import { Stats } from 'node:fs';
-import pLimit from 'p-limit';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -32,9 +31,9 @@ describe('load-file-explorer-files', () => {
 
     // When
     await loadFileExplorerFiles({
+      concurrency: 20,
       files,
       parentUuid,
-      limit: pLimit(20),
       items: [
         { path: abs('/file1'), stats: stats({ mtimeMs: 1, size: 100 }) },
         { path: abs('/file2'), stats: stats({ mtimeMs: 2, size: 200 }) },
@@ -92,9 +91,9 @@ describe('load-file-explorer-files', () => {
 
     // When
     await loadFileExplorerFiles({
+      concurrency: 2,
       files,
       parentUuid,
-      limit: pLimit(2),
       items: [
         { path: abs('/file1'), stats: stats() },
         { path: abs('/file2'), stats: stats() },
