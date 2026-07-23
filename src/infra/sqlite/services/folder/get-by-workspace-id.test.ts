@@ -50,10 +50,22 @@ describe('get-by-workspace-id', () => {
     // Given
     db.prepare(upsertQuery).run(folder);
     db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2 });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', id: 3, status: 'DELETED' });
     // When
     const { data } = getByWorkspaceId(props);
     // Then
-    expect(data).toHaveLength(2);
+    expect(data).toHaveLength(3);
+  });
+
+  it('should return folders filtered by status', () => {
+    // Given
+    db.prepare(upsertQuery).run(folder);
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2, status: 'TRASHED' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', id: 3, status: 'DELETED' });
+    // When
+    const { data } = getByWorkspaceId({ ...props, folderStatus: 'EXISTS' });
+    // Then
+    expect(data).toMatchObject([{ uuid: 'uuid1', status: 'EXISTS' }]);
   });
 
   it('should not return folders from a different workspace', () => {

@@ -10,8 +10,11 @@ describe('load-in-memory-paths', () => {
   const statReaddirMock = partialSpyOn(statReaddir, 'statReaddir');
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const rootUuid = 'rootUuid' as FolderUuid;
 
-  const props = mockProps<typeof loadInMemoryPaths>({ ctx: {} });
+  const props = mockProps<typeof loadInMemoryPaths>({
+    ctx: { rootPath: abs('/root'), rootUuid, abortController: new AbortController() },
+  });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
@@ -33,11 +36,66 @@ describe('load-in-memory-paths', () => {
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1' }]]));
+    expect(folders).toStrictEqual(new Map([['folderUuid', { path: '/folder1', parentUuid: rootUuid }]]));
     expect(files).toMatchObject(
       new Map([
         ['fileUuid2', { path: '/file2' }],
         ['fileUuid3', { path: '/file3' }],
+      ]),
+    );
+  });
+
+  it('should keep nested parent uuids and skip folders without placeholder', async () => {
+    // Given
+    statReaddirMock
+      .mockResolvedValueOnce({
+        files: [],
+        folders: [{ path: abs('/folderA') }, { path: abs('/folderSkipped') }],
+      })
+      .mockResolvedValueOnce({
+        files: [],
+        folders: [{ path: abs('/folderA/folderB') }],
+      })
+      .mockResolvedValueOnce({
+        files: [{ path: abs('/folderA/folderB/fileB'), stats: { mtimeMs: 1, size: 2 } }],
+        folders: [],
+      });
+
+    getFolderInfoMock
+      .mockResolvedValueOnce({ data: { uuid: 'folderAUuid' as FolderUuid } })
+      .mockResolvedValueOnce({ data: { uuid: 'folderBUuid' as FolderUuid } })
+      .mockResolvedValueOnce({});
+
+    getFileInfoMock.mockResolvedValueOnce({
+      data: { uuid: 'fileBUuid' as FileUuid, onDiskSize: 3, pinState: 4 },
+    });
+
+    // When
+    const { files, folders } = await loadInMemoryPaths(props);
+
+    // Then
+    expect(statReaddirMock).toHaveBeenCalledTimes(3);
+    expect(statReaddirMock).not.toHaveBeenCalledWith(expect.objectContaining({ folder: abs('/folderSkipped') }));
+    expect(folders).toStrictEqual(
+      new Map([
+        ['folderAUuid', { path: '/folderA', parentUuid: rootUuid }],
+        ['folderBUuid', { path: '/folderA/folderB', parentUuid: 'folderAUuid' }],
+      ]),
+    );
+
+    expect(files).toStrictEqual(
+      new Map([
+        [
+          'fileBUuid',
+          {
+            path: '/folderA/folderB/fileB',
+            parentUuid: 'folderBUuid',
+            mtimeMs: 1,
+            size: 2,
+            onDiskSize: 3,
+            pinState: 4,
+          },
+        ],
       ]),
     );
   });

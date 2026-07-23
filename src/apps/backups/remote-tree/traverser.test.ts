@@ -51,6 +51,8 @@ describe('traverser', () => {
     const res = await Traverser.run(props);
 
     // Then
+    expect(getFilesMock).toHaveBeenCalledWith({ userUuid: props.userUuid, workspaceId: '', fileStatus: 'EXISTS' });
+    expect(getFoldersMock).toHaveBeenCalledWith({ userUuid: props.userUuid, workspaceId: '', folderStatus: 'EXISTS' });
     expect([...res.folders.keys()]).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);
     expect([...res.files.keys()]).toStrictEqual([
       '/backup/file1',

@@ -1,5 +1,10 @@
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import {
+  DriveItemsByParentUuid,
+  indexDriveItemsByParentUuid,
+} from '@/backend/features/virtual-drive/tree-traversal/index-drive-items-by-parent-uuid';
+import { traverseDepthFirst } from '@/backend/features/virtual-drive/tree-traversal/traverse-depth-first';
 import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
@@ -26,45 +31,65 @@ export class Traverser {
     };
   }
 
-  private static traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
-    const filesInThisFolder = items.files.filter((file) => file.parentUuid === parent.uuid);
-    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === parent.uuid);
+  private static async traverse(tree: RemoteTree, items: Items, parent: ExtendedDriveFolder) {
+    const { filesByParentUuid, foldersByParentUuid } = indexDriveItemsByParentUuid(items);
 
-    filesInThisFolder.forEach((file) => {
-      const absolutePath = join(parent.absolutePath, file.name);
-      const extendedFile = { ...file, absolutePath };
-
-      tree.files.set(absolutePath, extendedFile);
+    await traverseDepthFirst({
+      root: parent,
+      processNode: (currentFolder) => this.processFolder({ tree, currentFolder }),
+      processChildren: (currentFolder) => this.processFolderChildren({ tree, currentFolder, filesByParentUuid, foldersByParentUuid }),
     });
+  }
 
-    foldersInThisFolder.forEach((folder) => {
-      const absolutePath = join(parent.absolutePath, folder.name);
-      const extendedFolder = { ...folder, absolutePath };
+  private static processFolder({ tree, currentFolder }: { tree: RemoteTree; currentFolder: ExtendedDriveFolder }) {
+    tree.folders.set(currentFolder.absolutePath, currentFolder);
+    return true;
+  }
 
-      tree.folders.set(absolutePath, extendedFolder);
-      this.traverse(tree, items, extendedFolder);
+  private static processFolderChildren({
+    tree,
+    currentFolder,
+    filesByParentUuid,
+    foldersByParentUuid,
+  }: {
+    tree: RemoteTree;
+    currentFolder: ExtendedDriveFolder;
+    filesByParentUuid: DriveItemsByParentUuid['filesByParentUuid'];
+    foldersByParentUuid: DriveItemsByParentUuid['foldersByParentUuid'];
+  }) {
+    const filesInThisFolder = filesByParentUuid.get(currentFolder.uuid);
+    const foldersInThisFolder = foldersByParentUuid.get(currentFolder.uuid);
+
+    if (filesInThisFolder && filesInThisFolder.length > 0) {
+      filesInThisFolder.forEach((file) => {
+        const absolutePath = join(currentFolder.absolutePath, file.name);
+        const extendedFile = { ...file, absolutePath };
+
+        tree.files.set(absolutePath, extendedFile);
+      });
+    }
+    if (!foldersInThisFolder || foldersInThisFolder.length === 0) return [];
+
+    return foldersInThisFolder.map((folder) => {
+      const absolutePath = join(currentFolder.absolutePath, folder.name);
+      return { ...folder, absolutePath };
     });
   }
 
   static async run({ userUuid, rootUuid, rootPath }: { userUuid: string; rootUuid: FolderUuid; rootPath: AbsolutePath }) {
     const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
-      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
+      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '', fileStatus: 'EXISTS' }),
+      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '', folderStatus: 'EXISTS' }),
     ]);
-
-    const items = {
-      files: files.filter((file) => file.status === 'EXISTS'),
-      folders: folders.filter((folder) => folder.status === 'EXISTS'),
-    };
 
     const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
     const tree: RemoteTree = {
       files: new Map(),
-      folders: new Map([[rootFolder.absolutePath, rootFolder]]),
+      folders: new Map(),
     };
 
-    this.traverse(tree, items, rootFolder);
+    await this.traverse(tree, { files, folders }, rootFolder);
 
     return tree;
   }
