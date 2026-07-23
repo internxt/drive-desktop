@@ -75,7 +75,7 @@ describe('load-in-memory-paths', () => {
 
     // Then
     expect(statReaddirMock).toHaveBeenCalledTimes(3);
-    expect(statReaddirMock).not.toHaveBeenCalledWith({ folder: '/folderSkipped' });
+    expect(statReaddirMock).not.toHaveBeenCalledWith(expect.objectContaining({ folder: abs('/folderSkipped') }));
     expect(folders).toStrictEqual(
       new Map([
         ['folderAUuid', { path: '/folderA', parentUuid: rootUuid }],
