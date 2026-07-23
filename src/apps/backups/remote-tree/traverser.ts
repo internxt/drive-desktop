@@ -60,13 +60,14 @@ export class Traverser {
     const filesInThisFolder = filesByParentUuid.get(currentFolder.uuid);
     const foldersInThisFolder = foldersByParentUuid.get(currentFolder.uuid);
 
-    filesInThisFolder?.forEach((file) => {
-      const absolutePath = join(currentFolder.absolutePath, file.name);
-      const extendedFile = { ...file, absolutePath };
+    if (filesInThisFolder && filesInThisFolder.length > 0) {
+      filesInThisFolder.forEach((file) => {
+        const absolutePath = join(currentFolder.absolutePath, file.name);
+        const extendedFile = { ...file, absolutePath };
 
-      tree.files.set(absolutePath, extendedFile);
-    });
-
+        tree.files.set(absolutePath, extendedFile);
+      });
+    }
     if (!foldersInThisFolder || foldersInThisFolder.length === 0) return [];
 
     return foldersInThisFolder.map((folder) => {
@@ -77,14 +78,9 @@ export class Traverser {
 
   static async run({ userUuid, rootUuid, rootPath }: { userUuid: string; rootUuid: FolderUuid; rootPath: AbsolutePath }) {
     const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
-      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '' }),
+      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '', fileStatus: 'EXISTS' }),
+      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '', folderStatus: 'EXISTS' }),
     ]);
-
-    const items = {
-      files: files.filter((file) => file.status === 'EXISTS'),
-      folders: folders.filter((folder) => folder.status === 'EXISTS'),
-    };
 
     const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
@@ -93,7 +89,7 @@ export class Traverser {
       folders: new Map(),
     };
 
-    await this.traverse(tree, items, rootFolder);
+    await this.traverse(tree, { files, folders }, rootFolder);
 
     return tree;
   }
