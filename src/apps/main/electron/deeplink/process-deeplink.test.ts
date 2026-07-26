@@ -15,4 +15,22 @@ describe('process-deeplink', () => {
     // Then
     call(openExternalMock).toStrictEqual(url);
   });
+
+  it('should reject a URL with a different hostname', () => {
+    const url = 'https://evil.com/malicious';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
+
+  it('should reject a subdomain bypass attack', () => {
+    const url = 'https://drive.internxt.com.evil.com';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
+
+  it('should reject a file protocol URL', () => {
+    const url = 'file:///etc/passwd';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
 });
