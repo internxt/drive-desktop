@@ -17,7 +17,7 @@ describe('traverser', () => {
   const folder3 = randomUUID() as FolderUuid;
 
   beforeEach(() => {
-    getFilesMock.mockResolvedValue({
+    getFilesMock.mockReturnValue({
       data: [
         { name: 'file1', parentUuid: folder, status: 'EXISTS' },
         { name: 'file2', parentUuid: folder, status: 'EXISTS' },
@@ -27,7 +27,7 @@ describe('traverser', () => {
       ],
     });
 
-    getFoldersMock.mockResolvedValue({
+    getFoldersMock.mockReturnValue({
       data: [
         { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
         { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
