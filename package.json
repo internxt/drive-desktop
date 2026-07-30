@@ -205,7 +205,7 @@
     "@iconscout/react-unicons": "^2.2.5",
     "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-0.1.14.tgz",
     "@internxt/inxt-js": "3.2.2",
-    "@internxt/lib": "^1.4.2",
+    "@internxt/lib": "1.5.2",
     "@internxt/scan": "1.0.7",
     "@internxt/sdk": "^1.17.5",
     "@packages/addon": "file:packages/addon/packages-addon-1.0.0.tgz",

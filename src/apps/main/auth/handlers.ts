@@ -9,6 +9,7 @@ import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
 import { resolveUserFileSizeLimit } from '@/backend/features/user/file-size-limit';
+import { validateTokenAndCheckExpiration } from '../../../backend/features/auth/services/token/validate-token-and-check-expiration';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import electronStore from '../config';
@@ -47,9 +48,10 @@ export function checkIfUserIsLoggedIn() {
     return;
   }
 
-  const msToExpire = TokenScheduler.getMillisecondsToExpire();
-  if (msToExpire === null || msToExpire <= 0) {
-    logger.debug({ tag: 'AUTH', msg: 'User token is expired' });
+  const { data: tokenStatus, error } = validateTokenAndCheckExpiration();
+
+  if (tokenStatus === 'INVALID' || tokenStatus === 'EXPIRED' || error) {
+    logger.debug({ tag: 'AUTH', msg: `User token is ${tokenStatus == 'EXPIRED' ? 'expired' : 'invalid'}` });
     saveConfig();
     resetConfig();
     return;
