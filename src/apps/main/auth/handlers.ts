@@ -1,4 +1,5 @@
 import { clearSentryUserContext, setSentryUserContext } from '@internxt/drive-desktop-core/build/backend/core/sentry/sentry';
+import { TokenStatus } from '@internxt/lib';
 import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
 import { setMaxListeners } from 'node:events';
@@ -50,8 +51,8 @@ export function checkIfUserIsLoggedIn() {
 
   const { data: tokenStatus, error } = validateTokenAndCheckExpiration();
 
-  if (tokenStatus === 'INVALID' || tokenStatus === 'EXPIRED' || error) {
-    logger.debug({ tag: 'AUTH', msg: `User token is ${tokenStatus == 'EXPIRED' ? 'expired' : 'invalid'}` });
+  if (tokenStatus === TokenStatus.INVALID || tokenStatus === TokenStatus.EXPIRED || error) {
+    logger.debug({ tag: 'AUTH', msg: `User token is ${tokenStatus == TokenStatus.EXPIRED ? 'expired' : 'invalid'}` });
     saveConfig();
     resetConfig();
     return;

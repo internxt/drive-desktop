@@ -1,4 +1,5 @@
 import { auth } from '@internxt/lib';
+import { MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS } from '@/backend/features/auth';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
@@ -46,5 +47,23 @@ describe('token-scheduler', () => {
 
     expect(refreshMock).not.toHaveBeenCalled();
     expect(loggerMock.error).toHaveBeenCalledWith({ tag: 'AUTH', msg: 'Error while scheduling token', error });
+  });
+
+  it('refreshes at the original threshold after a capped timeout', async () => {
+    const remainingDelayMs = 5_000;
+    calculateMillisecondsUntilRefreshMock.mockReturnValueOnce(MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS + remainingDelayMs);
+    calculateMillisecondsUntilRefreshMock.mockReturnValueOnce(remainingDelayMs);
+
+    TokenScheduler.schedule();
+    await vi.advanceTimersByTimeAsync(MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS);
+
+    expect(refreshMock).not.toHaveBeenCalled();
+    expect(validateTokenMock).toHaveBeenCalledTimes(2);
+
+    await vi.advanceTimersByTimeAsync(remainingDelayMs - 1);
+    expect(refreshMock).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(refreshMock).toHaveBeenCalledOnce();
   });
 });

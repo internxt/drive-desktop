@@ -1,7 +1,7 @@
 import { auth } from '@internxt/lib';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { validateToken } from '../../../backend/features/auth/services/token/validate-token';
+import { MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS, validateToken } from '../../../backend/features/auth';
 import { updateCredentials } from '../auth/service';
 
 export class TokenScheduler {
@@ -18,6 +18,7 @@ export class TokenScheduler {
 
     const expiresAt = data.exp * 1000;
     const msToRenew = auth.calculateMillisecondsUntilRefresh(data.exp, data.iat);
+    const timeoutDelay = Math.min(msToRenew, MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS);
     const renewAt = Date.now() + msToRenew;
 
     logger.debug({
@@ -28,13 +29,18 @@ export class TokenScheduler {
     });
 
     this.timeout = setTimeout(async () => {
+      if (msToRenew > MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS) {
+        this.schedule();
+        return;
+      }
+
       const { data } = await driveServerWip.auth.refresh();
 
       if (data) {
         updateCredentials({ newToken: data.newToken });
         this.schedule();
       }
-    }, msToRenew);
+    }, timeoutDelay);
   }
 
   static stop() {
