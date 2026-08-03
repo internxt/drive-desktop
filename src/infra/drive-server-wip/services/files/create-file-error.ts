@@ -10,7 +10,8 @@ export class CreateFileError extends DriveServerWipError {
       | 'EMPTY_FILES_NOT_ALLOWED'
       | 'EMPTY_FILES_EXCEEDED',
     cause: unknown,
+    response?: Response,
   ) {
-    super(code, cause);
+    super(code, cause, response);
   }
 }

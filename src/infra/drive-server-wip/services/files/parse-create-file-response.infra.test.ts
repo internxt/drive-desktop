@@ -67,10 +67,12 @@ describe('parseCreateFileResponse', () => {
   ])('maps $status "$message" errors to $expectedCode', ({ status, message, expectedCode }) => {
     const cause = new Error('cause');
 
-    const result = parseCreateFileResponse(getErrorResponse({ status, message, cause }));
+    const response = getErrorResponse({ status, message, cause });
+    const result = parseCreateFileResponse(response);
 
     expect(result.error?.code).toBe(expectedCode);
     expect(result.error?.cause).toBe(cause);
+    expect(result.error?.response).toBe(response.error?.response);
   });
 
   it('should return unmapped errors unchanged', () => {
