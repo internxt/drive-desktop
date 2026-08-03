@@ -49,7 +49,11 @@ export function IssuesByError({ issues }: Props) {
 
         return (
           <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectCause(error)} key={error} role="button">
-            <Accordion title={t(`issues.errors.${error}`)} collapsed={!isSelected(error)} elements={issues.map((issue) => issue.name)} />
+            <Accordion
+              title={t(`issues.errors.${error}` as Parameters<typeof t>[0])}
+              collapsed={!isSelected(error)}
+              elements={issues.map((issue) => issue.name)}
+            />
           </li>
         );
       })}
