@@ -1,8 +1,8 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { shell } from 'electron';
 import { INTERNXT_PROTOCOL } from '@/core/utils/utils';
-
-const notificationPrefix = 'internxt://notification/';
+import { ALLOWED_HOSTNAMES, ALLOWED_PROTOCOLS, notificationPrefix } from './constants';
+import { isValidUrl } from './is-valid-url';
 
 type Props = { argv: string[] };
 
@@ -15,9 +15,10 @@ export function processDeeplink({ argv }: Props) {
   }
 
   logger.debug({ msg: 'Known deeplink', url: url.slice(0, 50) });
-
   if (url.startsWith(notificationPrefix)) {
     const link = url.slice(notificationPrefix.length);
-    void shell.openExternal(link);
+    if (isValidUrl(link, ALLOWED_PROTOCOLS, ALLOWED_HOSTNAMES)) {
+      void shell.openExternal(link);
+    }
   }
 }

@@ -77,10 +77,8 @@ export class Traverser {
   }
 
   static async run({ userUuid, rootUuid, rootPath }: { userUuid: string; rootUuid: FolderUuid; rootPath: AbsolutePath }) {
-    const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-      SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '', fileStatus: 'EXISTS' }),
-      SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '', folderStatus: 'EXISTS' }),
-    ]);
+    const { data: files = [] } = SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '', fileStatus: 'EXISTS' });
+    const { data: folders = [] } = SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '', folderStatus: 'EXISTS' });
 
     const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
