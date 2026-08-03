@@ -1,21 +1,11 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { CommonContext } from '@/apps/sync-engine/config';
-import { DriveServerWipError, TDriveServerWipError } from '../../defs';
-import { clientWrapper, TResponse } from '../../in/client-wrapper.service';
+import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
-import { FileDto, parseFileDto } from '../../out/dto';
+import { parseCreateFileResponse } from './parse-create-file-response';
 
 export type CreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
-
-class CreateFileError extends DriveServerWipError {
-  constructor(
-    public readonly code: TDriveServerWipError | 'PARENT_NOT_FOUND' | 'FILE_ALREADY_EXISTS' | 'FILE_UPLOAD_SIZE_EXCEEDED',
-    cause: unknown,
-  ) {
-    super(code, cause);
-  }
-}
 
 type Props = {
   ctx: CommonContext;
@@ -40,21 +30,4 @@ export async function createFile({ ctx, context }: Props) {
   });
 
   return parseCreateFileResponse(res);
-}
-
-export function parseCreateFileResponse(res: Awaited<TResponse<FileDto>>) {
-  if (res.error) {
-    switch (true) {
-      case res.error.response?.status === 404:
-        return { error: new CreateFileError('PARENT_NOT_FOUND', res.error.cause) };
-      case res.error.response?.status === 409:
-        return { error: new CreateFileError('FILE_ALREADY_EXISTS', res.error.cause) };
-      case res.error.response?.status === 402:
-        return { error: new CreateFileError('FILE_UPLOAD_SIZE_EXCEEDED', res.error.cause) };
-      default:
-        return { error: res.error };
-    }
-  }
-
-  return { data: parseFileDto({ fileDto: res.data }) };
 }
