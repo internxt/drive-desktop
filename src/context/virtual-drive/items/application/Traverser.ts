@@ -6,6 +6,10 @@ import { deleteItemPlaceholder } from '@/backend/features/remote-sync/file-explo
 import { updateFilePlaceholder } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { updateFolderPlaceholder } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
 import { FileExplorerFiles, FileExplorerFolders } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import {
+  DriveItemsByParentUuid,
+  indexDriveItemsByParentUuid,
+} from '@/backend/features/virtual-drive/tree-traversal/index-drive-items-by-parent-uuid';
 import { traverseDepthFirst } from '@/backend/features/virtual-drive/tree-traversal/traverse-depth-first';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getWorkerCount } from '@/core/utils/concurrency';
@@ -24,13 +28,9 @@ type Props = {
 type StackItem =
   | { folder: Pick<ExtendedDriveFolder, 'absolutePath' | 'uuid'>; requiresPlaceholderUpdate: false }
   | { folder: ExtendedDriveFolder; requiresPlaceholderUpdate: true };
-type DatabaseChildrenIndex = {
-  filesByParentUuid: Map<string | undefined, SimpleDriveFile[]>;
-  foldersByParentUuid: Map<string | undefined, SimpleDriveFolder[]>;
-};
 
 export async function traverse({ ctx, database, fileExplorer, currentFolder, isFirstExecution, limit }: Props) {
-  const { filesByParentUuid, foldersByParentUuid } = indexDatabaseChildren(database);
+  const { filesByParentUuid, foldersByParentUuid } = indexDriveItemsByParentUuid(database);
   const root: StackItem = { folder: currentFolder, requiresPlaceholderUpdate: false };
 
   await traverseDepthFirst<StackItem>({
@@ -40,31 +40,6 @@ export async function traverse({ ctx, database, fileExplorer, currentFolder, isF
     processChildren: (item) =>
       processFolderChildren({ ctx, item, filesByParentUuid, foldersByParentUuid, fileExplorer, isFirstExecution, limit }),
   });
-}
-
-function indexDatabaseChildren(database: Database): DatabaseChildrenIndex {
-  const filesByParentUuid = new Map<string | undefined, SimpleDriveFile[]>();
-  const foldersByParentUuid = new Map<string | undefined, SimpleDriveFolder[]>();
-
-  for (const file of database.files) {
-    const files = filesByParentUuid.get(file.parentUuid);
-    if (files) {
-      files.push(file);
-    } else {
-      filesByParentUuid.set(file.parentUuid, [file]);
-    }
-  }
-
-  for (const folder of database.folders) {
-    const folders = foldersByParentUuid.get(folder.parentUuid);
-    if (folders) {
-      folders.push(folder);
-    } else {
-      foldersByParentUuid.set(folder.parentUuid, [folder]);
-    }
-  }
-
-  return { filesByParentUuid, foldersByParentUuid };
 }
 
 async function processFolderPlaceHolder({ ctx, item, fileExplorer }: { ctx: SyncContext; item: StackItem; fileExplorer: FileExplorer }) {
@@ -120,8 +95,8 @@ async function processFolderChildren({
 }: {
   ctx: SyncContext;
   item: StackItem;
-  filesByParentUuid: DatabaseChildrenIndex['filesByParentUuid'];
-  foldersByParentUuid: DatabaseChildrenIndex['foldersByParentUuid'];
+  filesByParentUuid: DriveItemsByParentUuid['filesByParentUuid'];
+  foldersByParentUuid: DriveItemsByParentUuid['foldersByParentUuid'];
   fileExplorer: FileExplorer;
   isFirstExecution: boolean;
   limit: LimitFunction;

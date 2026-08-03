@@ -90,6 +90,28 @@ describe('stat-readdir', () => {
     expect(maxActiveStats).toBe(20);
   });
 
+  it('should use the provided stat concurrency', async () => {
+    // Given
+    let activeStats = 0;
+    let maxActiveStats = 0;
+
+    vi.spyOn(fileSystem, 'stat').mockImplementation(async ({ absolutePath }) => {
+      activeStats += 1;
+      maxActiveStats = Math.max(maxActiveStats, activeStats);
+
+      await testSleep(1);
+
+      activeStats -= 1;
+      return { data: stats({ isFile: absolutePath.includes('file'), isDirectory: false }) };
+    });
+
+    // When
+    await statReaddir({ folder: manyEntries, concurrency: 3 });
+
+    // Then
+    expect(maxActiveStats).toBe(3);
+  });
+
   it('should keep processing entries when one stat call fails', async () => {
     // Given
     const onError = vi.fn();

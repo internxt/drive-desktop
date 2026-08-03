@@ -7,15 +7,19 @@ import { fileSystem } from '../file-system.module';
 import { StatError } from './stat';
 
 export type StatItem = { path: AbsolutePath; stats: Stats };
-type Props = { folder: AbsolutePath; onError?: ({ path, error }: { path: AbsolutePath; error: StatError }) => void };
-const STAT_READDIR_CONCURRENCY = 20;
+type Props = {
+  folder: AbsolutePath;
+  concurrency?: number;
+  onError?: ({ path, error }: { path: AbsolutePath; error: StatError }) => void;
+};
+const DEFAULT_STAT_READDIR_CONCURRENCY = 20;
 
 /**
  * v2.5.6 Daniel Jiménez
  * We cannot use `withFileTypes` because it treats everything as a symbolic link,
  * so we have to use `stat` for each entry.
  */
-export async function statReaddir({ folder, onError }: Props) {
+export async function statReaddir({ folder, concurrency = DEFAULT_STAT_READDIR_CONCURRENCY, onError }: Props) {
   const files: StatItem[] = [];
   const folders: StatItem[] = [];
   const entries = await readdir(folder);
@@ -39,7 +43,7 @@ export async function statReaddir({ folder, onError }: Props) {
     }
   }
 
-  const workerCount = getWorkerCount({ concurrency: STAT_READDIR_CONCURRENCY, itemCount: entries.length });
+  const workerCount = getWorkerCount({ concurrency, itemCount: entries.length });
   await Promise.all(Array.from({ length: workerCount }, processNextEntry));
 
   return { files, folders };
