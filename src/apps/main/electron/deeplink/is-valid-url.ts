@@ -1,8 +1,4 @@
-export function validateUrl(
-  urlString: string,
-  allowedProtocols: string[],
-  allowedHostnames: string[],
-): boolean {
+export function isValidUrl(urlString: string, allowedProtocols: string[], allowedHostnames: string[]): boolean {
   try {
     const url = new URL(urlString);
     return allowedProtocols.includes(url.protocol) && allowedHostnames.includes(url.hostname);
