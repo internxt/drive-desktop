@@ -3,6 +3,8 @@ import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-uplo
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import * as handleEmptyFilesAmoutForUser from '@/backend/features/user/empty-files/handle-empty-files-amout-for-user';
+import * as handleEmptyFilesNotAllowedForUser from '@/backend/features/user/empty-files/handle-empty-files-not-allowed-for-user';
 import * as fileSizeLimit from '@/backend/features/user/file-size-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -16,6 +18,8 @@ describe('create-file', () => {
   const persistMock = partialSpyOn(driveServerWip.files, 'createFile');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const handleFileUploadSizeExceededMock = partialSpyOn(fileSizeLimit, 'handleFileUploadSizeExceeded');
+  const handleEmptyFilesAmoutForUserMock = partialSpyOn(handleEmptyFilesAmoutForUser, 'handleEmptyFilesAmoutForUser');
+  const handleEmptyFilesNotAllowedForUserMock = partialSpyOn(handleEmptyFilesNotAllowedForUser, 'handleEmptyFilesNotAllowedForUser');
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
@@ -66,6 +70,28 @@ describe('create-file', () => {
     await createFile(props);
     // Given
     call(handleFileUploadSizeExceededMock).toMatchObject({ path, size });
+    calls(addItemMock).toHaveLength(0);
+  });
+
+  it('should handle empty files not allowed if metadata persistence rejects empty files', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'EMPTY_FILES_NOT_ALLOWED' } });
+    // When
+    await createFile(props);
+    // Then
+    call(handleEmptyFilesNotAllowedForUserMock).toMatchObject({ path });
+    calls(handleEmptyFilesAmoutForUserMock).toHaveLength(0);
+    calls(addItemMock).toHaveLength(0);
+  });
+
+  it('should handle empty files amount exceeded if metadata persistence rejects empty files amount', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'EMPTY_FILES_EXCEEDED' } });
+    // When
+    await createFile(props);
+    // Then
+    call(handleEmptyFilesAmoutForUserMock).toMatchObject({ path });
+    calls(handleEmptyFilesNotAllowedForUserMock).toHaveLength(0);
     calls(addItemMock).toHaveLength(0);
   });
 
