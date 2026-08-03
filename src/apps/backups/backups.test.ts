@@ -53,7 +53,7 @@ describe('backups', () => {
     // Given
     const unmodifiedFileStats = await stat(unmodifiedFile);
 
-    getFoldersMock.mockResolvedValue({
+    getFoldersMock.mockReturnValue({
       data: [
         { uuid: 'folder' as FolderUuid, parentUuid: rootUuid, name: 'folder', status: 'EXISTS' },
         { uuid: 'deletedFolder' as FolderUuid, parentUuid: rootUuid, name: 'deletedFolder', status: 'EXISTS' },
@@ -61,7 +61,7 @@ describe('backups', () => {
       ],
     });
 
-    getFilesMock.mockResolvedValue({
+    getFilesMock.mockReturnValue({
       data: [
         {
           uuid: 'unmodifiedFile' as FileUuid,

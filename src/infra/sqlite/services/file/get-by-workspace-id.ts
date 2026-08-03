@@ -1,3 +1,4 @@
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { db } from '../../migrations/run-migrations';
 import { DriveFile } from '../../schema';
@@ -7,13 +8,24 @@ import { parseData } from './parse-data';
 type Props = {
   userUuid: string;
   workspaceId: string;
+  fileStatus?: SimpleDriveFile['status'];
 };
 
-export function getByWorkspaceId({ userUuid, workspaceId }: Props) {
+export function getByWorkspaceId({ userUuid, workspaceId, fileStatus }: Props) {
   try {
-    const items = db
-      .prepare(`SELECT * FROM drive_file WHERE userUuid = :userUuid AND workspaceId = :workspaceId`)
-      .all({ userUuid, workspaceId });
+    const statusFilter = fileStatus ? 'AND status = :fileStatus' : '';
+    const query = `
+      SELECT * FROM drive_file
+      WHERE userUuid = :userUuid
+        AND workspaceId = :workspaceId
+        ${statusFilter}
+    `;
+    const params: Record<string, string> = { userUuid, workspaceId };
+    if (fileStatus) {
+      params.fileStatus = fileStatus;
+    }
+
+    const items = db.prepare(query).all(params);
 
     return { data: items.map((item) => parseData({ data: item as DriveFile })) };
   } catch (exc) {

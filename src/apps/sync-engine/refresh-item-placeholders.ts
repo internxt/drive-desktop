@@ -1,5 +1,6 @@
 import pLimit from 'p-limit';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY } from '@/backend/features/virtual-drive/tree-traversal/concurrency';
 import { traverse } from '@/context/virtual-drive/items/application/Traverser';
 import { measurePerfomance } from '@/core/utils/measure-performance';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
@@ -30,7 +31,14 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
 
       const currentFolder = { absolutePath: ctx.rootPath, uuid: ctx.rootUuid };
 
-      await traverse({ ctx, currentFolder, database, fileExplorer, isFirstExecution, limit: pLimit(20) });
+      await traverse({
+        ctx,
+        currentFolder,
+        database,
+        fileExplorer,
+        isFirstExecution,
+        limit: pLimit(VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY),
+      });
     });
 
     ctx.logger.debug({ msg: 'Finish refresh placeholders in seconds', time });
