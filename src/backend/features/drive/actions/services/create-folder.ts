@@ -9,9 +9,10 @@ type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   parentUuid: FolderUuid;
+  createPendingChildren?: boolean;
 };
 
-export async function createFolder({ ctx, path, parentUuid }: Props) {
+export async function createFolder({ ctx, path, parentUuid, createPendingChildren = true }: Props) {
   try {
     const folder = await Sync.Actions.createFolder({ ctx, path, parentUuid });
 
@@ -19,12 +20,16 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
 
     await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
 
-    await createPendingItems({
-      ctx,
-      parentUuid: folder.uuid,
-      parentPath: path,
-      isFirstExecution: false,
-    });
+    if (createPendingChildren) {
+      await createPendingItems({
+        ctx,
+        parentUuid: folder.uuid,
+        parentPath: path,
+        isFirstExecution: false,
+      });
+    }
+
+    return folder.uuid;
   } catch (error) {
     ctx.logger.error({ msg: 'Error creating folder', path, error });
   }

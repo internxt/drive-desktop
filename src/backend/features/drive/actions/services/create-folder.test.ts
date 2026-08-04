@@ -32,12 +32,23 @@ describe('create-folder', () => {
     call(convertToPlaceholderMock).toMatchObject({ path, placeholderId: 'FOLDER:uuid' });
   });
 
-  it('should check children if folder creation success', async () => {
+  it('should create pending children after folder creation by default', async () => {
     // Given
     createFolderMock.mockResolvedValue({ uuid: 'uuid' as FolderUuid });
     // When
     await createFolder(props);
     // Then
     call(createPendingItemsMock).toMatchObject({ parentPath: path, parentUuid: 'uuid' });
+  });
+
+  it('should not create pending children when createPendingChildren is false', async () => {
+    // Given
+    createFolderMock.mockResolvedValue({ uuid: 'uuid' as FolderUuid });
+
+    // When
+    await createFolder({ ...props, createPendingChildren: false });
+
+    // Then
+    calls(createPendingItemsMock).toHaveLength(0);
   });
 });
