@@ -1,7 +1,9 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { getWorkerCount } from '@/core/utils/concurrency';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { CREATE_PENDING_ITEMS_CONCURRENCY } from './constants';
 import { createFile } from './create-file';
 
 type Props = {
@@ -11,9 +13,15 @@ type Props = {
 };
 
 export async function createPendingFiles({ ctx, files, parentUuid }: Props) {
-  /* TODO PB-6612: When adding 250k+ folder, this method starts to throw: EMFILE too many files open. */
-  await Promise.all(
-    files.map(async ({ path }) => {
+  let nextFileIndex = 0;
+  const workerCount = getWorkerCount({ concurrency: CREATE_PENDING_ITEMS_CONCURRENCY, itemCount: files.length });
+
+  async function processNextFile() {
+    while (nextFileIndex < files.length) {
+      if (ctx.abortController.signal.aborted) return;
+
+      const { path } = files[nextFileIndex];
+      nextFileIndex += 1;
       const { error } = await NodeWin.getFileInfo({ path });
 
       if (error) {
@@ -23,6 +31,8 @@ export async function createPendingFiles({ ctx, files, parentUuid }: Props) {
           ctx.logger.error({ msg: 'Error getting file info', path, error });
         }
       }
-    }),
-  );
+    }
+  }
+
+  await Promise.all(Array.from({ length: workerCount }, processNextFile));
 }
