@@ -19,6 +19,7 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   const added: FoldersDiff['added'] = [];
   const unmodified: FoldersDiff['unmodified'] = [];
   const deleted: FoldersDiff['deleted'] = [];
+  const localFolders = new Set(local.folders);
 
   for (const folder of local.folders) {
     if (remote.folders.has(folder)) {
@@ -29,7 +30,7 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   }
 
   for (const folder of remote.folders.values()) {
-    if (!local.folders.includes(folder.absolutePath)) {
+    if (!localFolders.has(folder.absolutePath)) {
       deleted.push(folder);
     }
   }

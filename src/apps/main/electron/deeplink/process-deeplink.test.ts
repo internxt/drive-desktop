@@ -1,5 +1,7 @@
 import { shell } from 'electron';
 import { call } from '@/tests/vitest/utils.helper.test';
+import { ALLOWED_HOSTNAMES, ALLOWED_PROTOCOLS } from './constants';
+import * as isValidUrlModule from './is-valid-url';
 import { processDeeplink } from './process-deeplink';
 
 describe('process-deeplink', () => {
@@ -14,5 +16,33 @@ describe('process-deeplink', () => {
     processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
     // Then
     call(openExternalMock).toStrictEqual(url);
+  });
+
+  it('should reject a URL with a different hostname', () => {
+    const url = 'https://evil.com/malicious';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
+
+  it('should reject a subdomain bypass attack', () => {
+    const url = 'https://drive.internxt.com.evil.com';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
+
+  it('should reject a file protocol URL', () => {
+    const url = 'file:///etc/passwd';
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+    expect(openExternalMock).not.toHaveBeenCalled();
+  });
+
+  it('should validate url before opening external protocl url', () => {
+    const url = 'https://internxt.com/deals/black-friday-internxt';
+    const isValidUrlSpy = vi.spyOn(isValidUrlModule, 'isValidUrl').mockReturnValue(false);
+
+    processDeeplink({ argv: [...argv, `internxt://notification/${url}`] });
+
+    expect(isValidUrlSpy).toHaveBeenCalledWith(url, ALLOWED_PROTOCOLS, ALLOWED_HOSTNAMES);
+    expect(openExternalMock).not.toHaveBeenCalled();
   });
 });

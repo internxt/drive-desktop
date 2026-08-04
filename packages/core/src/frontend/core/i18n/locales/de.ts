@@ -386,6 +386,8 @@ export const de: Translation = {
     },
     errors: {
       CANNOT_REGISTER_VIRTUAL_DRIVE: 'Virtuelles Laufwerk kann nicht registriert werden',
+      EMPTY_FILES_EXCEEDED: 'Limit für leere Dateien überschritten',
+      EMPTY_FILES_NOT_ALLOWED: 'Leere Dateien sind nicht erlaubt. Aktualisieren Sie Ihren Plan, um mehr Funktionen zu erhalten',
       FILE_SIZE_TOO_BIG: 'Datei zu groß',
       FOLDER_ACCESS_DENIED: 'Die App hat keine Berechtigung, auf diesen Ordner zuzugreifen',
       INVALID_WINDOWS_NAME: String.raw`Windows erlaubt keine Namen, die \ / : * ? " < > | enthalten oder mit Leerzeichen beginnen/enden`,
