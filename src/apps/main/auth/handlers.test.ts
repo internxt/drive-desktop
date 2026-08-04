@@ -1,15 +1,17 @@
+import { TokenStatus } from '@internxt/lib';
+import * as tokenValidation from '@/backend/features/auth/services/token/validate-token-and-check-expiration';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { checkIfUserIsLoggedIn } from './handlers';
 import * as getUser from './service';
 
 describe('handlers', () => {
   const getUserMock = partialSpyOn(getUser, 'getUser');
-  const getMillisecondsToExpireMock = partialSpyOn(TokenScheduler, 'getMillisecondsToExpire');
+  const validateTokenAndCheckExpirationMock = partialSpyOn(tokenValidation, 'validateTokenAndCheckExpiration');
 
   describe('checkUserIsLoggedIn', () => {
     beforeEach(() => {
       getUserMock.mockReturnValue({ uuid: 'uuid' });
+      validateTokenAndCheckExpirationMock.mockReturnValue({ data: TokenStatus.VALID });
     });
 
     it('should return undefined if user does not exist', () => {
@@ -23,7 +25,7 @@ describe('handlers', () => {
 
     it('should return undefined if token is expired', () => {
       // Given
-      getMillisecondsToExpireMock.mockReturnValue(-1);
+      validateTokenAndCheckExpirationMock.mockReturnValue({ data: TokenStatus.EXPIRED });
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
@@ -32,7 +34,7 @@ describe('handlers', () => {
 
     it('should return undefined if cannot get token', () => {
       // Given
-      getMillisecondsToExpireMock.mockReturnValue(null);
+      validateTokenAndCheckExpirationMock.mockReturnValue({ error: new Error('Error getting token') });
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
@@ -41,7 +43,7 @@ describe('handlers', () => {
 
     it('should return user if token is not expired', () => {
       // Given
-      getMillisecondsToExpireMock.mockReturnValue(100);
+      validateTokenAndCheckExpirationMock.mockReturnValue({ data: TokenStatus.VALID });
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
@@ -50,7 +52,7 @@ describe('handlers', () => {
 
     it('should return user if token needs renewal but is not expired', () => {
       // Given
-      getMillisecondsToExpireMock.mockReturnValue(3 * 60 * 60 * 1000);
+      validateTokenAndCheckExpirationMock.mockReturnValue({ data: TokenStatus.REFRESH_REQUIRED });
       // When
       const res = checkIfUserIsLoggedIn();
       // Then
