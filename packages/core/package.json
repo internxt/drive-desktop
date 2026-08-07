@@ -37,7 +37,7 @@
     "@typescript-eslint/parser": "^8.37.0",
     "@vitest/coverage-v8": "^4.1.8",
     "depcheck": "^1.4.7",
-    "electron": "^39.8.5",
+    "electron": "^39.8.10",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
