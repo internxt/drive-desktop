@@ -1,5 +1,6 @@
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import * as util from '@/apps/main/util';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
@@ -22,6 +23,7 @@ describe('create-file', () => {
   const handleEmptyFilesNotAllowedForUserMock = partialSpyOn(handleEmptyFilesNotAllowedForUser, 'handleEmptyFilesNotAllowedForUser');
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
+  const sleepMock = partialSpyOn(util, 'sleep');
 
   const path = abs('/parent/file.txt');
   const size = 1024;
@@ -34,6 +36,7 @@ describe('create-file', () => {
 
     isTemporaryFileMock.mockReturnValue(false);
     uploadMock.mockResolvedValue({ contentsId: 'contentsId' as ContentsId, size, mtime, creationTime });
+    sleepMock.mockResolvedValue();
   });
 
   it('should not upload if the file is temporary', async () => {
@@ -93,6 +96,31 @@ describe('create-file', () => {
     call(handleEmptyFilesAmoutForUserMock).toMatchObject({ path });
     calls(handleEmptyFilesNotAllowedForUserMock).toHaveLength(0);
     calls(addItemMock).toHaveLength(0);
+  });
+
+  it('should retry metadata persistence after parent folder propagation delays without uploading again', async () => {
+    // Given
+    persistMock
+      .mockResolvedValueOnce({ error: { code: 'PARENT_NOT_FOUND' } })
+      .mockResolvedValueOnce({ data: { uuid: 'uuid' as FileUuid } });
+    // When
+    await createFile(props);
+    // Then
+    calls(persistMock).toHaveLength(2);
+    call(sleepMock).toBe(1_000);
+    call(uploadMock).toMatchObject({ path });
+    call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
+  });
+
+  it('should use exponential backoff while the parent folder is unavailable', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'PARENT_NOT_FOUND' } });
+    // When
+    await createFile(props);
+    // Then
+    calls(persistMock).toHaveLength(4);
+    calls(sleepMock).toStrictEqual([1_000, 3_000, 9_000]);
+    call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR', path });
   });
 
   it('should create the file successfully', async () => {
