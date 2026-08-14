@@ -50,7 +50,9 @@ describe('create-folder', () => {
 
   it('should retry folder creation while its parent propagates', async () => {
     // Given
-    persistMock.mockResolvedValueOnce({ error: { code: 'PARENT_NOT_FOUND' } }).mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    persistMock
+      .mockResolvedValueOnce({ error: { code: 'PARENT_NOT_FOUND' } })
+      .mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
     // When
     await createFolder(props);
     // Then
