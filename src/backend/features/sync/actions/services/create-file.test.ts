@@ -9,6 +9,7 @@ import * as handleEmptyFilesNotAllowedForUser from '@/backend/features/user/empt
 import * as fileSizeLimit from '@/backend/features/user/file-size-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFile } from './create-file';
 import * as uploadFile from './upload-file';
@@ -110,6 +111,9 @@ describe('create-file', () => {
     call(sleepMock).toBe(1_000);
     call(uploadMock).toMatchObject({ path });
     call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
+    expect(loggerMock.debug).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'File created after parent folder propagation retry', path, attempts: 2 }),
+    );
   });
 
   it('should use exponential backoff while the parent folder is unavailable', async () => {

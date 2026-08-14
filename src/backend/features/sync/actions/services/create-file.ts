@@ -14,6 +14,7 @@ import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-f
 import { SimpleDriveFile } from '../../../../../apps/main/database/entities/DriveFile';
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
+import { PARENT_NOT_FOUND_RETRY_DELAYS_MS } from './constants';
 import { uploadFile } from './upload-file';
 
 type Props = {
@@ -21,8 +22,6 @@ type Props = {
   path: AbsolutePath;
   parentUuid: FolderUuid;
 };
-
-const PARENT_NOT_FOUND_RETRY_DELAYS_MS = [1_000, 3_000, 9_000];
 
 export async function createFile({ ctx, path, parentUuid }: Props): Promise<SimpleDriveFile | undefined> {
   const tempFile = isTemporaryFile({ path });
@@ -99,15 +98,26 @@ export async function createFile({ ctx, path, parentUuid }: Props): Promise<Simp
 
 async function createFileWithRetry({ ctx, path, body }: { ctx: CommonContext; path: AbsolutePath; body: CreateFileBody }) {
   let response = await handleCreateFile({ ctx, path, body });
+  let parentNotFoundRetries = 0;
 
   for (const delayMs of PARENT_NOT_FOUND_RETRY_DELAYS_MS) {
-    if (response.error?.code !== 'PARENT_NOT_FOUND') return response;
+    if (response.error?.code !== 'PARENT_NOT_FOUND') break;
 
+    parentNotFoundRetries += 1;
     ctx.logger.warn({ msg: 'Parent folder not found when creating file, retrying', path, folderUuid: body.folderUuid, delayMs });
     await sleep(delayMs);
     if (ctx.abortController?.signal.aborted) return;
 
     response = await handleCreateFile({ ctx, path, body });
+  }
+
+  if (!response.error && parentNotFoundRetries > 0) {
+    ctx.logger.debug({
+      msg: 'File created after parent folder propagation retry',
+      path,
+      folderUuid: body.folderUuid,
+      attempts: parentNotFoundRetries + 1,
+    });
   }
 
   return response;
