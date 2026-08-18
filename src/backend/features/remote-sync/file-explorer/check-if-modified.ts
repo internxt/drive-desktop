@@ -19,7 +19,7 @@ export async function checkIfModified({ ctx, remote, local, isFirstExecution }: 
   const localSize = local.size;
   const localDate = local.mtimeMs;
   const remoteSize = remote.size;
-  const remoteDate = new Date(remote.updatedAt).getTime();
+  const remoteDate = new Date(remote.modificationTime).getTime();
 
   if (remoteSize === localSize) return;
 

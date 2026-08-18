@@ -29,8 +29,8 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
         path,
         placeholderId: `FILE:${remote.uuid}`,
         size,
-        creationTime: new Date(remote.createdAt).getTime(),
-        lastWriteTime: new Date(remote.updatedAt).getTime(),
+        creationTime: new Date(remote.creationTime).getTime(),
+        lastWriteTime: new Date(remote.modificationTime).getTime(),
       });
 
       return;

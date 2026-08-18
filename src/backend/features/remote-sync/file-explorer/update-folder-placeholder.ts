@@ -24,8 +24,8 @@ export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
       await Addon.createFolderPlaceholder({
         path,
         placeholderId: `FOLDER:${remote.uuid}`,
-        creationTime: new Date(remote.createdAt).getTime(),
-        lastWriteTime: new Date(remote.updatedAt).getTime(),
+        creationTime: new Date(remote.creationTime).getTime(),
+        lastWriteTime: new Date(remote.modificationTime).getTime(),
       });
 
       return true;

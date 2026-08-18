@@ -29,7 +29,7 @@ describe('check-if-modified', () => {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
         size: 1024,
-        updatedAt: remoteDate.toISOString(),
+        modificationTime: remoteDate.toISOString(),
       },
     });
   });
