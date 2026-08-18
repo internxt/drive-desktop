@@ -8,6 +8,8 @@ export type SimpleDriveFolder = {
   parentUuid: string | undefined;
   createdAt: string;
   updatedAt: string;
+  creationTime: string;
+  modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };
 export type ExtendedDriveFolder = SimpleDriveFolder & { absolutePath: AbsolutePath };

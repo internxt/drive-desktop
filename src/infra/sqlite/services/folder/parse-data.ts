@@ -12,6 +12,8 @@ export function parseData({ data }: TProps): SimpleDriveFolder {
     parentUuid: data.parentUuid,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
+    creationTime: data.creationTime,
+    modificationTime: data.modificationTime,
     status: data.status,
   };
 }

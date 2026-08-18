@@ -19,6 +19,7 @@ export function parseData({ data }: TProps): SimpleDriveFile {
     size: data.size,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
+    creationTime: data.creationTime,
     modificationTime: data.modificationTime,
     status: data.status,
   };

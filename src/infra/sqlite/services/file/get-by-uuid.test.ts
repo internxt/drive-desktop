@@ -19,6 +19,7 @@ describe('get-by-uuid', () => {
     workspaceId: 'workspaceId',
     createdAt: date,
     updatedAt: date,
+    creationTime: date,
     modificationTime: date,
     plainName: 'file',
     type: 'txt',
