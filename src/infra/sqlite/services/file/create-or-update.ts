@@ -25,6 +25,7 @@ export function createOrUpdate({ file }: Props) {
       folderId: file.folderId,
       userUuid: file.userUuid,
       modificationTime: file.modificationTime,
+      creationTime: file.creationTime,
     });
 
     return parseData({ data: file });

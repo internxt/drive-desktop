@@ -36,6 +36,7 @@ export async function createOrUpdateBatch({ files }: Props) {
           folderId: file.folderId,
           userUuid: file.userUuid,
           modificationTime: file.modificationTime,
+          creationTime: file.creationTime,
         });
       }
       db.exec('COMMIT');

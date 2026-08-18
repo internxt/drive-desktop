@@ -32,6 +32,8 @@ export async function createOrUpdateBatch({ folders }: Props) {
           updatedAt: folder.updatedAt,
           plainName: folder.plainName,
           status: folder.status,
+          creationTime: folder.creationTime,
+          modificationTime: folder.modificationTime,
         });
       }
       db.exec('COMMIT');

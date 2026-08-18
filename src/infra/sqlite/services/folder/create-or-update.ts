@@ -21,6 +21,8 @@ export function createOrUpdate({ folder }: Props) {
       updatedAt: folder.updatedAt,
       plainName: folder.plainName,
       status: folder.status,
+      creationTime: folder.creationTime,
+      modificationTime: folder.modificationTime,
     });
 
     return parseData({ data: folder });
