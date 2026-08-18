@@ -1,4 +1,4 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { CommonContext } from '@/apps/sync-engine/config';
@@ -14,6 +14,7 @@ type Props = {
 
 export async function createFolder({ ctx, path, parentUuid }: Props) {
   const name = basename(path);
+  const { birthtime, mtime } = await FileSystemModule.statThrow({ absolutePath: path });
 
   LocalSync.SyncState.addItem({ action: 'UPLOADING', path });
 
@@ -21,6 +22,8 @@ export async function createFolder({ ctx, path, parentUuid }: Props) {
     name,
     plainName: name,
     parentFolderUuid: parentUuid,
+    creationTime: birthtime.toISOString(),
+    modificationTime: mtime.toISOString(),
   };
 
   let res = ctx.workspaceId
