@@ -1,5 +1,5 @@
-import { Stats } from 'node:fs';
 import { FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
+import { Stats } from 'node:fs';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFolder from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
