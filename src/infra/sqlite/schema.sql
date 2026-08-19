@@ -33,7 +33,8 @@ CREATE TABLE
     size INTEGER NOT NULL,
     folderId INTEGER NOT NULL,
     userUuid VARCHAR(36) NOT NULL,
-    modificationTime VARCHAR(24) NOT NULL
+    modificationTime VARCHAR(24) NOT NULL,
+    creationTime VARCHAR(24) NOT NULL
   );
 
 
@@ -48,7 +49,9 @@ CREATE TABLE
     parentUuid VARCHAR(36) NOT NULL,
     workspaceId VARCHAR(36) NOT NULL,
     parentId INTEGER,
-    userUuid VARCHAR(36) NOT NULL
+    userUuid VARCHAR(36) NOT NULL,
+    creationTime VARCHAR(24) NOT NULL,
+    modificationTime VARCHAR(24) NOT NULL
   );
 
 

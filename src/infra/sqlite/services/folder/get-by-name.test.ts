@@ -19,6 +19,8 @@ describe('get-by-name', () => {
     workspaceId: 'workspaceId',
     createdAt: date,
     updatedAt: date,
+    creationTime: date,
+    modificationTime: date,
   };
 
   let props: Parameters<typeof getByName>[0];
