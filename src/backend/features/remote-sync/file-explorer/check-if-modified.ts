@@ -13,6 +13,14 @@ type Props = {
   isFirstExecution: boolean;
 };
 
+/**
+ * Synchronizes a local file with its remote Drive counterpart when their recorded sizes differ.
+ *
+ * On the first execution, local changes are uploaded when the file is fully hydrated. Remote changes
+ * update the local placeholder and pin state.
+ *
+ * @param isFirstExecution - Whether this is the initial synchronization check for the file.
+ */
 export async function checkIfModified({ ctx, remote, local, isFirstExecution }: Props) {
   const path = remote.absolutePath;
 

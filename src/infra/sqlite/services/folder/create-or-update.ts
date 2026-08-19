@@ -8,6 +8,12 @@ type Props = {
   folder: DriveFolder;
 };
 
+/**
+ * Creates or updates a folder record and returns its parsed representation.
+ *
+ * @param folder - The folder to persist.
+ * @returns The parsed folder, or `undefined` if persistence or parsing fails.
+ */
 export function createOrUpdate({ folder }: Props) {
   try {
     db.prepare(upsertQuery).run({
