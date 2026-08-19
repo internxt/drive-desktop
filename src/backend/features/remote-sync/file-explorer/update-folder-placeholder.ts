@@ -11,6 +11,13 @@ type Props = {
   folders: FileExplorerFolders;
 };
 
+/**
+ * Updates the local placeholder for a remote folder.
+ *
+ * @param remote - The remote folder whose placeholder should be updated
+ * @param folders - The local folders indexed by remote UUID
+ * @returns `true` if the placeholder is created or updated, `false` if the remote name is invalid or an error occurs
+ */
 export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
   const path = remote.absolutePath;
 

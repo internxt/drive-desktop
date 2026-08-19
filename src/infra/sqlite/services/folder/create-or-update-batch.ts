@@ -10,6 +10,12 @@ type Props = {
   folders: DriveFolder[];
 };
 
+/**
+ * Creates or updates folder records in the database in batches.
+ *
+ * @param folders - The folder records to create or update
+ * @returns `undefined` when processing succeeds, or a `SqliteError` when processing fails
+ */
 export async function createOrUpdateBatch({ folders }: Props) {
   if (folders.length === 0) return;
 

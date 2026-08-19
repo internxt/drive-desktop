@@ -12,6 +12,13 @@ type Props = {
   parentUuid: FolderUuid;
 };
 
+/**
+ * Creates a remote folder for a local path and records its synchronization state.
+ *
+ * @param path - The local folder path to create remotely
+ * @param parentUuid - The UUID of the remote parent folder
+ * @returns The result of persisting the created or existing folder, or `undefined` when the operation is aborted or fails
+ */
 export async function createFolder({ ctx, path, parentUuid }: Props) {
   const name = basename(path);
   const { birthtime, mtime } = await FileSystemModule.statThrow({ absolutePath: path });
