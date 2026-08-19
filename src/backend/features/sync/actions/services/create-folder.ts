@@ -61,8 +61,8 @@ async function createFolderWithRetry({
 
     parentNotFoundRetries += 1;
     ctx.logger.warn({ msg: 'Parent folder not found when creating folder, retrying', path, parentUuid: body.parentFolderUuid, delayMs });
-    await sleep(delayMs);
     if (ctx.abortController?.signal.aborted) return;
+    await sleep(delayMs);
 
     response = await handleCreateFolder({ ctx, path, body });
   }

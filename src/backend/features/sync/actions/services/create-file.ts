@@ -105,8 +105,8 @@ async function createFileWithRetry({ ctx, path, body }: { ctx: CommonContext; pa
 
     parentNotFoundRetries += 1;
     ctx.logger.warn({ msg: 'Parent folder not found when creating file, retrying', path, folderUuid: body.folderUuid, delayMs });
-    await sleep(delayMs);
     if (ctx.abortController?.signal.aborted) return;
+    await sleep(delayMs);
 
     response = await handleCreateFile({ ctx, path, body });
   }
