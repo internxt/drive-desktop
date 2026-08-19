@@ -80,4 +80,18 @@ describe('create-folder', () => {
       { action: 'UPLOAD_ERROR', path },
     ]);
   });
+
+  it('should not wait or retry when creation is aborted while its parent is unavailable', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'PARENT_NOT_FOUND' } });
+    const abortController = new AbortController();
+    abortController.abort();
+    props = mockProps<typeof createFolder>({ path, ctx: { abortController } });
+    // When
+    await createFolder(props);
+    // Then
+    calls(persistMock).toHaveLength(1);
+    calls(sleepMock).toHaveLength(0);
+    calls(addItemMock).toStrictEqual([{ action: 'UPLOADING', path }]);
+  });
 });

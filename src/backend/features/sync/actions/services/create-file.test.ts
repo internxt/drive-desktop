@@ -127,6 +127,20 @@ describe('create-file', () => {
     call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR', path });
   });
 
+  it('should not wait or retry when creation is aborted while its parent is unavailable', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'PARENT_NOT_FOUND' } });
+    const abortController = new AbortController();
+    abortController.abort();
+    props = mockProps<typeof createFile>({ path, ctx: { abortController } });
+    // When
+    await createFile(props);
+    // Then
+    calls(persistMock).toHaveLength(1);
+    calls(sleepMock).toHaveLength(0);
+    calls(addItemMock).toHaveLength(0);
+  });
+
   it('should create the file successfully', async () => {
     // Given
     persistMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
