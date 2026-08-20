@@ -25,13 +25,22 @@ Place new features according to their platform boundary. Platform-agnostic code 
 
 ## Build, Test, and Development Commands
 
-Use Node 24 and npm (see `.nvmrc` and `README.md`). Copy `.env.template` to `.env` before first run.
+Use Node 24 and npm (see `.nvmrc` and `README.md`). Run `git submodule update --init --recursive` after cloning (or after pulling a commit that bumps the submodule) — `packages/core` is a git submodule pointing at [`internxt/drive-desktop-core`](https://github.com/internxt/drive-desktop-core), not source tracked in this repo's own history, and a plain clone leaves it empty. Copy `.env.template` to `.env` before first run.
 
+- `packages/core` is not an npm workspace — it has its own `node_modules`. Run `npm ci` inside `packages/core` (once, or whenever its own dependencies change) before building it.
+- `npm run build:core` compiles `packages/core` and repacks it into the local `.tgz` that the root `package.json` consumes. Run it **before** `npm run init:dev`/`npm install`, and again whenever the submodule's pinned commit changes — the root install resolves that `.tgz` by its exact filename and fails if it isn't there yet.
 - `npm run init:dev` installs dependencies, Electron, development DLLs, and native rebuilds.
 - `npm start` starts the renderer development server; use `npm run start:reload` to launch Electron with reload support.
 - `npm run build` builds main, renderer, and preload bundles; `npm run package` produces an unpackaged installer build.
 - `npm test` runs the default Vitest suite. Use `npm run test:infra`, `npm run test:renderer`, or `npm run test:e2e` for targeted suites.
 - `npm run lint`, `npm run type-check`, and `npm run format` validate code; use the corresponding `:fix` command only for intentional formatting/lint fixes.
+
+### Changing `packages/core` code
+
+`packages/core` is its own git repository (`internxt/drive-desktop-core`), embedded here as a submodule — commits made to files under `packages/core` from this repo are invisible to that repository's history. To change its code:
+
+1. Inside `packages/core`, commit and open a PR against `internxt/drive-desktop-core` directly, and get it merged there.
+2. Back in this repo, point the submodule at the new commit (`cd packages/core && git checkout <new-commit-or-branch> && cd ../..`), run `npm run build:core`, then commit the resulting submodule pointer bump (`packages/core`, `package.json`, `package-lock.json`) here as its own commit.
 
 ## Testing Guidelines
 
