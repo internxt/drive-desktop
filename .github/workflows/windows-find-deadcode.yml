@@ -7,7 +7,7 @@ on:
 jobs:
   find_deadcode:
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
 
     steps:
       - name: Checkout code
