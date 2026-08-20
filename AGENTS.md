@@ -40,7 +40,8 @@ Use Node 24 and npm (see `.nvmrc` and `README.md`). Run `git submodule update --
 `packages/core` is its own git repository (`internxt/drive-desktop-core`), embedded here as a submodule — commits made to files under `packages/core` from this repo are invisible to that repository's history. To change its code:
 
 1. Inside `packages/core`, commit and open a PR against `internxt/drive-desktop-core` directly, and get it merged there.
-2. Back in this repo, point the submodule at the new commit (`cd packages/core && git checkout <new-commit-or-branch> && cd ../..`), run `npm run build:core`, then commit the resulting submodule pointer bump (`packages/core`, `package.json`, `package-lock.json`) here as its own commit.
+2. Back in this repo, bump the submodule to that new commit. For the common case (point at the latest `origin/master`), run `npm run core:bump` — it fetches, checks out, installs `packages/core`'s own dependencies, rebuilds, updates the root `package.json`'s `.tgz` filename to match the new version, runs `type-check`/`test`, and leaves `packages/core`, `package.json`, and `package-lock.json` staged for you to review and commit. Pass a specific ref instead of the default `origin/master` with `npm run core:bump -- <sha-or-branch>`.
+3. To do it by hand instead: `cd packages/core && git fetch origin && git checkout <new-commit-or-branch> && cd ../..`, run `npm run build:core`, manually update the `.tgz` filename in the root `package.json` if the version changed, then commit the resulting submodule pointer bump (`packages/core`, `package.json`, `package-lock.json`) here as its own commit.
 
 ## Testing Guidelines
 
