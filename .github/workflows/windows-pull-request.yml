@@ -7,18 +7,26 @@ on:
 jobs:
   pull_request:
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
+
+      - name: Install core dependencies
+        working-directory: packages/core
+        run: npm ci
+
+      - name: Build core
+        run: npm run build:core
 
       - name: Install dependencies
         run: npm run init:ci
