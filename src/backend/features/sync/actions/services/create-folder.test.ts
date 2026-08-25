@@ -1,3 +1,5 @@
+import { FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
+import { Stats } from 'node:fs';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as util from '@/apps/main/util';
 import { LocalSync } from '@/backend/features';
@@ -9,17 +11,20 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import { createFolder } from './create-folder';
 
 describe('create-folder', () => {
+  const statMock = partialSpyOn(FileSystemModule, 'statThrow');
   const persistMock = partialSpyOn(driveServerWip.folders, 'createFolder');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const createOrUpdateFolderMock = partialSpyOn(createOrUpdateFolder, 'createOrUpdateFolder');
   const sleepMock = partialSpyOn(util, 'sleep');
 
   const path = abs('/parent/folder');
+  const mtime = new Date('2000-01-01T00:00:00.000Z');
+  const birthtime = new Date('1999-01-01T00:00:00.000Z');
   let props: Parameters<typeof createFolder>[0];
 
   beforeEach(() => {
     props = mockProps<typeof createFolder>({ path });
-    sleepMock.mockResolvedValue();
+    statMock.mockResolvedValue({ mtime, birthtime } as Stats);
   });
 
   it('should add error if the file persistence fails', async () => {
@@ -40,7 +45,16 @@ describe('create-folder', () => {
     // When
     await createFolder(props);
     // Given
-    call(persistMock).toMatchObject({ context: { path, body: { plainName: 'folder' } } });
+    call(persistMock).toMatchObject({
+      context: {
+        path,
+        body: {
+          plainName: 'folder',
+          modificationTime: '2000-01-01T00:00:00.000Z',
+          creationTime: '1999-01-01T00:00:00.000Z',
+        },
+      },
+    });
     call(createOrUpdateFolderMock).toMatchObject({ folderDto: { uuid: 'uuid' } });
     calls(addItemMock).toMatchObject([
       { action: 'UPLOADING', path },

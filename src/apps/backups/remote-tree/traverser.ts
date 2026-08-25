@@ -20,11 +20,15 @@ type Items = {
 
 export class Traverser {
   private static createRootFolder({ rootPath, rootUuid }: { rootPath: AbsolutePath; rootUuid: FolderUuid }): ExtendedDriveFolder {
+    const timestamp = new Date().toISOString();
+
     return {
       uuid: rootUuid,
       parentUuid: undefined,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+      updatedAt: timestamp,
+      createdAt: timestamp,
+      creationTime: timestamp,
+      modificationTime: timestamp,
       absolutePath: rootPath,
       status: 'EXISTS',
       name: '',

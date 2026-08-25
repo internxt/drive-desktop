@@ -40,7 +40,7 @@ describe('check-if-modified', () => {
       remote: {
         uuid: 'uuid' as FileUuid,
         absolutePath: path,
-        updatedAt: '2000-01-02',
+        modificationTime: '2000-01-02',
         size: 1000,
       },
       local: {
