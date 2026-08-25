@@ -10,12 +10,9 @@ describe('debounce schedule', () => {
     [30, 10, 20, 5].forEach((readyAt) => schedule.schedule(entry(readyAt)));
 
     expect(schedule.nextDue()?.readyAt).toBe(5);
-    expect([schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue()].map((item) => item?.readyAt)).toEqual([
-      5,
-      10,
-      20,
-      30,
-    ]);
+    expect(
+      [schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue()].map((item) => item?.readyAt),
+    ).toEqual([5, 10, 20, 30]);
   });
 
   it('has no next deadline when empty', () => {

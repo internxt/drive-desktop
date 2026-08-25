@@ -1,5 +1,5 @@
-import type { Watcher } from '../../../addon';
 import type { QueueObject } from 'async';
+import type { Watcher } from '../../../addon';
 import type { createPendingEvents } from './pending-events';
 
 export type Dispatch = (event: Watcher.SuccessEvent) => Promise<void>;
