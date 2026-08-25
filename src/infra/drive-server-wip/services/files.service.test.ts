@@ -7,11 +7,8 @@ import { files } from './files.service';
 
 vi.mock(import('../in/client-wrapper.service'));
 
-function getError({ status, message, cause = new Error('cause') }: { status: number; message: string; cause?: unknown }) {
-  const error = new DriveServerWipError('UNKNOWN', cause, new Response(undefined, { status }));
-  error.message = message;
-
-  return error;
+function getError({ status, apiError, cause = new Error('cause') }: { status: number; apiError: unknown; cause?: unknown }) {
+  return new DriveServerWipError('UNKNOWN', cause, new Response(undefined, { status }), apiError);
 }
 
 describe('files service', () => {
@@ -35,7 +32,7 @@ describe('files service', () => {
   it('should map bad request empty files amount errors to EMPTY_FILES_EXCEEDED', async () => {
     // Given
     clientWrapperMock.mockResolvedValue({
-      error: getError({ status: 400, message: 'You can not have more empty files', cause }),
+      error: getError({ status: 400, apiError: { error: 'EMPTY_FILES_EXCEEDED' }, cause }),
     });
 
     // When
@@ -51,7 +48,7 @@ describe('files service', () => {
     clientWrapperMock.mockResolvedValue({
       error: getError({
         status: 402,
-        message: 'You can not have empty files, upgrade your plan to get more features',
+        apiError: { error: 'EMPTY_FILES_NOT_ALLOWED' },
         cause,
       }),
     });
@@ -67,7 +64,7 @@ describe('files service', () => {
   it('should map payment required upload size errors to FILE_UPLOAD_SIZE_EXCEEDED', async () => {
     // Given
     clientWrapperMock.mockResolvedValue({
-      error: getError({ status: 402, message: 'Storage limit exceeded', cause }),
+      error: getError({ status: 402, apiError: { message: 'Storage limit exceeded' }, cause }),
     });
 
     // When

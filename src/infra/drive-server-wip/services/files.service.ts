@@ -8,6 +8,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto } from '../out/dto';
 import { checkExistence } from './files/check-existence';
+import { classifyFileWriteError } from './files/classify-file-write-error';
 import { createFile } from './files/create-file';
 import { move } from './files/move';
 
@@ -88,13 +89,18 @@ async function replaceFile({
 
   if (data) {
     return { data: parseFileDto({ fileDto: data }) };
-  } else if (error?.response?.status === 400 && error.message.includes('You can not have more empty files')) {
+  } else if (error && classifyFileWriteError({ error }) === 'EMPTY_FILES_EXCEEDED') {
     return { error: new DriveServerWipError('EMPTY_FILES_EXCEEDED', error.cause) };
-  } else if (error?.response?.status === 402) {
-    if (error.message.includes('You can not have empty files')) {
+  } else if (error) {
+    const fileWriteError = classifyFileWriteError({ error });
+
+    if (fileWriteError === 'EMPTY_FILES_NOT_ALLOWED') {
       return { error: new DriveServerWipError('EMPTY_FILES_NOT_ALLOWED', error.cause) };
     }
-    return { error: new DriveServerWipError('FILE_UPLOAD_SIZE_EXCEEDED', error.cause, error.response) };
+    if (fileWriteError === 'FILE_UPLOAD_SIZE_EXCEEDED') {
+      return { error: new DriveServerWipError('FILE_UPLOAD_SIZE_EXCEEDED', error.cause, error.response) };
+    }
+    return { error };
   } else {
     return { error };
   }

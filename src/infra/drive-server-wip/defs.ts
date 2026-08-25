@@ -4,6 +4,7 @@ export class DriveServerWipError extends Error {
     public readonly code: TDriveServerWipError,
     cause: unknown,
     public readonly response?: Response,
+    public readonly apiError?: unknown,
   ) {
     super(code, { cause });
   }
