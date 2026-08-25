@@ -7,18 +7,16 @@ const entry = (readyAt: number): PendingEventEntry => ({ internalId: readyAt, re
 describe('debounce schedule', () => {
   it('always exposes and takes the next deadline first', () => {
     const schedule = createDebounceSchedule();
-    [30, 10, 20, 5].forEach((readyAt) => schedule.schedule(entry(readyAt)));
+    [30, 10, 20, 5].forEach((readyAt) => schedule.push(entry(readyAt)));
 
-    expect(schedule.nextDue()?.readyAt).toBe(5);
-    expect(
-      [schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue(), schedule.takeNextDue()].map((item) => item?.readyAt),
-    ).toEqual([5, 10, 20, 30]);
+    expect(schedule.peek()?.readyAt).toBe(5);
+    expect([schedule.pop(), schedule.pop(), schedule.pop(), schedule.pop()].map((item) => item?.readyAt)).toEqual([5, 10, 20, 30]);
   });
 
   it('has no next deadline when empty', () => {
     const schedule = createDebounceSchedule();
 
-    expect(schedule.nextDue()).toBeUndefined();
-    expect(schedule.takeNextDue()).toBeUndefined();
+    expect(schedule.peek()).toBeUndefined();
+    expect(schedule.pop()).toBeUndefined();
   });
 });
