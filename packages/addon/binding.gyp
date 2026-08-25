@@ -8,8 +8,7 @@
           "ExceptionHandling": "1",
           "AdditionalOptions": [
             "-std:c++latest",
-            "/EHsc",
-            "/await"
+            "/EHsc"
           ]
         }
       },

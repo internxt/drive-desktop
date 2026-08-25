@@ -60,7 +60,7 @@ type TAddon = {
   unwatchPath(handle: object): void;
   updatePlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId, size: number): Promise<void>;
   updateSyncStatus(path: Win32DevicePath): Promise<void>;
-  watchPath(rootPath: Win32Path, onEvent: Watcher.OnEvent): z.infer<typeof addonZod.watchPath>;
+  watchPath(rootPath: Win32Path, onEvents: (events: Watcher.Event[]) => void): z.infer<typeof addonZod.watchPath>;
 };
 
 export const addon: TAddon = rawAddon;
