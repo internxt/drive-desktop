@@ -3,8 +3,8 @@ import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { Sync } from '@/backend/features/sync';
-import { getWorkerCount } from '@/core/utils/concurrency';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getWorkerCount } from '@/core/utils/concurrency';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
 
