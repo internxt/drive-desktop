@@ -1,6 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
+import { sleep } from '@/apps/main/util';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { LocalSync } from '@/backend/features';
@@ -10,8 +11,10 @@ import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-na
 import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { CreateFileBody } from '@/infra/drive-server-wip/services/files/create-file';
+import { SimpleDriveFile } from '../../../../../apps/main/database/entities/DriveFile';
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
+import { PARENT_NOT_FOUND_RETRY_DELAYS_MS } from './constants';
 import { uploadFile } from './upload-file';
 
 type Props = {
@@ -20,7 +23,7 @@ type Props = {
   parentUuid: FolderUuid;
 };
 
-export async function createFile({ ctx, path, parentUuid }: Props) {
+export async function createFile({ ctx, path, parentUuid }: Props): Promise<SimpleDriveFile | undefined> {
   const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
@@ -46,9 +49,8 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
     creationTime: upload.creationTime.toISOString(),
   };
 
-  let res = ctx.workspaceId
-    ? await driveServerWip.workspaces.createFile({ ctx, context: { path, body } })
-    : await driveServerWip.files.createFile({ ctx, context: { path, body } });
+  let res = await createFileWithRetry({ ctx, path, body });
+  if (!res) return;
 
   if (res.error?.code === 'FILE_ALREADY_EXISTS') {
     res = await driveServerWip.files.checkExistence({ ctx, context: { parentUuid, name, extension } });
@@ -92,4 +94,37 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
   LocalSync.SyncState.addItem({ action: 'UPLOADED', path });
   void createAndUploadThumbnail({ ctx, path, fileUuid: res.data.uuid });
   return await createOrUpdateFile({ ctx, fileDto: res.data });
+}
+
+async function createFileWithRetry({ ctx, path, body }: { ctx: CommonContext; path: AbsolutePath; body: CreateFileBody }) {
+  let response = await handleCreateFile({ ctx, path, body });
+  let parentNotFoundRetries = 0;
+
+  for (const delayMs of PARENT_NOT_FOUND_RETRY_DELAYS_MS) {
+    if (response.error?.code !== 'PARENT_NOT_FOUND') break;
+
+    parentNotFoundRetries += 1;
+    ctx.logger.warn({ msg: 'Parent folder not found when creating file, retrying', path, folderUuid: body.folderUuid, delayMs });
+    if (ctx.abortController?.signal.aborted) return;
+    await sleep(delayMs);
+
+    response = await handleCreateFile({ ctx, path, body });
+  }
+
+  if (!response.error && parentNotFoundRetries > 0) {
+    ctx.logger.debug({
+      msg: 'File created after parent folder propagation retry',
+      path,
+      folderUuid: body.folderUuid,
+      attempts: parentNotFoundRetries + 1,
+    });
+  }
+
+  return response;
+}
+
+async function handleCreateFile({ ctx, path, body }: { ctx: CommonContext; path: AbsolutePath; body: CreateFileBody }) {
+  return ctx.workspaceId
+    ? await driveServerWip.workspaces.createFile({ ctx, context: { path, body } })
+    : await driveServerWip.files.createFile({ ctx, context: { path, body } });
 }
