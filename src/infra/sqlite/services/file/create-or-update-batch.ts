@@ -10,6 +10,12 @@ type Props = {
   files: DriveFile[];
 };
 
+/**
+ * Creates or updates file records in the database in batches.
+ *
+ * @param files - The file records to create or update
+ * @returns A `SqliteError` if the operation fails; otherwise, `undefined`.
+ */
 export async function createOrUpdateBatch({ files }: Props) {
   if (files.length === 0) return;
 
@@ -36,6 +42,7 @@ export async function createOrUpdateBatch({ files }: Props) {
           folderId: file.folderId,
           userUuid: file.userUuid,
           modificationTime: file.modificationTime,
+          creationTime: file.creationTime,
         });
       }
       db.exec('COMMIT');

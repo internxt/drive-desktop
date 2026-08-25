@@ -13,6 +13,7 @@ export type SimpleDriveFile = {
   size: number;
   createdAt: string;
   updatedAt: string;
+  creationTime: string;
   modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };

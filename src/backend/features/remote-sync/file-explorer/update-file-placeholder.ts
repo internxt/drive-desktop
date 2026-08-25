@@ -14,6 +14,13 @@ type Props = {
   isFirstExecution: boolean;
 };
 
+/**
+ * Synchronizes a local Windows file placeholder with its remote file metadata and state.
+ *
+ * @param remote - The remote file to synchronize.
+ * @param files - Local files indexed by remote UUID.
+ * @param isFirstExecution - Whether this is the first synchronization after startup.
+ */
 export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecution }: Props) {
   const path = remote.absolutePath;
   const { size } = remote;
@@ -29,8 +36,8 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
         path,
         placeholderId: `FILE:${remote.uuid}`,
         size,
-        creationTime: new Date(remote.createdAt).getTime(),
-        lastWriteTime: new Date(remote.updatedAt).getTime(),
+        creationTime: new Date(remote.creationTime).getTime(),
+        lastWriteTime: new Date(remote.modificationTime).getTime(),
       });
 
       return;
