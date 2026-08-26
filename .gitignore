@@ -8,7 +8,6 @@
 /.zed
 /build
 /clamAV/*
-/CLAUDE.md
 /coverage
 /dist
 /.debug
