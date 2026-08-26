@@ -19,6 +19,7 @@
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run rebuild:electron",
     "========== Core ==========": "",
     "build:core": "npm.cmd --prefix packages/core run build",
+    "core:bump": "node scripts/bump-core.js",
     "========== Context Menu ==========": "",
     "compile:context-menu": "npm.cmd --prefix packages/context-menu run compile",
     "package:context-menu": "npm.cmd --prefix packages/context-menu run package",
@@ -203,7 +204,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^2.2.5",
-    "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-0.1.14.tgz",
+    "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-1.0.0.tgz",
     "@internxt/inxt-js": "3.2.2",
     "@internxt/lib": "1.5.2",
     "@internxt/scan": "1.0.7",
