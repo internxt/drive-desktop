@@ -31,6 +31,7 @@ describe('on-change', () => {
     props = {
       ctx: { logger: loggerMock },
       path,
+      observedAtMs: Date.now(),
     };
   });
 
@@ -107,5 +108,18 @@ describe('on-change', () => {
     await onChange(props as any);
     // Then
     call(moveFileMock).toMatchObject({ path });
+  });
+
+  it('uses the native observation time when processing is delayed by the scheduler', async () => {
+    // Given
+    const observedAtMs = Date.now() - 6000;
+    props = { ...props, observedAtMs, event: { mtimeMs: observedAtMs } };
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+
+    // When
+    await onChange(props as any);
+
+    // Then
+    call(replaceFileMock).toMatchObject({ path });
   });
 });

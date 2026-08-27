@@ -23,6 +23,7 @@ struct WatcherEvent {
     uint64_t size;
     double ctimeMs;
     double mtimeMs;
+    double observedAtMs;
 };
 
 struct WatcherEventBatch {

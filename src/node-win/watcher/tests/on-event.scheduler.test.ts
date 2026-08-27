@@ -11,6 +11,7 @@ const event = (internalId: number, size = 1): Watcher.SuccessEvent => ({
   internalId,
   ctimeMs: 0,
   mtimeMs: 0,
+  observedAtMs: 0,
 });
 
 describe('watcher event scheduler', () => {
@@ -30,7 +31,9 @@ describe('watcher event scheduler', () => {
     await vi.advanceTimersByTimeAsync(10);
     await vi.runAllTimersAsync();
     expect(dispatch).toHaveBeenCalledOnce();
-    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ internalId: 1, size: 2 }));
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ observedAtMs: 0, event: expect.objectContaining({ internalId: 1, size: 2 }) }),
+    );
   });
 
   it('keeps one active debounce timer for many distinct items', () => {
@@ -102,7 +105,7 @@ describe('watcher event scheduler', () => {
     await vi.runAllTimersAsync();
 
     expect(dispatch).toHaveBeenCalledTimes(2);
-    expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ internalId: 1, size: 2 }));
+    expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ event: expect.objectContaining({ internalId: 1, size: 2 }) }));
   });
 
   it('does not start pending work after disposal', async () => {

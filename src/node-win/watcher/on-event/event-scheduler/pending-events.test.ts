@@ -11,13 +11,14 @@ const event = (internalId: number, size: number): Watcher.SuccessEvent => ({
   internalId,
   ctimeMs: 0,
   mtimeMs: 0,
+  observedAtMs: 0,
 });
 
 describe('pending events', () => {
   it('keeps only the newest event and skips its older heap deadline', () => {
     const pendingEvents = createPendingEvents();
-    pendingEvents.upsert(event(1, 1), { internalId: 1, version: 1, readyAt: 10 });
-    pendingEvents.upsert(event(1, 2), { internalId: 1, version: 2, readyAt: 20 });
+    pendingEvents.upsert({ event: event(1, 1), observedAtMs: 0 }, { internalId: 1, version: 1, readyAt: 10 });
+    pendingEvents.upsert({ event: event(1, 2), observedAtMs: 10 }, { internalId: 1, version: 2, readyAt: 20 });
 
     expect(pendingEvents.nextPendingDeadline()).toMatchObject({ internalId: 1, version: 2, readyAt: 20 });
     expect(pendingEvents.get(1)?.event.size).toBe(2);

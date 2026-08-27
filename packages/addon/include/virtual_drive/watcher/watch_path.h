@@ -25,6 +25,7 @@ inline napi_value watcherEventToJs(napi_env env, const WatcherEvent& event)
     napiSetInt64(env, obj, "size", static_cast<LONGLONG>(event.size));
     napiSetDouble(env, obj, "ctimeMs", event.ctimeMs);
     napiSetDouble(env, obj, "mtimeMs", event.mtimeMs);
+    napiSetDouble(env, obj, "observedAtMs", event.observedAtMs);
     return obj;
 }
 
@@ -56,11 +57,26 @@ inline double fileTimeToUnixMs(const LARGE_INTEGER& li)
     return static_cast<double>((li.QuadPart - 116444736000000000LL) / 10000LL);
 }
 
+/**
+ * Captures when the native watcher receives a completed Windows notification.
+ * Electron may process the queued N-API callback much later during a large
+ * copy, but that delay must not make a recent filesystem timestamp look old.
+ */
+inline double nowUnixMs()
+{
+    FILETIME fileTime;
+    GetSystemTimeAsFileTime(&fileTime);
+    LARGE_INTEGER value;
+    value.LowPart = fileTime.dwLowDateTime;
+    value.HighPart = fileTime.dwHighDateTime;
+    return fileTimeToUnixMs(value);
+}
+
 /** Builds our platform-independent event payload from Windows metadata. */
-inline WatcherEvent toWatcherEvent(const std::string& action, const std::wstring& path, FILE_NOTIFY_EXTENDED_INFORMATION* fni)
+inline WatcherEvent toWatcherEvent(const std::string& action, const std::wstring& path, FILE_NOTIFY_EXTENDED_INFORMATION* fni, double observedAtMs)
 {
     return {action, path, (fni->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? "folder" : "file", static_cast<uint64_t>(fni->FileId.QuadPart),
-        static_cast<uint64_t>(fni->FileSize.QuadPart), fileTimeToUnixMs(fni->LastChangeTime), fileTimeToUnixMs(fni->LastModificationTime)};
+        static_cast<uint64_t>(fni->FileSize.QuadPart), fileTimeToUnixMs(fni->LastChangeTime), fileTimeToUnixMs(fni->LastModificationTime), observedAtMs};
 }
 
 /**
@@ -95,16 +111,16 @@ inline void sendBatch(WatcherContext* ctx, std::vector<WatcherEvent>&& events)
  * `FILE_ACTION_RENAMED_OLD_NAME` is deliberately not emitted here: existing
  * Sync semantics use the event for the new name.
  */
-inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstring& rootPath, std::vector<WatcherEvent>& events)
+inline void processEvent(FILE_NOTIFY_EXTENDED_INFORMATION* fni, const std::wstring& rootPath, double observedAtMs, std::vector<WatcherEvent>& events)
 {
     std::wstring filename(fni->FileName, fni->FileNameLength / sizeof(WCHAR));
     std::wstring path = rootPath + L"/" + filename;
     std::replace(path.begin(), path.end(), L'\\', L'/');
     switch (fni->Action) {
-        case FILE_ACTION_ADDED: events.push_back(toWatcherEvent("create", path, fni)); break;
-        case FILE_ACTION_REMOVED: events.push_back(toWatcherEvent("delete", path, fni)); break;
-        case FILE_ACTION_MODIFIED: events.push_back(toWatcherEvent("update", path, fni)); break;
-        case FILE_ACTION_RENAMED_NEW_NAME: events.push_back(toWatcherEvent("rename_new", path, fni)); break;
+        case FILE_ACTION_ADDED: events.push_back(toWatcherEvent("create", path, fni, observedAtMs)); break;
+        case FILE_ACTION_REMOVED: events.push_back(toWatcherEvent("delete", path, fni, observedAtMs)); break;
+        case FILE_ACTION_MODIFIED: events.push_back(toWatcherEvent("update", path, fni, observedAtMs)); break;
+        case FILE_ACTION_RENAMED_NEW_NAME: events.push_back(toWatcherEvent("rename_new", path, fni, observedAtMs)); break;
     }
 }
 
@@ -139,13 +155,15 @@ inline void watchPath(WatcherContext* ctx, const std::wstring& rootPath)
             // then enqueue the discovered differences.
             if (bytesReturned == 0) { sendError(ctx, "ReadDirectoryChangesExW buffer overflow; reconciliation required"); continue; }
 
+            const auto observedAtMs = nowUnixMs();
+
             std::vector<WatcherEvent> events;
             events.reserve(WATCHER_NATIVE_BATCH_SIZE);
             // The records are packed consecutively in `buffer`.
             // NextEntryOffset is the byte distance from this record to the next one.
             auto* fni = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(buffer);
             while (true) {
-                processEvent(fni, rootPath, events);
+                processEvent(fni, rootPath, observedAtMs, events);
                 // Send full batches immediately. std::move transfers the vector
                 // to N-API. Reset it explicitly rather than relying on the
                 // unspecified state of a moved-from vector.
