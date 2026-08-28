@@ -152,7 +152,7 @@
     "dotenv": "^10.0.0",
     "dotenv-webpack": "^7.0.3",
     "electron": "^40.8.5",
-    "electron-builder": "^26.8.1",
+    "electron-builder": "^26.15.3",
     "esbuild": "^0.27.2",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^10.1.8",
@@ -197,7 +197,7 @@
     "webpack": "^5.105.1",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.5",
+    "webpack-dev-server": "^5.2.6",
     "webpack-merge": "^5.8.0",
     "zod": "^4.3.6"
   },
