@@ -49,6 +49,7 @@ export async function uploadFile({
    * attempt opens its own and closes it before returning.
    */
   const readable = createReadStream(path);
+  let uploadError: unknown;
 
   try {
     const contentsId = await ctx.environment.upload(ctx.bucket, {
@@ -60,18 +61,25 @@ export async function uploadFile({
 
     return contentsId as ContentsId;
   } catch (error) {
-    const retryFn = () =>
-      uploadFile({
-        ctx,
-        size,
-        path,
-        abortController,
-        retry: retry + 1,
-        sleepMs: Math.min(sleepMs * 2, UPLOAD_MAX_SLEEP_MS),
-      });
-
-    return processError({ ctx, path, size, error, retry, sleepMs, retryFn });
+    uploadError = error;
   } finally {
     readable.close();
   }
+
+  /**
+   * processError awaits the whole retry chain, so it has to run outside the try
+   * block: otherwise this attempt's stream would stay open for every later
+   * attempt and its backoff, holding one descriptor per nested retry.
+   */
+  const retryFn = () =>
+    uploadFile({
+      ctx,
+      size,
+      path,
+      abortController,
+      retry: retry + 1,
+      sleepMs: Math.min(sleepMs * 2, UPLOAD_MAX_SLEEP_MS),
+    });
+
+  return processError({ ctx, path, size, error: uploadError, retry, sleepMs, retryFn });
 }

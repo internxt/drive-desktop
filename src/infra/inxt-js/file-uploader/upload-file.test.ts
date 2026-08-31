@@ -104,6 +104,20 @@ describe('upload-file', () => {
     calls(readable.close).toHaveLength(1);
   });
 
+  it('should close the failed stream before starting the retry', async () => {
+    // Given
+    environment.upload.mockRejectedValue(new Error());
+    let closedWhenRetryStarted = 0;
+    processErrorMock.mockImplementationOnce(async ({ retryFn }) => {
+      closedWhenRetryStarted = readable.close.mock.calls.length;
+      return await retryFn();
+    });
+    // When
+    await uploadFile({ ...props, retry: 1, sleepMs: 5000 });
+    // Then
+    expect(closedWhenRetryStarted).toBe(1);
+  });
+
   it('should give the retry a fresh stream and a doubled sleep', async () => {
     // Given
     environment.upload.mockRejectedValue(new Error());
