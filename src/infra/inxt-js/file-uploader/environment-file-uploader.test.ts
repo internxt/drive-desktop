@@ -1,25 +1,18 @@
-import { createReadStream, ReadStream } from 'node:fs';
 import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { environmentFileUpload } from './environment-file-uploader';
 import * as uploadFile from './upload-file';
 
-vi.mock(import('node:fs'));
-
 describe('environment-file-upload', () => {
-  const createReadStreamMock = vi.mocked(createReadStream);
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
 
-  const readable = mockDeep<ReadStream>();
   const abortController = mockDeep<AbortController>();
 
   let props: Parameters<typeof environmentFileUpload>[0];
 
   beforeEach(() => {
-    createReadStreamMock.mockReturnValue(readable);
-
     props = mockProps<typeof environmentFileUpload>({
       ctx: { abortController },
     });
@@ -29,10 +22,18 @@ describe('environment-file-upload', () => {
     // When
     await environmentFileUpload(props);
     // Then
-    calls(readable.close).toHaveLength(1);
     calls(uploadFileMock).toHaveLength(1);
     call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 0 });
     call(abortController.signal.addEventListener).toStrictEqual(['abort', expect.any(Function)]);
+    call(abortController.signal.removeEventListener).toStrictEqual(['abort', expect.any(Function)]);
+  });
+
+  it('should remove abort listener even if the upload throws', async () => {
+    // Given
+    uploadFileMock.mockRejectedValue(new Error('boom'));
+    // When
+    await expect(environmentFileUpload(props)).rejects.toThrow('boom');
+    // Then
     call(abortController.signal.removeEventListener).toStrictEqual(['abort', expect.any(Function)]);
   });
 });

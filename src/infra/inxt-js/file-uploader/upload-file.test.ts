@@ -1,5 +1,5 @@
 import { Environment } from '@internxt/inxt-js';
-import { ReadStream } from 'node:fs';
+import { createReadStream, ReadStream } from 'node:fs';
 import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
 import { fileSystem } from '@/infra/file-system/file-system.module';
@@ -8,7 +8,10 @@ import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helpe
 import * as processError from './process-error';
 import { uploadFile } from './upload-file';
 
+vi.mock(import('node:fs'));
+
 describe('upload-file', () => {
+  const createReadStreamMock = vi.mocked(createReadStream);
   const processErrorMock = partialSpyOn(processError, 'processError');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const statMock = partialSpyOn(fileSystem, 'stat');
@@ -21,12 +24,12 @@ describe('upload-file', () => {
 
   beforeEach(() => {
     statMock.mockResolvedValue({ data: { size: 10 } });
+    createReadStreamMock.mockReturnValue(readable);
 
     abortController = new AbortController();
     props = mockProps<typeof uploadFile>({
       ctx: { environment },
       abortController,
-      readable,
       size: 10,
     });
   });
@@ -63,7 +66,7 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
-    call(processErrorMock).toMatchObject({ sleepMs: 5000 });
+    call(processErrorMock).toMatchObject({ retry: 1, sleepMs: 5000 });
     calls(addItemMock).toHaveLength(0);
   });
 
@@ -80,5 +83,52 @@ describe('upload-file', () => {
     expect(res).toBeUndefined();
     calls(addItemMock).toHaveLength(0);
     calls(loggerMock.debug).toMatchObject([{ msg: 'Uploading file to the bucket' }, { msg: 'File size changed during upload' }]);
+  });
+
+  it('should open and close a stream on every attempt', async () => {
+    // Given
+    environment.upload.mockResolvedValue('contentsId');
+    // When
+    await uploadFile(props);
+    // Then
+    calls(createReadStreamMock).toHaveLength(1);
+    calls(readable.close).toHaveLength(1);
+  });
+
+  it('should close the stream when the upload fails', async () => {
+    // Given
+    environment.upload.mockRejectedValue(new Error());
+    // When
+    await uploadFile(props);
+    // Then
+    calls(readable.close).toHaveLength(1);
+  });
+
+  it('should give the retry a fresh stream and a doubled sleep', async () => {
+    // Given
+    environment.upload.mockRejectedValue(new Error());
+    processErrorMock.mockImplementationOnce(async ({ retryFn }) => await retryFn());
+    // When
+    await uploadFile({ ...props, retry: 1, sleepMs: 5000 });
+    // Then
+    calls(createReadStreamMock).toHaveLength(2);
+    calls(readable.close).toHaveLength(2);
+    calls(processErrorMock).toMatchObject([
+      { retry: 1, sleepMs: 5000 },
+      { retry: 2, sleepMs: 10000 },
+    ]);
+  });
+
+  it('should cap the sleep between retries', async () => {
+    // Given
+    environment.upload.mockRejectedValue(new Error());
+    processErrorMock.mockImplementationOnce(async ({ retryFn }) => await retryFn());
+    // When
+    await uploadFile({ ...props, retry: 1, sleepMs: 40000 });
+    // Then
+    calls(processErrorMock).toMatchObject([
+      { retry: 1, sleepMs: 40000 },
+      { retry: 2, sleepMs: 60000 },
+    ]);
   });
 });

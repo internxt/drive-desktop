@@ -5,17 +5,21 @@ import { sleep } from '@/apps/main/util';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { UPLOAD_MAX_RETRIES } from './constants';
+
+const RETRYABLE_MESSAGES = ['read ECONNRESET', 'Request failed with status code 409', 'Request failed with status code 500'];
 
 type TProps = {
   ctx: CommonContext;
   path: AbsolutePath;
   size: number;
   error: unknown;
+  retry: number;
   sleepMs: number;
   retryFn: () => Promise<ContentsId | undefined>;
 };
 
-export async function processError({ ctx, path, error, sleepMs, size, retryFn }: TProps) {
+export async function processError({ ctx, path, error, retry, sleepMs, size, retryFn }: TProps) {
   if (isAbortError({ error })) return;
 
   ctx.logger.sentryError({ msg: 'Failed to upload file to the bucket', path, error }, { size });
@@ -23,12 +27,14 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
 
   if (!(error instanceof Error)) return;
 
-  if (
-    error.message === 'read ECONNRESET' ||
-    error.message === 'Request failed with status code 409' ||
-    error.message === 'Request failed with status code 500'
-  ) {
+  if (RETRYABLE_MESSAGES.includes(error.message)) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
+
+    if (retry >= UPLOAD_MAX_RETRIES) {
+      ctx.logger.warn({ msg: 'Giving up uploading file to the bucket after max retries', path, retry });
+      return;
+    }
+
     await sleep(sleepMs);
     return retryFn();
   }
