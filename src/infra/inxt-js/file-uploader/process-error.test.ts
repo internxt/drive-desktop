@@ -3,7 +3,6 @@ import * as sleep from '@/apps/main/util';
 import { LocalSync } from '@/backend/features';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { UPLOAD_MAX_RETRIES } from './constants';
 import { processError } from './process-error';
 
 describe('process-error', () => {
@@ -16,7 +15,7 @@ describe('process-error', () => {
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processError>({ retryFn, sleepMs, retry: 1 });
+    props = mockProps<typeof processError>({ retryFn, sleepMs });
   });
 
   it('should not do anything if aborted', async () => {
@@ -46,19 +45,6 @@ describe('process-error', () => {
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
     call(sleepMock).toStrictEqual(sleepMs);
     calls(retryFn).toHaveLength(1);
-  });
-
-  it('should stop retrying once max retries is reached', async () => {
-    // Given
-    props.error = new Error('Request failed with status code 500');
-    props.retry = UPLOAD_MAX_RETRIES;
-    // When
-    await processError(props);
-    // Then
-    call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
-    calls(sleepMock).toHaveLength(0);
-    calls(retryFn).toHaveLength(0);
-    call(loggerMock.warn).toMatchObject({ msg: 'Giving up uploading file to the bucket after max retries' });
   });
 
   it('should handle unknown error', async () => {

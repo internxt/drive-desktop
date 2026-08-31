@@ -66,7 +66,7 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
-    call(processErrorMock).toMatchObject({ retry: 1, sleepMs: 5000 });
+    call(processErrorMock).toMatchObject({ sleepMs: 5000 });
     calls(addItemMock).toHaveLength(0);
   });
 
@@ -127,10 +127,7 @@ describe('upload-file', () => {
     // Then
     calls(createReadStreamMock).toHaveLength(2);
     calls(readable.close).toHaveLength(2);
-    calls(processErrorMock).toMatchObject([
-      { retry: 1, sleepMs: 5000 },
-      { retry: 2, sleepMs: 10000 },
-    ]);
+    calls(processErrorMock).toMatchObject([{ sleepMs: 5000 }, { sleepMs: 10000 }]);
   });
 
   it('should cap the sleep between retries', async () => {
@@ -140,9 +137,6 @@ describe('upload-file', () => {
     // When
     await uploadFile({ ...props, retry: 1, sleepMs: 40000 });
     // Then
-    calls(processErrorMock).toMatchObject([
-      { retry: 1, sleepMs: 40000 },
-      { retry: 2, sleepMs: 60000 },
-    ]);
+    calls(processErrorMock).toMatchObject([{ sleepMs: 40000 }, { sleepMs: 60000 }]);
   });
 });

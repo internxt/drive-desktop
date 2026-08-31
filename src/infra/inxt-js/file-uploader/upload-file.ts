@@ -44,10 +44,6 @@ export async function uploadFile({
     LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
   }
 
-  /**
-   * A stream that a failed attempt already consumed cannot be replayed, so every
-   * attempt opens its own and closes it before returning.
-   */
   const readable = createReadStream(path);
   let uploadError: unknown;
 
@@ -66,11 +62,6 @@ export async function uploadFile({
     readable.close();
   }
 
-  /**
-   * processError awaits the whole retry chain, so it has to run outside the try
-   * block: otherwise this attempt's stream would stay open for every later
-   * attempt and its backoff, holding one descriptor per nested retry.
-   */
   const retryFn = () =>
     uploadFile({
       ctx,
@@ -81,5 +72,5 @@ export async function uploadFile({
       sleepMs: Math.min(sleepMs * 2, UPLOAD_MAX_SLEEP_MS),
     });
 
-  return processError({ ctx, path, size, error: uploadError, retry, sleepMs, retryFn });
+  return processError({ ctx, path, size, error: uploadError, sleepMs, retryFn });
 }

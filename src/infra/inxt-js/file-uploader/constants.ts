@@ -1,3 +1,2 @@
-export const UPLOAD_MAX_RETRIES = 5;
 export const UPLOAD_INITIAL_SLEEP_MS = 5_000;
 export const UPLOAD_MAX_SLEEP_MS = 60_000;
