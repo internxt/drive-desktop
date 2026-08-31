@@ -109,7 +109,10 @@ async function processQueuedEvent(state: SchedulerState, pendingEvent: PendingEv
 
   const internalId = pendingEvent.event.internalId;
   const latest = state.pendingEvents.get(internalId);
-  if (!latest || latest.version !== pendingEvent.version || pendingEvent.state !== 'queued') return;
+  if (!latest || latest.version !== pendingEvent.version || pendingEvent.state !== 'queued') {
+    scheduleNextDebounceTimer(state);
+    return;
+  }
 
   pendingEvent.state = 'active';
   state.activeIds.add(internalId);

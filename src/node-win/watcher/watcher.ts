@@ -4,6 +4,7 @@ import { disposeOnEventScheduler, onEvent } from './on-event/on-event';
 
 export function initWatcher({ ctx }: { ctx: SyncContext }) {
   ctx.logger.debug({ msg: 'Setup watcher' });
+  let isUnsubscribed = false;
 
   const handle = Addon.watchPath({
     rootPath: ctx.rootPath,
@@ -14,11 +15,15 @@ export function initWatcher({ ctx }: { ctx: SyncContext }) {
      * Keep this callback deliberately small: the scheduler owns debounce/coalescing and bounded processing
      * while this boundary avoids one N-API callback per item
      */
-    onEvents: (events) => events.forEach((event) => onEvent({ ctx, event })),
+    onEvents: (events) => {
+      if (isUnsubscribed) return;
+      events.forEach((event) => onEvent({ ctx, event }));
+    },
   });
 
   return {
     unsubscribe: () => {
+      isUnsubscribed = true;
       disposeOnEventScheduler(ctx);
       Addon.unwatchPath({ handle });
     },
