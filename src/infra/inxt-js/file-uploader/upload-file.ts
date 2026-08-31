@@ -1,14 +1,14 @@
-import { ReadStream } from 'node:fs';
+import { createReadStream } from 'node:fs';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS } from './constants';
 import { processError } from './process-error';
 
 type Props = {
   ctx: CommonContext;
-  readable: ReadStream;
   size: number;
   path: AbsolutePath;
   abortController: AbortController;
@@ -16,7 +16,14 @@ type Props = {
   sleepMs?: number;
 };
 
-export async function uploadFile({ ctx, readable, size, path, abortController, retry = 1, sleepMs = 5000 }: Props) {
+export async function uploadFile({
+  ctx,
+  size,
+  path,
+  abortController,
+  retry = 1,
+  sleepMs = UPLOAD_INITIAL_SLEEP_MS,
+}: Props): Promise<ContentsId | undefined> {
   ctx.logger.debug({
     msg: 'Uploading file to the bucket',
     path,
@@ -37,6 +44,9 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
     LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress });
   }
 
+  const readable = createReadStream(path);
+  let uploadError: unknown;
+
   try {
     const contentsId = await ctx.environment.upload(ctx.bucket, {
       source: readable,
@@ -47,17 +57,20 @@ export async function uploadFile({ ctx, readable, size, path, abortController, r
 
     return contentsId as ContentsId;
   } catch (error) {
-    const retryFn = () =>
-      uploadFile({
-        ctx,
-        readable,
-        size,
-        path,
-        abortController,
-        retry: retry + 1,
-        sleepMs: sleepMs * 2,
-      });
-
-    return processError({ ctx, path, size, error, sleepMs, retryFn });
+    uploadError = error;
+  } finally {
+    readable.close();
   }
+
+  const retryFn = () =>
+    uploadFile({
+      ctx,
+      size,
+      path,
+      abortController,
+      retry: retry + 1,
+      sleepMs: Math.min(sleepMs * 2, UPLOAD_MAX_SLEEP_MS),
+    });
+
+  return processError({ ctx, path, size, error: uploadError, sleepMs, retryFn });
 }
