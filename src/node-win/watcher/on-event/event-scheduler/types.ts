@@ -2,11 +2,21 @@ import type { QueueObject } from 'async';
 import type { Watcher } from '../../../addon';
 import type { createPendingEvents } from './pending-events';
 
-export type Dispatch = (event: Watcher.SuccessEvent) => Promise<void>;
+/**
+ * A watcher event plus the instant the native watcher observed its Windows notification.
+ *
+ * Electron may receive the N-API callback or dispatch the event much later
+ * while draining a backlog, so neither delay should affect timestamp logic.
+ */
+export type ObservedWatcherEvent = {
+  readonly event: Watcher.SuccessEvent;
+  readonly observedAtMs: number;
+};
+
+export type Dispatch = (observedEvent: ObservedWatcherEvent) => Promise<void>;
 export type ScheduledWork = () => Promise<void>;
 
-export type PendingEvent = {
-  event: Watcher.SuccessEvent;
+export type PendingEvent = ObservedWatcherEvent & {
   readyAt: number;
   version: number;
   state: 'pending' | 'queued' | 'active';

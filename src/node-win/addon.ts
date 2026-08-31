@@ -22,6 +22,7 @@ export namespace Watcher {
     internalId: number;
     ctimeMs: number;
     mtimeMs: number;
+    observedAtMs: number;
   };
   export type ErrorEvent = { action: 'error'; path: string };
   export type Event = SuccessEvent | ErrorEvent;

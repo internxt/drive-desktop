@@ -26,7 +26,7 @@ function addEvent(state: SchedulerState, event: Watcher.SuccessEvent) {
 
   state.received += 1;
   const entry = { internalId: event.internalId, version: ++state.version, readyAt: Date.now() + state.debounceMs };
-  state.pendingEvents.upsert(event, entry);
+  state.pendingEvents.upsert({ event, observedAtMs: event.observedAtMs }, entry);
   scheduleNextDebounceTimer(state);
 }
 
@@ -109,13 +109,16 @@ async function processQueuedEvent(state: SchedulerState, pendingEvent: PendingEv
 
   const internalId = pendingEvent.event.internalId;
   const latest = state.pendingEvents.get(internalId);
-  if (!latest || latest.version !== pendingEvent.version || pendingEvent.state !== 'queued') return;
+  if (!latest || latest.version !== pendingEvent.version || pendingEvent.state !== 'queued') {
+    scheduleNextDebounceTimer(state);
+    return;
+  }
 
   pendingEvent.state = 'active';
   state.activeIds.add(internalId);
 
   try {
-    await state.dispatch(pendingEvent.event);
+    await state.dispatch({ event: pendingEvent.event, observedAtMs: pendingEvent.observedAtMs });
   } catch (error) {
     state.onError?.(error, pendingEvent.event);
   } finally {

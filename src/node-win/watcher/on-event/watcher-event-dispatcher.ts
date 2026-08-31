@@ -4,12 +4,13 @@ import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { access } from '@/infra/file-system/services/access';
 import { Watcher } from '../../addon';
 import { processEvent } from '../process-event';
+import type { ObservedWatcherEvent } from './event-scheduler/types';
 
 /** Creates the Sync-specific work that a generic watcher scheduler executes. */
 export function createWatcherEventDispatcher(ctx: SyncContext) {
-  return async (event: Watcher.SuccessEvent) => {
+  return async ({ event, observedAtMs }: ObservedWatcherEvent) => {
     if (!(await shouldProcess(event))) return;
-    await processEvent({ ctx, event, path: event.path });
+    await processEvent({ ctx, event, path: event.path, observedAtMs });
   };
 }
 

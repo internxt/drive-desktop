@@ -11,6 +11,7 @@ const event = (internalId: number, size = 1): Watcher.SuccessEvent => ({
   internalId,
   ctimeMs: 0,
   mtimeMs: 0,
+  observedAtMs: 0,
 });
 
 describe('watcher event scheduler', () => {
@@ -30,7 +31,9 @@ describe('watcher event scheduler', () => {
     await vi.advanceTimersByTimeAsync(10);
     await vi.runAllTimersAsync();
     expect(dispatch).toHaveBeenCalledOnce();
-    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ internalId: 1, size: 2 }));
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({ observedAtMs: 0, event: expect.objectContaining({ internalId: 1, size: 2 }) }),
+    );
   });
 
   it('keeps one active debounce timer for many distinct items', () => {
@@ -102,7 +105,38 @@ describe('watcher event scheduler', () => {
     await vi.runAllTimersAsync();
 
     expect(dispatch).toHaveBeenCalledTimes(2);
-    expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ internalId: 1, size: 2 }));
+    expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ event: expect.objectContaining({ internalId: 1, size: 2 }) }));
+  });
+
+  it('promotes a due replacement after stale queued work frees capacity', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setImmediate', 'clearImmediate', 'Date'] });
+    let resolveFirst: (() => void) | undefined;
+    const dispatch = vi.fn().mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    dispatch.mockResolvedValueOnce(undefined);
+    const scheduler = createWatcherEventScheduler({ debounceMs: 20, dispatch, concurrency: 1, batchSize: 2 });
+
+    // Given: the first item is active and the first version of item 2 is queued.
+    scheduler.add(event(1));
+    scheduler.add(event(2, 1));
+    await vi.advanceTimersByTimeAsync(20);
+    await vi.runAllTimersAsync();
+    expect(dispatch).toHaveBeenCalledOnce();
+
+    // When: item 2 is replaced while its older version is waiting in async.queue.
+    scheduler.add(event(2, 2));
+    await vi.advanceTimersByTimeAsync(20);
+    await vi.runAllTimersAsync();
+    resolveFirst?.();
+    await vi.runAllTimersAsync();
+
+    // Then: the stale queued version re-arms the scheduler and the replacement runs.
+    expect(dispatch).toHaveBeenCalledTimes(2);
+    expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ event: expect.objectContaining({ internalId: 2, size: 2 }) }));
   });
 
   it('does not start pending work after disposal', async () => {

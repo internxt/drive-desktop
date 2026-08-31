@@ -1,7 +1,6 @@
-import type { Watcher } from '../../../addon';
 import type { PendingEventEntry } from '../constants';
 import { createDebounceSchedule } from '../debounce-schedule';
-import type { PendingEvent } from './types';
+import type { ObservedWatcherEvent, PendingEvent } from './types';
 
 /**
  * Stores pending watcher events through two internal indexes:
@@ -22,8 +21,8 @@ export function createPendingEvents() {
   };
 
   return {
-    upsert(event: Watcher.SuccessEvent, entry: PendingEventEntry) {
-      items.set(entry.internalId, { event, ...entry, state: 'pending' });
+    upsert(observedEvent: ObservedWatcherEvent, entry: PendingEventEntry) {
+      items.set(entry.internalId, { ...observedEvent, ...entry, state: 'pending' });
       deadlines.push(entry);
     },
 
