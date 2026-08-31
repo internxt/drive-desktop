@@ -6,7 +6,12 @@ import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
-const RETRYABLE_MESSAGES = ['read ECONNRESET', 'Request failed with status code 409', 'Request failed with status code 500'];
+const RETRYABLE_MESSAGES = new Set([
+  'read ECONNRESET',
+  'Request failed with status code 409',
+  'Request failed with status code 500',
+  'Request failed with status code 502',
+]);
 
 type TProps = {
   ctx: CommonContext;
@@ -25,7 +30,7 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
 
   if (!(error instanceof Error)) return;
 
-  if (RETRYABLE_MESSAGES.includes(error.message)) {
+  if (RETRYABLE_MESSAGES.has(error.message)) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
 
     await sleep(sleepMs);
