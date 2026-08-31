@@ -16,9 +16,10 @@ type Props = {
   ctx: SyncContext;
   event: Watcher.SuccessEvent;
   path: AbsolutePath;
+  observedAtMs: number;
 };
 
-export async function onChange({ ctx, event, path }: Props) {
+export async function onChange({ ctx, event, path, observedAtMs }: Props) {
   const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
   if (!fileInfo) {
@@ -26,9 +27,8 @@ export async function onChange({ ctx, event, path }: Props) {
     return;
   }
 
-  const now = Date.now();
-  const isChanged = now - event.ctimeMs <= 5000;
-  const isModified = now - event.mtimeMs <= 5000;
+  const isChanged = wasRecentWhenObserved({ observedAtMs, timestamp: event.ctimeMs });
+  const isModified = wasRecentWhenObserved({ observedAtMs, timestamp: event.mtimeMs });
 
   ctx.logger.debug({
     msg: 'On change event',
@@ -60,6 +60,11 @@ export async function onChange({ ctx, event, path }: Props) {
       await moveFile({ ctx, path, uuid: fileInfo.uuid });
     }
   }
+}
+
+// TODO: PB-XXXX Replace the watcher timestamp heuristic.
+function wasRecentWhenObserved({ observedAtMs, timestamp }: { observedAtMs: number; timestamp: number }) {
+  return observedAtMs - timestamp <= 5000;
 }
 
 async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {

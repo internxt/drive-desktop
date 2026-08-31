@@ -2,7 +2,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { sleep } from '@/apps/main/util';
 import { Watcher } from '@/node-win/addon';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
-import * as onEvent from '../on-event';
+import * as onEvent from '../on-event/on-event';
 import { initWatcher } from '../watcher';
 
 export const onEventSpy = vi.spyOn(onEvent, 'onEvent');
