@@ -1,15 +1,19 @@
-import { call, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { WindowsRegistry } from '@/infra/windows-registry/windows-registry.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
 
 describe('unregister-virtual-drives', () => {
   const getRegisteredSyncRootsMock = partialSpyOn(Addon, 'getRegisteredSyncRoots');
   const unregisterSyncRootMock = partialSpyOn(Addon, 'unregisterSyncRoot');
+  const getSyncRootRegistrationsMock = partialSpyOn(WindowsRegistry, 'getSyncRootRegistrations');
+  const removeSyncRootRegistrationMock = partialSpyOn(WindowsRegistry, 'removeSyncRootRegistration');
 
   let props: Parameters<typeof unregisterVirtualDrives>[0];
 
   beforeEach(() => {
     getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}', displayName: 'Internxt' }]);
+    getSyncRootRegistrationsMock.mockResolvedValue([]);
     props = mockProps<typeof unregisterVirtualDrives>({ currentProviderIds: ['{PROVIDER_ID}'] });
   });
 
@@ -63,5 +67,72 @@ describe('unregister-virtual-drives', () => {
     await unregisterVirtualDrives(props);
     // Then
     expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should remove a registration that the addon does not report', async () => {
+    // Given
+    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false };
+    getSyncRootRegistrationsMock.mockResolvedValue([registration]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    call(removeSyncRootRegistrationMock).toStrictEqual({ registration });
+    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should not remove a registration that the addon still reports', async () => {
+    // Given
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
+  });
+
+  it('should not remove a registration that is a current provider id', async () => {
+    // Given
+    getRegisteredSyncRootsMock.mockReturnValue([]);
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
+  });
+
+  it('should not remove a registration from another provider', async () => {
+    // Given
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      { id: 'OneDrive!S-1-5-21!Personal', displayName: 'OneDrive', namespaceClsid: '{CLSID}', hasUserSyncRoots: true },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
+  });
+
+  it('should not remove a registration that belongs to another windows user', async () => {
+    // Given
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      { id: '{OTHER_WINDOWS_USER}', displayName: 'Internxt Drive', namespaceClsid: '{CLSID}', hasUserSyncRoots: true },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
+  });
+
+  it('should not remove a registration without a display name', async () => {
+    // Given
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      { id: '9ba145d2-bd67-4f31-a221-bf820027862d', displayName: '', namespaceClsid: '', hasUserSyncRoots: false },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
   });
 });
