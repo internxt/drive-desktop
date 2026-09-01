@@ -29,7 +29,7 @@ import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupQuitHandlers } from './quit';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
-import { createWidget, showFrontend } from './windows/widget';
+import { createWidget, getWidget, showFrontend } from './windows/widget';
 
 app.setPath('crashDumps', join(PATHS.LOGS, 'crash'));
 crashReporter.start({ uploadToServer: false, compress: false });
@@ -57,6 +57,8 @@ if (!gotTheLock) {
 } else {
   app.on('second-instance', (event, argv) => {
     processDeeplink({ argv });
+
+    if (getWidget()) showFrontend();
   });
 }
 
