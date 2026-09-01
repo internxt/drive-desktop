@@ -47,14 +47,14 @@ export async function unregisterVirtualDrives({ currentProviderIds = [] }: TProp
 
 async function removeOrphanRegistrations({ currentProviderIds }: { currentProviderIds: string[] }) {
   const registrations = await WindowsRegistry.getSyncRootRegistrations();
-  const registeredIds = Addon.getRegisteredSyncRoots().map((syncRoot) => syncRoot.id);
+  const registeredIds = new Set(Addon.getRegisteredSyncRoots().map((syncRoot) => syncRoot.id));
 
   const orphans = registrations.filter(
     (registration) =>
       registration.displayName.toLowerCase().includes('internxt') &&
       !registration.hasUserSyncRoots &&
       !currentProviderIds.includes(registration.id) &&
-      !registeredIds.includes(registration.id),
+      !registeredIds.has(registration.id),
   );
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Orphan sync root registrations', orphans });
