@@ -9,35 +9,38 @@ export const CLSID_KEY = String.raw`HKCU\Software\Classes\CLSID`;
 
 const VALUE_REGEX = /^ {4}(.+?) {4}REG_\w+ {4}(.*)$/;
 
-export async function queryKeys({ key }: { key: string }) {
-  const { stdout } = await execFileAsync('reg', ['query', key]);
+const HIVES: Record<string, string> = {
+  HKLM: 'HKEY_LOCAL_MACHINE',
+  HKCU: 'HKEY_CURRENT_USER',
+};
 
-  return stdout
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith('HKEY_') && line.length > key.length)
-    .map((line) => line.slice(line.lastIndexOf('\\') + 1));
+function expandHive({ key }: { key: string }) {
+  const [hive, ...rest] = key.split('\\');
+  return [HIVES[hive] ?? hive, ...rest].join('\\');
 }
 
-export async function queryValues({ key }: { key: string }) {
+export async function queryKey({ key }: { key: string }) {
   const { stdout } = await execFileAsync('reg', ['query', key]);
 
+  const prefix = `${expandHive({ key })}\\`;
   const values: Record<string, string> = {};
+  const subKeys: string[] = [];
 
-  for (const line of stdout.split('\r\n')) {
-    const match = VALUE_REGEX.exec(line);
-    if (match) values[match[1]] = match[2];
+  for (const raw of stdout.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+
+    const value = VALUE_REGEX.exec(line);
+    if (value) {
+      values[value[1]] = value[2];
+      continue;
+    }
+
+    if (line.startsWith(prefix)) {
+      subKeys.push(line.slice(prefix.length));
+    }
   }
 
-  return values;
-}
-
-export async function tryQueryValues({ key }: { key: string }) {
-  try {
-    return await queryValues({ key });
-  } catch {
-    return {};
-  }
+  return { values, subKeys };
 }
 
 export async function deleteKey({ key }: { key: string }) {
