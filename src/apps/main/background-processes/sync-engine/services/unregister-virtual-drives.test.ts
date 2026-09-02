@@ -71,7 +71,13 @@ describe('unregister-virtual-drives', () => {
 
   it('should remove a registration that the addon does not report', async () => {
     // Given
-    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false };
+    const registration = {
+      id: 'syncRootID',
+      displayName: 'Internxt',
+      namespaceClsid: '{CLSID}',
+      targetFolderPath: '',
+      hasUserSyncRoots: false,
+    };
     getSyncRootRegistrationsMock.mockResolvedValue([registration]);
     // When
     await unregisterVirtualDrives(props);
@@ -83,7 +89,7 @@ describe('unregister-virtual-drives', () => {
   it('should not remove a registration that the addon still reports', async () => {
     // Given
     getSyncRootRegistrationsMock.mockResolvedValue([
-      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false },
+      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', targetFolderPath: '', hasUserSyncRoots: false },
     ]);
     // When
     await unregisterVirtualDrives(props);
@@ -95,7 +101,7 @@ describe('unregister-virtual-drives', () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([]);
     getSyncRootRegistrationsMock.mockResolvedValue([
-      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false },
+      { id: '{PROVIDER_ID}', displayName: 'Internxt', namespaceClsid: '{CLSID}', targetFolderPath: '', hasUserSyncRoots: false },
     ]);
     // When
     await unregisterVirtualDrives(props);
@@ -106,7 +112,13 @@ describe('unregister-virtual-drives', () => {
   it('should not remove a registration from another provider', async () => {
     // Given
     getSyncRootRegistrationsMock.mockResolvedValue([
-      { id: 'OneDrive!S-1-5-21!Personal', displayName: 'OneDrive', namespaceClsid: '{CLSID}', hasUserSyncRoots: true },
+      {
+        id: 'OneDrive!S-1-5-21!Personal',
+        displayName: 'OneDrive',
+        namespaceClsid: '{CLSID}',
+        targetFolderPath: '',
+        hasUserSyncRoots: true,
+      },
     ]);
     // When
     await unregisterVirtualDrives(props);
@@ -117,7 +129,13 @@ describe('unregister-virtual-drives', () => {
   it('should not remove a registration that belongs to another windows user', async () => {
     // Given
     getSyncRootRegistrationsMock.mockResolvedValue([
-      { id: '{OTHER_WINDOWS_USER}', displayName: 'Internxt Drive', namespaceClsid: '{CLSID}', hasUserSyncRoots: true },
+      {
+        id: '{OTHER_WINDOWS_USER}',
+        displayName: 'Internxt Drive',
+        namespaceClsid: '{CLSID}',
+        targetFolderPath: '',
+        hasUserSyncRoots: true,
+      },
     ]);
     // When
     await unregisterVirtualDrives(props);
@@ -125,10 +143,43 @@ describe('unregister-virtual-drives', () => {
     calls(removeSyncRootRegistrationMock).toHaveLength(0);
   });
 
-  it('should not remove a registration without a display name', async () => {
+  it('should not remove a registration without a display name and without a target folder path', async () => {
     // Given
     getSyncRootRegistrationsMock.mockResolvedValue([
-      { id: '9ba145d2-bd67-4f31-a221-bf820027862d', displayName: '', namespaceClsid: '', hasUserSyncRoots: false },
+      { id: '9ba145d2-bd67-4f31-a221-bf820027862d', displayName: '', namespaceClsid: '', targetFolderPath: '', hasUserSyncRoots: false },
+    ]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    calls(removeSyncRootRegistrationMock).toHaveLength(0);
+  });
+
+  it('should remove a registration without a display name if the target folder path is ours', async () => {
+    // Given
+    const registration = {
+      id: 'syncRootID',
+      displayName: '',
+      namespaceClsid: '{CLSID}',
+      targetFolderPath: String.raw`C:\Users\user\InternxtDrive - uuid`,
+      hasUserSyncRoots: false,
+    };
+    getSyncRootRegistrationsMock.mockResolvedValue([registration]);
+    // When
+    await unregisterVirtualDrives(props);
+    // Then
+    call(removeSyncRootRegistrationMock).toStrictEqual({ registration });
+  });
+
+  it('should not remove a registration without a display name if the target folder path is from another provider', async () => {
+    // Given
+    getSyncRootRegistrationsMock.mockResolvedValue([
+      {
+        id: 'syncRootID',
+        displayName: '',
+        namespaceClsid: '{CLSID}',
+        targetFolderPath: String.raw`C:\Users\user\OneDrive`,
+        hasUserSyncRoots: false,
+      },
     ]);
     // When
     await unregisterVirtualDrives(props);

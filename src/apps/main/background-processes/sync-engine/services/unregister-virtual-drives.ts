@@ -1,4 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
+import { SyncRootRegistration } from '@/infra/windows-registry/services/get-sync-root-registrations';
 import { WindowsRegistry } from '@/infra/windows-registry/windows-registry.module';
 import { Addon } from '@/node-win/addon-wrapper';
 
@@ -45,13 +46,17 @@ export async function unregisterVirtualDrives({ currentProviderIds = [] }: TProp
   await removeOrphanRegistrations({ currentProviderIds });
 }
 
+function isFromInternxt({ registration }: { registration: SyncRootRegistration }) {
+  return registration.displayName.toLowerCase().includes('internxt') || registration.targetFolderPath.toLowerCase().includes('internxt');
+}
+
 async function removeOrphanRegistrations({ currentProviderIds }: { currentProviderIds: string[] }) {
   const registrations = await WindowsRegistry.getSyncRootRegistrations();
   const registeredIds = new Set(Addon.getRegisteredSyncRoots().map((syncRoot) => syncRoot.id));
 
   const orphans = registrations.filter(
     (registration) =>
-      registration.displayName.toLowerCase().includes('internxt') &&
+      isFromInternxt({ registration }) &&
       !registration.hasUserSyncRoots &&
       !currentProviderIds.includes(registration.id) &&
       !registeredIds.has(registration.id),

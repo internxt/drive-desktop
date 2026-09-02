@@ -7,7 +7,13 @@ describe('remove-sync-root-registration', () => {
 
   it('should remove the explorer entry before the provider record', async () => {
     // Given
-    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false };
+    const registration = {
+      id: 'syncRootID',
+      displayName: 'Internxt',
+      namespaceClsid: '{CLSID}',
+      targetFolderPath: '',
+      hasUserSyncRoots: false,
+    };
     // When
     await removeSyncRootRegistration({ registration });
     // Then
@@ -20,7 +26,7 @@ describe('remove-sync-root-registration', () => {
 
   it('should only remove the provider record if there is no namespace clsid', async () => {
     // Given
-    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '', hasUserSyncRoots: false };
+    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '', targetFolderPath: '', hasUserSyncRoots: false };
     // When
     await removeSyncRootRegistration({ registration });
     // Then
@@ -29,7 +35,13 @@ describe('remove-sync-root-registration', () => {
 
   it('should keep removing the remaining keys if one of them fails', async () => {
     // Given
-    const registration = { id: 'syncRootID', displayName: 'Internxt', namespaceClsid: '{CLSID}', hasUserSyncRoots: false };
+    const registration = {
+      id: 'syncRootID',
+      displayName: 'Internxt',
+      namespaceClsid: '{CLSID}',
+      targetFolderPath: '',
+      hasUserSyncRoots: false,
+    };
     deleteKeyMock.mockRejectedValueOnce(new Error('access denied'));
     // When
     await removeSyncRootRegistration({ registration });

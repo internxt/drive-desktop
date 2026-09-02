@@ -13,6 +13,7 @@ describe('get-sync-root-registrations', () => {
       expect(registration).toBeDefined();
       expect(registration?.displayName).toBe(syncRoot.displayName);
       expect(registration?.namespaceClsid).toMatch(/^\{[0-9A-F-]+\}$/i);
+      expect(registration?.targetFolderPath.replace(/\\/g, '/')).toBe(syncRoot.path);
       expect(registration?.hasUserSyncRoots).toBe(true);
     }
   });
