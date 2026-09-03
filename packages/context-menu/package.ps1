@@ -1,6 +1,5 @@
 $ErrorActionPreference = "Stop"
 
-$sdkVersion = "10.0.22621.0"
 $rootPath = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 $rootPackageJsonPath = Join-Path $rootPath "package.json"
 $manifestTemplatePath = Join-Path $PSScriptRoot "AppxManifest.template.xml"
@@ -8,15 +7,21 @@ $stagingPath = Join-Path $PSScriptRoot "build\package"
 $assetsPath = Join-Path $stagingPath "Assets"
 $outputPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
 $iconPath = Join-Path $rootPath "assets\icon.ico"
-$makeAppxPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\MakeAppx.exe"
 $publisher = if ($env:WINDOWS_PACKAGE_PUBLISHER) {
   $env:WINDOWS_PACKAGE_PUBLISHER
 } else {
   "CN=Internxt Development"
 }
 
-if (-not (Test-Path -LiteralPath $makeAppxPath)) {
-  throw "MakeAppx.exe from Windows SDK $sdkVersion was not found."
+$makeAppxPath = Get-ChildItem -Path (Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin") -Directory -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+  Sort-Object { [version]$_.Name } -Descending |
+  ForEach-Object { Join-Path $_.FullName "x64\MakeAppx.exe" } |
+  Where-Object { Test-Path -LiteralPath $_ } |
+  Select-Object -First 1
+
+if (-not $makeAppxPath) {
+  throw "MakeAppx.exe was not found under any installed Windows SDK."
 }
 
 if (-not (Test-Path -LiteralPath $iconPath)) {

@@ -3,16 +3,21 @@ $ErrorActionPreference = "Stop"
 $certificateSubject = "CN=Internxt Development"
 $certificateFriendlyName = "Internxt Context Menu Development"
 $certificateStore = "Cert:\CurrentUser\My"
-$sdkVersion = "10.0.22621.0"
-$signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $dllPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
 $hostPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $msixPath = Join-Path $PSScriptRoot "dist\InternxtContextMenu.msix"
 $certificateExportPath = Join-Path $PSScriptRoot "dist\InternxtDevelopment.cer"
 $certificateExportDirectory = Split-Path $certificateExportPath
 
-if (-not (Test-Path -LiteralPath $signToolPath)) {
-  throw "SignTool.exe from Windows SDK $sdkVersion was not found."
+$signToolPath = Get-ChildItem -Path (Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin") -Directory -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+  Sort-Object { [version]$_.Name } -Descending |
+  ForEach-Object { Join-Path $_.FullName "x64\SignTool.exe" } |
+  Where-Object { Test-Path -LiteralPath $_ } |
+  Select-Object -First 1
+
+if (-not $signToolPath) {
+  throw "SignTool.exe was not found under any installed Windows SDK."
 }
 
 # Reuse the newest valid development certificate when possible. The private

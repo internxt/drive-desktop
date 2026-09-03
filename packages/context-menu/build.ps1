@@ -1,12 +1,11 @@
 $ErrorActionPreference = "Stop"
 
-$sdkVersion = "10.0.22621.0"
 $projectPath = Join-Path $PSScriptRoot "InternxtContextMenu.vcxproj"
 $hostProjectPath = Join-Path $PSScriptRoot "InternxtContextMenuHost.vcxproj"
 $dllOutputPath = Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"
 $hostOutputPath = Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"
 $vswherePath = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
-$sdkIncludePath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\Include\$sdkVersion"
+$windowsKitsIncludePath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\Include"
 
 if (-not (Test-Path -LiteralPath $vswherePath)) {
   throw "Visual Studio Installer was not found. Install Visual Studio Build Tools with the C++ workload."
@@ -42,8 +41,13 @@ if (-not $platformToolset) {
   throw "The installed Visual Studio C++ platform toolset could not be determined."
 }
 
-if (-not (Test-Path -LiteralPath $sdkIncludePath)) {
-  throw "Windows SDK $sdkVersion was not found."
+$sdkVersion = Get-ChildItem -Path $windowsKitsIncludePath -Directory -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+  Sort-Object { [version]$_.Name } -Descending |
+  Select-Object -First 1 -ExpandProperty Name
+
+if (-not $sdkVersion) {
+  throw "No installed Windows SDK was found under $windowsKitsIncludePath."
 }
 
 foreach ($nativeProjectPath in @($projectPath, $hostProjectPath)) {
@@ -53,6 +57,7 @@ foreach ($nativeProjectPath in @($projectPath, $hostProjectPath)) {
     /p:Configuration=Release `
     /p:Platform=x64 `
     /p:PlatformToolset=$platformToolset `
+    /p:WindowsTargetPlatformVersion=$sdkVersion `
     /m
 
   if ($LASTEXITCODE -ne 0) {
