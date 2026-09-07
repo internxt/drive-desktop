@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import * as issues from '@/apps/main/background-processes/issues';
 import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -24,6 +24,11 @@ describe('validate-windows-name.infra', () => {
   beforeEach(async () => {
     rootPath = join(TEST_FILES, randomUUID());
     await mkdir(rootPath);
+  });
+
+  afterEach(async () => {
+    // Node deletes through the device path, so it reaches the names win32 cannot.
+    await rm(rootPath, { recursive: true, force: true });
   });
 
   function isAddressableByWindows(name: string) {

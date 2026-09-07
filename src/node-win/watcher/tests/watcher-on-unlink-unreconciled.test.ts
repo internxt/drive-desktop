@@ -42,8 +42,10 @@ describe('watcher-on-unlink-unreconciled', () => {
     getFileByNameMock.mockResolvedValue({ data: { uuid: 'remoteFileUuid' as FileUuid } });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     removeUnreconciledFolder({ uuid });
+    // The native watcher is unsubscribed after this hook, so it can still hold the root open.
+    await rm(rootPath, { recursive: true, force: true, maxRetries: 5, retryDelay: 20 });
   });
 
   it('should propagate the deletion when the folder is in sync', async () => {
