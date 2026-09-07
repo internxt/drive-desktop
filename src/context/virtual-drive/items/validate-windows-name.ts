@@ -21,10 +21,12 @@ type TProps = {
  * BR-1796: a folder the user can see and cannot delete. Measured, of the names we were unsure
  * about, only the trailing ones become unaddressable, and control characters fail on creation
  * with EINVAL. A leading space survives win32 parsing, so it no longer makes the name invalid.
+ * Win32 only trims the ascii space and the dot: every other unicode space is kept and stays
+ * reachable, so this cannot be the \s class or we would skip whole subtrees for a name that works.
  */
 // eslint-disable-next-line no-control-regex -- matching control characters is the point: windows refuses them with EINVAL
 const forbiddenCharacters = /[<>:"/\\|?*\x00-\x1f]/;
-const unaddressableEnding = /[\s.]$/;
+const unaddressableEnding = /[ .]$/;
 
 export function validateWindowsName({ path, name }: TProps) {
   const isValid = !forbiddenCharacters.test(name) && !unaddressableEnding.test(name);

@@ -28,12 +28,22 @@ describe('validate-windows-name.infra', () => {
 
   function isAddressableByWindows(name: string) {
     const win32Path = `${rootPath}/${name}`.replaceAll('/', '\\').replaceAll("'", "''");
+    const devicePath = `\\\\?\\${win32Path}`;
+    /**
+     * `GetFileAttributesW` is asked instead of `Directory.Exists` because .net trims more trailing
+     * whitespace than win32 does, and win32 is the layer explorer and every other program go
+     * through, so it is win32 that decides whether the user can still reach the item.
+     */
     const script = [
-      `try { [System.IO.Directory]::CreateDirectory('\\\\?\\\\${win32Path}') | Out-Null } catch { Write-Output 'NO'; exit }`,
-      `if ([System.IO.Directory]::Exists('${win32Path}')) { Write-Output 'YES' } else { Write-Output 'NO' }`,
+      `$ProgressPreference = 'SilentlyContinue'`,
+      `$signature = '[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] public static extern uint GetFileAttributesW(string path);'`,
+      `$win32 = Add-Type -MemberDefinition $signature -Name 'Win32' -Namespace 'Infra' -PassThru`,
+      `try { [System.IO.Directory]::CreateDirectory('${devicePath}') | Out-Null } catch { Write-Output 'NO'; exit }`,
+      `if ($win32::GetFileAttributesW('${win32Path}') -ne [uint32]::MaxValue) { Write-Output 'YES' } else { Write-Output 'NO' }`,
     ].join('; ');
 
-    const stdout = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { encoding: 'utf8' });
+    const encoded = Buffer.from(script, 'utf16le').toString('base64');
+    const stdout = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], { encoding: 'utf8' });
     return stdout.trim() === 'YES';
   }
 
@@ -48,6 +58,7 @@ describe('validate-windows-name.infra', () => {
     'Streamit 3.0 | Tema',
     'Nota: importante',
     'Todo*',
+    'Reporte\u00a0',
   ];
 
   it.each(names)('should only accept %j if windows can reach it afterwards', (name) => {

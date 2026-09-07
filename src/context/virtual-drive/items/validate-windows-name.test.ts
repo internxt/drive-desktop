@@ -94,6 +94,16 @@ describe('validate-windows-name', () => {
     expect(result.isValid).toBe(true);
   });
 
+  /**
+   * BR-2245
+   * Win32 only trims the ascii space, so a name ending in any other unicode space is still
+   * reachable and rejecting it would skip the folder and everything below it.
+   */
+  it('should return true when the name ends with a non breaking space', () => {
+    const result = validateWindowsName(getProps({ name: 'Reporte\u00a0' }));
+    expect(result.isValid).toBe(true);
+  });
+
   it('should return true for a reserved device name', () => {
     const result = validateWindowsName(getProps({ name: 'CON' }));
     expect(result.isValid).toBe(true);
