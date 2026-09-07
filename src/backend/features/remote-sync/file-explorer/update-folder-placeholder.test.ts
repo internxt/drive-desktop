@@ -19,6 +19,7 @@ describe('update-folder-placeholder', () => {
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
+    checkIfMovedMock.mockResolvedValue(true);
 
     props = {
       ctx: { logger: loggerMock },

@@ -51,8 +51,7 @@ async function update({ ctx, remote, local }: Omit<Props, 'folders'> & { local: 
       return true;
     }
 
-    await checkIfMoved({ ctx, type: 'folder', remote, local });
-    return true;
+    return await checkIfMoved({ ctx, type: 'folder', remote, local });
   } catch (error) {
     ctx.logger.sentryError({ msg: 'Error updating folder placeholder', path, error }, { uuid: remote.uuid });
     return false;
