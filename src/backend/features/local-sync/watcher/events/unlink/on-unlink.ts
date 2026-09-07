@@ -1,5 +1,6 @@
 import { basename } from 'node:path';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { isInsideUnreconciledFolder } from '@/backend/features/remote-sync/unreconciled-folders';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { deleteFileByUuid, deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -12,6 +13,18 @@ type Props = {
 };
 
 export async function onUnlink({ ctx, path, type }: Props) {
+  /**
+   * BR-2245
+   * Inside a folder that we could not reconcile we never materialized the whole subtree, so
+   * a local deletion there does not tell us that the user deleted the remote items: it can
+   * also be us failing to keep the placeholders in sync. Propagating it would trash in the
+   * server items that never existed locally, so we wait until the folder syncs again.
+   */
+  if (isInsideUnreconciledFolder({ path })) {
+    ctx.logger.warn({ msg: 'Skip unlink inside unreconciled folder', path, type });
+    return;
+  }
+
   // Get parent placeholderId from the file explorer.
   const parentPath = dirname(path);
   const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });
