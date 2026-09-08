@@ -19,39 +19,6 @@ import { validateWindowsName } from './validate-windows-name';
 describe('validate-windows-name.infra', () => {
   partialSpyOn(issues, 'addSyncIssue');
 
-  let rootPath: AbsolutePath;
-
-  beforeEach(async () => {
-    rootPath = join(TEST_FILES, randomUUID());
-    await mkdir(rootPath);
-  });
-
-  afterEach(async () => {
-    // Node deletes through the device path, so it reaches the names win32 cannot.
-    await rm(rootPath, { recursive: true, force: true });
-  });
-
-  function isAddressableByWindows(name: string) {
-    const win32Path = `${rootPath}/${name}`.replaceAll('/', '\\').replaceAll("'", "''");
-    const devicePath = `\\\\?\\${win32Path}`;
-    /**
-     * `GetFileAttributesW` is asked instead of `Directory.Exists` because .net trims more trailing
-     * whitespace than win32 does, and win32 is the layer explorer and every other program go
-     * through, so it is win32 that decides whether the user can still reach the item.
-     */
-    const script = [
-      `$ProgressPreference = 'SilentlyContinue'`,
-      `$signature = '[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] public static extern uint GetFileAttributesW(string path);'`,
-      `$win32 = Add-Type -MemberDefinition $signature -Name 'Win32' -Namespace 'Infra' -PassThru`,
-      `try { [System.IO.Directory]::CreateDirectory('${devicePath}') | Out-Null } catch { Write-Output 'NO'; exit }`,
-      `if ($win32::GetFileAttributesW('${win32Path}') -ne [uint32]::MaxValue) { Write-Output 'YES' } else { Write-Output 'NO' }`,
-    ].join('; ');
-
-    const encoded = Buffer.from(script, 'utf16le').toString('base64');
-    const stdout = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], { encoding: 'utf8' });
-    return stdout.trim() === 'YES';
-  }
-
   const names = [
     'Facturas',
     ' Invoice',
@@ -66,12 +33,61 @@ describe('validate-windows-name.infra', () => {
     'Reporte\u00a0',
   ];
 
+  let rootPath: AbsolutePath;
+  let addressable: Map<string, boolean>;
+
+  /**
+   * The whole list is measured in one powershell process because `Add-Type` compiles the c# shim at
+   * runtime: the first compilation on a cold machine costs tens of seconds and every one after it
+   * costs nothing, so paying it once per file instead of once per name is what keeps this under the
+   * timeout on a clean runner. The generous budget here is that compilation, not the measuring.
+   */
+  beforeAll(async () => {
+    rootPath = join(TEST_FILES, randomUUID());
+    await mkdir(rootPath);
+    addressable = askWindows();
+  }, 120_000);
+
+  afterAll(async () => {
+    // Node deletes through the device path, so it reaches the names win32 cannot.
+    await rm(rootPath, { recursive: true, force: true });
+  });
+
+  function askWindows() {
+    /**
+     * `GetFileAttributesW` is asked instead of `Directory.Exists` because .net trims more trailing
+     * whitespace than win32 does, and win32 is the layer explorer and every other program go
+     * through, so it is win32 that decides whether the user can still reach the item.
+     */
+    const script = [
+      `$ProgressPreference = 'SilentlyContinue'`,
+      `$signature = '[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] public static extern uint GetFileAttributesW(string path);'`,
+      `$win32 = Add-Type -MemberDefinition $signature -Name 'Win32' -Namespace 'Infra' -PassThru`,
+      ...names.map((name) => {
+        const win32Path = `${rootPath}/${name}`.replaceAll('/', '\\').replaceAll("'", "''");
+        const devicePath = `\\\\?\\${win32Path}`;
+        const probe = `if ($win32::GetFileAttributesW('${win32Path}') -ne [uint32]::MaxValue) { Write-Output 'YES' } else { Write-Output 'NO' }`;
+        // A name win32 refuses outright never reaches the probe, so the catch answers for it.
+        return `try { [System.IO.Directory]::CreateDirectory('${devicePath}') | Out-Null; ${probe} } catch { Write-Output 'NO' }`;
+      }),
+    ].join('; ');
+
+    const encoded = Buffer.from(script, 'utf16le').toString('base64');
+    const stdout = execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-EncodedCommand', encoded], { encoding: 'utf8' });
+    const answers = stdout.trim().split(/\r?\n/);
+
+    // One answer missing would shift every other name onto the wrong result without saying so.
+    expect(answers).toHaveLength(names.length);
+
+    return new Map(names.map((name, index) => [name, answers[index] === 'YES']));
+  }
+
   it.each(names)('should only accept %j if windows can reach it afterwards', (name) => {
     // Given
-    const addressable = isAddressableByWindows(name);
+    const reachable = addressable.get(name);
     // When
     const { isValid } = validateWindowsName(mockProps<typeof validateWindowsName>({ name, path: name }));
     // Then
-    expect(isValid).toBe(addressable);
+    expect(isValid).toBe(reachable);
   });
 });
