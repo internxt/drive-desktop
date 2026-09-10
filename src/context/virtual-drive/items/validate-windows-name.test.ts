@@ -15,7 +15,7 @@ describe('validate-windows-name', () => {
   });
 
   it('should return false when the name includes \\', () => {
-    const result = validateWindowsName(getProps({ name: '\\test' }));
+    const result = validateWindowsName(getProps({ name: String.raw`\test` }));
     expect(result.isValid).toBe(false);
   });
 
@@ -59,13 +59,53 @@ describe('validate-windows-name', () => {
     expect(result.isValid).toBe(false);
   });
 
-  it('should return false when the name starts with empty space', () => {
-    const result = validateWindowsName(getProps({ name: ' test' }));
+  it('should return false when the name includes a tab', () => {
+    const result = validateWindowsName(getProps({ name: 'Screams\tby A SOUND EFFECT' }));
+    expect(result.isValid).toBe(false);
+  });
+
+  it('should return false when the name includes a line break', () => {
+    const result = validateWindowsName(getProps({ name: 'Doc\numento' }));
     expect(result.isValid).toBe(false);
   });
 
   it('should return false when the name ends with empty space', () => {
     const result = validateWindowsName(getProps({ name: 'test ' }));
     expect(result.isValid).toBe(false);
+  });
+
+  /**
+   * BR-2245
+   * Win32 trims trailing dots the same way it trims trailing spaces, so the item ends up
+   * unreachable for explorer even though we could create it.
+   */
+  it('should return false when the name ends with a dot', () => {
+    const result = validateWindowsName(getProps({ name: 'Press U.S.' }));
+    expect(result.isValid).toBe(false);
+  });
+
+  /**
+   * BR-2245
+   * A leading space survives win32 parsing, so rejecting it was skipping the folder and every
+   * item below it for nothing.
+   */
+  it('should return true when the name starts with empty space', () => {
+    const result = validateWindowsName(getProps({ name: ' test' }));
+    expect(result.isValid).toBe(true);
+  });
+
+  /**
+   * BR-2245
+   * Win32 only trims the ascii space, so a name ending in any other unicode space is still
+   * reachable and rejecting it would skip the folder and everything below it.
+   */
+  it('should return true when the name ends with a non breaking space', () => {
+    const result = validateWindowsName(getProps({ name: 'Reporte\u00a0' }));
+    expect(result.isValid).toBe(true);
+  });
+
+  it('should return true for a reserved device name', () => {
+    const result = validateWindowsName(getProps({ name: 'CON' }));
+    expect(result.isValid).toBe(true);
   });
 });
