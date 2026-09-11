@@ -13,6 +13,7 @@ const schema: Schema<AppStore> = {
 
   newToken: { type: 'string' },
   userData: { type: 'object' },
+  mailBridgeCredentials: { type: 'string' },
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },

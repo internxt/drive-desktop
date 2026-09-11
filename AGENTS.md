@@ -7,6 +7,7 @@
 - Prefer implementing functional components rather than classes or god objects. It is okay to have multiple functions if the are not exported and are only helpers of the main function
 - Avoid throwing exceptions over code that we have control of, it is much better to return an error, this way we have the error typed into the function.
 - When dealing with code that can throw exceptions, we must handle it right away with a trycatch block and just return an error instead of propagating up the exception.
+- Functions that can fail must return either `{ data: T, error: undefined }` or `{ error: Error, data undefined }`; do not use feature-specific result wrapper types.
 - Pass multi-value function inputs as a typed object
 - Comments should explain decisions and preserve relevant versioned rationale.
 - It is always better to comunicate intent via typing the function to avoid ambiguousity
