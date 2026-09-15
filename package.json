@@ -221,7 +221,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.10.7",
     "electron-store": "^8.0.1",
-    "electron-updater": "^6.8.3",
+    "electron-updater": "^6.8.9",
     "framer-motion": "^5.6.0",
     "openapi-fetch": "^0.13.4",
     "openpgp": "5.11.3",
