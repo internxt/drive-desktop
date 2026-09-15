@@ -1,4 +1,4 @@
-import type { StoredCredentials } from '../constants';
+import type { MailBridgeClientCredentials } from '../constants';
 
 export function mapStoredMailBridgeCredentials(value: unknown) {
   if (!isStoredCredentials(value)) {
@@ -8,10 +8,10 @@ export function mapStoredMailBridgeCredentials(value: unknown) {
   return { data: value, error: undefined };
 }
 
-function isStoredCredentials(value: unknown): value is StoredCredentials {
+function isStoredCredentials(value: unknown): value is MailBridgeClientCredentials {
   if (typeof value !== 'object' || value === null) return false;
 
-  const credentials = value as Partial<StoredCredentials>;
+  const credentials = value as Partial<MailBridgeClientCredentials>;
   if (typeof credentials.username !== 'string' || typeof credentials.password !== 'string') return false;
 
   return true;

@@ -1,7 +1,7 @@
 import { safeStorage } from 'electron';
-import type { StoredCredentials } from '../constants';
+import type { MailBridgeClientCredentials } from '../constants';
 
-export function encryptMailBridgeCredentials(credentials: StoredCredentials) {
+export function encryptMailBridgeCredentials(credentials: MailBridgeClientCredentials) {
   if (!safeStorage.isEncryptionAvailable()) return { data: undefined, error: new Error('Secure credential storage is unavailable') };
 
   try {

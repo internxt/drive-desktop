@@ -1,21 +1,26 @@
+import { createMailClient, prepareMailBridgeSession } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import { obtainToken } from '../../../apps/main/auth/service';
 import type { User } from '../../../apps/main/types';
-import type { MailBridgeSession } from './constants';
+import { INTERNXT_CLIENT, INTERNXT_VERSION } from '../../../core/utils/utils';
 import { getOrCreateMailBridgeCredentials } from './get-or-create-mail-bridge-credentials';
 
-export function createMailBridgeSession(user: User): { data: MailBridgeSession } | { error: Error } {
+export async function createMailBridgeSession(user: User) {
   const { data: credentials, error } = getOrCreateMailBridgeCredentials(user);
-  if (error) return { error };
+  if (error) return { error, data: undefined };
 
-  return {
-    data: {
-      account_id: user.uuid,
-      addresses: [user.email],
-      backend_session: {
-        token: obtainToken(),
-        encryption_private_key: user.privateKey,
-      },
-      mail_client: credentials,
-    },
-  };
+  const token = obtainToken();
+  const mailClient = createMailClient({
+    gatewayUrl: process.env.DRIVE_URL,
+    clientName: INTERNXT_CLIENT,
+    clientVersion: INTERNXT_VERSION,
+    desktopHeader: process.env.DESKTOP_HEADER,
+    token,
+  });
+  return await prepareMailBridgeSession({
+    accountId: user.uuid,
+    token,
+    mnemonic: user.mnemonic,
+    mailClient: credentials,
+    getMailAccountKeys: mailClient.getMailAccountKeys,
+  });
 }
