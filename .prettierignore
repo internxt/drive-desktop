@@ -2,3 +2,4 @@ assets.d.ts
 packages
 preload.js
 CLAUDE.md
+.adr-dir
