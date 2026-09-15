@@ -17,7 +17,7 @@ export async function updateFolderPlaceholder({ ctx, remote, folders }: Props) {
   const success = await update({ ctx, remote, local });
 
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * When we fail to reconcile a folder placeholder we skip its whole subtree, so from that
    * moment the local tree no longer represents the remote one. We keep track of it so that
    * we never propagate to the server a local deletion that happens inside that subtree.

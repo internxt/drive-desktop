@@ -2,7 +2,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { store } from '../store';
 
 /**
- * BR-2245
+ * v2.6.13 Victor Fernandez
  * Windows paths are case insensitive, so the path reported by the watcher and the one
  * stored while traversing can differ in case and still be the same folder.
  */

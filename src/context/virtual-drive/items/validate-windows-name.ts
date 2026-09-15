@@ -13,7 +13,7 @@ type TProps = {
  * v2.6.6 Daniel Jiménez
  * Names that start or end with a space are rejected too (BR-1796).
  *
- * BR-2245
+ * v2.6.13 Victor Fernandez
  * The rule is not whether we can create the item, but whether the rest of windows can address
  * it afterwards. We create placeholders through `\\?\` paths, which skip the win32 name
  * parsing, so a trailing space or dot is stored verbatim and then explorer, which does parse,

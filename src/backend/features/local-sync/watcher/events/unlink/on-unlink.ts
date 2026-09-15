@@ -14,7 +14,7 @@ type Props = {
 
 export async function onUnlink({ ctx, path, type }: Props) {
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * Inside a folder that we could not reconcile we never materialized the whole subtree, so
    * a local deletion there does not tell us that the user deleted the remote items: it can
    * also be us failing to keep the placeholders in sync. Propagating it would trash in the

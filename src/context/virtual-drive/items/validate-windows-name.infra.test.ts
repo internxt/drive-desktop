@@ -8,7 +8,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { validateWindowsName } from './validate-windows-name';
 
 /**
- * BR-2245
+ * v2.6.13 Victor Fernandez
  * We create placeholders through `\\?\` paths, which skip the win32 name parsing, so what we
  * can create is not what the rest of windows can reach: explorer parses the path, trims the
  * name and reports that the item does not exist, which is the folder the user sees and cannot

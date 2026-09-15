@@ -75,7 +75,7 @@ describe('validate-windows-name', () => {
   });
 
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * Win32 trims trailing dots the same way it trims trailing spaces, so the item ends up
    * unreachable for explorer even though we could create it.
    */
@@ -85,7 +85,7 @@ describe('validate-windows-name', () => {
   });
 
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * A leading space survives win32 parsing, so rejecting it was skipping the folder and every
    * item below it for nothing.
    */
@@ -95,7 +95,7 @@ describe('validate-windows-name', () => {
   });
 
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * Win32 only trims the ascii space, so a name ending in any other unicode space is still
    * reachable and rejecting it would skip the folder and everything below it.
    */

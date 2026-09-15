@@ -26,7 +26,7 @@ export async function checkIfMoved({ ctx, type, remote, local }: Props) {
   const localPath = local.path;
 
   /**
-   * BR-2245
+   * v2.6.13 Victor Fernandez
    * `rename` can return without throwing and still leave the item where it was, so the only way
    * to know that the previous move worked is that this one is no longer requested. Asking for the
    * same origin and destination again means it did not, and retrying forever burns the CPU while
