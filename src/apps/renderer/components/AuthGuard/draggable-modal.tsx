@@ -16,9 +16,10 @@ export function DraggableModal({ workArea, dimensions, children }: Props) {
   return (
     <Draggable handle=".draggable-handle" defaultPosition={data.positions} bounds={data.bounds} defaultClassName="absolute">
       <div
-        className="rounded-shadow-white bg-surface dark:bg-gray-1"
+        className="rounded-shadow-white overflow-hidden bg-surface dark:bg-gray-1"
         style={{
           width: dimensions.width,
+          height: dimensions.height,
         }}>
         {children}
       </div>

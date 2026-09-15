@@ -7,3 +7,4 @@ export {
   subscribeToMailBridgeStatus,
 } from './services/mail-bridge-lifecycle.service';
 export type { MailBridgeConnectionSettings, MailBridgeStatus } from './manager/constants';
+export { clearMailBridgeIpc, setupMailBridgeIpc } from './ipc/mail-bridge-ipc';
