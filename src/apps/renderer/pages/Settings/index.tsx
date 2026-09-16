@@ -1,5 +1,5 @@
-import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
-import { useRef, useState } from 'react';
+import { CleanerModule, MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
+import { useEffect, useRef, useState } from 'react';
 import { User } from '@/apps/main/types';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import WindowTopBar from '../../components/WindowTopBar';
@@ -28,9 +28,42 @@ type Props = {
 export default function Settings({ user, activeSection }: Props) {
   const { setActiveSection } = useSettingsStore();
   const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
+  const [mailBridgeViewModel, setMailBridgeViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
   const { data: availableProducts, isLoading: isAvailableProductsLoading } = useGetAvailableProducts();
 
   const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void window.electron.mailBridge.getStatus().then((status) => {
+      if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
+      if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
+      if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
+    });
+    return window.electron.mailBridge.onStatusChanged((status) => {
+      if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
+      if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
+      if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
+    });
+  }, []);
+
+  async function startMailBridge() {
+    setMailBridgeViewModel({ status: 'starting', error: null });
+    const result = await window.electron.mailBridge.start();
+    if (result.error || !result.data) {
+      if (result.error?.code === 'mail-not-setup') {
+        setMailBridgeViewModel({ status: 'setup-required', error: null });
+        return;
+      }
+      setMailBridgeViewModel({ status: 'error', error: result.error?.message ?? 'Mail Bridge could not start' });
+      return;
+    }
+    setMailBridgeViewModel({
+      status: 'running',
+      error: null,
+      connection: result.data,
+      syncProgress: { percentage: 0, completedMessages: 0, totalMessages: 0, estimatedMinutesRemaining: 0 },
+    });
+  }
 
   return (
     <DeviceProvider>
@@ -38,7 +71,7 @@ export default function Settings({ user, activeSection }: Props) {
         <AntivirusProvider>
           <CleanerProvider>
             <div
-              className="flex flex-col rounded bg-gray-1"
+              className="flex h-full min-h-0 flex-col rounded bg-gray-1"
               ref={rootRef}
               style={{
                 minWidth: subsection === 'list' ? 'auto' : 400,
@@ -51,7 +84,12 @@ export default function Settings({ user, activeSection }: Props) {
                 <>
                   <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" onClose={() => setActiveSection(null)} />
                   <Header active={activeSection} onClick={setActiveSection} />
-                  <div className="flex flex-grow flex-col justify-center p-5">
+                  <div
+                    className={
+                      activeSection === 'MAIL_BRIDGE'
+                        ? 'flex min-h-0 flex-grow flex-col overflow-hidden p-5'
+                        : 'flex flex-grow flex-col justify-center p-5'
+                    }>
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
                     <AccountSection user={user} active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection
@@ -78,6 +116,18 @@ export default function Settings({ user, activeSection }: Props) {
                       openUrl={window.electron.shellOpenExternal}
                       sectionConfig={sectionConfig}
                     />
+                    {activeSection === 'MAIL_BRIDGE' && (
+                      <MailBridgeModule.MailBridgeView
+                        availableProducts={availableProducts}
+                        accountEmail={user.email}
+                        useTranslationContext={useI18n}
+                        onUpgradePlan={() => window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans')}
+                        onComparePlans={() => window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans')}
+                        viewModel={mailBridgeViewModel}
+                        onActivate={() => void startMailBridge()}
+                        onTurnOff={() => void window.electron.mailBridge.stop()}
+                      />
+                    )}
                   </div>
                 </>
               )}

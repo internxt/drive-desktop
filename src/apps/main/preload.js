@@ -179,6 +179,17 @@ var api = {
   renameDevice: async (props) => await ipcPreloadRenderer.invoke("renameDevice", props),
   addBackup: async (props) => await ipcPreloadRenderer.invoke("addBackup", props),
   disableBackup: async (props) => await ipcPreloadRenderer.invoke("disableBackup", props),
-  getItemsByFolderUuid: async (props) => await ipcPreloadRenderer.invoke("getItemsByFolderUuid", props)
+  getItemsByFolderUuid: async (props) => await ipcPreloadRenderer.invoke("getItemsByFolderUuid", props),
+  mailBridge: {
+    start: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:start"),
+    getStatus: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-status"),
+    stop: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:stop"),
+    onStatusChanged(callback) {
+      const eventName = "mail-bridge:status-changed";
+      const callbackWrapper = (_, status) => callback(status);
+      import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+      return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    }
+  }
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

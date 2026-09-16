@@ -63,7 +63,7 @@
     "productName": "Internxt",
     "appId": "com.internxt.drive",
     "asar": true,
-    "asarUnpack": "**\\*.{node,dll}",
+    "asarUnpack": "**\\*.{node,dll,exe}",
     "files": [
       "dist",
       "node_modules",
@@ -88,6 +88,10 @@
       "output": "build"
     },
     "extraResources": [
+      {
+        "from": "../mail-bridge-desktop/bin/mail-bridge.exe",
+        "to": "mail-bridge/mail-bridge.exe"
+      },
       "./assets/**",
       "./clamAV/**",
       "./migrations/**",
