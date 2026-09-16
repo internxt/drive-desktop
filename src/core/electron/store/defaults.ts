@@ -9,6 +9,7 @@ export const defaults: AppStore = {
   deviceUuid: '',
   backupList: {},
   maxUploadFileSizeInBytes: 0,
+  mailBridgeCredentials: '',
 
   newToken: '',
   userData: {} as User,
@@ -26,5 +27,6 @@ export const fieldsToSave: Array<keyof AppStore> = [
   'deviceUuid',
   'backupList',
   'maxUploadFileSizeInBytes',
+  'mailBridgeCredentials',
 ];
 export const fieldsToReset: Array<keyof AppStore> = ['newToken', 'userData'];
