@@ -1,5 +1,5 @@
-import { ipcMain } from 'electron';
 import { logger, MailBridgeSessionPreparationError } from '@internxt/drive-desktop-core/build/backend';
+import { ipcMain } from 'electron';
 import type { AuthContext } from '@/apps/sync-engine/config';
 import { createMailBridgeSession } from '@/backend/features/mail-bridge/create-mail-bridge-session';
 import {
@@ -7,7 +7,7 @@ import {
   startMailBridge as startLifecycleMailBridge,
   stopMailBridge as stopLifecycleMailBridge,
   subscribeToMailBridgeStatus,
-} from '@/backend/features/mail-bridge/services/mail-bridge-lifecycle.service';
+} from '@/backend/features/mail-bridge/services/mail-bridge.service';
 import { getWidget } from '../../../../apps/main/windows/widget';
 
 let unsubscribeFromMailBridgeStatus: (() => void) | undefined;
@@ -24,8 +24,10 @@ export async function startMailBridge({ ctx }: { ctx: AuthContext }) {
     return { data: undefined, error: { code, message: session.error.message } };
   }
 
-  const result = await startLifecycleMailBridge({ session: session.data });
-  return result.error ? { data: undefined, error: { code: 'start-failed', message: result.error.message } } : { data: result.data, error: undefined };
+  const result = await startLifecycleMailBridge(session.data);
+  return result.error
+    ? { data: undefined, error: { code: 'start-failed', message: result.error.message } }
+    : { data: result.data, error: undefined };
 }
 
 export async function stopMailBridge() {
@@ -35,10 +37,8 @@ export async function stopMailBridge() {
 
 export function setupMailBridgeIpc({ ctx }: { ctx: AuthContext }) {
   unsubscribeFromMailBridgeStatus?.();
-  unsubscribeFromMailBridgeStatus = subscribeToMailBridgeStatus({
-    listener(status) {
-      getWidget()?.webContents.send('mail-bridge:status-changed', status);
-    },
+  unsubscribeFromMailBridgeStatus = subscribeToMailBridgeStatus((status) => {
+    getWidget()?.webContents.send('mail-bridge:status-changed', status);
   });
   ipcMain.handle('mail-bridge:start', () => startMailBridge({ ctx }));
   ipcMain.handle('mail-bridge:get-status', () => getMailBridgeStatus());

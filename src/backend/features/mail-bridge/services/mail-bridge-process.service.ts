@@ -8,7 +8,7 @@ import { PATHS } from '@/core/electron/paths';
 /**
  * Creates the per-account directory used by the Bridge for its local state.
  */
-export async function createMailBridgeStateDirectory({ accountId }: { accountId: string }) {
+export async function createMailBridgeStateDirectory(accountId: string) {
   const stateDirectory = join(PATHS.INTERNXT, 'mail-bridge', accountId);
 
   try {
@@ -45,16 +45,16 @@ export function spawnMailBridge({
   }
 }
 
-export function captureMailBridgeStartupStderr({ child }: { child: ChildProcess }): () => string | undefined {
+export function captureMailBridgeStartupStderr(child: ChildProcess): () => string | undefined {
   let output = '';
   child.stderr?.on('data', (chunk: Buffer) => {
-    output = redactMailBridgeStderr({ value: `${output}${chunk.toString()}` }).slice(-2_000);
+    output = redactMailBridgeStderr(`${output}${chunk.toString()}`).slice(-2_000);
   });
 
   return () => output.trim() || undefined;
 }
 
-function redactMailBridgeStderr({ value }: { value: string }): string {
+function redactMailBridgeStderr(value: string): string {
   return value
     .replace(/(authorization\s*:\s*bearer\s+)\S+/gi, '$1<REDACTED>')
     .replace(/([?&](?:token|password|key)=)[^&\s]+/gi, '$1<REDACTED>')
