@@ -1,6 +1,8 @@
 export { createMailBridgeSession } from './create-mail-bridge-session';
 export {
   getMailBridgeStatus,
+  getMailBridgeSyncProgress,
+  resyncMailBridge,
   startMailBridge,
   stopMailBridge,
   subscribeToMailBridgeStatus,

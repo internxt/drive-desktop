@@ -1,4 +1,4 @@
-import type { MailBridgeConnectionSettings } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import type { MailBridgeConnectionSettings, MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import type { ChildProcess } from 'node:child_process';
 import type { Server, Socket } from 'node:net';
 
@@ -14,4 +14,4 @@ export type MailBridgeRuntime = {
 };
 
 export type MailBridgeResources = Partial<Pick<MailBridgeRuntime, 'child' | 'server' | 'socket'>>;
-export type { MailBridgeConnectionSettings };
+export type { MailBridgeConnectionSettings, MailBridgeSyncProgress };

@@ -2,6 +2,7 @@ import {
   createConnectionSettings,
   createControlServer,
   sendControlMessage,
+  type ControlMessage,
   type MailBridgeSession,
 } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import type { ChildProcess } from 'node:child_process';
@@ -9,17 +10,19 @@ import { randomUUID } from 'node:crypto';
 import type { Socket } from 'node:net';
 import type { MailBridgeResources } from '../mail-bridge.types';
 import { createControlEndpoint } from '../utils/create-control-endpoint';
+import { listenForMailBridgeControlMessages } from './mail-bridge-control-messages.service';
 import { captureMailBridgeStartupStderr, createMailBridgeStateDirectory, spawnMailBridge } from './mail-bridge-process.service';
 import { waitForMailBridgeConnection, waitForMailBridgeReady } from './mail-bridge-startup.service';
 import { stopMailBridgeResources } from './stop-mail-bridge';
 
 type StartMailBridgeProps = {
   session: MailBridgeSession;
+  onControlMessage: (input: { socket: Socket; message: ControlMessage }) => void;
   onUnexpectedExit: (input: { socket: Socket; error: Error }) => void;
   onResourcesChange: (resources: MailBridgeResources) => void;
   signal: AbortSignal;
 };
-export async function startMailBridge({ session, onUnexpectedExit, onResourcesChange, signal }: StartMailBridgeProps) {
+export async function startMailBridge({ session, onControlMessage, onUnexpectedExit, onResourcesChange, signal }: StartMailBridgeProps) {
   const endpoint = createControlEndpoint(randomUUID());
   const { data: server, error: errorServer } = await createControlServer({ endpoint });
   if (errorServer) return { error: errorServer, data: undefined };
@@ -68,23 +71,24 @@ export async function startMailBridge({ session, onUnexpectedExit, onResourcesCh
     return { data: undefined, error: connectionSettingsError };
   }
 
-  listenForUnexpectedBridgeExit({ child, socket, onUnexpectedExit });
+  listenForUnexpectedBridgeExit({ child, socket, onControlMessage, onUnexpectedExit });
   return { data: { child, server, socket, connection }, error: undefined };
 }
 
 function listenForUnexpectedBridgeExit({
   child,
   socket,
+  onControlMessage,
   onUnexpectedExit,
 }: {
   child: ChildProcess;
   socket: Socket;
+  onControlMessage: (input: { socket: Socket; message: ControlMessage }) => void;
   onUnexpectedExit: (input: { socket: Socket; error: Error }) => void;
 }): void {
   child.once('exit', () => onUnexpectedExit({ socket, error: new Error('Mail Bridge stopped unexpectedly') }));
   child.once('error', (error) => onUnexpectedExit({ socket, error }));
-  socket.once('error', (error) => onUnexpectedExit({ socket, error }));
-  socket.once('close', () => onUnexpectedExit({ socket, error: new Error('Mail Bridge control channel closed unexpectedly') }));
+  listenForMailBridgeControlMessages({ socket, onControlMessage, onUnexpectedExit });
 }
 
 async function stopCancelledMailBridgeStart(resources: MailBridgeResources) {
