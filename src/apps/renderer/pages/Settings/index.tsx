@@ -1,6 +1,7 @@
 import { CleanerModule, MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useEffect, useRef, useState } from 'react';
 import { User } from '@/apps/main/types';
+import type { MailBridgeStatus } from '@/backend/features/mail-bridge';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import WindowTopBar from '../../components/WindowTopBar';
 import { AntivirusProvider } from '../../context/AntivirusContext';
@@ -33,17 +34,15 @@ export default function Settings({ user, activeSection }: Props) {
 
   const rootRef = useRef<HTMLDivElement>(null);
 
+  function applyMailBridgeStatus(status: MailBridgeStatus) {
+    if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
+    if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
+    if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
+  }
+
   useEffect(() => {
-    void window.electron.mailBridge.getStatus().then((status) => {
-      if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
-      if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
-      if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
-    });
-    return window.electron.mailBridge.onStatusChanged((status) => {
-      if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
-      if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
-      if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
-    });
+    void window.electron.mailBridge.getStatus().then(applyMailBridgeStatus);
+    return window.electron.mailBridge.onStatusChanged(applyMailBridgeStatus);
   }, []);
 
   async function startMailBridge() {
