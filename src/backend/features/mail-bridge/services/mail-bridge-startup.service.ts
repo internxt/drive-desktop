@@ -1,15 +1,10 @@
-import {
-  waitForControlConnection,
-  waitForReadyMessage,
-  type MailBridgeReadyMessage,
-} from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import { waitForControlConnection, waitForReadyMessage } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import { MailBridgeReadyResult } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge/constants';
 import type { ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import type { Server, Socket } from 'node:net';
 import { createBridgeExitError } from '../utils/create-bridge-exit-error';
 import { createStartupTimeout } from '../utils/create-startup-timeout';
-
-type MailBridgeReadyResult = { data: MailBridgeReadyMessage; error: undefined } | { data: undefined; error: Error };
 
 type WaitForMailBridgeConnectionProps = {
   server: Server;
