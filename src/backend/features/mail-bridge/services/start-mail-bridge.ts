@@ -65,30 +65,32 @@ export async function startMailBridge({ session, onControlMessage, onUnexpectedE
     await stopMailBridgeResources({ child, server, socket });
     return { data: undefined, error: ready.error };
   }
-  const { data: connection, error: connectionSettingsError } = createConnectionSettings({ ready: ready.data, session });
+  const { data: connection, error: connectionSettingsError } = createConnectionSettings({ ready: ready.data.ready, session });
   if (connectionSettingsError) {
     await stopMailBridgeResources({ child, server, socket });
     return { data: undefined, error: connectionSettingsError };
   }
 
-  listenForUnexpectedBridgeExit({ child, socket, onControlMessage, onUnexpectedExit });
+  listenForUnexpectedBridgeExit({ child, socket, initialBuffer: ready.data.remaining, onControlMessage, onUnexpectedExit });
   return { data: { child, server, socket, connection }, error: undefined };
 }
 
 function listenForUnexpectedBridgeExit({
   child,
   socket,
+  initialBuffer,
   onControlMessage,
   onUnexpectedExit,
 }: {
   child: ChildProcess;
   socket: Socket;
+  initialBuffer: Buffer;
   onControlMessage: (input: { socket: Socket; message: ControlMessage }) => void;
   onUnexpectedExit: (input: { socket: Socket; error: Error }) => void;
 }): void {
   child.once('exit', () => onUnexpectedExit({ socket, error: new Error('Mail Bridge stopped unexpectedly') }));
   child.once('error', (error) => onUnexpectedExit({ socket, error }));
-  listenForMailBridgeControlMessages({ socket, onControlMessage, onUnexpectedExit });
+  listenForMailBridgeControlMessages({ socket, initialBuffer, onControlMessage, onUnexpectedExit });
 }
 
 async function stopCancelledMailBridgeStart(resources: MailBridgeResources) {

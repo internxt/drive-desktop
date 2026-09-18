@@ -5,17 +5,20 @@ import { isMailBridgeSyncMessage } from '../utils/is-mail-bridge-sync-message';
 
 type ListenForMailBridgeControlMessagesProps = {
   socket: Socket;
+  initialBuffer: Buffer;
   onControlMessage: (input: { socket: Socket; message: ControlMessage }) => void;
   onUnexpectedExit: (input: { socket: Socket; error: Error }) => void;
 };
 
 export function listenForMailBridgeControlMessages({
   socket,
+  initialBuffer,
   onControlMessage,
   onUnexpectedExit,
 }: ListenForMailBridgeControlMessagesProps): () => void {
   return listenToControlMessages({
     socket,
+    initialBuffer,
     onMessage: (message) => handleControlMessage({ message, socket, onControlMessage, onUnexpectedExit }),
     onError: (error) => onUnexpectedExit({ socket, error }),
     onClose: () => onUnexpectedExit({ socket, error: new Error('Mail Bridge control channel closed unexpectedly') }),
