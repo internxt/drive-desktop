@@ -19,6 +19,8 @@ export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<
       onUpgradePlan={openPlans}
       onComparePlans={openPlans}
       viewModel={viewModel}
+      onCreateMailbox={openMail}
+      onCheckMailbox={activate}
       onActivate={() => void activate()}
       onResync={resync}
       onTurnOff={() => void turnOff()}
@@ -31,4 +33,8 @@ export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<
 
 function openPlans() {
   void window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans');
+}
+
+function openMail() {
+  void window.electron.shellOpenExternal('https://mail.internxt.com');
 }
