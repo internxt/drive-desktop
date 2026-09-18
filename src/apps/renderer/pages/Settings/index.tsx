@@ -1,8 +1,7 @@
-import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
-import { CleanerModule, MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
-import { useEffect, useRef, useState } from 'react';
+import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
+import { useRef, useState } from 'react';
 import { User } from '@/apps/main/types';
-import type { MailBridgeStatus } from '@/backend/features/mail-bridge';
+import { MailBridgeSection } from '@/apps/renderer/features/mail-bridge';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import WindowTopBar from '../../components/WindowTopBar';
 import { AntivirusProvider } from '../../context/AntivirusContext';
@@ -30,50 +29,9 @@ type Props = {
 export default function Settings({ user, activeSection }: Props) {
   const { setActiveSection } = useSettingsStore();
   const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
-  const [mailBridgeViewModel, setMailBridgeViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
   const { data: availableProducts, isLoading: isAvailableProductsLoading } = useGetAvailableProducts();
 
   const rootRef = useRef<HTMLDivElement>(null);
-
-  function applyMailBridgeStatus(status: MailBridgeStatus) {
-    if (status.status === 'stopped') setMailBridgeViewModel(MailBridgeModule.createInitialViewModel());
-    if (status.status === 'starting') setMailBridgeViewModel({ status: 'starting', error: null });
-    if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
-  }
-
-  function applyMailBridgeSyncProgress(syncProgress: MailBridgeSyncProgress | undefined) {
-    setMailBridgeViewModel((viewModel) => (viewModel.status === 'running' ? { ...viewModel, syncProgress } : viewModel));
-  }
-
-  useEffect(() => {
-    void window.electron.mailBridge.getStatus().then(applyMailBridgeStatus);
-    void window.electron.mailBridge.getSyncProgress().then(applyMailBridgeSyncProgress);
-    const unsubscribeFromStatus = window.electron.mailBridge.onStatusChanged(applyMailBridgeStatus);
-    const unsubscribeFromSyncProgress = window.electron.mailBridge.onSyncProgressChanged(applyMailBridgeSyncProgress);
-    return () => {
-      unsubscribeFromStatus();
-      unsubscribeFromSyncProgress();
-    };
-  }, []);
-
-  async function startMailBridge() {
-    setMailBridgeViewModel({ status: 'starting', error: null });
-    const result = await window.electron.mailBridge.start();
-    if (result.error || !result.data) {
-      if (result.error?.code === 'mail-not-setup') {
-        setMailBridgeViewModel({ status: 'setup-required', error: null });
-        return;
-      }
-      setMailBridgeViewModel({ status: 'error', error: result.error?.message ?? 'Mail Bridge could not start' });
-      return;
-    }
-    setMailBridgeViewModel({
-      status: 'running',
-      error: null,
-      connection: result.data,
-    });
-    void window.electron.mailBridge.getSyncProgress().then(applyMailBridgeSyncProgress);
-  }
 
   return (
     <DeviceProvider>
@@ -127,17 +85,7 @@ export default function Settings({ user, activeSection }: Props) {
                       sectionConfig={sectionConfig}
                     />
                     {activeSection === 'MAIL_BRIDGE' && (
-                      <MailBridgeModule.MailBridgeView
-                        availableProducts={availableProducts}
-                        accountEmail={user.email}
-                        useTranslationContext={useI18n}
-                        onUpgradePlan={() => window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans')}
-                        onComparePlans={() => window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans')}
-                        viewModel={mailBridgeViewModel}
-                        onActivate={() => void startMailBridge()}
-                        onResync={() => void window.electron.mailBridge.resync()}
-                        onTurnOff={() => void window.electron.mailBridge.stop()}
-                      />
+                      <MailBridgeSection accountEmail={user.email} availableProducts={availableProducts} />
                     )}
                   </div>
                 </>
