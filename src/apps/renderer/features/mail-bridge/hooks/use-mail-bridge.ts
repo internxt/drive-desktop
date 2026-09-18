@@ -3,8 +3,7 @@ import { MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useEffect, useState } from 'react';
 import type { MailBridgeStatus } from '@/backend/features/mail-bridge';
 
-const startErrorMessage = 'Mail Bridge could not start';
-const stopErrorMessage = 'Mail Bridge could not stop';
+const unexpectedMailBridgeError = 'unexpected-mail-bridge-error';
 
 export function useMailBridge() {
   const [viewModel, setViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
@@ -40,14 +39,14 @@ export function useMailBridge() {
           setViewModel({ status: 'setup-required', error: null });
           return;
         }
-        setViewModel({ status: 'error', error: result.error?.message ?? startErrorMessage });
+        setViewModel({ status: 'error', error: result.error?.message ?? unexpectedMailBridgeError });
         return;
       }
 
       setViewModel({ status: 'running', error: null, connection: result.data });
       void window.electron.mailBridge.getSyncProgress().then(applySyncProgress);
     } catch {
-      setViewModel({ status: 'error', error: startErrorMessage });
+      setViewModel({ status: 'error', error: unexpectedMailBridgeError });
     }
   }
 
@@ -60,8 +59,8 @@ export function useMailBridge() {
       }
       return { data: undefined, error: undefined };
     } catch {
-      setViewModel({ status: 'error', error: stopErrorMessage });
-      return { data: undefined, error: new Error(stopErrorMessage) };
+      setViewModel({ status: 'error', error: unexpectedMailBridgeError });
+      return { data: undefined, error: new Error(unexpectedMailBridgeError) };
     }
   }
 
@@ -84,7 +83,7 @@ export function useMailBridge() {
       applyStatus(status);
       applySyncProgress(syncProgress);
     } catch {
-      setViewModel({ status: 'error', error: startErrorMessage });
+      setViewModel({ status: 'error', error: unexpectedMailBridgeError });
     }
   }
 
