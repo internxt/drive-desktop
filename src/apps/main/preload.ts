@@ -1,5 +1,6 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
@@ -187,9 +188,17 @@ const api = {
     start: async () => await ipcRenderer.invoke('mail-bridge:start'),
     getStatus: async () => await ipcRenderer.invoke('mail-bridge:get-status'),
     stop: async () => await ipcRenderer.invoke('mail-bridge:stop'),
+    resync: async () => await ipcRenderer.invoke('mail-bridge:resync'),
+    getSyncProgress: async () => await ipcRenderer.invoke('mail-bridge:get-sync-progress'),
     onStatusChanged(callback: (status: MailBridgeStatus) => void): () => void {
       const eventName = 'mail-bridge:status-changed';
       const callbackWrapper = (_: unknown, status: MailBridgeStatus) => callback(status);
+      ipcRenderer.on(eventName, callbackWrapper);
+      return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+    },
+    onSyncProgressChanged(callback: (progress: MailBridgeSyncProgress | undefined) => void): () => void {
+      const eventName = 'mail-bridge:sync-progress-changed';
+      const callbackWrapper = (_: unknown, progress: MailBridgeSyncProgress | undefined) => callback(progress);
       ipcRenderer.on(eventName, callbackWrapper);
       return () => ipcRenderer.removeListener(eventName, callbackWrapper);
     },

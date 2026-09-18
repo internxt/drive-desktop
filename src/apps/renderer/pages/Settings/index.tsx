@@ -1,3 +1,4 @@
+import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import { CleanerModule, MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useEffect, useRef, useState } from 'react';
 import { User } from '@/apps/main/types';
@@ -40,9 +41,19 @@ export default function Settings({ user, activeSection }: Props) {
     if (status.status === 'error') setMailBridgeViewModel({ status: 'error', error: status.error });
   }
 
+  function applyMailBridgeSyncProgress(syncProgress: MailBridgeSyncProgress | undefined) {
+    setMailBridgeViewModel((viewModel) => (viewModel.status === 'running' ? { ...viewModel, syncProgress } : viewModel));
+  }
+
   useEffect(() => {
     void window.electron.mailBridge.getStatus().then(applyMailBridgeStatus);
-    return window.electron.mailBridge.onStatusChanged(applyMailBridgeStatus);
+    void window.electron.mailBridge.getSyncProgress().then(applyMailBridgeSyncProgress);
+    const unsubscribeFromStatus = window.electron.mailBridge.onStatusChanged(applyMailBridgeStatus);
+    const unsubscribeFromSyncProgress = window.electron.mailBridge.onSyncProgressChanged(applyMailBridgeSyncProgress);
+    return () => {
+      unsubscribeFromStatus();
+      unsubscribeFromSyncProgress();
+    };
   }, []);
 
   async function startMailBridge() {
@@ -60,8 +71,8 @@ export default function Settings({ user, activeSection }: Props) {
       status: 'running',
       error: null,
       connection: result.data,
-      syncProgress: { percentage: 0, completedMessages: 0, totalMessages: 0, estimatedMinutesRemaining: 0 },
     });
+    void window.electron.mailBridge.getSyncProgress().then(applyMailBridgeSyncProgress);
   }
 
   return (
@@ -124,6 +135,7 @@ export default function Settings({ user, activeSection }: Props) {
                         onComparePlans={() => window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans')}
                         viewModel={mailBridgeViewModel}
                         onActivate={() => void startMailBridge()}
+                        onResync={() => void window.electron.mailBridge.resync()}
                         onTurnOff={() => void window.electron.mailBridge.stop()}
                       />
                     )}

@@ -1,10 +1,11 @@
 export { createMailBridgeSession } from './create-mail-bridge-session';
-export { createMailBridgeManager } from './manager/create-mail-bridge-manager';
 export {
   getMailBridgeStatus,
+  getMailBridgeSyncProgress,
+  resyncMailBridge,
   startMailBridge,
   stopMailBridge,
   subscribeToMailBridgeStatus,
-} from './services/mail-bridge-lifecycle.service';
-export type { MailBridgeConnectionSettings, MailBridgeStatus } from './manager/constants';
+} from './services/mail-bridge.service';
+export type { MailBridgeConnectionSettings, MailBridgeStatus } from './mail-bridge.types';
 export { clearMailBridgeIpc, setupMailBridgeIpc } from './ipc/mail-bridge-ipc';
