@@ -4,6 +4,7 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { Sync } from '@/backend/features/sync';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getWorkerCount } from '@/core/utils/concurrency';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
 
@@ -13,9 +14,15 @@ type Props = {
   added: StatItem[];
 };
 
+const CREATE_FILES_CONCURRENCY = 20;
+
 export async function createFiles({ ctx, remoteTree, added }: Props) {
-  await Promise.all(
-    added.map(async (local) => {
+  let nextIndex = 0;
+
+  async function processNext() {
+    while (nextIndex < added.length) {
+      const local = added[nextIndex];
+      nextIndex += 1;
       const path = local.path;
 
       try {
@@ -25,8 +32,11 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
 
         ctx.logger.sentryError({ msg: 'Error creating file', path, error }, { fileSize: fileStats?.size });
       }
-    }),
-  );
+    }
+  }
+
+  const workerCount = getWorkerCount({ concurrency: CREATE_FILES_CONCURRENCY, itemCount: added.length });
+  await Promise.all(Array.from({ length: workerCount }, processNext));
 }
 
 async function createFile(ctx: BackupsContext, path: AbsolutePath, remoteTree: RemoteTree) {

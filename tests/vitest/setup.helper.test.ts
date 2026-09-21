@@ -118,6 +118,7 @@ vi.mock('@/apps/main/windows/widget.ts', () => {
         send: vi.fn(),
       },
     })),
+    showFrontend: vi.fn(),
   };
 });
 
