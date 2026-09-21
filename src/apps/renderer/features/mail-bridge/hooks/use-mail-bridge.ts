@@ -7,10 +7,12 @@ const unexpectedMailBridgeError = 'unexpected-mail-bridge-error';
 
 export function useMailBridge() {
   const [viewModel, setViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
+  const [isLoadingInitialStatus, setIsLoadingInitialStatus] = useState(true);
 
   function applyStatus(status: MailBridgeStatus) {
     if (status.status === 'stopped') setViewModel(MailBridgeModule.createInitialViewModel());
     if (status.status === 'starting') setViewModel({ status: 'starting', error: null });
+    if (status.status === 'running') setViewModel({ status: 'running', error: null, connection: status.connection });
     if (status.status === 'error') setViewModel({ status: 'error', error: status.error });
   }
 
@@ -84,8 +86,10 @@ export function useMailBridge() {
       applySyncProgress(syncProgress);
     } catch {
       setViewModel({ status: 'error', error: unexpectedMailBridgeError });
+    } finally {
+      setIsLoadingInitialStatus(false);
     }
   }
 
-  return { viewModel, activate, turnOff, retry, resync };
+  return { viewModel, isLoadingInitialStatus, activate, turnOff, retry, resync };
 }

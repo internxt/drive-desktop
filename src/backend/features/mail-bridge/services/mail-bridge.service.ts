@@ -52,7 +52,7 @@ async function startNewMailBridge({ session, signal }: { session: MailBridgeSess
   if (getMailBridgeStatus().status !== 'starting') return failStartup(new Error('Mail Bridge stopped before becoming ready'));
   runtime = started.data;
   resources = started.data;
-  setStatus({ status: 'running', error: undefined });
+  setStatus({ status: 'running', error: undefined, connection: started.data.connection });
   return { data: started.data.connection, error: undefined };
 }
 

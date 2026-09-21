@@ -9,7 +9,9 @@ type Props = {
 };
 
 export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<Props>) {
-  const { viewModel, activate, resync, retry, turnOff } = useMailBridge();
+  const { viewModel, isLoadingInitialStatus, activate, resync, retry, turnOff } = useMailBridge();
+
+  if (isLoadingInitialStatus) return <div className="h-full" aria-busy="true" />;
 
   return (
     <MailBridgeModule.MailBridgeView
