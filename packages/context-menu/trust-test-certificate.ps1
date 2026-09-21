@@ -1,8 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$sdkVersion = "10.0.22621.0"
 $certificatePath = Join-Path $PSScriptRoot "build\InternxtDevelopment.cer"
-$signToolPath = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin\$sdkVersion\x64\SignTool.exe"
 $artifactPaths = @(
   (Join-Path $PSScriptRoot "dist\internxt_context_menu.dll"),
   (Join-Path $PSScriptRoot "dist\internxt_context_menu_host.exe"),
@@ -13,8 +11,15 @@ if (-not (Test-Path -LiteralPath $certificatePath)) {
   throw "Development certificate not found. Run npm run prepare:test:context-menu first."
 }
 
-if (-not (Test-Path -LiteralPath $signToolPath)) {
-  throw "SignTool.exe from Windows SDK $sdkVersion was not found."
+$signToolPath = Get-ChildItem -Path (Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\bin") -Directory -ErrorAction SilentlyContinue |
+  Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } |
+  Sort-Object { [version]$_.Name } -Descending |
+  ForEach-Object { Join-Path $_.FullName "x64\SignTool.exe" } |
+  Where-Object { Test-Path -LiteralPath $_ } |
+  Select-Object -First 1
+
+if (-not $signToolPath) {
+  throw "SignTool.exe was not found under any installed Windows SDK."
 }
 
 $isAdministrator = (

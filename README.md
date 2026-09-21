@@ -50,6 +50,14 @@ Before running the application for the first time, you must create a .env file.
 
 ### Install and run
 
+Fetch `packages/core`, which is a git submodule pointing at the [`internxt/drive-desktop-core`](https://github.com/internxt/drive-desktop-core) repository, then build it — it has its own `node_modules` and is not an npm workspace, so the root install can't build it for you:
+
+```bash
+git submodule update --init --recursive
+cd packages/core && npm ci && cd ../..
+npm run build:core
+```
+
 Initialize the development environment:
 
 ```bash

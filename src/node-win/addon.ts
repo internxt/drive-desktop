@@ -26,7 +26,7 @@ export namespace Watcher {
   };
   export type ErrorEvent = { action: 'error'; path: string };
   export type Event = SuccessEvent | ErrorEvent;
-  export type OnEvent = (event: Event) => void;
+  export type OnEvent = (events: Event[]) => void;
   export type Subscription = {
     unsubscribe: () => void;
   };

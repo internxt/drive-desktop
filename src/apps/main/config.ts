@@ -10,9 +10,11 @@ const schema: Schema<AppStore> = {
   deviceUuid: { type: 'string' },
   backupList: { type: 'object' },
   maxUploadFileSizeInBytes: { type: 'number' },
+  mailBridgeStartOnLogin: { type: 'boolean' },
 
   newToken: { type: 'string' },
   userData: { type: 'object' },
+  mailBridgeCredentials: { type: 'string' },
 
   savedConfigs: { type: 'object' },
   lastOnboardingShown: { type: 'string' },

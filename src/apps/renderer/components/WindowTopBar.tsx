@@ -9,7 +9,7 @@ type Props = {
 
 export default function WindowTopBar({ title, className, onClose }: Props) {
   return (
-    <div className={clsx('draggable-handle relative h-10 rounded-t', className)}>
+    <div className={clsx('draggable-handle relative h-10 shrink-0 rounded-t', className)}>
       <div
         role="button"
         tabIndex={0}

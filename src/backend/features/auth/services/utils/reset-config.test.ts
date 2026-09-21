@@ -15,6 +15,8 @@ describe('resetConfig', () => {
       ['deviceUuid', ''],
       ['backupList', {}],
       ['maxUploadFileSizeInBytes', 0],
+      ['mailBridgeCredentials', ''],
+      ['mailBridgeStartOnLogin', false],
       ['newToken', ''],
       ['userData', {}],
     ]);
