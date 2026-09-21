@@ -29,16 +29,16 @@ export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<
       onResync={resync}
       onTurnOff={() => void turnOff()}
       onRetry={() => void retry()}
-      onViewLogs={() => void window.electron.openLogs()}
-      onContactSupport={() => void window.electron.shellOpenExternal('https://help.internxt.com')}
+      onViewLogs={() => void globalThis.window.electron.openLogs()}
+      onContactSupport={() => void globalThis.window.electron.shellOpenExternal('https://help.internxt.com')}
     />
   );
 }
 
 function openPlans() {
-  void window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans');
+  void globalThis.window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans');
 }
 
 function openMail() {
-  void window.electron.shellOpenExternal('https://mail.internxt.com');
+  void globalThis.window.electron.shellOpenExternal('https://mail.internxt.com');
 }

@@ -11,7 +11,7 @@ describe('use-mail-bridge', () => {
   };
 
   beforeEach(() => {
-    window.electron.mailBridge = {
+    globalThis.window.electron.mailBridge = {
       start: vi.fn(),
       getStatus: vi.fn().mockResolvedValue({ status: 'running', error: undefined, connection }),
       getStartOnLogin: vi.fn().mockResolvedValue(false),
@@ -35,8 +35,8 @@ describe('use-mail-bridge', () => {
   it('loads and changes the start-on-login preference', async () => {
     // Given
     const setStartOnLogin = vi.fn().mockResolvedValue(undefined);
-    window.electron.mailBridge.getStartOnLogin = vi.fn().mockResolvedValue(true);
-    window.electron.mailBridge.setStartOnLogin = setStartOnLogin;
+    globalThis.window.electron.mailBridge.getStartOnLogin = vi.fn().mockResolvedValue(true);
+    globalThis.window.electron.mailBridge.setStartOnLogin = setStartOnLogin;
 
     const { result } = renderHook(() => useMailBridge());
     await vi.waitFor(() => expect(result.current.isStartOnLoginEnabled).toBe(true));
