@@ -65,6 +65,8 @@ jobs:
         run: npm run init:ci
 
       - name: Download pinned Mail Bridge
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: npm.cmd run prepare:mail-bridge
 
       - name: Build application and context menu extension

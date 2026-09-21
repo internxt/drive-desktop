@@ -27,6 +27,14 @@ if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
 
 # The release workflow publishes platform-specific archive names without the release version.
 $archiveName = 'release-windows-amd64.zip'
+# Pin each trusted release archive so release metadata cannot redefine the checksum we trust.
+$releaseChecksums = @{
+  'v0.0.1' = 'd9da33260344a44374a2529953dd447df4c428fc1198f765a6ea73f804df305c'
+}
+$expectedChecksum = $releaseChecksums[$ReleaseTag]
+if ([string]::IsNullOrWhiteSpace($expectedChecksum)) {
+  throw "No pinned SHA-256 checksum is configured for Mail Bridge release $ReleaseTag."
+}
 # Isolate intermediate release files so a failed download cannot alter the installed binary.
 $stagingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "mail-bridge-$([guid]::NewGuid())"
 
@@ -44,9 +52,13 @@ try {
     throw "Release $ReleaseTag does not provide a SHA-256 digest for $archiveName."
   }
 
-  $expectedChecksum = $releaseAsset[0].digest -replace '^sha256:', ''
-  if ($expectedChecksum -notmatch '^[a-fA-F0-9]{64}$') {
+  $releaseChecksum = $releaseAsset[0].digest -replace '^sha256:', ''
+  if ($releaseChecksum -notmatch '^[a-fA-F0-9]{64}$') {
     throw "Release $ReleaseTag provides an invalid SHA-256 digest for $archiveName."
+  }
+
+  if ($releaseChecksum -notmatch "(?i)^$expectedChecksum$") {
+    throw "Release $ReleaseTag provides a digest that does not match the pinned SHA-256 checksum for $archiveName."
   }
 
   # Download only the Windows archive selected by the pinned release tag.

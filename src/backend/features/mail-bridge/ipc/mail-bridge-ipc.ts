@@ -92,6 +92,8 @@ export function clearMailBridgeIpc() {
   unsubscribeFromMailBridgeSyncProgress = undefined;
   ipcMain.removeHandler('mail-bridge:start');
   ipcMain.removeHandler('mail-bridge:get-status');
+  ipcMain.removeHandler('mail-bridge:get-start-on-login');
+  ipcMain.removeHandler('mail-bridge:set-start-on-login');
   ipcMain.removeHandler('mail-bridge:stop');
   ipcMain.removeHandler('mail-bridge:resync');
   ipcMain.removeHandler('mail-bridge:get-sync-progress');

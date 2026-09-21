@@ -8,19 +8,23 @@ export async function createMailBridgeSession(user: User) {
   const { data: credentials, error } = getOrCreateMailBridgeCredentials(user);
   if (error) return { error, data: undefined };
 
-  const token = obtainToken();
-  const mailClient = createMailClient({
-    gatewayUrl: process.env.DRIVE_URL,
-    clientName: INTERNXT_CLIENT,
-    clientVersion: INTERNXT_VERSION,
-    desktopHeader: process.env.DESKTOP_HEADER,
-    token,
-  });
-  return await prepareMailBridgeSession({
-    accountId: user.uuid,
-    token,
-    mnemonic: user.mnemonic,
-    mailClient: credentials,
-    getMailAccountKeys: mailClient.getMailAccountKeys,
-  });
+  try {
+    const token = obtainToken();
+    const mailClient = createMailClient({
+      gatewayUrl: process.env.DRIVE_URL,
+      clientName: INTERNXT_CLIENT,
+      clientVersion: INTERNXT_VERSION,
+      desktopHeader: process.env.DESKTOP_HEADER,
+      token,
+    });
+    return await prepareMailBridgeSession({
+      accountId: user.uuid,
+      token,
+      mnemonic: user.mnemonic,
+      mailClient: credentials,
+      getMailAccountKeys: mailClient.getMailAccountKeys,
+    });
+  } catch (error) {
+    return { data: undefined, error: error instanceof Error ? error : new Error(String(error)) };
+  }
 }

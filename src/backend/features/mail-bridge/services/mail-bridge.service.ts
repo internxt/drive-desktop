@@ -15,6 +15,7 @@ let startupCancellation: AbortController | undefined;
 let status: MailBridgeStatus = { status: 'stopped', error: undefined };
 let syncProgress: MailBridgeSyncProgress | undefined;
 let stopping = false;
+let lifecycleGeneration = 0;
 const statusListeners = new Set<(nextStatus: MailBridgeStatus) => void>();
 const syncProgressListeners = new Set<(progress: MailBridgeSyncProgress | undefined) => void>();
 
@@ -22,17 +23,29 @@ export async function startMailBridge(session: MailBridgeSession) {
   if (status.status === 'running' && runtime) return { data: runtime.connection, error: undefined };
   if (startup) return await startup;
 
+  const generation = ++lifecycleGeneration;
   startupCancellation = new AbortController();
-  startup = startNewMailBridge({ session, signal: startupCancellation.signal });
+  const nextStartup = startNewMailBridge({ session, signal: startupCancellation.signal, generation });
+  startup = nextStartup;
   try {
-    return await startup;
+    return await nextStartup;
   } finally {
-    startup = undefined;
-    startupCancellation = undefined;
+    if (startup === nextStartup) {
+      startup = undefined;
+      startupCancellation = undefined;
+    }
   }
 }
 
-async function startNewMailBridge({ session, signal }: { session: MailBridgeSession; signal: AbortSignal }) {
+async function startNewMailBridge({
+  session,
+  signal,
+  generation,
+}: {
+  session: MailBridgeSession;
+  signal: AbortSignal;
+  generation: number;
+}) {
   setStatus({ status: 'starting', error: undefined });
 
   let started;
@@ -40,16 +53,19 @@ async function startNewMailBridge({ session, signal }: { session: MailBridgeSess
     started = await startRuntime({
       session,
       signal,
-      onResourcesChange: updateResources,
-      onControlMessage: handleControlMessage,
-      onUnexpectedExit: handleUnexpectedExit,
+      onResourcesChange: (nextResources) => updateResources({ nextResources, generation }),
+      onControlMessage: (input) => handleControlMessage({ ...input, generation }),
+      onUnexpectedExit: (input) => handleUnexpectedExit({ ...input, generation }),
     });
   } catch (error) {
-    return failStartup(error instanceof Error ? error : new Error('Mail Bridge could not start'));
+    return failStartup({ error: error instanceof Error ? error : new Error('Mail Bridge could not start'), generation });
   }
-  if (signal.aborted) return { data: undefined, error: new Error('Mail Bridge startup was cancelled') };
-  if (started.error) return failStartup(started.error);
-  if (getMailBridgeStatus().status !== 'starting') return failStartup(new Error('Mail Bridge stopped before becoming ready'));
+  if (signal.aborted || generation !== lifecycleGeneration)
+    return { data: undefined, error: new Error('Mail Bridge startup was cancelled') };
+  if (started.error) return failStartup({ error: started.error, generation });
+  if (getMailBridgeStatus().status !== 'starting') {
+    return failStartup({ error: new Error('Mail Bridge stopped before becoming ready'), generation });
+  }
   runtime = started.data;
   resources = started.data;
   setStatus({ status: 'running', error: undefined, connection: started.data.connection });
@@ -58,10 +74,17 @@ async function startNewMailBridge({ session, signal }: { session: MailBridgeSess
 
 export async function stopMailBridge() {
   stopping = true;
+  lifecycleGeneration += 1;
+  const cancelledStartup = startup;
   startupCancellation?.abort();
   const stopped = await stopMailBridgeResources(resources);
   resources = {};
   runtime = undefined;
+  await cancelledStartup;
+  if (startup === cancelledStartup) {
+    startup = undefined;
+    startupCancellation = undefined;
+  }
   stopping = false;
   if (stopped.error) {
     setStatus({ status: 'error', error: stopped.error.message });
@@ -97,7 +120,16 @@ export function subscribeToMailBridgeSyncProgress(listener: (progress: MailBridg
   return () => syncProgressListeners.delete(listener);
 }
 
-function handleControlMessage({ socket, message }: { socket: import('node:net').Socket; message: ControlMessage }): void {
+function handleControlMessage({
+  socket,
+  message,
+  generation,
+}: {
+  socket: import('node:net').Socket;
+  message: ControlMessage;
+  generation: number;
+}): void {
+  if (generation !== lifecycleGeneration) return;
   if (runtime?.socket !== socket && status.status !== 'starting') return;
   if (message.type === 'sync_started') {
     return setSyncProgress({ percentage: 0, completedMessages: 0, totalMessages: message.started.total });
@@ -115,7 +147,16 @@ function handleControlMessage({ socket, message }: { socket: import('node:net').
   }
 }
 
-function handleUnexpectedExit({ socket, error }: { socket: import('node:net').Socket; error: Error }): void {
+function handleUnexpectedExit({
+  socket,
+  error,
+  generation,
+}: {
+  socket: import('node:net').Socket;
+  error: Error;
+  generation: number;
+}): void {
+  if (generation !== lifecycleGeneration) return;
   if (stopping || (runtime?.socket !== socket && status.status !== 'starting')) return;
   const resourcesToStop = resources;
   runtime = undefined;
@@ -126,11 +167,13 @@ function handleUnexpectedExit({ socket, error }: { socket: import('node:net').So
   setStatus({ status: 'error', error: error.message });
 }
 
-function updateResources(nextResources: MailBridgeResources): void {
+function updateResources({ nextResources, generation }: { nextResources: MailBridgeResources; generation: number }): void {
+  if (generation !== lifecycleGeneration) return;
   resources = nextResources;
 }
 
-function failStartup(error: Error) {
+function failStartup({ error, generation }: { error: Error; generation: number }) {
+  if (generation !== lifecycleGeneration) return { data: undefined, error };
   runtime = undefined;
   resources = {};
   setSyncProgress(undefined);
