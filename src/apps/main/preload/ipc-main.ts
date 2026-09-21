@@ -4,6 +4,7 @@ import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { clearMailBridgeIpc, setupMailBridgeIpc } from '@/backend/features/mail-bridge';
 import { isUserLoggedIn } from '../auth/handlers';
 import { openLoginUrl } from '../auth/open-login-url';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -62,6 +63,9 @@ export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
   ipcPreloadMain.handle('renameDevice', (_, props) => renameDevice({ ctx, ...props }));
   ipcPreloadMain.handle('addBackup', (_, props) => addBackup({ ctx, ...props }));
   ipcPreloadMain.handle('getItemsByFolderUuid', (_, props) => getItemsByFolderUuid({ ctx, ...props }));
+
+  // Mail Bridge
+  setupMailBridgeIpc({ ctx });
 }
 
 export function clearLoggedPreloadIpc() {
@@ -79,4 +83,7 @@ export function clearLoggedPreloadIpc() {
   ipcPreloadMain.removeHandler('renameDevice');
   ipcPreloadMain.removeHandler('addBackup');
   ipcPreloadMain.removeHandler('getItemsByFolderUuid');
+
+  // Mail Bridge
+  clearMailBridgeIpc();
 }
