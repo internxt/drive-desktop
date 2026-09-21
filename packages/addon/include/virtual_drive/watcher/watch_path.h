@@ -45,10 +45,6 @@ inline void callJsCallback(napi_env env, napi_value jsCallback, void* context, v
         napi_set_element(env, events, index, watcherEventToJs(env, batch->events[index]));
     }
 
-    napi_value events;
-    napi_create_array_with_length(env, 1, &events);
-    napi_set_element(env, events, 0, obj);
-
     napi_value undefined;
     napi_get_undefined(env, &undefined);
     napi_call_function(env, undefined, jsCallback, 1, &events, nullptr);
