@@ -9,7 +9,7 @@ type Props = {
 };
 
 export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<Props>) {
-  const { viewModel, isLoadingInitialStatus, activate, resync, retry, turnOff } = useMailBridge();
+  const { viewModel, isLoadingInitialStatus, isStartOnLoginEnabled, setStartOnLogin, activate, resync, retry, turnOff } = useMailBridge();
 
   if (isLoadingInitialStatus) return <div className="h-full" aria-busy="true" />;
 
@@ -21,6 +21,8 @@ export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<
       onUpgradePlan={openPlans}
       onComparePlans={openPlans}
       viewModel={viewModel}
+      isStartOnLoginEnabled={isStartOnLoginEnabled}
+      onStartOnLoginChange={(enabled) => setStartOnLogin(enabled)}
       onCreateMailbox={openMail}
       onCheckMailbox={activate}
       onActivate={() => void activate()}

@@ -1,4 +1,5 @@
 export { createMailBridgeSession } from './create-mail-bridge-session';
+export { isMailBridgeStartOnLoginEnabled, setMailBridgeStartOnLogin } from './mail-bridge-start-on-login.service';
 export {
   getMailBridgeStatus,
   getMailBridgeSyncProgress,
@@ -8,4 +9,4 @@ export {
   subscribeToMailBridgeStatus,
 } from './services/mail-bridge.service';
 export type { MailBridgeConnectionSettings, MailBridgeStatus } from './mail-bridge.types';
-export { clearMailBridgeIpc, setupMailBridgeIpc } from './ipc/mail-bridge-ipc';
+export { clearMailBridgeIpc, setupMailBridgeIpc, startMailBridgeOnLogin } from './ipc/mail-bridge-ipc';

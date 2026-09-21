@@ -9,7 +9,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
-import { stopMailBridge } from '@/backend/features/mail-bridge';
+import { startMailBridgeOnLogin, stopMailBridge } from '@/backend/features/mail-bridge';
 import { resolveUserFileSizeLimit } from '@/backend/features/user/file-size-limit';
 import { validateTokenAndCheckExpiration } from '../../../backend/features/auth/services/token/validate-token-and-check-expiration';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
@@ -107,6 +107,7 @@ export async function emitUserLoggedIn(user: User) {
   });
 
   setupLoggedPreloadIpc({ ctx });
+  startMailBridgeOnLogin({ ctx });
   void resolveUserFileSizeLimit({ ctx });
   cleanAndStartRemoteNotifications({ ctx });
 

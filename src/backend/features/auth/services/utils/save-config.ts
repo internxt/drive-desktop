@@ -17,6 +17,7 @@ export function saveConfig() {
     deviceUuid: electronStore.get('deviceUuid'),
     lastBackup: electronStore.get('lastBackup'),
     mailBridgeCredentials: electronStore.get('mailBridgeCredentials'),
+    mailBridgeStartOnLogin: electronStore.get('mailBridgeStartOnLogin'),
     maxUploadFileSizeInBytes: electronStore.get('maxUploadFileSizeInBytes'),
     syncRoot: electronStore.get('syncRoot'),
   };

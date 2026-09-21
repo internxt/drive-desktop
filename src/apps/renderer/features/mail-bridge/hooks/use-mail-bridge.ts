@@ -8,6 +8,7 @@ const unexpectedMailBridgeError = 'unexpected-mail-bridge-error';
 export function useMailBridge() {
   const [viewModel, setViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
   const [isLoadingInitialStatus, setIsLoadingInitialStatus] = useState(true);
+  const [isStartOnLoginEnabled, setIsStartOnLoginEnabled] = useState(false);
 
   function applyStatus(status: MailBridgeStatus) {
     if (status.status === 'stopped') setViewModel(MailBridgeModule.createInitialViewModel());
@@ -76,14 +77,25 @@ export function useMailBridge() {
     void window.electron.mailBridge.resync();
   }
 
+  async function setStartOnLogin(enabled: boolean) {
+    try {
+      await window.electron.mailBridge.setStartOnLogin(enabled);
+      setIsStartOnLoginEnabled(enabled);
+    } catch {
+      setViewModel({ status: 'error', error: unexpectedMailBridgeError });
+    }
+  }
+
   async function loadInitialState() {
     try {
-      const [status, syncProgress] = await Promise.all([
+      const [status, syncProgress, startOnLogin] = await Promise.all([
         window.electron.mailBridge.getStatus(),
         window.electron.mailBridge.getSyncProgress(),
+        window.electron.mailBridge.getStartOnLogin(),
       ]);
       applyStatus(status);
       applySyncProgress(syncProgress);
+      setIsStartOnLoginEnabled(startOnLogin);
     } catch {
       setViewModel({ status: 'error', error: unexpectedMailBridgeError });
     } finally {
@@ -91,5 +103,5 @@ export function useMailBridge() {
     }
   }
 
-  return { viewModel, isLoadingInitialStatus, activate, turnOff, retry, resync };
+  return { viewModel, isLoadingInitialStatus, isStartOnLoginEnabled, setStartOnLogin, activate, turnOff, retry, resync };
 }

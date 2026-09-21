@@ -3,6 +3,10 @@ import { ipcMain } from 'electron';
 import type { AuthContext } from '@/apps/sync-engine/config';
 import { createMailBridgeSession } from '@/backend/features/mail-bridge/create-mail-bridge-session';
 import {
+  isMailBridgeStartOnLoginEnabled,
+  setMailBridgeStartOnLogin,
+} from '@/backend/features/mail-bridge/mail-bridge-start-on-login.service';
+import {
   getMailBridgeStatus as getLifecycleMailBridgeStatus,
   getMailBridgeSyncProgress as getLifecycleMailBridgeSyncProgress,
   resyncMailBridge as resyncLifecycleMailBridge,
@@ -20,6 +24,14 @@ export function getMailBridgeStatus() {
   return getLifecycleMailBridgeStatus();
 }
 
+export function getMailBridgeStartOnLogin() {
+  return isMailBridgeStartOnLoginEnabled();
+}
+
+export function setMailBridgeStartOnLoginPreference({ enabled }: { enabled: boolean }) {
+  setMailBridgeStartOnLogin({ enabled });
+}
+
 export async function startMailBridge({ ctx }: { ctx: AuthContext }) {
   const session = await createMailBridgeSession(ctx.user);
   if (session.error) {
@@ -32,6 +44,13 @@ export async function startMailBridge({ ctx }: { ctx: AuthContext }) {
   return result.error
     ? { data: undefined, error: { code: 'start-failed', message: result.error.message } }
     : { data: result.data, error: undefined };
+}
+
+export async function startMailBridgeOnLogin({ ctx }: { ctx: AuthContext }) {
+  if (!isMailBridgeStartOnLoginEnabled()) return;
+
+  const result = await startMailBridge({ ctx });
+  if (result.error) logger.warn({ msg: 'Mail Bridge could not start automatically', code: result.error.code });
 }
 
 export async function stopMailBridge() {
@@ -59,6 +78,8 @@ export function setupMailBridgeIpc({ ctx }: { ctx: AuthContext }) {
   });
   ipcMain.handle('mail-bridge:start', () => startMailBridge({ ctx }));
   ipcMain.handle('mail-bridge:get-status', () => getMailBridgeStatus());
+  ipcMain.handle('mail-bridge:get-start-on-login', () => getMailBridgeStartOnLogin());
+  ipcMain.handle('mail-bridge:set-start-on-login', (_, enabled: boolean) => setMailBridgeStartOnLoginPreference({ enabled }));
   ipcMain.handle('mail-bridge:stop', () => stopMailBridge());
   ipcMain.handle('mail-bridge:resync', () => resyncMailBridge());
   ipcMain.handle('mail-bridge:get-sync-progress', () => getMailBridgeSyncProgress());

@@ -11,6 +11,7 @@ export type SavedConfig = {
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
   mailBridgeCredentials: string;
+  mailBridgeStartOnLogin: boolean;
 };
 
 export type AppStore = {
@@ -21,6 +22,7 @@ export type AppStore = {
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
   mailBridgeCredentials: string;
+  mailBridgeStartOnLogin: boolean;
 
   newToken: string;
   userData: User;

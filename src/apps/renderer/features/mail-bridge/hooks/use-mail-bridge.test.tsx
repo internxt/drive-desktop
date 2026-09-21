@@ -1,4 +1,5 @@
-import { renderHook } from '@testing-library/react-hooks';
+/* eslint-disable sonarjs/no-hardcoded-passwords */
+import { act, renderHook } from '@testing-library/react-hooks';
 import { vi } from 'vitest';
 import { useMailBridge } from './use-mail-bridge';
 
@@ -13,6 +14,8 @@ describe('use-mail-bridge', () => {
     window.electron.mailBridge = {
       start: vi.fn(),
       getStatus: vi.fn().mockResolvedValue({ status: 'running', error: undefined, connection }),
+      getStartOnLogin: vi.fn().mockResolvedValue(false),
+      setStartOnLogin: vi.fn(),
       stop: vi.fn(),
       resync: vi.fn(),
       getSyncProgress: vi.fn().mockResolvedValue(undefined),
@@ -27,5 +30,22 @@ describe('use-mail-bridge', () => {
 
     // Then
     await vi.waitFor(() => expect(result.current.viewModel).toEqual({ status: 'running', error: null, connection }));
+  });
+
+  it('loads and changes the start-on-login preference', async () => {
+    // Given
+    const setStartOnLogin = vi.fn().mockResolvedValue(undefined);
+    window.electron.mailBridge.getStartOnLogin = vi.fn().mockResolvedValue(true);
+    window.electron.mailBridge.setStartOnLogin = setStartOnLogin;
+
+    const { result } = renderHook(() => useMailBridge());
+    await vi.waitFor(() => expect(result.current.isStartOnLoginEnabled).toBe(true));
+
+    // When
+    await act(async () => await result.current.setStartOnLogin(false));
+
+    // Then
+    expect(setStartOnLogin).toHaveBeenCalledWith(false);
+    expect(result.current.isStartOnLoginEnabled).toBe(false);
   });
 });
