@@ -184,9 +184,17 @@ var api = {
     start: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:start"),
     getStatus: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-status"),
     stop: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:stop"),
+    resync: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:resync"),
+    getSyncProgress: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-sync-progress"),
     onStatusChanged(callback) {
       const eventName = "mail-bridge:status-changed";
       const callbackWrapper = (_, status) => callback(status);
+      import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+      return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    },
+    onSyncProgressChanged(callback) {
+      const eventName = "mail-bridge:sync-progress-changed";
+      const callbackWrapper = (_, progress) => callback(progress);
       import_electron2.ipcRenderer.on(eventName, callbackWrapper);
       return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     }

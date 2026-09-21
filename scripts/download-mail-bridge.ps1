@@ -25,13 +25,8 @@ if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
   $ReleaseTag = $releaseTagMatch.Matches[0].Groups['releaseTag'].Value
 }
 
-# Release assets omit the leading v from their versioned filename.
-$version = $ReleaseTag -replace '^v', ''
-if ([string]::IsNullOrWhiteSpace($version)) {
-  throw 'ReleaseTag must contain a version.'
-}
-
-$archiveName = "mail-bridge_$($version)_windows_amd64.zip"
+# The release workflow publishes platform-specific archive names without the release version.
+$archiveName = 'release-windows-amd64.zip'
 # Isolate intermediate release files so a failed download cannot alter the installed binary.
 $stagingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "mail-bridge-$([guid]::NewGuid())"
 
@@ -71,16 +66,22 @@ try {
     throw "Checksum mismatch for $archiveName."
   }
 
-  # Extract the verified executable from the release archive.
+  # GitHub's platform archive wraps the versioned Bridge archive.
   Expand-Archive -LiteralPath $archivePath -DestinationPath $stagingDirectory -Force
-  $executablePath = Join-Path $stagingDirectory 'mail-bridge.exe'
-  if (-not (Test-Path -LiteralPath $executablePath -PathType Leaf)) {
-    throw "$archiveName does not contain mail-bridge.exe."
+  $nestedArchives = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge*.zip')
+  if ($nestedArchives.Count -ne 1) {
+    throw "$archiveName must contain exactly one Mail Bridge archive."
+  }
+
+  Expand-Archive -LiteralPath $nestedArchives[0].FullName -DestinationPath $stagingDirectory -Force
+  $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
+  if ($executables.Count -ne 1) {
+    throw "$archiveName must contain exactly one Mail Bridge executable."
   }
 
   # Replace the local development copy only after every validation above succeeds.
   New-Item -ItemType Directory -Force -Path $DestinationDirectory | Out-Null
-  Copy-Item -LiteralPath $executablePath -Destination (Join-Path $DestinationDirectory 'mail-bridge.exe') -Force
+  Copy-Item -LiteralPath $executables[0].FullName -Destination (Join-Path $DestinationDirectory 'mail-bridge.exe') -Force
   Write-Output "Mail Bridge $ReleaseTag is ready at $DestinationDirectory."
 } finally {
   # Release metadata and archives are temporary and must not remain after success or failure.
