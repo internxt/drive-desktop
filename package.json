@@ -27,6 +27,8 @@
     "package:context-menu:production": "npm.cmd --prefix packages/context-menu run package:production",
     "prepare:test:context-menu": "npm.cmd --prefix packages/context-menu run prepare:test",
     "setup:test:context-menu": "npm.cmd --prefix packages/context-menu run setup:test",
+    "========== Mail Bridge ==========": "",
+    "prepare:mail-bridge": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/download-mail-bridge.ps1",
     "========== Code style ==========": "",
     "lint": "eslint src --ext .ts,.tsx --max-warnings 261",
     "lint:fix": "npm run lint -- --fix",
@@ -89,7 +91,7 @@
     },
     "extraResources": [
       {
-        "from": "../mail-bridge-desktop/bin/mail-bridge.exe",
+        "from": ".mail-bridge/mail-bridge.exe",
         "to": "mail-bridge/mail-bridge.exe"
       },
       "./assets/**",
@@ -208,7 +210,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^2.2.5",
-    "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-1.0.0.tgz",
+    "@internxt/drive-desktop-core": "file:packages/core/internxt-drive-desktop-core-1.0.1.tgz",
     "@internxt/inxt-js": "3.2.2",
     "@internxt/lib": "1.5.2",
     "@internxt/scan": "1.0.7",

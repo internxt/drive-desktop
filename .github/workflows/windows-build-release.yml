@@ -64,6 +64,9 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
+      - name: Download pinned Mail Bridge
+        run: npm.cmd run prepare:mail-bridge
+
       - name: Build application and context menu extension
         run: npm run build:release
 

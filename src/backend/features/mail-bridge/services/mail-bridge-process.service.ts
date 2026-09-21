@@ -64,6 +64,6 @@ function redactMailBridgeStderr(value: string): string {
 function resolveMailBridgeRuntime(): { executablePath: string; workingDirectory: string | undefined } {
   if (app.isPackaged) return { executablePath: join(process.resourcesPath, 'mail-bridge', 'mail-bridge.exe'), workingDirectory: undefined };
 
-  const workingDirectory = resolve(cwd(), '..', 'mail-bridge-desktop');
-  return { executablePath: join(workingDirectory, 'bin', 'mail-bridge.exe'), workingDirectory };
+  const workingDirectory = resolve(cwd(), '.mail-bridge');
+  return { executablePath: join(workingDirectory, 'mail-bridge.exe'), workingDirectory };
 }
