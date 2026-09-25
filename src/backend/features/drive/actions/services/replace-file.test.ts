@@ -75,6 +75,25 @@ describe('replace-file', () => {
     calls(replaceFileMock).toHaveLength(1);
   });
 
+  it('should replace the file once more if it changes while it is being uploaded', async () => {
+    // Given
+    let finishUpload: (value: { uuid: FileUuid }) => void = () => {};
+    replaceFileMock.mockReturnValueOnce(new Promise((resolve) => (finishUpload = resolve)));
+    replaceFileMock.mockResolvedValue({ uuid });
+    // When
+    const first = replaceFile(props);
+    await vi.waitFor(() => calls(replaceFileMock).toHaveLength(1));
+    await replaceFile(props);
+    await replaceFile(props);
+    finishUpload({ uuid });
+    await first;
+    // Then
+    calls(waitForLocalFileMock).toHaveLength(2);
+    calls(replaceFileMock).toHaveLength(2);
+    calls(updateSyncStatusMock).toHaveLength(2);
+    expect(loggerMock.debug.mock.calls.map(([body]) => body.msg)).toContain('File changed while it was being uploaded, replace it again');
+  });
+
   it('should not replace the file if it is not ready', async () => {
     // Given
     waitForLocalFileMock.mockResolvedValue({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });
