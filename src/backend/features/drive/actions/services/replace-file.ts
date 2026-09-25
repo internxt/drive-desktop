@@ -2,6 +2,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
+import { getInFlightRequest, getReplaceFileKey } from '@/infra/drive-server-wip/in/get-in-flight-request';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
@@ -15,10 +16,27 @@ type Props = {
 
 export async function replaceFile({ ctx, path, uuid }: Props) {
   try {
-    const { error } = await waitForLocalFile({ ctx, path, retry: () => retryReplaceFile({ ctx, path, uuid }) });
-    if (error) return;
+    const key = getReplaceFileKey({ path });
+    const promiseFn = async () => {
+      const { error } = await waitForLocalFile({ ctx, path, retry: () => retryReplaceFile({ ctx, path, uuid }) });
+      if (error) return;
 
-    const file = await Sync.Actions.replaceFile({ ctx, path, uuid });
+      return await Sync.Actions.replaceFile({ ctx, path, uuid });
+    };
+    const { promise, reused } = getInFlightRequest({ key, promiseFn });
+
+    if (reused) {
+      /**
+       * v2.7.0 Victor Fernandez
+       * While a big file is being overwritten the watcher can emit several events for it. Now that we
+       * wait until the copy finishes, each of those events would wait in parallel and upload the same
+       * file once the copy ends, so we ignore the events that arrive while one is already in flight.
+       */
+      ctx.logger.debug({ msg: 'Replace file event duplicated, ignore this one', path });
+      return;
+    }
+
+    const file = await promise;
 
     if (!file) return;
 

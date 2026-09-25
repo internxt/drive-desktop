@@ -34,7 +34,12 @@ describe('wait-for-local-file', () => {
     // When
     await waitForLocalFile(props);
     // Then
-    call(waitUntilReadyMock).toStrictEqual({ path: props.path, idleTimeoutMs: 60_000, maxWaitMs: 7_200_000 });
+    call(waitUntilReadyMock).toStrictEqual({
+      path: props.path,
+      idleTimeoutMs: 60_000,
+      maxWaitMs: 7_200_000,
+      abortSignal: abortController.signal,
+    });
   });
 
   it('should not retry if the file is ready', async () => {
@@ -56,6 +61,17 @@ describe('wait-for-local-file', () => {
     await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
+  });
+
+  it('should not retry if the wait was aborted', async () => {
+    // Given
+    waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('ABORTED') });
+    // When
+    await waitForLocalFile(props);
+    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    // Then
+    calls(retry).toHaveLength(0);
+    calls(loggerMock.warn).toHaveLength(0);
   });
 
   it('should retry after the delay if the file is not ready', async () => {

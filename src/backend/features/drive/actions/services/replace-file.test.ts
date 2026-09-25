@@ -2,6 +2,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Sync } from '@/backend/features/sync';
 import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wait-until-ready';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as getInFlightRequest from '@/infra/drive-server-wip/in/get-in-flight-request';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
@@ -15,6 +16,7 @@ describe('replace-file', () => {
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
   const waitForLocalFileMock = partialSpyOn(waitForLocalFile, 'waitForLocalFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const getInFlightRequestMock = partialSpyOn(getInFlightRequest, 'getInFlightRequest', false);
 
   const path = abs('/file.txt');
   const uuid = 'uuid' as FileUuid;
@@ -46,6 +48,31 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Then
     call(updateSyncStatusMock).toMatchObject({ path });
+  });
+
+  it('should ignore the event if the replace file request is duplicated', async () => {
+    // Given
+    getInFlightRequestMock.mockReturnValueOnce({ reused: true, promise: Promise.resolve() });
+    // When
+    await replaceFile(props);
+    // Then
+    calls(updateSyncStatusMock).toHaveLength(0);
+    call(loggerMock.debug).toMatchObject({ msg: 'Replace file event duplicated, ignore this one', path });
+  });
+
+  it('should wait and replace only once when the same file is replaced twice in parallel', async () => {
+    // Given
+    let finishWait: (value: { data: true }) => void = () => {};
+    waitForLocalFileMock.mockReturnValueOnce(new Promise((resolve) => (finishWait = resolve)));
+    replaceFileMock.mockResolvedValue({ uuid });
+    // When
+    const first = replaceFile(props);
+    const second = replaceFile(props);
+    finishWait({ data: true });
+    await Promise.all([first, second]);
+    // Then
+    calls(waitForLocalFileMock).toHaveLength(1);
+    calls(replaceFileMock).toHaveLength(1);
   });
 
   it('should not replace the file if it is not ready', async () => {

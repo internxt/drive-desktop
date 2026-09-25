@@ -23,9 +23,14 @@ type Props = {
  * does not emit another event when the copy finishes.
  */
 export async function waitForLocalFile({ ctx, path, retry }: Props) {
-  const res = await Sync.waitUntilReady({ path, idleTimeoutMs: IDLE_TIMEOUT_MS, maxWaitMs: MAX_WAIT_MS });
+  const res = await Sync.waitUntilReady({
+    path,
+    idleTimeoutMs: IDLE_TIMEOUT_MS,
+    maxWaitMs: MAX_WAIT_MS,
+    abortSignal: ctx.abortController.signal,
+  });
 
-  if (res.error && res.error.code !== 'NON_EXISTS') {
+  if (res.error && res.error.code !== 'NON_EXISTS' && res.error.code !== 'ABORTED') {
     ctx.logger.warn({ msg: 'File not ready, retry later', path, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
     scheduleRetry({ ctx, path, retry });
   }

@@ -82,6 +82,31 @@ describe('wait-until-ready', () => {
     expect(res.error?.code).toBe('MAX_TIMEOUT');
   });
 
+  it('should not try to access the file if it is already aborted', async () => {
+    // Given
+    const abortController = new AbortController();
+    abortController.abort();
+    // When
+    const res = await waitUntilReady({ ...props, abortSignal: abortController.signal });
+    // Then
+    calls(openMock).toHaveLength(0);
+    expect(res.error?.code).toBe('ABORTED');
+  });
+
+  it('should stop waiting when it is aborted while the file is locked', async () => {
+    // Given
+    const abortController = new AbortController();
+    sleepMock.mockImplementation(() => {
+      if (sleepMock.mock.calls.length === 3) abortController.abort();
+      return Promise.resolve();
+    });
+    // When
+    const res = await waitUntilReady({ ...props, idleTimeoutMs: 60_000, maxWaitMs: 7_200_000, abortSignal: abortController.signal });
+    // Then
+    calls(sleepMock).toHaveLength(3);
+    expect(res.error?.code).toBe('ABORTED');
+  });
+
   it('should stop waiting if the file does not exist anymore', async () => {
     // Given
     statMock.mockResolvedValue({ error: new StatError('NON_EXISTS') });
