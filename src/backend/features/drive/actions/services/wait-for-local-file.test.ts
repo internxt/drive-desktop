@@ -113,6 +113,21 @@ describe('wait-for-local-file', () => {
     calls(replaceRetry).toHaveLength(1);
   });
 
+  it('should let a new session retry a path that the stopped session had scheduled', async () => {
+    // Given
+    const newSessionRetry = vi.fn();
+    waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });
+    await waitForLocalFile(props);
+    abortController.abort();
+    const newSession = { ...props, ctx: { ...props.ctx, abortController: new AbortController() }, retry: newSessionRetry };
+    // When
+    await waitForLocalFile(newSession);
+    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    // Then
+    calls(retry).toHaveLength(0);
+    calls(newSessionRetry).toHaveLength(1);
+  });
+
   it('should not retry if the sync engine was stopped', async () => {
     // Given
     waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });

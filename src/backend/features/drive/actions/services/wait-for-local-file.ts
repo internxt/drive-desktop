@@ -43,15 +43,27 @@ export async function waitForLocalFile({ ctx, path, operation, retry }: Props) {
 
 // The key includes the operation because a create retry skips files that became placeholders in the
 // meantime, so it cannot stand in for a pending replace of the same path.
+// The retry is cancelled as soon as the sync engine stops: if the user logs out and in again before the
+// delay, a pending key from the old session would otherwise block the retry of the new one.
 function scheduleRetry({ ctx, path, operation, retry }: Props) {
   const key: RetryKey = `${operation}:${path}`;
-  if (scheduledRetries.has(key)) return;
+  const { signal } = ctx.abortController;
+  if (signal.aborted || scheduledRetries.has(key)) return;
 
   scheduledRetries.add(key);
 
-  setTimeout(() => {
+  let timeout: NodeJS.Timeout | undefined = undefined;
+
+  function cancel() {
+    clearTimeout(timeout);
     scheduledRetries.delete(key);
-    if (ctx.abortController.signal.aborted) return;
+  }
+
+  timeout = setTimeout(() => {
+    signal.removeEventListener('abort', cancel);
+    scheduledRetries.delete(key);
     void retry();
   }, RETRY_DELAY_MS);
+
+  signal.addEventListener('abort', cancel, { once: true });
 }
