@@ -46,6 +46,7 @@ describe('get-mail-bridge-email.service', () => {
     const result = await getMailBridgeEmail();
 
     expect(Result.isError(result)).toBe(true);
-    if (Result.isError(result)) expect(result.error).toMatchObject({ code: 'mail-key-fetch-failed', message: 'Mail service is unavailable' });
+    if (Result.isError(result))
+      expect(result.error).toMatchObject({ code: 'mail-key-fetch-failed', message: 'Mail service is unavailable' });
   });
 });

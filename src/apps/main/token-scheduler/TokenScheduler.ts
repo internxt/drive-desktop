@@ -40,7 +40,7 @@ export class TokenScheduler {
       if (data) {
         updateCredentials({ newToken: data.newToken });
         const updatedMailBridgeToken = await updateMailBridgeAccessToken({ token: data.newToken });
-        if (updatedMailBridgeToken.error){
+        if (updatedMailBridgeToken.error) {
           logger.error({ tag: 'AUTH', msg: 'Could not refresh Mail Bridge access token', error: updatedMailBridgeToken.error });
         }
         this.schedule();
