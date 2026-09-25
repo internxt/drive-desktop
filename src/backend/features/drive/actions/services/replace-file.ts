@@ -15,14 +15,17 @@ type Props = {
 };
 
 const uploadingPaths = new Set<AbsolutePath>();
-const changedWhileUploading = new Set<AbsolutePath>();
+// We keep the uuid of the latest event because the remote file could have been recreated meanwhile
+const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
 
 export async function replaceFile({ ctx, path, uuid }: Props) {
   const isOwner = await replaceFileOnce({ ctx, path, uuid });
+  const latestUuid = changedWhileUploading.get(path);
 
-  if (isOwner && changedWhileUploading.delete(path)) {
+  if (isOwner && latestUuid) {
+    changedWhileUploading.delete(path);
     ctx.logger.debug({ msg: 'File changed while it was being uploaded, replace it again', path });
-    await replaceFile({ ctx, path, uuid });
+    await replaceFile({ ctx, path, uuid: latestUuid });
   }
 }
 
@@ -30,7 +33,12 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
   try {
     const key = getReplaceFileKey({ path });
     const promiseFn = async () => {
-      const { error } = await waitForLocalFile({ ctx, path, retry: () => retryReplaceFile({ ctx, path, uuid }) });
+      const { error } = await waitForLocalFile({
+        ctx,
+        path,
+        operation: 'replace',
+        retry: () => retryReplaceFile({ ctx, path, uuid }),
+      });
       if (error) return;
 
       uploadingPaths.add(path);
@@ -51,7 +59,7 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
        * The exception is an event that arrives while the file is being uploaded: the upload may have
        * read the previous content, so we replace the file once more when it finishes.
        */
-      if (uploadingPaths.has(path)) changedWhileUploading.add(path);
+      if (uploadingPaths.has(path)) changedWhileUploading.set(path, uuid);
       ctx.logger.debug({ msg: 'Replace file event duplicated, ignore this one', path });
       return false;
     }

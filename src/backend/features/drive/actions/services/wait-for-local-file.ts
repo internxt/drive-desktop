@@ -6,11 +6,14 @@ const IDLE_TIMEOUT_MS = 60_000;
 const MAX_WAIT_MS = 2 * 60 * 60_000;
 export const RETRY_DELAY_MS = 5 * 60_000;
 
-const scheduledRetries = new Set<AbsolutePath>();
+type RetryKey = `${'create' | 'replace'}:${AbsolutePath}`;
+
+const scheduledRetries = new Set<RetryKey>();
 
 type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
+  operation: 'create' | 'replace';
   retry: () => Promise<void>;
 };
 
@@ -22,7 +25,7 @@ type Props = {
  * Before this, a file that was not ready was dropped until the next app restart, because the watcher
  * does not emit another event when the copy finishes.
  */
-export async function waitForLocalFile({ ctx, path, retry }: Props) {
+export async function waitForLocalFile({ ctx, path, operation, retry }: Props) {
   const res = await Sync.waitUntilReady({
     path,
     idleTimeoutMs: IDLE_TIMEOUT_MS,
@@ -31,20 +34,23 @@ export async function waitForLocalFile({ ctx, path, retry }: Props) {
   });
 
   if (res.error && res.error.code !== 'NON_EXISTS' && res.error.code !== 'ABORTED') {
-    ctx.logger.warn({ msg: 'File not ready, retry later', path, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
-    scheduleRetry({ ctx, path, retry });
+    ctx.logger.warn({ msg: 'File not ready, retry later', path, operation, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
+    scheduleRetry({ ctx, path, operation, retry });
   }
 
   return res;
 }
 
-function scheduleRetry({ ctx, path, retry }: Props) {
-  if (scheduledRetries.has(path)) return;
+// The key includes the operation because a create retry skips files that became placeholders in the
+// meantime, so it cannot stand in for a pending replace of the same path.
+function scheduleRetry({ ctx, path, operation, retry }: Props) {
+  const key: RetryKey = `${operation}:${path}`;
+  if (scheduledRetries.has(key)) return;
 
-  scheduledRetries.add(path);
+  scheduledRetries.add(key);
 
   setTimeout(() => {
-    scheduledRetries.delete(path);
+    scheduledRetries.delete(key);
     if (ctx.abortController.signal.aborted) return;
     void retry();
   }, RETRY_DELAY_MS);

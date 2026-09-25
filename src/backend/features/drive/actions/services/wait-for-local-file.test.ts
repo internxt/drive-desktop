@@ -20,6 +20,7 @@ describe('wait-for-local-file', () => {
     props = mockProps<typeof waitForLocalFile>({
       ctx: { logger: loggerMock, abortController },
       path: abs(`/file-${testIndex++}.txt`),
+      operation: 'create',
       retry,
     });
   });
@@ -97,6 +98,19 @@ describe('wait-for-local-file', () => {
     await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(1);
+  });
+
+  it('should keep one retry per operation for the same path', async () => {
+    // Given
+    const replaceRetry = vi.fn();
+    waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });
+    // When
+    await waitForLocalFile(props);
+    await waitForLocalFile({ ...props, operation: 'replace', retry: replaceRetry });
+    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    // Then
+    calls(retry).toHaveLength(1);
+    calls(replaceRetry).toHaveLength(1);
   });
 
   it('should not retry if the sync engine was stopped', async () => {
