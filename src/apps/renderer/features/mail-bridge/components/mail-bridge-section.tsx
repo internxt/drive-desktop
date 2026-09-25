@@ -3,20 +3,27 @@ import { MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { useMailBridge } from '../hooks/use-mail-bridge';
 
-type Props = {
-  accountEmail: string;
-  availableProducts?: UserAvailableProducts;
-};
+type Props = { availableProducts?: UserAvailableProducts };
 
-export function MailBridgeSection({ accountEmail, availableProducts }: Readonly<Props>) {
-  const { viewModel, isLoadingInitialStatus, isStartOnLoginEnabled, setStartOnLogin, activate, resync, retry, turnOff } = useMailBridge();
+export function MailBridgeSection({ availableProducts }: Readonly<Props>) {
+  const {
+    viewModel,
+    accountEmail: mailAccountEmail,
+    isLoadingInitialStatus,
+    isStartOnLoginEnabled,
+    setStartOnLogin,
+    activate,
+    resync,
+    retry,
+    turnOff,
+  } = useMailBridge();
 
   if (isLoadingInitialStatus) return <div className="h-full" aria-busy="true" />;
 
   return (
     <MailBridgeModule.MailBridgeView
       availableProducts={availableProducts}
-      accountEmail={accountEmail}
+      accountEmail={mailAccountEmail}
       useTranslationContext={useI18n}
       onUpgradePlan={openPlans}
       onComparePlans={openPlans}

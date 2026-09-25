@@ -14,6 +14,7 @@ describe('use-mail-bridge', () => {
     globalThis.window.electron.mailBridge = {
       start: vi.fn(),
       getStatus: vi.fn().mockResolvedValue({ status: 'running', error: undefined, connection }),
+      getEmail: vi.fn().mockResolvedValue({ data: 'user@inxt.me', error: undefined }),
       getStartOnLogin: vi.fn().mockResolvedValue(false),
       setStartOnLogin: vi.fn(),
       stop: vi.fn(),
@@ -30,6 +31,29 @@ describe('use-mail-bridge', () => {
 
     // Then
     await vi.waitFor(() => expect(result.current.viewModel).toEqual({ status: 'running', error: null, connection }));
+    expect(result.current.accountEmail).toBe('user@inxt.me');
+  });
+
+  it('shows Mail setup only when the Mail account is missing', async () => {
+    globalThis.window.electron.mailBridge.getEmail = vi.fn().mockResolvedValue({
+      data: undefined,
+      error: { code: 'mail-not-setup', message: 'Mail account has not been set up' },
+    });
+
+    const { result } = renderHook(() => useMailBridge());
+
+    await vi.waitFor(() => expect(result.current.viewModel).toEqual({ status: 'setup-required', error: null }));
+  });
+
+  it('shows an error when retrieving the Mail account fails', async () => {
+    globalThis.window.electron.mailBridge.getEmail = vi.fn().mockResolvedValue({
+      data: undefined,
+      error: { code: 'mail-key-fetch-failed', message: 'Mail service is unavailable' },
+    });
+
+    const { result } = renderHook(() => useMailBridge());
+
+    await vi.waitFor(() => expect(result.current.viewModel).toEqual({ status: 'error', error: 'Mail service is unavailable' }));
   });
 
   it('loads and changes the start-on-login preference', async () => {

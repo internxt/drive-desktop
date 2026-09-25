@@ -84,9 +84,7 @@ export default function Settings({ user, activeSection }: Props) {
                       openUrl={window.electron.shellOpenExternal}
                       sectionConfig={sectionConfig}
                     />
-                    {activeSection === 'MAIL_BRIDGE' && (
-                      <MailBridgeSection accountEmail={user.email} availableProducts={availableProducts} />
-                    )}
+                    {activeSection === 'MAIL_BRIDGE' && <MailBridgeSection availableProducts={availableProducts} />}
                   </div>
                 </>
               )}
