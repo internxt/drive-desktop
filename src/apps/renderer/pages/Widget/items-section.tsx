@@ -1,4 +1,5 @@
 import { Menu, Transition } from '@headlessui/react';
+import { NewBadge } from '@internxt/drive-desktop-core/build/frontend';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { MouseEventHandler } from 'react';
 import { useIssues } from '../../hooks/useIssues';
@@ -129,11 +130,21 @@ export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
                   {({ active }) => (
                     <div>
                       <DropdownItem active={active} onClick={() => setSettingsSection('CLEANER')} data-automation-id="menuItemCleaner">
+                        <span>{translate('widget.header.dropdown.cleaner')}</span>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem
+                        active={active}
+                        onClick={() => setSettingsSection('MAIL_BRIDGE')}
+                        data-automation-id="menuItemMailBridge">
                         <div className="flex flex-row items-center justify-between">
-                          <span>{translate('widget.header.dropdown.cleaner')}</span>
-                          <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
-                            {translate('widget.header.dropdown.new')}
-                          </div>
+                          <span>{translate('widget.header.dropdown.mailBridge')}</span>
+                          <NewBadge label={translate('widget.header.dropdown.new')} />
                         </div>
                       </DropdownItem>
                     </div>
