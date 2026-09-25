@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-hardcoded-passwords */
 import { ChildProcess } from 'node:child_process';
 import { Server, Socket } from 'node:net';
 import type { MailBridgeRuntime } from '../mail-bridge.types';
