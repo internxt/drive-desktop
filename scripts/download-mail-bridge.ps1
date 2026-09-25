@@ -25,11 +25,11 @@ if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
   $ReleaseTag = $releaseTagMatch.Matches[0].Groups['releaseTag'].Value
 }
 
-# The release workflow publishes platform-specific archive names without the release version.
-$archiveName = 'release-windows-amd64.zip'
+# The release workflow includes the version in each platform archive name.
+$archiveName = "mail-bridge_$($ReleaseTag.TrimStart('v'))_windows_amd64.zip"
 # Pin each trusted release archive so release metadata cannot redefine the checksum we trust.
 $releaseChecksums = @{
-  'v0.0.1' = 'd9da33260344a44374a2529953dd447df4c428fc1198f765a6ea73f804df305c'
+  'v0.0.4' = 'fe87e0525e5b70572257c8c287f0a7a1abe0cb25a0407ae337706c52bcfcb788'
 }
 $expectedChecksum = $releaseChecksums[$ReleaseTag]
 if ([string]::IsNullOrWhiteSpace($expectedChecksum)) {
@@ -78,17 +78,25 @@ try {
     throw "Checksum mismatch for $archiveName."
   }
 
-  # GitHub's platform archive wraps the versioned Bridge archive.
+  # Older releases wrap the executable in a second archive; current releases contain it directly.
   Expand-Archive -LiteralPath $archivePath -DestinationPath $stagingDirectory -Force
-  $nestedArchives = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge*.zip')
-  if ($nestedArchives.Count -ne 1) {
-    throw "$archiveName must contain exactly one Mail Bridge archive."
+  $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
+
+  if ($executables.Count -eq 0) {
+    $nestedArchives = @(
+      Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge*.zip' |
+        Where-Object { $_.FullName -ne $archivePath }
+    )
+    if ($nestedArchives.Count -ne 1) {
+      throw "$archiveName must contain exactly one nested Mail Bridge archive when it does not contain mail-bridge.exe directly."
+    }
+
+    Expand-Archive -LiteralPath $nestedArchives[0].FullName -DestinationPath $stagingDirectory -Force
+    $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
   }
 
-  Expand-Archive -LiteralPath $nestedArchives[0].FullName -DestinationPath $stagingDirectory -Force
-  $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
   if ($executables.Count -ne 1) {
-    throw "$archiveName must contain exactly one Mail Bridge executable."
+    throw "$archiveName must contain exactly one mail-bridge.exe."
   }
 
   # Replace the local development copy only after every validation above succeeds.

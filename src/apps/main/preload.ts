@@ -187,6 +187,7 @@ const api = {
   mailBridge: {
     start: async () => await ipcRenderer.invoke('mail-bridge:start'),
     getStatus: async () => await ipcRenderer.invoke('mail-bridge:get-status'),
+    getEmail: async () => await ipcRenderer.invoke('mail-bridge:get-email'),
     getStartOnLogin: async () => await ipcRenderer.invoke('mail-bridge:get-start-on-login'),
     setStartOnLogin: async (enabled: boolean) => await ipcRenderer.invoke('mail-bridge:set-start-on-login', enabled),
     stop: async () => await ipcRenderer.invoke('mail-bridge:stop'),
