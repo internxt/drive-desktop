@@ -16,7 +16,14 @@ type Props = {
 
 const uploadingPaths = new Set<AbsolutePath>();
 // We keep the uuid of the latest event because the remote file could have been recreated meanwhile
+const changedWhileWaiting = new Map<AbsolutePath, FileUuid>();
 const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
+
+function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
+  const latestUuid = changedWhileWaiting.get(path) ?? uuid;
+  changedWhileWaiting.delete(path);
+  return latestUuid;
+}
 
 export async function replaceFile({ ctx, path, uuid }: Props) {
   const isOwner = await replaceFileOnce({ ctx, path, uuid });
@@ -37,13 +44,14 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
         ctx,
         path,
         operation: 'replace',
-        retry: () => retryReplaceFile({ ctx, path, uuid }),
+        retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid }) }),
       });
       if (error) return;
 
+      const uploadUuid = takeLatestUuid({ path, uuid });
       uploadingPaths.add(path);
       try {
-        return await Sync.Actions.replaceFile({ ctx, path, uuid });
+        return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
       } finally {
         uploadingPaths.delete(path);
       }
@@ -57,9 +65,11 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
        * wait until the copy finishes, each of those events would wait in parallel and upload the same
        * file once the copy ends, so we ignore the events that arrive while one is already in flight.
        * The exception is an event that arrives while the file is being uploaded: the upload may have
-       * read the previous content, so we replace the file once more when it finishes.
+       * read the previous content, so we replace the file once more when it finishes. While waiting we
+       * only keep the uuid, so the upload that is about to start targets the latest remote file.
        */
       if (uploadingPaths.has(path)) changedWhileUploading.set(path, uuid);
+      else changedWhileWaiting.set(path, uuid);
       ctx.logger.debug({ msg: 'Replace file event duplicated, ignore this one', path });
       return false;
     }

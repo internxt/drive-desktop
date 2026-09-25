@@ -113,6 +113,38 @@ describe('replace-file', () => {
     ]);
   });
 
+  it('should upload with the uuid of an event that arrives while waiting for the file', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    let finishWait: (value: { data: true }) => void = () => {};
+    waitForLocalFileMock.mockReturnValueOnce(new Promise((resolve) => (finishWait = resolve)));
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    // When
+    const first = replaceFile(props);
+    await replaceFile({ ...props, uuid: newUuid });
+    finishWait({ data: true });
+    await first;
+    // Then
+    call(replaceFileMock).toMatchObject({ path, uuid: newUuid });
+  });
+
+  it('should retry with the uuid of an event that arrived while waiting for the file', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    let finishWait: (value: { error: WaitUntilReadyError }) => void = () => {};
+    waitForLocalFileMock.mockReturnValueOnce(new Promise((resolve) => (finishWait = resolve)));
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    const first = replaceFile(props);
+    await replaceFile({ ...props, uuid: newUuid });
+    finishWait({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });
+    await first;
+    // When
+    await retryFromLastWait();
+    // Then
+    call(replaceFileMock).toMatchObject({ path, uuid: newUuid });
+  });
+
   it('should not replace the file if it is not ready', async () => {
     // Given
     waitForLocalFileMock.mockResolvedValue({ error: new WaitUntilReadyError('IDLE_TIMEOUT') });
