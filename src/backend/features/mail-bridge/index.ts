@@ -7,6 +7,7 @@ export {
   startMailBridge,
   stopMailBridge,
   subscribeToMailBridgeStatus,
+  updateMailBridgeAccessToken,
 } from './services/mail-bridge.service';
 export type { MailBridgeConnectionSettings, MailBridgeStatus } from './mail-bridge.types';
 export { clearMailBridgeIpc, setupMailBridgeIpc, startMailBridgeOnLogin } from './ipc/mail-bridge-ipc';
