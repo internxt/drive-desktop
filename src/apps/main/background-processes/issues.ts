@@ -40,6 +40,7 @@ function onIssuesChanged() {
 
 function addIssue(issue: Issue) {
   const exists = issues.some((i) => {
+    if (i.tab === 'backups' && issue.tab === 'backups' && i.folderUuid !== issue.folderUuid) return false;
     return i.tab === issue.tab && i.name === issue.name && i.error === issue.error;
   });
 

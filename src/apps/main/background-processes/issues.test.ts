@@ -29,6 +29,17 @@ describe('issues', () => {
     expect(issues).toHaveLength(2);
   });
 
+  it('should keep the same backup issue of different folders', () => {
+    // Given
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    // When
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'nestedFolderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    // Then
+    expect(countBackupUploadIssues({ folderUuid: 'folderUuid' })).toBe(1);
+    expect(countBackupUploadIssues({ folderUuid: 'nestedFolderUuid' })).toBe(1);
+  });
+
   it('should keep only the latest upload issue of a file', () => {
     // Given
     setUploadIssue({ path: '/file.mp4', error: 'FILE_NOT_READY' });
