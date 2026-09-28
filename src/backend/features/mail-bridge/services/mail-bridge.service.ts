@@ -1,10 +1,12 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
+  sendMailBridgeSessionUpdate,
   sendControlMessage,
   type ControlMessage,
   type MailBridgeSession,
 } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import type { MailBridgeResources, MailBridgeRuntime, MailBridgeStatus, MailBridgeSyncProgress } from '../mail-bridge.types';
+import { isMailBridgeStopped } from '../utils/is-mail-bridge-stopped';
 import { startMailBridge as startRuntime } from './start-mail-bridge';
 import { stopMailBridgeResources } from './stop-mail-bridge';
 
@@ -96,10 +98,17 @@ export async function stopMailBridge() {
 }
 
 export async function resyncMailBridge() {
-  if (status.status !== 'running' || !runtime || runtime.socket.destroyed) {
+  if (!runtime || isMailBridgeStopped({ status, runtime })) {
     return { data: undefined, error: new Error('Mail Bridge is not running') };
   }
   return await sendControlMessage({ socket: runtime.socket, message: { type: 'resync' } });
+}
+
+export async function updateMailBridgeAccessToken({ token }: { token: string }) {
+  if (!runtime || isMailBridgeStopped({ status, runtime })) {
+    return { data: undefined, error: undefined };
+  }
+  return await sendMailBridgeSessionUpdate({ socket: runtime.socket, token });
 }
 
 export function getMailBridgeStatus(): MailBridgeStatus {

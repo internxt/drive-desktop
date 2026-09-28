@@ -6,6 +6,7 @@ import {
   isMailBridgeStartOnLoginEnabled,
   setMailBridgeStartOnLogin,
 } from '@/backend/features/mail-bridge/mail-bridge-start-on-login.service';
+import { getMailBridgeEmail } from '@/backend/features/mail-bridge/services/get-mail-bridge-email.service';
 import {
   getMailBridgeStatus as getLifecycleMailBridgeStatus,
   getMailBridgeSyncProgress as getLifecycleMailBridgeSyncProgress,
@@ -78,6 +79,7 @@ export function setupMailBridgeIpc({ ctx }: { ctx: AuthContext }) {
   });
   ipcMain.handle('mail-bridge:start', () => startMailBridge({ ctx }));
   ipcMain.handle('mail-bridge:get-status', () => getMailBridgeStatus());
+  ipcMain.handle('mail-bridge:get-email', () => getMailBridgeEmail());
   ipcMain.handle('mail-bridge:get-start-on-login', () => getMailBridgeStartOnLogin());
   ipcMain.handle('mail-bridge:set-start-on-login', (_, enabled: boolean) => setMailBridgeStartOnLoginPreference({ enabled }));
   ipcMain.handle('mail-bridge:stop', () => stopMailBridge());
@@ -92,6 +94,7 @@ export function clearMailBridgeIpc() {
   unsubscribeFromMailBridgeSyncProgress = undefined;
   ipcMain.removeHandler('mail-bridge:start');
   ipcMain.removeHandler('mail-bridge:get-status');
+  ipcMain.removeHandler('mail-bridge:get-email');
   ipcMain.removeHandler('mail-bridge:get-start-on-login');
   ipcMain.removeHandler('mail-bridge:set-start-on-login');
   ipcMain.removeHandler('mail-bridge:stop');

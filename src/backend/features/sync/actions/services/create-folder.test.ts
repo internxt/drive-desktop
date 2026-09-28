@@ -76,6 +76,7 @@ describe('create-folder', () => {
       { action: 'UPLOADING', path },
       { action: 'UPLOADED', path },
     ]);
+
     expect(loggerMock.debug).toHaveBeenCalledWith(
       expect.objectContaining({ msg: 'Folder created after parent folder propagation retry', path, attempts: 2 }),
     );
