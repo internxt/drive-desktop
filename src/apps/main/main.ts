@@ -28,6 +28,7 @@ import { handleSecondInstance } from './handle-second-instance';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupQuitHandlers } from './quit';
+import { broadcastSyncStatus } from './remote-sync/services/broadcast-sync-status';
 import { setTrayStatus, setupTrayIcon } from './tray/tray';
 import { createWidget, showFrontend } from './windows/widget';
 
@@ -74,7 +75,7 @@ setupAuthIpcHandlers();
 setupPreloadIpc();
 setupThemeListener();
 setupQuitHandlers();
-setupIssueHandlers();
+setupIssueHandlers({ onUploadIssuesChange: broadcastSyncStatus });
 setupAntivirusIpc();
 
 logger.debug({

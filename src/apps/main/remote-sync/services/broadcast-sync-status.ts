@@ -1,3 +1,4 @@
+import { hasUploadIssues } from '@/apps/main/background-processes/issues';
 import { logger } from '@/apps/shared/logger/logger';
 import { setTrayStatus } from '../../tray/tray';
 import { broadcastToWidget } from '../../windows';
@@ -32,6 +33,6 @@ export function broadcastSyncStatus() {
     case 'SYNC_FAILED':
       return setTrayStatus('ALERT');
     case 'SYNCED':
-      return setTrayStatus('IDLE');
+      return setTrayStatus(hasUploadIssues() ? 'ALERT' : 'IDLE');
   }
 }
