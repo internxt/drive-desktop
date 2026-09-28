@@ -1,15 +1,5 @@
 import { existsSync } from 'node:fs';
-import {
-  addBackupsIssue,
-  addGeneralIssue,
-  addSyncIssue,
-  clearIssues,
-  hasUploadIssues,
-  issues,
-  removeUploadIssues,
-  setupIssueHandlers,
-  setUploadIssue,
-} from './issues';
+import { addBackupsIssue, addSyncIssue, clearIssues, issues, removeUploadIssues, setUploadIssue } from './issues';
 
 vi.mock(import('node:fs'));
 
@@ -82,28 +72,5 @@ describe('issues', () => {
     setUploadIssue({ path: '/other.mp4', error: 'UPLOAD_FAILED' });
     // Then
     expect(existsSyncMock).not.toHaveBeenCalled();
-  });
-
-  it('should say if there are upload issues', () => {
-    // Given
-    addSyncIssue({ name: '/file.mp4', error: 'FILE_SIZE_TOO_BIG' });
-    expect(hasUploadIssues()).toBe(false);
-    // When
-    setUploadIssue({ path: '/file.mp4', error: 'FILE_NOT_READY' });
-    // Then
-    expect(hasUploadIssues()).toBe(true);
-  });
-
-  it('should notify only the changes of upload issues', () => {
-    // Given
-    const onUploadIssuesChange = vi.fn();
-    setupIssueHandlers({ onUploadIssuesChange });
-    // When
-    addGeneralIssue({ name: 'Connection Error', error: 'NETWORK_CONNECTIVITY_ERROR' });
-    setUploadIssue({ path: '/file.mp4', error: 'UPLOAD_FAILED' });
-    removeUploadIssues({ path: '/file.mp4' });
-    removeUploadIssues({ path: '/file.mp4' });
-    // Then
-    expect(onUploadIssuesChange).toHaveBeenCalledTimes(2);
   });
 });

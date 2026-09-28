@@ -1,12 +1,10 @@
-import { CheckCircle, WarningCircle, XCircle } from '@phosphor-icons/react';
+import { CheckCircle, XCircle } from '@phosphor-icons/react';
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { useGetUsage } from '../../api/use-get-usage';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
-import { useIssues } from '../../hooks/useIssues';
 import { useNetworkRetry } from '../../hooks/useNetworkRetry';
 import { useI18n } from '../../localize/use-i18n';
-import { useIssuesStore } from '../Issues/issues-store';
 
 type Props = { syncStatus: RemoteSyncStatus };
 
@@ -15,10 +13,6 @@ export default function SyncAction({ syncStatus }: Props) {
 
   const { isOnline } = useNetworkRetry(3000, 5);
   const { data: usage, status } = useGetUsage();
-  const { syncIssues } = useIssues();
-  const { setActiveSection } = useIssuesStore();
-
-  const pendingUploads = syncIssues.filter((issue) => issue.error === 'UPLOAD_FAILED' || issue.error === 'FILE_NOT_READY').length;
 
   const handleOpenUpgrade = async () => {
     try {
@@ -50,22 +44,6 @@ export default function SyncAction({ syncStatus }: Props) {
           </div>
           <span className="truncate">{translate('widget.footer.action-description.syncing')}</span>
         </>
-      );
-    } else if (pendingUploads > 0) {
-      return (
-        <button type="button" className="flex min-w-0 items-center space-x-2.5" onClick={() => setActiveSection('virtualDrive')}>
-          <div className="relative z-0 flex w-5 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
-            <WarningCircle className="shrink-0" size={22} weight="fill" />
-          </div>
-          <span className="truncate">
-            {translate(
-              pendingUploads === 1
-                ? 'widget.footer.action-description.upload-pending_one'
-                : 'widget.footer.action-description.upload-pending_other',
-              { count: pendingUploads },
-            )}
-          </span>
-        </button>
       );
     } else {
       return (

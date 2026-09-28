@@ -34,8 +34,6 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 
 export let issues: Issue[] = [];
 
-let onUploadIssuesChange: (() => void) | undefined = undefined;
-
 function onIssuesChanged() {
   broadcastToWindows({ name: 'issues-changed', data: issues });
 }
@@ -77,8 +75,7 @@ export function clearBackupsIssues() {
   onIssuesChanged();
 }
 
-export function setupIssueHandlers({ onUploadIssuesChange: listener }: { onUploadIssuesChange: () => void }) {
-  onUploadIssuesChange = listener;
+export function setupIssueHandlers() {
   ipcMain.handle('get-issues', () => issues);
 }
 
@@ -102,10 +99,6 @@ function isUploadIssue(issue: Issue) {
   return issue.tab === 'sync' && (issue.error === 'UPLOAD_FAILED' || issue.error === 'FILE_NOT_READY');
 }
 
-export function hasUploadIssues() {
-  return issues.some(isUploadIssue);
-}
-
 /**
  * v2.7.0 Victor Fernandez
  * An upload issue stays until the file is uploaded, so a file only shows its latest upload problem.
@@ -116,7 +109,6 @@ export function hasUploadIssues() {
 export function setUploadIssue({ path, error }: { path: string; error: UploadIssueError }) {
   issues = issues.filter((i) => !isUploadIssue(i) || i.name !== path || i.error === error);
   addSyncIssue({ name: path, error });
-  onUploadIssuesChange?.();
 }
 
 export function removeUploadIssues({ path }: { path: string }) {
@@ -127,10 +119,7 @@ export function removeUploadIssues({ path }: { path: string }) {
     return i.name !== path && existsSync(i.name);
   });
 
-  if (issues.length < initialLength) {
-    onIssuesChanged();
-    onUploadIssuesChange?.();
-  }
+  if (issues.length < initialLength) onIssuesChanged();
 }
 
 export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
