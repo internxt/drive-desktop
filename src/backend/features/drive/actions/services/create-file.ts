@@ -47,8 +47,8 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
 
     if (!file) return;
 
-    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
     removeUploadIssues({ path });
+    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
   } catch (error) {
     ctx.logger.error({ msg: 'Error creating file', path, error });
   }

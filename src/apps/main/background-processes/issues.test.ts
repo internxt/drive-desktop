@@ -75,6 +75,15 @@ describe('issues', () => {
     expect(issues).toStrictEqual([{ tab: 'sync', name: '/still-here.mp4', error: 'FILE_NOT_READY' }]);
   });
 
+  it('should not check the disk when adding an upload issue', () => {
+    // Given
+    setUploadIssue({ path: '/file.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    setUploadIssue({ path: '/other.mp4', error: 'UPLOAD_FAILED' });
+    // Then
+    expect(existsSyncMock).not.toHaveBeenCalled();
+  });
+
   it('should say if there are upload issues', () => {
     // Given
     addSyncIssue({ name: '/file.mp4', error: 'FILE_SIZE_TOO_BIG' });

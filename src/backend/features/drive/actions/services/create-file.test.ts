@@ -53,6 +53,16 @@ describe('create-file', () => {
     call(removeUploadIssuesMock).toStrictEqual({ path });
   });
 
+  it('should remove the upload issues even if the conversion to placeholder fails', async () => {
+    // Given
+    createFileMock.mockResolvedValue({ uuid: 'uuid' as FileUuid });
+    convertToPlaceholderMock.mockRejectedValue(new Error());
+    // When
+    await createFile(props);
+    // Then
+    call(removeUploadIssuesMock).toStrictEqual({ path });
+  });
+
   it('should ignore the event if the create file request is duplicated', async () => {
     // Given
     getInFlightRequestMock.mockReturnValueOnce({ reused: true, promise: Promise.resolve() });

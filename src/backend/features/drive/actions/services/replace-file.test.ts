@@ -54,6 +54,16 @@ describe('replace-file', () => {
     call(removeUploadIssuesMock).toStrictEqual({ path });
   });
 
+  it('should remove the upload issues even if the sync status update fails', async () => {
+    // Given
+    replaceFileMock.mockResolvedValue({ uuid });
+    updateSyncStatusMock.mockRejectedValue(new Error());
+    // When
+    await replaceFile(props);
+    // Then
+    call(removeUploadIssuesMock).toStrictEqual({ path });
+  });
+
   it('should ignore the event if the replace file request is duplicated', async () => {
     // Given
     getInFlightRequestMock.mockReturnValueOnce({ reused: true, promise: Promise.resolve() });

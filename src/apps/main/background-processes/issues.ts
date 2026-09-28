@@ -109,22 +109,22 @@ export function hasUploadIssues() {
 /**
  * v2.7.0 Victor Fernandez
  * An upload issue stays until the file is uploaded, so a file only shows its latest upload problem.
- * Every change also drops the upload issues of files that no longer exist: a moved or renamed file reaches
+ * Removing also drops the upload issues of files that no longer exist: a moved or renamed file reaches
  * us as a create event on the new path, so we cannot rely on a delete event to clear the old one.
+ * Adding does not check the disk, so a burst of failed uploads does not stat every pending file.
  */
 export function setUploadIssue({ path, error }: { path: string; error: UploadIssueError }) {
-  removeUploadIssues({ path, except: error });
+  issues = issues.filter((i) => !isUploadIssue(i) || i.name !== path || i.error === error);
   addSyncIssue({ name: path, error });
   onUploadIssuesChange?.();
 }
 
-export function removeUploadIssues({ path, except }: { path: string; except?: UploadIssueError }) {
+export function removeUploadIssues({ path }: { path: string }) {
   const initialLength = issues.length;
 
   issues = issues.filter((i) => {
     if (!isUploadIssue(i)) return true;
-    if (i.name === path) return i.error === except;
-    return existsSync(i.name);
+    return i.name !== path && existsSync(i.name);
   });
 
   if (issues.length < initialLength) {
