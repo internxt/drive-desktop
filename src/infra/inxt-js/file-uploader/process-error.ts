@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { z } from 'zod';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
@@ -12,6 +13,22 @@ const RETRYABLE_MESSAGES = new Set([
   'Request failed with status code 500',
   'Request failed with status code 502',
 ]);
+
+/**
+ * v2.7.0 Victor Fernandez
+ * The same connection cut reaches us with different messages (`write ECONNRESET`, `socket hang up`, TLS
+ * disconnected...), so these are matched by code. Only codes seen in real upload logs are added.
+ */
+const RETRYABLE_CODES = new Set(['ECONNRESET', 'UND_ERR_CONNECT_TIMEOUT']);
+
+const errorCodeSchema = z.object({ code: z.string() });
+
+function isRetryable({ error }: { error: Error }) {
+  if (RETRYABLE_MESSAGES.has(error.message)) return true;
+
+  const parsed = errorCodeSchema.safeParse(error);
+  return parsed.success && RETRYABLE_CODES.has(parsed.data.code);
+}
 
 type TProps = {
   ctx: CommonContext;
@@ -30,7 +47,7 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
 
   if (!(error instanceof Error)) return;
 
-  if (RETRYABLE_MESSAGES.has(error.message)) {
+  if (isRetryable({ error })) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
 
     await sleep(sleepMs);

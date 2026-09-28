@@ -52,6 +52,47 @@ describe('process-error', () => {
     calls(retryFn).toHaveLength(1);
   });
 
+  it.each([
+    { message: 'write ECONNRESET', code: 'ECONNRESET' },
+    { message: 'socket hang up', code: 'ECONNRESET' },
+    { message: 'Client network socket disconnected before secure TLS connection was established', code: 'ECONNRESET' },
+    {
+      message: 'Connect Timeout Error (attempted address: s3.gra.io.cloud.ovh.net:443, timeout: 10000ms)',
+      code: 'UND_ERR_CONNECT_TIMEOUT',
+    },
+  ])('should retry a connection cut by its code: $message', async ({ message, code }) => {
+    // Given
+    props.error = Object.assign(new Error(message), { code });
+    // When
+    await processError(props);
+    // Then
+    call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
+    calls(retryFn).toHaveLength(1);
+  });
+
+  it.each([
+    { message: 'Headers Timeout Error', code: 'UND_ERR_HEADERS_TIMEOUT' },
+    { message: 'getaddrinfo ENOTFOUND gateway.internxt.com', code: 'ENOTFOUND' },
+    { message: 'write EPIPE', code: 'EPIPE' },
+    { message: 'other side closed', code: 'UND_ERR_SOCKET' },
+  ])('should not retry $code', async ({ message, code }) => {
+    // Given
+    props.error = Object.assign(new Error(message), { code });
+    // When
+    await processError(props);
+    // Then
+    calls(retryFn).toHaveLength(0);
+  });
+
+  it('should not retry the S3 request timeout', async () => {
+    // Given
+    props.error = new Error('Failed to upload part: 400 <Error><Code>RequestTimeout</Code></Error>');
+    // When
+    await processError(props);
+    // Then
+    calls(retryFn).toHaveLength(0);
+  });
+
   it('should not retry an error that is not retryable', async () => {
     // Given
     props.error = new Error('Request failed with status code 404');
