@@ -70,6 +70,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
     const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
+      kind: 'backups',
       ...backupInfo,
       ...ctx,
       backupsBottleneck: bottleneck,

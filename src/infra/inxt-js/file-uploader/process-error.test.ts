@@ -1,6 +1,7 @@
 import * as addGeneralIssue from '@/apps/main/background-processes/issues';
 import * as sleep from '@/apps/main/util';
 import { LocalSync } from '@/backend/features';
+import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processError } from './process-error';
@@ -9,13 +10,14 @@ describe('process-error', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const addGeneralIssueMock = partialSpyOn(addGeneralIssue, 'addGeneralIssue');
   const sleepMock = partialSpyOn(sleep, 'sleep');
+  const setUploadIssueMock = partialSpyOn(addGeneralIssue, 'setUploadIssue');
 
   const retryFn = vi.fn();
   const sleepMs = 5000;
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processError>({ retryFn, sleepMs });
+    props = mockProps<typeof processError>({ ctx: { kind: 'sync' }, path: abs('/file.mp4'), retryFn, sleepMs });
   });
 
   it('should not do anything if aborted', async () => {
@@ -25,6 +27,7 @@ describe('process-error', () => {
     await processError(props);
     // Then
     calls(addItemMock).toHaveLength(0);
+    calls(setUploadIssueMock).toHaveLength(0);
   });
 
   it('should add general issue if max space used', async () => {
@@ -50,6 +53,7 @@ describe('process-error', () => {
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
     call(sleepMock).toStrictEqual(sleepMs);
     calls(retryFn).toHaveLength(1);
+    calls(setUploadIssueMock).toHaveLength(0);
   });
 
   it.each([
@@ -82,6 +86,34 @@ describe('process-error', () => {
     await processError(props);
     // Then
     calls(retryFn).toHaveLength(0);
+  });
+
+  it('should add an upload issue when a file of the sync folder is not retried', async () => {
+    // Given
+    props.error = Object.assign(new Error('Headers Timeout Error'), { code: 'UND_ERR_HEADERS_TIMEOUT' });
+    // When
+    await processError(props);
+    // Then
+    call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'UPLOAD_FAILED' });
+  });
+
+  it('should add an upload issue if the error is not an Error', async () => {
+    // Given
+    props.error = 'unknown';
+    // When
+    await processError(props);
+    // Then
+    call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'UPLOAD_FAILED' });
+  });
+
+  it('should not add a sync upload issue for backups', async () => {
+    // Given
+    props = mockProps<typeof processError>({ ctx: { kind: 'backups' }, path: abs('/file.mp4'), retryFn, sleepMs });
+    props.error = Object.assign(new Error('Headers Timeout Error'), { code: 'UND_ERR_HEADERS_TIMEOUT' });
+    // When
+    await processError(props);
+    // Then
+    calls(setUploadIssueMock).toHaveLength(0);
   });
 
   it('should not retry the S3 request timeout', async () => {

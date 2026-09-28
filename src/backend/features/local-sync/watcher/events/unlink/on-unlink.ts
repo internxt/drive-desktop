@@ -1,4 +1,5 @@
 import { basename } from 'node:path';
+import { removeUploadIssues } from '@/apps/main/background-processes/issues';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { deleteFileByUuid, deleteFolderByUuid } from '@/infra/drive-server-wip/out/ipc-main';
@@ -12,6 +13,9 @@ type Props = {
 };
 
 export async function onUnlink({ ctx, path, type }: Props) {
+  // Files that failed to upload are not in sqlite, so the function returns before reaching the delete
+  removeUploadIssues({ path });
+
   // Get parent placeholderId from the file explorer.
   const parentPath = dirname(path);
   const { data: parentInfo } = await NodeWin.getFolderInfo({ ctx, path: parentPath });

@@ -20,6 +20,7 @@ export type AuthContext = {
 };
 
 export type CommonContext = AuthContext & {
+  readonly kind: 'sync' | 'backups';
   readonly workspaceId: string;
   readonly bucket: string;
   readonly environment: Environment;
@@ -27,6 +28,7 @@ export type CommonContext = AuthContext & {
 };
 
 export type SyncContext = CommonContext & {
+  readonly kind: 'sync';
   status: RemoteSyncStatus;
   readonly providerId: string;
   readonly rootPath: AbsolutePath;

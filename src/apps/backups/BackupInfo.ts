@@ -12,6 +12,7 @@ export type BackupInfo = {
 
 export type BackupsContext = CommonContext &
   BackupInfo & {
+    readonly kind: 'backups';
     addIssue: (issue: Omit<BackupsIssue, 'tab' | 'folderUuid'>) => void;
     backupsBottleneck: Bottleneck;
   };

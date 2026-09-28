@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { setUploadIssue } from '@/apps/main/background-processes/issues';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
 
@@ -35,6 +36,7 @@ export async function waitForLocalFile({ ctx, path, operation, retry }: Props) {
 
   if (res.error && res.error.code !== 'NON_EXISTS' && res.error.code !== 'ABORTED') {
     ctx.logger.warn({ msg: 'File not ready, retry later', path, operation, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
+    setUploadIssue({ path, error: 'FILE_NOT_READY' });
     scheduleRetry({ ctx, path, operation, retry });
   }
 

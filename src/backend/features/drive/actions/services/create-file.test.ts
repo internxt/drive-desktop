@@ -1,3 +1,4 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Sync } from '@/backend/features/sync';
 import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wait-until-ready';
@@ -17,6 +18,7 @@ describe('create-file', () => {
   const getInFlightRequestMock = partialSpyOn(getInFlightRequest, 'getInFlightRequest', false);
   const waitForLocalFileMock = partialSpyOn(waitForLocalFile, 'waitForLocalFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
 
   const path = abs('/file.txt');
   const props = mockProps<typeof createFile>({ ctx: { logger: loggerMock }, path });
@@ -38,6 +40,7 @@ describe('create-file', () => {
     await createFile(props);
     // Then
     calls(convertToPlaceholderMock).toHaveLength(0);
+    calls(removeUploadIssuesMock).toHaveLength(0);
   });
 
   it('should convert to placeholder if file creation success', async () => {
@@ -47,6 +50,7 @@ describe('create-file', () => {
     await createFile(props);
     // Then
     call(convertToPlaceholderMock).toMatchObject({ path, placeholderId: 'FILE:uuid' });
+    call(removeUploadIssuesMock).toStrictEqual({ path });
   });
 
   it('should ignore the event if the create file request is duplicated', async () => {

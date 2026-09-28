@@ -27,6 +27,7 @@ export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
   const providerId = `{${user.uuid.toUpperCase()}}`;
 
   const syncContext: SyncContext = {
+    kind: 'sync',
     ...ctx,
     status: 'IDLE',
     providerId,

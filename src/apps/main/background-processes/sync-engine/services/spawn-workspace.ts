@@ -41,6 +41,7 @@ export async function spawnWorkspace({ ctx, workspace }: TProps) {
 
     const syncCtx: SyncContext = {
       ...ctx,
+      kind: 'sync',
       mnemonic,
       status: 'IDLE',
       providerId: workspace.providerId,

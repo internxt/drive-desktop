@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { z } from 'zod';
-import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { addGeneralIssue, setUploadIssue } from '@/apps/main/background-processes/issues';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 import { CommonContext } from '@/apps/sync-engine/config';
@@ -45,16 +45,18 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
   ctx.logger.sentryError({ msg: 'Failed to upload file to the bucket', path, error }, { size });
   LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
-  if (!(error instanceof Error)) return;
-
-  if (isRetryable({ error })) {
+  if (error instanceof Error && isRetryable({ error })) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
 
     await sleep(sleepMs);
     return retryFn();
   }
 
-  if (error.message === 'Max space used') {
+  if (ctx.kind === 'sync') {
+    setUploadIssue({ path, error: 'UPLOAD_FAILED' });
+  }
+
+  if (error instanceof Error && error.message === 'Max space used') {
     addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
   }
 }

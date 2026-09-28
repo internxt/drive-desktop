@@ -1,6 +1,9 @@
 import { ipcMain } from 'electron';
+import { existsSync } from 'node:fs';
 import { broadcastToWindows } from '../windows';
 import { showNotEnoughSpaceNotification } from './process-issues';
+
+type UploadIssueError = 'UPLOAD_FAILED' | 'FILE_NOT_READY';
 
 export type SyncIssue = {
   tab: 'sync';
@@ -10,7 +13,8 @@ export type SyncIssue = {
     | 'FILE_SIZE_TOO_BIG'
     | 'CANNOT_REGISTER_VIRTUAL_DRIVE'
     | 'EMPTY_FILES_NOT_ALLOWED'
-    | 'EMPTY_FILES_EXCEEDED';
+    | 'EMPTY_FILES_EXCEEDED'
+    | UploadIssueError;
 };
 
 export type BackupsIssue = {
@@ -89,6 +93,33 @@ function removeIssue(issue: Issue) {
 
 export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
   removeIssue({ ...issue, tab: 'sync' });
+}
+
+function isUploadIssue(issue: Issue) {
+  return issue.tab === 'sync' && (issue.error === 'UPLOAD_FAILED' || issue.error === 'FILE_NOT_READY');
+}
+
+/**
+ * v2.7.0 Victor Fernandez
+ * An upload issue stays until the file is uploaded, so a file only shows its latest upload problem.
+ * Every change also drops the upload issues of files that no longer exist: a moved or renamed file reaches
+ * us as a create event on the new path, so we cannot rely on a delete event to clear the old one.
+ */
+export function setUploadIssue({ path, error }: { path: string; error: UploadIssueError }) {
+  removeUploadIssues({ path, except: error });
+  addSyncIssue({ name: path, error });
+}
+
+export function removeUploadIssues({ path, except }: { path: string; except?: UploadIssueError }) {
+  const initialLength = issues.length;
+
+  issues = issues.filter((i) => {
+    if (!isUploadIssue(i)) return true;
+    if (i.name === path) return i.error === except;
+    return existsSync(i.name);
+  });
+
+  if (issues.length < initialLength) onIssuesChanged();
 }
 
 export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
