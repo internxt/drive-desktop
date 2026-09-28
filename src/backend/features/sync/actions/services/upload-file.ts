@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { stat } from 'node:fs/promises';
 import { electronStore } from '@/apps/main/config';
-import { CommonContext } from '@/apps/sync-engine/config';
+import { UploadContext } from '@/apps/sync-engine/config';
 import { validateUploadFileSize } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
@@ -9,7 +9,7 @@ import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/hand
 import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
 };
 
@@ -17,6 +17,9 @@ export async function uploadFile({ ctx, path }: Props) {
   const { error: notReadyError } = await waitUntilReady({ path });
   if (notReadyError) {
     ctx.logger.error({ msg: 'Wait until ready, timeout', path, reason: notReadyError.code });
+    if (ctx.kind === 'backups' && notReadyError.code !== 'NON_EXISTS') {
+      ctx.addIssue({ error: 'FILE_NOT_READY', name: path });
+    }
     return;
   }
 

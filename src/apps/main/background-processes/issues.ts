@@ -21,7 +21,7 @@ export type BackupsIssue = {
   tab: 'backups';
   name: string;
   folderUuid: string;
-  error: 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED';
+  error: 'FILE_SIZE_TOO_BIG' | 'FOLDER_ACCESS_DENIED' | UploadIssueError;
 };
 
 export type GeneralIssue = {

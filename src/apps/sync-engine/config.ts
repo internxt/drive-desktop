@@ -2,6 +2,7 @@ import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend
 import { Environment } from '@internxt/inxt-js';
 import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { InxtJs } from '@/infra';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { RemoteSyncStatus } from '../main/remote-sync/helpers';
@@ -39,3 +40,5 @@ export type SyncContext = CommonContext & {
   readonly bridgePass: string;
   readonly contentsDownloader: InxtJs.ContentsDownloader;
 };
+
+export type UploadContext = SyncContext | BackupsContext;

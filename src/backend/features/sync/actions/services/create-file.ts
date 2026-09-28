@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
-import { CommonContext } from '@/apps/sync-engine/config';
+import { UploadContext } from '@/apps/sync-engine/config';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
@@ -15,7 +15,7 @@ import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/han
 import { uploadFile } from './upload-file';
 
 type Props = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
   parentUuid: FolderUuid;
 };

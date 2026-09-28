@@ -53,6 +53,28 @@ describe('upload-file', () => {
     calls(handleFileUploadSizeExceededMock).toHaveLength(0);
   });
 
+  it('should add a backups issue if a backup file is locked', async () => {
+    // Given
+    const addIssue = vi.fn();
+    props = mockProps<typeof uploadFile>({ ctx: { kind: 'backups', addIssue, logger: loggerMock }, path });
+    waitUntilReadyMock.mockResolvedValue({ error: new waitUntilReady.WaitUntilReadyError('IDLE_TIMEOUT') });
+    // When
+    await uploadFile(props);
+    // Then
+    call(addIssue).toStrictEqual({ error: 'FILE_NOT_READY', name: path });
+  });
+
+  it('should not add a backups issue if a backup file no longer exists', async () => {
+    // Given
+    const addIssue = vi.fn();
+    props = mockProps<typeof uploadFile>({ ctx: { kind: 'backups', addIssue, logger: loggerMock }, path });
+    waitUntilReadyMock.mockResolvedValue({ error: new waitUntilReady.WaitUntilReadyError('NON_EXISTS') });
+    // When
+    await uploadFile(props);
+    // Then
+    calls(addIssue).toHaveLength(0);
+  });
+
   it('should return empty contents id if the file is empty', async () => {
     // Given
     statMock.mockResolvedValue({ size: 0, mtime, birthtime });
