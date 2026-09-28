@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import { addBackupsIssue, addSyncIssue, clearIssues, issues, removeUploadIssues, setUploadIssue } from './issues';
+import { addBackupsIssue, addSyncIssue, clearIssues, countBackupUploadIssues, issues, removeUploadIssues, setUploadIssue } from './issues';
 
 vi.mock(import('node:fs'));
 
@@ -72,5 +72,28 @@ describe('issues', () => {
     setUploadIssue({ path: '/other.mp4', error: 'UPLOAD_FAILED' });
     // Then
     expect(existsSyncMock).not.toHaveBeenCalled();
+  });
+
+  it('should count the backup upload issues of a folder', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'folderUuid', error: 'FILE_NOT_READY' });
+    addBackupsIssue({ name: '/c.mp4', folderUuid: 'folderUuid', error: 'FILE_SIZE_TOO_BIG' });
+    addBackupsIssue({ name: '/d.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' });
+    setUploadIssue({ path: '/e.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    const count = countBackupUploadIssues({ folderUuid: 'folderUuid' });
+    // Then
+    expect(count).toBe(2);
+  });
+
+  it('should not remove the backup upload issues when a file of the sync folder changes', () => {
+    // Given
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    existsSyncMock.mockReturnValue(false);
+    // When
+    removeUploadIssues({ path: '/file.mp4' });
+    // Then
+    expect(issues).toStrictEqual([{ tab: 'backups', name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' }]);
   });
 });

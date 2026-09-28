@@ -96,7 +96,15 @@ export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
 }
 
 function isUploadIssue(issue: Issue) {
-  return issue.tab === 'sync' && (issue.error === 'UPLOAD_FAILED' || issue.error === 'FILE_NOT_READY');
+  return issue.tab !== 'general' && (issue.error === 'UPLOAD_FAILED' || issue.error === 'FILE_NOT_READY');
+}
+
+function isSyncUploadIssue(issue: Issue) {
+  return issue.tab === 'sync' && isUploadIssue(issue);
+}
+
+export function countBackupUploadIssues({ folderUuid }: { folderUuid: string }) {
+  return issues.filter((i) => i.tab === 'backups' && i.folderUuid === folderUuid && isUploadIssue(i)).length;
 }
 
 /**
@@ -107,7 +115,7 @@ function isUploadIssue(issue: Issue) {
  * Adding does not check the disk, so a burst of failed uploads does not stat every pending file.
  */
 export function setUploadIssue({ path, error }: { path: string; error: UploadIssueError }) {
-  issues = issues.filter((i) => !isUploadIssue(i) || i.name !== path || i.error === error);
+  issues = issues.filter((i) => !isSyncUploadIssue(i) || i.name !== path || i.error === error);
   addSyncIssue({ name: path, error });
 }
 
@@ -115,7 +123,7 @@ export function removeUploadIssues({ path }: { path: string }) {
   const initialLength = issues.length;
 
   issues = issues.filter((i) => {
-    if (!isUploadIssue(i)) return true;
+    if (!isSyncUploadIssue(i)) return true;
     return i.name !== path && existsSync(i.name);
   });
 
