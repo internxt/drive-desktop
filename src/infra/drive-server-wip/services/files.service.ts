@@ -1,7 +1,6 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, paths } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
-import { paths } from '@/apps/shared/HttpClient/schema';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError } from '../defs';
 import { clientWrapper } from '../in/client-wrapper.service';
@@ -10,10 +9,12 @@ import { parseFileDto } from '../out/dto';
 import { checkExistence } from './files/check-existence';
 import { classifyFileWriteError } from './files/classify-file-write-error';
 import { createFile } from './files/create-file';
+import { getFilesSyncPage } from './files/get-files-sync-page';
 import { move } from './files/move';
 
 export const files = {
   getFiles,
+  getFilesSyncPage,
   createFile,
   move,
   replaceFile,

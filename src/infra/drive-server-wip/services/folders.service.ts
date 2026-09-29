@@ -1,15 +1,17 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFolderDto } from '../out/dto';
 import { checkExistence } from './folders/check-existence';
 import { createFolder } from './folders/create-folder';
+import { getFoldersSyncPage } from './folders/get-folders-sync-page';
 import { move } from './folders/move';
 
 export const folders = {
   createFolder,
   getFolders,
+  getFoldersSyncPage,
   move,
   checkExistence,
 };
