@@ -8,7 +8,9 @@ import { createFolder } from './workspaces/create-folder';
 import { getFilesSyncPage } from './workspaces/get-files-sync-page';
 import { getFoldersSyncPage } from './workspaces/get-folders-sync-page';
 
+// eslint-disable-next-line sonarjs/deprecation
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
+// eslint-disable-next-line sonarjs/deprecation
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
 
 export const workspaces = {

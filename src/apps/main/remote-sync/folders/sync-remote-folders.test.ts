@@ -41,7 +41,9 @@ describe('sync-remote-folders', () => {
 
   it('should fetch again if we fetch 1000 folders', async () => {
     // Given
-    getFoldersMock.mockResolvedValueOnce({ data: { items: Array(1000).fill({ status: 'EXISTS' }), nextCursor: 'cursor-1' } }).mockResolvedValueOnce({ data: { items: [], nextCursor: null } });
+    getFoldersMock
+      .mockResolvedValueOnce({ data: { items: Array(1000).fill({ status: 'EXISTS' }), nextCursor: 'cursor-1' } })
+      .mockResolvedValueOnce({ data: { items: [], nextCursor: null } });
     // When
     await syncRemoteFolders({ ctx });
     // Then

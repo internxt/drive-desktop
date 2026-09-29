@@ -54,7 +54,9 @@ describe('persist-folders', () => {
     const error = new Error('Unable to update checkpoint');
     createOrUpdateCheckpointMock.mockReturnValue(error);
 
-    const result = await persistFolders(mockProps<typeof persistFolders>({ ctx, items: [{ plainName: 'folder', updatedAt: '2026-09-01T10:00:00.000Z' }] }));
+    const result = await persistFolders(
+      mockProps<typeof persistFolders>({ ctx, items: [{ plainName: 'folder', updatedAt: '2026-09-01T10:00:00.000Z' }] }),
+    );
 
     expect(result).toStrictEqual({ error });
   });
