@@ -1,4 +1,8 @@
-import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import type {
+  MailBridgeSessionPreparationError,
+  MailBridgeSyncProgress,
+} from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useEffect, useState } from 'react';
 import type { MailBridgeStatus } from '@/backend/features/mail-bridge';
@@ -9,6 +13,7 @@ export function useMailBridge() {
   const [viewModel, setViewModel] = useState(() => MailBridgeModule.createInitialViewModel());
   const [isLoadingInitialStatus, setIsLoadingInitialStatus] = useState(true);
   const [isStartOnLoginEnabled, setIsStartOnLoginEnabled] = useState(false);
+  const [accountEmail, setAccountEmail] = useState<string | undefined>();
 
   function applyStatus(status: MailBridgeStatus) {
     if (status.status === 'stopped') setViewModel(MailBridgeModule.createInitialViewModel());
@@ -19,6 +24,21 @@ export function useMailBridge() {
 
   function applySyncProgress(syncProgress: MailBridgeSyncProgress | undefined) {
     setViewModel((currentViewModel) => (currentViewModel.status === 'running' ? { ...currentViewModel, syncProgress } : currentViewModel));
+  }
+
+  function applyMailAccountEmail(result: Result<string, MailBridgeSessionPreparationError>) {
+    if (Result.isError(result)) {
+      setAccountEmail(undefined);
+      if (result.error.code === 'mail-not-setup') {
+        setViewModel({ status: 'setup-required', error: null });
+        return;
+      }
+
+      setViewModel({ status: 'error', error: result.error.message });
+      return;
+    }
+
+    setAccountEmail(result.data);
   }
 
   useEffect(() => {
@@ -47,6 +67,7 @@ export function useMailBridge() {
       }
 
       setViewModel({ status: 'running', error: null, connection: result.data });
+      applyMailAccountEmail(await globalThis.window.electron.mailBridge.getEmail());
       void globalThis.window.electron.mailBridge.getSyncProgress().then(applySyncProgress);
     } catch {
       setViewModel({ status: 'error', error: unexpectedMailBridgeError });
@@ -88,14 +109,16 @@ export function useMailBridge() {
 
   async function loadInitialState() {
     try {
-      const [status, syncProgress, startOnLogin] = await Promise.all([
+      const [status, syncProgress, startOnLogin, email] = await Promise.all([
         globalThis.window.electron.mailBridge.getStatus(),
         globalThis.window.electron.mailBridge.getSyncProgress(),
         globalThis.window.electron.mailBridge.getStartOnLogin(),
+        globalThis.window.electron.mailBridge.getEmail(),
       ]);
       applyStatus(status);
       applySyncProgress(syncProgress);
       setIsStartOnLoginEnabled(startOnLogin);
+      applyMailAccountEmail(email);
     } catch {
       setViewModel({ status: 'error', error: unexpectedMailBridgeError });
     } finally {
@@ -103,5 +126,5 @@ export function useMailBridge() {
     }
   }
 
-  return { viewModel, isLoadingInitialStatus, isStartOnLoginEnabled, setStartOnLogin, activate, turnOff, retry, resync };
+  return { viewModel, accountEmail, isLoadingInitialStatus, isStartOnLoginEnabled, setStartOnLogin, activate, turnOff, retry, resync };
 }
