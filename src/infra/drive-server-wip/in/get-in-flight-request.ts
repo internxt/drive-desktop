@@ -1,5 +1,4 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { AbsolutePath, paths } from '@internxt/drive-desktop-core/build/backend';
 
 export type DedupeKey = `request${string}` | `createFile${string}`;
 
