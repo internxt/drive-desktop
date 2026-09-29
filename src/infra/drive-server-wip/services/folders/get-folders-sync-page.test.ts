@@ -30,7 +30,7 @@ describe('get-folders-sync-page', () => {
     await promiseFn();
 
     // Then
-    expect(result).toStrictEqual({ data: { items: [], nextCursor: 'next-cursor' }, error: undefined });
+    expect(result).toStrictEqual({ data: { items: [], nextCursor: 'next-cursor' } });
     expect(getFolders).toHaveBeenCalledWith('/folders/sync', {
       signal: props.ctx.abortController.signal,
       params: { query: props.context.query },
@@ -46,7 +46,7 @@ describe('get-folders-sync-page', () => {
     const result = await getFoldersSyncPage(props);
 
     // Then
-    expect(result).toStrictEqual({ error, data: undefined });
+    expect(result).toStrictEqual({ error });
   });
 
   it('removes ordinary folder details from mapped synchronization items', async () => {

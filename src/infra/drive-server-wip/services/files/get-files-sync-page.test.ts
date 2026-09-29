@@ -30,7 +30,7 @@ describe('get-files-sync-page', () => {
     await promiseFn();
 
     // Then
-    expect(result).toStrictEqual({ data: { items: [], nextCursor: 'next-cursor' }, error: undefined });
+    expect(result).toStrictEqual({ data: { items: [], nextCursor: 'next-cursor' } });
     expect(getFiles).toHaveBeenCalledWith('/files/sync', {
       signal: props.ctx.abortController.signal,
       params: { query: props.context.query },
@@ -46,7 +46,7 @@ describe('get-files-sync-page', () => {
     const result = await getFilesSyncPage(props);
 
     // Then
-    expect(result).toStrictEqual({ error, data: undefined });
+    expect(result).toStrictEqual({ error });
   });
 
   it('removes ordinary file details from mapped synchronization items', async () => {
