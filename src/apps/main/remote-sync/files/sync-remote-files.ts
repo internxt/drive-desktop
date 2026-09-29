@@ -1,60 +1,30 @@
+import { synchronizeRemoteItems, SynchronizationPageRequest } from '@internxt/drive-desktop-core/build/backend/features/sync';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { GetFilesQuery } from '@/infra/drive-server-wip/services/files.service';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { FETCH_LIMIT_1000 } from '../store';
+import { getInitialSyncUpdatedAt } from '../utils/get-initial-sync-updated-at';
+import { persistFiles } from './persist-files';
 
-type TProps = {
+type SyncRemoteFilesProps = {
   ctx: SyncContext;
   from?: Date;
-  offset?: number;
 };
 
-export async function syncRemoteFiles({ ctx, from, offset = 0 }: TProps) {
-  let hasMore = true;
+export async function syncRemoteFiles({ ctx, from }: SyncRemoteFilesProps): Promise<void> {
+  const result = await synchronizeRemoteItems({
+    updatedAt: getInitialSyncUpdatedAt(from),
+    limit: FETCH_LIMIT_1000,
+    fetchPage: async (query) => await fetchFilesSyncPage({ ctx, query }),
+    persistItems: async ({ items }) => await persistFiles({ ctx, items }),
+  });
 
-  while (hasMore) {
-    /**
-     * v2.5.0 Daniel Jiménez
-     * We fetch ALL files when we want to synchronize the current state with the web state.
-     * It means that we need to delete or create the files that are not in the web state anymore.
-     * However, if no checkpoint is provided it means that we don't have a local state yet.
-     * In that situation, fetch only EXISTS files.
-     */
-    const query: GetFilesQuery = {
-      limit: FETCH_LIMIT_1000,
-      offset,
-      status: from ? 'ALL' : 'EXISTS',
-      updatedAt: from?.toISOString(),
-      sort: 'updatedAt',
-      order: 'ASC',
-    };
+  if (result.error) ctx.logger.error({ msg: 'Error synchronizing remote files', error: result.error });
+}
 
-    const promise = ctx.workspaceId
-      ? driveServerWip.workspaces.getFiles({ ctx, query })
-      : driveServerWip.files.getFiles({ ctx, context: { query } });
-
-    const { data: fileDtos, error: error1 } = await promise;
-
-    if (error1) return;
-
-    hasMore = fileDtos.length === FETCH_LIMIT_1000;
-    offset += FETCH_LIMIT_1000;
-
-    const error2 = await createOrUpdateFiles({ ctx, fileDtos });
-
-    if (error2) return;
-
-    const lastFile = fileDtos.at(-1);
-    if (lastFile) {
-      await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: ctx.userUuid,
-        workspaceId: ctx.workspaceId,
-        type: 'file',
-        name: lastFile.plainName,
-        updatedAt: lastFile.updatedAt,
-      });
-    }
+async function fetchFilesSyncPage({ ctx, query }: { ctx: SyncContext; query: SynchronizationPageRequest }) {
+  if (ctx.workspaceId) {
+    return await driveServerWip.workspaces.getFilesSyncPage({ ctx, context: { query } });
   }
+
+  return await driveServerWip.files.getFilesSyncPage({ ctx, context: { query } });
 }

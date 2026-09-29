@@ -7,55 +7,62 @@ import { syncRemoteFiles } from './sync-remote-files';
 describe('sync-remote-files', () => {
   const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
   const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
-  const getFilesMock = partialSpyOn(driveServerWip.files, 'getFiles');
+  const getFilesSyncPageMock = partialSpyOn(driveServerWip.workspaces, 'getFilesSyncPage');
 
-  const { ctx } = mockProps<typeof syncRemoteFiles>({ ctx: {} });
+  const { ctx } = mockProps<typeof syncRemoteFiles>({ ctx: { workspaceId: 'workspace-id' } });
 
   beforeEach(() => {
-    getFilesMock.mockResolvedValue({ data: [] });
+    getFilesSyncPageMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
     createOrUpdateFilesMock.mockResolvedValue(undefined);
   });
 
-  it('should not fetch again if we fetch less than 1000 files', async () => {
+  it('should stop when the response has no next cursor', async () => {
     // Given
-    getFilesMock.mockResolvedValue({ data: [] });
+    getFilesSyncPageMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    calls(getFilesMock).toHaveLength(1);
+    calls(getFilesSyncPageMock).toHaveLength(1);
   });
 
-  it('should fetch EXISTS files if from is not provided', async () => {
+  it('should use the epoch checkpoint when from is not provided', async () => {
     // When
     await syncRemoteFiles({ ctx, from: undefined });
     // Then
-    call(getFilesMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
+    call(getFilesSyncPageMock).toMatchObject({ context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } });
   });
 
-  it('should fetch ALL files if from is provided', async () => {
+  it('should use from as the initial checkpoint', async () => {
     // When
-    await syncRemoteFiles({ ctx, from: new Date() });
+    const from = new Date('2025-06-28T12:25:07.000Z');
+    await syncRemoteFiles({ ctx, from });
     // Then
-    call(getFilesMock).toMatchObject({ context: { query: { status: 'ALL' } } });
+    call(getFilesSyncPageMock).toMatchObject({ context: { query: { updatedAt: from.toISOString(), limit: 1000 } } });
   });
 
-  it('should fetch again if we fetch 1000 files', async () => {
+  it('should fetch the next page using its cursor', async () => {
     // Given
-    getFilesMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) }).mockResolvedValueOnce({ data: [] });
+    getFilesSyncPageMock
+      .mockResolvedValueOnce({ data: { items: [{ updatedAt: '2025-06-28T12:25:07.000Z' }], nextCursor: 'cursor-1' } })
+      .mockResolvedValueOnce({ data: { items: [], nextCursor: null } });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    calls(getFilesMock).toHaveLength(2);
+    calls(getFilesSyncPageMock).toHaveLength(2);
+    calls(getFilesSyncPageMock).toMatchObject([
+      { context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } },
+      { context: { query: { cursor: 'cursor-1', limit: 1000 } } },
+    ]);
     calls(createOrUpdateFilesMock).toHaveLength(2);
   });
 
   it('should stop execution if fetch fails', async () => {
     // Given
-    getFilesMock.mockResolvedValue({ error: new Error() });
+    getFilesSyncPageMock.mockResolvedValue({ error: new Error() });
     // When
     await syncRemoteFiles({ ctx });
     // Then
-    calls(getFilesMock).toHaveLength(1);
+    calls(getFilesSyncPageMock).toHaveLength(1);
     calls(createOrUpdateFilesMock).toHaveLength(0);
   });
 
@@ -71,9 +78,9 @@ describe('sync-remote-files', () => {
 
   it('update checkpoint after save to database', async () => {
     // Given
-    getFilesMock
-      .mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) })
-      .mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+    getFilesSyncPageMock
+      .mockResolvedValueOnce({ data: { items: [{ updatedAt: '2025-06-28T12:25:07.000Z' }], nextCursor: 'cursor-1' } })
+      .mockResolvedValueOnce({ data: { items: [{ updatedAt: '2025-06-29T12:25:07.000Z' }], nextCursor: null } });
     // When
     await syncRemoteFiles({ ctx });
     // Then

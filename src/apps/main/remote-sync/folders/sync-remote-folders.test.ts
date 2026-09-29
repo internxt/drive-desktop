@@ -7,18 +7,18 @@ import { syncRemoteFolders } from './sync-remote-folders';
 describe('sync-remote-folders', () => {
   const createOrUpdateFoldersMock = partialSpyOn(createOrUpdateFoldersModule, 'createOrUpdateFolders');
   const createOrUpdateCheckpointMock = partialSpyOn(SqliteModule.CheckpointModule, 'createOrUpdate');
-  const getFoldersMock = partialSpyOn(driveServerWip.folders, 'getFolders');
+  const getFoldersMock = partialSpyOn(driveServerWip.workspaces, 'getFoldersSyncPage');
 
-  const { ctx } = mockProps<typeof syncRemoteFolders>({ ctx: {} });
+  const { ctx } = mockProps<typeof syncRemoteFolders>({ ctx: { workspaceId: 'workspace-id' } });
 
   beforeEach(() => {
-    getFoldersMock.mockResolvedValue({ data: [] });
+    getFoldersMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
     createOrUpdateFoldersMock.mockResolvedValue(undefined);
   });
 
   it('should not fetch again if we fetch less than 1000 folders', async () => {
     // Given
-    getFoldersMock.mockResolvedValue({ data: [] });
+    getFoldersMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
     // When
     await syncRemoteFolders({ ctx });
     // Then
@@ -29,19 +29,19 @@ describe('sync-remote-folders', () => {
     // When
     await syncRemoteFolders({ ctx, from: undefined });
     // Then
-    call(getFoldersMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
+    call(getFoldersMock).toMatchObject({ context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } });
   });
 
   it('should fetch ALL folders if from is provided', async () => {
     // When
     await syncRemoteFolders({ ctx, from: new Date() });
     // Then
-    call(getFoldersMock).toMatchObject({ context: { query: { status: 'ALL' } } });
+    call(getFoldersMock).toMatchObject({ context: { query: { updatedAt: expect.any(String), limit: 1000 } } });
   });
 
   it('should fetch again if we fetch 1000 folders', async () => {
     // Given
-    getFoldersMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) }).mockResolvedValueOnce({ data: [] });
+    getFoldersMock.mockResolvedValueOnce({ data: { items: Array(1000).fill({ status: 'EXISTS' }), nextCursor: 'cursor-1' } }).mockResolvedValueOnce({ data: { items: [], nextCursor: null } });
     // When
     await syncRemoteFolders({ ctx });
     // Then
@@ -72,8 +72,8 @@ describe('sync-remote-folders', () => {
   it('update checkpoint after save to database', async () => {
     // Given
     getFoldersMock
-      .mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) })
-      .mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+      .mockResolvedValueOnce({ data: { items: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }), nextCursor: 'cursor-1' } })
+      .mockResolvedValueOnce({ data: { items: [{ updatedAt: '2025-06-29T12:25:07.000Z' }], nextCursor: null } });
     // When
     await syncRemoteFolders({ ctx });
     // Then
