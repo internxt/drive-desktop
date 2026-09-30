@@ -1,5 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { removeUploadIssues } from '@/apps/main/background-processes/issues';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
@@ -47,11 +48,15 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
 
     if (!file) return;
 
-    removeUploadIssues({ path });
-    await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}` });
+    await markFileCreated({ path, uuid: file.uuid });
   } catch (error) {
     ctx.logger.error({ msg: 'Error creating file', path, error });
   }
+}
+
+async function markFileCreated({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
+  removeUploadIssues({ path });
+  await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
 }
 
 async function retryCreateFile({ ctx, path, parentUuid }: Props) {

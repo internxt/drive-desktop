@@ -77,15 +77,17 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
 
     const file = await promise;
 
-    if (file) {
-      removeUploadIssues({ path });
-      await Addon.updateSyncStatus({ path });
-    }
+    if (file) await markFileReplaced({ path });
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });
   }
 
   return true;
+}
+
+async function markFileReplaced({ path }: { path: AbsolutePath }) {
+  removeUploadIssues({ path });
+  await Addon.updateSyncStatus({ path });
 }
 
 async function retryReplaceFile({ ctx, path, uuid }: Props) {
