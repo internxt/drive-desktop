@@ -71,8 +71,19 @@ export function clearIssues() {
   onIssuesChanged();
 }
 
-export function clearBackupsIssues() {
-  issues = issues.filter((i) => i.tab !== 'backups');
+/**
+ * v2.7.0 Victor Fernandez
+ * Backup issues are cleared per folder right before it runs, so the folders skipped when a backup is
+ * stopped keep the issues of their last run.
+ */
+export function clearBackupsIssues({ folderUuid }: { folderUuid: string }) {
+  issues = issues.filter((i) => i.tab !== 'backups' || i.folderUuid !== folderUuid);
+  onIssuesChanged();
+}
+
+export function clearInactiveBackupsIssues({ folderUuids }: { folderUuids: string[] }) {
+  const activeFolders = new Set(folderUuids);
+  issues = issues.filter((i) => i.tab !== 'backups' || activeFolders.has(i.folderUuid));
   onIssuesChanged();
 }
 

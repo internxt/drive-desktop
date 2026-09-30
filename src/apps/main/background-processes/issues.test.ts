@@ -1,5 +1,15 @@
 import { existsSync } from 'node:fs';
-import { addBackupsIssue, addSyncIssue, clearIssues, countBackupUploadIssues, issues, removeUploadIssues, setUploadIssue } from './issues';
+import {
+  addBackupsIssue,
+  addSyncIssue,
+  clearBackupsIssues,
+  clearInactiveBackupsIssues,
+  clearIssues,
+  countBackupUploadIssues,
+  issues,
+  removeUploadIssues,
+  setUploadIssue,
+} from './issues';
 
 vi.mock(import('node:fs'));
 
@@ -96,6 +106,34 @@ describe('issues', () => {
     const count = countBackupUploadIssues({ folderUuid: 'folderUuid' });
     // Then
     expect(count).toBe(2);
+  });
+
+  it('should clear only the backup issues of the given folder', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' });
+    addSyncIssue({ name: '/c.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    clearBackupsIssues({ folderUuid: 'folderUuid' });
+    // Then
+    expect(issues).toStrictEqual([
+      { tab: 'backups', name: '/b.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' },
+      { tab: 'sync', name: '/c.mp4', error: 'UPLOAD_FAILED' },
+    ]);
+  });
+
+  it('should clear the backup issues of folders that are no longer backed up', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'removedFolderUuid', error: 'UPLOAD_FAILED' });
+    addSyncIssue({ name: '/c.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    clearInactiveBackupsIssues({ folderUuids: ['folderUuid'] });
+    // Then
+    expect(issues).toStrictEqual([
+      { tab: 'backups', name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' },
+      { tab: 'sync', name: '/c.mp4', error: 'UPLOAD_FAILED' },
+    ]);
   });
 
   it('should not remove the backup upload issues when a file of the sync folder changes', () => {

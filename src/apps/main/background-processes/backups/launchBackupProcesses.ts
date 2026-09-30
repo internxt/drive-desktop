@@ -7,7 +7,7 @@ import electronStore from '../../config';
 import { getBackupsFromDevice } from '../../device/get-backups-from-device';
 import { getOrCreateDevice } from '../../device/service';
 import { getAvailableProducts } from '../../payments/get-available-products';
-import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { addBackupsIssue, clearBackupsIssues, clearInactiveBackupsIssues } from '../issues';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
@@ -54,7 +54,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', backups });
 
-  clearBackupsIssues();
+  clearInactiveBackupsIssues({ folderUuids: backups.map(({ folderUuid }) => folderUuid) });
   tracker.track(backups, abortController);
 
   for (const backupInfo of backups) {
@@ -67,6 +67,8 @@ export async function launchBackupProcesses({ ctx }: Props) {
     if (abortController.signal.aborted) {
       break;
     }
+
+    clearBackupsIssues({ folderUuid: backupInfo.folderUuid });
 
     const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
