@@ -19,7 +19,7 @@ const RETRYABLE_MESSAGES = new Set([
  * The same connection cut reaches us with different messages (`write ECONNRESET`, `socket hang up`, TLS
  * disconnected...), so these are matched by code. Only codes seen in real upload logs are added.
  */
-const RETRYABLE_CODES = new Set(['ECONNRESET', 'UND_ERR_CONNECT_TIMEOUT']);
+const RETRYABLE_CODES = new Set(['ECONNRESET', 'UND_ERR_CONNECT_TIMEOUT', 'ENOTFOUND']);
 
 const errorCodeSchema = z.object({ code: z.string() });
 
