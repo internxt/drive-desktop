@@ -1,8 +1,10 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { Drive } from '@/backend/features/drive';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -57,9 +59,18 @@ export async function onChange({ ctx, event, path }: Props) {
     }
 
     if (fileInfo.inSyncState === InSyncState.NotSync) {
-      await moveFile({ ctx, path, uuid: fileInfo.uuid });
+      await moveIfNotTemporary({ ctx, path, uuid: fileInfo.uuid });
     }
   }
+}
+
+async function moveIfNotTemporary({ ctx, path, uuid }: { ctx: SyncContext; path: AbsolutePath; uuid: FileUuid }) {
+  if (isTemporaryFile({ path })) {
+    ctx.logger.debug({ msg: 'File renamed to a temporary name, skipping move', path });
+    return;
+  }
+
+  await moveFile({ ctx, path, uuid });
 }
 
 async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {

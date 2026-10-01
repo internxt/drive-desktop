@@ -108,4 +108,15 @@ describe('on-change', () => {
     // Then
     call(moveFileMock).toMatchObject({ path });
   });
+
+  it('should not move when file is renamed to a temporary name', async () => {
+    // Given
+    props.path = abs('/~WRL0001.tmp');
+    props.event = { ctimeMs: Date.now() };
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    // When
+    await onChange(props as any);
+    // Then
+    calls(moveFileMock).toHaveLength(0);
+  });
 });
