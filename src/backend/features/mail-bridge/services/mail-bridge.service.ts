@@ -1,10 +1,10 @@
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   sendMailBridgeSessionUpdate,
   sendControlMessage,
   type ControlMessage,
   type MailBridgeSession,
 } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
+import { logger } from '../constants';
 import type { MailBridgeResources, MailBridgeRuntime, MailBridgeStatus, MailBridgeSyncProgress } from '../mail-bridge.types';
 import { isMailBridgeStopped } from '../utils/is-mail-bridge-stopped';
 import { startMailBridge as startRuntime } from './start-mail-bridge';
@@ -22,9 +22,16 @@ const statusListeners = new Set<(nextStatus: MailBridgeStatus) => void>();
 const syncProgressListeners = new Set<(progress: MailBridgeSyncProgress | undefined) => void>();
 
 export async function startMailBridge(session: MailBridgeSession) {
-  if (status.status === 'running' && runtime) return { data: runtime.connection, error: undefined };
-  if (startup) return await startup;
+  if (status.status === 'running' && runtime) {
+    logger.debug({ msg: 'Mail Bridge is already running' });
+    return { data: runtime.connection, error: undefined };
+  }
+  if (startup) {
+    logger.debug({ msg: 'Mail Bridge startup already in progress' });
+    return await startup;
+  }
 
+  logger.debug({ msg: 'Starting Mail Bridge' });
   const generation = ++lifecycleGeneration;
   startupCancellation = new AbortController();
   const nextStartup = startNewMailBridge({ session, signal: startupCancellation.signal, generation });
@@ -71,10 +78,12 @@ async function startNewMailBridge({
   runtime = started.data;
   resources = started.data;
   setStatus({ status: 'running', error: undefined, connection: started.data.connection });
+  logger.debug({ msg: 'Mail Bridge started' });
   return { data: started.data.connection, error: undefined };
 }
 
 export async function stopMailBridge() {
+  logger.debug({ msg: 'Stopping Mail Bridge' });
   stopping = true;
   lifecycleGeneration += 1;
   const cancelledStartup = startup;
@@ -89,19 +98,25 @@ export async function stopMailBridge() {
   }
   stopping = false;
   if (stopped.error) {
+    logger.error({ msg: 'Mail Bridge failed to stop', error: stopped.error });
     setStatus({ status: 'error', error: stopped.error.message });
     return stopped;
   }
   setSyncProgress(undefined);
   setStatus({ status: 'stopped', error: undefined });
+  logger.debug({ msg: 'Mail Bridge stopped' });
   return stopped;
 }
 
 export async function resyncMailBridge() {
   if (!runtime || isMailBridgeStopped({ status, runtime })) {
+    logger.warn({ msg: 'Mail Bridge resync requested while stopped' });
     return { data: undefined, error: new Error('Mail Bridge is not running') };
   }
-  return await sendControlMessage({ socket: runtime.socket, message: { type: 'resync' } });
+  logger.debug({ msg: 'Requesting Mail Bridge resync' });
+  const result = await sendControlMessage({ socket: runtime.socket, message: { type: 'resync' } });
+  if (result.error) logger.error({ msg: 'Mail Bridge resync request failed', error: result.error });
+  return result;
 }
 
 export async function updateMailBridgeAccessToken({ token }: { token: string }) {
@@ -141,6 +156,7 @@ function handleControlMessage({
   if (generation !== lifecycleGeneration) return;
   if (runtime?.socket !== socket && status.status !== 'starting') return;
   if (message.type === 'sync_started') {
+    logger.debug({ msg: 'Mail Bridge sync started', totalMessages: message.started.total });
     return setSyncProgress({ percentage: 0, completedMessages: 0, totalMessages: message.started.total });
   }
   if (message.type === 'sync_progress') {
@@ -152,6 +168,7 @@ function handleControlMessage({
   }
   if (message.type === 'sync_finished') {
     if (message.finished.code) logger.error({ msg: 'Mail Bridge sync failed', code: message.finished.code });
+    else logger.debug({ msg: 'Mail Bridge sync finished' });
     setSyncProgress(undefined);
   }
 }
