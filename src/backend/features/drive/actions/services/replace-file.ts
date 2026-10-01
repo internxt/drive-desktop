@@ -3,10 +3,13 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
 import { getInFlightRequest, getReplaceFileKey } from '@/infra/drive-server-wip/in/get-in-flight-request';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
 import { waitForLocalFile } from './wait-for-local-file';
+
+type FileVersion = { mtimeMs: number; size: number };
 
 type Props = {
   ctx: SyncContext;
@@ -18,6 +21,7 @@ const uploadingPaths = new Set<AbsolutePath>();
 // We keep the uuid of the latest event because the remote file could have been recreated meanwhile
 const changedWhileWaiting = new Map<AbsolutePath, FileUuid>();
 const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
+const uploadedVersions = new Map<AbsolutePath, FileVersion>();
 
 function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
   const latestUuid = changedWhileWaiting.get(path) ?? uuid;
@@ -27,13 +31,36 @@ function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) 
 
 export async function replaceFile({ ctx, path, uuid }: Props) {
   const isOwner = await replaceFileOnce({ ctx, path, uuid });
-  const latestUuid = changedWhileUploading.get(path);
+  if (!isOwner) return;
 
-  if (isOwner && latestUuid) {
-    changedWhileUploading.delete(path);
-    ctx.logger.debug({ msg: 'File changed while it was being uploaded, replace it again', path });
-    await replaceFile({ ctx, path, uuid: latestUuid });
+  const uploadedVersion = uploadedVersions.get(path);
+  uploadedVersions.delete(path);
+  const latestUuid = changedWhileUploading.get(path);
+  if (!latestUuid) return;
+
+  changedWhileUploading.delete(path);
+
+  if (await isSameVersion({ path, version: uploadedVersion })) {
+    ctx.logger.debug({ msg: 'File did not change while it was being uploaded, do not replace it again', path });
+    return;
   }
+
+  ctx.logger.debug({ msg: 'File changed while it was being uploaded, replace it again', path });
+  await replaceFile({ ctx, path, uuid: latestUuid });
+}
+
+async function getVersion({ path }: { path: AbsolutePath }) {
+  const { data: stats } = await fileSystem.stat({ absolutePath: path });
+  if (!stats) return;
+
+  return { mtimeMs: stats.mtimeMs, size: stats.size };
+}
+
+async function isSameVersion({ path, version }: { path: AbsolutePath; version?: FileVersion }) {
+  if (!version) return false;
+
+  const current = await getVersion({ path });
+  return current?.mtimeMs === version.mtimeMs && current.size === version.size;
 }
 
 async function replaceFileOnce({ ctx, path, uuid }: Props) {
@@ -49,6 +76,8 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
       if (error) return;
 
       const uploadUuid = takeLatestUuid({ path, uuid });
+      const version = await getVersion({ path });
+      if (version) uploadedVersions.set(path, version);
       uploadingPaths.add(path);
       try {
         return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
