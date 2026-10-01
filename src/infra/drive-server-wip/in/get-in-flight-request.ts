@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { paths } from '@/apps/shared/HttpClient/schema';
 
-export type DedupeKey = `request${string}` | `createFile${string}`;
+export type DedupeKey = `request${string}` | `createFile${string}` | `replaceFile${string}`;
 
 const inFlightPromises = new Map<DedupeKey, Promise<unknown>>();
 
@@ -19,6 +19,10 @@ export function getRequestKey({
 
 export function getCreateFileKey({ path }: { path: AbsolutePath }): DedupeKey {
   return `createFile${path}`;
+}
+
+export function getReplaceFileKey({ path }: { path: AbsolutePath }): DedupeKey {
+  return `replaceFile${path}`;
 }
 
 export function getInFlightRequest<T>({ key, promiseFn }: { key: DedupeKey; promiseFn: () => Promise<T> }) {
