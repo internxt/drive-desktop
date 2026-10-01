@@ -1,5 +1,4 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type MoveAttempt = {
   move: string;
@@ -7,7 +6,7 @@ type MoveAttempt = {
 };
 
 type Store = {
-  folders: Map<FolderUuid, AbsolutePath>;
+  folders: Map<FolderUuid, string>;
   moves: Map<string, MoveAttempt>;
 };
 

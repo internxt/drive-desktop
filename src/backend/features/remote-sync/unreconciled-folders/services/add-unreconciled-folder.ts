@@ -8,5 +8,5 @@ type Props = {
 };
 
 export function addUnreconciledFolder({ uuid, path }: Props) {
-  store.folders.set(uuid, path);
+  store.folders.set(uuid, path.toLowerCase());
 }
