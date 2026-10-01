@@ -1,5 +1,5 @@
 import { UilHistory } from '@iconscout/react-unicons';
-import { At, Gear, Icon, Sparkle } from '@phosphor-icons/react';
+import { At, Envelope, Gear, Icon, Sparkle } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { Shield } from 'phosphor-react';
 import { useI18n } from '../../localize/use-i18n';
@@ -10,11 +10,11 @@ function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; o
     <button
       onClick={onClick}
       type="button"
-      className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
+      className={`relative flex w-24 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
         isActive ? 'text-gray-100' : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
       }`}>
       <Icon size={28} />
-      <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
+      <p className="whitespace-nowrap text-xs font-medium capitalize">{title.toLowerCase()}</p>
     </button>
   );
 }
@@ -30,6 +30,7 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
     { label: 'BACKUPS', icon: UilHistory },
     { label: 'ANTIVIRUS', icon: Shield },
     { label: 'CLEANER', icon: Sparkle },
+    { label: 'MAIL_BRIDGE', icon: Envelope },
   ];
 
   const animationVariants: Record<Section, { left: string }> = sectionValues.reduce(
@@ -43,13 +44,13 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
   );
 
   return (
-    <div className="border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
+    <div className="shrink-0 border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
       <div className="relative mx-auto flex w-max">
         <motion.div
           animate={active}
           variants={animationVariants}
           transition={{ ease: 'easeOut', duration: 0.2 }}
-          className="absolute min-h-full w-20 rounded-lg bg-gray-5 dark:bg-gray-10"
+          className="absolute min-h-full w-24 rounded-lg bg-gray-5 dark:bg-gray-10"
         />
         {sections.map((section) => (
           <Item

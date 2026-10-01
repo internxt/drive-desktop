@@ -36,15 +36,29 @@ describe('process-error', () => {
     call(addGeneralIssueMock).toMatchObject({ error: 'NOT_ENOUGH_SPACE' });
   });
 
-  it('should retry in case of server unavailable', async () => {
+  it.each([
+    'read ECONNRESET',
+    'Request failed with status code 409',
+    'Request failed with status code 500',
+    'Request failed with status code 502',
+  ])('should retry in case of server unavailable', async (message) => {
     // Given
-    props.error = new Error('Request failed with status code 409');
+    props.error = new Error(message);
     // When
     await processError(props);
     // Then
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
     call(sleepMock).toStrictEqual(sleepMs);
     calls(retryFn).toHaveLength(1);
+  });
+
+  it('should not retry an error that is not retryable', async () => {
+    // Given
+    props.error = new Error('Request failed with status code 404');
+    // When
+    await processError(props);
+    // Then
+    calls(retryFn).toHaveLength(0);
   });
 
   it('should handle unknown error', async () => {

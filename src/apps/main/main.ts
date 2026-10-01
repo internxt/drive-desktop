@@ -23,8 +23,8 @@ import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupThemeListener } from './config/theme';
-import { processDeeplink } from './electron/deeplink/process-deeplink';
 import { startContextMenuPipe } from './electron/share/context-menu-pipe';
+import { handleSecondInstance } from './handle-second-instance';
 import { setupAntivirusIpc } from './ipcs/ipcMainAntivirus';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupQuitHandlers } from './quit';
@@ -55,9 +55,7 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.exit(0);
 } else {
-  app.on('second-instance', (event, argv) => {
-    processDeeplink({ argv });
-  });
+  app.on('second-instance', (event, argv) => handleSecondInstance({ argv }));
 }
 
 const tags = {

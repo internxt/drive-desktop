@@ -1,8 +1,10 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import { contextBridge, ipcRenderer, shell } from 'electron';
 import path from 'node:path';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
+import type { MailBridgeStatus } from '@/backend/features/mail-bridge';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
@@ -182,6 +184,27 @@ const api = {
   addBackup: async (props) => await ipcPreloadRenderer.invoke('addBackup', props),
   disableBackup: async (props) => await ipcPreloadRenderer.invoke('disableBackup', props),
   getItemsByFolderUuid: async (props) => await ipcPreloadRenderer.invoke('getItemsByFolderUuid', props),
+  mailBridge: {
+    start: async () => await ipcRenderer.invoke('mail-bridge:start'),
+    getStatus: async () => await ipcRenderer.invoke('mail-bridge:get-status'),
+    getStartOnLogin: async () => await ipcRenderer.invoke('mail-bridge:get-start-on-login'),
+    setStartOnLogin: async (enabled: boolean) => await ipcRenderer.invoke('mail-bridge:set-start-on-login', enabled),
+    stop: async () => await ipcRenderer.invoke('mail-bridge:stop'),
+    resync: async () => await ipcRenderer.invoke('mail-bridge:resync'),
+    getSyncProgress: async () => await ipcRenderer.invoke('mail-bridge:get-sync-progress'),
+    onStatusChanged(callback: (status: MailBridgeStatus) => void): () => void {
+      const eventName = 'mail-bridge:status-changed';
+      const callbackWrapper = (_: unknown, status: MailBridgeStatus) => callback(status);
+      ipcRenderer.on(eventName, callbackWrapper);
+      return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+    },
+    onSyncProgressChanged(callback: (progress: MailBridgeSyncProgress | undefined) => void): () => void {
+      const eventName = 'mail-bridge:sync-progress-changed';
+      const callbackWrapper = (_: unknown, progress: MailBridgeSyncProgress | undefined) => callback(progress);
+      ipcRenderer.on(eventName, callbackWrapper);
+      return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+    },
+  },
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

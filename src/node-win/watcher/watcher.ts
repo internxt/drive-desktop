@@ -7,7 +7,7 @@ export function initWatcher({ ctx }: { ctx: SyncContext }) {
 
   const handle = Addon.watchPath({
     rootPath: ctx.rootPath,
-    onEvent: (event) => onEvent({ ctx, event }),
+    onEvent: (events) => events.forEach((event) => onEvent({ ctx, event })),
   });
 
   return {

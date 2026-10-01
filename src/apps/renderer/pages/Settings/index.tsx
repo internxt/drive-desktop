@@ -1,6 +1,7 @@
 import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
 import { useRef, useState } from 'react';
 import { User } from '@/apps/main/types';
+import { MailBridgeSection } from '@/apps/renderer/features/mail-bridge';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
 import WindowTopBar from '../../components/WindowTopBar';
 import { AntivirusProvider } from '../../context/AntivirusContext';
@@ -38,7 +39,7 @@ export default function Settings({ user, activeSection }: Props) {
         <AntivirusProvider>
           <CleanerProvider>
             <div
-              className="flex flex-col rounded bg-gray-1"
+              className="flex h-full min-h-0 flex-col rounded bg-gray-1"
               ref={rootRef}
               style={{
                 minWidth: subsection === 'list' ? 'auto' : 400,
@@ -51,7 +52,12 @@ export default function Settings({ user, activeSection }: Props) {
                 <>
                   <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" onClose={() => setActiveSection(null)} />
                   <Header active={activeSection} onClick={setActiveSection} />
-                  <div className="flex flex-grow flex-col justify-center p-5">
+                  <div
+                    className={
+                      activeSection === 'MAIL_BRIDGE'
+                        ? 'flex min-h-0 flex-grow flex-col overflow-hidden p-5'
+                        : 'flex flex-grow flex-col justify-center p-5'
+                    }>
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
                     <AccountSection user={user} active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection
@@ -78,6 +84,9 @@ export default function Settings({ user, activeSection }: Props) {
                       openUrl={window.electron.shellOpenExternal}
                       sectionConfig={sectionConfig}
                     />
+                    {activeSection === 'MAIL_BRIDGE' && (
+                      <MailBridgeSection accountEmail={user.email} availableProducts={availableProducts} />
+                    )}
                   </div>
                 </>
               )}

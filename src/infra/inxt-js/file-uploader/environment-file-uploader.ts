@@ -1,4 +1,3 @@
-import { createReadStream } from 'node:fs';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -22,11 +21,9 @@ export async function environmentFileUpload({ ctx, path, size }: TProps) {
 
   LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
 
-  const readable = createReadStream(path);
-  const contentsId = await uploadFile({ ctx, readable, size, path, abortController });
-
-  readable.close();
-  ctx.abortController.signal.removeEventListener('abort', onAbort);
-
-  return contentsId;
+  try {
+    return await uploadFile({ ctx, size, path, abortController });
+  } finally {
+    ctx.abortController.signal.removeEventListener('abort', onAbort);
+  }
 }
