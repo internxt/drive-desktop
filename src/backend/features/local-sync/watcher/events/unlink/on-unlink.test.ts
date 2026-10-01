@@ -1,3 +1,4 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -14,6 +15,7 @@ describe('on-unlink', () => {
   const getFolderByNameMock = partialSpyOn(SqliteModule.FolderModule, 'getByName');
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
+  const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
 
   let props: TestProps<typeof onUnlink>;
 
@@ -26,6 +28,15 @@ describe('on-unlink', () => {
       path: abs('/parent/file.txt'),
       type: 'file',
     };
+  });
+
+  it('should remove the upload issues of a file that is not a placeholder', async () => {
+    // Given
+    getFolderInfoMock.mockResolvedValue({ error: new Error() });
+    // When
+    await onUnlink(props as any);
+    // Then
+    call(removeUploadIssuesMock).toStrictEqual({ path: props.path });
   });
 
   it('should skip if cannot retrieve parent uuid', async () => {

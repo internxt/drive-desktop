@@ -1,3 +1,4 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { Sync } from '@/backend/features/sync';
 import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wait-until-ready';
@@ -17,6 +18,7 @@ describe('replace-file', () => {
   const waitForLocalFileMock = partialSpyOn(waitForLocalFile, 'waitForLocalFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const getInFlightRequestMock = partialSpyOn(getInFlightRequest, 'getInFlightRequest', false);
+  const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
 
   const path = abs('/file.txt');
   const uuid = 'uuid' as FileUuid;
@@ -39,6 +41,7 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Then
     calls(updateSyncStatusMock).toHaveLength(0);
+    calls(removeUploadIssuesMock).toHaveLength(0);
   });
 
   it('should convert to placeholder if file creation success', async () => {
@@ -48,6 +51,17 @@ describe('replace-file', () => {
     await replaceFile(props);
     // Then
     call(updateSyncStatusMock).toMatchObject({ path });
+    call(removeUploadIssuesMock).toStrictEqual({ path });
+  });
+
+  it('should remove the upload issues even if the sync status update fails', async () => {
+    // Given
+    replaceFileMock.mockResolvedValue({ uuid });
+    updateSyncStatusMock.mockRejectedValue(new Error());
+    // When
+    await replaceFile(props);
+    // Then
+    call(removeUploadIssuesMock).toStrictEqual({ path });
   });
 
   it('should ignore the event if the replace file request is duplicated', async () => {
