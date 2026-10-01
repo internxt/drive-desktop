@@ -35,6 +35,7 @@ export function spawnMailBridge({
     return {
       data: spawn(runtime.executablePath, ['--control-endpoint', endpoint, '--state-dir', stateDirectory], {
         cwd: runtime.workingDirectory,
+        env: process.env,
         windowsHide: true,
         stdio: ['ignore', 'ignore', 'pipe'],
       }),
