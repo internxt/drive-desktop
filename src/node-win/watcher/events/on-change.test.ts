@@ -42,7 +42,7 @@ describe('on-change', () => {
     // When
     await onChange(props as any);
     // Then
-    call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FILE:uuid', markInSync: true });
+    call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FILE:uuid', markInSync: false });
     call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
   });
 

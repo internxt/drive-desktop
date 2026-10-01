@@ -72,7 +72,7 @@ async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {
     const { data: file } = await SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension });
 
     if (file) {
-      await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}`, markInSync: true });
+      await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}`, markInSync: false });
       await Drive.Actions.replaceFile({ ctx, path, uuid: file.uuid });
     } else {
       await Drive.Actions.createFile({ ctx, path, parentUuid });
