@@ -7,7 +7,7 @@ inline void create_file_placeholder(const std::wstring& path, const std::wstring
             throw std::runtime_error("Path already exists as a folder, not a file");
         }
 
-        convert_to_placeholder(path, placeholderId);
+        convert_to_placeholder(path, placeholderId, true);
         return;
     }
 

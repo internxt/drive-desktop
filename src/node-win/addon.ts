@@ -40,7 +40,7 @@ type TAddon = {
     lastWriteTime: number,
   ): Promise<void>;
   connectSyncRoot(path: Win32Path, fetchDataCallback: FetchDataCallback): z.infer<typeof addonZod.connectSyncRoot>;
-  convertToPlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId | FolderPlaceholderId): Promise<void>;
+  convertToPlaceholder(path: Win32DevicePath, placeholderId: FilePlaceholderId | FolderPlaceholderId, markInSync: boolean): Promise<void>;
   createFolderPlaceholder(
     path: Win32DevicePath,
     placeholderId: FolderPlaceholderId,
