@@ -2,7 +2,7 @@ import Bottleneck from 'bottleneck';
 import { ipcMain } from 'electron';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { createLogger, logger } from '@/apps/shared/logger/logger';
-import { AuthContext } from '@/apps/sync-engine/config';
+import { AuthContext, CONTEXT_KINDS } from '@/apps/sync-engine/config';
 import electronStore from '../../config';
 import { getBackupsFromDevice } from '../../device/get-backups-from-device';
 import { getOrCreateDevice } from '../../device/service';
@@ -72,7 +72,7 @@ export async function launchBackupProcesses({ ctx }: Props) {
 
     const { environment } = buildBackupsEnvironment({ user: ctx.user, device });
     const context: BackupsContext = {
-      kind: 'backups',
+      kind: CONTEXT_KINDS.BACKUPS,
       ...backupInfo,
       ...ctx,
       backupsBottleneck: bottleneck,

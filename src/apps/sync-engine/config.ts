@@ -20,8 +20,13 @@ export type AuthContext = {
   workspaceToken: string;
 };
 
+export const CONTEXT_KINDS = {
+  SYNC: 'sync',
+  BACKUPS: 'backups',
+} as const;
+
 export type CommonContext = AuthContext & {
-  readonly kind: 'sync' | 'backups';
+  readonly kind: (typeof CONTEXT_KINDS)[keyof typeof CONTEXT_KINDS];
   readonly workspaceId: string;
   readonly bucket: string;
   readonly environment: Environment;
@@ -29,7 +34,7 @@ export type CommonContext = AuthContext & {
 };
 
 export type SyncContext = CommonContext & {
-  readonly kind: 'sync';
+  readonly kind: typeof CONTEXT_KINDS.SYNC;
   status: RemoteSyncStatus;
   readonly providerId: string;
   readonly rootPath: AbsolutePath;

@@ -1,5 +1,5 @@
 import { createLogger } from '@/apps/shared/logger/logger';
-import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext, CONTEXT_KINDS, SyncContext } from '@/apps/sync-engine/config';
 import { FolderUuid } from '../database/entities/DriveFolder';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { buildDriveEnvironment } from './backups/build-environment';
@@ -27,7 +27,7 @@ export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
   const providerId = `{${user.uuid.toUpperCase()}}`;
 
   const syncContext: SyncContext = {
-    kind: 'sync',
+    kind: CONTEXT_KINDS.SYNC,
     ...ctx,
     status: 'IDLE',
     providerId,

@@ -64,6 +64,7 @@ describe('process-error', () => {
       message: 'Connect Timeout Error (attempted address: s3.gra.io.cloud.ovh.net:443, timeout: 10000ms)',
       code: 'UND_ERR_CONNECT_TIMEOUT',
     },
+    { message: 'getaddrinfo ENOTFOUND gateway.internxt.com', code: 'ENOTFOUND' },
   ])('should retry a connection cut by its code: $message', async ({ message, code }) => {
     // Given
     props.error = Object.assign(new Error(message), { code });
@@ -76,7 +77,6 @@ describe('process-error', () => {
 
   it.each([
     { message: 'Headers Timeout Error', code: 'UND_ERR_HEADERS_TIMEOUT' },
-    { message: 'getaddrinfo ENOTFOUND gateway.internxt.com', code: 'ENOTFOUND' },
     { message: 'write EPIPE', code: 'EPIPE' },
     { message: 'other side closed', code: 'UND_ERR_SOCKET' },
   ])('should not retry $code', async ({ message, code }) => {
