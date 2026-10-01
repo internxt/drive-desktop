@@ -6,6 +6,7 @@ import {
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { obtainToken } from '@/apps/main/auth/service';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
+import { logger } from '../constants';
 
 export async function getMailBridgeEmail(): Promise<Result<string, MailBridgeSessionPreparationError>> {
   try {
@@ -19,15 +20,16 @@ export async function getMailBridgeEmail(): Promise<Result<string, MailBridgeSes
     });
     const result = await retrieveMailAccountKeys(mailClient.getMailAccountKeys);
     if (result.error) {
+      logger.error({ msg: 'Mail Bridge email could not be retrieved', error: result.error });
       return Result.err(result.error);
     }
     return Result.ok(result.data.address);
   } catch (error) {
-    return Result.err(
-      new MailBridgeSessionPreparationError(
-        'mail-key-fetch-failed',
-        error instanceof Error ? error.message : 'Could not retrieve Mail account email',
-      ),
+    const mailBridgeError = new MailBridgeSessionPreparationError(
+      'mail-key-fetch-failed',
+      error instanceof Error ? error.message : 'Could not retrieve Mail account email',
     );
+    logger.error({ msg: 'Mail Bridge email retrieval failed', error: mailBridgeError });
+    return Result.err(mailBridgeError);
   }
 }
