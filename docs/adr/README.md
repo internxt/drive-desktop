@@ -6,7 +6,7 @@ Each file here records one decision: what we were facing, what we chose, and wha
 
 They are plain markdown, numbered in the order they were taken. Nothing is needed to read them.
 
-**They are never edited once accepted.** If a decision is replaced, the new record supersedes the old one and both are updated to link to each other; the old one stays where it is, marked as superseded. The history is the point.
+**Their content is never edited once accepted.** If a decision is replaced, the new record supersedes the old one; the only edit the old one takes is its status, set to superseded, and a link to the replacement. It stays where it is. The history is the point.
 
 ## Writing one
 
