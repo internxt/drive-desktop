@@ -94,8 +94,13 @@ export function useMailBridge() {
     await activate();
   }
 
-  function resync() {
-    void globalThis.window.electron.mailBridge.resync();
+  async function resync() {
+    try {
+      const result = await globalThis.window.electron.mailBridge.resync();
+      return result.error ? { data: undefined, error: new Error(result.error) } : { data: undefined, error: undefined };
+    } catch {
+      return { data: undefined, error: new Error(unexpectedMailBridgeError) };
+    }
   }
 
   async function setStartOnLogin(enabled: boolean) {
