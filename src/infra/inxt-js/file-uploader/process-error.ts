@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { addGeneralIssue, setUploadIssue } from '@/apps/main/background-processes/issues';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
-import { CONTEXT_KINDS, CommonContext } from '@/apps/sync-engine/config';
+import { CONTEXT_KINDS, UploadContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
@@ -31,7 +31,7 @@ function isRetryable({ error }: { error: Error }) {
 }
 
 type TProps = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
   size: number;
   error: unknown;
@@ -54,6 +54,8 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
 
   if (ctx.kind === CONTEXT_KINDS.SYNC) {
     setUploadIssue({ path, error: 'UPLOAD_FAILED' });
+  } else {
+    ctx.addIssue({ error: 'UPLOAD_FAILED', name: path });
   }
 
   if (error instanceof Error && error.message === 'Max space used') {

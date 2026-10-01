@@ -1,5 +1,15 @@
 import { existsSync } from 'node:fs';
-import { addBackupsIssue, addSyncIssue, clearIssues, issues, removeUploadIssues, setUploadIssue } from './issues';
+import {
+  addBackupsIssue,
+  addSyncIssue,
+  clearBackupsIssues,
+  clearInactiveBackupsIssues,
+  clearIssues,
+  countBackupUploadIssues,
+  issues,
+  removeUploadIssues,
+  setUploadIssue,
+} from './issues';
 
 vi.mock(import('node:fs'));
 
@@ -27,6 +37,17 @@ describe('issues', () => {
     addSyncIssue({ name: 'test2', error: 'INVALID_WINDOWS_NAME' });
 
     expect(issues).toHaveLength(2);
+  });
+
+  it('should keep the same backup issue of different folders', () => {
+    // Given
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    // When
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'nestedFolderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    // Then
+    expect(countBackupUploadIssues({ folderUuid: 'folderUuid' })).toBe(1);
+    expect(countBackupUploadIssues({ folderUuid: 'nestedFolderUuid' })).toBe(1);
   });
 
   it('should keep only the latest upload issue of a file', () => {
@@ -72,5 +93,56 @@ describe('issues', () => {
     setUploadIssue({ path: '/other.mp4', error: 'UPLOAD_FAILED' });
     // Then
     expect(existsSyncMock).not.toHaveBeenCalled();
+  });
+
+  it('should count the backup upload issues of a folder', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'folderUuid', error: 'FILE_NOT_READY' });
+    addBackupsIssue({ name: '/c.mp4', folderUuid: 'folderUuid', error: 'FILE_SIZE_TOO_BIG' });
+    addBackupsIssue({ name: '/d.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' });
+    setUploadIssue({ path: '/e.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    const count = countBackupUploadIssues({ folderUuid: 'folderUuid' });
+    // Then
+    expect(count).toBe(2);
+  });
+
+  it('should clear only the backup issues of the given folder', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' });
+    addSyncIssue({ name: '/c.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    clearBackupsIssues({ folderUuid: 'folderUuid' });
+    // Then
+    expect(issues).toStrictEqual([
+      { tab: 'backups', name: '/b.mp4', folderUuid: 'otherFolderUuid', error: 'UPLOAD_FAILED' },
+      { tab: 'sync', name: '/c.mp4', error: 'UPLOAD_FAILED' },
+    ]);
+  });
+
+  it('should clear the backup issues of folders that are no longer backed up', () => {
+    // Given
+    addBackupsIssue({ name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    addBackupsIssue({ name: '/b.mp4', folderUuid: 'removedFolderUuid', error: 'UPLOAD_FAILED' });
+    addSyncIssue({ name: '/c.mp4', error: 'UPLOAD_FAILED' });
+    // When
+    clearInactiveBackupsIssues({ folderUuids: ['folderUuid'] });
+    // Then
+    expect(issues).toStrictEqual([
+      { tab: 'backups', name: '/a.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' },
+      { tab: 'sync', name: '/c.mp4', error: 'UPLOAD_FAILED' },
+    ]);
+  });
+
+  it('should not remove the backup upload issues when a file of the sync folder changes', () => {
+    // Given
+    addBackupsIssue({ name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' });
+    existsSyncMock.mockReturnValue(false);
+    // When
+    removeUploadIssues({ path: '/file.mp4' });
+    // Then
+    expect(issues).toStrictEqual([{ tab: 'backups', name: '/file.mp4', folderUuid: 'folderUuid', error: 'UPLOAD_FAILED' }]);
   });
 });

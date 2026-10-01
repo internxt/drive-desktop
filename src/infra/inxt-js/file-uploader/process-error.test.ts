@@ -106,14 +106,17 @@ describe('process-error', () => {
     call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'UPLOAD_FAILED' });
   });
 
-  it('should not add a sync upload issue for backups', async () => {
+  it('should add a backups upload issue instead of a sync one for backups', async () => {
     // Given
-    props = mockProps<typeof processError>({ ctx: { kind: 'backups' }, path: abs('/file.mp4'), retryFn, sleepMs });
-    props.error = Object.assign(new Error('Headers Timeout Error'), { code: 'UND_ERR_HEADERS_TIMEOUT' });
+    const addIssue = vi.fn();
+    props = mockProps<typeof processError>({ ctx: { kind: 'backups', addIssue }, path: abs('/file.mp4'), retryFn, sleepMs });
+    props.error = Object.assign(new Error('connect ETIMEDOUT'), { code: 'ETIMEDOUT' });
     // When
     await processError(props);
     // Then
+    call(addIssue).toStrictEqual({ error: 'UPLOAD_FAILED', name: props.path });
     calls(setUploadIssueMock).toHaveLength(0);
+    calls(retryFn).toHaveLength(0);
   });
 
   it('should not retry the S3 request timeout', async () => {
