@@ -29,7 +29,16 @@ describe('sync-remote-files', () => {
     // When
     await syncRemoteFiles({ ctx, from: undefined });
     // Then
-    call(getFilesSyncPageMock).toMatchObject({ context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } });
+    call(getFilesSyncPageMock).toMatchObject({
+      context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000, status: 'EXISTS' } },
+    });
+  });
+
+  it('should request only existing files for an initial synchronization', async () => {
+    // When
+    await syncRemoteFiles({ ctx, from: undefined });
+    // Then
+    call(getFilesSyncPageMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
   });
 
   it('should use from as the initial checkpoint', async () => {
@@ -50,8 +59,8 @@ describe('sync-remote-files', () => {
     // Then
     calls(getFilesSyncPageMock).toHaveLength(2);
     calls(getFilesSyncPageMock).toMatchObject([
-      { context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } },
-      { context: { query: { cursor: 'cursor-1', limit: 1000 } } },
+      { context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000, status: 'EXISTS' } } },
+      { context: { query: { cursor: 'cursor-1', limit: 1000, status: 'EXISTS' } } },
     ]);
     calls(createOrUpdateFilesMock).toHaveLength(2);
   });

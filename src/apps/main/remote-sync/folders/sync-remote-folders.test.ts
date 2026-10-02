@@ -29,7 +29,14 @@ describe('sync-remote-folders', () => {
     // When
     await syncRemoteFolders({ ctx, from: undefined });
     // Then
-    call(getFoldersMock).toMatchObject({ context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000 } } });
+    call(getFoldersMock).toMatchObject({ context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000, status: 'EXISTS' } } });
+  });
+
+  it('should request only existing folders for an initial synchronization', async () => {
+    // When
+    await syncRemoteFolders({ ctx, from: undefined });
+    // Then
+    call(getFoldersMock).toMatchObject({ context: { query: { status: 'EXISTS' } } });
   });
 
   it('should fetch ALL folders if from is provided', async () => {
@@ -48,6 +55,10 @@ describe('sync-remote-folders', () => {
     await syncRemoteFolders({ ctx });
     // Then
     calls(getFoldersMock).toHaveLength(2);
+    calls(getFoldersMock).toMatchObject([
+      { context: { query: { updatedAt: '1970-01-01T00:00:00.000Z', limit: 1000, status: 'EXISTS' } } },
+      { context: { query: { cursor: 'cursor-1', limit: 1000, status: 'EXISTS' } } },
+    ]);
     calls(createOrUpdateFoldersMock).toHaveLength(2);
   });
 

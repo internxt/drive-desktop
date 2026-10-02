@@ -2,7 +2,6 @@ import { synchronizeRemoteItems, SynchronizationPageRequest } from '@internxt/dr
 import { SyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FETCH_LIMIT_1000 } from '../store';
-import { getInitialSyncUpdatedAt } from '../utils/get-initial-sync-updated-at';
 import { persistFolders } from './persist-folders';
 
 type SyncRemoteFoldersProps = {
@@ -12,7 +11,7 @@ type SyncRemoteFoldersProps = {
 
 export async function syncRemoteFolders({ ctx, from }: SyncRemoteFoldersProps): Promise<void> {
   const result = await synchronizeRemoteItems({
-    updatedAt: getInitialSyncUpdatedAt(from),
+    from,
     limit: FETCH_LIMIT_1000,
     fetchPage: async (query) => await fetchFoldersSyncPage({ ctx, query }),
     persistItems: async ({ items }) => await persistFolders({ ctx, items }),
