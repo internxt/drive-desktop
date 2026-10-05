@@ -37,6 +37,8 @@ jobs:
           BRIDGE_URL: ${{ vars.BRIDGE_URL }}
           DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
           DRIVE_URL: ${{ vars.DRIVE_URL }}
+          MAIL_API_URL: ${{ vars.MAIL_API_URL }}
+          MAIL_SERVER_PUBLIC_KEY: ${{ vars.MAIL_SERVER_PUBLIC_KEY }}
           NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
           PAYMENTS_URL: ${{ vars.PAYMENTS_URL }}
           PORT: ${{ vars.PORT }}
@@ -50,6 +52,8 @@ jobs:
           echo "BRIDGE_URL=$BRIDGE_URL" >> .env
           echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
           echo "DRIVE_URL=$DRIVE_URL" >> .env
+          echo "MAIL_API_URL=$MAIL_API_URL" >> .env
+          echo "MAIL_SERVER_PUBLIC_KEY=$MAIL_SERVER_PUBLIC_KEY" >> .env
           echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
           echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
           echo "PORT=$PORT" >> .env
