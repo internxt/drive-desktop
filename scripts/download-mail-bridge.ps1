@@ -27,14 +27,6 @@ if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
 
 # The release workflow includes the version in each platform archive name.
 $archiveName = "mail-bridge_$($ReleaseTag.TrimStart('v'))_windows_amd64.zip"
-# Pin each trusted release archive so release metadata cannot redefine the checksum we trust.
-$releaseChecksums = @{
-  'v0.0.4' = 'fe87e0525e5b70572257c8c287f0a7a1abe0cb25a0407ae337706c52bcfcb788'
-}
-$expectedChecksum = $releaseChecksums[$ReleaseTag]
-if ([string]::IsNullOrWhiteSpace($expectedChecksum)) {
-  throw "No pinned SHA-256 checksum is configured for Mail Bridge release $ReleaseTag."
-}
 # Isolate intermediate release files so a failed download cannot alter the installed binary.
 $stagingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "mail-bridge-$([guid]::NewGuid())"
 
@@ -57,10 +49,6 @@ try {
     throw "Release $ReleaseTag provides an invalid SHA-256 digest for $archiveName."
   }
 
-  if ($releaseChecksum -notmatch "(?i)^$expectedChecksum$") {
-    throw "Release $ReleaseTag provides a digest that does not match the pinned SHA-256 checksum for $archiveName."
-  }
-
   # Download only the Windows archive selected by the pinned release tag.
   & gh release download $ReleaseTag --repo $Repository --pattern $archiveName --dir $stagingDirectory
   if ($LASTEXITCODE -ne 0) {
@@ -74,7 +62,7 @@ try {
 
   # Trust the binary only after its locally calculated digest matches GitHub's release metadata.
   $actualChecksum = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash
-  if ($actualChecksum -notmatch "(?i)^$expectedChecksum$") {
+  if ($actualChecksum -ine $releaseChecksum) {
     throw "Checksum mismatch for $archiveName."
   }
 
@@ -105,5 +93,10 @@ try {
   Write-Output "Mail Bridge $ReleaseTag is ready at $DestinationDirectory."
 } finally {
   # Release metadata and archives are temporary and must not remain after success or failure.
-  Remove-Item -LiteralPath $stagingDirectory -Recurse -Force -ErrorAction SilentlyContinue
+  $resolvedStagingDirectory = [System.IO.Path]::GetFullPath($stagingDirectory)
+  $temporaryDirectory = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+  if (-not $resolvedStagingDirectory.StartsWith($temporaryDirectory, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Mail Bridge staging directory must remain inside the temporary directory.'
+  }
+  Remove-Item -LiteralPath $resolvedStagingDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }
