@@ -22,7 +22,8 @@ export function useMailBridge() {
     if (status.status === 'stopped' || status.status === 'error') applySyncProgress(undefined);
     if (status.status === 'stopped') setViewModel(MailBridgeModule.createInitialViewModel());
     if (status.status === 'starting') setViewModel({ status: 'starting', error: null });
-    if (status.status === 'running') setViewModel({ status: 'running', error: null, connection: status.connection });
+    if (status.status === 'running')
+      setViewModel({ status: 'running', error: null, connection: status.connection, lastChecked: status.lastChecked });
     if (status.status === 'error') setViewModel({ status: 'error', error: status.error });
   }
 
@@ -76,7 +77,12 @@ export function useMailBridge() {
         return;
       }
 
-      setViewModel({ status: 'running', error: null, connection: result.data });
+      setViewModel((current) => ({
+        status: 'running',
+        error: null,
+        connection: result.data,
+        lastChecked: current.status === 'running' ? current.lastChecked : undefined,
+      }));
       const revision = syncProgressRevision.current;
       const [email, progress] = await Promise.all([
         globalThis.window.electron.mailBridge.getEmail(),

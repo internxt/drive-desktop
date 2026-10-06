@@ -39,6 +39,21 @@ describe('use-mail-bridge', () => {
     expect(result.current.accountEmail).toBe('user@inxt.me');
   });
 
+  it('restores the last successful sync time when settings reopen', async () => {
+    // Given
+    const lastChecked = new Date(2026, 9, 5, 12, 32).getTime();
+    globalThis.window.electron.mailBridge.getStatus = vi.fn().mockResolvedValue({
+      status: 'running',
+      error: undefined,
+      connection,
+      lastChecked,
+    });
+    // When
+    const { result } = renderHook(() => useMailBridge());
+    // Then
+    await vi.waitFor(() => expect(result.current.viewModel).toMatchObject({ status: 'running', lastChecked }));
+  });
+
   it('keeps live progress received while the initial state is loading', async () => {
     // Given
     const email = Promise.withResolvers<{ data: string; error: undefined }>();
