@@ -17,7 +17,7 @@ describe('mail-bridge.service', () => {
   const session: MailBridgeSession = {
     account_id: 'account-id',
     addresses: ['user@internxt.com'],
-    backend_session: { token: 'token', encryption_private_key: 'private-key' },
+    backend_session: { token: 'token', encryption_private_key: 'private-key', encryption_public_key: 'public-key' },
     mail_client: { username: 'user@internxt.com', password: 'password' },
   };
 
