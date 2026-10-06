@@ -4,11 +4,10 @@ describe('get-mail-bridge-environment.service', () => {
   let inheritedEnvironment: NodeJS.ProcessEnv;
 
   beforeEach(() => {
-    inheritedEnvironment = Object.assign({}, process.env, {
-      PATH: 'system-path',
-      MAIL_API_URL: undefined,
-      MAIL_SERVER_PUBLIC_KEY: undefined,
-    });
+    inheritedEnvironment = structuredClone(process.env);
+    inheritedEnvironment.PATH = 'system-path';
+    inheritedEnvironment.MAIL_API_URL = undefined;
+    inheritedEnvironment.MAIL_SERVER_PUBLIC_KEY = undefined;
   });
 
   it('passes build configuration when the runtime environment has no Mail configuration', () => {
