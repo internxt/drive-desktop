@@ -4,7 +4,7 @@ import * as coreMailBridge from '@internxt/drive-desktop-core/build/backend/feat
 import { ChildProcess } from 'node:child_process';
 import { Server, Socket } from 'node:net';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { startMailBridge, stopMailBridge, updateMailBridgeAccessToken } from './mail-bridge.service';
+import { getMailBridgeStatus, startMailBridge, stopMailBridge, updateMailBridgeAccessToken } from './mail-bridge.service';
 import * as startRuntimeModule from './start-mail-bridge';
 import * as stopResourcesModule from './stop-mail-bridge';
 
@@ -12,6 +12,7 @@ describe('mail-bridge.service', () => {
   const startRuntimeMock = partialSpyOn(startRuntimeModule, 'startMailBridge');
   const stopResourcesMock = partialSpyOn(stopResourcesModule, 'stopMailBridgeResources');
   const sendSessionUpdateMock = partialSpyOn(coreMailBridge, 'sendMailBridgeSessionUpdate');
+  let socket: Socket;
 
   const session: MailBridgeSession = {
     account_id: 'account-id',
@@ -24,6 +25,24 @@ describe('mail-bridge.service', () => {
     vi.clearAllMocks();
     stopResourcesMock.mockResolvedValue({ data: undefined, error: undefined });
     sendSessionUpdateMock.mockResolvedValue({ data: undefined, error: undefined });
+    socket = new Socket();
+    startRuntimeMock.mockResolvedValue({
+      data: {
+        child: new ChildProcess(),
+        server: new Server(),
+        socket,
+        connection: {
+          hostname: '127.0.0.1',
+          imapPort: 1143,
+          smtpPort: 2025,
+          username: 'user@internxt.com',
+          password: 'password',
+          imapSecurity: 'STARTTLS',
+          smtpSecurity: 'None',
+        },
+      },
+      error: undefined,
+    });
   });
 
   it('waits for a cancelled startup before allowing a fresh startup', async () => {
@@ -50,29 +69,26 @@ describe('mail-bridge.service', () => {
   });
 
   it('updates the access token when Mail Bridge is running', async () => {
-    const socket = new Socket();
-    startRuntimeMock.mockResolvedValue({
-      data: {
-        child: new ChildProcess(),
-        server: new Server(),
-        socket,
-        connection: {
-          hostname: '127.0.0.1',
-          imapPort: 1143,
-          smtpPort: 2025,
-          username: 'user@internxt.com',
-          password: 'password',
-          imapSecurity: 'STARTTLS',
-          smtpSecurity: 'None',
-        },
-      },
-      error: undefined,
-    });
-
     await startMailBridge(session);
     await updateMailBridgeAccessToken({ token: 'refreshed-token' });
 
     expect(sendSessionUpdateMock).toHaveBeenCalledWith({ socket, token: 'refreshed-token' });
+    await stopMailBridge();
+  });
+
+  it('records only successful syncs as up to date', async () => {
+    // Given
+    await startMailBridge(session);
+    const onControlMessage = startRuntimeMock.mock.calls[0][0].onControlMessage;
+    expect(getMailBridgeStatus()).not.toHaveProperty('lastChecked', expect.any(Number));
+    // When
+    onControlMessage({ socket, message: { type: 'sync_finished', finished: { downloaded: 1, total: 1 } } });
+    // Then
+    expect(getMailBridgeStatus()).toMatchObject({ lastChecked: expect.any(Number) });
+    // When
+    onControlMessage({ socket, message: { type: 'sync_finished', finished: { downloaded: 0, total: 1, code: 'sync-failed' } } });
+    // Then
+    expect(getMailBridgeStatus()).not.toHaveProperty('lastChecked', expect.any(Number));
     await stopMailBridge();
   });
 });

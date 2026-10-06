@@ -16,6 +16,7 @@ let startup: ReturnType<typeof startNewMailBridge> | undefined;
 let startupCancellation: AbortController | undefined;
 let status: MailBridgeStatus = { status: 'stopped', error: undefined };
 let syncProgress: MailBridgeSyncProgress | undefined;
+let lastChecked: number | undefined;
 let stopping = false;
 let lifecycleGeneration = 0;
 const statusListeners = new Set<(nextStatus: MailBridgeStatus) => void>();
@@ -55,6 +56,7 @@ async function startNewMailBridge({
   signal: AbortSignal;
   generation: number;
 }) {
+  lastChecked = undefined;
   setStatus({ status: 'starting', error: undefined });
 
   let started;
@@ -77,7 +79,7 @@ async function startNewMailBridge({
   }
   runtime = started.data;
   resources = started.data;
-  setStatus({ status: 'running', error: undefined, connection: started.data.connection });
+  setStatus({ status: 'running', error: undefined, connection: started.data.connection, lastChecked });
   logger.debug({ msg: 'Mail Bridge started' });
   return { data: started.data.connection, error: undefined };
 }
@@ -169,6 +171,8 @@ function handleControlMessage({
   if (message.type === 'sync_finished') {
     if (message.finished.code) logger.error({ msg: 'Mail Bridge sync failed', code: message.finished.code });
     else logger.debug({ msg: 'Mail Bridge sync finished' });
+    lastChecked = message.finished.code ? undefined : Date.now();
+    if (status.status === 'running') setStatus({ ...status, lastChecked });
     setSyncProgress(undefined);
   }
 }
