@@ -160,7 +160,7 @@
     "css-minimizer-webpack-plugin": "^8.0.0",
     "dotenv": "^10.0.0",
     "dotenv-webpack": "^7.0.3",
-    "electron": "^40.8.5",
+    "electron": "^41.10.6",
     "electron-builder": "^26.15.3",
     "esbuild": "^0.27.2",
     "eslint": "^8.5.0",
