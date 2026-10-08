@@ -37,7 +37,6 @@ jobs:
           DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
           DRIVE_URL: ${{ vars.DRIVE_URL }}
           NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
-          NOTIFICATIONS_URL: ${{ vars.NOTIFICATIONS_URL }}
           PAYMENTS_URL: ${{ vars.PAYMENTS_URL }}
           PORT: ${{ vars.PORT }}
           SM_API_KEY: ${{ secrets.SM_API_KEY }}
@@ -51,7 +50,6 @@ jobs:
           echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
           echo "DRIVE_URL=$DRIVE_URL" >> .env
           echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
-          echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL" >> .env
           echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
           echo "PORT=$PORT" >> .env
           echo "SM_API_KEY=$SM_API_KEY" >> .env

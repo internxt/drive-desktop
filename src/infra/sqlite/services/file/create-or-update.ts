@@ -8,6 +8,12 @@ type Props = {
   file: DriveFile;
 };
 
+/**
+ * Creates or updates a stored file record.
+ *
+ * @param file - The file record to persist
+ * @returns The parsed file data, or `undefined` if persistence or parsing fails
+ */
 export function createOrUpdate({ file }: Props) {
   try {
     db.prepare(upsertQuery).run({
@@ -25,6 +31,7 @@ export function createOrUpdate({ file }: Props) {
       folderId: file.folderId,
       userUuid: file.userUuid,
       modificationTime: file.modificationTime,
+      creationTime: file.creationTime,
     });
 
     return parseData({ data: file });

@@ -13,7 +13,8 @@ INSERT INTO drive_file (
   size,
   folderId,
   userUuid,
-  modificationTime
+  modificationTime,
+  creationTime
 ) VALUES (
   :id,
   :uuid,
@@ -28,7 +29,8 @@ INSERT INTO drive_file (
   :size,
   :folderId,
   :userUuid,
-  :modificationTime
+  :modificationTime,
+  :creationTime
 )
 ON CONFLICT (uuid) DO UPDATE SET
   id = excluded.id,
@@ -43,5 +45,6 @@ ON CONFLICT (uuid) DO UPDATE SET
   size = excluded.size,
   folderId = excluded.folderId,
   userUuid = excluded.userUuid,
-  modificationTime = excluded.modificationTime;
+  modificationTime = excluded.modificationTime,
+  creationTime = excluded.creationTime;
 `;

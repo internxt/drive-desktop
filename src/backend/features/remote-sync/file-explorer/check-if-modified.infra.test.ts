@@ -40,7 +40,7 @@ describe('check-if-modified', () => {
       remote: {
         uuid: 'uuid' as FileUuid,
         absolutePath: path,
-        updatedAt: '2000-01-02',
+        modificationTime: '2000-01-02',
         size: 1000,
       },
       local: {
@@ -60,7 +60,6 @@ describe('check-if-modified', () => {
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Register sync root', providerId, rootPath },
       { msg: 'Setup watcher' },
-      { msg: 'Watcher event', event: { action: 'update', size: 7 } },
       {
         msg: 'Sync remote changes to local',
         path,
@@ -69,7 +68,6 @@ describe('check-if-modified', () => {
         remoteDate: new Date('2000-01-02').getTime(),
         localDate: new Date('2000-01-01').getTime(),
       },
-      { msg: 'Watcher event', event: { action: 'update', size: 1000 } },
     ]);
 
     const stats = await stat(path);

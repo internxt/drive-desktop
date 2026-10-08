@@ -3,13 +3,15 @@
     {
       "msvs_windows_target_platform_version": "10.0.22621.0",
       "target_name": "addon",
+      "defines": [
+        "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS"
+      ],
       "msvs_settings": {
         "VCCLCompilerTool": {
           "ExceptionHandling": "1",
           "AdditionalOptions": [
             "-std:c++latest",
-            "/EHsc",
-            "/await"
+            "/EHsc"
           ]
         }
       },

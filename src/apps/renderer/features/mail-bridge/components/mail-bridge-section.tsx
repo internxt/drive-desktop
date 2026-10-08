@@ -1,0 +1,51 @@
+import type { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend/features/payments/payments.types';
+import { MailBridgeModule } from '@internxt/drive-desktop-core/build/frontend';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { useMailBridge } from '../hooks/use-mail-bridge';
+
+type Props = { availableProducts?: UserAvailableProducts };
+
+export function MailBridgeSection({ availableProducts }: Readonly<Props>) {
+  const {
+    viewModel,
+    accountEmail: mailAccountEmail,
+    isLoadingInitialStatus,
+    isStartOnLoginEnabled,
+    setStartOnLogin,
+    activate,
+    resync,
+    retry,
+    turnOff,
+  } = useMailBridge();
+
+  if (isLoadingInitialStatus) return <div className="h-full" aria-busy="true" />;
+
+  return (
+    <MailBridgeModule.MailBridgeView
+      availableProducts={availableProducts}
+      accountEmail={mailAccountEmail}
+      useTranslationContext={useI18n}
+      onUpgradePlan={openPlans}
+      onComparePlans={openPlans}
+      viewModel={viewModel}
+      isStartOnLoginEnabled={isStartOnLoginEnabled}
+      onStartOnLoginChange={(enabled) => setStartOnLogin(enabled)}
+      onCreateMailbox={openMail}
+      onCheckMailbox={activate}
+      onActivate={() => void activate()}
+      onResync={resync}
+      onTurnOff={() => void turnOff()}
+      onRetry={() => void retry()}
+      onViewLogs={() => void globalThis.window.electron.openLogs()}
+      onContactSupport={() => void globalThis.window.electron.shellOpenExternal('https://help.internxt.com')}
+    />
+  );
+}
+
+function openPlans() {
+  void globalThis.window.electron.shellOpenExternal('https://drive.internxt.com/preferences?tab=plans');
+}
+
+function openMail() {
+  void globalThis.window.electron.shellOpenExternal('https://mail.internxt.com');
+}

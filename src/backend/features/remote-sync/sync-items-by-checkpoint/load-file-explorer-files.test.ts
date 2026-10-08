@@ -70,6 +70,29 @@ describe('load-file-explorer-files', () => {
     );
   });
 
+  it.each([
+    { name: 'before', items: [abs('/~WRL0001.tmp'), abs('/file.docx')] },
+    { name: 'after', items: [abs('/file.docx'), abs('/~WRL0001.tmp')] },
+  ])('should keep the non temporary file when a temporary file with the same uuid comes $name', async ({ items }) => {
+    // Given
+    const files: FileExplorerFiles = new Map();
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'fileUuid' as FileUuid, onDiskSize: 10, pinState: PinState.AlwaysLocal } });
+    // When
+    await loadFileExplorerFiles({ concurrency: 1, files, parentUuid, items: items.map((path) => ({ path, stats: stats() })) });
+    // Then
+    expect(files.get('fileUuid' as FileUuid)).toMatchObject({ path: '/file.docx' });
+  });
+
+  it('should keep a temporary file with its own uuid', async () => {
+    // Given
+    const files: FileExplorerFiles = new Map();
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'fileUuid' as FileUuid, onDiskSize: 10, pinState: PinState.AlwaysLocal } });
+    // When
+    await loadFileExplorerFiles({ concurrency: 1, files, parentUuid, items: [{ path: abs('/.gitignore'), stats: stats() }] });
+    // Then
+    expect(files.get('fileUuid' as FileUuid)).toMatchObject({ path: '/.gitignore' });
+  });
+
   it('should process more items than the worker count while keeping concurrency bounded', async () => {
     // Given
     const files: FileExplorerFiles = new Map();

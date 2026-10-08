@@ -9,6 +9,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { startMailBridgeOnLogin, stopMailBridge } from '@/backend/features/mail-bridge';
 import { resolveUserFileSizeLimit } from '@/backend/features/user/file-size-limit';
 import { validateTokenAndCheckExpiration } from '../../../backend/features/auth/services/token/validate-token-and-check-expiration';
 import { BackupScheduler } from '../background-processes/backups/BackupScheduler/BackupScheduler';
@@ -16,7 +17,6 @@ import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import electronStore from '../config';
 import eventBus from '../event-bus';
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
-import { cleanAndStartRemoteNotifications } from '../realtime';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { User } from '../types';
 import { openOnboardingWindow } from '../windows/onboarding';
@@ -102,11 +102,12 @@ export async function emitUserLoggedIn(user: User) {
     BackupScheduler.stop();
     logout({ ctx });
     clearLoggedPreloadIpc();
+    void stopMailBridge();
   });
 
   setupLoggedPreloadIpc({ ctx });
+  startMailBridgeOnLogin({ ctx });
   void resolveUserFileSizeLimit({ ctx });
-  cleanAndStartRemoteNotifications({ ctx });
 
   const lastOnboardingShown = electronStore.get('lastOnboardingShown');
   if (!lastOnboardingShown) void openOnboardingWindow();

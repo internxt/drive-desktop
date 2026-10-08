@@ -19,6 +19,8 @@ describe('update-by-uuid', () => {
     workspaceId: 'workspaceId',
     createdAt: date,
     updatedAt: date,
+    creationTime: date,
+    modificationTime: date,
   };
 
   let props: Parameters<typeof updateByUuid>[0];

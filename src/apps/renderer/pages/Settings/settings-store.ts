@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS', 'CLEANER'] as const;
+export const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS', 'CLEANER', 'MAIL_BRIDGE'] as const;
 export type Section = (typeof sectionValues)[number];
 
 type Store = {

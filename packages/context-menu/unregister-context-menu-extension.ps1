@@ -19,6 +19,7 @@ function Invoke-NativePowerShellUnregistration {
       "-ExecutionPolicy", "Bypass",
       "-File", "`"$PSCommandPath`""
     ) `
+    -WindowStyle Hidden `
     -Wait `
     -PassThru
 

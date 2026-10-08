@@ -10,6 +10,8 @@ export type SavedConfig = {
   deviceUuid: string;
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
+  mailBridgeCredentials: string;
+  mailBridgeStartOnLogin: boolean;
 };
 
 export type AppStore = {
@@ -19,10 +21,11 @@ export type AppStore = {
   deviceUuid: string;
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
+  mailBridgeCredentials: string;
+  mailBridgeStartOnLogin: boolean;
 
   newToken: string;
   userData: User;
-
   savedConfigs: Record<string, SavedConfig>;
   lastOnboardingShown: string;
   preferedLanguage: Language;
