@@ -14,9 +14,9 @@ type Props = {
 };
 
 export async function uploadFile({ ctx, path }: Props) {
-  const isReady = await waitUntilReady({ path });
-  if (!isReady) {
-    ctx.logger.error({ msg: 'Wait until ready, timeout', path });
+  const { error: notReadyError } = await waitUntilReady({ path });
+  if (notReadyError) {
+    ctx.logger.error({ msg: 'Wait until ready, timeout', path, reason: notReadyError.code });
     return;
   }
 
