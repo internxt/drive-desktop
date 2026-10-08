@@ -48,6 +48,7 @@ export type DriveFile = {
   size: number;
   folderId: number;
   userUuid: string;
+  creationTime: string;
   modificationTime: string;
 };
 
@@ -62,6 +63,8 @@ export type DriveFolder = {
   workspaceId: string;
   parentId: number | null;
   userUuid: string;
+  creationTime: string;
+  modificationTime: string;
 };
 
 export type Checkpoint = {

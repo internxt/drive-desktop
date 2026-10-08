@@ -34,6 +34,8 @@ $vcTargetsRoot = Get-ChildItem (Join-Path $visualStudioPath "MSBuild\Microsoft\V
   Select-Object -First 1
 
 $platformToolset = Get-ChildItem (Join-Path $vcTargetsRoot.FullName "Platforms\x64\PlatformToolsets") -Directory -ErrorAction SilentlyContinue |
+  # Driver-kit toolsets can sort after MSVC toolsets and omit desktop link defaults.
+  Where-Object Name -Match "^v\d+$" |
   Sort-Object Name -Descending |
   Select-Object -First 1 -ExpandProperty Name
 

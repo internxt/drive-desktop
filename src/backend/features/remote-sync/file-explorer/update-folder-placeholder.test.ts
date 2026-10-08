@@ -13,7 +13,10 @@ describe('update-folder-placeholder', () => {
   const checkIfMovedMock = partialSpyOn(checkIfMoved, 'checkIfMoved');
 
   const date = '2000-01-01T00:00:00.000Z';
-  const time = new Date(date).getTime();
+  const creationDate = '1999-01-01T00:00:00.000Z';
+  const creationTime = new Date(creationDate).getTime();
+  const modificationDate = '2000-01-02T00:00:00.000Z';
+  const modificationTime = new Date(modificationDate).getTime();
   let props: TestProps<typeof updateFolderPlaceholder>;
 
   beforeEach(() => {
@@ -26,7 +29,9 @@ describe('update-folder-placeholder', () => {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FolderUuid,
         createdAt: date,
+        creationTime: creationDate,
         updatedAt: date,
+        modificationTime: modificationDate,
       },
     };
   });
@@ -53,8 +58,8 @@ describe('update-folder-placeholder', () => {
     call(createFolderPlaceholderMock).toStrictEqual({
       path: 'remotePath',
       placeholderId: 'FOLDER:uuid',
-      creationTime: time,
-      lastWriteTime: time,
+      creationTime,
+      lastWriteTime: modificationTime,
     });
   });
 

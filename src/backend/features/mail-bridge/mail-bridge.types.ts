@@ -6,7 +6,7 @@ export const startupTimeoutMs = 30_000;
 
 export type MailBridgeStatus =
   | { status: 'stopped' | 'starting'; error: undefined }
-  | { status: 'running'; error: undefined; connection: MailBridgeConnectionSettings }
+  | { status: 'running'; error: undefined; connection: MailBridgeConnectionSettings; lastChecked?: number }
   | { status: 'error'; error: string };
 
 export type MailBridgeRuntime = {

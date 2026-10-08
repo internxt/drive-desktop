@@ -143,8 +143,8 @@ export class Addon {
     await addon.hydrateFile(toWin32Path(path));
   }
 
-  static watchPath({ rootPath, onEvent }: { rootPath: AbsolutePath; onEvent: Watcher.OnEvent }) {
-    const result = addon.watchPath(toWin32Path(rootPath), onEvent);
+  static watchPath({ rootPath, onEvents }: { rootPath: AbsolutePath; onEvents: (events: Watcher.Event[]) => void }) {
+    const result = addon.watchPath(toWin32Path(rootPath), onEvents);
     return parseAddonZod('watchPath', result);
   }
 

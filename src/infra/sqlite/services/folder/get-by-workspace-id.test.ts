@@ -18,6 +18,8 @@ describe('get-by-workspace-id', () => {
     workspaceId: 'workspaceId',
     createdAt: date,
     updatedAt: date,
+    creationTime: date,
+    modificationTime: date,
   };
 
   let props: Parameters<typeof getByWorkspaceId>[0];

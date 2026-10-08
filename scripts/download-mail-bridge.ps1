@@ -25,16 +25,8 @@ if ([string]::IsNullOrWhiteSpace($ReleaseTag)) {
   $ReleaseTag = $releaseTagMatch.Matches[0].Groups['releaseTag'].Value
 }
 
-# The release workflow publishes platform-specific archive names without the release version.
-$archiveName = 'release-windows-amd64.zip'
-# Pin each trusted release archive so release metadata cannot redefine the checksum we trust.
-$releaseChecksums = @{
-  'v0.0.1' = 'd9da33260344a44374a2529953dd447df4c428fc1198f765a6ea73f804df305c'
-}
-$expectedChecksum = $releaseChecksums[$ReleaseTag]
-if ([string]::IsNullOrWhiteSpace($expectedChecksum)) {
-  throw "No pinned SHA-256 checksum is configured for Mail Bridge release $ReleaseTag."
-}
+# The release workflow includes the version in each platform archive name.
+$archiveName = "mail-bridge_$($ReleaseTag.TrimStart('v'))_windows_amd64.zip"
 # Isolate intermediate release files so a failed download cannot alter the installed binary.
 $stagingDirectory = Join-Path ([System.IO.Path]::GetTempPath()) "mail-bridge-$([guid]::NewGuid())"
 
@@ -57,10 +49,6 @@ try {
     throw "Release $ReleaseTag provides an invalid SHA-256 digest for $archiveName."
   }
 
-  if ($releaseChecksum -notmatch "(?i)^$expectedChecksum$") {
-    throw "Release $ReleaseTag provides a digest that does not match the pinned SHA-256 checksum for $archiveName."
-  }
-
   # Download only the Windows archive selected by the pinned release tag.
   & gh release download $ReleaseTag --repo $Repository --pattern $archiveName --dir $stagingDirectory
   if ($LASTEXITCODE -ne 0) {
@@ -74,21 +62,29 @@ try {
 
   # Trust the binary only after its locally calculated digest matches GitHub's release metadata.
   $actualChecksum = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash
-  if ($actualChecksum -notmatch "(?i)^$expectedChecksum$") {
+  if ($actualChecksum -ine $releaseChecksum) {
     throw "Checksum mismatch for $archiveName."
   }
 
-  # GitHub's platform archive wraps the versioned Bridge archive.
+  # Older releases wrap the executable in a second archive; current releases contain it directly.
   Expand-Archive -LiteralPath $archivePath -DestinationPath $stagingDirectory -Force
-  $nestedArchives = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge*.zip')
-  if ($nestedArchives.Count -ne 1) {
-    throw "$archiveName must contain exactly one Mail Bridge archive."
+  $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
+
+  if ($executables.Count -eq 0) {
+    $nestedArchives = @(
+      Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge*.zip' |
+        Where-Object { $_.FullName -ne $archivePath }
+    )
+    if ($nestedArchives.Count -ne 1) {
+      throw "$archiveName must contain exactly one nested Mail Bridge archive when it does not contain mail-bridge.exe directly."
+    }
+
+    Expand-Archive -LiteralPath $nestedArchives[0].FullName -DestinationPath $stagingDirectory -Force
+    $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
   }
 
-  Expand-Archive -LiteralPath $nestedArchives[0].FullName -DestinationPath $stagingDirectory -Force
-  $executables = @(Get-ChildItem -LiteralPath $stagingDirectory -Recurse -File -Filter 'mail-bridge.exe')
   if ($executables.Count -ne 1) {
-    throw "$archiveName must contain exactly one Mail Bridge executable."
+    throw "$archiveName must contain exactly one mail-bridge.exe."
   }
 
   # Replace the local development copy only after every validation above succeeds.
@@ -97,5 +93,10 @@ try {
   Write-Output "Mail Bridge $ReleaseTag is ready at $DestinationDirectory."
 } finally {
   # Release metadata and archives are temporary and must not remain after success or failure.
-  Remove-Item -LiteralPath $stagingDirectory -Recurse -Force -ErrorAction SilentlyContinue
+  $resolvedStagingDirectory = [System.IO.Path]::GetFullPath($stagingDirectory)
+  $temporaryDirectory = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+  if (-not $resolvedStagingDirectory.StartsWith($temporaryDirectory, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Mail Bridge staging directory must remain inside the temporary directory.'
+  }
+  Remove-Item -LiteralPath $resolvedStagingDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }

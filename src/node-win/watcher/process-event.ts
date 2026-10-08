@@ -9,6 +9,7 @@ type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   event: Watcher.SuccessEvent;
+  observedAtMs: number;
 };
 
 /**
@@ -31,7 +32,7 @@ type Props = {
  * - modify a file (we may lose the placeholderId).
  */
 
-export async function processEvent({ ctx, event, path }: Props) {
+export async function processEvent({ ctx, event, path, observedAtMs }: Props) {
   try {
     if (event.action === 'delete') {
       await onUnlink({ ctx, path, type: event.type });
@@ -39,7 +40,7 @@ export async function processEvent({ ctx, event, path }: Props) {
     }
 
     if (event.type === 'file') {
-      await onChange({ ctx, event, path });
+      await onChange({ ctx, event, path, observedAtMs });
       return;
     }
 

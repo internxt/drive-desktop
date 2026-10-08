@@ -183,6 +183,9 @@ var api = {
   mailBridge: {
     start: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:start"),
     getStatus: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-status"),
+    getEmail: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-email"),
+    getStartOnLogin: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-start-on-login"),
+    setStartOnLogin: async (enabled) => await import_electron2.ipcRenderer.invoke("mail-bridge:set-start-on-login", enabled),
     stop: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:stop"),
     resync: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:resync"),
     getSyncProgress: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-sync-progress"),

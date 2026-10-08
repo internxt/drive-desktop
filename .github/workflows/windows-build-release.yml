@@ -37,8 +37,9 @@ jobs:
           BRIDGE_URL: ${{ vars.BRIDGE_URL }}
           DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
           DRIVE_URL: ${{ vars.DRIVE_URL }}
+          MAIL_API_URL: ${{ vars.MAIL_API_URL }}
+          MAIL_SERVER_PUBLIC_KEY: ${{ vars.MAIL_SERVER_PUBLIC_KEY }}
           NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
-          NOTIFICATIONS_URL: ${{ vars.NOTIFICATIONS_URL }}
           PAYMENTS_URL: ${{ vars.PAYMENTS_URL }}
           PORT: ${{ vars.PORT }}
           SM_API_KEY: ${{ secrets.SM_API_KEY }}
@@ -51,8 +52,9 @@ jobs:
           echo "BRIDGE_URL=$BRIDGE_URL" >> .env
           echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
           echo "DRIVE_URL=$DRIVE_URL" >> .env
+          echo "MAIL_API_URL=$MAIL_API_URL" >> .env
+          echo "MAIL_SERVER_PUBLIC_KEY=$MAIL_SERVER_PUBLIC_KEY" >> .env
           echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
-          echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL" >> .env
           echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
           echo "PORT=$PORT" >> .env
           echo "SM_API_KEY=$SM_API_KEY" >> .env
@@ -65,9 +67,10 @@ jobs:
         run: npm run init:ci
 
       - name: Download pinned Mail Bridge
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: npm.cmd run prepare:mail-bridge
+        run: ./scripts/download-mail-bridge.ps1
 
       - name: Build application and context menu extension
         run: npm run build:release

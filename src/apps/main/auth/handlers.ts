@@ -17,7 +17,6 @@ import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 import electronStore from '../config';
 import eventBus from '../event-bus';
 import { clearLoggedPreloadIpc, setupLoggedPreloadIpc } from '../preload/ipc-main';
-import { cleanAndStartRemoteNotifications } from '../realtime';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { User } from '../types';
 import { openOnboardingWindow } from '../windows/onboarding';
@@ -109,7 +108,6 @@ export async function emitUserLoggedIn(user: User) {
   setupLoggedPreloadIpc({ ctx });
   startMailBridgeOnLogin({ ctx });
   void resolveUserFileSizeLimit({ ctx });
-  cleanAndStartRemoteNotifications({ ctx });
 
   const lastOnboardingShown = electronStore.get('lastOnboardingShown');
   if (!lastOnboardingShown) void openOnboardingWindow();

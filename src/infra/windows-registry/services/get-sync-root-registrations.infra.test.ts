@@ -1,10 +1,11 @@
 import { Addon } from '@/node-win/addon-wrapper';
 import { getSyncRootRegistrations } from './get-sync-root-registrations';
+import { isSyncRootCandidate } from './is-sync-root-candidate';
 
 describe('get-sync-root-registrations', () => {
-  it('should read every registration that the addon reports', async () => {
+  it('should read candidate registrations that the addon reports', async () => {
     // Given
-    const syncRoots = Addon.getRegisteredSyncRoots();
+    const syncRoots = Addon.getRegisteredSyncRoots().filter((syncRoot) => isSyncRootCandidate(syncRoot.id));
     // When
     const registrations = await getSyncRootRegistrations();
     // Then
@@ -20,10 +21,10 @@ describe('get-sync-root-registrations', () => {
 
   it('should also read registrations that the addon does not report', async () => {
     // Given
-    const registeredIds = Addon.getRegisteredSyncRoots().map((syncRoot) => syncRoot.id);
+    const registeredCandidates = Addon.getRegisteredSyncRoots().filter((syncRoot) => isSyncRootCandidate(syncRoot.id));
     // When
     const registrations = await getSyncRootRegistrations();
     // Then
-    expect(registrations.length).toBeGreaterThanOrEqual(registeredIds.length);
+    expect(registrations.length).toBeGreaterThanOrEqual(registeredCandidates.length);
   });
 });
