@@ -42,4 +42,14 @@ describe('recovery-sync', () => {
     // Then
     calls(filesRecoverySyncMock).toMatchObject([{ offset: 0 }, { offset: 1000 }]);
   });
+
+  it('returns errors so manual recovery can report failure', async () => {
+    // Given
+    const error = new Error('Failed to recover files');
+    filesRecoverySyncMock.mockRejectedValueOnce(error);
+    // When
+    const result = await recoverySync(props);
+    // Then
+    expect(result.error).toBe(error);
+  });
 });
