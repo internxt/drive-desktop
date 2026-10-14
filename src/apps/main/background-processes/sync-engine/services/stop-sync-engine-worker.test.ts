@@ -22,6 +22,16 @@ describe('stop-sync-engine-worker', () => {
     },
   });
 
+  beforeEach(() => {
+    workers.clear();
+    disconnectSyncRootMock.mockResolvedValue(undefined);
+    unregisterSyncRootMock.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    workers.clear();
+  });
+
   it('should clear and stop sync engine worker', async () => {
     // Given
     workers.set('', props.worker);
@@ -32,5 +42,37 @@ describe('stop-sync-engine-worker', () => {
     call(unregisterSyncRootMock).toMatchObject({ providerId: 'providerId' });
     calls(unsubscribe).toHaveLength(1);
     expect(workers.size).toBe(0);
+  });
+
+  it.each(['disconnect', 'unregister'] as const)('removes the worker even when %s rejects', async (operation) => {
+    // Given
+    const error = new Error('Addon cleanup failed');
+    const failingCall = operation === 'disconnect' ? disconnectSyncRootMock : unregisterSyncRootMock;
+    failingCall.mockRejectedValueOnce(error);
+    workers.set(props.worker.ctx.workspaceId, props.worker);
+    // When
+    await cleanSyncEngineWorker(props);
+    // Then
+    expect(workers.has(props.worker.ctx.workspaceId)).toBe(false);
+    expect(loggerMock.error).toHaveBeenCalledWith({ msg: 'Error unregistering sync root', providerId: 'providerId', error });
+  });
+
+  it.each([false, true])('preserves a replacement worker when old cleanup finishes (rejected: %s)', async (rejectCleanup) => {
+    // Given
+    const disconnect = Promise.withResolvers<void>();
+    const replacement = { ...props.worker, connectionKey: 2n };
+    disconnectSyncRootMock.mockReturnValueOnce(disconnect.promise);
+    workers.set(props.worker.ctx.workspaceId, props.worker);
+    // When
+    const cleanup = cleanSyncEngineWorker(props);
+    workers.set(props.worker.ctx.workspaceId, replacement);
+    if (rejectCleanup) {
+      disconnect.reject(new Error('Old worker cleanup failed'));
+    } else {
+      disconnect.resolve();
+    }
+    await cleanup;
+    // Then
+    expect(workers.get(props.worker.ctx.workspaceId)).toBe(replacement);
   });
 });

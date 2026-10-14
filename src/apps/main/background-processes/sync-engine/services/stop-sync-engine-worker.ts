@@ -15,14 +15,16 @@ export async function cleanSyncEngineWorker({ worker }: { worker: WorkerConfig }
 
     await Addon.disconnectSyncRoot({ connectionKey: worker.connectionKey });
     await Addon.unregisterSyncRoot({ providerId: ctx.providerId });
-
-    workers.delete(ctx.workspaceId);
   } catch (error) {
     ctx.logger.error({
       msg: 'Error unregistering sync root',
       providerId: ctx.providerId,
       error,
     });
+  } finally {
+    if (workers.get(ctx.workspaceId) === worker) {
+      workers.delete(ctx.workspaceId);
+    }
   }
 }
 
