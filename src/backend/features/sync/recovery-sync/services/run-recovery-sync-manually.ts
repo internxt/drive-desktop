@@ -6,7 +6,7 @@ import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeho
 import { RecoverySyncModule } from '../recovery-sync.module';
 
 /**
- * v2.7.0 Alexis Mora
+ * v2.7.1 Alexis Mora
  * Recovery sync previously ran in the background at worker startup alongside regular sync which refreshed
  * Explorer placeholders independently.
  * Recovery sync purpose is to repair the db state,
