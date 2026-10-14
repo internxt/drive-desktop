@@ -96,7 +96,8 @@ export function ItemsSection({ setIsLogoutModalOpen, isSyncing }: Readonly<Props
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
               className="relative z-10">
-              <Menu.Items className="absolute right-0 top-1 max-h-80 w-screen max-w-[270px] origin-top-right overflow-y-auto overscroll-contain whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
+              {/* PB-6964: Make the menu of the widget reusable in core package */}
+              <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
                     <div>
@@ -260,7 +261,7 @@ function DropdownItem({
 }>) {
   return (
     <button
-      className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 disabled:cursor-not-allowed disabled:text-gray-40 disabled:active:bg-transparent ${
+      className={`w-full cursor-pointer px-4 py-1 text-left text-sm text-gray-80 active:bg-gray-10 disabled:cursor-not-allowed disabled:text-gray-40 disabled:active:bg-transparent ${
         active && !disabled && 'bg-gray-1 dark:bg-gray-5'
       }`}
       disabled={disabled}
