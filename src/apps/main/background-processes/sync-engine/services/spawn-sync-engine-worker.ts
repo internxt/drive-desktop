@@ -3,7 +3,6 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { refreshWorkspaceToken } from '@/apps/sync-engine/refresh-workspace-token';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { loadVirtualDrive } from './load-virtual-drive';
 import { scheduleSync } from './schedule-sync';
@@ -47,12 +46,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      */
     void addPendingItems({ ctx });
 
-    /**
-     * v2.5.6 Daniel Jiménez
-     * Since we can have a different status in our local database that in remote,
-     * we want to run also this sync in background to update the statuses.
-     */
-    void RecoverySyncModule.recoverySync({ ctx });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }
