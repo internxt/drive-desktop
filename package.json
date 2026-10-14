@@ -62,7 +62,11 @@
     "prepare": "husky install && npm.cmd --prefix packages/context-menu run ensure:test",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "swagger_prod": "openapi-typescript https://drive-server.internxt.com/api-json -o ./src/apps/shared/HttpClient/schema.ts",
-    "schema": "sqlite3 %APPDATA%/internxt-drive/internxt_desktop.db .fullschema > src/infra/sqlite/schema.sql"
+    "schema": "sqlite3 %APPDATA%/internxt-drive/internxt_desktop.db .fullschema > src/infra/sqlite/schema.sql",
+    "========== Versioning ==========": "",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version"
   },
   "build": {
     "productName": "Internxt",
