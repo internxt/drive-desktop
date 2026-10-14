@@ -1,3 +1,4 @@
+import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import pLimit from 'p-limit';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY } from '@/backend/features/virtual-drive/tree-traversal/concurrency';
@@ -11,7 +12,7 @@ type Props = {
   isFirstExecution: boolean;
 };
 
-export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) {
+export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props): Promise<Result<boolean, Error>> {
   try {
     const time = await measurePerfomance(async () => {
       const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
@@ -42,8 +43,11 @@ export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props) 
     });
 
     ctx.logger.debug({ msg: 'Finish refresh placeholders in seconds', time });
-  } catch (error) {
+    return Result.ok(true);
+  } catch (cause) {
+    const error = cause instanceof Error ? cause : new Error(String(cause));
     ctx.logger.error({ msg: 'Error refreshing item placeholders', error });
+    return Result.err(error);
   }
 }
 
