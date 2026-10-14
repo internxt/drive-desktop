@@ -35,6 +35,13 @@ describe('ItemsSection', () => {
     expect(globalThis.window.electron.syncManually).not.toHaveBeenCalled();
   });
 
+  it('makes the menu options scrollable', async () => {
+    // Given / When
+    await openMenu();
+    // Then
+    expect(screen.getByRole('menu')).toHaveClass('overflow-y-auto', 'overscroll-contain');
+  });
+
   it('keeps regular sync separate from recovery', async () => {
     // Given
     await openMenu();
