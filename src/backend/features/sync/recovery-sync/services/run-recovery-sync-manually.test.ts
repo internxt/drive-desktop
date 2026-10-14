@@ -13,6 +13,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as traverser from '@/context/virtual-drive/items/application/Traverser';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
 import { RecoverySyncModule } from '../recovery-sync.module';
 import { runRecoverySyncManually } from './run-recovery-sync-manually';
 
@@ -97,6 +98,84 @@ describe('run-recovery-sync-manually', () => {
     // Then
     expect(result.error).toBe(error);
     expect(ctx.status).toBe('SYNC_FAILED');
+    expect(refreshMock).not.toHaveBeenCalled();
+  });
+
+  it('skips placeholder refresh and status broadcasts when recovery is cancelled by logout', async () => {
+    // Given
+    const ctx = createContext('');
+    getContextsMock.mockReturnValue([ctx]);
+    recoveryMock.mockImplementationOnce(() => {
+      ctx.abortController.abort();
+      return Promise.resolve(Result.err(createRecoverySyncAbortError()));
+    });
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error?.name).toBe('AbortError');
+    expect(refreshMock).not.toHaveBeenCalled();
+    expect(statusMock).toHaveBeenCalledTimes(1);
+    expect(statusMock).toHaveBeenCalledWith({ ctx, status: 'SYNCING' });
+    expect(ctx.logger.error).not.toHaveBeenCalled();
+  });
+
+  it('does not refresh or report success if logout occurs as recovery finishes', async () => {
+    // Given
+    const ctx = createContext('');
+    getContextsMock.mockReturnValue([ctx]);
+    recoveryMock.mockImplementationOnce(() => {
+      ctx.abortController.abort();
+      return Promise.resolve(Result.ok(true));
+    });
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error?.name).toBe('AbortError');
+    expect(refreshMock).not.toHaveBeenCalled();
+    expect(statusMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not publish a synced status if logout occurs during placeholder refresh', async () => {
+    // Given
+    const ctx = createContext('');
+    getContextsMock.mockReturnValue([ctx]);
+    refreshMock.mockImplementationOnce(() => {
+      ctx.abortController.abort();
+      return Promise.resolve();
+    });
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error?.name).toBe('AbortError');
+    expect(statusMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not log or report a failure for a cancellation rejection', async () => {
+    // Given
+    const ctx = createContext('');
+    const error = createRecoverySyncAbortError();
+    getContextsMock.mockReturnValue([ctx]);
+    recoveryMock.mockRejectedValueOnce(error);
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error).toBe(error);
+    expect(refreshMock).not.toHaveBeenCalled();
+    expect(ctx.status).toBe('IDLE');
+    expect(ctx.logger.error).not.toHaveBeenCalled();
+  });
+
+  it('releases the syncing status when recovery returns cancellation without logout', async () => {
+    // Given
+    const ctx = createContext('');
+    const error = createRecoverySyncAbortError();
+    getContextsMock.mockReturnValue([ctx]);
+    recoveryMock.mockResolvedValueOnce(Result.err(error));
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error).toBe(error);
+    expect(ctx.status).toBe('IDLE');
     expect(refreshMock).not.toHaveBeenCalled();
   });
 

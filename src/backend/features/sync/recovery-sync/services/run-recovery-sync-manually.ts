@@ -3,6 +3,7 @@ import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
 import { getSyncContexts } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
 import { RecoverySyncModule } from '../recovery-sync.module';
 
 /**
@@ -39,16 +40,33 @@ export async function runRecoverySyncManually(): Promise<Result<boolean, Error>>
 async function recoverContext({ ctx }: { ctx: SyncContext }): Promise<Result<boolean, Error>> {
   try {
     const result = await RecoverySyncModule.recoverySync({ ctx });
+    // Logout owns worker cleanup and tray status; cancelled work must not broadcast a later status.
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+
     if (result.error) {
-      changeSyncStatus({ ctx, status: 'SYNC_FAILED' });
+      changeSyncStatus({ ctx, status: result.error.name === 'AbortError' ? 'IDLE' : 'SYNC_FAILED' });
       return result;
     }
 
     await refreshItemPlaceholders({ ctx, isFirstExecution: false });
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+
     changeSyncStatus({ ctx, status: 'SYNCED' });
     return Result.ok(true);
   } catch (cause) {
     const error = cause instanceof Error ? cause : new Error(String(cause));
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+    if (error.name === 'AbortError') {
+      changeSyncStatus({ ctx, status: 'IDLE' });
+      return Result.err(error);
+    }
+
     ctx.logger.error({ msg: 'Error running manual recovery sync', error });
     changeSyncStatus({ ctx, status: 'SYNC_FAILED' });
     return Result.err(error);
