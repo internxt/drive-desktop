@@ -45,7 +45,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * all item placeholders and then execute this function.
      */
     void addPendingItems({ ctx });
-
   } catch (exc) {
     ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }
