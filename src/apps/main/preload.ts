@@ -171,6 +171,7 @@ const api = {
   openLoginUrl: async () => await ipcPreloadRenderer.invoke('openLoginUrl'),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke('getRemoteSyncStatus'),
   syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
+  recoverySyncManually: async () => await ipcPreloadRenderer.invoke('recoverySyncManually'),
 
   // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke('backupsSetInterval', props),
