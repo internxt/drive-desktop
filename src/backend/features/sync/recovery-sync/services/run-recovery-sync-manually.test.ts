@@ -33,7 +33,7 @@ describe('run-recovery-sync-manually', () => {
 
   beforeEach(() => {
     recoveryMock.mockResolvedValue(Result.ok(true));
-    refreshMock.mockResolvedValue(undefined);
+    refreshMock.mockResolvedValue(Result.ok(true));
   });
 
   function createContext(workspaceId: string) {
@@ -141,7 +141,7 @@ describe('run-recovery-sync-manually', () => {
     getContextsMock.mockReturnValue([ctx]);
     refreshMock.mockImplementationOnce(() => {
       ctx.abortController.abort();
-      return Promise.resolve();
+      return Promise.resolve(Result.ok(true));
     });
     // When
     const result = await runRecoverySyncManually();
@@ -204,7 +204,7 @@ describe('run-recovery-sync-manually', () => {
   it('keeps sync blocked until the placeholder refresh finishes', async () => {
     // Given
     const ctx = createContext('');
-    const refresh = Promise.withResolvers<void>();
+    const refresh = Promise.withResolvers<Result<boolean, Error>>();
     const refreshStarted = Promise.withResolvers<void>();
     getContextsMock.mockReturnValue([ctx]);
     refreshMock.mockImplementation(() => {
@@ -221,7 +221,7 @@ describe('run-recovery-sync-manually', () => {
     expect(secondResult.error).toBeInstanceOf(Error);
     expect(recoveryMock).toHaveBeenCalledTimes(1);
     expect(checkpointSyncMock).not.toHaveBeenCalled();
-    refresh.resolve();
+    refresh.resolve(Result.ok(true));
     expect(await recoveryRun).toEqual(Result.ok(true));
     expect(ctx.status).toBe('SYNCED');
   });
@@ -310,6 +310,24 @@ describe('run-recovery-sync-manually', () => {
     // Then
     expect(result.error).toBe(error);
     expect(ctx.status).toBe('SYNC_FAILED');
+  });
+
+  it('marks sync failed when the real placeholder refresh catches an error', async () => {
+    // Given
+    const ctx = createContext('');
+    const error = new Error('Failed to read Explorer placeholders');
+    getContextsMock.mockReturnValue([ctx]);
+    refreshMock.mockImplementation(refreshItemPlaceholders);
+    getFilesMock.mockReturnValue({ data: [] });
+    getFoldersMock.mockReturnValue({ data: [] });
+    pathsMock.mockRejectedValueOnce(error);
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.error).toBe(error);
+    expect(ctx.status).toBe('SYNC_FAILED');
+    expect(statusMock).not.toHaveBeenCalledWith({ ctx, status: 'SYNCED' });
+    expect(ctx.logger.error).toHaveBeenCalledWith({ msg: 'Error refreshing item placeholders', error });
   });
 
   it.each(['IDLE', 'SYNCED', 'SYNC_FAILED'] as const)('allows recovery when the previous status is %s', async (status) => {

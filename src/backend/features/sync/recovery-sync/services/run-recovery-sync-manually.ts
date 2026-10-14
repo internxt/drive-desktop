@@ -50,9 +50,14 @@ async function recoverContext({ ctx }: { ctx: SyncContext }): Promise<Result<boo
       return result;
     }
 
-    await refreshItemPlaceholders({ ctx, isFirstExecution: false });
+    const refreshResult = await refreshItemPlaceholders({ ctx, isFirstExecution: false });
     if (ctx.abortController.signal.aborted) {
       return Result.err(createRecoverySyncAbortError());
+    }
+
+    if (refreshResult.error) {
+      changeSyncStatus({ ctx, status: refreshResult.error.name === 'AbortError' ? 'IDLE' : 'SYNC_FAILED' });
+      return refreshResult;
     }
 
     changeSyncStatus({ ctx, status: 'SYNCED' });
