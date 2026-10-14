@@ -96,7 +96,7 @@ export function ItemsSection({ setIsLogoutModalOpen, isSyncing }: Readonly<Props
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
               className="relative z-10">
-              <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
+              <Menu.Items className="absolute right-0 top-1 max-h-80 w-screen max-w-[270px] origin-top-right overflow-y-auto overscroll-contain whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
                     <div>
