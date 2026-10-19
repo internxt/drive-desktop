@@ -32,7 +32,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: SyncContext }) {
     root,
     abortSignal: ctx.abortController?.signal,
     processNode: (item) => loadFolder({ ctx, folders, item }),
-    processChildren: (item) => processChildren({ item, files }),
+    processChildren: (item) => processChildren({ ctx, item, files }),
   });
 
   return { files, folders };
@@ -49,11 +49,25 @@ async function loadFolder({ ctx, folders, item }: { ctx: SyncContext; folders: F
   return true;
 }
 
-async function processChildren({ item, files }: { item: StackItem; files: FileExplorerFiles }): Promise<Array<StackItem>> {
+async function processChildren({
+  ctx,
+  item,
+  files,
+}: {
+  ctx: SyncContext;
+  item: StackItem;
+  files: FileExplorerFiles;
+}): Promise<Array<StackItem>> {
   const parentUuid = item.uuid;
   if (!parentUuid) return [];
 
-  const items = await statReaddir({ folder: item.path, concurrency: VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY });
+  const items = await statReaddir({
+    folder: item.path,
+    concurrency: VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY,
+    onError: ({ path, error }) => {
+      ctx.logger.error({ msg: 'Error getting item stats', path, error });
+    },
+  });
 
   await loadFileExplorerFiles({
     concurrency: VIRTUAL_DRIVE_TREE_TRAVERSAL_CONCURRENCY,
