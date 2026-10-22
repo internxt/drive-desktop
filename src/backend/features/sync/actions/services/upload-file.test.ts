@@ -58,13 +58,6 @@ describe('upload-file', () => {
     calls(environmentFileUploadMock).toHaveLength(0);
   });
 
-  it('should check the file size against the user file size limit', async () => {
-    // When
-    await uploadFile(props);
-    // Then
-    call(checkUploadFileSizeMock).toMatchObject({ size });
-  });
-
   it('should return undefined if the file exceeds the plan limit', async () => {
     // Given
     statMock.mockResolvedValue({ size: 6, mtime, birthtime });
@@ -113,6 +106,7 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
+    call(checkUploadFileSizeMock).toMatchObject({ size });
     call(environmentFileUploadMock).toMatchObject({ path, size });
   });
 });
