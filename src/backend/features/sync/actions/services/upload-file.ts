@@ -1,9 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { stat } from 'node:fs/promises';
 import { electronStore } from '@/apps/main/config';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { validateUploadFileSize } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { stat } from '@/infra/file-system/original-fs';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { waitUntilReady } from './wait-until-ready';
