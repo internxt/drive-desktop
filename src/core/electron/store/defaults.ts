@@ -9,6 +9,7 @@ export const defaults: AppStore = {
   deviceUuid: '',
   backupList: {},
   maxUploadFileSizeInBytes: 0,
+  fileSizeLimitRevalidatedAt: 0,
   mailBridgeCredentials: '',
   mailBridgeStartOnLogin: false,
 
@@ -28,6 +29,7 @@ export const fieldsToSave: Array<keyof AppStore> = [
   'deviceUuid',
   'backupList',
   'maxUploadFileSizeInBytes',
+  'fileSizeLimitRevalidatedAt',
   'mailBridgeCredentials',
   'mailBridgeStartOnLogin',
 ];
