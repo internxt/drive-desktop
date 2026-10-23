@@ -1,17 +1,16 @@
 import { Environment } from '@internxt/inxt-js';
-import { createReadStream, ReadStream } from 'node:fs';
+import { ReadStream } from 'node:fs';
 import { mockDeep } from 'vitest-mock-extended';
 import { LocalSync } from '@/backend/features';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as processError from './process-error';
 import { uploadFile } from './upload-file';
 
-vi.mock(import('node:fs'));
-
 describe('upload-file', () => {
-  const createReadStreamMock = vi.mocked(createReadStream);
+  const createReadStreamMock = partialSpyOn(originalFs, 'createReadStream');
   const processErrorMock = partialSpyOn(processError, 'processError');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const statMock = partialSpyOn(fileSystem, 'stat');
