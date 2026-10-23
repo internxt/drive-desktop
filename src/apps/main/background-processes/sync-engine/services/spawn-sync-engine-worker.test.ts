@@ -52,7 +52,7 @@ describe('spawn-sync-engine-worker', () => {
     calls(loggerMock.error).toHaveLength(0);
     calls(refreshItemPlaceholdersMock).toHaveLength(1);
     calls(scheduleSyncMock).toHaveLength(1);
-    calls(recoverySyncMock).toHaveLength(1);
+    calls(recoverySyncMock).toHaveLength(0);
     calls(initWatcherMock).toHaveLength(1);
     calls(addPendingItemsMock).toHaveLength(1);
     expect(workers.get(workspaceId)).toBeDefined();

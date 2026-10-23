@@ -1,12 +1,16 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { createFile } from './workspaces/create-file';
 import { createFolder } from './workspaces/create-folder';
+import { getFilesSyncPage } from './workspaces/get-files-sync-page';
+import { getFoldersSyncPage } from './workspaces/get-folders-sync-page';
 
+// eslint-disable-next-line sonarjs/deprecation
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
+// eslint-disable-next-line sonarjs/deprecation
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
 
 export const workspaces = {
@@ -14,6 +18,8 @@ export const workspaces = {
   getCredentials,
   getFiles,
   getFolders,
+  getFilesSyncPage,
+  getFoldersSyncPage,
   createFile,
   createFolder,
 };

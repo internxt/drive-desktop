@@ -79,6 +79,7 @@ function Invoke-NativePowerShellRegistration {
       "-ExecutionPolicy", "Bypass",
       "-File", "`"$PSCommandPath`""
     ) `
+    -WindowStyle Hidden `
     -Wait `
     -PassThru
 

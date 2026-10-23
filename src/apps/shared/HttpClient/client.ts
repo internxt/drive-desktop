@@ -1,10 +1,10 @@
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import Bottleneck from 'bottleneck';
 import createClient, { Middleware } from 'openapi-fetch';
 import { onUserUnauthorized } from '@/apps/main/auth/handlers';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { getRequestPriority } from './schedule-fetch';
-import { paths } from './schema';
 
 export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
   return { 'x-internxt-workspace': ctx.workspaceToken };

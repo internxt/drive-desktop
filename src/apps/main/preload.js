@@ -168,6 +168,7 @@ var api = {
   openLoginUrl: async () => await ipcPreloadRenderer.invoke("openLoginUrl"),
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
+  recoverySyncManually: async () => await ipcPreloadRenderer.invoke("recoverySyncManually"),
   // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
   backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props),
@@ -183,6 +184,9 @@ var api = {
   mailBridge: {
     start: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:start"),
     getStatus: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-status"),
+    getEmail: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-email"),
+    getStartOnLogin: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-start-on-login"),
+    setStartOnLogin: async (enabled) => await import_electron2.ipcRenderer.invoke("mail-bridge:set-start-on-login", enabled),
     stop: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:stop"),
     resync: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:resync"),
     getSyncProgress: async () => await import_electron2.ipcRenderer.invoke("mail-bridge:get-sync-progress"),

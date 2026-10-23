@@ -9,7 +9,9 @@ INSERT INTO drive_folder (
   createdAt,
   updatedAt,
   plainName,
-  status
+  status,
+  creationTime,
+  modificationTime
 ) VALUES (
   :uuid,
   :id,
@@ -20,7 +22,9 @@ INSERT INTO drive_folder (
   :createdAt,
   :updatedAt,
   :plainName,
-  :status
+  :status,
+  :creationTime,
+  :modificationTime
 )
 ON CONFLICT (uuid) DO UPDATE SET
   id = excluded.id,
@@ -31,5 +35,7 @@ ON CONFLICT (uuid) DO UPDATE SET
   createdAt = excluded.createdAt,
   updatedAt = excluded.updatedAt,
   plainName = excluded.plainName,
-  status = excluded.status;
+  status = excluded.status,
+  creationTime = excluded.creationTime,
+  modificationTime = excluded.modificationTime;
 `;

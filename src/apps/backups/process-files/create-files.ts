@@ -1,10 +1,10 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { Sync } from '@/backend/features/sync';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getWorkerCount } from '@/core/utils/concurrency';
+import { stat } from '@/infra/file-system/original-fs';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
 
