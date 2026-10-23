@@ -10,6 +10,7 @@ export type SavedConfig = {
   deviceUuid: string;
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
+  fileSizeLimitRevalidatedAt: number;
   mailBridgeCredentials: string;
   mailBridgeStartOnLogin: boolean;
 };
@@ -21,6 +22,7 @@ export type AppStore = {
   deviceUuid: string;
   backupList: BackupList;
   maxUploadFileSizeInBytes: number;
+  fileSizeLimitRevalidatedAt: number;
   mailBridgeCredentials: string;
   mailBridgeStartOnLogin: boolean;
 
