@@ -1,12 +1,14 @@
 import { electronStore } from '@/apps/main/config';
 import * as fetchUserFileSizeLimitModule from '@/infra/drive-server-wip/services/files/fetch-user-file-size-limit';
-import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getFileSizeLimitAdapter } from './get-file-size-limit-adapter';
+import * as retryRejectedUploadsModule from './retry-rejected-uploads';
 
 describe('get-file-size-limit-adapter', () => {
   const electronStoreGetMock = partialSpyOn(electronStore, 'get');
   const electronStoreSetMock = partialSpyOn(electronStore, 'set');
   const fetchUserFileSizeLimitMock = partialSpyOn(fetchUserFileSizeLimitModule, 'fetchUserFileSizeLimit');
+  const retryRejectedUploadsMock = partialSpyOn(retryRejectedUploadsModule, 'retryRejectedUploads');
 
   let props: Parameters<typeof getFileSizeLimitAdapter>[0];
 
@@ -24,11 +26,24 @@ describe('get-file-size-limit-adapter', () => {
     call(electronStoreGetMock).toBe('maxUploadFileSizeInBytes');
   });
 
-  it('should save the limit', () => {
+  it('should save the limit and retry the rejected files if the limit goes up', () => {
+    // Given
+    electronStoreGetMock.mockReturnValue(10);
     // When
     getFileSizeLimitAdapter(props).saveLimit({ limit: 20 });
     // Then
     expect(electronStoreSetMock.mock.calls).toStrictEqual([['maxUploadFileSizeInBytes', 20]]);
+    calls(retryRejectedUploadsMock).toHaveLength(1);
+  });
+
+  it('should save the limit without retrying the rejected files if the limit does not go up', () => {
+    // Given
+    electronStoreGetMock.mockReturnValue(20);
+    // When
+    getFileSizeLimitAdapter(props).saveLimit({ limit: 20 });
+    // Then
+    expect(electronStoreSetMock.mock.calls).toStrictEqual([['maxUploadFileSizeInBytes', 20]]);
+    calls(retryRejectedUploadsMock).toHaveLength(0);
   });
 
   it('should read the last revalidation time', () => {
