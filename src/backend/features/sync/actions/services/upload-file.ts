@@ -1,7 +1,6 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { electronStore } from '@/apps/main/config';
+import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { CommonContext } from '@/apps/sync-engine/config';
-import { validateUploadFileSize } from '@/backend/features/user/file-size-limit';
+import { getFileSizeLimitAdapter } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { stat } from '@/infra/file-system/original-fs';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
@@ -26,7 +25,7 @@ export async function uploadFile({ ctx, path }: Props) {
     return { contentsId: undefined, size, mtime, creationTime: birthtime };
   }
 
-  const validation = validateUploadFileSize({ size, maxUploadFileSize: electronStore.get('maxUploadFileSizeInBytes') });
+  const validation = await FileSizeLimitModule.checkUploadFileSize({ size, ...getFileSizeLimitAdapter({ ctx }) });
   if (!validation.allowed) {
     handleFileUploadSizeExceeded({ path, size, validation });
     ctx.logger.warn({
