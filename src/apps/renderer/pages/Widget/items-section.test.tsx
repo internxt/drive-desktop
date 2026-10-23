@@ -35,6 +35,19 @@ describe('ItemsSection', () => {
     expect(globalThis.window.electron.syncManually).not.toHaveBeenCalled();
   });
 
+  it('uses compact option rows without a scrollable menu', async () => {
+    // Given / When
+    await openMenu();
+    // Then
+    const menu = screen.getByRole('menu');
+    expect(menu).not.toHaveClass('max-h-80');
+    expect(menu).not.toHaveClass('overflow-y-auto');
+    for (const option of Array.from(menu.querySelectorAll('button'))) {
+      expect(option).toHaveClass('py-1');
+    }
+    expect(screen.getByText('Quit')).toBeVisible();
+  });
+
   it('keeps regular sync separate from recovery', async () => {
     // Given
     await openMenu();
