@@ -9,9 +9,22 @@ import { useSettingsStore } from '../Settings/settings-store';
 
 type Props = {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
+  isSyncing: boolean;
 };
-export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
-  const { translate } = useI18n();
+/**
+ * v2.7.1 Alexis Mora
+ * Since this is just a translation used for windows and it is temporary.
+ * it is quicker to just leave it here
+ */
+const recoverySyncUnavailableMessages = {
+  en: 'Recovery sync is unavailable while sync is running. Please wait until it finishes.',
+  es: 'La sincronización de recuperación no está disponible mientras hay una sincronización en curso. Espera a que termine.',
+  fr: 'La synchronisation de récupération est indisponible pendant une synchronisation. Veuillez attendre qu’elle se termine.',
+  de: 'Die Wiederherstellungssynchronisierung ist während einer laufenden Synchronisierung nicht verfügbar. Bitte warte, bis sie abgeschlossen ist.',
+};
+
+export function ItemsSection({ setIsLogoutModalOpen, isSyncing }: Readonly<Props>) {
+  const { translate, language } = useI18n();
   const { setActiveSection: setSettingsSection } = useSettingsStore();
   const { setActiveSection: setIssuesSection } = useIssuesStore();
   const { issues } = useIssues();
@@ -24,6 +37,17 @@ export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
 
   function onSyncClick() {
     void globalThis.window.electron.syncManually();
+  }
+
+  async function onRecoverySyncClick() {
+    try {
+      const { error } = await globalThis.window.electron.recoverySyncManually();
+      if (error) {
+        globalThis.window.electron.logger.error({ msg: 'Error running recovery sync', error });
+      }
+    } catch (error) {
+      globalThis.window.electron.logger.error({ msg: 'Error requesting recovery sync', error });
+    }
   }
 
   async function handleOpenURL(URL: string) {
@@ -72,6 +96,7 @@ export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
               leaveFrom="transform scale-100 opacity-100"
               leaveTo="transform scale-95 opacity-0"
               className="relative z-10">
+              {/* PB-6964: Make the menu of the widget reusable in core package */}
               <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
@@ -92,6 +117,19 @@ export function ItemsSection({ setIsLogoutModalOpen }: Readonly<Props>) {
                       </div>
                     );
                   }}
+                </Menu.Item>
+                <Menu.Item disabled={isSyncing}>
+                  {({ active, disabled }) => (
+                    <div title={disabled ? recoverySyncUnavailableMessages[language] : undefined}>
+                      <DropdownItem
+                        active={active}
+                        disabled={disabled}
+                        onClick={onRecoverySyncClick}
+                        data-automation-id="menuItemRecoverySync">
+                        <span>Recovery sync</span>
+                      </DropdownItem>
+                    </div>
+                  )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
@@ -208,15 +246,28 @@ function HeaderItemWrapper({
   );
 }
 
-function DropdownItem({ children, active, onClick }: Readonly<{ children: JSX.Element; active?: boolean; onClick?: () => void }>) {
+function DropdownItem({
+  children,
+  active,
+  onClick,
+  disabled,
+  ...props
+}: Readonly<{
+  children: JSX.Element;
+  active?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
+  'data-automation-id'?: string;
+}>) {
   return (
     <button
-      className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
-        active && 'bg-gray-1 dark:bg-gray-5'
+      className={`w-full cursor-pointer px-4 py-1 text-left text-sm text-gray-80 active:bg-gray-10 disabled:cursor-not-allowed disabled:text-gray-40 disabled:active:bg-transparent ${
+        active && !disabled && 'bg-gray-1 dark:bg-gray-5'
       }`}
+      disabled={disabled}
       tabIndex={0}
-      onKeyDown={onClick}
-      onClick={onClick}>
+      onClick={onClick}
+      {...props}>
       {children}
     </button>
   );

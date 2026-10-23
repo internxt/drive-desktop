@@ -1,9 +1,9 @@
-import { createReadStream } from 'node:fs';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import { createReadStream } from '@/infra/file-system/original-fs';
 import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS } from './constants';
 import { processError } from './process-error';
 
