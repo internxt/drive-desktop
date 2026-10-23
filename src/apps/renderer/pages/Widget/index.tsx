@@ -15,7 +15,7 @@ export function Widget({ user }: { user: User }) {
     <div
       data-automation-id="widget-rootView"
       className="rounded-shadow-white absolute bottom-0 right-12 flex h-[392px] w-[330px] flex-col bg-surface dark:bg-gray-1">
-      <Header user={user} setIsLogoutModalOpen={setIsLogoutModalOpen} />
+      <Header user={user} setIsLogoutModalOpen={setIsLogoutModalOpen} isSyncing={syncStatus === 'SYNCING'} />
 
       {syncStatus === 'SYNC_FAILED' ? <SyncFailed /> : <SyncInfo />}
 

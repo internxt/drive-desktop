@@ -1,4 +1,4 @@
-import { components } from '@/apps/shared/HttpClient/schema';
+import { components } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';

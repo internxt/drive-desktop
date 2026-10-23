@@ -8,6 +8,7 @@ import {
 import type { ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { Socket } from 'node:net';
+import { logger } from '../constants';
 import type { MailBridgeResources } from '../mail-bridge.types';
 import { createControlEndpoint } from '../utils/create-control-endpoint';
 import { listenForMailBridgeControlMessages } from './mail-bridge-control-messages.service';
@@ -26,6 +27,7 @@ export async function startMailBridge({ session, onControlMessage, onUnexpectedE
   const endpoint = createControlEndpoint(randomUUID());
   const { data: server, error: errorServer } = await createControlServer({ endpoint });
   if (errorServer) return { error: errorServer, data: undefined };
+  logger.debug({ msg: 'Mail Bridge control server created' });
   onResourcesChange({ server });
   if (signal.aborted) return await stopCancelledMailBridgeStart({ server });
 
@@ -41,6 +43,7 @@ export async function startMailBridge({ session, onControlMessage, onUnexpectedE
     return { data: undefined, error: spawnMailBridgeError };
   }
   onResourcesChange({ child, server });
+  logger.debug({ msg: 'Mail Bridge process started' });
   if (signal.aborted) return await stopCancelledMailBridgeStart({ child, server });
   const getStartupError = captureMailBridgeStartupStderr(child);
 
@@ -50,12 +53,14 @@ export async function startMailBridge({ session, onControlMessage, onUnexpectedE
     return { data: undefined, error: connectionError };
   }
   onResourcesChange({ child, server, socket });
+  logger.debug({ msg: 'Mail Bridge control channel connected' });
   if (signal.aborted) return await stopCancelledMailBridgeStart({ child, server, socket });
   const sent = await sendControlMessage({ socket, message: { type: 'start_session', session } });
   if (sent.error) {
     await stopMailBridgeResources({ child, server, socket });
     return { data: undefined, error: sent.error };
   }
+  logger.debug({ msg: 'Mail Bridge session initialization requested' });
   const ready = await waitForMailBridgeReady({
     socket,
     child,
@@ -65,6 +70,7 @@ export async function startMailBridge({ session, onControlMessage, onUnexpectedE
     await stopMailBridgeResources({ child, server, socket });
     return { data: undefined, error: ready.error };
   }
+  logger.debug({ msg: 'Mail Bridge is ready' });
   const { data: connection, error: connectionSettingsError } = createConnectionSettings({ ready: ready.data.ready, session });
   if (connectionSettingsError) {
     await stopMailBridgeResources({ child, server, socket });

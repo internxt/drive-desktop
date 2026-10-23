@@ -23,7 +23,7 @@ export type BackupsIssue = {
 export type GeneralIssue = {
   tab: 'general';
   name: string;
-  error: 'NOT_ENOUGH_SPACE' | 'WEBSOCKET_CONNECTION_ERROR' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
+  error: 'NOT_ENOUGH_SPACE' | 'NETWORK_CONNECTIVITY_ERROR' | 'SERVER_INTERNAL_ERROR';
 };
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;

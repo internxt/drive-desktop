@@ -1,7 +1,7 @@
-import { stat } from 'node:fs/promises';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 import { Sync } from '@/backend/features/sync';
+import { stat } from '@/infra/file-system/original-fs';
 import { scheduleRequest } from '../schedule-request';
 
 type Props = {

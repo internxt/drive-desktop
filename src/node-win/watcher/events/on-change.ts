@@ -1,8 +1,10 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { basename } from 'node:path';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { Drive } from '@/backend/features/drive';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -16,9 +18,10 @@ type Props = {
   ctx: SyncContext;
   event: Watcher.SuccessEvent;
   path: AbsolutePath;
+  observedAtMs: number;
 };
 
-export async function onChange({ ctx, event, path }: Props) {
+export async function onChange({ ctx, event, path, observedAtMs }: Props) {
   const { data: fileInfo } = await NodeWin.getFileInfo({ path });
 
   if (!fileInfo) {
@@ -26,9 +29,8 @@ export async function onChange({ ctx, event, path }: Props) {
     return;
   }
 
-  const now = Date.now();
-  const isChanged = now - event.ctimeMs <= 5000;
-  const isModified = now - event.mtimeMs <= 5000;
+  const isChanged = wasRecentWhenObserved({ observedAtMs, timestamp: event.ctimeMs });
+  const isModified = wasRecentWhenObserved({ observedAtMs, timestamp: event.mtimeMs });
 
   ctx.logger.debug({
     msg: 'On change event',
@@ -57,9 +59,23 @@ export async function onChange({ ctx, event, path }: Props) {
     }
 
     if (fileInfo.inSyncState === InSyncState.NotSync) {
-      await moveFile({ ctx, path, uuid: fileInfo.uuid });
+      await moveIfNotTemporary({ ctx, path, uuid: fileInfo.uuid });
     }
   }
+}
+
+// TODO: PB-XXXX Replace the watcher timestamp heuristic.
+function wasRecentWhenObserved({ observedAtMs, timestamp }: { observedAtMs: number; timestamp: number }) {
+  return observedAtMs - timestamp <= 5000;
+}
+
+async function moveIfNotTemporary({ ctx, path, uuid }: { ctx: SyncContext; path: AbsolutePath; uuid: FileUuid }) {
+  if (isTemporaryFile({ path })) {
+    ctx.logger.debug({ msg: 'File renamed to a temporary name, skipping move', path });
+    return;
+  }
+
+  await moveFile({ ctx, path, uuid });
 }
 
 async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {

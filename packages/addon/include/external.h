@@ -14,9 +14,13 @@
 #include <winrt/windows.storage.provider.h>
 
 #include <filesystem>
+#include <algorithm>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
+#include <vector>
 
 namespace winrt
 {
