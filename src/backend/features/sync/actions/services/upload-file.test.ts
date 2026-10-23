@@ -1,12 +1,11 @@
+import { FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import Bottleneck from 'bottleneck';
-import { electronStore } from '@/apps/main/config';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as originalFs from '@/infra/file-system/original-fs';
 import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT } from '../../../user/file-size-limit';
 import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
 import * as waitUntilReady from './wait-until-ready';
@@ -17,7 +16,7 @@ describe('upload-file', () => {
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
   const environmentFileUploadMock = partialSpyOn(environmentFileUpload, 'environmentFileUpload');
   const handleFileUploadSizeExceededMock = partialSpyOn(handleFileUploadSizeExceeded, 'handleFileUploadSizeExceeded');
-  const electronStoreGetMock = partialSpyOn(electronStore, 'get');
+  const checkUploadFileSizeMock = partialSpyOn(FileSizeLimitModule, 'checkUploadFileSize');
 
   const path = abs('/file.txt');
   const size = 1024;
@@ -30,7 +29,7 @@ describe('upload-file', () => {
     isTemporaryFileMock.mockReturnValue(false);
     waitUntilReadyMock.mockResolvedValue(true);
     environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
-    electronStoreGetMock.mockReturnValue(0);
+    checkUploadFileSizeMock.mockResolvedValue({ allowed: true });
 
     props = mockProps<typeof uploadFile>({
       ctx: { uploadBottleneck: new Bottleneck() },
@@ -59,10 +58,10 @@ describe('upload-file', () => {
     calls(environmentFileUploadMock).toHaveLength(0);
   });
 
-  it('should return undefined if the file exceeds stored plan limit', async () => {
+  it('should return undefined if the file exceeds the plan limit', async () => {
     // Given
     statMock.mockResolvedValue({ size: 6, mtime, birthtime });
-    electronStoreGetMock.mockReturnValue(5);
+    checkUploadFileSizeMock.mockResolvedValue({ allowed: false, reason: 'PLAN_LIMIT_EXCEEDED', maxFileSize: 5, showUpgradeCta: true });
     // When
     const res = await uploadFile(props);
     // Then
@@ -77,26 +76,6 @@ describe('upload-file', () => {
         showUpgradeCta: true,
       },
       size: 6,
-    });
-  });
-
-  it('should return undefined if the file exceeds absolute upload cap', async () => {
-    // Given
-    statMock.mockResolvedValue({ size: ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT + 1, mtime, birthtime });
-    // When
-    const res = await uploadFile(props);
-    // Then
-    expect(res).toBeUndefined();
-    calls(environmentFileUploadMock).toHaveLength(0);
-    call(handleFileUploadSizeExceededMock).toStrictEqual({
-      path,
-      validation: {
-        allowed: false,
-        reason: 'ABSOLUTE_CAP_EXCEEDED',
-        maxFileSize: ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT,
-        showUpgradeCta: false,
-      },
-      size: ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT + 1,
     });
   });
 
@@ -127,6 +106,7 @@ describe('upload-file', () => {
     const res = await uploadFile(props);
     // Then
     expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
+    call(checkUploadFileSizeMock).toMatchObject({ size });
     call(environmentFileUploadMock).toMatchObject({ path, size });
   });
 });
