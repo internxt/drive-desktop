@@ -5,6 +5,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { clearMailBridgeIpc, setupMailBridgeIpc } from '@/backend/features/mail-bridge';
+import { runRecoverySyncManually } from '@/backend/features/sync';
 import { isUserLoggedIn } from '../auth/handlers';
 import { openLoginUrl } from '../auth/open-login-url';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -45,6 +46,7 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('openLoginUrl', () => Promise.resolve(openLoginUrl()));
   ipcPreloadMain.handle('getRemoteSyncStatus', () => Promise.resolve(getSyncStatus()));
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
+  ipcPreloadMain.handle('recoverySyncManually', () => runRecoverySyncManually());
   ipcPreloadMain.handle('disableBackup', (_, props) => Promise.resolve(disableBackup(props)));
 }
 

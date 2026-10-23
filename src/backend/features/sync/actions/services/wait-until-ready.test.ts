@@ -1,14 +1,12 @@
-import { open } from 'node:fs/promises';
 import * as sleep from '@/apps/main/util';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { StatError } from '@/infra/file-system/services/stat';
-import { calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { waitUntilReady } from './wait-until-ready';
 
-vi.mock(import('node:fs/promises'));
-
 describe('wait-until-ready', () => {
-  const openMock = deepMocked(open);
+  const openMock = partialSpyOn(originalFs, 'open');
   const sleepMock = partialSpyOn(sleep, 'sleep');
   const statMock = partialSpyOn(fileSystem, 'stat');
 

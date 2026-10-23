@@ -45,7 +45,7 @@ describe('watcher-on-add', () => {
     await writeFile(file, '');
     await sleep(100);
     // Then
-    call(onEventSpy).toMatchObject({ event: { action: 'create', type: 'file', size: 0 } });
+    call(onEventSpy).toMatchObject({ event: { action: 'create', type: 'file', size: 0, observedAtMs: expect.any(Number) } });
     call(onChangeMock).toMatchObject({ event: { action: 'create', type: 'file', size: 0 }, path: file });
   });
 

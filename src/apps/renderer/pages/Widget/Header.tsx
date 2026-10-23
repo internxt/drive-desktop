@@ -6,9 +6,10 @@ import { ItemsSection } from './items-section';
 type HeadersProps = {
   user: User;
   setIsLogoutModalOpen: (isOpen: boolean) => void;
+  isSyncing: boolean;
 };
 
-const Header: React.FC<HeadersProps> = ({ user, setIsLogoutModalOpen }) => {
+const Header: React.FC<HeadersProps> = ({ user, setIsLogoutModalOpen, isSyncing }) => {
   const AccountSection = () => {
     return (
       <div className="flex flex-1 space-x-2.5 truncate" data-automation-id="headerAccountSection">
@@ -26,7 +27,7 @@ const Header: React.FC<HeadersProps> = ({ user, setIsLogoutModalOpen }) => {
   return (
     <div className="flex h-14 shrink-0 items-center justify-between space-x-6 rounded-t border-b border-b-gray-10 bg-gray-1 px-2.5 dark:bg-gray-5">
       <AccountSection />
-      <ItemsSection setIsLogoutModalOpen={setIsLogoutModalOpen} />
+      <ItemsSection setIsLogoutModalOpen={setIsLogoutModalOpen} isSyncing={isSyncing} />
     </div>
   );
 };

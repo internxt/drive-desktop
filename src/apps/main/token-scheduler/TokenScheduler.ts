@@ -2,6 +2,7 @@ import { auth } from '@internxt/lib';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { MAX_TOKEN_SCHEDULER_TIMEOUT_DELAY_MS, validateToken } from '../../../backend/features/auth';
+import { updateMailBridgeAccessToken } from '../../../backend/features/mail-bridge';
 import { updateCredentials } from '../auth/service';
 
 export class TokenScheduler {
@@ -38,6 +39,10 @@ export class TokenScheduler {
 
       if (data) {
         updateCredentials({ newToken: data.newToken });
+        const updatedMailBridgeToken = await updateMailBridgeAccessToken({ token: data.newToken });
+        if (updatedMailBridgeToken.error) {
+          logger.error({ tag: 'AUTH', msg: 'Could not refresh Mail Bridge access token', error: updatedMailBridgeToken.error });
+        }
         this.schedule();
       }
     }, timeoutDelay);

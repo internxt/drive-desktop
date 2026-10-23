@@ -1,21 +1,30 @@
+import { FileSystemModule } from '@internxt/drive-desktop-core/build/backend';
+import { Stats } from 'node:fs';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as util from '@/apps/main/util';
 import { LocalSync } from '@/backend/features';
 import * as createOrUpdateFolder from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolder } from './create-folder';
 
 describe('create-folder', () => {
+  const statMock = partialSpyOn(FileSystemModule, 'statThrow');
   const persistMock = partialSpyOn(driveServerWip.folders, 'createFolder');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const createOrUpdateFolderMock = partialSpyOn(createOrUpdateFolder, 'createOrUpdateFolder');
+  const sleepMock = partialSpyOn(util, 'sleep');
 
   const path = abs('/parent/folder');
+  const mtime = new Date('2000-01-01T00:00:00.000Z');
+  const birthtime = new Date('1999-01-01T00:00:00.000Z');
   let props: Parameters<typeof createFolder>[0];
 
   beforeEach(() => {
     props = mockProps<typeof createFolder>({ path });
+    statMock.mockResolvedValue({ mtime, birthtime } as Stats);
   });
 
   it('should add error if the file persistence fails', async () => {
@@ -36,11 +45,68 @@ describe('create-folder', () => {
     // When
     await createFolder(props);
     // Given
-    call(persistMock).toMatchObject({ context: { path, body: { plainName: 'folder' } } });
+    call(persistMock).toMatchObject({
+      context: {
+        path,
+        body: {
+          plainName: 'folder',
+          modificationTime: '2000-01-01T00:00:00.000Z',
+          creationTime: '1999-01-01T00:00:00.000Z',
+        },
+      },
+    });
     call(createOrUpdateFolderMock).toMatchObject({ folderDto: { uuid: 'uuid' } });
     calls(addItemMock).toMatchObject([
       { action: 'UPLOADING', path },
       { action: 'UPLOADED', path },
     ]);
+  });
+
+  it('should retry folder creation while its parent propagates', async () => {
+    // Given
+    persistMock
+      .mockResolvedValueOnce({ error: { code: 'PARENT_NOT_FOUND' } })
+      .mockResolvedValueOnce({ data: { uuid: 'uuid' as FolderUuid } });
+    // When
+    await createFolder(props);
+    // Then
+    calls(persistMock).toHaveLength(2);
+    call(sleepMock).toBe(1_000);
+    calls(addItemMock).toMatchObject([
+      { action: 'UPLOADING', path },
+      { action: 'UPLOADED', path },
+    ]);
+
+    expect(loggerMock.debug).toHaveBeenCalledWith(
+      expect.objectContaining({ msg: 'Folder created after parent folder propagation retry', path, attempts: 2 }),
+    );
+  });
+
+  it('should use exponential backoff while its parent is unavailable', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'PARENT_NOT_FOUND' } });
+    // When
+    await createFolder(props);
+    // Then
+    calls(persistMock).toHaveLength(4);
+    calls(sleepMock).toStrictEqual([1_000, 3_000, 9_000]);
+    calls(addItemMock).toMatchObject([
+      { action: 'UPLOADING', path },
+      { action: 'UPLOAD_ERROR', path },
+    ]);
+  });
+
+  it('should not wait or retry when creation is aborted while its parent is unavailable', async () => {
+    // Given
+    persistMock.mockResolvedValue({ error: { code: 'PARENT_NOT_FOUND' } });
+    const abortController = new AbortController();
+    abortController.abort();
+    props = mockProps<typeof createFolder>({ path, ctx: { abortController } });
+    // When
+    await createFolder(props);
+    // Then
+    calls(persistMock).toHaveLength(1);
+    calls(sleepMock).toHaveLength(0);
+    calls(addItemMock).toStrictEqual([{ action: 'UPLOADING', path }]);
   });
 });

@@ -1,21 +1,19 @@
 import Bottleneck from 'bottleneck';
-import { stat } from 'node:fs/promises';
 import { electronStore } from '@/apps/main/config';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as originalFs from '@/infra/file-system/original-fs';
 import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ABSOLUTE_UPLOAD_FILE_SIZE_LIMIT } from '../../../user/file-size-limit';
 import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
 import * as waitUntilReady from './wait-until-ready';
 
-vi.mock(import('node:fs/promises'));
-
 describe('upload-file', () => {
-  const statMock = deepMocked(stat);
+  const statMock = partialSpyOn(originalFs, 'stat');
   const waitUntilReadyMock = partialSpyOn(waitUntilReady, 'waitUntilReady');
   const isTemporaryFileMock = partialSpyOn(isTemporaryFile, 'isTemporaryFile');
   const environmentFileUploadMock = partialSpyOn(environmentFileUpload, 'environmentFileUpload');

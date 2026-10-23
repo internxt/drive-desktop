@@ -4,6 +4,7 @@ import { mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { cwd } from 'node:process';
 import { PATHS } from '@/core/electron/paths';
+import { getMailBridgeEnvironment } from './get-mail-bridge-environment.service';
 
 /**
  * Creates the per-account directory used by the Bridge for its local state.
@@ -31,10 +32,20 @@ export function spawnMailBridge({
   stateDirectory: string;
 }): { data: ChildProcess; error: undefined } | { data: undefined; error: Error } {
   try {
+    // dotenv-webpack embeds individual references; spreading process.env alone
+    // does not pass the packaged app's build configuration to the Bridge.
+    const { data: environment, error } = getMailBridgeEnvironment({
+      inheritedEnvironment: process.env,
+      mailApiUrl: process.env.MAIL_API_URL,
+      mailServerPublicKey: process.env.MAIL_SERVER_PUBLIC_KEY,
+    });
+    if (error) return { data: undefined, error };
+
     const runtime = resolveMailBridgeRuntime();
     return {
       data: spawn(runtime.executablePath, ['--control-endpoint', endpoint, '--state-dir', stateDirectory], {
         cwd: runtime.workingDirectory,
+        env: environment,
         windowsHide: true,
         stdio: ['ignore', 'ignore', 'pipe'],
       }),

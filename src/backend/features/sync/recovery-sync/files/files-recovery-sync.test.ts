@@ -64,4 +64,35 @@ describe('files-recovery-sync', () => {
     call(createOrUpdateFilesMock).toMatchObject({ fileDtos: [{ uuid: 'create' }] });
     call(updateByUuidMock).toStrictEqual({ uuid: 'deleted', payload: { status: 'DELETED' } });
   });
+
+  it('waits for database writes before finishing recovery', async () => {
+    // Given
+    const writes = Promise.withResolvers<undefined>();
+    const writesStarted = Promise.withResolvers<void>();
+    createOrUpdateFilesMock.mockImplementationOnce(() => {
+      writesStarted.resolve();
+      return writes.promise;
+    });
+    let completed = false;
+    // When
+    const recovery = filesRecoverySync(props).then((result) => {
+      completed = true;
+      return result;
+    });
+    await writesStarted.promise;
+    // Then
+    expect(completed).toBe(false);
+    writes.resolve(undefined);
+    expect(await recovery).toHaveLength(1);
+  });
+
+  it('awaits deletion promises so write exceptions reach recovery error handling', async () => {
+    // Given
+    const error = new Error('Deletion write failed');
+    updateByUuidMock.mockImplementationOnce(() => {
+      throw error;
+    });
+    // When / Then
+    await expect(filesRecoverySync(props)).rejects.toBe(error);
+  });
 });
