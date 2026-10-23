@@ -91,6 +91,17 @@ export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
   removeIssue({ ...issue, tab: 'sync' });
 }
 
+export function removeSyncIssuesByError({ error }: Pick<SyncIssue, 'error'>) {
+  const initialLength = issues.length;
+
+  issues = issues.filter((i) => !(i.tab === 'sync' && i.error === error));
+
+  const removed = issues.length < initialLength;
+  if (removed) onIssuesChanged();
+
+  return removed;
+}
+
 export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
   removeIssue({ ...issue, tab: 'general' });
 }
