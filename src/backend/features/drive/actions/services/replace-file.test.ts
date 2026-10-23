@@ -3,6 +3,7 @@ import { Sync } from '@/backend/features/sync';
 import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wait-until-ready';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as getInFlightRequest from '@/infra/drive-server-wip/in/get-in-flight-request';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
@@ -17,6 +18,7 @@ describe('replace-file', () => {
   const waitForLocalFileMock = partialSpyOn(waitForLocalFile, 'waitForLocalFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const getInFlightRequestMock = partialSpyOn(getInFlightRequest, 'getInFlightRequest', false);
+  const statMock = partialSpyOn(fileSystem, 'stat');
 
   const path = abs('/file.txt');
   const uuid = 'uuid' as FileUuid;
@@ -24,7 +26,12 @@ describe('replace-file', () => {
 
   beforeEach(() => {
     waitForLocalFileMock.mockResolvedValue({ data: true });
+    statMock.mockResolvedValue({ data: { mtimeMs: 1, size: 1 } });
   });
+
+  function changeFileWhileUploading() {
+    statMock.mockResolvedValueOnce({ data: { mtimeMs: 1, size: 1 } }).mockResolvedValueOnce({ data: { mtimeMs: 2, size: 1 } });
+  }
 
   async function retryFromLastWait() {
     const { retry } = waitForLocalFileMock.mock.calls[0][0];
@@ -77,6 +84,7 @@ describe('replace-file', () => {
 
   it('should replace the file once more if it changes while it is being uploaded', async () => {
     // Given
+    changeFileWhileUploading();
     let finishUpload: (value: { uuid: FileUuid }) => void = () => {};
     replaceFileMock.mockReturnValueOnce(new Promise((resolve) => (finishUpload = resolve)));
     replaceFileMock.mockResolvedValue({ uuid });
@@ -94,9 +102,27 @@ describe('replace-file', () => {
     expect(loggerMock.debug.mock.calls.map(([body]) => body.msg)).toContain('File changed while it was being uploaded, replace it again');
   });
 
+  it('should not replace the file once more if it does not change while it is being uploaded', async () => {
+    // Given
+    let finishUpload: (value: { uuid: FileUuid }) => void = () => {};
+    replaceFileMock.mockReturnValueOnce(new Promise((resolve) => (finishUpload = resolve)));
+    // When
+    const first = replaceFile(props);
+    await vi.waitFor(() => calls(replaceFileMock).toHaveLength(1));
+    await replaceFile(props);
+    finishUpload({ uuid });
+    await first;
+    // Then
+    calls(replaceFileMock).toHaveLength(1);
+    expect(loggerMock.debug.mock.calls.map(([body]) => body.msg)).toContain(
+      'File did not change while it was being uploaded, do not replace it again',
+    );
+  });
+
   it('should use the uuid of the latest event when replacing the file once more', async () => {
     // Given
     const newUuid = 'new-uuid' as FileUuid;
+    changeFileWhileUploading();
     let finishUpload: (value: { uuid: FileUuid }) => void = () => {};
     replaceFileMock.mockReturnValueOnce(new Promise((resolve) => (finishUpload = resolve)));
     replaceFileMock.mockResolvedValue({ uuid: newUuid });

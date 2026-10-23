@@ -18,7 +18,7 @@ export async function createFolder({ ctx, path, parentUuid, createPendingChildre
 
     if (!folder) return;
 
-    await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}` });
+    await Addon.convertToPlaceholder({ path, placeholderId: `FOLDER:${folder.uuid}`, markInSync: true });
 
     if (createPendingChildren) {
       await createPendingItems({
