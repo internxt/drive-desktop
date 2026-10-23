@@ -17,7 +17,10 @@ describe('update-file-placeholder', () => {
   const checkIfModifiedMock = partialSpyOn(checkIfModified, 'checkIfModified');
 
   const date = '2000-01-01T00:00:00.000Z';
-  const time = new Date(date).getTime();
+  const creationDate = '1999-01-01T00:00:00.000Z';
+  const creationTime = new Date(creationDate).getTime();
+  const modificationDate = '2000-01-02T00:00:00.000Z';
+  const modificationTime = new Date(modificationDate).getTime();
   let props: TestProps<typeof updateFilePlaceholder>;
 
   beforeEach(() => {
@@ -31,7 +34,9 @@ describe('update-file-placeholder', () => {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
         createdAt: date,
+        creationTime: creationDate,
         updatedAt: date,
+        modificationTime: modificationDate,
         size: 1024,
       },
     };
@@ -60,8 +65,8 @@ describe('update-file-placeholder', () => {
       path: 'remotePath',
       placeholderId: 'FILE:uuid',
       size: 1024,
-      creationTime: time,
-      lastWriteTime: time,
+      creationTime,
+      lastWriteTime: modificationTime,
     });
   });
 

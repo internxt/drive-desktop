@@ -1,9 +1,11 @@
+import { fileURLToPath } from 'node:url';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { ViteUserConfig } from 'vitest/config';
 
 export function getConfigBase(): ViteUserConfig {
   return {
     plugins: [tsconfigPaths()],
+    resolve: { alias: { 'original-fs': fileURLToPath(new URL('./tests/vitest/original-fs.helper.ts', import.meta.url)) } },
     test: {
       coverage: {
         provider: 'istanbul',

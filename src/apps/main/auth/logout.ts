@@ -7,7 +7,6 @@ import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
 import { clearIssues } from '../background-processes/issues';
 import { cleanSyncEngineWorkers } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
-import { stopRemoteNotifications } from '../realtime';
 import { setTrayStatus } from '../tray/tray';
 import { closeAuxWindows } from '../windows';
 import { showFrontend } from '../windows/widget';
@@ -33,7 +32,6 @@ export function logout({ ctx }: Props) {
     closeAuxWindows();
     showFrontend();
 
-    stopRemoteNotifications();
     LocalSync.SyncState.onLogout();
     clearAntivirus();
     clearIssues();

@@ -1,4 +1,4 @@
-import { logger, MailBridgeSessionPreparationError } from '@internxt/drive-desktop-core/build/backend';
+import { MailBridgeSessionPreparationError } from '@internxt/drive-desktop-core/build/backend';
 import { ipcMain } from 'electron';
 import type { AuthContext } from '@/apps/sync-engine/config';
 import { createMailBridgeSession } from '@/backend/features/mail-bridge/create-mail-bridge-session';
@@ -6,6 +6,7 @@ import {
   isMailBridgeStartOnLoginEnabled,
   setMailBridgeStartOnLogin,
 } from '@/backend/features/mail-bridge/mail-bridge-start-on-login.service';
+import { getMailBridgeEmail } from '@/backend/features/mail-bridge/services/get-mail-bridge-email.service';
 import {
   getMailBridgeStatus as getLifecycleMailBridgeStatus,
   getMailBridgeSyncProgress as getLifecycleMailBridgeSyncProgress,
@@ -16,6 +17,7 @@ import {
   subscribeToMailBridgeStatus,
 } from '@/backend/features/mail-bridge/services/mail-bridge.service';
 import { getWidget } from '../../../../apps/main/windows/widget';
+import { logger } from '../constants';
 
 let unsubscribeFromMailBridgeStatus: (() => void) | undefined;
 let unsubscribeFromMailBridgeSyncProgress: (() => void) | undefined;
@@ -30,6 +32,7 @@ export function getMailBridgeStartOnLogin() {
 
 export function setMailBridgeStartOnLoginPreference({ enabled }: { enabled: boolean }) {
   setMailBridgeStartOnLogin({ enabled });
+  logger.debug({ msg: 'Mail Bridge start-on-login preference changed', enabled });
 }
 
 export async function startMailBridge({ ctx }: { ctx: AuthContext }) {
@@ -48,6 +51,7 @@ export async function startMailBridge({ ctx }: { ctx: AuthContext }) {
 
 export async function startMailBridgeOnLogin({ ctx }: { ctx: AuthContext }) {
   if (!isMailBridgeStartOnLoginEnabled()) return;
+  logger.debug({ msg: 'Starting Mail Bridge on login' });
 
   const result = await startMailBridge({ ctx });
   if (result.error) logger.warn({ msg: 'Mail Bridge could not start automatically', code: result.error.code });
@@ -55,6 +59,7 @@ export async function startMailBridgeOnLogin({ ctx }: { ctx: AuthContext }) {
 
 export async function stopMailBridge() {
   const result = await stopLifecycleMailBridge();
+  if (result.error) logger.error({ msg: 'Mail Bridge stop request failed', error: result.error });
   return result.error ? { data: undefined, error: result.error.message } : { data: undefined, error: undefined };
 }
 
@@ -78,6 +83,7 @@ export function setupMailBridgeIpc({ ctx }: { ctx: AuthContext }) {
   });
   ipcMain.handle('mail-bridge:start', () => startMailBridge({ ctx }));
   ipcMain.handle('mail-bridge:get-status', () => getMailBridgeStatus());
+  ipcMain.handle('mail-bridge:get-email', () => getMailBridgeEmail());
   ipcMain.handle('mail-bridge:get-start-on-login', () => getMailBridgeStartOnLogin());
   ipcMain.handle('mail-bridge:set-start-on-login', (_, enabled: boolean) => setMailBridgeStartOnLoginPreference({ enabled }));
   ipcMain.handle('mail-bridge:stop', () => stopMailBridge());
@@ -92,6 +98,7 @@ export function clearMailBridgeIpc() {
   unsubscribeFromMailBridgeSyncProgress = undefined;
   ipcMain.removeHandler('mail-bridge:start');
   ipcMain.removeHandler('mail-bridge:get-status');
+  ipcMain.removeHandler('mail-bridge:get-email');
   ipcMain.removeHandler('mail-bridge:get-start-on-login');
   ipcMain.removeHandler('mail-bridge:set-start-on-login');
   ipcMain.removeHandler('mail-bridge:stop');

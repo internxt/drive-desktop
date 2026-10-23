@@ -1,5 +1,4 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { AbsolutePath, paths } from '@internxt/drive-desktop-core/build/backend';
 import { CommonContext } from '@/apps/sync-engine/config';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';

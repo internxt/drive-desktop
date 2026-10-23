@@ -1,4 +1,5 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { getWorkerCount } from '@/core/utils/concurrency';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -25,6 +26,8 @@ export async function loadFileExplorerFiles({
 
       const { data: placeholder } = await NodeWin.getFileInfo({ path });
       if (placeholder) {
+        if (isTemporaryFile({ path }) && files.has(placeholder.uuid)) continue;
+
         files.set(placeholder.uuid, {
           path,
           parentUuid,

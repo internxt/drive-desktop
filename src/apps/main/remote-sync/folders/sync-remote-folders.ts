@@ -1,60 +1,29 @@
+import { synchronizeRemoteItems, SynchronizationPageRequest } from '@internxt/drive-desktop-core/build/backend/features/sync';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { createOrUpdateFolders } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { GetFoldersQuery } from '@/infra/drive-server-wip/services/folders.service';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { FETCH_LIMIT_1000 } from '../store';
+import { persistFolders } from './persist-folders';
 
-type TProps = {
+type SyncRemoteFoldersProps = {
   ctx: SyncContext;
   from?: Date;
-  offset?: number;
 };
 
-export async function syncRemoteFolders({ ctx, from, offset = 0 }: TProps) {
-  let hasMore = true;
+export async function syncRemoteFolders({ ctx, from }: SyncRemoteFoldersProps): Promise<void> {
+  const result = await synchronizeRemoteItems({
+    from,
+    limit: FETCH_LIMIT_1000,
+    fetchPage: async (query) => await fetchFoldersSyncPage({ ctx, query }),
+    persistItems: async ({ items }) => await persistFolders({ ctx, items }),
+  });
 
-  while (hasMore) {
-    /**
-     * v2.5.0 Daniel Jiménez
-     * We fetch ALL folders when we want to synchronize the current state with the web state.
-     * It means that we need to delete or create the folders that are not in the web state anymore.
-     * However, if no checkpoint is provided it means that we don't have a local state yet.
-     * In that situation, fetch only EXISTS folders.
-     */
-    const query: GetFoldersQuery = {
-      limit: FETCH_LIMIT_1000,
-      offset,
-      status: from ? 'ALL' : 'EXISTS',
-      updatedAt: from?.toISOString(),
-      sort: 'updatedAt',
-      order: 'ASC',
-    };
+  if (result.error) ctx.logger.error({ msg: 'Error synchronizing remote folders', error: result.error });
+}
 
-    const promise = ctx.workspaceId
-      ? driveServerWip.workspaces.getFolders({ ctx, query })
-      : driveServerWip.folders.getFolders({ ctx, context: { query } });
-
-    const { data: folderDtos, error: error1 } = await promise;
-
-    if (error1) return;
-
-    hasMore = folderDtos.length === FETCH_LIMIT_1000;
-    offset += FETCH_LIMIT_1000;
-
-    const error2 = await createOrUpdateFolders({ ctx, folderDtos });
-
-    if (error2) return;
-
-    const lastFolder = folderDtos.at(-1);
-    if (lastFolder) {
-      await SqliteModule.CheckpointModule.createOrUpdate({
-        userUuid: ctx.userUuid,
-        workspaceId: ctx.workspaceId,
-        type: 'folder',
-        name: lastFolder.plainName,
-        updatedAt: lastFolder.updatedAt,
-      });
-    }
+async function fetchFoldersSyncPage({ ctx, query }: { ctx: SyncContext; query: SynchronizationPageRequest }) {
+  if (ctx.workspaceId) {
+    return await driveServerWip.workspaces.getFoldersSyncPage({ ctx, context: { query } });
   }
+
+  return await driveServerWip.folders.getFoldersSyncPage({ ctx, context: { query } });
 }

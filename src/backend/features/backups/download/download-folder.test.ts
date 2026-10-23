@@ -1,21 +1,19 @@
-import { mkdir } from 'node:fs/promises';
 import { Traverser } from '@/apps/backups/remote-tree/traverser';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { sleep } from '@/apps/main/util';
 import * as broadcastToWindows from '@/apps/main/windows';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as downloadFile from './download-file';
 import { downloadFolder } from './download-folder';
-
-vi.mock(import('node:fs/promises'));
 
 describe('download-folder', () => {
   const broadcastToWindowsMock = partialSpyOn(broadcastToWindows, 'broadcastToWindows');
   const traverserMock = partialSpyOn(Traverser, 'run');
   const downloadFileMock = partialSpyOn(downloadFile, 'downloadFile');
-  const mkdirMock = vi.mocked(mkdir);
+  const mkdirMock = partialSpyOn(originalFs, 'mkdir');
 
   const folder1 = abs('folder1.txt');
   const file1 = abs('file1.txt');

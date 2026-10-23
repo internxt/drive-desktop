@@ -4,12 +4,14 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as tokenValidation from '../../../backend/features/auth/services/token/validate-token';
+import * as mailBridge from '../../../backend/features/mail-bridge';
 import * as credentials from '../auth/service';
 import { TokenScheduler } from './TokenScheduler';
 
 describe('token-scheduler', () => {
   const validateTokenMock = partialSpyOn(tokenValidation, 'validateToken');
   const updateCredentialsMock = partialSpyOn(credentials, 'updateCredentials');
+  const updateMailBridgeAccessTokenMock = partialSpyOn(mailBridge, 'updateMailBridgeAccessToken');
   const refreshMock = partialSpyOn(driveServerWip.auth, 'refresh');
   const calculateMillisecondsUntilRefreshMock = vi.spyOn(auth, 'calculateMillisecondsUntilRefresh');
 
@@ -19,6 +21,7 @@ describe('token-scheduler', () => {
     validateTokenMock.mockReturnValue({ data: { exp: 43_200, iat: 0 } });
     calculateMillisecondsUntilRefreshMock.mockReturnValue(21_600_000);
     refreshMock.mockResolvedValue({ data: { newToken: 'refreshed-token' } });
+    updateMailBridgeAccessTokenMock.mockResolvedValue({ data: undefined, error: undefined });
   });
 
   afterEach(() => {
@@ -36,6 +39,7 @@ describe('token-scheduler', () => {
     await vi.advanceTimersByTimeAsync(1);
     expect(refreshMock).toHaveBeenCalledOnce();
     expect(updateCredentialsMock).toHaveBeenCalledWith({ newToken: 'refreshed-token' });
+    expect(updateMailBridgeAccessTokenMock).toHaveBeenCalledWith({ token: 'refreshed-token' });
     expect(TokenScheduler.timeout).toBeDefined();
   });
 
