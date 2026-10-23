@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { removeUploadIssues } from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
@@ -76,12 +77,17 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
 
     const file = await promise;
 
-    if (file) await Addon.updateSyncStatus({ path });
+    if (file) await markFileReplaced({ path });
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });
   }
 
   return true;
+}
+
+async function markFileReplaced({ path }: { path: AbsolutePath }) {
+  removeUploadIssues({ path });
+  await Addon.updateSyncStatus({ path });
 }
 
 async function retryReplaceFile({ ctx, path, uuid }: Props) {
