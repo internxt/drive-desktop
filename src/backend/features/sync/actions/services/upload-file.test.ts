@@ -5,6 +5,7 @@ import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as originalFs from '@/infra/file-system/original-fs';
 import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
@@ -27,23 +28,24 @@ describe('upload-file', () => {
   beforeEach(() => {
     statMock.mockResolvedValue({ size, mtime, birthtime });
     isTemporaryFileMock.mockReturnValue(false);
-    waitUntilReadyMock.mockResolvedValue(true);
+    waitUntilReadyMock.mockResolvedValue({ data: true });
     environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
     checkUploadFileSizeMock.mockResolvedValue({ allowed: true });
 
     props = mockProps<typeof uploadFile>({
-      ctx: { uploadBottleneck: new Bottleneck() },
+      ctx: { uploadBottleneck: new Bottleneck(), logger: loggerMock },
       path,
     });
   });
 
   it('should return undefined if file is locked', async () => {
     // Given
-    waitUntilReadyMock.mockResolvedValue(false);
+    waitUntilReadyMock.mockResolvedValue({ error: new waitUntilReady.WaitUntilReadyError('MAX_TIMEOUT') });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBeUndefined();
+    call(loggerMock.error).toMatchObject({ msg: 'Wait until ready, timeout', path, reason: 'MAX_TIMEOUT' });
     calls(environmentFileUploadMock).toHaveLength(0);
     calls(handleFileUploadSizeExceededMock).toHaveLength(0);
   });
