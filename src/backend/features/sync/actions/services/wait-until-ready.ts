@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { open } from 'node:fs/promises';
 import { sleep } from '@/apps/main/util';
+import { open } from '@/infra/file-system/original-fs';
 
 const SLEEP_MS = 500;
 const MAX_WAIT_MS = 60_000;

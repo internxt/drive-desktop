@@ -167,12 +167,12 @@ describe('addon', () => {
     // Given
     watchPathMock.mockReturnValue({});
     const rootPath = abs('C:/Users/user/InternxtDrive');
-    const onEvent = vi.fn();
-    const props = mockProps<typeof Addon.watchPath>({ rootPath, onEvent });
+    const onEvents = vi.fn();
+    const props = mockProps<typeof Addon.watchPath>({ rootPath, onEvents });
     // When
     Addon.watchPath(props);
     // Then
-    call(addon.watchPath).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, onEvent]);
+    call(addon.watchPath).toStrictEqual([String.raw`C:\Users\user\InternxtDrive`, onEvents]);
   });
 
   it('should call addon.unwatchPath', () => {

@@ -27,18 +27,15 @@ function getFileDto(): FileDto {
 
 function getErrorResponse({
   status,
-  message = 'Request failed',
+  apiError = { message: 'Request failed' },
   cause = new Error('cause'),
 }: {
   status?: number;
-  message?: string;
+  apiError?: unknown;
   cause?: unknown;
 }): Awaited<TResponse<FileDto>> {
   const response = status ? new Response(undefined, { status }) : undefined;
-  const error = new DriveServerWipError('UNKNOWN', cause, response);
-  if (message) {
-    error.message = message;
-  }
+  const error = new DriveServerWipError('UNKNOWN', cause, response, apiError);
 
   return { error };
 }
@@ -59,15 +56,15 @@ describe('parseCreateFileResponse', () => {
   });
 
   it.each([
-    { status: 404, message: 'Parent folder does not exist', expectedCode: 'PARENT_NOT_FOUND' },
-    { status: 409, message: 'File already exists', expectedCode: 'FILE_ALREADY_EXISTS' },
-    { status: 402, message: 'You can not have empty files', expectedCode: 'EMPTY_FILES_NOT_ALLOWED' },
-    { status: 400, message: 'You can not have more empty files', expectedCode: 'EMPTY_FILES_EXCEEDED' },
-    { status: 402, message: 'Storage limit exceeded', expectedCode: 'FILE_UPLOAD_SIZE_EXCEEDED' },
-  ])('maps $status "$message" errors to $expectedCode', ({ status, message, expectedCode }) => {
+    { status: 404, apiError: { message: 'Parent folder does not exist' }, expectedCode: 'PARENT_NOT_FOUND' },
+    { status: 409, apiError: { message: 'File already exists' }, expectedCode: 'FILE_ALREADY_EXISTS' },
+    { status: 402, apiError: { error: 'EMPTY_FILES_NOT_ALLOWED' }, expectedCode: 'EMPTY_FILES_NOT_ALLOWED' },
+    { status: 400, apiError: { error: 'EMPTY_FILES_EXCEEDED' }, expectedCode: 'EMPTY_FILES_EXCEEDED' },
+    { status: 402, apiError: { message: 'Storage limit exceeded' }, expectedCode: 'FILE_UPLOAD_SIZE_EXCEEDED' },
+  ])('maps $status API errors to $expectedCode', ({ status, apiError, expectedCode }) => {
     const cause = new Error('cause');
 
-    const response = getErrorResponse({ status, message, cause });
+    const response = getErrorResponse({ status, apiError, cause });
     const result = parseCreateFileResponse(response);
 
     expect(result.error?.code).toBe(expectedCode);
@@ -93,7 +90,7 @@ describe('parseCreateFileResponse', () => {
 
   it('should properly return error when no message is provided', () => {
     const cause = new Error('cause');
-    const response = getErrorResponse({ status: 402, message: undefined, cause });
+    const response = getErrorResponse({ status: 402, apiError: null, cause });
 
     const result = parseCreateFileResponse(response);
 

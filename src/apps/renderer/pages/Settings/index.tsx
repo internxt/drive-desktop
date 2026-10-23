@@ -55,7 +55,7 @@ export default function Settings({ user, activeSection }: Props) {
                   <div
                     className={
                       activeSection === 'MAIL_BRIDGE'
-                        ? 'flex min-h-0 flex-grow flex-col overflow-hidden p-5'
+                        ? 'flex min-h-0 flex-grow flex-col overflow-hidden'
                         : 'flex flex-grow flex-col justify-center p-5'
                     }>
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
@@ -84,9 +84,7 @@ export default function Settings({ user, activeSection }: Props) {
                       openUrl={window.electron.shellOpenExternal}
                       sectionConfig={sectionConfig}
                     />
-                    {activeSection === 'MAIL_BRIDGE' && (
-                      <MailBridgeSection accountEmail={user.email} availableProducts={availableProducts} />
-                    )}
+                    {activeSection === 'MAIL_BRIDGE' && <MailBridgeSection availableProducts={availableProducts} />}
                   </div>
                 </>
               )}
