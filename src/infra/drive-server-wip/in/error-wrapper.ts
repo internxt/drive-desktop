@@ -31,6 +31,6 @@ export function errorWrapper({ loggerBody, error, response, retry }: TProps) {
     addGeneralIssue(serverErrorIssue);
     return new DriveServerWipError('SERVER', loggedError);
   } else {
-    return new DriveServerWipError('UNKNOWN', loggedError, response);
+    return new DriveServerWipError('UNKNOWN', loggedError, response, error);
   }
 }

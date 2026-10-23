@@ -1,16 +1,14 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { rename } from 'node:fs/promises';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { call, calls, deepMocked, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
+import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import { checkIfMoved } from './check-if-moved';
 import * as needsToBeMoved from './needs-to-be-moved';
 
-vi.mock(import('node:fs/promises'));
-
 describe('check-if-moved', () => {
   const needsToBeMovedMock = partialSpyOn(needsToBeMoved, 'needsToBeMoved');
-  const renameMock = deepMocked(rename);
+  const renameMock = partialSpyOn(originalFs, 'rename');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
 
   const props: TestProps<typeof checkIfMoved> = {

@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises';
+import * as originalFs from '../original-fs';
 
 export class StatError extends Error {
   constructor(
@@ -15,7 +15,7 @@ type TProps = {
 
 export async function stat({ absolutePath }: TProps) {
   try {
-    const stat = await fs.stat(absolutePath);
+    const stat = await originalFs.stat(absolutePath);
 
     return { data: stat };
   } catch (exc) {

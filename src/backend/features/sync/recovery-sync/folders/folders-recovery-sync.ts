@@ -54,7 +54,7 @@ export async function foldersRecoverySync({ ctx, offset }: Props) {
     });
   });
 
-  await Promise.all([foldersToSyncPromises, deletedFoldersPromises]);
+  await Promise.all([foldersToSyncPromises, ...deletedFoldersPromises]);
 
   return remotes;
 }

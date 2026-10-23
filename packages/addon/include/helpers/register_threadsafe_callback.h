@@ -1,6 +1,11 @@
 #pragma once
 
-napi_threadsafe_function registerThreadsafeCallback(const std::string& resourceName, napi_env env, napi_value callback, napi_threadsafe_function_call_js callJsCallback)
+napi_threadsafe_function registerThreadsafeCallback(
+    const std::string& resourceName,
+    napi_env env,
+    napi_value callback,
+    napi_threadsafe_function_call_js callJsCallback,
+    size_t maxQueueSize = 0) // maxQueueSize 0 means unlimited
 {
     std::u16string convertedResourceName(resourceName.begin(), resourceName.end());
 
@@ -13,7 +18,7 @@ napi_threadsafe_function registerThreadsafeCallback(const std::string& resourceN
         callback,
         nullptr,
         resourceNameValue,
-        0,
+        maxQueueSize,
         1,
         nullptr,
         nullptr,

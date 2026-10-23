@@ -1,28 +1,36 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable sonarjs/no-unused-vars */
+import { components } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { components } from '@/apps/shared/HttpClient/schema';
 
 export type FileDto = components['schemas']['FileDto'];
+export type FileSyncDto = components['schemas']['FileSyncDto'];
 export type FolderDto = components['schemas']['FolderDto'];
-export type ParsedFileDto = Omit<FileDto, 'fileId'> & {
+export type FolderSyncDto = components['schemas']['FolderSyncDto'];
+export type ParsedFileDto = Omit<FileDto, 'fileId' | 'thumbnails' | 'isFavorite'> & {
   uuid: FileUuid;
   fileId: string;
 };
-export type ParsedFolderDto = FolderDto & {
+export type ParsedFolderDto = Omit<FolderDto, 'isFavorite'> & {
   uuid: FolderUuid;
 };
 
 export function parseFileDto({ fileDto }: { fileDto: FileDto }): ParsedFileDto {
+  const { isFavorite: _isFavorite, thumbnails: _thumbnails, ...parsedFileDto } = fileDto;
+
   return {
-    ...fileDto,
+    ...parsedFileDto,
     uuid: fileDto.uuid as FileUuid,
     fileId: fileDto.fileId ?? '',
   };
 }
 
 export function parseFolderDto({ folderDto }: { folderDto: FolderDto }): ParsedFolderDto {
+  const { isFavorite: _isFavorite, ...parsedFolderDto } = folderDto;
+
   return {
-    ...folderDto,
+    ...parsedFolderDto,
     uuid: folderDto.uuid as FolderUuid,
   };
 }

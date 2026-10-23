@@ -29,6 +29,8 @@ describe('create-or-update-batch', () => {
         workspaceId: 'workspaceId',
         createdAt: date,
         updatedAt: date,
+        creationTime: date,
+        modificationTime: date,
         plainName: 'plainName',
       })),
     };
@@ -57,6 +59,8 @@ describe('create-or-update-batch', () => {
       plainName: 'plainName',
       createdAt: date,
       updatedAt: date,
+      creationTime: date,
+      modificationTime: date,
       parentUuid: 'parentUuid',
       workspaceId: 'workspaceId',
       parentId: null,

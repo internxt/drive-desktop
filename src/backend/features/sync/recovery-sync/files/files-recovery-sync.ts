@@ -54,7 +54,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
     });
   });
 
-  await Promise.all([filesToSyncPromises, deletedFilesPromises]);
+  await Promise.all([filesToSyncPromises, ...deletedFilesPromises]);
 
   return remotes;
 }
