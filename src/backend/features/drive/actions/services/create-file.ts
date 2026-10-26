@@ -16,18 +16,7 @@ type Props = {
 export async function createFile({ ctx, path, parentUuid }: Props) {
   try {
     const key = getCreateFileKey({ path });
-    const promiseFn = async () => {
-      const { error } = await waitForLocalFile({
-        ctx,
-        path,
-        operation: 'create',
-        retry: () => retryCreateFile({ ctx, path, parentUuid }),
-      });
-      if (error) return;
-
-      return await Sync.Actions.createFile({ ctx, path, parentUuid });
-    };
-    const { promise, reused } = getInFlightRequest({ key, promiseFn });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndCreateFile({ ctx, path, parentUuid }) });
 
     if (reused) {
       /**
@@ -50,6 +39,18 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
   } catch (error) {
     ctx.logger.error({ msg: 'Error creating file', path, error });
   }
+}
+
+async function waitAndCreateFile({ ctx, path, parentUuid }: Props) {
+  const { error } = await waitForLocalFile({
+    ctx,
+    path,
+    operation: 'create',
+    retry: () => retryCreateFile({ ctx, path, parentUuid }),
+  });
+  if (error) return;
+
+  return await Sync.Actions.createFile({ ctx, path, parentUuid });
 }
 
 async function retryCreateFile({ ctx, path, parentUuid }: Props) {
