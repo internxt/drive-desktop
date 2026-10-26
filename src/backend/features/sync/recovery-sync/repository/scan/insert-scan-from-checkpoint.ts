@@ -1,40 +1,42 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
-import { RecoveryScope } from '../../types';
+import { RecoveryContext } from '../../types';
 import { itemStorage } from '../storage';
 
-/** Captures one scope's checkpoint and inventory bound; scopes without a checkpoint remain owned by initial sync. */
+/** Captures a Drive's checkpoint for one item type; missing checkpoints remain owned by initial sync. */
 export function insertScanFromCheckpoint({
   database,
-  processId,
-  scope,
+  ctx,
+  itemType,
 }: {
   database: DatabaseSync;
-  processId: string;
-  scope: RecoveryScope;
+  ctx: RecoveryContext;
+  itemType: 'file' | 'folder';
 }): Result<void> {
   const checkpoint = database
     .prepare(
       `SELECT updatedAt FROM checkpoint
-      WHERE userUuid = ? AND workspaceId = ? AND type = ?`,
+    WHERE userUuid = ? AND workspaceId = ? AND type = ?`,
     )
-    .get(scope.userUuid, scope.workspaceId, scope.itemType);
+    .get(ctx.userUuid, ctx.workspaceId, itemType);
   if (!checkpoint) return Result.ok(undefined);
   const { updatedAt } = z.object({ updatedAt: z.iso.datetime() }).parse(checkpoint);
-  const { table } = itemStorage(scope.itemType);
+  const { table } = itemStorage(itemType);
   const { upperBound } = z
     .object({ upperBound: z.string() })
     .parse(
       database
         .prepare(`SELECT COALESCE(MAX(uuid), '') AS upperBound FROM ${table} WHERE userUuid = ? AND workspaceId = ?`)
-        .get(scope.userUuid, scope.workspaceId),
+        .get(ctx.userUuid, ctx.workspaceId),
     );
-  database
+  const result = database
     .prepare(
       `INSERT INTO recovery_scan
-      (processId, userUuid, workspaceId, itemType, checkpoint, preparationUpperBound) VALUES (?, ?, ?, ?, ?, ?)`,
+    (rootUuid, userUuid, workspaceId, itemType, checkpoint, preparationUpperBound)
+    SELECT rootUuid, ?, ?, ?, ?, ? FROM recovery_process
+    WHERE rootUuid = ? AND stage = 'preparing'`,
     )
-    .run(processId, scope.userUuid, scope.workspaceId, scope.itemType, updatedAt, upperBound);
-  return Result.ok(undefined);
+    .run(ctx.userUuid, ctx.workspaceId, itemType, updatedAt, upperBound, ctx.rootUuid);
+  return result.changes ? Result.ok(undefined) : Result.err(new Error('Recovery root is not available for scan preparation'));
 }

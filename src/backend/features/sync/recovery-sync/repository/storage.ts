@@ -58,7 +58,7 @@ export function itemStorage(itemType: 'file' | 'folder') {
     table: itemType === 'file' ? 'drive_file' : 'drive_folder',
     schema,
     columns,
-    // v2.7.1: status-only writes do not advance updatedAt. Compare every persisted field, including scope.
+    // v2.7.1: status-only writes do not advance updatedAt. Compare every persisted field, including Drive ownership.
     snapshot: `json_object(${snapshotFields})`,
   };
 }

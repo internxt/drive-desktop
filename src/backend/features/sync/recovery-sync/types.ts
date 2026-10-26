@@ -1,20 +1,18 @@
 import { z } from 'zod';
 
-export type RecoveryScope = { userUuid: string; workspaceId: string; itemType: 'file' | 'folder' };
+/** Keep the sync context's folder root: workspaceId routes API requests and is not a substitute for rootUuid. */
+export type RecoveryContext = { readonly rootUuid: string; readonly userUuid: string; readonly workspaceId: string };
 
 export const processSchema = z.object({
-  processId: z.string(),
+  rootUuid: z.string(),
   startedAt: z.iso.datetime(),
-  stage: z.enum(['preparing', 'scanning', 'preserving', 'reporting', 'completed']),
-  outcome: z.enum(['succeeded', 'failed', 'cancelled']).nullable(),
-  outcomeMessage: z.string().nullable(),
-  notification: z.enum(['pending', 'claimed', 'delivered']),
+  stage: z.enum(['preparing', 'scanning', 'preserving', 'reporting']),
   preservedFileCount: z.number().int().nonnegative(),
 });
 
 export const scanSchema = z.object({
   scanId: z.number().int(),
-  processId: z.string(),
+  rootUuid: z.string(),
   userUuid: z.string(),
   workspaceId: z.string(),
   itemType: z.enum(['file', 'folder']),
@@ -23,7 +21,6 @@ export const scanSchema = z.object({
   preparationUpperBound: z.string(),
   stage: z.enum(['preparing', 'scanning', 'completed']),
   updatedAt: z.iso.datetime(),
-  active: z.union([z.literal(0), z.literal(1)]),
 });
 
 const commonItem = {
@@ -60,7 +57,7 @@ export const candidateSchema = z.object({
 });
 
 export const destinationSchema = z.object({
-  processId: z.string(),
+  rootUuid: z.string(),
   volume: z.string(),
   path: z.string(),
   created: z.union([z.literal(0), z.literal(1)]),
@@ -77,6 +74,7 @@ export const moveSchema = z.object({
   removalStatus: z.enum(['TRASHED', 'DELETED']),
   stage: z.enum(['pending', 'moved', 'completed', 'conflict']),
   preservedFileCount: z.number().int().nonnegative().nullable(),
+  watcherSettled: z.union([z.literal(0), z.literal(1)]),
 });
 
 export type RecoveryScan = z.infer<typeof scanSchema>;

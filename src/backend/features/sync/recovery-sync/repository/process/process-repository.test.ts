@@ -6,7 +6,7 @@ import * as ProcessRepository from './index';
 
 describe('process-repository', () => {
   let database: DatabaseSync;
-  const props = { processId: 'process', startedAt: '2026-10-01T00:00:00.000Z' };
+  const props = { rootUuid: 'process', startedAt: '2026-10-01T00:00:00.000Z' };
 
   beforeEach(() => {
     database = new DatabaseSync(':memory:');
@@ -25,10 +25,21 @@ describe('process-repository', () => {
     const inserted = ProcessRepository.insertProcess({ database, ...props });
     // Then
     expect(inserted.error).toBeUndefined();
-    expect(inserted.data).toMatchObject({ processId: props.processId, stage: 'preparing', preservedFileCount: 0 });
-    expect(ProcessRepository.getProcess({ database, processId: props.processId }).data).toEqual(inserted.data);
+    expect(inserted.data).toMatchObject({ rootUuid: props.rootUuid, stage: 'preparing', preservedFileCount: 0 });
+    expect(inserted.data).not.toHaveProperty('userUuid');
+    expect(inserted.data).not.toHaveProperty('workspaceId');
+    const columns = database
+      .prepare('PRAGMA table_info(recovery_process)')
+      .all()
+      .map((column) => column.name);
+    expect(columns).not.toContain('userUuid');
+    expect(columns).not.toContain('workspaceId');
+    expect(columns).not.toContain('outcome');
+    expect(columns).not.toContain('outcomeMessage');
+    expect(columns).not.toContain('notification');
+    expect(ProcessRepository.getProcess({ database, rootUuid: props.rootUuid }).data).toEqual(inserted.data);
     expect(database.prepare('SELECT * FROM recovery_scan').all()).toEqual([]);
-    expect(ProcessRepository.getProcess({ database, processId: 'missing' }).data).toBeUndefined();
+    expect(ProcessRepository.getProcess({ database, rootUuid: 'missing' }).data).toBeUndefined();
   });
 
   it('rejects an invalid start date without inserting a process', () => {
@@ -36,7 +47,7 @@ describe('process-repository', () => {
     const result = ProcessRepository.insertProcess({ database, ...props, startedAt: 'invalid' });
     // Then
     expect(result.error).toBeInstanceOf(Error);
-    expect(ProcessRepository.getProcess({ database, processId: props.processId }).data).toBeUndefined();
+    expect(ProcessRepository.getProcess({ database, rootUuid: props.rootUuid }).data).toBeUndefined();
   });
 
   it('does not update a stage when its expected predecessor does not match', () => {
@@ -45,30 +56,28 @@ describe('process-repository', () => {
     // When
     const result = ProcessRepository.updateProcessStage({
       database,
-      processId: props.processId,
+      rootUuid: props.rootUuid,
       stage: 'preserving',
       expectedStage: 'scanning',
       requiredScanStage: 'completed',
     });
     // Then
     expect(result.error).toBeInstanceOf(Error);
-    expect(ProcessRepository.getProcess({ database, processId: props.processId }).data?.stage).toBe('preparing');
+    expect(ProcessRepository.getProcess({ database, rootUuid: props.rootUuid }).data?.stage).toBe('preparing');
   });
 
-  it('rolls back a notification claim if mapping its stored process fails', () => {
+  it('returns a mapping error without discarding invalid stored recovery state', () => {
     // Given
     ProcessRepository.insertProcess({ database, ...props });
-    ProcessRepository.saveOutcome({ database, processId: props.processId, outcome: 'failed' });
     database.exec("UPDATE recovery_process SET startedAt = 'invalid'");
     // When
     const result = accessDatabase({
       database,
-      action: ProcessRepository.claimOutcome,
-      input: { processId: props.processId },
-      transaction: true,
+      action: ProcessRepository.getProcess,
+      input: { rootUuid: props.rootUuid },
     });
     // Then
     expect(result.error).toBeInstanceOf(Error);
-    expect(database.prepare('SELECT notification FROM recovery_process').get()?.notification).toBe('pending');
+    expect(database.prepare('SELECT rootUuid FROM recovery_process').get()?.rootUuid).toBe(props.rootUuid);
   });
 });

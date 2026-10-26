@@ -15,11 +15,6 @@ export function listUnfinishedProcesses({
   limit?: number;
 }): Result<RecoveryProcess[]> {
   if (!validBatchSize(limit)) return Result.err(new Error('Invalid batch size'));
-  const rows = database
-    .prepare(
-      `SELECT * FROM recovery_process INDEXED BY recovery_unfinished_processes
-      WHERE stage != 'completed' AND processId > ? ORDER BY processId LIMIT ?`,
-    )
-    .all(after, limit);
+  const rows = database.prepare(`SELECT * FROM recovery_process WHERE rootUuid > ? ORDER BY rootUuid LIMIT ?`).all(after, limit);
   return Result.ok(z.array(processSchema).parse(rows));
 }
