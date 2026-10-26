@@ -30,8 +30,8 @@
  * type inference (we are going to rely on tests so we don't break anything). Also, to have a better view of our current
  * sqlite state and compare against the type definitions in this file, we have added the command:
  * `npm run schema`
- * which generates the `schema.sql` file close to this one so we can compare that everything is right. Everytime we add
- * a migration we will update the `schema.sql` to see the real state of the database and not miss anything.
+ * which replays SQL migrations in memory and generates the reference `schema.sql` snapshot close to this one.
+ * Migrations remain the source of truth; `npm run schema:check` and migration tests detect stale snapshots.
  */
 
 export type DriveFile = {
