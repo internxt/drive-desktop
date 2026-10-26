@@ -2,9 +2,7 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { sleep } from '@/apps/main/util';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { open } from '@/infra/file-system/original-fs';
-
-const SLEEP_MS = 500;
-const DEFAULT_MAX_WAIT_MS = 60_000;
+import { WAIT_UNTIL_READY_DEFAULT_MAX_WAIT_MS, WAIT_UNTIL_READY_SLEEP_MS } from './constants';
 
 export class WaitUntilReadyError extends Error {
   constructor(public readonly code: 'IDLE_TIMEOUT' | 'MAX_TIMEOUT' | 'NON_EXISTS' | 'ABORTED') {
@@ -29,9 +27,9 @@ type Props = {
  * reserves the final size when the copy starts, but the mtime keeps moving while it writes. With
  * `idleTimeoutMs` we only give up when the file stays locked and its mtime stops changing for that long.
  */
-export async function waitUntilReady({ path, idleTimeoutMs, maxWaitMs = DEFAULT_MAX_WAIT_MS, abortSignal }: Props) {
-  const maxAttempts = Math.ceil(maxWaitMs / SLEEP_MS);
-  const idleAttempts = idleTimeoutMs === undefined ? Infinity : Math.ceil(idleTimeoutMs / SLEEP_MS);
+export async function waitUntilReady({ path, idleTimeoutMs, maxWaitMs = WAIT_UNTIL_READY_DEFAULT_MAX_WAIT_MS, abortSignal }: Props) {
+  const maxAttempts = Math.ceil(maxWaitMs / WAIT_UNTIL_READY_SLEEP_MS);
+  const idleAttempts = idleTimeoutMs === undefined ? Infinity : Math.ceil(idleTimeoutMs / WAIT_UNTIL_READY_SLEEP_MS);
   let lastMtimeMs: number | undefined;
   let attemptsWithoutChanges = 0;
 
@@ -65,7 +63,7 @@ export async function waitUntilReady({ path, idleTimeoutMs, maxWaitMs = DEFAULT_
       return { error: new WaitUntilReadyError('IDLE_TIMEOUT') };
     }
 
-    await sleep(SLEEP_MS);
+    await sleep(WAIT_UNTIL_READY_SLEEP_MS);
   }
 
   return { error: new WaitUntilReadyError('MAX_TIMEOUT') };
