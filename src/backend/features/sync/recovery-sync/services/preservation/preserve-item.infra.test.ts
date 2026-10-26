@@ -67,7 +67,12 @@ describe('preserve-item', () => {
     ).toBeUndefined();
     expect(recovery.advanceProcess({ database, rootUuid: ctx.rootUuid, stage: 'preserving' }).error).toBeUndefined();
     expect(
-      recovery.reserveDestination({ database, rootUuid: ctx.rootUuid, volume: 'C:\\', path: String.raw`C:\Recovery` }).error,
+      recovery.accessDatabase({
+        database,
+        action: recovery.reserveDestination,
+        input: { rootUuid: ctx.rootUuid, volume: 'C:\\', path: String.raw`C:\Recovery` },
+        transaction: true,
+      }).error,
     ).toBeUndefined();
     expect(recovery.markDestinationCreated({ database, rootUuid: ctx.rootUuid, volume: 'C:\\' }).error).toBeUndefined();
     events = [];

@@ -1,7 +1,8 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { DatabaseSync } from 'node:sqlite';
+import { accessDatabase } from '../../repository/storage';
 import { RecoveryMove } from '../../types';
-import { markMovePreserved } from './journal';
+import { markMovePreserved } from './mark-move-preserved';
 import { PreservationAdapters } from './types';
 
 export async function preservePendingMove({
@@ -23,5 +24,10 @@ export async function preservePendingMove({
   }
   if (Result.isError(preserved)) return preserved;
 
-  return markMovePreserved({ database, moveId: move.moveId, preservedFileCount: preserved.data.preservedFileCount });
+  return accessDatabase({
+    database,
+    action: markMovePreserved,
+    input: { moveId: move.moveId, preservedFileCount: preserved.data.preservedFileCount },
+    transaction: true,
+  });
 }

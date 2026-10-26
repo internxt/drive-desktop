@@ -2,7 +2,7 @@ import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { releaseMoveGuard } from '../../repository/release-move-guard';
 import { accessDatabase } from '../../repository/storage';
 import { completeGuardedMove } from './complete-guarded-move';
-import { reserveMove } from './journal';
+import { reserveMove } from './reserve-move';
 import { PreservationAdapters } from './types';
 
 export type { PreservationAdapters } from './types';
@@ -15,7 +15,8 @@ export async function preserveItem({
   adapters: PreservationAdapters;
 }): Promise<Result<{ applied: boolean }>> {
   try {
-    const reserved = reserveMove(input);
+    const { database, ...reservation } = input;
+    const reserved = accessDatabase({ database, action: reserveMove, input: reservation, transaction: true });
     if (Result.isError(reserved)) return reserved;
     const move = reserved.data;
     if (move.watcherSettled === 1 && (move.stage === 'completed' || move.stage === 'conflict')) {

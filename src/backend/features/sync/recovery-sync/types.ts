@@ -80,6 +80,7 @@ export const moveSchema = z.object({
 export type RecoveryScan = z.infer<typeof scanSchema>;
 export type RecoveryProcess = z.infer<typeof processSchema>;
 export type RecoveryMove = z.infer<typeof moveSchema>;
+export type RecoveryDestination = z.infer<typeof destinationSchema>;
 export type RecoveryCandidate = Omit<z.infer<typeof candidateSchema>, 'original'> & {
   original: z.infer<typeof fileSchema> | z.infer<typeof folderSchema>;
 };
