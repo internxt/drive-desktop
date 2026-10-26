@@ -1,8 +1,8 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
-import { validBatchSize } from '../../storage';
 import { processSchema, RecoveryProcess } from '../../types';
+import { validBatchSize } from '../storage';
 
 /** Reads one indexed batch of unfinished processes so startup can resume work without loading every process. */
 export function listUnfinishedProcesses({

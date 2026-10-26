@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { accessDatabase } from '../../storage';
+import { accessDatabase } from '../storage';
 import * as ProcessRepository from './index';
 
 describe('process-repository', () => {

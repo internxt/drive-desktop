@@ -1,8 +1,8 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
-import { itemStorage } from '../../storage';
 import { RecoveryScope } from '../../types';
+import { itemStorage } from '../storage';
 
 /** Captures one scope's checkpoint and inventory bound; scopes without a checkpoint remain owned by initial sync. */
 export function insertScanFromCheckpoint({

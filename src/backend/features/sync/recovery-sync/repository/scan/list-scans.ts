@@ -1,8 +1,8 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { DatabaseSync } from 'node:sqlite';
 import { z } from 'zod';
-import { validBatchSize } from '../../storage';
 import { RecoveryScan, scanSchema } from '../../types';
+import { validBatchSize } from '../storage';
 
 /** Reads a bounded batch of a process's scans using scan identity as the continuation position. */
 export function listScans({
