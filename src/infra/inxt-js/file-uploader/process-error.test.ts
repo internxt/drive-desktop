@@ -1,5 +1,4 @@
 import * as addGeneralIssue from '@/apps/main/background-processes/issues';
-import * as sleep from '@/apps/main/util';
 import { LocalSync } from '@/backend/features';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -9,32 +8,30 @@ import { processError } from './process-error';
 describe('process-error', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
   const addGeneralIssueMock = partialSpyOn(addGeneralIssue, 'addGeneralIssue');
-  const sleepMock = partialSpyOn(sleep, 'sleep');
   const setUploadIssueMock = partialSpyOn(addGeneralIssue, 'setUploadIssue');
 
-  const retryFn = vi.fn();
-  const sleepMs = 5000;
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof processError>({ ctx: { kind: 'sync' }, path: abs('/file.mp4'), retryFn, sleepMs });
+    props = mockProps<typeof processError>({ ctx: { kind: 'sync' }, path: abs('/file.mp4') });
   });
 
-  it('should not do anything if aborted', async () => {
+  it('should return an aborted error and do nothing else if aborted', () => {
     // Given
     props.error = new DOMException('The operation was aborted', 'AbortError');
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
+    expect(error.code).toBe('ABORTED');
     calls(addItemMock).toHaveLength(0);
     calls(setUploadIssueMock).toHaveLength(0);
   });
 
-  it('should add general issue if max space used', async () => {
+  it('should add general issue if max space used', () => {
     // Given
     props.error = new Error('Max space used');
     // When
-    await processError(props);
+    processError(props);
     // Then
     call(addGeneralIssueMock).toMatchObject({ error: 'NOT_ENOUGH_SPACE' });
   });
@@ -44,15 +41,14 @@ describe('process-error', () => {
     'Request failed with status code 409',
     'Request failed with status code 500',
     'Request failed with status code 502',
-  ])('should retry in case of server unavailable', async (message) => {
+  ])('should return a retryable error in case of server unavailable', (message) => {
     // Given
     props.error = new Error(message);
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
+    expect(error.code).toBe('RETRYABLE');
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
-    call(sleepMock).toStrictEqual(sleepMs);
-    calls(retryFn).toHaveLength(1);
     calls(setUploadIssueMock).toHaveLength(0);
   });
 
@@ -65,83 +61,82 @@ describe('process-error', () => {
       code: 'UND_ERR_CONNECT_TIMEOUT',
     },
     { message: 'getaddrinfo ENOTFOUND gateway.internxt.com', code: 'ENOTFOUND' },
-  ])('should retry a connection cut by its code: $message', async ({ message, code }) => {
+  ])('should return a retryable error for a connection cut by its code: $message', ({ message, code }) => {
     // Given
     props.error = Object.assign(new Error(message), { code });
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
+    expect(error.code).toBe('RETRYABLE');
     call(addGeneralIssueMock).toMatchObject({ error: 'NETWORK_CONNECTIVITY_ERROR' });
-    calls(retryFn).toHaveLength(1);
   });
 
   it.each([
     { message: 'Headers Timeout Error', code: 'UND_ERR_HEADERS_TIMEOUT' },
     { message: 'write EPIPE', code: 'EPIPE' },
     { message: 'other side closed', code: 'UND_ERR_SOCKET' },
-  ])('should not retry $code', async ({ message, code }) => {
+  ])('should not retry $code', ({ message, code }) => {
     // Given
     props.error = Object.assign(new Error(message), { code });
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
-    calls(retryFn).toHaveLength(0);
+    expect(error.code).toBe('FAILED');
   });
 
-  it('should add an upload issue when a file of the sync folder is not retried', async () => {
+  it('should add an upload issue when a file of the sync folder is not retried', () => {
     // Given
     props.error = Object.assign(new Error('Headers Timeout Error'), { code: 'UND_ERR_HEADERS_TIMEOUT' });
     // When
-    await processError(props);
+    processError(props);
     // Then
     call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'UPLOAD_FAILED' });
   });
 
-  it('should add an upload issue if the error is not an Error', async () => {
+  it('should add an upload issue if the error is not an Error', () => {
     // Given
     props.error = 'unknown';
     // When
-    await processError(props);
+    processError(props);
     // Then
     call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'UPLOAD_FAILED' });
   });
 
-  it('should add a backups upload issue instead of a sync one for backups', async () => {
+  it('should add a backups upload issue instead of a sync one for backups', () => {
     // Given
     const addIssue = vi.fn();
-    props = mockProps<typeof processError>({ ctx: { kind: 'backups', addIssue }, path: abs('/file.mp4'), retryFn, sleepMs });
+    props = mockProps<typeof processError>({ ctx: { kind: 'backups', addIssue }, path: abs('/file.mp4') });
     props.error = Object.assign(new Error('connect ETIMEDOUT'), { code: 'ETIMEDOUT' });
     // When
-    await processError(props);
+    processError(props);
     // Then
     call(addIssue).toStrictEqual({ error: 'UPLOAD_FAILED', name: props.path });
     calls(setUploadIssueMock).toHaveLength(0);
-    calls(retryFn).toHaveLength(0);
   });
 
-  it('should not retry the S3 request timeout', async () => {
+  it('should not retry the S3 request timeout', () => {
     // Given
     props.error = new Error('Failed to upload part: 400 <Error><Code>RequestTimeout</Code></Error>');
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
-    calls(retryFn).toHaveLength(0);
+    expect(error.code).toBe('FAILED');
   });
 
-  it('should not retry an error that is not retryable', async () => {
+  it('should not retry an error that is not retryable', () => {
     // Given
     props.error = new Error('Request failed with status code 404');
     // When
-    await processError(props);
+    const error = processError(props);
     // Then
-    calls(retryFn).toHaveLength(0);
+    expect(error.code).toBe('FAILED');
   });
 
-  it('should handle unknown error', async () => {
+  it('should handle unknown error', () => {
     // Given
     props.error = 'unknown';
     // When
-    await processError(props);
+    processError(props);
     // Then
     expect(loggerMock.sentryError).toHaveBeenCalledWith(
       expect.objectContaining({ msg: 'Failed to upload file to the bucket' }),

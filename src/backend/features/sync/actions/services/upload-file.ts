@@ -1,18 +1,22 @@
 import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { sleep } from '@/apps/main/util';
 import { CONTEXT_KINDS, UploadContext } from '@/apps/sync-engine/config';
 import { getFileSizeLimitAdapter } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { stat } from '@/infra/file-system/original-fs';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
+import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS, UPLOAD_PRIORITY, UPLOAD_RETRY_PRIORITY } from './constants';
 import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
   ctx: UploadContext;
   path: AbsolutePath;
+  attempt?: number;
 };
 
-export async function uploadFile({ ctx, path }: Props) {
+export async function uploadFile({ ctx, path, attempt = 1 }: Props) {
   const { error: notReadyError } = await waitUntilReady({ path });
   if (notReadyError) {
     ctx.logger.error({ msg: 'Wait until ready, timeout', path, reason: notReadyError.code });
@@ -43,7 +47,7 @@ export async function uploadFile({ ctx, path }: Props) {
   }
 
   try {
-    const contentsId = await ctx.uploadBottleneck.schedule(() => environmentFileUpload({ ctx, path, size }));
+    const contentsId = await uploadContents({ ctx, path, size, attempt });
 
     if (!contentsId) return;
 
@@ -55,4 +59,36 @@ export async function uploadFile({ ctx, path }: Props) {
 
     throw error;
   }
+}
+
+function getRetryDelayMs({ attempt }: { attempt: number }) {
+  return Math.min(UPLOAD_INITIAL_SLEEP_MS * 2 ** (attempt - 1), UPLOAD_MAX_SLEEP_MS);
+}
+
+/**
+ * v2.7.2 Victor Fernandez
+ * Retries are unlimited, so a few big files that keep failing used to keep the 4 upload slots, shared by
+ * sync and backups, and nothing else uploaded. Now an attempt takes a slot only while it runs, and a
+ * retry queues behind the files that have not failed yet (Bottleneck runs the lower priority first).
+ */
+async function uploadContents({
+  ctx,
+  path,
+  size,
+  attempt,
+}: {
+  ctx: UploadContext;
+  path: AbsolutePath;
+  size: number;
+  attempt: number;
+}): Promise<ContentsId | undefined> {
+  const priority = attempt === 1 ? UPLOAD_PRIORITY : UPLOAD_RETRY_PRIORITY;
+  const { data: contentsId, error } = await ctx.uploadBottleneck.schedule({ priority }, () =>
+    environmentFileUpload({ ctx, path, size, attempt }),
+  );
+
+  if (error?.code !== 'RETRYABLE') return contentsId;
+
+  await sleep(getRetryDelayMs({ attempt }));
+  return await uploadContents({ ctx, path, size, attempt: attempt + 1 });
 }

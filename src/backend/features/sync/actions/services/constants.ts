@@ -1,1 +1,5 @@
 export const PARENT_NOT_FOUND_RETRY_DELAYS_MS = [1_000, 3_000, 9_000];
+export const UPLOAD_INITIAL_SLEEP_MS = 5_000;
+export const UPLOAD_MAX_SLEEP_MS = 60_000;
+export const UPLOAD_PRIORITY = 5;
+export const UPLOAD_RETRY_PRIORITY = 9;

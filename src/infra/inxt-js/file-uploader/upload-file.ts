@@ -4,7 +4,6 @@ import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { createReadStream } from '@/infra/file-system/original-fs';
-import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS } from './constants';
 import { processError } from './process-error';
 
 type Props = {
@@ -12,24 +11,16 @@ type Props = {
   size: number;
   path: AbsolutePath;
   abortController: AbortController;
-  retry?: number;
-  sleepMs?: number;
+  attempt: number;
 };
 
-export async function uploadFile({
-  ctx,
-  size,
-  path,
-  abortController,
-  retry = 1,
-  sleepMs = UPLOAD_INITIAL_SLEEP_MS,
-}: Props): Promise<ContentsId | undefined> {
+export async function uploadFile({ ctx, size, path, abortController, attempt }: Props) {
   ctx.logger.debug({
     msg: 'Uploading file to the bucket',
     path,
     size,
     bucket: ctx.bucket,
-    ...(retry > 1 && { retry }),
+    ...(attempt > 1 && { retry: attempt }),
   });
 
   async function progressCallback(progress: number) {
@@ -45,7 +36,6 @@ export async function uploadFile({
   }
 
   const readable = createReadStream(path);
-  let uploadError: unknown;
 
   try {
     const contentsId = await ctx.environment.upload(ctx.bucket, {
@@ -55,22 +45,10 @@ export async function uploadFile({
       progressCallback: (progress) => void progressCallback(progress),
     });
 
-    return contentsId as ContentsId;
+    return { data: contentsId as ContentsId };
   } catch (error) {
-    uploadError = error;
+    return { error: processError({ ctx, path, size, error }) };
   } finally {
     readable.close();
   }
-
-  const retryFn = () =>
-    uploadFile({
-      ctx,
-      size,
-      path,
-      abortController,
-      retry: retry + 1,
-      sleepMs: Math.min(sleepMs * 2, UPLOAD_MAX_SLEEP_MS),
-    });
-
-  return processError({ ctx, path, size, error: uploadError, sleepMs, retryFn });
 }
