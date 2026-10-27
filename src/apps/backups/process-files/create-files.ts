@@ -1,7 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
+import { sleep } from '@/apps/main/util';
 import { Sync } from '@/backend/features/sync';
+import { RetryLater } from '@/backend/features/sync/actions/services/upload-file';
 import { dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getWorkerCount } from '@/core/utils/concurrency';
 import { stat } from '@/infra/file-system/original-fs';
@@ -14,19 +16,43 @@ type Props = {
   added: StatItem[];
 };
 
+type PendingFile = {
+  path: AbsolutePath;
+  attempt: number;
+  retryAt: number;
+};
+
 const CREATE_FILES_CONCURRENCY = 20;
 
+/**
+ * v2.7.2 Victor Fernandez
+ * A file whose upload has to be retried goes back to the end of the list, so the workers go on with the
+ * other files and only come back to it once every other file has been handed out.
+ */
 export async function createFiles({ ctx, remoteTree, added }: Props) {
+  const pending: PendingFile[] = added.map(({ path }) => ({ path, attempt: 1, retryAt: 0 }));
   let nextIndex = 0;
 
   async function processNext() {
-    while (nextIndex < added.length) {
-      const local = added[nextIndex];
+    while (nextIndex < pending.length) {
+      const { path, attempt, retryAt } = pending[nextIndex];
       nextIndex += 1;
-      const path = local.path;
+      let willRetry = false;
+
+      const retryLater: RetryLater = (next) => {
+        willRetry = true;
+        pending.push({ path, attempt: next.attempt, retryAt: Date.now() + next.delayMs });
+      };
+
+      if (retryAt > Date.now()) await sleep(retryAt - Date.now());
 
       try {
-        await scheduleRequest({ ctx, path, fn: () => createFile(ctx, path, remoteTree) });
+        await scheduleRequest({
+          ctx,
+          path,
+          willRetry: () => willRetry,
+          fn: () => createFile({ ctx, path, remoteTree, attempt, retryLater }),
+        });
       } catch (error) {
         const fileStats = await stat(path).catch(() => null);
 
@@ -39,11 +65,23 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
   await Promise.all(Array.from({ length: workerCount }, processNext));
 }
 
-async function createFile(ctx: BackupsContext, path: AbsolutePath, remoteTree: RemoteTree) {
+async function createFile({
+  ctx,
+  path,
+  remoteTree,
+  attempt,
+  retryLater,
+}: {
+  ctx: BackupsContext;
+  path: AbsolutePath;
+  remoteTree: RemoteTree;
+  attempt: number;
+  retryLater: RetryLater;
+}) {
   const parentPath = dirname(path);
   const parent = remoteTree.folders.get(parentPath);
 
   if (!parent) return;
 
-  await Sync.Actions.createFile({ ctx, path, parentUuid: parent.uuid });
+  await Sync.Actions.createFile({ ctx, path, parentUuid: parent.uuid, attempt, retryLater });
 }

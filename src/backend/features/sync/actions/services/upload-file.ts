@@ -1,6 +1,5 @@
 import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { sleep } from '@/apps/main/util';
 import { CONTEXT_KINDS, UploadContext } from '@/apps/sync-engine/config';
 import { getFileSizeLimitAdapter } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
@@ -16,7 +15,7 @@ type Props = {
   ctx: UploadContext;
   path: AbsolutePath;
   attempt?: number;
-  retryLater?: RetryLater;
+  retryLater: RetryLater;
 };
 
 export async function uploadFile({ ctx, path, attempt = 1, retryLater }: Props) {
@@ -73,8 +72,8 @@ function getRetryDelayMs({ attempt }: { attempt: number }) {
  * Retries are unlimited, so a few big files that keep failing used to keep the 4 upload slots, shared by
  * sync and backups, and nothing else uploaded. Now an attempt takes a slot only while it runs, and a
  * retry queues behind the files that have not failed yet (Bottleneck runs the lower priority first).
- * The sync engine retries later through `retryLater` because the walk of pending items waits for each
- * file and would get stuck in the folder of the failing ones. Backups still wait here, outside the slot.
+ * The caller retries later through `retryLater` instead of waiting here, because both the walk of pending
+ * items and the backups wait for each file and would get stuck on the failing ones.
  */
 async function uploadContents({
   ctx,
@@ -87,7 +86,7 @@ async function uploadContents({
   path: AbsolutePath;
   size: number;
   attempt: number;
-  retryLater?: RetryLater;
+  retryLater: RetryLater;
 }): Promise<ContentsId | undefined> {
   const priority = attempt === 1 ? UPLOAD_PRIORITY : UPLOAD_RETRY_PRIORITY;
   const { data: contentsId, error } = await ctx.uploadBottleneck.schedule({ priority }, () =>
@@ -97,13 +96,6 @@ async function uploadContents({
   if (error?.code !== 'RETRYABLE') return contentsId;
 
   const delayMs = getRetryDelayMs({ attempt });
-
-  if (retryLater) {
-    ctx.logger.debug({ msg: 'Upload failed, retry later', path, attempt: attempt + 1, delayMs });
-    retryLater({ attempt: attempt + 1, delayMs });
-    return;
-  }
-
-  await sleep(delayMs);
-  return await uploadContents({ ctx, path, size, attempt: attempt + 1 });
+  ctx.logger.debug({ msg: 'Upload failed, retry later', path, attempt: attempt + 1, delayMs });
+  retryLater({ attempt: attempt + 1, delayMs });
 }

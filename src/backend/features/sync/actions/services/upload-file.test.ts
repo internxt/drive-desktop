@@ -1,7 +1,6 @@
 import { FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import Bottleneck from 'bottleneck';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import * as util from '@/apps/main/util';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as originalFs from '@/infra/file-system/original-fs';
@@ -20,7 +19,6 @@ describe('upload-file', () => {
   const environmentFileUploadMock = partialSpyOn(environmentFileUpload, 'environmentFileUpload');
   const handleFileUploadSizeExceededMock = partialSpyOn(handleFileUploadSizeExceeded, 'handleFileUploadSizeExceeded');
   const checkUploadFileSizeMock = partialSpyOn(FileSizeLimitModule, 'checkUploadFileSize');
-  const sleepMock = partialSpyOn(util, 'sleep');
 
   const path = abs('/file.txt');
   const size = 1024;
@@ -114,7 +112,6 @@ describe('upload-file', () => {
     // Then
     expect(res).toBeUndefined();
     call(environmentFileUploadMock).toMatchObject({ path, size });
-    calls(sleepMock).toHaveLength(0);
   });
 
   it('should return undefined if bottleneck stops', async () => {
@@ -168,7 +165,6 @@ describe('upload-file', () => {
     expect(res).toBeUndefined();
     call(retryLater).toStrictEqual({ attempt: 2, delayMs: 5000 });
     calls(environmentFileUploadMock).toHaveLength(1);
-    calls(sleepMock).toHaveLength(0);
   });
 
   it('should double the delay of each retry up to one minute', async () => {
@@ -183,21 +179,6 @@ describe('upload-file', () => {
       { attempt: 3, delayMs: 10000 },
       { attempt: 6, delayMs: 60000 },
     ]);
-  });
-
-  it('should wait and retry with a lower priority if there is no retryLater', async () => {
-    // Given
-    const scheduleMock = vi.spyOn(props.ctx.uploadBottleneck, 'schedule');
-    environmentFileUploadMock
-      .mockResolvedValueOnce({ error: new UploadFileError('RETRYABLE') })
-      .mockResolvedValueOnce({ error: new UploadFileError('RETRYABLE') })
-      .mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
-    // When
-    const res = await uploadFile(props);
-    // Then
-    expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
-    calls(sleepMock).toStrictEqual([5000, 10000]);
-    expect(scheduleMock.mock.calls.map(([options]) => options)).toStrictEqual([{ priority: 5 }, { priority: 9 }, { priority: 9 }]);
   });
 
   it('should not retry an error that is not retryable', async () => {
@@ -220,7 +201,6 @@ describe('upload-file', () => {
     beforeEach(() => {
       finished = [];
       const failures = new Map<string, number>();
-      sleepMock.mockImplementation(() => new Promise((resolve) => setImmediate(resolve)));
       environmentFileUploadMock.mockImplementation(async ({ path }) => {
         await new Promise((resolve) => setImmediate(resolve));
         const count = failures.get(path) ?? 0;
@@ -233,9 +213,16 @@ describe('upload-file', () => {
       props.ctx = { ...props.ctx, uploadBottleneck: new Bottleneck({ maxConcurrent: 4 }) };
     });
 
-    async function upload({ path }: { path: (typeof failingPaths)[number] }) {
-      await uploadFile({ ...props, path });
-      finished.push(path);
+    async function upload({ path, attempt = 1 }: { path: (typeof failingPaths)[number]; attempt?: number }): Promise<void> {
+      let retry: Promise<void> | undefined;
+      const res = await uploadFile({
+        ...props,
+        path,
+        attempt,
+        retryLater: (next) => (retry = new Promise((resolve) => setImmediate(resolve)).then(() => upload({ path, attempt: next.attempt }))),
+      });
+      if (res) finished.push(path);
+      await retry;
     }
 
     it('should upload the other files while the failing ones are still retrying', async () => {
@@ -244,6 +231,7 @@ describe('upload-file', () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
       await Promise.all([...failing, ...normalPaths.map((path) => upload({ path }))]);
       // Then
+      expect(finished).toHaveLength(failingPaths.length + normalPaths.length);
       const lastNormal = Math.max(...normalPaths.map((path) => finished.indexOf(path)));
       const firstFailing = Math.min(...failingPaths.map((path) => finished.indexOf(path)));
       expect(lastNormal).toBeLessThan(firstFailing);

@@ -22,7 +22,7 @@ type Props = {
   path: AbsolutePath;
   parentUuid: FolderUuid;
   attempt?: number;
-  retryLater?: RetryLater;
+  retryLater: RetryLater;
 };
 
 export async function createFile({ ctx, path, parentUuid, attempt, retryLater }: Props): Promise<SimpleDriveFile | undefined> {

@@ -16,7 +16,7 @@ type Props = {
   path: AbsolutePath;
   uuid: FileUuid;
   attempt?: number;
-  retryLater?: RetryLater;
+  retryLater: RetryLater;
 };
 
 export async function replaceFile({ ctx, path, uuid, attempt, retryLater }: Props) {
