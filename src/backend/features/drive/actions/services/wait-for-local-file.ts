@@ -2,14 +2,11 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { setUploadIssue } from '@/apps/main/background-processes/issues';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
+import { scheduleRetry } from './schedule-retry';
 
 const IDLE_TIMEOUT_MS = 60_000;
 const MAX_WAIT_MS = 2 * 60 * 60_000;
 export const RETRY_DELAY_MS = 5 * 60_000;
-
-type RetryKey = `${'create' | 'replace'}:${AbsolutePath}`;
-
-const scheduledRetries = new Set<RetryKey>();
 
 type Props = {
   ctx: SyncContext;
@@ -37,35 +34,8 @@ export async function waitForLocalFile({ ctx, path, operation, retry }: Props) {
   if (res.error && res.error.code !== 'NON_EXISTS' && res.error.code !== 'ABORTED') {
     ctx.logger.warn({ msg: 'File not ready, retry later', path, operation, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
     setUploadIssue({ path, error: 'FILE_NOT_READY' });
-    scheduleRetry({ ctx, path, operation, retry });
+    scheduleRetry({ ctx, path, operation, delayMs: RETRY_DELAY_MS, retry });
   }
 
   return res;
-}
-
-// The key includes the operation because a create retry skips files that became placeholders in the
-// meantime, so it cannot stand in for a pending replace of the same path.
-// The retry is cancelled as soon as the sync engine stops: if the user logs out and in again before the
-// delay, a pending key from the old session would otherwise block the retry of the new one.
-function scheduleRetry({ ctx, path, operation, retry }: Props) {
-  const key: RetryKey = `${operation}:${path}`;
-  const { signal } = ctx.abortController;
-  if (signal.aborted || scheduledRetries.has(key)) return;
-
-  scheduledRetries.add(key);
-
-  let timeout: NodeJS.Timeout | undefined = undefined;
-
-  function cancel() {
-    clearTimeout(timeout);
-    scheduledRetries.delete(key);
-  }
-
-  timeout = setTimeout(() => {
-    signal.removeEventListener('abort', cancel);
-    scheduledRetries.delete(key);
-    void retry();
-  }, RETRY_DELAY_MS);
-
-  signal.addEventListener('abort', cancel, { once: true });
 }
