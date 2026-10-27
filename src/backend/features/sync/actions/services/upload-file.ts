@@ -10,13 +10,16 @@ import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/hand
 import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS, UPLOAD_PRIORITY, UPLOAD_RETRY_PRIORITY } from './constants';
 import { waitUntilReady } from './wait-until-ready';
 
+export type RetryLater = (props: { attempt: number; delayMs: number }) => void;
+
 type Props = {
   ctx: UploadContext;
   path: AbsolutePath;
   attempt?: number;
+  retryLater?: RetryLater;
 };
 
-export async function uploadFile({ ctx, path, attempt = 1 }: Props) {
+export async function uploadFile({ ctx, path, attempt = 1, retryLater }: Props) {
   const { error: notReadyError } = await waitUntilReady({ path });
   if (notReadyError) {
     ctx.logger.error({ msg: 'Wait until ready, timeout', path, reason: notReadyError.code });
@@ -47,7 +50,7 @@ export async function uploadFile({ ctx, path, attempt = 1 }: Props) {
   }
 
   try {
-    const contentsId = await uploadContents({ ctx, path, size, attempt });
+    const contentsId = await uploadContents({ ctx, path, size, attempt, retryLater });
 
     if (!contentsId) return;
 
@@ -70,17 +73,21 @@ function getRetryDelayMs({ attempt }: { attempt: number }) {
  * Retries are unlimited, so a few big files that keep failing used to keep the 4 upload slots, shared by
  * sync and backups, and nothing else uploaded. Now an attempt takes a slot only while it runs, and a
  * retry queues behind the files that have not failed yet (Bottleneck runs the lower priority first).
+ * The sync engine retries later through `retryLater` because the walk of pending items waits for each
+ * file and would get stuck in the folder of the failing ones. Backups still wait here, outside the slot.
  */
 async function uploadContents({
   ctx,
   path,
   size,
   attempt,
+  retryLater,
 }: {
   ctx: UploadContext;
   path: AbsolutePath;
   size: number;
   attempt: number;
+  retryLater?: RetryLater;
 }): Promise<ContentsId | undefined> {
   const priority = attempt === 1 ? UPLOAD_PRIORITY : UPLOAD_RETRY_PRIORITY;
   const { data: contentsId, error } = await ctx.uploadBottleneck.schedule({ priority }, () =>
@@ -89,6 +96,14 @@ async function uploadContents({
 
   if (error?.code !== 'RETRYABLE') return contentsId;
 
-  await sleep(getRetryDelayMs({ attempt }));
+  const delayMs = getRetryDelayMs({ attempt });
+
+  if (retryLater) {
+    ctx.logger.debug({ msg: 'Upload failed, retry later', path, attempt: attempt + 1, delayMs });
+    retryLater({ attempt: attempt + 1, delayMs });
+    return;
+  }
+
+  await sleep(delayMs);
   return await uploadContents({ ctx, path, size, attempt: attempt + 1 });
 }

@@ -158,7 +158,34 @@ describe('upload-file', () => {
     call(environmentFileUploadMock).toMatchObject({ attempt: 2 });
   });
 
-  it('should wait and retry with a lower priority', async () => {
+  it('should hand a retryable error to retryLater without waiting', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('RETRYABLE') });
+    // When
+    const res = await uploadFile({ ...props, retryLater });
+    // Then
+    expect(res).toBeUndefined();
+    call(retryLater).toStrictEqual({ attempt: 2, delayMs: 5000 });
+    calls(environmentFileUploadMock).toHaveLength(1);
+    calls(sleepMock).toHaveLength(0);
+  });
+
+  it('should double the delay of each retry up to one minute', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('RETRYABLE') });
+    // When
+    await uploadFile({ ...props, attempt: 2, retryLater });
+    await uploadFile({ ...props, attempt: 5, retryLater });
+    // Then
+    calls(retryLater).toStrictEqual([
+      { attempt: 3, delayMs: 10000 },
+      { attempt: 6, delayMs: 60000 },
+    ]);
+  });
+
+  it('should wait and retry with a lower priority if there is no retryLater', async () => {
     // Given
     const scheduleMock = vi.spyOn(props.ctx.uploadBottleneck, 'schedule');
     environmentFileUploadMock
@@ -171,6 +198,17 @@ describe('upload-file', () => {
     expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
     calls(sleepMock).toStrictEqual([5000, 10000]);
     expect(scheduleMock.mock.calls.map(([options]) => options)).toStrictEqual([{ priority: 5 }, { priority: 9 }, { priority: 9 }]);
+  });
+
+  it('should not retry an error that is not retryable', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('FAILED') });
+    // When
+    await uploadFile({ ...props, retryLater });
+    // Then
+    calls(retryLater).toHaveLength(0);
+    calls(environmentFileUploadMock).toHaveLength(1);
   });
 
   describe('when a few files keep failing', () => {

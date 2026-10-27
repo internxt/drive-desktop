@@ -7,12 +7,14 @@ import { getInFlightRequest, getReplaceFileKey } from '@/infra/drive-server-wip/
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
+import { scheduleRetry } from './schedule-retry';
 import { waitForLocalFile } from './wait-for-local-file';
 
 type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   uuid: FileUuid;
+  attempt?: number;
 };
 
 const uploadingPaths = new Set<AbsolutePath>();
@@ -26,8 +28,8 @@ function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) 
   return latestUuid;
 }
 
-export async function replaceFile({ ctx, path, uuid }: Props) {
-  const isOwner = await replaceFileOnce({ ctx, path, uuid });
+export async function replaceFile({ ctx, path, uuid, attempt }: Props) {
+  const isOwner = await replaceFileOnce({ ctx, path, uuid, attempt });
   const latestUuid = changedWhileUploading.get(path);
 
   if (isOwner && latestUuid) {
@@ -37,7 +39,7 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
   }
 }
 
-async function replaceFileOnce({ ctx, path, uuid }: Props) {
+async function replaceFileOnce({ ctx, path, uuid, attempt }: Props) {
   try {
     const key = getReplaceFileKey({ path });
     const promiseFn = async () => {
@@ -52,7 +54,20 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
       const uploadUuid = takeLatestUuid({ path, uuid });
       uploadingPaths.add(path);
       try {
-        return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
+        return await Sync.Actions.replaceFile({
+          ctx,
+          path,
+          uuid: uploadUuid,
+          attempt,
+          retryLater: ({ attempt, delayMs }) =>
+            scheduleRetry({
+              ctx,
+              path,
+              operation: 'replace',
+              delayMs,
+              retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid: uploadUuid }), attempt }),
+            }),
+        });
       } finally {
         uploadingPaths.delete(path);
       }
@@ -90,9 +105,9 @@ async function markFileReplaced({ path }: { path: AbsolutePath }) {
   await Addon.updateSyncStatus({ path });
 }
 
-async function retryReplaceFile({ ctx, path, uuid }: Props) {
+async function retryReplaceFile({ ctx, path, uuid, attempt }: Props) {
   const { data: fileInfo } = await NodeWin.getFileInfo({ path });
   if (fileInfo?.inSyncState !== InSyncState.NotSync) return;
 
-  await replaceFile({ ctx, path, uuid });
+  await replaceFile({ ctx, path, uuid, attempt });
 }
