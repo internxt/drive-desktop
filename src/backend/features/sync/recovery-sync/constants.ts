@@ -1,0 +1,3 @@
+export const RECOVERY_SYNC_PAGE_DELAY_MS = 30 * 1000;
+
+export const EPOCH = '1970-01-01T00:00:00.000Z';
