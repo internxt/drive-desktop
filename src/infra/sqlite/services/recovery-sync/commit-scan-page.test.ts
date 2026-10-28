@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { commitScanPage } from './commit-scan-page';
-import { clearTables, getObserved, getScans, insertScan } from './recovery.helper.test';
+import { clearTables, getObserved, getScans, insertScan } from './recovery-sync.helper.test';
 
 describe('commit-scan-page', () => {
   let props: Parameters<typeof commitScanPage>[0];

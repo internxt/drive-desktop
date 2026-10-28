@@ -5,7 +5,7 @@ import { getFilesToPreserve, getFoldersToPreserve } from './recovery-sync/get-it
 import { markRemovedIfEligible } from './recovery-sync/mark-removed-if-eligible';
 import { startOrResumeScan } from './recovery-sync/start-or-resume-scan';
 
-export const RecoveryModule = {
+export const RecoverySyncModule = {
   startOrResumeScan,
   commitScanPage,
   areScansCompleted,

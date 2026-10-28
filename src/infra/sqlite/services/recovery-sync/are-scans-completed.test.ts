@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { areScansCompleted } from './are-scans-completed';
-import { clearTables, insertScan } from './recovery.helper.test';
+import { clearTables, insertScan } from './recovery-sync.helper.test';
 
 describe('are-scans-completed', () => {
   let props: Parameters<typeof areScansCompleted>[0];

@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { clearRecovery } from './clear-recovery';
-import { clearTables, getObserved, getScans, insertObserved, insertScan } from './recovery.helper.test';
+import { clearTables, getObserved, getScans, insertObserved, insertScan } from './recovery-sync.helper.test';
 
 describe('clear-recovery', () => {
   let props: Parameters<typeof clearRecovery>[0];

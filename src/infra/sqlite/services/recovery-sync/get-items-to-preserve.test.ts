@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { getFilesToPreserve, getFoldersToPreserve } from './get-items-to-preserve';
-import { CHECKPOINT, clearTables, getScope, insertFile, insertFolder, insertObserved, insertScan } from './recovery.helper.test';
+import { CHECKPOINT, clearTables, getScope, insertFile, insertFolder, insertObserved, insertScan } from './recovery-sync.helper.test';
 
 describe('get-items-to-preserve', () => {
   let props: Parameters<typeof getFilesToPreserve>[0];

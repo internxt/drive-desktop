@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { markRemovedIfEligible } from './mark-removed-if-eligible';
-import { clearTables, getScope, insertFile, insertFolder, insertObserved, insertScan } from './recovery.helper.test';
+import { clearTables, getScope, insertFile, insertFolder, insertObserved, insertScan } from './recovery-sync.helper.test';
 
 describe('mark-removed-if-eligible', () => {
   let props: Parameters<typeof markRemovedIfEligible>[0];

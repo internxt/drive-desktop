@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { createOrUpdate } from '../checkpoint/create-or-update';
-import { CHECKPOINT, clearTables, getScans } from './recovery.helper.test';
+import { CHECKPOINT, clearTables, getScans } from './recovery-sync.helper.test';
 import { startOrResumeScan } from './start-or-resume-scan';
 
 describe('start-or-resume-scan', () => {
