@@ -9,6 +9,7 @@ import { getWorkerCount } from '@/core/utils/concurrency';
 import { stat } from '@/infra/file-system/original-fs';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
+import { trackRetry } from './track-retry';
 
 type Props = {
   ctx: BackupsContext;
@@ -37,12 +38,7 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
     while (nextIndex < pending.length) {
       const { path, attempt, retryAt } = pending[nextIndex];
       nextIndex += 1;
-      let willRetry = false;
-
-      const retryLater: RetryLater = (next) => {
-        willRetry = true;
-        pending.push({ path, attempt: next.attempt, retryAt: Date.now() + next.delayMs });
-      };
+      const retry = trackRetry();
 
       if (retryAt > Date.now()) await sleep(retryAt - Date.now());
 
@@ -50,14 +46,17 @@ export async function createFiles({ ctx, remoteTree, added }: Props) {
         await scheduleRequest({
           ctx,
           path,
-          willRetry: () => willRetry,
-          fn: () => createFile({ ctx, path, remoteTree, attempt, retryLater }),
+          willRetry: retry.willRetry,
+          fn: () => createFile({ ctx, path, remoteTree, attempt, retryLater: retry.retryLater }),
         });
       } catch (error) {
         const fileStats = await stat(path).catch(() => null);
 
         ctx.logger.sentryError({ msg: 'Error creating file', path, error }, { fileSize: fileStats?.size });
       }
+
+      const next = retry.next();
+      if (next) pending.push({ path, attempt: next.attempt, retryAt: Date.now() + next.delayMs });
     }
   }
 

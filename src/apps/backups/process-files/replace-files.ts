@@ -6,6 +6,7 @@ import { sleep } from '@/apps/main/util';
 import { Sync } from '@/backend/features/sync';
 import { stat } from '@/infra/file-system/original-fs';
 import { scheduleRequest } from '../schedule-request';
+import { trackRetry } from './track-retry';
 
 type Props = {
   ctx: BackupsContext;
@@ -21,14 +22,14 @@ export async function replaceFiles({ ctx, modified }: Props) {
  * Every modified file is scheduled at once, so a retry scheduled again after its delay queues behind all of them.
  */
 async function replaceFile({ ctx, path, uuid, attempt }: { ctx: BackupsContext; path: AbsolutePath; uuid: FileUuid; attempt: number }) {
-  let retry: { attempt: number; delayMs: number } | undefined;
+  const retry = trackRetry();
 
   try {
     await scheduleRequest({
       ctx,
       path,
-      willRetry: () => retry !== undefined,
-      fn: () => Sync.Actions.replaceFile({ ctx, path, uuid, attempt, retryLater: (next) => (retry = next) }),
+      willRetry: retry.willRetry,
+      fn: () => Sync.Actions.replaceFile({ ctx, path, uuid, attempt, retryLater: retry.retryLater }),
     });
   } catch (error) {
     const fileStats = await stat(path).catch(() => null);
@@ -37,8 +38,9 @@ async function replaceFile({ ctx, path, uuid, attempt }: { ctx: BackupsContext; 
     return;
   }
 
-  if (!retry) return;
+  const next = retry.next();
+  if (!next) return;
 
-  await sleep(retry.delayMs);
-  await replaceFile({ ctx, path, uuid, attempt: retry.attempt });
+  await sleep(next.delayMs);
+  await replaceFile({ ctx, path, uuid, attempt: next.attempt });
 }
