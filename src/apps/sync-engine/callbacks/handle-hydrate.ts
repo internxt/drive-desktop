@@ -21,12 +21,25 @@ export async function handleHydrate({ ctx, path }: Props) {
   }
 }
 
+/**
+ * v2.7.1 Victor Fernandez
+ * Every chunk written while hydrating a pinned file raises a change event for it, so without this set the
+ * same file would be queued again for each event received while it is pending or downloading.
+ */
+const scheduledPaths = new Set<AbsolutePath>();
+
 export async function throttleHydrate({ ctx, path }: Props) {
+  if (scheduledPaths.has(path)) return;
+
+  scheduledPaths.add(path);
+
   try {
     return await ctx.downloadBottleneck.schedule(() => handleHydrate({ ctx, path }));
   } catch (error) {
     if (isBottleneckStop({ error })) return;
 
     throw error;
+  } finally {
+    scheduledPaths.delete(path);
   }
 }
