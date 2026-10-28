@@ -10,7 +10,8 @@ export type SyncIssue = {
     | 'FILE_SIZE_TOO_BIG'
     | 'CANNOT_REGISTER_VIRTUAL_DRIVE'
     | 'EMPTY_FILES_NOT_ALLOWED'
-    | 'EMPTY_FILES_EXCEEDED';
+    | 'EMPTY_FILES_EXCEEDED'
+    | 'PINNED_FILE_NOT_DOWNLOADED';
 };
 
 export type BackupsIssue = {

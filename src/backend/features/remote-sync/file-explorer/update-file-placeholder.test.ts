@@ -1,3 +1,4 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
@@ -15,6 +16,7 @@ describe('update-file-placeholder', () => {
   const setPinStateMock = partialSpyOn(Addon, 'setPinState');
   const checkIfMovedMock = partialSpyOn(checkIfMoved, 'checkIfMoved');
   const checkIfModifiedMock = partialSpyOn(checkIfModified, 'checkIfModified');
+  const addSyncIssueMock = partialSpyOn(issues, 'addSyncIssue');
 
   const date = '2000-01-01T00:00:00.000Z';
   const creationDate = '1999-01-01T00:00:00.000Z';
@@ -88,6 +90,18 @@ describe('update-file-placeholder', () => {
     // Then
     call(loggerFn).toStrictEqual({ msg: 'File stuck in hydrated state', onDiskSize: 512, size: 1024, path: 'remotePath' });
     call(setPinStateMock).toStrictEqual({ path: 'remotePath', pinState: PinState.Unspecified });
+    call(addSyncIssueMock).toStrictEqual({ error: 'PINNED_FILE_NOT_DOWNLOADED', name: 'remotePath' });
+  });
+
+  it('should not reset pin state if file is fully hydrated', async () => {
+    // Given
+    props.isFirstExecution = true;
+    props.files = new Map([['uuid' as FileUuid, { size: 1024, pinState: PinState.AlwaysLocal, onDiskSize: 1024 }]]);
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    calls(setPinStateMock).toHaveLength(0);
+    calls(addSyncIssueMock).toHaveLength(0);
   });
 
   it('should capture exception if something fails', async () => {
