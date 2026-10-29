@@ -1,4 +1,3 @@
-import * as utilModule from '@/apps/main/util';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SingleItemError } from '@/infra/sqlite/services/common/single-item-error';
 import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
@@ -7,7 +6,6 @@ import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test
 import { scanRecoverySyncItems } from './scan-recovery-sync-items';
 
 describe('scan-recovery-sync-items', () => {
-  const sleepMock = partialSpyOn(utilModule, 'sleep');
   const startOrResumeScanMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'startOrResumeScan');
   const commitScanPageMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'commitScanPage');
   const fetchPageMock = vi.fn<Parameters<typeof scanRecoverySyncItems>[0]['fetchPage']>();
@@ -27,7 +25,6 @@ describe('scan-recovery-sync-items', () => {
   let props: Parameters<typeof scanRecoverySyncItems>[0];
 
   beforeEach(() => {
-    sleepMock.mockResolvedValue(undefined);
     startOrResumeScanMock.mockReturnValue({ data: { rootUuid: 'rootUuid', itemType: 'file', checkpoint, updatedAt: epoch, completed: 0 } });
     commitScanPageMock.mockReturnValue({ data: undefined });
     fetchPageMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
@@ -97,23 +94,11 @@ describe('scan-recovery-sync-items', () => {
     ]);
   });
 
-  it('should pace requests between pages but not after the last page', async () => {
-    // Given
-    fetchPageMock
-      .mockResolvedValueOnce({ data: { items: [item('a', '2025-01-01T00:00:00.000Z')], nextCursor: 'cursor-1' } })
-      .mockResolvedValueOnce({ data: { items: [item('b', '2025-02-01T00:00:00.000Z')], nextCursor: null } });
-    // When
-    await scanRecoverySyncItems(props);
-    // Then
-    calls(sleepMock).toStrictEqual([30_000]);
-  });
-
   it('should complete an empty scan with the saved progress', async () => {
     // When
     await scanRecoverySyncItems(props);
     // Then
     calls(commitScanPageMock).toMatchObject([{ items: [], updatedAt: epoch, completed: true }]);
-    calls(sleepMock).toHaveLength(0);
   });
 
   it('should keep the saved progress for an empty page with a next cursor', async () => {
@@ -204,7 +189,6 @@ describe('scan-recovery-sync-items', () => {
     // Then
     expect(error?.message).toBe('INVALID_PROGRESS');
     calls(fetchPageMock).toHaveLength(1);
-    calls(sleepMock).toHaveLength(0);
   });
 
   it('should stop without committing when aborted during a request', async () => {
@@ -234,12 +218,12 @@ describe('scan-recovery-sync-items', () => {
     calls(commitScanPageMock).toHaveLength(0);
   });
 
-  it('should stop before the next request when aborted while pacing', async () => {
+  it('should stop before the next request when aborted after a committed page', async () => {
     // Given
     fetchPageMock.mockResolvedValueOnce({ data: { items: [item('a', '2025-01-01T00:00:00.000Z')], nextCursor: 'cursor-1' } });
-    sleepMock.mockImplementation(() => {
+    commitScanPageMock.mockImplementation(() => {
       props.ctx.abortController.abort();
-      return Promise.resolve();
+      return { data: undefined };
     });
     // When
     const { error } = await scanRecoverySyncItems(props);
@@ -301,5 +285,19 @@ describe('scan-recovery-sync-items', () => {
     // Then
     expect(error).toBeInstanceOf(DriveServerWipError);
     calls(fetchPageMock).toHaveLength(1);
+  });
+
+  it('should stop without committing when the cursor does not advance', async () => {
+    // Given
+    fetchPageMock
+      .mockResolvedValueOnce({ data: { items: [item('a', '2025-01-01T00:00:00.000Z')], nextCursor: 'cursor-1' } })
+      .mockResolvedValueOnce({ data: { items: [item('b', '2025-02-01T00:00:00.000Z')], nextCursor: 'cursor-1' } });
+    // When
+    const { error } = await scanRecoverySyncItems(props);
+    // Then
+    expect(error?.message).toBe('Recovery sync cursor did not advance');
+    calls(fetchPageMock).toHaveLength(2);
+    calls(repairItemsMock).toHaveLength(1);
+    calls(commitScanPageMock).toMatchObject([{ updatedAt: '2025-01-01T00:00:00.000Z', completed: false }]);
   });
 });

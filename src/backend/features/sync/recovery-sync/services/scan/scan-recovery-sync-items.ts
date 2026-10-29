@@ -1,5 +1,4 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
-import { sleep } from '@/apps/main/util';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
@@ -128,6 +127,17 @@ async function scanPage<T extends RemoteItem>({
   }
 
   const { items, nextCursor } = page.data;
+
+  /**
+   * v2.7.2 Alexis Mora
+   * Requesting the same cursor again would return the same page forever without failing, so the scan would never complete.
+   * Restarting would reach that cursor again, so the scan stops and a later recovery sync retries it.
+   */
+  if (state.cursor && nextCursor === state.cursor) {
+    const error = new Error('Recovery sync cursor did not advance');
+    ctx.logger.error({ msg: 'Recovery sync scan cursor did not advance', itemType, updatedAt: state.updatedAt });
+    return Result.err(error);
+  }
 
   const repair = await repairItems({ items, checkpoint });
   if (repair.error) {
