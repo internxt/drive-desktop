@@ -50,5 +50,5 @@ async function retry() {
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Retrying files rejected for their size' });
 
-  await Promise.all([...contexts].map((ctx) => addPendingItems({ ctx })));
+  await Promise.allSettled([...contexts].map((ctx) => addPendingItems({ ctx })));
 }

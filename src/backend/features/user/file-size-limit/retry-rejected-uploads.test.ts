@@ -89,6 +89,23 @@ describe('retry-rejected-uploads', () => {
     calls(addPendingItemsMock).toHaveLength(0);
   });
 
+  it('should wait for every sync context even if one of them fails', async () => {
+    // Given
+    addSyncIssue({ name: '/file.iso', error: 'FILE_SIZE_TOO_BIG' });
+    addSyncIssue({ name: '/workspace/file.iso', error: 'FILE_SIZE_TOO_BIG' });
+    const { promise, resolve } = Promise.withResolvers<void>();
+    addPendingItemsMock.mockRejectedValueOnce(new Error('error')).mockReturnValueOnce(promise);
+    // When
+    const first = retryRejectedUploads();
+    await vi.waitFor(() => calls(addPendingItemsMock).toHaveLength(2));
+    await new Promise((r) => setImmediate(r));
+    const second = retryRejectedUploads();
+    resolve();
+    // Then
+    expect(second).toBe(first);
+    await expect(first).resolves.toBeUndefined();
+  });
+
   it('should not add the pending items if no file was rejected for its size', async () => {
     // When
     await retryRejectedUploads();
