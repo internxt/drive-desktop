@@ -32,7 +32,7 @@ describe('check-if-modified', () => {
     // Given
     await setupWatcher(rootPath);
     await writeFile(path, 'content');
-    await Addon.convertToPlaceholder({ path, placeholderId: 'FILE:uuid' });
+    await Addon.convertToPlaceholder({ path, placeholderId: 'FILE:uuid', markInSync: true });
 
     const props: TestProps<typeof checkIfModified> = {
       ctx: { logger: loggerMock },
