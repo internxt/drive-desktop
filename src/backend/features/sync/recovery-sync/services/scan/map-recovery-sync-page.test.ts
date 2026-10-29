@@ -51,6 +51,15 @@ describe('map-recovery-sync-page', () => {
     expect(data?.nextCursor).toBeNull();
   });
 
+  it('should map null file names, extensions and parent uuids to empty strings', () => {
+    // When
+    const { data } = mapRecoverySyncFilesPage({
+      page: { items: [{ ...file, plainName: null, type: null, folderUuid: null }], nextCursor: null },
+    });
+    // Then
+    expect(data?.items).toMatchObject([{ plainName: '', type: '', folderUuid: '' }]);
+  });
+
   it('should map a folder without a parent id', () => {
     // When
     const { data } = mapRecoverySyncFoldersPage({ page: { items: [{ ...folder, parentId: null }], nextCursor: null } });

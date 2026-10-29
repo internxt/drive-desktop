@@ -1,10 +1,9 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
-import { sleep } from '@/apps/main/util';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { createRecoverySyncAbortError } from '../../common/create-recovery-sync-abort-error';
-import { EPOCH, RECOVERY_SYNC_PAGE_DELAY_MS } from '../../constants';
+import { EPOCH } from '../../constants';
 import { RecoverySyncPageRequest } from './fetch-recovery-sync-page';
 import { RecoverySyncPage } from './map-recovery-sync-page';
 
@@ -69,8 +68,6 @@ async function scanUntilCompleted<T extends RemoteItem>(props: PageProps<T>): Pr
   let { state } = props;
 
   while (!state.completed) {
-    // Pacing goes only between pages of one traversal, so the final page and a restart are not delayed.
-    if (state.cursor) await sleep(RECOVERY_SYNC_PAGE_DELAY_MS);
     if (signal.aborted) return Result.err(createRecoverySyncAbortError());
 
     const result = await scanPage({ ...props, state });
@@ -130,6 +127,17 @@ async function scanPage<T extends RemoteItem>({
   }
 
   const { items, nextCursor } = page.data;
+
+  /**
+   * v2.7.2 Alexis Mora
+   * Requesting the same cursor again would return the same page forever without failing, so the scan would never complete.
+   * Restarting would reach that cursor again, so the scan stops and a later recovery sync retries it.
+   */
+  if (state.cursor && nextCursor === state.cursor) {
+    const error = new Error('Recovery sync cursor did not advance');
+    ctx.logger.error({ msg: 'Recovery sync scan cursor did not advance', itemType, updatedAt: state.updatedAt });
+    return Result.err(error);
+  }
 
   const repair = await repairItems({ items, checkpoint });
   if (repair.error) {

@@ -10,11 +10,21 @@ export type RecoverySyncPage<T> = {
 export type RecoverySyncFile = Omit<DriveFile, 'userUuid' | 'workspaceId'>;
 export type RecoverySyncFolder = Omit<DriveFolder, 'userUuid' | 'workspaceId'>;
 
+/**
+ * v2.7.2 Alexis Mora
+ * The API types declare these fields as strings, but normal sync persists them with `?? ''` because the backend can send null.
+ * Rejecting null would fail the same page on every attempt and recovery sync would never complete.
+ */
+const nullableString = z
+  .string()
+  .nullable()
+  .transform((value) => value ?? '');
+
 const itemSchema = z.object({
   id: z.number(),
   uuid: z.string().min(1),
   status: z.enum(['EXISTS', 'TRASHED', 'DELETED']),
-  plainName: z.string(),
+  plainName: nullableString,
   createdAt: z.string(),
   updatedAt: z.iso.datetime(),
   creationTime: z.string(),
@@ -22,11 +32,11 @@ const itemSchema = z.object({
 });
 
 const fileSchema = itemSchema.extend({
-  type: z.string(),
+  type: nullableString,
   fileId: z.string(),
   size: z.union([z.string(), z.number()]).transform(Number).pipe(z.number().int().nonnegative()),
   folderId: z.number(),
-  folderUuid: z.string(),
+  folderUuid: nullableString,
 });
 
 const folderSchema = itemSchema.extend({
