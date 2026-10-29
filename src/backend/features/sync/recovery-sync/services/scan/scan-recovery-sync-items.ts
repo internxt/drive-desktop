@@ -4,7 +4,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { createRecoverySyncAbortError } from '../../common/create-recovery-sync-abort-error';
-import { EPOCH, RECOVERY_SYNC_PAGE_DELAY_MS } from '../../constants';
+import { EPOCH } from '../../constants';
 import { RecoverySyncPageRequest } from './fetch-recovery-sync-page';
 import { RecoverySyncPage } from './map-recovery-sync-page';
 
@@ -69,8 +69,6 @@ async function scanUntilCompleted<T extends RemoteItem>(props: PageProps<T>): Pr
   let { state } = props;
 
   while (!state.completed) {
-    // Pacing goes only between pages of one traversal, so the final page and a restart are not delayed.
-    if (state.cursor) await sleep(RECOVERY_SYNC_PAGE_DELAY_MS);
     if (signal.aborted) return Result.err(createRecoverySyncAbortError());
 
     const result = await scanPage({ ...props, state });
