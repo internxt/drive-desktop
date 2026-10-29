@@ -47,11 +47,17 @@ export async function onChange({ ctx, event, path, observedAtMs }: Props) {
     await Drive.Actions.replaceFile({ ctx, path, uuid: fileInfo.uuid });
   }
 
-  if (isChanged) {
-    if (fileInfo.pinState === PinState.AlwaysLocal && fileInfo.onDiskSize === 0) {
-      await throttleHydrate({ ctx, path });
-    }
+  /**
+   * v2.7.1 Victor Fernandez
+   * A pinned file that is not fully on disk is hydrated regardless of the timestamp heuristic. If the
+   * event is processed late the heuristic discards the pin, and a file left partially hydrated would
+   * never be resumed because we only hydrated files with nothing on disk.
+   */
+  if (fileInfo.pinState === PinState.AlwaysLocal && fileInfo.onDiskSize < event.size) {
+    await throttleHydrate({ ctx, path });
+  }
 
+  if (isChanged) {
     if (fileInfo.pinState === PinState.OnlineOnly) {
       if (event.size === 0 || fileInfo.onDiskSize !== 0) {
         await handleDehydrate({ ctx, path });

@@ -1,3 +1,4 @@
+import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
@@ -58,6 +59,7 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       if (local.pinState === PinState.AlwaysLocal && onDiskSize < size) {
         ctx.logger.debug({ msg: 'File stuck in hydrated state', onDiskSize, size, path });
         await Addon.setPinState({ path, pinState: PinState.Unspecified });
+        addSyncIssue({ error: 'PINNED_FILE_NOT_DOWNLOADED', name: path });
       }
     }
   } catch (error) {
