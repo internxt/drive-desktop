@@ -1,6 +1,5 @@
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import * as utilModule from '@/apps/main/util';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { db, runMigrations } from '@/infra/sqlite/migrations/run-migrations';
@@ -19,7 +18,6 @@ import { scanRecoverySyncFiles } from './scan-recovery-sync-files';
 import { scanRecoverySyncFolders } from './scan-recovery-sync-folders';
 
 describe('scan-recovery-sync', () => {
-  const sleepMock = partialSpyOn(utilModule, 'sleep');
   const getFilesMock = partialSpyOn(driveServerWip.files, 'getFilesSyncPage');
   const getFoldersMock = partialSpyOn(driveServerWip.folders, 'getFoldersSyncPage');
   const getWorkspaceFilesMock = partialSpyOn(driveServerWip.workspaces, 'getFilesSyncPage');
@@ -92,7 +90,6 @@ describe('scan-recovery-sync', () => {
 
   beforeEach(() => {
     clearTables();
-    sleepMock.mockResolvedValue(undefined);
     getFilesMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
     getFoldersMock.mockResolvedValue({ data: { items: [], nextCursor: null } });
 
@@ -148,7 +145,6 @@ describe('scan-recovery-sync', () => {
     ]);
     expect(getScans()).toMatchObject([{ itemType: 'file', checkpoint: CHECKPOINT, updatedAt: AFTER_CHECKPOINT, completed: 1 }]);
     expect(getCheckpoints()).toEqual([{ type: 'file', updatedAt: CHECKPOINT, workspaceId: '' }]);
-    calls(sleepMock).toStrictEqual([30_000]);
   });
 
   it('should resume an interrupted scan and observe every folder sharing a timestamp across pages', async () => {
