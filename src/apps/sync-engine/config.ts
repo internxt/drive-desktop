@@ -2,6 +2,7 @@ import { AbsolutePath, logger, paths } from '@internxt/drive-desktop-core/build/
 import { Environment } from '@internxt/inxt-js';
 import Bottleneck from 'bottleneck';
 import { Client } from 'openapi-fetch';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { InxtJs } from '@/infra';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { RemoteSyncStatus } from '../main/remote-sync/helpers';
@@ -18,7 +19,13 @@ export type AuthContext = {
   workspaceToken: string;
 };
 
+export const CONTEXT_KINDS = {
+  SYNC: 'sync',
+  BACKUPS: 'backups',
+} as const;
+
 export type CommonContext = AuthContext & {
+  readonly kind: (typeof CONTEXT_KINDS)[keyof typeof CONTEXT_KINDS];
   readonly workspaceId: string;
   readonly bucket: string;
   readonly environment: Environment;
@@ -26,6 +33,7 @@ export type CommonContext = AuthContext & {
 };
 
 export type SyncContext = CommonContext & {
+  readonly kind: typeof CONTEXT_KINDS.SYNC;
   status: RemoteSyncStatus;
   readonly providerId: string;
   readonly rootPath: AbsolutePath;
@@ -36,3 +44,5 @@ export type SyncContext = CommonContext & {
   readonly bridgePass: string;
   readonly contentsDownloader: InxtJs.ContentsDownloader;
 };
+
+export type UploadContext = SyncContext | BackupsContext;
