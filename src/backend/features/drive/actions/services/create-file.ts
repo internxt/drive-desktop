@@ -57,7 +57,7 @@ async function waitAndCreateFile({ ctx, path, parentUuid }: Props) {
 
 async function markFileCreated({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
   removeUploadIssues({ path });
-  await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
+  await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}`, markInSync: true });
 }
 
 async function retryCreateFile({ ctx, path, parentUuid }: Props) {
