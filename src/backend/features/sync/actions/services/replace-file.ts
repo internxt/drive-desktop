@@ -1,4 +1,4 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import { CommonContext } from '@/apps/sync-engine/config';
@@ -7,6 +7,7 @@ import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sql
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
+import { getFileSizeLimitAdapter } from '../../../user/file-size-limit/get-file-size-limit-adapter';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { uploadFile } from './upload-file';
 
@@ -36,6 +37,7 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
   if (res.error) {
     if (res.error.code === 'FILE_UPLOAD_SIZE_EXCEEDED') {
       handleFileUploadSizeExceeded({ path, size: upload.size });
+      void FileSizeLimitModule.revalidateFileSizeLimit(getFileSizeLimitAdapter({ ctx }));
       ctx.logger.warn({
         msg: 'File size exceeds upload limit',
         path,

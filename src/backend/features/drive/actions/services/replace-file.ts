@@ -66,26 +66,7 @@ async function isSameVersion({ path, version }: { path: AbsolutePath; version?: 
 async function replaceFileOnce({ ctx, path, uuid }: Props) {
   try {
     const key = getReplaceFileKey({ path });
-    const promiseFn = async () => {
-      const { error } = await waitForLocalFile({
-        ctx,
-        path,
-        operation: 'replace',
-        retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid }) }),
-      });
-      if (error) return;
-
-      const uploadUuid = takeLatestUuid({ path, uuid });
-      const version = await getVersion({ path });
-      if (version) uploadedVersions.set(path, version);
-      uploadingPaths.add(path);
-      try {
-        return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
-      } finally {
-        uploadingPaths.delete(path);
-      }
-    };
-    const { promise, reused } = getInFlightRequest({ key, promiseFn });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndReplaceFile({ ctx, path, uuid }) });
 
     if (reused) {
       /**
@@ -111,6 +92,26 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
   }
 
   return true;
+}
+
+async function waitAndReplaceFile({ ctx, path, uuid }: Props) {
+  const { error } = await waitForLocalFile({
+    ctx,
+    path,
+    operation: 'replace',
+    retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid }) }),
+  });
+  if (error) return;
+
+  const uploadUuid = takeLatestUuid({ path, uuid });
+  const version = await getVersion({ path });
+  if (version) uploadedVersions.set(path, version);
+  uploadingPaths.add(path);
+  try {
+    return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
+  } finally {
+    uploadingPaths.delete(path);
+  }
 }
 
 async function retryReplaceFile({ ctx, path, uuid }: Props) {
