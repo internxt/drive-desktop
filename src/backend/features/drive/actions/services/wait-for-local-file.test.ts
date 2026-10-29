@@ -1,3 +1,4 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { Sync } from '@/backend/features/sync';
 import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wait-until-ready';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -8,6 +9,7 @@ import { waitForLocalFile } from './wait-for-local-file';
 
 describe('wait-for-local-file', () => {
   const waitUntilReadyMock = partialSpyOn(Sync, 'waitUntilReady');
+  const setUploadIssueMock = partialSpyOn(issues, 'setUploadIssue');
   const retry = vi.fn();
 
   let abortController: AbortController;
@@ -63,6 +65,7 @@ describe('wait-for-local-file', () => {
     await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
+    calls(setUploadIssueMock).toHaveLength(0);
   });
 
   it('should not retry if the wait was aborted', async () => {
@@ -74,6 +77,7 @@ describe('wait-for-local-file', () => {
     // Then
     calls(retry).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
+    calls(setUploadIssueMock).toHaveLength(0);
   });
 
   it('should retry after the delay if the file is not ready', async () => {
@@ -84,6 +88,7 @@ describe('wait-for-local-file', () => {
     // Then
     expect(res.error?.code).toBe('IDLE_TIMEOUT');
     call(loggerMock.warn).toMatchObject({ msg: 'File not ready, retry later', path: props.path, reason: 'IDLE_TIMEOUT' });
+    call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'FILE_NOT_READY' });
     await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS - 1);
     calls(retry).toHaveLength(0);
     await vi.advanceTimersByTimeAsync(1);

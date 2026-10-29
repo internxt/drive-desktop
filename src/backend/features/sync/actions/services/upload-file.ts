@@ -1,5 +1,5 @@
 import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
-import { CommonContext } from '@/apps/sync-engine/config';
+import { CONTEXT_KINDS, UploadContext } from '@/apps/sync-engine/config';
 import { getFileSizeLimitAdapter } from '@/backend/features/user/file-size-limit';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { stat } from '@/infra/file-system/original-fs';
@@ -8,7 +8,7 @@ import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/hand
 import { waitUntilReady } from './wait-until-ready';
 
 type Props = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
 };
 
@@ -16,6 +16,9 @@ export async function uploadFile({ ctx, path }: Props) {
   const { error: notReadyError } = await waitUntilReady({ path });
   if (notReadyError) {
     ctx.logger.error({ msg: 'Wait until ready, timeout', path, reason: notReadyError.code });
+    if (ctx.kind === CONTEXT_KINDS.BACKUPS && notReadyError.code !== 'NON_EXISTS') {
+      ctx.addIssue({ error: 'FILE_NOT_READY', name: path });
+    }
     return;
   }
 
