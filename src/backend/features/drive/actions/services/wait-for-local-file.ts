@@ -2,19 +2,17 @@ import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { setUploadIssue } from '@/apps/main/background-processes/issues';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
+import { LOCAL_FILE_IDLE_TIMEOUT_MS, LOCAL_FILE_MAX_WAIT_MS, LOCAL_FILE_RETRY_DELAY_MS } from './constants';
 
-const IDLE_TIMEOUT_MS = 60_000;
-const MAX_WAIT_MS = 2 * 60 * 60_000;
-export const RETRY_DELAY_MS = 5 * 60_000;
-
-type RetryKey = `${'create' | 'replace'}:${AbsolutePath}`;
+type Operation = 'create' | 'replace';
+type RetryKey = `${Operation}:${AbsolutePath}`;
 
 const scheduledRetries = new Set<RetryKey>();
 
 type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
-  operation: 'create' | 'replace';
+  operation: Operation;
   retry: () => Promise<void>;
 };
 
@@ -29,13 +27,13 @@ type Props = {
 export async function waitForLocalFile({ ctx, path, operation, retry }: Props) {
   const res = await Sync.waitUntilReady({
     path,
-    idleTimeoutMs: IDLE_TIMEOUT_MS,
-    maxWaitMs: MAX_WAIT_MS,
+    idleTimeoutMs: LOCAL_FILE_IDLE_TIMEOUT_MS,
+    maxWaitMs: LOCAL_FILE_MAX_WAIT_MS,
     abortSignal: ctx.abortController.signal,
   });
 
   if (res.error && res.error.code !== 'NON_EXISTS' && res.error.code !== 'ABORTED') {
-    ctx.logger.warn({ msg: 'File not ready, retry later', path, operation, reason: res.error.code, retryInMs: RETRY_DELAY_MS });
+    ctx.logger.warn({ msg: 'File not ready, retry later', path, operation, reason: res.error.code, retryInMs: LOCAL_FILE_RETRY_DELAY_MS });
     setUploadIssue({ path, error: 'FILE_NOT_READY' });
     scheduleRetry({ ctx, path, operation, retry });
   }
@@ -65,7 +63,7 @@ function scheduleRetry({ ctx, path, operation, retry }: Props) {
     signal.removeEventListener('abort', cancel);
     scheduledRetries.delete(key);
     void retry();
-  }, RETRY_DELAY_MS);
+  }, LOCAL_FILE_RETRY_DELAY_MS);
 
   signal.addEventListener('abort', cancel, { once: true });
 }
