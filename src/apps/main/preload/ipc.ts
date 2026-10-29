@@ -3,7 +3,6 @@ import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { runRecoverySyncManually } from '@/backend/features/sync';
-import { watchFileSizeLimitAfterUpgrade } from '@/backend/features/user/file-size-limit/watch-file-size-limit-after-upgrade';
 import { isUserLoggedIn } from '../auth/handlers';
 import { openLoginUrl } from '../auth/open-login-url';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -50,7 +49,7 @@ export type FromProcess = {
   getRemoteSyncStatus: Mirror<typeof getSyncStatus>;
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
   recoverySyncManually: AsyncMirror<typeof runRecoverySyncManually>;
-  watchFileSizeLimitAfterUpgrade: Mirror<typeof watchFileSizeLimitAfterUpgrade>;
+  watchFileSizeLimitAfterUpgrade: () => Promise<void>;
 
   // Backups
   backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
