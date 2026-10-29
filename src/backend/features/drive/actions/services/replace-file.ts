@@ -1,8 +1,16 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { removeUploadIssues } from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { Sync } from '@/backend/features/sync';
+import { getInFlightRequest, getReplaceFileKey } from '@/infra/drive-server-wip/in/get-in-flight-request';
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
+import { InSyncState } from '@/node-win/types/placeholder.type';
+import { waitForLocalFile } from './wait-for-local-file';
+
+type FileVersion = { mtimeMs: number; size: number };
 
 type Props = {
   ctx: SyncContext;
@@ -10,14 +18,111 @@ type Props = {
   uuid: FileUuid;
 };
 
+const uploadingPaths = new Set<AbsolutePath>();
+// We keep the uuid of the latest event because the remote file could have been recreated meanwhile
+const changedWhileWaiting = new Map<AbsolutePath, FileUuid>();
+const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
+const uploadedVersions = new Map<AbsolutePath, FileVersion>();
+
+function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
+  const latestUuid = changedWhileWaiting.get(path) ?? uuid;
+  changedWhileWaiting.delete(path);
+  return latestUuid;
+}
+
 export async function replaceFile({ ctx, path, uuid }: Props) {
+  const isOwner = await replaceFileOnce({ ctx, path, uuid });
+  if (!isOwner) return;
+
+  const uploadedVersion = uploadedVersions.get(path);
+  uploadedVersions.delete(path);
+  const latestUuid = changedWhileUploading.get(path);
+  if (!latestUuid) return;
+
+  changedWhileUploading.delete(path);
+
+  if (await isSameVersion({ path, version: uploadedVersion })) {
+    ctx.logger.debug({ msg: 'File did not change while it was being uploaded, do not replace it again', path });
+    return;
+  }
+
+  ctx.logger.debug({ msg: 'File changed while it was being uploaded, replace it again', path });
+  await replaceFile({ ctx, path, uuid: latestUuid });
+}
+
+async function getVersion({ path }: { path: AbsolutePath }) {
+  const { data: stats } = await fileSystem.stat({ absolutePath: path });
+  if (!stats) return;
+
+  return { mtimeMs: stats.mtimeMs, size: stats.size };
+}
+
+async function isSameVersion({ path, version }: { path: AbsolutePath; version?: FileVersion }) {
+  if (!version) return false;
+
+  const current = await getVersion({ path });
+  return current?.mtimeMs === version.mtimeMs && current.size === version.size;
+}
+
+async function replaceFileOnce({ ctx, path, uuid }: Props) {
   try {
-    const file = await Sync.Actions.replaceFile({ ctx, path, uuid });
+    const key = getReplaceFileKey({ path });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndReplaceFile({ ctx, path, uuid }) });
 
-    if (!file) return;
+    if (reused) {
+      /**
+       * v2.7.0 Victor Fernandez
+       * While a big file is being overwritten the watcher can emit several events for it. Now that we
+       * wait until the copy finishes, each of those events would wait in parallel and upload the same
+       * file once the copy ends, so we ignore the events that arrive while one is already in flight.
+       * The exception is an event that arrives while the file is being uploaded: the upload may have
+       * read the previous content, so we replace the file once more when it finishes. While waiting we
+       * only keep the uuid, so the upload that is about to start targets the latest remote file.
+       */
+      if (uploadingPaths.has(path)) changedWhileUploading.set(path, uuid);
+      else changedWhileWaiting.set(path, uuid);
+      ctx.logger.debug({ msg: 'Replace file event duplicated, ignore this one', path });
+      return false;
+    }
 
-    await Addon.updateSyncStatus({ path });
+    const file = await promise;
+
+    if (file) await markFileReplaced({ path });
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });
   }
+
+  return true;
+}
+
+async function waitAndReplaceFile({ ctx, path, uuid }: Props) {
+  const { error } = await waitForLocalFile({
+    ctx,
+    path,
+    operation: 'replace',
+    retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid }) }),
+  });
+  if (error) return;
+
+  const uploadUuid = takeLatestUuid({ path, uuid });
+  const version = await getVersion({ path });
+  if (version) uploadedVersions.set(path, version);
+  uploadingPaths.add(path);
+  try {
+    return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
+  } finally {
+    uploadingPaths.delete(path);
+  }
+}
+
+async function markFileReplaced({ path }: { path: AbsolutePath }) {
+  removeUploadIssues({ path });
+  await Addon.updateSyncStatus({ path });
+}
+
+async function retryReplaceFile({ ctx, path, uuid }: Props) {
+  const { data: fileInfo } = await NodeWin.getFileInfo({ path });
+  if (fileInfo?.inSyncState !== InSyncState.NotSync) return;
+
+  await replaceFile({ ctx, path, uuid });
 }
