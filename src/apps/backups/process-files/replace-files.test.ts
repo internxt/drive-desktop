@@ -41,14 +41,27 @@ describe('replace-files', () => {
     call(replaceFileMock).toMatchObject({ path: '/file.txt' });
   });
 
-  it('should schedule the file again after the delay when its upload can be retried later', async () => {
+  it('should not replace more than 20 files at once', async () => {
     // Given
-    const willRetry: (boolean | undefined)[] = [];
-    scheduleRequestMock.mockImplementation(async ({ fn, willRetry: isRetried }) => {
-      await fn();
-      willRetry.push(isRetried?.());
+    props.modified = Array.from({ length: 25 }, (_, i) => ({ local: { path: abs(`/file${i}.txt`) }, remote: {} })) as typeof props.modified;
+    let running = 0;
+    let maxRunning = 0;
+    scheduleRequestMock.mockImplementation(async () => {
+      running += 1;
+      maxRunning = Math.max(maxRunning, running);
+      await new Promise((resolve) => setImmediate(resolve));
+      running -= 1;
     });
+    // When
+    await replaceFiles(props);
+    // Then
+    calls(scheduleRequestMock).toHaveLength(25);
+    expect(maxRunning).toBe(20);
+  });
 
+  it('should retry a file at the end of the list when its upload can be retried later', async () => {
+    // Given
+    props.modified = [...props.modified, { local: { path: abs('/other.txt') }, remote: {} }] as typeof props.modified;
     replaceFileMock.mockImplementationOnce(({ retryLater }) => {
       retryLater({ attempt: 2, delayMs: 5000 });
       return Promise.resolve(undefined);
@@ -58,9 +71,27 @@ describe('replace-files', () => {
     // Then
     calls(replaceFileMock).toMatchObject([
       { path: '/file.txt', attempt: 1 },
+      { path: '/other.txt', attempt: 1 },
       { path: '/file.txt', attempt: 2 },
     ]);
-    call(sleepMock).toBe(5000);
+    expect(sleepMock.mock.calls[0][0]).toBeGreaterThan(4000);
+  });
+
+  it('should count a file as processed only once it is not going to be retried', async () => {
+    // Given
+    const willRetry: (boolean | undefined)[] = [];
+    scheduleRequestMock.mockImplementation(async ({ fn, willRetry: isRetried }) => {
+      await fn();
+      willRetry.push(isRetried?.());
+    });
+
+    replaceFileMock.mockImplementationOnce(({ retryLater }) => {
+      retryLater({ attempt: 2, delayMs: 0 });
+      return Promise.resolve(undefined);
+    });
+    // When
+    await replaceFiles(props);
+    // Then
     expect(willRetry).toStrictEqual([true, false]);
   });
 });
