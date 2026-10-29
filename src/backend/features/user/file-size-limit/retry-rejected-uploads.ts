@@ -24,26 +24,27 @@ export function retryRejectedUploads() {
   return retrying;
 }
 
+async function checkRejectedFile({ name }: { name: string }) {
+  const path = abs(name);
+  if (!existsSync(path)) return { name, removeIssue: true };
+
+  const ctx = getSyncContextFromPath(path);
+  if (!ctx) return { name, removeIssue: false };
+
+  const { error } = await NodeWin.getFileInfo({ path });
+  if (error?.code !== 'NOT_A_PLACEHOLDER') return { name, removeIssue: false };
+
+  return { name, removeIssue: true, ctx };
+}
+
 async function retry() {
   const rejectedNames = issues.filter((i) => i.tab === 'sync' && i.error === 'FILE_SIZE_TOO_BIG').map((i) => i.name);
+  const rejectedFiles = await Promise.all(rejectedNames.map((name) => checkRejectedFile({ name })));
   const contexts = new Set<SyncContext>();
 
-  for (const name of rejectedNames) {
-    const path = abs(name);
-
-    if (!existsSync(path)) {
-      removeSyncIssue({ name, error: 'FILE_SIZE_TOO_BIG' });
-      continue;
-    }
-
-    const ctx = getSyncContextFromPath(path);
-    if (!ctx) continue;
-
-    const { error } = await NodeWin.getFileInfo({ path });
-    if (error?.code !== 'NOT_A_PLACEHOLDER') continue;
-
-    removeSyncIssue({ name, error: 'FILE_SIZE_TOO_BIG' });
-    contexts.add(ctx);
+  for (const { name, removeIssue, ctx } of rejectedFiles) {
+    if (removeIssue) removeSyncIssue({ name, error: 'FILE_SIZE_TOO_BIG' });
+    if (ctx) contexts.add(ctx);
   }
 
   if (contexts.size === 0) return;
