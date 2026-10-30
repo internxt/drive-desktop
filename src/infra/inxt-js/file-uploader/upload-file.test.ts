@@ -30,6 +30,7 @@ describe('upload-file', () => {
       ctx: { environment },
       abortController,
       size: 10,
+      attempt: 1,
     });
   });
 
@@ -39,7 +40,7 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBe('contentsId');
+    expect(res).toStrictEqual({ data: 'contentsId' });
     calls(addItemMock).toHaveLength(0);
     calls(processErrorMock).toHaveLength(0);
   });
@@ -53,20 +54,31 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBe('contentsId');
+    expect(res).toStrictEqual({ data: 'contentsId' });
     call(addItemMock).toMatchObject({ action: 'UPLOADING', progress: 50 });
     calls(processErrorMock).toHaveLength(0);
   });
 
-  it('should process error if upload fails', async () => {
+  it('should return the processed error if upload fails', async () => {
     // Given
-    environment.upload.mockRejectedValue(new Error());
+    const error = new Error();
+    environment.upload.mockRejectedValue(error);
+    processErrorMock.mockReturnValue(new processError.UploadFileError('RETRYABLE'));
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBeUndefined();
-    call(processErrorMock).toMatchObject({ sleepMs: 5000 });
+    expect(res.error?.code).toBe('RETRYABLE');
+    call(processErrorMock).toMatchObject({ path: props.path, size: 10, error });
     calls(addItemMock).toHaveLength(0);
+  });
+
+  it('should log the attempt when it is a retry', async () => {
+    // Given
+    environment.upload.mockResolvedValue('contentsId');
+    // When
+    await uploadFile({ ...props, attempt: 3 });
+    // Then
+    call(loggerMock.debug).toMatchObject({ msg: 'Uploading file to the bucket', retry: 3 });
   });
 
   it('should abort upload on change size', async () => {
@@ -79,12 +91,12 @@ describe('upload-file', () => {
     // When
     const res = await uploadFile(props);
     // Then
-    expect(res).toBeUndefined();
+    expect(res).toStrictEqual({ data: undefined });
     calls(addItemMock).toHaveLength(0);
     calls(loggerMock.debug).toMatchObject([{ msg: 'Uploading file to the bucket' }, { msg: 'File size changed during upload' }]);
   });
 
-  it('should open and close a stream on every attempt', async () => {
+  it('should open and close a stream', async () => {
     // Given
     environment.upload.mockResolvedValue('contentsId');
     // When
@@ -101,41 +113,5 @@ describe('upload-file', () => {
     await uploadFile(props);
     // Then
     calls(readable.close).toHaveLength(1);
-  });
-
-  it('should close the failed stream before starting the retry', async () => {
-    // Given
-    environment.upload.mockRejectedValue(new Error());
-    let closedWhenRetryStarted = 0;
-    processErrorMock.mockImplementationOnce(async ({ retryFn }) => {
-      closedWhenRetryStarted = readable.close.mock.calls.length;
-      return await retryFn();
-    });
-    // When
-    await uploadFile({ ...props, retry: 1, sleepMs: 5000 });
-    // Then
-    expect(closedWhenRetryStarted).toBe(1);
-  });
-
-  it('should give the retry a fresh stream and a doubled sleep', async () => {
-    // Given
-    environment.upload.mockRejectedValue(new Error());
-    processErrorMock.mockImplementationOnce(async ({ retryFn }) => await retryFn());
-    // When
-    await uploadFile({ ...props, retry: 1, sleepMs: 5000 });
-    // Then
-    calls(createReadStreamMock).toHaveLength(2);
-    calls(readable.close).toHaveLength(2);
-    calls(processErrorMock).toMatchObject([{ sleepMs: 5000 }, { sleepMs: 10000 }]);
-  });
-
-  it('should cap the sleep between retries', async () => {
-    // Given
-    environment.upload.mockRejectedValue(new Error());
-    processErrorMock.mockImplementationOnce(async ({ retryFn }) => await retryFn());
-    // When
-    await uploadFile({ ...props, retry: 1, sleepMs: 40000 });
-    // Then
-    calls(processErrorMock).toMatchObject([{ sleepMs: 40000 }, { sleepMs: 60000 }]);
   });
 });

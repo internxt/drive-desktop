@@ -9,16 +9,18 @@ import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-e
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { getFileSizeLimitAdapter } from '../../../user/file-size-limit/get-file-size-limit-adapter';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
-import { uploadFile } from './upload-file';
+import { RetryLater, uploadFile } from './upload-file';
 
 type Props = {
   ctx: UploadContext;
   path: AbsolutePath;
   uuid: FileUuid;
+  attempt?: number;
+  retryLater: RetryLater;
 };
 
-export async function replaceFile({ ctx, path, uuid }: Props) {
-  const upload = await uploadFile({ ctx, path });
+export async function replaceFile({ ctx, path, uuid, attempt, retryLater }: Props) {
+  const upload = await uploadFile({ ctx, path, attempt, retryLater });
 
   if (!upload) return;
 
