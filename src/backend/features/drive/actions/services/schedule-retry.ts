@@ -4,7 +4,9 @@ import { SyncContext } from '@/apps/sync-engine/config';
 export type Operation = 'create' | 'replace';
 type RetryKey = `${Operation}:${AbsolutePath}`;
 
-const scheduledRetries = new Set<RetryKey>();
+type ScheduledRetry = { dueAt: number; cancel: () => void };
+
+const scheduledRetries = new Map<RetryKey, ScheduledRetry>();
 
 type Props = {
   ctx: SyncContext;
@@ -24,22 +26,32 @@ type Props = {
 export function scheduleRetry({ ctx, path, operation, delayMs, retry }: Props) {
   const key: RetryKey = `${operation}:${path}`;
   const { signal } = ctx.abortController;
-  if (signal.aborted || scheduledRetries.has(key)) return;
+  if (signal.aborted) return;
 
-  scheduledRetries.add(key);
+  const dueAt = Date.now() + delayMs;
+  const scheduled = scheduledRetries.get(key);
+
+  /**
+   * v2.7.2 Victor Fernandez
+   * A failed upload retries in seconds while a file that was not ready waits minutes, and both share the key.
+   * The earlier one wins, so a pending wait for the file does not hold back the retry of an upload.
+   */
+  if (scheduled && scheduled.dueAt <= dueAt) return;
+  scheduled?.cancel();
 
   let timeout: NodeJS.Timeout | undefined = undefined;
 
   function cancel() {
     clearTimeout(timeout);
+    signal.removeEventListener('abort', cancel);
     scheduledRetries.delete(key);
   }
 
   timeout = setTimeout(() => {
-    signal.removeEventListener('abort', cancel);
-    scheduledRetries.delete(key);
+    cancel();
     void retry();
   }, delayMs);
 
+  scheduledRetries.set(key, { dueAt, cancel });
   signal.addEventListener('abort', cancel, { once: true });
 }
