@@ -4,7 +4,8 @@ import { WaitUntilReadyError } from '@/backend/features/sync/actions/services/wa
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { RETRY_DELAY_MS, waitForLocalFile } from './wait-for-local-file';
+import { LOCAL_FILE_RETRY_DELAY_MS } from './constants';
+import { waitForLocalFile } from './wait-for-local-file';
 
 describe('wait-for-local-file', () => {
   const waitUntilReadyMock = partialSpyOn(Sync, 'waitUntilReady');
@@ -50,7 +51,7 @@ describe('wait-for-local-file', () => {
     waitUntilReadyMock.mockResolvedValue({ data: true });
     // When
     const res = await waitForLocalFile(props);
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     expect(res).toStrictEqual({ data: true });
     calls(retry).toHaveLength(0);
@@ -61,7 +62,7 @@ describe('wait-for-local-file', () => {
     waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('NON_EXISTS') });
     // When
     await waitForLocalFile(props);
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
     calls(setUploadIssueMock).toHaveLength(0);
@@ -72,7 +73,7 @@ describe('wait-for-local-file', () => {
     waitUntilReadyMock.mockResolvedValue({ error: new WaitUntilReadyError('ABORTED') });
     // When
     await waitForLocalFile(props);
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
     calls(loggerMock.warn).toHaveLength(0);
@@ -88,7 +89,7 @@ describe('wait-for-local-file', () => {
     expect(res.error?.code).toBe('IDLE_TIMEOUT');
     call(loggerMock.warn).toMatchObject({ msg: 'File not ready, retry later', path: props.path, reason: 'IDLE_TIMEOUT' });
     call(setUploadIssueMock).toStrictEqual({ path: props.path, error: 'FILE_NOT_READY' });
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS - 1);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS - 1);
     calls(retry).toHaveLength(0);
     await vi.advanceTimersByTimeAsync(1);
     calls(retry).toHaveLength(1);
@@ -100,7 +101,7 @@ describe('wait-for-local-file', () => {
     // When
     await waitForLocalFile(props);
     await waitForLocalFile(props);
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(1);
   });
@@ -112,7 +113,7 @@ describe('wait-for-local-file', () => {
     // When
     await waitForLocalFile(props);
     await waitForLocalFile({ ...props, operation: 'replace', retry: replaceRetry });
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(1);
     calls(replaceRetry).toHaveLength(1);
@@ -127,7 +128,7 @@ describe('wait-for-local-file', () => {
     const newSession = { ...props, ctx: { ...props.ctx, abortController: new AbortController() }, retry: newSessionRetry };
     // When
     await waitForLocalFile(newSession);
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
     calls(newSessionRetry).toHaveLength(1);
@@ -139,7 +140,7 @@ describe('wait-for-local-file', () => {
     // When
     await waitForLocalFile(props);
     abortController.abort();
-    await vi.advanceTimersByTimeAsync(RETRY_DELAY_MS);
+    await vi.advanceTimersByTimeAsync(LOCAL_FILE_RETRY_DELAY_MS);
     // Then
     calls(retry).toHaveLength(0);
   });

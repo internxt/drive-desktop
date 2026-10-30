@@ -1,7 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { SyncContext } from '@/apps/sync-engine/config';
 
-type Operation = 'create' | 'replace';
+export type Operation = 'create' | 'replace';
 type RetryKey = `${Operation}:${AbsolutePath}`;
 
 const scheduledRetries = new Set<RetryKey>();

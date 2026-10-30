@@ -20,25 +20,7 @@ type Props = {
 export async function createFile({ ctx, path, parentUuid, attempt }: Props) {
   try {
     const key = getCreateFileKey({ path });
-    const promiseFn = async () => {
-      const { error } = await waitForLocalFile({
-        ctx,
-        path,
-        operation: 'create',
-        retry: () => retryCreateFile({ ctx, path, parentUuid }),
-      });
-      if (error) return;
-
-      return await Sync.Actions.createFile({
-        ctx,
-        path,
-        parentUuid,
-        attempt,
-        retryLater: ({ attempt, delayMs }) =>
-          scheduleRetry({ ctx, path, operation: 'create', delayMs, retry: () => retryCreateFile({ ctx, path, parentUuid, attempt }) }),
-      });
-    };
-    const { promise, reused } = getInFlightRequest({ key, promiseFn });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndCreateFile({ ctx, path, parentUuid, attempt }) });
 
     if (reused) {
       /**
@@ -63,9 +45,28 @@ export async function createFile({ ctx, path, parentUuid, attempt }: Props) {
   }
 }
 
+async function waitAndCreateFile({ ctx, path, parentUuid, attempt }: Props) {
+  const { error } = await waitForLocalFile({
+    ctx,
+    path,
+    operation: 'create',
+    retry: () => retryCreateFile({ ctx, path, parentUuid }),
+  });
+  if (error) return;
+
+  return await Sync.Actions.createFile({
+    ctx,
+    path,
+    parentUuid,
+    attempt,
+    retryLater: ({ attempt, delayMs }) =>
+      scheduleRetry({ ctx, path, operation: 'create', delayMs, retry: () => retryCreateFile({ ctx, path, parentUuid, attempt }) }),
+  });
+}
+
 async function markFileCreated({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
   removeUploadIssues({ path });
-  await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}` });
+  await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}`, markInSync: true });
 }
 
 async function retryCreateFile({ ctx, path, parentUuid, attempt }: Props) {
