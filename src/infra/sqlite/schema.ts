@@ -75,3 +75,18 @@ export type Checkpoint = {
   userUuid: string;
   workspaceId: string;
 };
+
+export type RecoverySyncScan = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  checkpoint: string;
+  updatedAt: string;
+  completed: 0 | 1;
+};
+
+export type RecoverySyncObserved = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  uuid: string;
+  remoteStatus: 'EXISTS' | 'TRASHED' | 'DELETED';
+};
