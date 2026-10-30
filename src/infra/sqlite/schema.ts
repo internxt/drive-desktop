@@ -84,6 +84,11 @@ export type RecoverySyncScan = {
   completed: 0 | 1;
 };
 
+export type RecoverySyncProcess = {
+  rootUuid: string;
+  startedAt: string;
+};
+
 export type RecoverySyncObserved = {
   rootUuid: string;
   itemType: 'file' | 'folder';

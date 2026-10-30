@@ -1,5 +1,5 @@
 import { db } from '../../migrations/run-migrations';
-import { DriveFile, DriveFolder, RecoverySyncScan } from '../../schema';
+import { DriveFile, DriveFolder, RecoverySyncProcess, RecoverySyncScan } from '../../schema';
 import { upsertQuery as upsertFileQuery } from '../file/queries';
 import { upsertQuery as upsertFolderQuery } from '../folder/queries';
 
@@ -14,6 +14,7 @@ export function getScope(): Scope {
 }
 
 export function clearTables() {
+  db.exec('DELETE FROM recovery_sync_process');
   db.exec('DELETE FROM recovery_sync_observed');
   db.exec('DELETE FROM recovery_sync_scan');
   db.exec('DELETE FROM drive_file');
@@ -78,4 +79,15 @@ export function getScans() {
 
 export function getObserved() {
   return db.prepare('SELECT * FROM recovery_sync_observed ORDER BY rootUuid, itemType, uuid').all();
+}
+
+export function insertProcess(process: Partial<RecoverySyncProcess> & Pick<RecoverySyncProcess, 'startedAt'>) {
+  db.prepare('INSERT INTO recovery_sync_process (rootUuid, startedAt) VALUES (:rootUuid, :startedAt)').run({
+    rootUuid: scope.rootUuid,
+    ...process,
+  });
+}
+
+export function getProcesses() {
+  return db.prepare('SELECT * FROM recovery_sync_process ORDER BY rootUuid').all();
 }
