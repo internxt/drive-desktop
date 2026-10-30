@@ -2,7 +2,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call } from '@/tests/vitest/utils.helper.test';
 import { db, runMigrations } from '../../migrations/run-migrations';
 import { clearRecovery } from './clear-recovery';
-import { clearTables, getObserved, getScans, insertObserved, insertScan } from './recovery-sync.helper.test';
+import { clearTables, getObserved, getProcesses, getScans, insertObserved, insertProcess, insertScan } from './recovery-sync.helper.test';
 
 describe('clear-recovery', () => {
   let props: Parameters<typeof clearRecovery>[0];
@@ -20,17 +20,20 @@ describe('clear-recovery', () => {
     props = { rootUuid: 'rootUuid' };
   });
 
-  it('should remove scans and observations of the root only', () => {
+  it('should remove the process, scans and observations of the root only', () => {
     // Given
+    insertProcess({ startedAt: '2026-01-01T10:00:00.000Z' });
     insertScan({ itemType: 'file', completed: 1 });
     insertScan({ itemType: 'folder', completed: 1 });
     insertObserved({ itemType: 'file', uuid: 'uuid1', remoteStatus: 'EXISTS' });
+    insertProcess({ startedAt: '2026-01-01T10:00:00.000Z', rootUuid: 'otherRootUuid' });
     insertScan({ itemType: 'file', rootUuid: 'otherRootUuid' });
     insertObserved({ itemType: 'file', uuid: 'uuid1', remoteStatus: 'EXISTS', rootUuid: 'otherRootUuid' });
     // When
     const { error } = clearRecovery(props);
     // Then
     expect(error).toBeUndefined();
+    expect(getProcesses()).toMatchObject([{ rootUuid: 'otherRootUuid' }]);
     expect(getScans()).toMatchObject([{ rootUuid: 'otherRootUuid' }]);
     expect(getObserved()).toMatchObject([{ rootUuid: 'otherRootUuid' }]);
   });
