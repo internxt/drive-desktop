@@ -22,7 +22,7 @@ export function clearRecovery({ rootUuid }: Props): Result<void, SqliteError> {
     return Result.ok(undefined);
   } catch (error) {
     if (db.isTransaction) db.exec('ROLLBACK');
-    logger.error({ msg: 'Error clearing recovery state', rootUuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error clearing recovery state', rootUuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

@@ -3,7 +3,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { createRecoverySyncAbortError } from '../../common/create-recovery-sync-abort-error';
-import { EPOCH } from '../../constants';
+import { EPOCH, recoverySynclogger } from '../../constants';
 import { RecoverySyncPageRequest } from './fetch-recovery-sync-page';
 import { RecoverySyncPage } from './map-recovery-sync-page';
 
@@ -50,11 +50,21 @@ export async function scanRecoverySyncItems<T extends RemoteItem>(props: Props<T
   });
 
   if (scan.error?.code === 'NOT_FOUND') {
-    ctx.logger.debug({ msg: 'Recovery sync scan skipped without a checkpoint', itemType });
+    recoverySynclogger.debug({ msg: 'Recovery sync scan skipped without a checkpoint', workspaceId: ctx.workspaceId, itemType });
     return Result.ok(undefined);
   }
 
   if (scan.error) return Result.err(scan.error);
+
+  recoverySynclogger.debug({
+    msg: 'Recovery sync scan started',
+    workspaceId: ctx.workspaceId,
+    rootUuid: ctx.rootUuid,
+    itemType,
+    checkpoint: scan.data.checkpoint,
+    updatedAt: scan.data.updatedAt,
+    completed: scan.data.completed === 1,
+  });
 
   return await scanUntilCompleted({
     ...props,
@@ -118,11 +128,16 @@ async function scanPage<T extends RemoteItem>({
 
   if (page.error) {
     if (canRestart({ state, error: page.error })) {
-      ctx.logger.debug({ msg: 'Recovery sync scan cursor rejected, restarting from saved progress', itemType, updatedAt: state.updatedAt });
+      recoverySynclogger.debug({
+        msg: 'Recovery sync scan cursor rejected, restarting from saved progress',
+        workspaceId: ctx.workspaceId,
+        itemType,
+        updatedAt: state.updatedAt,
+      });
       return Result.ok({ ...state, cursor: null, restartedAt: state.updatedAt });
     }
 
-    ctx.logger.error({ msg: 'Error fetching recovery sync scan page', itemType, error: page.error });
+    recoverySynclogger.error({ msg: 'Error fetching recovery sync scan page', workspaceId: ctx.workspaceId, itemType, error: page.error });
     return Result.err(page.error);
   }
 
@@ -135,13 +150,23 @@ async function scanPage<T extends RemoteItem>({
    */
   if (state.cursor && nextCursor === state.cursor) {
     const error = new Error('Recovery sync cursor did not advance');
-    ctx.logger.error({ msg: 'Recovery sync scan cursor did not advance', itemType, updatedAt: state.updatedAt });
+    recoverySynclogger.error({
+      msg: 'Recovery sync scan cursor did not advance',
+      workspaceId: ctx.workspaceId,
+      itemType,
+      updatedAt: state.updatedAt,
+    });
     return Result.err(error);
   }
 
   const repair = await repairItems({ items, checkpoint });
   if (repair.error) {
-    ctx.logger.error({ msg: 'Error repairing recovery sync scan page', itemType, error: repair.error });
+    recoverySynclogger.error({
+      msg: 'Error repairing recovery sync scan page',
+      workspaceId: ctx.workspaceId,
+      itemType,
+      error: repair.error,
+    });
     return Result.err(repair.error);
   }
 
@@ -159,9 +184,23 @@ async function scanPage<T extends RemoteItem>({
   });
 
   if (commit.error) {
-    ctx.logger.error({ msg: 'Error committing recovery sync scan page', itemType, error: commit.error });
+    recoverySynclogger.error({
+      msg: 'Error committing recovery sync scan page',
+      workspaceId: ctx.workspaceId,
+      itemType,
+      error: commit.error,
+    });
     return Result.err(commit.error);
   }
+
+  recoverySynclogger.debug({
+    msg: 'Recovery sync scan page committed',
+    workspaceId: ctx.workspaceId,
+    itemType,
+    count: items.length,
+    updatedAt,
+    completed,
+  });
 
   return Result.ok({ ...state, updatedAt, cursor: nextCursor, completed });
 }

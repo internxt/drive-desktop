@@ -23,7 +23,7 @@ export function areScansCompleted({ rootUuid }: Props): Result<boolean, SqliteEr
 
     return Result.ok(total > 0 && total === completed);
   } catch (error) {
-    logger.error({ msg: 'Error checking recovery scans', rootUuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error checking recovery scans', rootUuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

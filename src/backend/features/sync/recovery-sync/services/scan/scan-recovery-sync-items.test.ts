@@ -2,6 +2,7 @@ import { DriveServerWipError } from '@/infra/drive-server-wip/defs';
 import { SingleItemError } from '@/infra/sqlite/services/common/single-item-error';
 import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { scanRecoverySyncItems } from './scan-recovery-sync-items';
 
@@ -89,6 +90,25 @@ describe('scan-recovery-sync-items', () => {
         itemType: 'file',
         items: [{ uuid: 'c', remoteStatus: 'DELETED' }],
         updatedAt: '2025-03-01T00:00:00.000Z',
+        completed: true,
+      },
+    ]);
+  });
+
+  it('should log the scan start and each committed page in the recovery sync log', async () => {
+    // Given
+    fetchPageMock.mockResolvedValueOnce({ data: { items: [item('a', '2025-01-01T00:00:00.000Z')], nextCursor: null } });
+    // When
+    await scanRecoverySyncItems(props);
+    // Then
+    calls(loggerMock.debug).toMatchObject([
+      { tag: 'RECOVERY-SYNC', msg: 'Recovery sync scan started', workspaceId: 'workspaceId', itemType: 'file', updatedAt: epoch },
+      {
+        tag: 'RECOVERY-SYNC',
+        msg: 'Recovery sync scan page committed',
+        workspaceId: 'workspaceId',
+        count: 1,
+        updatedAt: '2025-01-01T00:00:00.000Z',
         completed: true,
       },
     ]);

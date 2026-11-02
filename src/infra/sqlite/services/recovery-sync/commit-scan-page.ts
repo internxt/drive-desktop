@@ -50,7 +50,7 @@ export function commitScanPage({ rootUuid, itemType, items, updatedAt, completed
     return Result.ok(undefined);
   } catch (error) {
     if (db.isTransaction) db.exec('ROLLBACK');
-    logger.error({ msg: 'Error committing recovery scan page', rootUuid, itemType, updatedAt, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error committing recovery scan page', rootUuid, itemType, updatedAt, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

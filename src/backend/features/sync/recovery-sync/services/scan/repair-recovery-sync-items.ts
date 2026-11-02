@@ -1,6 +1,7 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { recoverySynclogger } from '../../constants';
 import { getItemsToRepair, getRepairCandidates } from './get-items-to-repair';
 import { RecoverySyncFile, RecoverySyncFolder } from './map-recovery-sync-page';
 
@@ -21,7 +22,7 @@ export async function repairRecoverySyncFiles({ ctx, items, checkpoint }: Props<
   const files = getItemsToRepair({ candidates, locals: locals.data });
   if (files.length === 0) return Result.ok(undefined);
 
-  ctx.logger.debug({ msg: 'Recovery sync repairing files', count: files.length });
+  recoverySynclogger.debug({ msg: 'Recovery sync repairing files', workspaceId: ctx.workspaceId, count: files.length });
 
   const error = await SqliteModule.FileModule.createOrUpdateBatch({
     files: files.map((file) => ({ ...file, userUuid, workspaceId })),
@@ -41,7 +42,7 @@ export async function repairRecoverySyncFolders({ ctx, items, checkpoint }: Prop
   const folders = getItemsToRepair({ candidates, locals: locals.data });
   if (folders.length === 0) return Result.ok(undefined);
 
-  ctx.logger.debug({ msg: 'Recovery sync repairing folders', count: folders.length });
+  recoverySynclogger.debug({ msg: 'Recovery sync repairing folders', workspaceId: ctx.workspaceId, count: folders.length });
 
   const error = await SqliteModule.FolderModule.createOrUpdateBatch({
     folders: folders.map((folder) => ({ ...folder, userUuid, workspaceId })),

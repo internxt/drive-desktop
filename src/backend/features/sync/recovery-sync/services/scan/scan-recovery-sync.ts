@@ -1,5 +1,6 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { recoverySynclogger } from '../../constants';
 import { scanRecoverySyncFiles } from './scan-recovery-sync-files';
 import { scanRecoverySyncFolders } from './scan-recovery-sync-folders';
 
@@ -10,7 +11,7 @@ export async function scanRecoverySync({ ctx }: { ctx: SyncContext }): Promise<R
     if (result.status === 'rejected') {
       const error =
         result.reason instanceof Error ? result.reason : new Error('Unexpected recovery sync scan error', { cause: result.reason });
-      ctx.logger.error({ msg: 'Unexpected error in recovery sync scan', error });
+      recoverySynclogger.error({ msg: 'Unexpected error in recovery sync scan', workspaceId: ctx.workspaceId, error });
       return Result.err(error);
     }
 
