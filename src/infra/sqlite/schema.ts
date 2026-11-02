@@ -89,6 +89,26 @@ export type RecoverySyncProcess = {
   startedAt: string;
 };
 
+export type RecoverySyncDestination = {
+  rootUuid: string;
+  volume: string;
+  path: string;
+};
+
+export type RecoverySyncMoveStage = 'reserved' | 'moved' | 'done' | 'conflict' | 'failed';
+
+export type RecoverySyncMove = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  uuid: string;
+  source: string;
+  destination: string;
+  removalStatus: 'TRASHED' | 'DELETED';
+  sourceSize: number | null;
+  sourceModifiedAt: string | null;
+  stage: RecoverySyncMoveStage;
+};
+
 export type RecoverySyncObserved = {
   rootUuid: string;
   itemType: 'file' | 'folder';
