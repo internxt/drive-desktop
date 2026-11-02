@@ -17,6 +17,8 @@ export function clearRecovery({ rootUuid }: Props): Result<void, SqliteError> {
     db.exec('BEGIN');
     db.prepare('DELETE FROM recovery_sync_observed WHERE rootUuid = :rootUuid').run({ rootUuid });
     db.prepare('DELETE FROM recovery_sync_scan WHERE rootUuid = :rootUuid').run({ rootUuid });
+    db.prepare('DELETE FROM recovery_sync_move WHERE rootUuid = :rootUuid').run({ rootUuid });
+    db.prepare('DELETE FROM recovery_sync_destination WHERE rootUuid = :rootUuid').run({ rootUuid });
     db.prepare('DELETE FROM recovery_sync_process WHERE rootUuid = :rootUuid').run({ rootUuid });
     db.exec('COMMIT');
     return Result.ok(undefined);
