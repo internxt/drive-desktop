@@ -33,12 +33,12 @@ type Props = {
  * The final path is checked rather than the destination, because a sync root may be nested inside the destination.
  */
 export function getPreservedPath({ rootPath, rootPaths, sourcePath, destination }: Props): Result<AbsolutePath, PreservedPathError> {
-  if (!isInside({ parent: rootPath, path: sourcePath })) return Result.err(new PreservedPathError('OUTSIDE_SYNC_ROOT'));
+  if (!isInsidePath({ parent: rootPath, path: sourcePath })) return Result.err(new PreservedPathError('OUTSIDE_SYNC_ROOT'));
 
   const relative = toComponents({ path: sourcePath }).slice(toComponents({ path: rootPath }).length);
   const preservedPath = join(destination, ...relative);
 
-  if (rootPaths.some((root) => isSame({ a: root, b: preservedPath }) || isInside({ parent: root, path: preservedPath }))) {
+  if (rootPaths.some((root) => isSame({ a: root, b: preservedPath }) || isInsidePath({ parent: root, path: preservedPath }))) {
     return Result.err(new PreservedPathError('INSIDE_SYNC_ROOT'));
   }
 
@@ -64,7 +64,7 @@ function isSame({ a, b }: { a: AbsolutePath; b: AbsolutePath }) {
   return keysA.length === keysB.length && keysA.every((key, index) => key === keysB[index]);
 }
 
-function isInside({ parent, path }: { parent: AbsolutePath; path: AbsolutePath }) {
+export function isInsidePath({ parent, path }: { parent: AbsolutePath; path: AbsolutePath }) {
   const parentKeys = toKeys({ path: parent });
   const pathKeys = toKeys({ path });
   return pathKeys.length > parentKeys.length && parentKeys.every((key, index) => key === pathKeys[index]);
