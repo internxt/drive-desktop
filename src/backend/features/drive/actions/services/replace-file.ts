@@ -92,8 +92,8 @@ async function replaceFileOnce({ ctx, path, uuid, attempt }: Props) {
     const file = await promise;
 
     if (file) {
-      latestUuids.delete(path);
       await markFileReplaced({ path });
+      latestUuids.delete(path);
     }
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });

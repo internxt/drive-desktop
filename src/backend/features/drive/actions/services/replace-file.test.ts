@@ -273,4 +273,30 @@ describe('replace-file', () => {
       { path, uuid: newUuid, attempt: 2 },
     ]);
   });
+
+  it('should retry with the latest uuid if the retry runs before the replaced file is marked in sync', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    replaceFileMock.mockImplementationOnce(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    let finishMark: () => void = () => {};
+    updateSyncStatusMock.mockReturnValueOnce(new Promise<void>((resolve) => (finishMark = resolve)));
+    await replaceFile(props);
+    const second = replaceFile({ ...props, uuid: newUuid });
+    await vi.waitFor(() => calls(updateSyncStatusMock).toHaveLength(1));
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    finishMark();
+    await second;
+    // Then
+    calls(replaceFileMock).toMatchObject([
+      { path, uuid },
+      { path, uuid: newUuid },
+      { path, uuid: newUuid, attempt: 2 },
+    ]);
+  });
 });
