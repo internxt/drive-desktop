@@ -1,6 +1,6 @@
-import { trackRetry } from './track-retry';
+import { trackRetry } from './retry-later';
 
-describe('track-retry', () => {
+describe('retry-later', () => {
   it('should not retry if retryLater was not called', () => {
     // When
     const retry = trackRetry();

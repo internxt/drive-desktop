@@ -7,9 +7,8 @@ import { stat } from '@/infra/file-system/original-fs';
 import { environmentFileUpload } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
 import { UPLOAD_INITIAL_SLEEP_MS, UPLOAD_MAX_SLEEP_MS, UPLOAD_PRIORITY, UPLOAD_RETRY_PRIORITY } from './constants';
+import { RetryLater } from './retry-later';
 import { waitUntilReady } from './wait-until-ready';
-
-export type RetryLater = (props: { attempt: number; delayMs: number }) => void;
 
 type Props = {
   ctx: UploadContext;

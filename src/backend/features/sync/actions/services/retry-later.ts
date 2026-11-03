@@ -1,6 +1,6 @@
-import { RetryLater } from '@/backend/features/sync/actions/services/upload-file';
+type NextRetry = { attempt: number; delayMs: number };
 
-type NextRetry = Parameters<RetryLater>[0];
+export type RetryLater = (props: NextRetry) => void;
 
 export function trackRetry() {
   let next: NextRetry | undefined;

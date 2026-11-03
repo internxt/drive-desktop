@@ -15,7 +15,8 @@ import { SimpleDriveFile } from '../../../../../apps/main/database/entities/Driv
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { PARENT_NOT_FOUND_RETRY_DELAYS_MS } from './constants';
-import { RetryLater, uploadFile } from './upload-file';
+import { RetryLater } from './retry-later';
+import { uploadFile } from './upload-file';
 
 type Props = {
   ctx: UploadContext;

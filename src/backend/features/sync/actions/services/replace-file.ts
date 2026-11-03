@@ -9,7 +9,8 @@ import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-e
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { getFileSizeLimitAdapter } from '../../../user/file-size-limit/get-file-size-limit-adapter';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
-import { RetryLater, uploadFile } from './upload-file';
+import { RetryLater } from './retry-later';
+import { uploadFile } from './upload-file';
 
 type Props = {
   ctx: UploadContext;
