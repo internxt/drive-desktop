@@ -3,6 +3,7 @@ import { areScansCompleted } from './recovery-sync/are-scans-completed';
 import { clearRecovery } from './recovery-sync/clear-recovery';
 import { commitScanPage } from './recovery-sync/commit-scan-page';
 import { getFilesToPreserve, getFoldersToPreserve } from './recovery-sync/get-items-to-preserve';
+import { isBeingPreserved } from './recovery-sync/is-being-preserved';
 import { markRemovedIfEligible } from './recovery-sync/mark-removed-if-eligible';
 import { reserveMove } from './recovery-sync/reserve-move';
 import { setMoveStage } from './recovery-sync/set-move-stage';
@@ -19,6 +20,7 @@ export const RecoverySyncModule = {
   allocateDestination,
   reserveMove,
   setMoveStage,
+  isBeingPreserved,
   markRemovedIfEligible,
   clearRecovery,
 };
