@@ -1,0 +1,51 @@
+export const PERSONAL_DRIVE_SUBFOLDER = 'Personal Drive';
+
+const INVALID_CHARACTERS = String.raw`<>:"/\|?*`;
+const RESERVED_NAMES = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
+
+type Workspace = {
+  id: string;
+  name: string;
+};
+
+/**
+ * v2.7.2 Alexis Mora
+ * Returns the subfolder of every context keyed by workspaceId, with '' for the personal Drive.
+ * Without workspaces the personal Drive is the only context, so its items go straight into the dated folder.
+ * Workspaces are sorted by id so a resumed run gives every workspace the same subfolder as before,
+ * and names are made unique ignoring case because Windows does.
+ */
+export function getRecoverySubfolders({ workspaces }: { workspaces: Workspace[] }) {
+  if (workspaces.length === 0) return new Map([['', '']]);
+
+  const subfolders = new Map([['', PERSONAL_DRIVE_SUBFOLDER]]);
+  const used = new Set([PERSONAL_DRIVE_SUBFOLDER.toLowerCase()]);
+  const sorted = workspaces.toSorted((a, b) => a.id.localeCompare(b.id));
+
+  for (const { id, name } of sorted) {
+    const base = toFolderName({ name }) || id;
+    let subfolder = base;
+    let attempt = 1;
+
+    while (used.has(subfolder.toLowerCase())) {
+      attempt++;
+      subfolder = `${base} (${attempt})`;
+    }
+
+    used.add(subfolder.toLowerCase());
+    subfolders.set(id, subfolder);
+  }
+
+  return subfolders;
+}
+
+/**
+ * v2.7.2 Alexis Mora
+ * Workspace names come from users, so characters and names Windows rejects in folder names are replaced,
+ * and trailing dots and spaces are removed because Windows drops them silently.
+ */
+function toFolderName({ name }: { name: string }) {
+  const replaced = [...name].map((char) => (char < ' ' || INVALID_CHARACTERS.includes(char) ? '_' : char)).join('');
+  const trimmed = replaced.trim().replace(/[. ]+$/, '');
+  return RESERVED_NAMES.test(trimmed) ? `_${trimmed}` : trimmed;
+}
