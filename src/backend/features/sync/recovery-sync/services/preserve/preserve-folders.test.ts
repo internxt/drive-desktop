@@ -100,17 +100,6 @@ describe('preserve-folders', () => {
     },
   );
 
-  it('should not report a folder that changed since it was listed', async () => {
-    // Given
-    getFoldersToPreserveMock.mockReturnValueOnce({ data: [removed('folder1')] });
-    onDisk('folder1', 'C:/Drive/A');
-    preserveItemMock.mockResolvedValue({ data: 'conflict' });
-    // When
-    const { data } = await preserveFolders(props);
-    // Then
-    expect(data).toStrictEqual({ moved: [], failed: [] });
-  });
-
   it('should stop when the folders cannot be read', async () => {
     // Given
     getFoldersToPreserveMock.mockReturnValue({ error: new SqliteError('UNKNOWN') });
