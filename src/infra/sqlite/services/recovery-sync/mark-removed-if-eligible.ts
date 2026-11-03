@@ -45,7 +45,7 @@ export function markRemovedIfEligible({
 
     return Result.ok(changes > 0);
   } catch (error) {
-    logger.error({ msg: 'Error marking recovery item as removed', rootUuid, itemType, uuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error marking recovery item as removed', rootUuid, itemType, uuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

@@ -33,7 +33,7 @@ export function startOrResumeScan({ rootUuid, userUuid, workspaceId, itemType }:
     if (data) return Result.ok(data as RecoverySyncScan);
     return Result.err(new SingleItemError('NOT_FOUND'));
   } catch (error) {
-    logger.error({ msg: 'Error starting or resuming recovery scan', rootUuid, itemType, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error starting or resuming recovery scan', rootUuid, itemType, error });
     return Result.err(new SingleItemError('UNKNOWN', error));
   }
 }

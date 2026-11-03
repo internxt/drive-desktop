@@ -54,7 +54,7 @@ function getItemsToPreserve<T>({
     for (const row of rows) {
       const mapped = mapper({ row });
       if (Result.isError(mapped)) {
-        logger.error({ msg: 'Invalid recovery item to preserve', rootUuid, itemType, error: mapped.error });
+        logger.error({ tag: 'RECOVERY-SYNC', msg: 'Invalid recovery item to preserve', rootUuid, itemType, error: mapped.error });
         return Result.err(mapped.error);
       }
       data.push(mapped.data);
@@ -62,7 +62,7 @@ function getItemsToPreserve<T>({
 
     return Result.ok(data);
   } catch (error) {
-    logger.error({ msg: 'Error getting recovery items to preserve', rootUuid, itemType, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error getting recovery items to preserve', rootUuid, itemType, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

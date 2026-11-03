@@ -4,6 +4,7 @@ import { getSyncContexts } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
+import { recoverySynclogger } from '../constants';
 import { RecoverySyncModule } from '../recovery-sync.module';
 
 /**
@@ -72,7 +73,7 @@ async function recoverContext({ ctx }: { ctx: SyncContext }): Promise<Result<boo
       return Result.err(error);
     }
 
-    ctx.logger.error({ msg: 'Error running manual recovery sync', error });
+    recoverySynclogger.error({ msg: 'Error running manual recovery sync', workspaceId: ctx.workspaceId, error });
     changeSyncStatus({ ctx, status: 'SYNC_FAILED' });
     return Result.err(error);
   }
