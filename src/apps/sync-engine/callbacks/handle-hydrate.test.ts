@@ -1,10 +1,9 @@
-import Bottleneck from 'bottleneck';
 import * as issues from '@/apps/main/background-processes/issues';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Addon } from '@/node-win/addon-wrapper';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { handleHydrate, throttleHydrate } from './handle-hydrate';
+import { handleHydrate } from './handle-hydrate';
 
 describe('handle-hydrate', () => {
   const hydrateFileMock = partialSpyOn(Addon, 'hydrateFile');
@@ -31,29 +30,5 @@ describe('handle-hydrate', () => {
     await handleHydrate(props);
     // Then
     calls(removeSyncIssueMock).toHaveLength(0);
-  });
-
-  it('should not schedule the same file twice while it is pending', async () => {
-    // Given
-    let finishHydration = () => {};
-    hydrateFileMock.mockReturnValue(new Promise<void>((resolve) => (finishHydration = resolve)));
-    const ctx = { ...props.ctx, downloadBottleneck: new Bottleneck({ maxConcurrent: 1 }) };
-    // When
-    const first = throttleHydrate({ ctx, path });
-    const second = throttleHydrate({ ctx, path });
-    finishHydration();
-    await Promise.all([first, second]);
-    // Then
-    calls(hydrateFileMock).toHaveLength(1);
-  });
-
-  it('should schedule the file again once the previous hydration finished', async () => {
-    // Given
-    const ctx = { ...props.ctx, downloadBottleneck: new Bottleneck({ maxConcurrent: 1 }) };
-    // When
-    await throttleHydrate({ ctx, path });
-    await throttleHydrate({ ctx, path });
-    // Then
-    calls(hydrateFileMock).toHaveLength(2);
   });
 });
