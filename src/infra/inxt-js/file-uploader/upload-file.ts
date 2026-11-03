@@ -20,7 +20,7 @@ export async function uploadFile({ ctx, size, path, abortController, attempt }: 
     path,
     size,
     bucket: ctx.bucket,
-    ...(attempt > 1 && { retry: attempt }),
+    ...(attempt > 1 && { attempt }),
   });
 
   async function progressCallback(progress: number) {

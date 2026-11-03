@@ -78,7 +78,7 @@ describe('upload-file', () => {
     // When
     await uploadFile({ ...props, attempt: 3 });
     // Then
-    call(loggerMock.debug).toMatchObject({ msg: 'Uploading file to the bucket', retry: 3 });
+    call(loggerMock.debug).toMatchObject({ msg: 'Uploading file to the bucket', attempt: 3 });
   });
 
   it('should abort upload on change size', async () => {
