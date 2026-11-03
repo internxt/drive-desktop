@@ -1,8 +1,10 @@
+import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
 import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
 import { refreshWorkspaceToken } from '@/apps/sync-engine/refresh-workspace-token';
+import { shouldResumeRecovery } from '@/backend/features/sync';
 import { initWatcher } from '@/node-win/watcher/watcher';
 import { loadVirtualDrive } from './load-virtual-drive';
 import { scheduleSync } from './schedule-sync';
@@ -17,6 +19,15 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
   try {
     const connectionKey = await loadVirtualDrive({ ctx });
     if (!connectionKey) return;
+
+    /**
+     * v2.7.2 Alexis Mora
+     * A recovery the app closed in the middle of is resumed once every worker spawned. Until then the worker is marked
+     * as syncing, so its scheduled sync skips its first run, and its placeholders are refreshed when the recovery ends
+     * instead of now, when they still reflect moves whose removal is not saved.
+     */
+    const isResumingRecovery = shouldResumeRecovery({ ctx });
+    if (isResumingRecovery) changeSyncStatus({ ctx, status: 'SYNCING' });
 
     const worker: WorkerConfig = {
       ctx,
@@ -34,7 +45,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await refreshItemPlaceholders({ ctx, isFirstExecution: true });
+    if (!isResumingRecovery) await refreshItemPlaceholders({ ctx, isFirstExecution: true });
 
     worker.watcher = initWatcher({ ctx });
 
