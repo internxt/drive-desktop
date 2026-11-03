@@ -1,5 +1,5 @@
 import { db } from '../../migrations/run-migrations';
-import { DriveFile, DriveFolder, RecoverySyncProcess, RecoverySyncScan } from '../../schema';
+import { DriveFile, DriveFolder, RecoverySyncMove, RecoverySyncProcess, RecoverySyncScan } from '../../schema';
 import { upsertQuery as upsertFileQuery } from '../file/queries';
 import { upsertQuery as upsertFolderQuery } from '../folder/queries';
 
@@ -14,6 +14,8 @@ export function getScope(): Scope {
 }
 
 export function clearTables() {
+  db.exec('DELETE FROM recovery_sync_move');
+  db.exec('DELETE FROM recovery_sync_destination');
   db.exec('DELETE FROM recovery_sync_process');
   db.exec('DELETE FROM recovery_sync_observed');
   db.exec('DELETE FROM recovery_sync_scan');
@@ -90,4 +92,33 @@ export function insertProcess(process: Partial<RecoverySyncProcess> & Pick<Recov
 
 export function getProcesses() {
   return db.prepare('SELECT * FROM recovery_sync_process ORDER BY rootUuid').all();
+}
+
+export function getDestinations() {
+  return db.prepare('SELECT * FROM recovery_sync_destination ORDER BY rootUuid, volume').all();
+}
+
+export function getMove(): Omit<RecoverySyncMove, 'stage'> {
+  return {
+    rootUuid: scope.rootUuid,
+    itemType: 'file',
+    uuid: 'uuid1',
+    source: String.raw`C:\Users\user\InternxtDrive\file.txt`,
+    destination: String.raw`C:\Internxt Recovery Sync 2026-01-01 100000\file.txt`,
+    removalStatus: 'DELETED',
+    sourceSize: 1024,
+    sourceModifiedAt: BEFORE_CHECKPOINT,
+  };
+}
+
+export function insertMove(move: Partial<RecoverySyncMove> & Pick<RecoverySyncMove, 'uuid'>) {
+  const { rootUuid, itemType, uuid } = { ...getMove(), ...move };
+  db.prepare(
+    `INSERT INTO recovery_sync_move (rootUuid, itemType, uuid, source, destination, removalStatus, sourceSize, sourceModifiedAt, stage)
+     VALUES (:rootUuid, :itemType, :uuid, :source, :destination, :removalStatus, :sourceSize, :sourceModifiedAt, :stage)`,
+  ).run({ ...getMove(), destination: `${rootUuid}/${itemType}/${uuid}`, stage: 'reserved', ...move });
+}
+
+export function getMoves() {
+  return db.prepare('SELECT * FROM recovery_sync_move ORDER BY rootUuid, itemType, uuid').all();
 }
