@@ -1,10 +1,11 @@
+import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { UploadContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { createReadStream } from '@/infra/file-system/original-fs';
-import { processError } from './process-error';
+import { processError, UploadFileError } from './process-error';
 
 type Props = {
   ctx: UploadContext;
@@ -14,7 +15,7 @@ type Props = {
   attempt: number;
 };
 
-export async function uploadFile({ ctx, size, path, abortController, attempt }: Props) {
+export async function uploadFile({ ctx, size, path, abortController, attempt }: Props): Promise<Result<ContentsId, UploadFileError>> {
   ctx.logger.debug({
     msg: 'Uploading file to the bucket',
     path,
@@ -45,9 +46,9 @@ export async function uploadFile({ ctx, size, path, abortController, attempt }: 
       progressCallback: (progress) => void progressCallback(progress),
     });
 
-    return { data: contentsId as ContentsId };
+    return Result.ok(contentsId as ContentsId);
   } catch (error) {
-    return { error: processError({ ctx, path, size, error }) };
+    return Result.err(processError({ ctx, path, size, error }));
   } finally {
     readable.close();
   }
