@@ -1,6 +1,7 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Readable } from 'node:stream';
 import { mockDeep } from 'vitest-mock-extended';
+import * as issues from '@/apps/main/background-processes/issues';
 import { LocalSync } from '@/backend/features';
 import { InxtJs } from '@/infra';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -9,6 +10,7 @@ import { downloadContents } from './download-contents';
 
 describe('download-contents', () => {
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
+  const removeSyncIssueMock = partialSpyOn(issues, 'removeSyncIssue');
 
   const contentsDownloader = mockDeep<InxtJs.ContentsDownloader>();
 
@@ -33,6 +35,7 @@ describe('download-contents', () => {
     await downloadContents(props);
     // Then
     calls(addItemMock).toStrictEqual([{ action: 'DOWNLOADED', path: 'file.txt' }]);
+    calls(removeSyncIssueMock).toStrictEqual([{ error: 'PINNED_FILE_NOT_DOWNLOADED', name: 'file.txt' }]);
 
     calls(callback).toStrictEqual([
       [chunks[0], 0],
@@ -53,6 +56,7 @@ describe('download-contents', () => {
     // Then
     calls(contentsDownloader.forceStop).toHaveLength(1);
     calls(addItemMock).toStrictEqual([{ action: 'DOWNLOAD_ERROR', path: 'file.txt' }]);
+    calls(removeSyncIssueMock).toHaveLength(0);
   });
 
   it('should ignore error if operation is cancelled by user', async () => {
@@ -65,5 +69,6 @@ describe('download-contents', () => {
     // Then
     calls(contentsDownloader.forceStop).toHaveLength(1);
     calls(addItemMock).toStrictEqual([{ action: 'DOWNLOAD_CANCEL', path: 'file.txt' }]);
+    calls(removeSyncIssueMock).toHaveLength(0);
   });
 });
