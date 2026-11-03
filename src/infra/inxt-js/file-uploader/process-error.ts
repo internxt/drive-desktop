@@ -1,8 +1,6 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { z } from 'zod';
 import { addGeneralIssue, setUploadIssue } from '@/apps/main/background-processes/issues';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { sleep } from '@/apps/main/util';
 import { CONTEXT_KINDS, UploadContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { isAbortError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
@@ -30,26 +28,28 @@ function isRetryable({ error }: { error: Error }) {
   return parsed.success && RETRYABLE_CODES.has(parsed.data.code);
 }
 
+export class UploadFileError extends Error {
+  constructor(public readonly code: 'RETRYABLE' | 'FAILED' | 'ABORTED') {
+    super(code);
+  }
+}
+
 type TProps = {
   ctx: UploadContext;
   path: AbsolutePath;
   size: number;
   error: unknown;
-  sleepMs: number;
-  retryFn: () => Promise<ContentsId | undefined>;
 };
 
-export async function processError({ ctx, path, error, sleepMs, size, retryFn }: TProps) {
-  if (isAbortError({ error })) return;
+export function processError({ ctx, path, error, size }: TProps) {
+  if (isAbortError({ error })) return new UploadFileError('ABORTED');
 
   ctx.logger.sentryError({ msg: 'Failed to upload file to the bucket', path, error }, { size });
   LocalSync.SyncState.addItem({ action: 'UPLOAD_ERROR', path });
 
   if (error instanceof Error && isRetryable({ error })) {
     addGeneralIssue({ error: 'NETWORK_CONNECTIVITY_ERROR', name: path });
-
-    await sleep(sleepMs);
-    return retryFn();
+    return new UploadFileError('RETRYABLE');
   }
 
   if (ctx.kind === CONTEXT_KINDS.SYNC) {
@@ -61,4 +61,6 @@ export async function processError({ ctx, path, error, sleepMs, size, retryFn }:
   if (error instanceof Error && error.message === 'Max space used') {
     addGeneralIssue({ error: 'NOT_ENOUGH_SPACE', name: path });
   }
+
+  return new UploadFileError('FAILED');
 }

@@ -15,15 +15,18 @@ import { SimpleDriveFile } from '../../../../../apps/main/database/entities/Driv
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { PARENT_NOT_FOUND_RETRY_DELAYS_MS } from './constants';
+import { RetryLater } from './retry-later';
 import { uploadFile } from './upload-file';
 
 type Props = {
   ctx: UploadContext;
   path: AbsolutePath;
   parentUuid: FolderUuid;
+  attempt?: number;
+  retryLater: RetryLater;
 };
 
-export async function createFile({ ctx, path, parentUuid }: Props): Promise<SimpleDriveFile | undefined> {
+export async function createFile({ ctx, path, parentUuid, attempt, retryLater }: Props): Promise<SimpleDriveFile | undefined> {
   const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
@@ -31,7 +34,7 @@ export async function createFile({ ctx, path, parentUuid }: Props): Promise<Simp
     return;
   }
 
-  const upload = await uploadFile({ ctx, path });
+  const upload = await uploadFile({ ctx, path, attempt, retryLater });
 
   if (!upload) return;
 

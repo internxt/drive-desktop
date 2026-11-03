@@ -11,6 +11,7 @@ import { InSyncState } from '@/node-win/types/placeholder.type';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { replaceFile } from './replace-file';
+import * as scheduleRetry from './schedule-retry';
 import * as waitForLocalFile from './wait-for-local-file';
 
 describe('replace-file', () => {
@@ -21,6 +22,7 @@ describe('replace-file', () => {
   const getInFlightRequestMock = partialSpyOn(getInFlightRequest, 'getInFlightRequest', false);
   const statMock = partialSpyOn(fileSystem, 'stat');
   const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
+  const scheduleRetryMock = partialSpyOn(scheduleRetry, 'scheduleRetry');
 
   const path = abs('/file.txt');
   const uuid = 'uuid' as FileUuid;
@@ -217,5 +219,84 @@ describe('replace-file', () => {
     // Then
     calls(waitForLocalFileMock).toHaveLength(0);
     calls(replaceFileMock).toHaveLength(0);
+  });
+
+  it('should schedule a retry and return without waiting if the upload can be retried later', async () => {
+    // Given
+    replaceFileMock.mockImplementation(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    // When
+    await replaceFile(props);
+    // Then
+    call(scheduleRetryMock).toMatchObject({ path, operation: 'replace', delayMs: 5000 });
+    calls(updateSyncStatusMock).toHaveLength(0);
+  });
+
+  it('should upload the next attempt when the scheduled retry runs if the file is still not in sync', async () => {
+    // Given
+    replaceFileMock.mockImplementationOnce(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    replaceFileMock.mockResolvedValue({ uuid });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    await replaceFile(props);
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    // Then
+    calls(replaceFileMock).toMatchObject([
+      { path, uuid },
+      { path, uuid, attempt: 2 },
+    ]);
+    call(updateSyncStatusMock).toMatchObject({ path });
+  });
+
+  it('should retry with the uuid of a later replace whose retry was dropped for the pending one', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    replaceFileMock.mockImplementation(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    await replaceFile(props);
+    await replaceFile({ ...props, uuid: newUuid });
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    // Then
+    calls(replaceFileMock).toMatchObject([
+      { path, uuid },
+      { path, uuid: newUuid },
+      { path, uuid: newUuid, attempt: 2 },
+    ]);
+  });
+
+  it('should retry with the latest uuid if the retry runs before the replaced file is marked in sync', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    replaceFileMock.mockImplementationOnce(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    let finishMark: () => void = () => {};
+    updateSyncStatusMock.mockReturnValueOnce(new Promise<void>((resolve) => (finishMark = resolve)));
+    await replaceFile(props);
+    const second = replaceFile({ ...props, uuid: newUuid });
+    await vi.waitFor(() => calls(updateSyncStatusMock).toHaveLength(1));
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    finishMark();
+    await second;
+    // Then
+    calls(replaceFileMock).toMatchObject([
+      { path, uuid },
+      { path, uuid: newUuid },
+      { path, uuid: newUuid, attempt: 2 },
+    ]);
   });
 });

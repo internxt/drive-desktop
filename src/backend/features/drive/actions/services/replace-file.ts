@@ -8,6 +8,7 @@ import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState } from '@/node-win/types/placeholder.type';
+import { scheduleRetry } from './schedule-retry';
 import { waitForLocalFile } from './wait-for-local-file';
 
 type FileVersion = { mtimeMs: number; size: number };
@@ -16,12 +17,14 @@ type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   uuid: FileUuid;
+  attempt?: number;
 };
 
 const uploadingPaths = new Set<AbsolutePath>();
 // We keep the uuid of the latest event because the remote file could have been recreated meanwhile
 const changedWhileWaiting = new Map<AbsolutePath, FileUuid>();
 const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
+const latestUuids = new Map<AbsolutePath, FileUuid>();
 const uploadedVersions = new Map<AbsolutePath, FileVersion>();
 
 function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
@@ -30,8 +33,9 @@ function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) 
   return latestUuid;
 }
 
-export async function replaceFile({ ctx, path, uuid }: Props) {
-  const isOwner = await replaceFileOnce({ ctx, path, uuid });
+export async function replaceFile({ ctx, path, uuid, attempt }: Props) {
+  latestUuids.set(path, uuid);
+  const isOwner = await replaceFileOnce({ ctx, path, uuid, attempt });
   if (!isOwner) return;
 
   const uploadedVersion = uploadedVersions.get(path);
@@ -64,10 +68,10 @@ async function isSameVersion({ path, version }: { path: AbsolutePath; version?: 
   return current?.mtimeMs === version.mtimeMs && current.size === version.size;
 }
 
-async function replaceFileOnce({ ctx, path, uuid }: Props) {
+async function replaceFileOnce({ ctx, path, uuid, attempt }: Props) {
   try {
     const key = getReplaceFileKey({ path });
-    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndReplaceFile({ ctx, path, uuid }) });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndReplaceFile({ ctx, path, uuid, attempt }) });
 
     if (reused) {
       /**
@@ -87,7 +91,10 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
 
     const file = await promise;
 
-    if (file) await markFileReplaced({ path });
+    if (file) {
+      await markFileReplaced({ path });
+      latestUuids.delete(path);
+    }
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });
   }
@@ -95,7 +102,7 @@ async function replaceFileOnce({ ctx, path, uuid }: Props) {
   return true;
 }
 
-async function waitAndReplaceFile({ ctx, path, uuid }: Props) {
+async function waitAndReplaceFile({ ctx, path, uuid, attempt }: Props) {
   const { error } = await waitForLocalFile({
     ctx,
     path,
@@ -109,7 +116,20 @@ async function waitAndReplaceFile({ ctx, path, uuid }: Props) {
   if (version) uploadedVersions.set(path, version);
   uploadingPaths.add(path);
   try {
-    return await Sync.Actions.replaceFile({ ctx, path, uuid: uploadUuid });
+    return await Sync.Actions.replaceFile({
+      ctx,
+      path,
+      uuid: uploadUuid,
+      attempt,
+      retryLater: ({ attempt, delayMs }) =>
+        scheduleRetry({
+          ctx,
+          path,
+          operation: 'replace',
+          delayMs,
+          retry: () => retryReplaceFile({ ctx, path, uuid: takeLatestUuid({ path, uuid: uploadUuid }), attempt }),
+        }),
+    });
   } finally {
     uploadingPaths.delete(path);
   }
@@ -120,9 +140,9 @@ async function markFileReplaced({ path }: { path: AbsolutePath }) {
   await Addon.updateSyncStatus({ path });
 }
 
-async function retryReplaceFile({ ctx, path, uuid }: Props) {
+async function retryReplaceFile({ ctx, path, uuid, attempt }: Props) {
   const { data: fileInfo } = await NodeWin.getFileInfo({ path });
   if (fileInfo?.inSyncState !== InSyncState.NotSync) return;
 
-  await replaceFile({ ctx, path, uuid });
+  await replaceFile({ ctx, path, uuid: latestUuids.get(path) ?? uuid, attempt });
 }
