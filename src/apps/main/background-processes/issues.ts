@@ -14,6 +14,7 @@ export type SyncIssue = {
     | 'CANNOT_REGISTER_VIRTUAL_DRIVE'
     | 'EMPTY_FILES_NOT_ALLOWED'
     | 'EMPTY_FILES_EXCEEDED'
+    | 'PINNED_FILE_NOT_DOWNLOADED'
     | UploadIssueError;
 };
 
