@@ -1,4 +1,5 @@
 import { basename } from 'node:path';
+import { removeUploadIssues } from '@/apps/main/background-processes/issues';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { isInsideUnreconciledFolder } from '@/backend/features/remote-sync/unreconciled-folders';
 import { AbsolutePath, dirname } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -13,6 +14,9 @@ type Props = {
 };
 
 export async function onUnlink({ ctx, path, type }: Props) {
+  // Files that failed to upload are not in sqlite, so the function returns before reaching the delete
+  removeUploadIssues({ path });
+
   /**
    * v2.6.13 Victor Fernandez
    * Inside a folder that we could not reconcile we never materialized the whole subtree, so

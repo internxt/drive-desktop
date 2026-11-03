@@ -1,4 +1,4 @@
-import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { FileSizeLimitModule, logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
@@ -37,6 +37,7 @@ export function logout({ ctx }: Props) {
     clearStore();
     clearAntivirus();
     clearIssues();
+    FileSizeLimitModule.stopWatchingFileSizeLimit();
 
     void cleanSyncEngineWorkers();
 

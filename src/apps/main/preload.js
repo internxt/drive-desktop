@@ -169,6 +169,7 @@ var api = {
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
   recoverySyncManually: async () => await ipcPreloadRenderer.invoke("recoverySyncManually"),
+  watchFileSizeLimitAfterUpgrade: async () => await ipcPreloadRenderer.invoke("watchFileSizeLimitAfterUpgrade"),
   // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
   backupsStartProcess: async (props) => await ipcPreloadRenderer.invoke("backupsStartProcess", props),

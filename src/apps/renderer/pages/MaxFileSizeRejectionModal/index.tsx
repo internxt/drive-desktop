@@ -13,6 +13,7 @@ export function MaxFileSizeRejectionModal() {
   if (!modal) return null;
 
   async function onUpgradePlan() {
+    void globalThis.window.electron.watchFileSizeLimitAfterUpgrade();
     await globalThis.window.electron.shellOpenExternal(PLANS_URL);
     globalThis.window.close();
   }

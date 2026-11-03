@@ -49,6 +49,7 @@ export type FromProcess = {
   getRemoteSyncStatus: Mirror<typeof getSyncStatus>;
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
   recoverySyncManually: AsyncMirror<typeof runRecoverySyncManually>;
+  watchFileSizeLimitAfterUpgrade: () => Promise<void>;
 
   // Backups
   backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
