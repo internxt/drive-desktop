@@ -5,6 +5,7 @@ import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as originalFs from '@/infra/file-system/original-fs';
 import * as environmentFileUpload from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { UploadFileError } from '@/infra/inxt-js/file-uploader/process-error';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as handleFileUploadSizeExceeded from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
@@ -29,7 +30,7 @@ describe('upload-file', () => {
     statMock.mockResolvedValue({ size, mtime, birthtime });
     isTemporaryFileMock.mockReturnValue(false);
     waitUntilReadyMock.mockResolvedValue({ data: true });
-    environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
+    environmentFileUploadMock.mockResolvedValue({ data: 'contentsId' as ContentsId });
     checkUploadFileSizeMock.mockResolvedValue({ allowed: true });
 
     props = mockProps<typeof uploadFile>({
@@ -105,7 +106,7 @@ describe('upload-file', () => {
 
   it('should return undefined if upload fails', async () => {
     // Given
-    environmentFileUploadMock.mockResolvedValue(undefined);
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('FAILED') });
     // When
     const res = await uploadFile(props);
     // Then
@@ -125,12 +126,115 @@ describe('upload-file', () => {
 
   it('should return contents id if upload success', async () => {
     // Given
-    environmentFileUploadMock.mockResolvedValue('contentsId' as ContentsId);
+    environmentFileUploadMock.mockResolvedValue({ data: 'contentsId' as ContentsId });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toStrictEqual({ contentsId: 'contentsId', size, mtime, creationTime: birthtime });
     call(checkUploadFileSizeMock).toMatchObject({ size });
     call(environmentFileUploadMock).toMatchObject({ path, size });
+  });
+
+  it('should upload the first attempt with the default priority', async () => {
+    // Given
+    const scheduleMock = vi.spyOn(props.ctx.uploadBottleneck, 'schedule');
+    // When
+    await uploadFile(props);
+    // Then
+    expect(scheduleMock.mock.calls[0][0]).toStrictEqual({ priority: 5 });
+    call(environmentFileUploadMock).toMatchObject({ path, size, attempt: 1 });
+  });
+
+  it('should upload a retry with a lower priority', async () => {
+    // Given
+    const scheduleMock = vi.spyOn(props.ctx.uploadBottleneck, 'schedule');
+    // When
+    await uploadFile({ ...props, attempt: 2 });
+    // Then
+    expect(scheduleMock.mock.calls[0][0]).toStrictEqual({ priority: 9 });
+    call(environmentFileUploadMock).toMatchObject({ attempt: 2 });
+  });
+
+  it('should hand a retryable error to retryLater without waiting', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('RETRYABLE') });
+    // When
+    const res = await uploadFile({ ...props, retryLater });
+    // Then
+    expect(res).toBeUndefined();
+    call(retryLater).toStrictEqual({ attempt: 2, delayMs: 5000 });
+    calls(environmentFileUploadMock).toHaveLength(1);
+  });
+
+  it('should double the delay of each retry up to one minute', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('RETRYABLE') });
+    // When
+    await uploadFile({ ...props, attempt: 2, retryLater });
+    await uploadFile({ ...props, attempt: 5, retryLater });
+    // Then
+    calls(retryLater).toStrictEqual([
+      { attempt: 3, delayMs: 10000 },
+      { attempt: 6, delayMs: 60000 },
+    ]);
+  });
+
+  it('should not retry an error that is not retryable', async () => {
+    // Given
+    const retryLater = vi.fn();
+    environmentFileUploadMock.mockResolvedValue({ error: new UploadFileError('FAILED') });
+    // When
+    await uploadFile({ ...props, retryLater });
+    // Then
+    calls(retryLater).toHaveLength(0);
+    calls(environmentFileUploadMock).toHaveLength(1);
+  });
+
+  describe('when a few files keep failing', () => {
+    const failingPaths = Array.from({ length: 4 }, (_, i) => abs(`/big-${i}.db`));
+    const normalPaths = Array.from({ length: 12 }, (_, i) => abs(`/file-${i}.txt`));
+    const failuresPerFile = 5;
+    let finished: string[];
+
+    beforeEach(() => {
+      finished = [];
+      const failures = new Map<string, number>();
+      environmentFileUploadMock.mockImplementation(async ({ path }) => {
+        await new Promise((resolve) => setImmediate(resolve));
+        const count = failures.get(path) ?? 0;
+        if (failingPaths.includes(path) && count < failuresPerFile) {
+          failures.set(path, count + 1);
+          return { error: new UploadFileError('RETRYABLE') };
+        }
+        return { data: 'contentsId' as ContentsId };
+      });
+      props.ctx = { ...props.ctx, uploadBottleneck: new Bottleneck({ maxConcurrent: 4 }) };
+    });
+
+    async function upload({ path, attempt = 1 }: { path: (typeof failingPaths)[number]; attempt?: number }): Promise<void> {
+      let retry: Promise<void> | undefined;
+      const res = await uploadFile({
+        ...props,
+        path,
+        attempt,
+        retryLater: (next) => (retry = new Promise((resolve) => setImmediate(resolve)).then(() => upload({ path, attempt: next.attempt }))),
+      });
+      if (res) finished.push(path);
+      await retry;
+    }
+
+    it('should upload the other files while the failing ones are still retrying', async () => {
+      // When
+      const failing = failingPaths.map((path) => upload({ path }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await Promise.all([...failing, ...normalPaths.map((path) => upload({ path }))]);
+      // Then
+      expect(finished).toHaveLength(failingPaths.length + normalPaths.length);
+      const lastNormal = Math.max(...normalPaths.map((path) => finished.indexOf(path)));
+      const firstFailing = Math.min(...failingPaths.map((path) => finished.indexOf(path)));
+      expect(lastNormal).toBeLessThan(firstFailing);
+    });
   });
 });

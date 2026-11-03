@@ -7,9 +7,10 @@ type Props = {
   ctx: BackupsContext;
   path: AbsolutePath;
   fn: () => Promise<unknown>;
+  willRetry?: () => boolean;
 };
 
-export async function scheduleRequest({ ctx, path, fn }: Props) {
+export async function scheduleRequest({ ctx, path, fn, willRetry }: Props) {
   try {
     await ctx.backupsBottleneck.schedule(() => fn());
   } catch (error) {
@@ -17,6 +18,6 @@ export async function scheduleRequest({ ctx, path, fn }: Props) {
 
     throw error;
   } finally {
-    tracker.currentProcessed(path);
+    if (!willRetry?.()) tracker.currentProcessed(path);
   }
 }

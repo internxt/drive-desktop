@@ -7,9 +7,10 @@ type TProps = {
   ctx: UploadContext;
   path: AbsolutePath;
   size: number;
+  attempt: number;
 };
 
-export async function environmentFileUpload({ ctx, path, size }: TProps) {
+export async function environmentFileUpload({ ctx, path, size, attempt }: TProps) {
   const abortController = new AbortController();
 
   function onAbort() {
@@ -22,7 +23,7 @@ export async function environmentFileUpload({ ctx, path, size }: TProps) {
   LocalSync.SyncState.addItem({ action: 'UPLOADING', path, progress: 0 });
 
   try {
-    return await uploadFile({ ctx, size, path, abortController });
+    return await uploadFile({ ctx, size, path, abortController, attempt });
   } finally {
     ctx.abortController.signal.removeEventListener('abort', onAbort);
   }

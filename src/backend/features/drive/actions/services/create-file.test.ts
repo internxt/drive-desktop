@@ -10,6 +10,7 @@ import { Addon } from '@/node-win/addon-wrapper';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFile } from './create-file';
+import * as scheduleRetry from './schedule-retry';
 import * as waitForLocalFile from './wait-for-local-file';
 
 describe('create-file', () => {
@@ -19,6 +20,7 @@ describe('create-file', () => {
   const waitForLocalFileMock = partialSpyOn(waitForLocalFile, 'waitForLocalFile');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
+  const scheduleRetryMock = partialSpyOn(scheduleRetry, 'scheduleRetry');
 
   const path = abs('/file.txt');
   const props = mockProps<typeof createFile>({ ctx: { logger: loggerMock }, path });
@@ -106,5 +108,34 @@ describe('create-file', () => {
     // Then
     calls(waitForLocalFileMock).toHaveLength(0);
     calls(createFileMock).toHaveLength(0);
+  });
+
+  it('should schedule a retry and return without waiting if the upload can be retried later', async () => {
+    // Given
+    createFileMock.mockImplementation(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    // When
+    await createFile(props);
+    // Then
+    call(scheduleRetryMock).toMatchObject({ path, operation: 'create', delayMs: 5000 });
+    calls(convertToPlaceholderMock).toHaveLength(0);
+  });
+
+  it('should upload the next attempt when the scheduled retry runs', async () => {
+    // Given
+    createFileMock.mockImplementationOnce(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    createFileMock.mockResolvedValue({ uuid: 'uuid' as FileUuid });
+    getFileInfoMock.mockResolvedValue({ error: new GetFileInfoError('NOT_A_PLACEHOLDER') });
+    await createFile(props);
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    // Then
+    calls(createFileMock).toMatchObject([{ path }, { path, attempt: 2 }]);
+    call(convertToPlaceholderMock).toMatchObject({ path, placeholderId: 'FILE:uuid' });
   });
 });

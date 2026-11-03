@@ -7,18 +7,20 @@ import { Sync } from '@/backend/features/sync';
 import { getCreateFileKey, getInFlightRequest } from '@/infra/drive-server-wip/in/get-in-flight-request';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
+import { scheduleRetry } from './schedule-retry';
 import { waitForLocalFile } from './wait-for-local-file';
 
 type Props = {
   ctx: SyncContext;
   path: AbsolutePath;
   parentUuid: FolderUuid;
+  attempt?: number;
 };
 
-export async function createFile({ ctx, path, parentUuid }: Props) {
+export async function createFile({ ctx, path, parentUuid, attempt }: Props) {
   try {
     const key = getCreateFileKey({ path });
-    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndCreateFile({ ctx, path, parentUuid }) });
+    const { promise, reused } = getInFlightRequest({ key, promiseFn: () => waitAndCreateFile({ ctx, path, parentUuid, attempt }) });
 
     if (reused) {
       /**
@@ -43,7 +45,7 @@ export async function createFile({ ctx, path, parentUuid }: Props) {
   }
 }
 
-async function waitAndCreateFile({ ctx, path, parentUuid }: Props) {
+async function waitAndCreateFile({ ctx, path, parentUuid, attempt }: Props) {
   const { error } = await waitForLocalFile({
     ctx,
     path,
@@ -52,7 +54,14 @@ async function waitAndCreateFile({ ctx, path, parentUuid }: Props) {
   });
   if (error) return;
 
-  return await Sync.Actions.createFile({ ctx, path, parentUuid });
+  return await Sync.Actions.createFile({
+    ctx,
+    path,
+    parentUuid,
+    attempt,
+    retryLater: ({ attempt, delayMs }) =>
+      scheduleRetry({ ctx, path, operation: 'create', delayMs, retry: () => retryCreateFile({ ctx, path, parentUuid, attempt }) }),
+  });
 }
 
 async function markFileCreated({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
@@ -60,9 +69,9 @@ async function markFileCreated({ path, uuid }: { path: AbsolutePath; uuid: FileU
   await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${uuid}`, markInSync: true });
 }
 
-async function retryCreateFile({ ctx, path, parentUuid }: Props) {
+async function retryCreateFile({ ctx, path, parentUuid, attempt }: Props) {
   const { error } = await NodeWin.getFileInfo({ path });
   if (error?.code !== 'NOT_A_PLACEHOLDER') return;
 
-  await createFile({ ctx, path, parentUuid });
+  await createFile({ ctx, path, parentUuid, attempt });
 }
