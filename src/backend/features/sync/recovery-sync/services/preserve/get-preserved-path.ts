@@ -32,14 +32,14 @@ type Props = {
  * A destination inside any sync root would be synced again, so it is rejected for every root, not only the source one.
  */
 export function getPreservedPath({ rootPath, rootPaths, sourcePath, destination }: Props): Result<AbsolutePath, PreservedPathError> {
-  if (!isInside({ parent: rootPath, path: sourcePath })) return Result.err(new PreservedPathError('OUTSIDE_SYNC_ROOT'));
-  if (rootPaths.some((root) => root.toLowerCase() === destination.toLowerCase() || isInside({ parent: root, path: destination }))) {
+  if (!isInsidePath({ parent: rootPath, path: sourcePath })) return Result.err(new PreservedPathError('OUTSIDE_SYNC_ROOT'));
+  if (rootPaths.some((root) => root.toLowerCase() === destination.toLowerCase() || isInsidePath({ parent: root, path: destination }))) {
     return Result.err(new PreservedPathError('INSIDE_SYNC_ROOT'));
   }
 
   return Result.ok(join(destination, sourcePath.slice(rootPath.length + 1)));
 }
 
-function isInside({ parent, path }: { parent: AbsolutePath; path: AbsolutePath }) {
+export function isInsidePath({ parent, path }: { parent: AbsolutePath; path: AbsolutePath }) {
   return path.toLowerCase().startsWith(`${parent.toLowerCase()}/`);
 }
