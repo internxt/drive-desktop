@@ -3,6 +3,7 @@ import { areScansCompleted } from './recovery-sync/are-scans-completed';
 import { clearRecovery } from './recovery-sync/clear-recovery';
 import { commitScanPage } from './recovery-sync/commit-scan-page';
 import { getFilesToPreserve, getFoldersToPreserve } from './recovery-sync/get-items-to-preserve';
+import { getPreservationSummary } from './recovery-sync/get-preservation-summary';
 import { getUnfinishedMoves } from './recovery-sync/get-unfinished-moves';
 import { hasProtectedDescendants } from './recovery-sync/has-protected-descendants';
 import { isBeingPreserved } from './recovery-sync/is-being-preserved';
@@ -25,6 +26,7 @@ export const RecoverySyncModule = {
   setMoveStage,
   getUnfinishedMoves,
   isBeingPreserved,
+  getPreservationSummary,
   markRemovedIfEligible,
   clearRecovery,
 };
