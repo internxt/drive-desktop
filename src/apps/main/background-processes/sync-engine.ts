@@ -1,5 +1,6 @@
 import { createLogger } from '@/apps/shared/logger/logger';
 import { AuthContext, SyncContext } from '@/apps/sync-engine/config';
+import { resumeRecoveryAtStartup } from '@/backend/features/sync';
 import { FolderUuid } from '../database/entities/DriveFolder';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { buildDriveEnvironment } from './backups/build-environment';
@@ -19,6 +20,8 @@ export async function spawnSyncEngineWorkers({ ctx }: { ctx: AuthContext }) {
 
   const promises = workspaces.map((workspace) => spawnWorkspace({ ctx, workspace }));
   await Promise.all([promise, ...promises]);
+
+  void resumeRecoveryAtStartup();
 }
 
 export async function spawnDrive({ ctx }: { ctx: AuthContext }) {
