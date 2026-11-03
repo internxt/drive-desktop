@@ -9,6 +9,7 @@ import { getWorkerCount } from '@/core/utils/concurrency';
 import { stat } from '@/infra/file-system/original-fs';
 import { StatItem } from '@/infra/file-system/services/stat-readdir';
 import { scheduleRequest } from '../schedule-request';
+import { CREATE_FILES_CONCURRENCY } from './constants';
 
 type Props = {
   ctx: BackupsContext;
@@ -21,8 +22,6 @@ type PendingFile = {
   attempt: number;
   retryAt: number;
 };
-
-const CREATE_FILES_CONCURRENCY = 20;
 
 /**
  * v2.7.2 Victor Fernandez

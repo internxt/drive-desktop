@@ -8,6 +8,7 @@ import { trackRetry } from '@/backend/features/sync/actions/services/retry-later
 import { getWorkerCount } from '@/core/utils/concurrency';
 import { stat } from '@/infra/file-system/original-fs';
 import { scheduleRequest } from '../schedule-request';
+import { REPLACE_FILES_CONCURRENCY } from './constants';
 
 type Props = {
   ctx: BackupsContext;
@@ -20,8 +21,6 @@ type PendingFile = {
   attempt: number;
   retryAt: number;
 };
-
-const REPLACE_FILES_CONCURRENCY = 20;
 
 /**
  * v2.7.2 Victor Fernandez
