@@ -252,4 +252,25 @@ describe('replace-file', () => {
     ]);
     call(updateSyncStatusMock).toMatchObject({ path });
   });
+
+  it('should retry with the uuid of a later replace whose retry was dropped for the pending one', async () => {
+    // Given
+    const newUuid = 'new-uuid' as FileUuid;
+    replaceFileMock.mockImplementation(({ retryLater }) => {
+      retryLater?.({ attempt: 2, delayMs: 5000 });
+      return Promise.resolve(undefined);
+    });
+    getFileInfoMock.mockResolvedValue({ data: { inSyncState: InSyncState.NotSync } });
+    await replaceFile(props);
+    await replaceFile({ ...props, uuid: newUuid });
+    replaceFileMock.mockResolvedValue({ uuid: newUuid });
+    // When
+    await scheduleRetryMock.mock.calls[0][0].retry();
+    // Then
+    calls(replaceFileMock).toMatchObject([
+      { path, uuid },
+      { path, uuid: newUuid },
+      { path, uuid: newUuid, attempt: 2 },
+    ]);
+  });
 });

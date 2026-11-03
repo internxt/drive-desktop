@@ -24,6 +24,7 @@ const uploadingPaths = new Set<AbsolutePath>();
 // We keep the uuid of the latest event because the remote file could have been recreated meanwhile
 const changedWhileWaiting = new Map<AbsolutePath, FileUuid>();
 const changedWhileUploading = new Map<AbsolutePath, FileUuid>();
+const latestUuids = new Map<AbsolutePath, FileUuid>();
 const uploadedVersions = new Map<AbsolutePath, FileVersion>();
 
 function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) {
@@ -33,6 +34,7 @@ function takeLatestUuid({ path, uuid }: { path: AbsolutePath; uuid: FileUuid }) 
 }
 
 export async function replaceFile({ ctx, path, uuid, attempt }: Props) {
+  latestUuids.set(path, uuid);
   const isOwner = await replaceFileOnce({ ctx, path, uuid, attempt });
   if (!isOwner) return;
 
@@ -89,7 +91,10 @@ async function replaceFileOnce({ ctx, path, uuid, attempt }: Props) {
 
     const file = await promise;
 
-    if (file) await markFileReplaced({ path });
+    if (file) {
+      latestUuids.delete(path);
+      await markFileReplaced({ path });
+    }
   } catch (error) {
     ctx.logger.error({ msg: 'Error replacing file', path, error });
   }
@@ -139,5 +144,5 @@ async function retryReplaceFile({ ctx, path, uuid, attempt }: Props) {
   const { data: fileInfo } = await NodeWin.getFileInfo({ path });
   if (fileInfo?.inSyncState !== InSyncState.NotSync) return;
 
-  await replaceFile({ ctx, path, uuid, attempt });
+  await replaceFile({ ctx, path, uuid: latestUuids.get(path) ?? uuid, attempt });
 }
