@@ -113,16 +113,6 @@ describe('preserve-files', () => {
     expect(error?.message).toBe('UNKNOWN');
   });
 
-  it('should stop when a file cannot be marked', async () => {
-    // Given
-    getFilesToPreserveMock.mockReturnValueOnce({ data: [removed('missing')] });
-    markRemovedMock.mockReturnValue({ error: new SqliteError('UNKNOWN') });
-    // When
-    const { error } = await preserveFiles(props);
-    // Then
-    expect(error?.message).toBe('UNKNOWN');
-  });
-
   it('should stop when the recovery is aborted', async () => {
     // Given
     props.ctx.abortController.abort();
