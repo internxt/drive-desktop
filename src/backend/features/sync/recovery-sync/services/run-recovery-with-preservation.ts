@@ -12,6 +12,8 @@ import { recoverContext } from './recover-context';
 
 type Props = {
   contexts: SyncContext[];
+  // Every context of the app, when only some of them recover, so subfolders and sync roots stay the same for all.
+  allContexts?: SyncContext[];
 };
 
 /**
@@ -21,10 +23,10 @@ type Props = {
  * so the next run scans again from the epoch and retries them. A context that stopped keeps its state to resume it.
  * Logout aborts every context and owns the app state from then on, so nothing is reported for it.
  */
-export async function runRecoveryWithPreservation({ contexts }: Props): Promise<Result<boolean, Error>> {
+export async function runRecoveryWithPreservation({ contexts, allContexts = contexts }: Props): Promise<Result<boolean, Error>> {
   const startedAt = new Date().toISOString();
-  const subfolders = await getContextSubfolders({ contexts });
-  const rootPaths = contexts.map(({ rootPath }) => rootPath);
+  const subfolders = await getContextSubfolders({ contexts: allContexts });
+  const rootPaths = allContexts.map(({ rootPath }) => rootPath);
   const outcomes: ContextOutcome[] = [];
 
   const results = await Promise.all(
