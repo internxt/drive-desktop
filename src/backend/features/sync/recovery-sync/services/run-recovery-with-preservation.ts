@@ -4,6 +4,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
+import { reportPreservationIssues } from './notification/report-preservation-issues';
 import { RecoverySyncOutcome, showRecoverySyncNotification } from './notification/show-recovery-sync-notification';
 import { getRecoverySubfolders } from './preserve/get-recovery-subfolders';
 import { ContextOutcome, recoverAndPreserve } from './recover-and-preserve';
@@ -50,6 +51,7 @@ export async function runRecoveryWithPreservation({ contexts }: Props): Promise<
   });
 
   const errors = results.flatMap(({ error }) => (error ? [error] : []));
+  reportPreservationIssues({ failed: outcomes.flatMap((outcome) => outcome.failed) });
   showRecoverySyncNotification(getOutcome({ errors, outcomes }));
 
   return errors.length > 0 ? Result.err(errors[0]) : Result.ok(true);
