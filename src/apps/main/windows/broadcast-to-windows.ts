@@ -1,3 +1,4 @@
+import type { ClientCompatibilityState } from '@internxt/drive-desktop-core/build/backend';
 import type { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 import type { BackupsStatus } from '../background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import type { BackupsProgress } from '../background-processes/backups/types/BackupsProgress';
@@ -7,7 +8,8 @@ import type { RemoteSyncStatus } from '../remote-sync/helpers';
 
 export type BroadcastToWidget =
   | { name: 'sync-info-update'; data: SyncStateItem[] }
-  | { name: 'remote-sync-status-change'; data: RemoteSyncStatus };
+  | { name: 'remote-sync-status-change'; data: RemoteSyncStatus }
+  | { name: 'client-compatibility-changed'; data: ClientCompatibilityState };
 
 export type BackupDownloadProgress = { id: string; progress: number };
 
