@@ -42,7 +42,7 @@ describe('ItemsSection', () => {
     const menu = screen.getByRole('menu');
     expect(menu).not.toHaveClass('max-h-80');
     expect(menu).not.toHaveClass('overflow-y-auto');
-    for (const option of menu.querySelectorAll('button')) {
+    for (const option of Array.from(menu.querySelectorAll('button'))) {
       expect(option).toHaveClass('py-1');
     }
     expect(screen.getByText('Quit')).toBeVisible();
