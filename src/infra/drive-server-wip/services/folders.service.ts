@@ -17,6 +17,8 @@ export const folders = {
 };
 export const FolderModule = folders;
 
+// v2.7.2 Alexis Mora: the backend deprecated GET /folders in favor of /folders/sync; moving off it is out of this release.
+// eslint-disable-next-line sonarjs/deprecation
 export type GetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 
 async function getFolders({ ctx, context, skipLog }: { ctx: CommonContext; context: { query: GetFoldersQuery }; skipLog?: boolean }) {
