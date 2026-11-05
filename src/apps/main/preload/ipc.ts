@@ -2,6 +2,7 @@
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import type { getClientCompatibility, updateApp } from '@/backend/features/client-compatibility';
 import { runRecoverySyncManually } from '@/backend/features/sync';
 import { isUserLoggedIn } from '../auth/handlers';
 import { openLoginUrl } from '../auth/open-login-url';
@@ -49,6 +50,8 @@ export type FromProcess = {
   getRemoteSyncStatus: Mirror<typeof getSyncStatus>;
   syncManually: AsyncMirror<typeof updateAllRemoteSync>;
   recoverySyncManually: AsyncMirror<typeof runRecoverySyncManually>;
+  getClientCompatibility: Mirror<typeof getClientCompatibility>;
+  updateApp: AsyncMirror<typeof updateApp>;
 
   // Backups
   backupsStartProcess: AsyncMirror<typeof backupsStartProcess>;
