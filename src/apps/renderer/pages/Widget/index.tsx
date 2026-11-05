@@ -1,3 +1,4 @@
+import { isClientVersionUnsupported } from '@internxt/drive-desktop-core/build/backend/features/client-compatibility/services/is-client-version-unsupported';
 import { ClientCompatibilityBanner } from '@internxt/drive-desktop-core/build/frontend';
 import { useState } from 'react';
 import { User } from '@/apps/main/types';
@@ -29,7 +30,7 @@ export function Widget({ user }: { user: User }) {
    * An unsupported version only shows the update banner: the header dropdown is the way into preferences,
    * antivirus and cleaner, which must not run until the user updates.
    */
-  if (clientCompatibility.state.status === 'unsupported') {
+  if (isClientVersionUnsupported(clientCompatibility.state)) {
     return (
       <div
         data-automation-id="widget-rootView"
