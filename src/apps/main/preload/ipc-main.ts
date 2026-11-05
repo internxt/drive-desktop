@@ -4,6 +4,7 @@ import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { getClientCompatibility, updateApp } from '@/backend/features/client-compatibility';
 import { clearMailBridgeIpc, setupMailBridgeIpc } from '@/backend/features/mail-bridge';
 import { runRecoverySyncManually } from '@/backend/features/sync';
 import { isUserLoggedIn } from '../auth/handlers';
@@ -48,6 +49,8 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
   ipcPreloadMain.handle('recoverySyncManually', () => runRecoverySyncManually());
   ipcPreloadMain.handle('disableBackup', (_, props) => Promise.resolve(disableBackup(props)));
+  ipcPreloadMain.handle('getClientCompatibility', () => Promise.resolve(getClientCompatibility()));
+  ipcPreloadMain.handle('updateApp', () => updateApp());
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
