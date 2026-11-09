@@ -59,17 +59,14 @@ describe('get-preserved-path', () => {
       abs('C:/Users/user/InternxtDrive'),
       abs('C:/Users/user/InternxtDrive - other/file.txt'),
       'C:/Users/user/InternxtDrive/../Other/file.txt' as AbsolutePath,
-    ])(
-      'should return OUTSIDE_SYNC_ROOT when the source is %s',
-      (sourcePath) => {
-        // Given
-        props.sourcePath = sourcePath;
-        // When
-        const { error } = getPreservedPath(props);
-        // Then
-        expect(error?.code).toBe('OUTSIDE_SYNC_ROOT');
-      },
-    );
+    ])('should return OUTSIDE_SYNC_ROOT when the source is %s', (sourcePath) => {
+      // Given
+      props.sourcePath = sourcePath;
+      // When
+      const { error } = getPreservedPath(props);
+      // Then
+      expect(error?.code).toBe('OUTSIDE_SYNC_ROOT');
+    });
 
     it('should return INSIDE_SYNC_ROOT when a sync root is inside the destination', () => {
       // Given
@@ -84,16 +81,13 @@ describe('get-preserved-path', () => {
       abs('C:/Users/user/InternxtDrive - workspace'),
       abs('c:/users/user/internxtdrive/Recovery'),
       abs('C:/Users/user/InternxtDrive - workspace../Recovery'),
-    ])(
-      'should return INSIDE_SYNC_ROOT when the destination is %s',
-      (destination) => {
-        // Given
-        props.destination = destination;
-        // When
-        const { error } = getPreservedPath(props);
-        // Then
-        expect(error?.code).toBe('INSIDE_SYNC_ROOT');
-      },
-    );
+    ])('should return INSIDE_SYNC_ROOT when the destination is %s', (destination) => {
+      // Given
+      props.destination = destination;
+      // When
+      const { error } = getPreservedPath(props);
+      // Then
+      expect(error?.code).toBe('INSIDE_SYNC_ROOT');
+    });
   });
 });
