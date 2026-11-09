@@ -23,6 +23,8 @@ export const files = {
 };
 export const FileModule = files;
 
+// Only the old recovery sync uses GET /files, remove it together with that flow
+// eslint-disable-next-line sonarjs/deprecation
 export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
 type CreateThumbnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
