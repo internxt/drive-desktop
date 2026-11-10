@@ -47,6 +47,6 @@ export async function recoverAndPreserve({ ctx, startedAt, subfolder, rootPaths 
   const summary = SqliteModule.RecoverySyncModule.getPreservationSummary({ rootUuid });
   if (summary.error) return Result.err(summary.error);
 
-  ctx.logger.debug({ msg: 'Recovery sync context finished', preserved: summary.data.preserved, failed: failed.length });
+  ctx.logger.debug({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync context finished', preserved: summary.data.preserved, failed: failed.length });
   return Result.ok({ ...summary.data, failed });
 }

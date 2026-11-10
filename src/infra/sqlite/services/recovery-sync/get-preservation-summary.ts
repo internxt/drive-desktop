@@ -37,7 +37,7 @@ export function getPreservationSummary({ rootUuid }: Props): Result<Preservation
 
     return Result.ok({ preserved, destinations: rows.map(({ path }) => path) });
   } catch (error) {
-    logger.error({ msg: 'Error getting recovery sync preservation summary', rootUuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error getting recovery sync preservation summary', rootUuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

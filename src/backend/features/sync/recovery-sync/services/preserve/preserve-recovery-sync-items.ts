@@ -44,7 +44,7 @@ async function loadExplorer({ ctx }: { ctx: SyncContext }) {
     return Result.ok(await loadInMemoryPaths({ ctx }));
   } catch (cause) {
     const error = cause instanceof Error ? cause : new Error(String(cause));
-    ctx.logger.error({ msg: 'Error loading local paths for recovery sync', error });
+    ctx.logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error loading local paths for recovery sync', error });
     return Result.err(error);
   }
 }
