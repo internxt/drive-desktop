@@ -89,7 +89,7 @@ export function showRecoverySyncNotification(outcome: RecoverySyncOutcome) {
   }
 
   notification.on('failed', (error) => {
-    logger.error({ msg: 'Recovery sync notification failed', title, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync notification failed', title, error });
   });
 
   notification.show();
