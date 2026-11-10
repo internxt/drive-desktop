@@ -1,4 +1,5 @@
 import { Stats } from 'node:fs';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { MoveError } from '@/infra/file-system/services/move-without-overwrite';
 import { StatError } from '@/infra/file-system/services/stat';
@@ -9,18 +10,31 @@ import { advanceMove } from './advance-move';
 
 describe('advance-move', () => {
   const statMock = partialSpyOn(fileSystem, 'stat');
+  const walkMock = partialSpyOn(fileSystem, 'walk');
   const moveMock = partialSpyOn(fileSystem, 'moveWithoutOverwrite');
   const setMoveStageMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'setMoveStage');
   const markRemovedMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'markRemovedIfEligible');
 
-  const sourceStats = { size: 1024, mtime: new Date('2025-12-31T00:00:00.000Z') } as Stats;
+  const before = new Date('2025-12-31T00:00:00.000Z');
+  const after = new Date('2026-01-02T00:00:00.000Z');
+  const sourceStats = { size: 1024, mtime: before, birthtime: before } as Stats;
+  let disk: Map<string, Stats>;
   let props: Parameters<typeof advanceMove>[0];
 
   beforeEach(() => {
-    statMock.mockImplementation(({ absolutePath }) =>
-      Promise.resolve(absolutePath === 'source' ? { data: sourceStats } : { error: new StatError('NON_EXISTS') }),
-    );
-    moveMock.mockResolvedValue(undefined);
+    disk = new Map([['source', sourceStats]]);
+    statMock.mockImplementation(({ absolutePath }) => {
+      const stats = disk.get(absolutePath);
+      return Promise.resolve(stats ? { data: stats } : { error: new StatError('NON_EXISTS') });
+    });
+    walkMock.mockResolvedValue([]);
+    moveMock.mockImplementation(({ source, destination }) => {
+      const stats = disk.get(source);
+      if (!stats) return Promise.resolve(new MoveError('SOURCE_NOT_FOUND'));
+      disk.delete(source);
+      disk.set(destination, stats);
+      return Promise.resolve(undefined);
+    });
     setMoveStageMock.mockReturnValue({ data: true });
     markRemovedMock.mockReturnValue({ data: true });
 
@@ -37,6 +51,7 @@ describe('advance-move', () => {
         sourceModifiedAt: '2025-12-31T00:00:00.000Z',
         stage: 'reserved',
       },
+      startedAt: '2026-01-01T00:00:00.000Z',
     });
   });
 
@@ -50,14 +65,25 @@ describe('advance-move', () => {
     calls(setMoveStageMock).toMatchObject([{ stage: 'moved' }, { stage: 'done' }]);
   });
 
-  it('should not move again when the destination already exists', async () => {
+  it('should not move again when the destination exists and the source is gone', async () => {
     // Given
-    statMock.mockResolvedValue({ data: sourceStats });
+    disk = new Map([['destination', sourceStats]]);
     // When
     const { data } = await advanceMove(props);
     // Then
     expect(data).toBe('done');
     calls(moveMock).toHaveLength(0);
+  });
+
+  it('should leave the source in place when the source and the destination both exist', async () => {
+    // Given
+    disk.set('destination', sourceStats);
+    // When
+    const { data } = await advanceMove(props);
+    // Then
+    expect(data).toBe('conflict');
+    calls(moveMock).toHaveLength(0);
+    calls(markRemovedMock).toHaveLength(0);
   });
 
   it('should only mark the item removed when the move was already recorded', async () => {
@@ -82,18 +108,65 @@ describe('advance-move', () => {
     calls(markRemovedMock).toHaveLength(0);
   });
 
-  it('should move a folder without comparing its size', async () => {
+  it('should put a file back when it changed while it was being moved', async () => {
+    // Given
+    moveMock.mockImplementationOnce(({ source, destination }) => {
+      disk.delete(source);
+      disk.set(destination, { ...sourceStats, size: 2048 } as Stats);
+      return Promise.resolve(undefined);
+    });
+    // When
+    const { data } = await advanceMove(props);
+    // Then
+    expect(data).toBe('conflict');
+    calls(moveMock).toStrictEqual([
+      { source: 'source', destination: 'destination' },
+      { source: 'destination', destination: 'source' },
+    ]);
+    expect(disk.has('source')).toBe(true);
+    calls(markRemovedMock).toHaveLength(0);
+  });
+
+  it('should move a folder when nothing inside it changed since the recovery started', async () => {
     // Given
     props.move = { ...props.move, itemType: 'folder', sourceSize: null, sourceModifiedAt: null };
+    disk.set('source/child', sourceStats);
+    walkMock.mockResolvedValue([{ absolutePath: 'source/child' as AbsolutePath, isFile: true, isFolder: false }]);
     // When
     const { data } = await advanceMove(props);
     // Then
     expect(data).toBe('done');
   });
 
+  it.each([
+    ['modified', { ...sourceStats, mtime: after }],
+    ['created', { ...sourceStats, birthtime: after }],
+  ])('should leave a folder in place when something inside it was %s after the recovery started', async (_, childStats) => {
+    // Given
+    props.move = { ...props.move, itemType: 'folder', sourceSize: null, sourceModifiedAt: null };
+    disk.set('source/child', childStats as Stats);
+    walkMock.mockResolvedValue([{ absolutePath: 'source/child' as AbsolutePath, isFile: true, isFolder: false }]);
+    // When
+    const { data } = await advanceMove(props);
+    // Then
+    expect(data).toBe('conflict');
+    calls(moveMock).toHaveLength(0);
+  });
+
+  it('should leave a folder in place when its contents cannot be read', async () => {
+    // Given
+    props.move = { ...props.move, itemType: 'folder', sourceSize: null, sourceModifiedAt: null };
+    walkMock.mockRejectedValue(new Error('EPERM'));
+    // When
+    const { data } = await advanceMove(props);
+    // Then
+    expect(data).toBe('conflict');
+    calls(moveMock).toHaveLength(0);
+  });
+
   it('should fail when neither the source nor the destination exist', async () => {
     // Given
-    statMock.mockResolvedValue({ error: new StatError('NON_EXISTS') });
+    disk.clear();
     // When
     const { data } = await advanceMove(props);
     // Then
