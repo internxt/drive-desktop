@@ -77,7 +77,7 @@ async function preserveFolder({
   });
   if (isProtected.error) return Result.err(isProtected.error);
   if (isProtected.data) {
-    ctx.logger.debug({ msg: 'Recovery sync folder kept, it has contents that stay in the Drive', path: folder.path });
+    ctx.logger.debug({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync folder kept, it has contents that stay in the Drive', path: folder.path });
     return Result.ok('skipped');
   }
 
@@ -91,7 +91,7 @@ async function preserveFolder({
   });
   if (stage.data === 'done') return Result.ok('moved');
   if (stage.error || stage.data === 'failed') {
-    ctx.logger.error({ msg: 'Recovery sync folder could not be preserved', path: folder.path, error: stage.error });
+    ctx.logger.error({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync folder could not be preserved', path: folder.path, error: stage.error });
     return Result.ok('failed');
   }
 

@@ -75,7 +75,7 @@ async function preserveFile({
 
   const stage = await preserveItem({ ctx, run, itemType: 'file', uuid, source: local.path, removalStatus });
   if (stage.error || stage.data === 'failed') {
-    ctx.logger.error({ msg: 'Recovery sync file could not be preserved', path: local.path, error: stage.error });
+    ctx.logger.error({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync file could not be preserved', path: local.path, error: stage.error });
     return Result.ok(local.path);
   }
 
