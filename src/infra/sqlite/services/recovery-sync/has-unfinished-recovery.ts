@@ -17,7 +17,7 @@ export function hasUnfinishedRecovery({ rootUuid }: Props): Result<boolean, Sqli
     const row = db.prepare('SELECT 1 FROM recovery_sync_process WHERE rootUuid = :rootUuid').get({ rootUuid });
     return Result.ok(row !== undefined);
   } catch (error) {
-    logger.error({ msg: 'Error checking unfinished recovery sync', rootUuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error checking unfinished recovery sync', rootUuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

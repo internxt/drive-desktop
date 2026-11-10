@@ -28,7 +28,7 @@ export async function resumeRecoveryAtStartup() {
   if (contexts.length === 0) return;
 
   for (const ctx of contexts) {
-    ctx.logger.debug({ msg: 'Resuming interrupted recovery sync' });
+    ctx.logger.debug({ tag: 'RECOVERY-SYNC', msg: 'Resuming interrupted recovery sync' });
   }
 
   await runRecoveryWithPreservation({ contexts, allContexts });
