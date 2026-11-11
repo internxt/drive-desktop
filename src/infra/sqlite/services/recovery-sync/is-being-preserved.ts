@@ -22,7 +22,7 @@ export function isBeingPreserved({ rootUuid, itemType, uuid }: Props): Result<bo
 
     return Result.ok(row !== undefined);
   } catch (error) {
-    logger.error({ msg: 'Error checking recovery sync move', rootUuid, itemType, uuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error checking recovery sync move', rootUuid, itemType, uuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }
