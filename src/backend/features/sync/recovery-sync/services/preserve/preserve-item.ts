@@ -4,17 +4,10 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { RecoverySyncMove, RecoverySyncMoveStage } from '@/infra/sqlite/schema';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { PreserveRun } from '../../constants';
 import { advanceMove } from './advance-move';
 import { allocateRecoveryDestination } from './allocate-recovery-destination';
 import { getPreservedPath, getVolume } from './get-preserved-path';
-
-export type PreserveRun = {
-  startedAt: string;
-  subfolder: string;
-  rootPaths: AbsolutePath[];
-  // Destination of each volume already allocated in this pass, so it is read from SQLite once per volume.
-  destinations: Map<string, AbsolutePath>;
-};
 
 type Props = {
   ctx: SyncContext;
