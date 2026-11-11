@@ -4,6 +4,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { RecoverySyncMove, RecoverySyncMoveStage } from '@/infra/sqlite/schema';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { recoverySynclogger } from '../../constants';
 
 type Props = {
   ctx: SyncContext;
@@ -67,23 +68,34 @@ async function moveSource({ ctx, move, startedAt }: Props): Promise<'moved' | 'c
 
   if (destinationStat.data) {
     if (!sourceStat.data) return 'moved';
-    ctx.logger.error({ msg: 'Recovery sync source and destination both exist, leaving the source in place', source, destination });
+    recoverySynclogger.error({
+      msg: 'Recovery sync source and destination both exist, leaving the source in place',
+      workspaceId: ctx.workspaceId,
+      source,
+      destination,
+    });
     return 'conflict';
   }
 
   if (sourceStat.error) {
-    ctx.logger.error({ msg: 'Recovery sync source not found to preserve', source, destination, error: sourceStat.error });
+    recoverySynclogger.error({
+      msg: 'Recovery sync source not found to preserve',
+      workspaceId: ctx.workspaceId,
+      source,
+      destination,
+      error: sourceStat.error,
+    });
     return 'failed';
   }
 
   if (await hasChanged({ move, path: source, startedAt })) {
-    ctx.logger.debug({ msg: 'Recovery sync source changed, leaving it in place', source });
+    recoverySynclogger.debug({ msg: 'Recovery sync source changed, leaving it in place', workspaceId: ctx.workspaceId, source });
     return 'conflict';
   }
 
   const error = await fileSystem.moveWithoutOverwrite({ source, destination });
   if (error) {
-    ctx.logger.error({ msg: 'Error preserving recovery sync item', source, destination, error });
+    recoverySynclogger.error({ msg: 'Error preserving recovery sync item', workspaceId: ctx.workspaceId, source, destination, error });
     return 'failed';
   }
 
@@ -94,7 +106,13 @@ async function moveSource({ ctx, move, startedAt }: Props): Promise<'moved' | 'c
    */
   if (move.itemType === 'file' && (await hasChanged({ move, path: destination, startedAt }))) {
     const restoreError = await fileSystem.moveWithoutOverwrite({ source: destination, destination: source });
-    ctx.logger.error({ msg: 'Recovery sync source changed while moving it', source, destination, error: restoreError });
+    recoverySynclogger.error({
+      msg: 'Recovery sync source changed while moving it',
+      workspaceId: ctx.workspaceId,
+      source,
+      destination,
+      error: restoreError,
+    });
     return 'conflict';
   }
 
