@@ -25,6 +25,7 @@ export async function onUnlink({ ctx, path, type }: Props) {
     // and we need to obtain it from the sqlite.
     const { data: folder } = await SqliteModule.FolderModule.getByName({ parentUuid, plainName: name });
     if (!folder) return;
+    if (isBeingPreserved({ ctx, itemType: 'folder', uuid: folder.uuid })) return;
 
     ctx.logger.debug({ msg: 'Folder unlinked', path });
     await deleteFolderByUuid({ ctx, path, uuid: folder.uuid });
@@ -33,7 +34,23 @@ export async function onUnlink({ ctx, path, type }: Props) {
 
   const { data: file } = await SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension: name });
   if (!file) return;
+  if (isBeingPreserved({ ctx, itemType: 'file', uuid: file.uuid })) return;
 
   ctx.logger.debug({ msg: 'File unlinked', path });
   await deleteFileByUuid({ ctx, path, uuid: file.uuid });
+}
+
+/**
+ * v2.7.2 Alexis Mora
+ * Recovery sync moves items out of the sync root before marking them as removed, and the watcher reports that move as a delete,
+ * also when the event is queued or arrives late. Those items are skipped so preserving them never sends them to the remote trash.
+ * Once the move is done the item is no longer EXISTS, so the lookups by name above already ignore it.
+ * If the check fails the delete is skipped too: a skipped delete is undone by the next placeholder refresh, a wrong remote trash is not.
+ */
+function isBeingPreserved({ ctx, itemType, uuid }: { ctx: SyncContext; itemType: 'file' | 'folder'; uuid: string }) {
+  const { data, error } = SqliteModule.RecoverySyncModule.isBeingPreserved({ rootUuid: ctx.rootUuid, itemType, uuid });
+  if (!error && !data) return false;
+
+  ctx.logger.debug({ msg: 'Unlink skipped, item is being preserved by recovery sync', itemType, uuid, error });
+  return true;
 }
