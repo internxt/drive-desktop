@@ -5,8 +5,9 @@ import { FileExplorerFiles } from '@/backend/features/remote-sync/sync-items-by-
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { createRecoverySyncAbortError } from '../../common/create-recovery-sync-abort-error';
+import { PreserveRun } from '../../constants';
 import { isInsidePath } from './get-preserved-path';
-import { preserveItem, PreserveRun } from './preserve-item';
+import { preserveItem } from './preserve-item';
 
 type Props = {
   ctx: SyncContext;
