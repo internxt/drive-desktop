@@ -55,6 +55,6 @@ describe('is-being-preserved', () => {
     const { error } = isBeingPreserved(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ msg: 'Error checking recovery sync move' });
+    call(loggerMock.error).toMatchObject({ tag: 'RECOVERY-SYNC', msg: 'Error checking recovery sync move' });
   });
 });
