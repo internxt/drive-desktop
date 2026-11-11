@@ -39,7 +39,7 @@ describe('advance-move', () => {
     markRemovedMock.mockReturnValue({ data: true });
 
     props = mockProps<typeof advanceMove>({
-      ctx: { userUuid: 'userUuid', workspaceId: '', logger: loggerMock },
+      ctx: { userUuid: 'userUuid', workspaceId: '' },
       move: {
         rootUuid: 'rootUuid',
         itemType: 'file',
@@ -172,7 +172,7 @@ describe('advance-move', () => {
     // Then
     expect(data).toBe('failed');
     calls(setMoveStageMock).toMatchObject([{ stage: 'failed' }]);
-    call(loggerMock.error).toMatchObject({ msg: 'Recovery sync source not found to preserve' });
+    call(loggerMock.error).toMatchObject({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync source not found to preserve', workspaceId: '' });
   });
 
   it('should fail and keep the removal status when the move fails', async () => {
