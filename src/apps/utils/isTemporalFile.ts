@@ -11,15 +11,20 @@ type Props = {
  * encoded name (`.C2.BF…`) were never uploaded, by the sync or by backups, and without notice. Only the
  * dot names that programs create while they work are temporary: LibreOffice and Emacs locks and FUSE leftovers.
  */
-const temporaryPrefixes = ['~$', '.~lock.', '.#', '.fuse_hidden'];
-const temporaryExtensions = ['.tmp', '.temp', '.swp'];
+const temporaryPrefixes = ['~$', '.#', '.fuse_hidden'];
+const temporaryExtensions = new Set(['.tmp', '.temp', '.swp']);
+
+function isLibreOfficeLock({ name }: { name: string }) {
+  return name.startsWith('.~lock.') && name.endsWith('#');
+}
 
 export function isTemporaryFile({ path }: Props) {
   const name = basename(path);
   const extension = extname(path).toLowerCase();
 
   if (temporaryPrefixes.some((prefix) => name.startsWith(prefix))) return true;
-  if (temporaryExtensions.includes(extension)) return true;
+  if (isLibreOfficeLock({ name })) return true;
+  if (temporaryExtensions.has(extension)) return true;
 
   return false;
 }

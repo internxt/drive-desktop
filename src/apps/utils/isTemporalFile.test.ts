@@ -16,6 +16,7 @@ describe('isTemporalFile', () => {
     '.DS_Store',
     '._.DS_Store',
     '._photo.jpg',
+    '.~lock.notes',
   ])('should not be temporary: %s', (name) => {
     // Given
     const path = abs(`C:/parent/${name}`);
