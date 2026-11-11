@@ -57,7 +57,7 @@ describe('preserve-item', () => {
       sourceSize: 1024,
       sourceModifiedAt: '2025-12-31T00:00:00.000Z',
     });
-    call(advanceMoveMock).toMatchObject({ move: { stage: 'reserved' } });
+    call(advanceMoveMock).toMatchObject({ move: { stage: 'reserved' }, startedAt: '2026-01-02T09:05:07.000Z' });
   });
 
   it('should allocate the destination once per volume', async () => {

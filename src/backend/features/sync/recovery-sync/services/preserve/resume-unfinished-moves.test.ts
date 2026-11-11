@@ -21,6 +21,7 @@ describe('resume-unfinished-moves', () => {
     advanceMoveMock.mockResolvedValue({ data: 'done' });
     props = mockProps<typeof resumeUnfinishedMoves>({
       ctx: { rootUuid: 'rootUuid' as FolderUuid, abortController: new AbortController() },
+      startedAt: '2026-01-02T09:05:07.000Z',
     });
   });
 
@@ -41,7 +42,11 @@ describe('resume-unfinished-moves', () => {
       { itemType: 'file', afterUuid: '' },
       { itemType: 'file', afterUuid: 'file2' },
     ]);
-    calls(advanceMoveMock).toMatchObject([{ move: { uuid: 'folder1' } }, { move: { uuid: 'file1' } }, { move: { uuid: 'file2' } }]);
+    calls(advanceMoveMock).toMatchObject([
+      { move: { uuid: 'folder1' }, startedAt: '2026-01-02T09:05:07.000Z' },
+      { move: { uuid: 'file1' } },
+      { move: { uuid: 'file2' } },
+    ]);
   });
 
   it('should return the sources of the moves that failed', async () => {

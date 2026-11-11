@@ -11,12 +11,19 @@ import { advanceMove } from './advance-move';
  * Finishes the moves a restart interrupted before the pass lists new items, so an item is never listed again
  * while its recorded move is still pending. Folders go first because their moves carry their files.
  * Returns the sources whose move failed, so they can be reported.
+ * startedAt is the start of the interrupted run, so a folder changed since then stays in the Drive.
  */
-export async function resumeUnfinishedMoves({ ctx }: { ctx: SyncContext }): Promise<Result<AbsolutePath[], Error>> {
+export async function resumeUnfinishedMoves({
+  ctx,
+  startedAt,
+}: {
+  ctx: SyncContext;
+  startedAt: string;
+}): Promise<Result<AbsolutePath[], Error>> {
   const failed: AbsolutePath[] = [];
 
   for (const itemType of ['folder', 'file'] as const) {
-    const result = await resumeItemType({ ctx, itemType, failed });
+    const result = await resumeItemType({ ctx, startedAt, itemType, failed });
     if (result.error) return Result.err(result.error);
   }
 
@@ -25,10 +32,12 @@ export async function resumeUnfinishedMoves({ ctx }: { ctx: SyncContext }): Prom
 
 async function resumeItemType({
   ctx,
+  startedAt,
   itemType,
   failed,
 }: {
   ctx: SyncContext;
+  startedAt: string;
   itemType: RecoverySyncMove['itemType'];
   failed: AbsolutePath[];
 }): Promise<Result<void, Error>> {
@@ -42,7 +51,7 @@ async function resumeItemType({
     if (moves.error) return Result.err(moves.error);
 
     for (const move of moves.data) {
-      const stage = await advanceMove({ ctx, move });
+      const stage = await advanceMove({ ctx, move, startedAt });
       if (stage.error) return Result.err(stage.error);
       if (stage.data === 'failed') failed.push(move.source as AbsolutePath);
     }

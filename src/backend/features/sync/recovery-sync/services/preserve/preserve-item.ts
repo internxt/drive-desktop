@@ -68,7 +68,7 @@ export async function preserveItem({
   });
   if (move.error) return Result.err(move.error);
 
-  return await advanceMove({ ctx, move: move.data });
+  return await advanceMove({ ctx, move: move.data, startedAt: run.startedAt });
 }
 
 async function getDestination({ ctx, run, source }: { ctx: SyncContext; run: PreserveRun; source: AbsolutePath }) {
