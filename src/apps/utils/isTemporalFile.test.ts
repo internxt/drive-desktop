@@ -9,14 +9,16 @@ describe('isTemporalFile', () => {
     '.gitignore',
     '.env',
     '.picasa.ini',
-    '.C2.BFC.C3.B3mo_borrar_un_archivo.3F',
-    '. iTD Music.txt',
-    '...Red Hot Chili Peppers.mp3',
+    '.C2.BFQu.C3.A9_es_esto.3F',
+    '. notes.txt',
+    '...song.mp3',
     '.JPG',
     '.DS_Store',
     '._.DS_Store',
     '._photo.jpg',
     '.~lock.notes',
+    'report.swo',
+    'report.swn',
   ])('should not be temporary: %s', (name) => {
     // Given
     const path = abs(`C:/parent/${name}`);
@@ -30,7 +32,7 @@ describe('isTemporalFile', () => {
     '~$report.docx',
     '.~lock.document.odt#',
     '.#notes.txt',
-    '.fuse_hidden00019c5f0000000a',
+    '.fuse_hidden0000a1b20000000c',
     'copy.tmp',
     'COPY.TMP',
     'copy.temp',
