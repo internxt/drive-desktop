@@ -1,5 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
-import { basename, extname } from 'node:path';
+import { basename } from 'node:path';
 
 type Props = {
   path: AbsolutePath;
@@ -11,26 +11,16 @@ type Props = {
  * encoded name (`.C2.BF…`) were never uploaded, by the sync or by backups, and without notice. Only the
  * dot names that programs create while they work are temporary: LibreOffice and Emacs locks and FUSE leftovers.
  */
-const temporaryPrefixes = ['~$', '.#', '.fuse_hidden'];
-const temporaryExtensions = new Set(['.tmp', '.temp', '.swp']);
-const vimAlternateSwapExtensions = new Set(['.swo', '.swn']);
-
-function isLibreOfficeLock({ name }: { name: string }) {
-  return name.startsWith('.~lock.') && name.endsWith('#');
-}
-
-function isVimAlternateSwap({ name, extension }: { name: string; extension: string }) {
-  return name.startsWith('.') && vimAlternateSwapExtensions.has(extension);
-}
+const temporaryNames = [
+  /^~\$/, // Office owner files
+  /^\.#/, // Emacs locks
+  /^\.fuse_hidden/, // FUSE leftovers
+  /^\.~lock\..*#$/, // LibreOffice locks
+  /\.(tmp|temp|swp)$/i,
+  /^\..*\.(swo|swn)$/i, // hidden Vim alternate swap files
+];
 
 export function isTemporaryFile({ path }: Props) {
   const name = basename(path);
-  const extension = extname(path).toLowerCase();
-
-  if (temporaryPrefixes.some((prefix) => name.startsWith(prefix))) return true;
-  if (isLibreOfficeLock({ name })) return true;
-  if (temporaryExtensions.has(extension)) return true;
-  if (isVimAlternateSwap({ name, extension })) return true;
-
-  return false;
+  return temporaryNames.some((pattern) => pattern.test(name));
 }
