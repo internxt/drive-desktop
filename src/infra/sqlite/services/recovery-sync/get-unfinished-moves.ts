@@ -31,7 +31,7 @@ export function getUnfinishedMoves({ rootUuid, itemType, afterUuid = '', limit =
     for (const row of rows) {
       const mapped = mapMove({ row });
       if (Result.isError(mapped)) {
-        logger.error({ msg: 'Invalid recovery sync move', rootUuid, itemType, error: mapped.error });
+        logger.error({ tag: 'RECOVERY-SYNC', msg: 'Invalid recovery sync move', rootUuid, itemType, error: mapped.error });
         return Result.err(mapped.error);
       }
       data.push(mapped.data);
@@ -39,7 +39,7 @@ export function getUnfinishedMoves({ rootUuid, itemType, afterUuid = '', limit =
 
     return Result.ok(data);
   } catch (error) {
-    logger.error({ msg: 'Error getting unfinished recovery sync moves', rootUuid, itemType, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error getting unfinished recovery sync moves', rootUuid, itemType, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }

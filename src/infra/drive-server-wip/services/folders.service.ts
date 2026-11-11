@@ -17,6 +17,8 @@ export const folders = {
 };
 export const FolderModule = folders;
 
+// Only the old recovery sync uses GET /folders, remove it together with that flow
+// eslint-disable-next-line sonarjs/deprecation
 export type GetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 
 async function getFolders({ ctx, context, skipLog }: { ctx: CommonContext; context: { query: GetFoldersQuery }; skipLog?: boolean }) {

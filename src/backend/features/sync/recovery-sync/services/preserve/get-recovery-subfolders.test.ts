@@ -64,6 +64,35 @@ describe('get-recovery-subfolders', () => {
     expect(subfolders.get('id1')).toBe(expected);
   });
 
+  it('should shorten long names so the suffix still fits in 255 characters', () => {
+    // Given
+    const name = 'a'.repeat(300);
+    props.workspaces = [
+      { id: 'id1', name },
+      { id: 'id2', name },
+    ];
+    // When
+    const subfolders = getRecoverySubfolders(props);
+    // Then
+    expect(subfolders.get('id1')).toBe('a'.repeat(255));
+    expect(subfolders.get('id2')).toBe(`${'a'.repeat(251)} (2)`);
+  });
+
+  it('should not leave half of a character or a trailing space when shortening', () => {
+    // Given
+    props.workspaces = [
+      { id: 'id1', name: `${'a'.repeat(254)}😀` },
+      { id: 'id2', name: `${'a'.repeat(250)} bbbbb` },
+      { id: 'id3', name: `${'a'.repeat(250)} bbbbb` },
+    ];
+    // When
+    const subfolders = getRecoverySubfolders(props);
+    // Then
+    expect(subfolders.get('id1')).toBe('a'.repeat(254));
+    expect(subfolders.get('id2')).toBe(`${'a'.repeat(250)} bbbb`);
+    expect(subfolders.get('id3')).toBe(`${'a'.repeat(250)} (2)`);
+  });
+
   it('should use the workspace id when nothing of the name is left', () => {
     // Given
     props.workspaces = [{ id: 'id1', name: ' . ' }];

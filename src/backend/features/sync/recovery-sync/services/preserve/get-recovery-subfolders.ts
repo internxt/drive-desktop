@@ -2,6 +2,7 @@ export const PERSONAL_DRIVE_SUBFOLDER = 'Personal Drive';
 
 const INVALID_CHARACTERS = String.raw`<>:"/\|?*`;
 const RESERVED_NAMES = /^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$/i;
+const MAX_NAME_LENGTH = 255;
 
 type Workspace = {
   id: string;
@@ -24,12 +25,12 @@ export function getRecoverySubfolders({ workspaces }: { workspaces: Workspace[] 
 
   for (const { id, name } of sorted) {
     const base = toFolderName({ name }) || id;
-    let subfolder = base;
     let attempt = 1;
+    let subfolder = withSuffix({ base, attempt });
 
     while (used.has(subfolder.toLowerCase())) {
       attempt++;
-      subfolder = `${base} (${attempt})`;
+      subfolder = withSuffix({ base, attempt });
     }
 
     used.add(subfolder.toLowerCase());
@@ -48,4 +49,18 @@ function toFolderName({ name }: { name: string }) {
   const replaced = [...name].map((char) => (char < ' ' || INVALID_CHARACTERS.includes(char) ? '_' : char)).join('');
   const trimmed = replaced.trim().replace(/[. ]+$/, '');
   return RESERVED_NAMES.test(trimmed) ? `_${trimmed}` : trimmed;
+}
+
+/**
+ * v2.7.2 Alexis Mora
+ * Windows rejects folder names longer than 255 characters, so the base is shortened to leave room for the suffix.
+ * The cut must not leave half of a surrogate pair, or the trailing dots and spaces Windows drops.
+ */
+function withSuffix({ base, attempt }: { base: string; attempt: number }) {
+  const suffix = attempt === 1 ? '' : ` (${attempt})`;
+  const shortened = base
+    .slice(0, MAX_NAME_LENGTH - suffix.length)
+    .replace(/[\uD800-\uDBFF]$/, '')
+    .replace(/[. ]+$/, '');
+  return `${shortened}${suffix}`;
 }

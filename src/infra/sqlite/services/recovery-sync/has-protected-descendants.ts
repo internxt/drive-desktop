@@ -39,7 +39,7 @@ export function hasProtectedDescendants({ rootUuid, userUuid, workspaceId, folde
 
     return Result.ok(row !== undefined);
   } catch (error) {
-    logger.error({ msg: 'Error checking protected recovery sync descendants', rootUuid, folderUuid, error });
+    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error checking protected recovery sync descendants', rootUuid, folderUuid, error });
     return Result.err(new SqliteError('UNKNOWN', error));
   }
 }
