@@ -35,6 +35,8 @@ describe('isTemporalFile', () => {
     'COPY.TMP',
     'copy.temp',
     '.notes.txt.swp',
+    '.notes.txt.swo',
+    '.notes.txt.swn',
   ])('should be temporary: %s', (name) => {
     // Given
     const path = abs(`C:/parent/${name}`);

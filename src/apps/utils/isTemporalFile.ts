@@ -12,7 +12,7 @@ type Props = {
  * dot names that programs create while they work are temporary: LibreOffice and Emacs locks and FUSE leftovers.
  */
 const temporaryPrefixes = ['~$', '.#', '.fuse_hidden'];
-const temporaryExtensions = new Set(['.tmp', '.temp', '.swp']);
+const temporaryExtensions = new Set(['.tmp', '.temp', '.swp', '.swo', '.swn']);
 
 function isLibreOfficeLock({ name }: { name: string }) {
   return name.startsWith('.~lock.') && name.endsWith('#');
