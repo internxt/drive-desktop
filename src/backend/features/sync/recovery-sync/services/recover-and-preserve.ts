@@ -3,6 +3,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PreservationSummary } from '@/infra/sqlite/services/recovery-sync/get-preservation-summary';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { recoverySynclogger } from '../constants';
 import { preserveRecoverySyncItems } from './preserve/preserve-recovery-sync-items';
 import { scanRecoverySync } from './scan/scan-recovery-sync';
 
@@ -47,6 +48,11 @@ export async function recoverAndPreserve({ ctx, startedAt, subfolder, rootPaths 
   const summary = SqliteModule.RecoverySyncModule.getPreservationSummary({ rootUuid });
   if (summary.error) return Result.err(summary.error);
 
-  ctx.logger.debug({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync context finished', preserved: summary.data.preserved, failed: failed.length });
+  recoverySynclogger.debug({
+    msg: 'Recovery sync context finished',
+    workspaceId: ctx.workspaceId,
+    preserved: summary.data.preserved,
+    failed: failed.length,
+  });
   return Result.ok({ ...summary.data, failed });
 }

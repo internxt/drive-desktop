@@ -2,6 +2,7 @@ import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { recoverySynclogger } from '../../constants';
 import { preserveFiles } from './preserve-files';
 import { preserveFolders } from './preserve-folders';
 import { PreserveRun } from './preserve-item';
@@ -44,7 +45,7 @@ async function loadExplorer({ ctx }: { ctx: SyncContext }) {
     return Result.ok(await loadInMemoryPaths({ ctx }));
   } catch (cause) {
     const error = cause instanceof Error ? cause : new Error(String(cause));
-    ctx.logger.error({ tag: 'RECOVERY-SYNC', msg: 'Error loading local paths for recovery sync', error });
+    recoverySynclogger.error({ msg: 'Error loading local paths for recovery sync', workspaceId: ctx.workspaceId, error });
     return Result.err(error);
   }
 }

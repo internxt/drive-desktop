@@ -2,7 +2,6 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as preserveModule from './preserve/preserve-recovery-sync-items';
 import { recoverAndPreserve } from './recover-and-preserve';
@@ -25,7 +24,7 @@ describe('recover-and-preserve', () => {
     summaryMock.mockReturnValue({ data: { preserved: 3, destinations: ['C:/Recovery'] } });
 
     props = mockProps<typeof recoverAndPreserve>({
-      ctx: { rootUuid: 'rootUuid' as FolderUuid, logger: loggerMock },
+      ctx: { rootUuid: 'rootUuid' as FolderUuid },
       startedAt: '2026-01-02T09:05:07.000Z',
       subfolder: 'Personal Drive',
       rootPaths: [abs('C:/Drive')],

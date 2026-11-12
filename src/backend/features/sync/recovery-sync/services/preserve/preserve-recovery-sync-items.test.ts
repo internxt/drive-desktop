@@ -23,7 +23,7 @@ describe('preserve-recovery-sync-items', () => {
     preserveFilesMock.mockResolvedValue({ data: [abs('C:/Drive/a.txt')] });
 
     props = mockProps<typeof preserveRecoverySyncItems>({
-      ctx: { logger: loggerMock },
+      ctx: { workspaceId: 'workspaceId' },
       startedAt: '2026-01-02T09:05:07.000Z',
       subfolder: 'Personal Drive',
       rootPaths: [abs('C:/Drive')],
@@ -61,7 +61,11 @@ describe('preserve-recovery-sync-items', () => {
     // Then
     expect(error?.message).toBe('EPERM');
     calls(preserveFoldersMock).toHaveLength(0);
-    call(loggerMock.error).toMatchObject({ msg: 'Error loading local paths for recovery sync' });
+    call(loggerMock.error).toMatchObject({
+      tag: 'RECOVERY-SYNC',
+      msg: 'Error loading local paths for recovery sync',
+      workspaceId: 'workspaceId',
+    });
   });
 
   it('should not preserve files when folders fail', async () => {
