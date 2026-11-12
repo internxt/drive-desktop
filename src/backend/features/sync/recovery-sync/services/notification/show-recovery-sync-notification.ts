@@ -2,8 +2,8 @@ import { Notification, shell } from 'electron';
 import { win32 } from 'node:path';
 import { getLanguage } from '@/apps/main/config/language';
 import { Language } from '@/apps/main/config/language.types';
-import { logger } from '@/apps/shared/logger/logger';
 import { iconPath } from '@/apps/utils/icon';
+import { recoverySynclogger } from '../../constants';
 
 export type RecoverySyncOutcome = {
   status: 'completed' | 'failed' | 'cancelled';
@@ -89,7 +89,7 @@ export function showRecoverySyncNotification(outcome: RecoverySyncOutcome) {
   }
 
   notification.on('failed', (error) => {
-    logger.error({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync notification failed', title, error });
+    recoverySynclogger.error({ msg: 'Recovery sync notification failed', title, error });
   });
 
   notification.show();
