@@ -9,6 +9,7 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { Marketing } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { isClientUnsupported } from '@/backend/features/client-compatibility';
 import { startMailBridgeOnLogin, stopMailBridge } from '@/backend/features/mail-bridge';
 import { resolveUserFileSizeLimit } from '@/backend/features/user/file-size-limit';
 import { validateTokenAndCheckExpiration } from '../../../backend/features/auth/services/token/validate-token-and-check-expiration';
@@ -106,6 +107,17 @@ export async function emitUserLoggedIn(user: User) {
   });
 
   setupLoggedPreloadIpc({ ctx });
+
+  /**
+   * v2.7.2 Alexis Mora
+   * A version the backend rejects must not start any feature. Local files stay as they are and
+   * the next launch after updating starts them normally.
+   */
+  if (isClientUnsupported()) {
+    logger.warn({ tag: 'AUTH', msg: 'Features not started because this client version is no longer supported' });
+    return;
+  }
+
   startMailBridgeOnLogin({ ctx });
   void resolveUserFileSizeLimit({ ctx });
 
