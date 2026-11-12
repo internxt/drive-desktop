@@ -2,7 +2,6 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as store from '@/apps/main/remote-sync/store';
 import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { resumeRecoveryAtStartup, shouldResumeRecovery } from './resume-recovery-at-startup';
@@ -15,7 +14,7 @@ describe('resume-recovery-at-startup', () => {
   const runMock = partialSpyOn(withPreservation, 'runRecoveryWithPreservation');
 
   function createContext(rootUuid: string) {
-    return mockProps<typeof shouldResumeRecovery>({ ctx: { rootUuid: rootUuid as FolderUuid, logger: loggerMock } }).ctx;
+    return mockProps<typeof shouldResumeRecovery>({ ctx: { rootUuid: rootUuid as FolderUuid } }).ctx;
   }
 
   beforeEach(() => {

@@ -45,6 +45,6 @@ describe('has-unfinished-recovery', () => {
     const { error } = hasUnfinishedRecovery(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
-    call(loggerMock.error).toMatchObject({ msg: 'Error checking unfinished recovery sync' });
+    call(loggerMock.error).toMatchObject({ tag: 'RECOVERY-SYNC', msg: 'Error checking unfinished recovery sync' });
   });
 });

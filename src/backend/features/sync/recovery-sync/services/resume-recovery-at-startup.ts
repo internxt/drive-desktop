@@ -1,6 +1,7 @@
 import { getSyncContexts } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { recoverySynclogger } from '../constants';
 import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
 
@@ -28,7 +29,7 @@ export async function resumeRecoveryAtStartup() {
   if (contexts.length === 0) return;
 
   for (const ctx of contexts) {
-    ctx.logger.debug({ tag: 'RECOVERY-SYNC', msg: 'Resuming interrupted recovery sync' });
+    recoverySynclogger.debug({ msg: 'Resuming interrupted recovery sync', workspaceId: ctx.workspaceId });
   }
 
   await runRecoveryWithPreservation({ contexts, allContexts });
