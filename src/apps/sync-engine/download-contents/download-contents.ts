@@ -1,4 +1,5 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { removeSyncIssue } from '@/apps/main/background-processes/issues';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
@@ -47,6 +48,7 @@ export async function downloadContents({
     ctx.logger.debug({ msg: 'File downloaded', path });
 
     LocalSync.SyncState.addItem({ action: 'DOWNLOADED', path });
+    removeSyncIssue({ error: 'PINNED_FILE_NOT_DOWNLOADED', name: path });
   } catch (error) {
     ctx.contentsDownloader.forceStop({ path });
 

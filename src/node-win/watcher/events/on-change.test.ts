@@ -70,12 +70,32 @@ describe('on-change', () => {
 
   it('should hydrate when ctime is modified and disk size is 0', async () => {
     // Given
-    props.event = { ctimeMs: Date.now() };
+    props.event = { ctimeMs: Date.now(), size: 1024 };
     getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskSize: 0 } });
     // When
     await onChange(props as any);
     // Then
     call(throttleHydrateMock).toMatchObject({ path });
+  });
+
+  it('should hydrate a pinned partially hydrated file even if the event is old', async () => {
+    // Given
+    props.event = { ctimeMs: Date.now() - 60_000, size: 1024 };
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskSize: 512 } });
+    // When
+    await onChange(props as any);
+    // Then
+    call(throttleHydrateMock).toMatchObject({ path });
+  });
+
+  it('should not hydrate a pinned file that is fully hydrated', async () => {
+    // Given
+    props.event = { ctimeMs: Date.now(), size: 1024 };
+    getFileInfoMock.mockResolvedValue({ data: { pinState: PinState.AlwaysLocal, onDiskSize: 1024 } });
+    // When
+    await onChange(props as any);
+    // Then
+    calls(throttleHydrateMock).toHaveLength(0);
   });
 
   it('should dehydrate when ctime is modified and disk size is not 0', async () => {
