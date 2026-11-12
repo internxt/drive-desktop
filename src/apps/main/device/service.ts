@@ -128,7 +128,7 @@ async function createBackup(ctx: AuthContext, pathname: string): Promise<void> {
 
   const backupList = electronStore.get('backupList');
 
-  backupList[pathname] = { enabled: true, folderId: newBackup.id, folderUuid: newBackup.uuid };
+  backupList[pathname] = { enabled: true, folderUuid: newBackup.uuid };
 
   logger.debug({ msg: '[BACKUPS] Backup list', backupList });
 
@@ -185,7 +185,7 @@ async function deleteBackup({ ctx, backup, isCurrent }: { ctx: AuthContext; back
   if (isCurrent) {
     const backupsList = electronStore.get('backupList');
 
-    const entriesFiltered = Object.entries(backupsList).filter(([, b]) => b.folderId !== backup.folderId);
+    const entriesFiltered = Object.entries(backupsList).filter(([, b]) => b.folderUuid !== backup.folderUuid);
 
     const backupListFiltered = Object.fromEntries(entriesFiltered);
 
@@ -199,9 +199,9 @@ export async function deleteBackupsFromDevice({ ctx, device, isCurrent }: { ctx:
   await Promise.all(deletionPromises);
 }
 
-export function disableBackup({ folderId }: { folderId: number }) {
+export function disableBackup({ folderUuid }: { folderUuid: string }) {
   const backupsList = electronStore.get('backupList');
-  const pathname = findBackupPathnameFromId(folderId)!;
+  const pathname = findBackupPathnameFromUuid(folderUuid)!;
 
   logger.debug({ msg: 'Disable backup', pathname });
 
@@ -210,9 +210,9 @@ export function disableBackup({ folderId }: { folderId: number }) {
   electronStore.set('backupList', backupsList);
 }
 
-export function findBackupPathnameFromId(id: number): string | undefined {
+export function findBackupPathnameFromUuid(folderUuid: string): string | undefined {
   const backupsList = electronStore.get('backupList');
-  const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
+  const entryfound = Object.entries(backupsList).find(([, b]) => b.folderUuid === folderUuid);
 
   return entryfound?.[0];
 }

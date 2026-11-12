@@ -5,7 +5,6 @@ import { CONTEXT_KINDS, CommonContext } from '../sync-engine/config';
 
 export type BackupInfo = {
   folderUuid: string;
-  folderId: number;
   pathname: AbsolutePath;
   plainName: string;
 };

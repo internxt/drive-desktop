@@ -2,7 +2,12 @@ import { Language } from '@/apps/main/config/language.types';
 import { ConfigTheme } from '@/apps/main/config/theme.types';
 import { User } from '@/apps/main/types';
 
-type BackupList = Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
+/**
+ * v2.7.3 Alexis Mora
+ * `folderId` is only read by `migrateBackupFolderToUuids`.
+ * New entries don't store it anymore.
+ */
+type BackupList = Record<string, { enabled: boolean; folderUuid: string; folderId?: number }>;
 export type SavedConfig = {
   backupInterval: number;
   lastBackup: number;
