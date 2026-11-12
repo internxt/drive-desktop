@@ -4,6 +4,7 @@ import createClient, { Middleware } from 'openapi-fetch';
 import { onUserUnauthorized } from '@/apps/main/auth/handlers';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
 import { AuthContext } from '@/apps/sync-engine/config';
+import { detectUnsupportedClientVersion, rejectRequestIfClientUnsupported } from '@/backend/features/client-compatibility';
 import { getRequestPriority } from './schedule-fetch';
 
 export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
@@ -12,6 +13,9 @@ export function getWorkspaceHeader({ ctx }: { ctx: AuthContext }) {
 
 const middleware: Middleware = {
   onRequest({ request }) {
+    const blockedResponse = rejectRequestIfClientUnsupported();
+    if (blockedResponse) return blockedResponse;
+
     const headers = getAuthHeaders();
 
     Object.entries(headers).forEach(([key, value]) => {
@@ -20,10 +24,12 @@ const middleware: Middleware = {
 
     return request;
   },
-  onResponse({ response }) {
+  async onResponse({ response }) {
     if (response.status === 401) {
       onUserUnauthorized();
     }
+
+    await detectUnsupportedClientVersion({ response });
   },
 };
 
