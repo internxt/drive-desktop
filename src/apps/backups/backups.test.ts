@@ -32,7 +32,6 @@ describe('backups', () => {
 
   const props = mockProps<typeof Backup.run>({
     ctx: {
-      folderId: 1,
       folderUuid: rootUuid,
       pathname: testPath,
       abortController: new AbortController(),

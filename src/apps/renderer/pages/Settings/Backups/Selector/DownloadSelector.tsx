@@ -35,7 +35,6 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
 
   const [folderHistory, setFolderHistory] = useState<ItemBackup[]>([]);
   const [folder, setFolder] = useState<ItemBackup>({
-    id: selected?.id || 0,
     uuid: selected?.uuid || '',
     plainName: selected?.plainName || '',
     pathname: '' as AbsolutePath,
@@ -61,8 +60,8 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
   }, [backupsState, selectedBackup]);
 
   const addOrDeleteItem = (backup: ItemBackup) => {
-    if (selectedBackup.find((item) => item.id === backup.id)) {
-      setSelectedBackup(selectedBackup.filter((item) => item.id !== backup.id));
+    if (selectedBackup.find((item) => item.uuid === backup.uuid)) {
+      setSelectedBackup(selectedBackup.filter((item) => item.uuid !== backup.uuid));
     } else {
       setSelectedBackup([...selectedBackup, backup]);
     }
