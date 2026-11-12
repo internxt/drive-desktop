@@ -17,7 +17,6 @@ type Props = {
 export function createOrUpdate({ file }: Props) {
   try {
     db.prepare(upsertQuery).run({
-      id: file.id,
       uuid: file.uuid,
       status: file.status,
       plainName: file.plainName ?? '',

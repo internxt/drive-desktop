@@ -9,7 +9,6 @@ import { updateByUuid } from './update-by-uuid';
 describe('update-by-uuid', () => {
   const date = new Date().toISOString();
   const file: DriveFile = {
-    id: 1,
     uuid: 'uuid',
     status: 'EXISTS',
     fileId: 'fileId',

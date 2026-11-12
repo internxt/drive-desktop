@@ -9,7 +9,6 @@ import { upsertQuery } from './queries';
 describe('get-between-uuids', () => {
   const date = new Date().toISOString();
   const file: DriveFile = {
-    id: 1,
     uuid: 'uuid1',
     status: 'EXISTS',
     fileId: 'fileId',
@@ -57,7 +56,7 @@ describe('get-between-uuids', () => {
   it('should return files between uuids', () => {
     // Given
     db.prepare(upsertQuery).run(file);
-    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2', id: 2 });
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2' });
     // When
     const { data } = getBetweenUuids(props);
     // Then

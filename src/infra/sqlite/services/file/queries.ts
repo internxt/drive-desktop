@@ -1,6 +1,5 @@
 export const upsertQuery = `
 INSERT INTO drive_file (
-  id,
   uuid,
   status,
   plainName,
@@ -16,7 +15,6 @@ INSERT INTO drive_file (
   modificationTime,
   creationTime
 ) VALUES (
-  :id,
   :uuid,
   :status,
   :plainName,
@@ -33,7 +31,6 @@ INSERT INTO drive_file (
   :creationTime
 )
 ON CONFLICT (uuid) DO UPDATE SET
-  id = excluded.id,
   status = excluded.status,
   plainName = excluded.plainName,
   type = excluded.type,
