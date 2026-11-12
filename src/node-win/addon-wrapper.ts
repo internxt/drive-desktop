@@ -128,11 +128,13 @@ export class Addon {
   static async convertToPlaceholder({
     path,
     placeholderId,
+    markInSync,
   }: {
     path: AbsolutePath;
     placeholderId: FilePlaceholderId | FolderPlaceholderId;
+    markInSync: boolean;
   }) {
-    await addon.convertToPlaceholder(toWin32DevicePath(path), placeholderId);
+    await addon.convertToPlaceholder(toWin32DevicePath(path), placeholderId, markInSync);
   }
 
   static async dehydrateFile({ path }: { path: AbsolutePath }) {

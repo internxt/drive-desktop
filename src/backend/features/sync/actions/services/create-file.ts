@@ -1,12 +1,12 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import { sleep } from '@/apps/main/util';
-import { CommonContext } from '@/apps/sync-engine/config';
+import { CommonContext, UploadContext } from '@/apps/sync-engine/config';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { handleFileUploadSizeExceeded } from '@/backend/features/user/file-size-limit';
+import { getFileSizeLimitAdapter, handleFileUploadSizeExceeded } from '@/backend/features/user/file-size-limit';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 import { EncryptionVersion } from '@/infra/drive-server-wip/defs';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -15,15 +15,18 @@ import { SimpleDriveFile } from '../../../../../apps/main/database/entities/Driv
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
 import { PARENT_NOT_FOUND_RETRY_DELAYS_MS } from './constants';
+import { RetryLater } from './retry-later';
 import { uploadFile } from './upload-file';
 
 type Props = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
   parentUuid: FolderUuid;
+  attempt?: number;
+  retryLater: RetryLater;
 };
 
-export async function createFile({ ctx, path, parentUuid }: Props): Promise<SimpleDriveFile | undefined> {
+export async function createFile({ ctx, path, parentUuid, attempt, retryLater }: Props): Promise<SimpleDriveFile | undefined> {
   const tempFile = isTemporaryFile({ path });
 
   if (tempFile) {
@@ -31,7 +34,7 @@ export async function createFile({ ctx, path, parentUuid }: Props): Promise<Simp
     return;
   }
 
-  const upload = await uploadFile({ ctx, path });
+  const upload = await uploadFile({ ctx, path, attempt, retryLater });
 
   if (!upload) return;
 
@@ -60,6 +63,7 @@ export async function createFile({ ctx, path, parentUuid }: Props): Promise<Simp
 
   if (res.error?.code === 'FILE_UPLOAD_SIZE_EXCEEDED') {
     handleFileUploadSizeExceeded({ path, size: upload.size });
+    void FileSizeLimitModule.revalidateFileSizeLimit(getFileSizeLimitAdapter({ ctx }));
     ctx.logger.warn({
       msg: 'File size exceeds upload limit',
       path,

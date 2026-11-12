@@ -5,9 +5,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 export type FileDto = components['schemas']['FileDto'];
-export type FileSyncDto = components['schemas']['FileSyncDto'];
 export type FolderDto = components['schemas']['FolderDto'];
-export type FolderSyncDto = components['schemas']['FolderSyncDto'];
 export type ParsedFileDto = Omit<FileDto, 'fileId' | 'thumbnails' | 'isFavorite'> & {
   uuid: FileUuid;
   fileId: string;

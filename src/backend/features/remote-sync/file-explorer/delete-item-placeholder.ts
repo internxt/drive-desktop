@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { mkdir, rename, rm } from 'node:fs/promises';
 import { join, parse } from 'node:path';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { mkdir, rename, rm } from '@/infra/file-system/original-fs';
 import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerFiles, FileExplorerFolders, FileExplorerItem } from '../sync-items-by-checkpoint/load-in-memory-paths';
 

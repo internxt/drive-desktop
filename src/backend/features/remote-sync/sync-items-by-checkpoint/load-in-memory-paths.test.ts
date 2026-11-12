@@ -1,9 +1,11 @@
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { StatError } from '@/infra/file-system/services/stat';
 import * as statReaddir from '@/infra/file-system/services/stat-readdir';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
 
 describe('load-in-memory-paths', () => {
@@ -98,5 +100,18 @@ describe('load-in-memory-paths', () => {
         ],
       ]),
     );
+  });
+
+  it('should log items that cannot be stat', async () => {
+    // Given
+    const error = new StatError('UNKNOWN');
+    statReaddirMock.mockImplementationOnce(({ onError }) => {
+      onError?.({ path: abs('/root/electron.asar'), error });
+      return Promise.resolve({ files: [], folders: [] });
+    });
+    // When
+    await loadInMemoryPaths(props);
+    // Then
+    call(loggerMock.error).toStrictEqual({ msg: 'Error getting item stats', path: '/root/electron.asar', error });
   });
 });

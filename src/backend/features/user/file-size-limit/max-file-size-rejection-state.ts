@@ -1,5 +1,5 @@
+import { type UploadFileSizeValidation } from '@internxt/drive-desktop-core/build/backend';
 import { showMaxFileSizeRejectionModal } from '@/backend/features/user/file-size-limit/show-max-file-size-rejection-modal';
-import { type UploadFileSizeValidation } from './validate-upload-file-size';
 
 const MODAL_DEBOUNCE_MS = 2_000;
 

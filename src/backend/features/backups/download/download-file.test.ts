@@ -1,18 +1,16 @@
-import { createWriteStream } from 'node:fs';
 import { mockDeep } from 'vitest-mock-extended';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as pipeline from '@/core/utils/pipeline';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import { loggerFn } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { LocalSync } from '../..';
 import { downloadFile } from './download-file';
 
-vi.mock(import('node:fs'));
-
 describe('download-file', () => {
-  vi.mocked(createWriteStream);
+  partialSpyOn(originalFs, 'createWriteStream');
   const contentsDownloader = mockDeep<ContentsDownloader>({});
   const pipelineMock = partialSpyOn(pipeline, 'pipeline');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');

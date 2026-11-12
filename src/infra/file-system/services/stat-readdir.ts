@@ -1,9 +1,9 @@
 import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { Stats } from 'node:fs';
-import { readdir } from 'node:fs/promises';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getWorkerCount } from '@/core/utils/concurrency';
 import { fileSystem } from '../file-system.module';
+import { readdir } from '../original-fs';
 import { StatError } from './stat';
 
 export type StatItem = { path: AbsolutePath; stats: Stats };

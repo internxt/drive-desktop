@@ -1,3 +1,4 @@
+import { FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnail/create-and-upload-thumbnail';
 import * as util from '@/apps/main/util';
@@ -19,6 +20,7 @@ describe('create-file', () => {
   const uploadMock = partialSpyOn(uploadFile, 'uploadFile');
   const persistMock = partialSpyOn(driveServerWip.files, 'createFile');
   const addItemMock = partialSpyOn(LocalSync.SyncState, 'addItem');
+  const revalidateFileSizeLimitMock = partialSpyOn(FileSizeLimitModule, 'revalidateFileSizeLimit');
   const handleFileUploadSizeExceededMock = partialSpyOn(fileSizeLimit, 'handleFileUploadSizeExceeded');
   const handleEmptyFilesAmoutForUserMock = partialSpyOn(handleEmptyFilesAmoutForUser, 'handleEmptyFilesAmoutForUser');
   const handleEmptyFilesNotAllowedForUserMock = partialSpyOn(handleEmptyFilesNotAllowedForUser, 'handleEmptyFilesNotAllowedForUser');
@@ -74,6 +76,7 @@ describe('create-file', () => {
     await createFile(props);
     // Given
     call(handleFileUploadSizeExceededMock).toMatchObject({ path, size });
+    calls(revalidateFileSizeLimitMock).toHaveLength(1);
     calls(addItemMock).toHaveLength(0);
   });
 

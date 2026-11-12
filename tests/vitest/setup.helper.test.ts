@@ -59,6 +59,7 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
     FileSystemModule: mockModule(),
     PaymentsModule: mockModule(),
     CleanerModule: mockModule(),
+    FileSizeLimitModule: mockModule(),
     SyncModule: mockModule(),
     isClientVersionUnsupported: vi.fn(({ status }: { status: string }) => status === 'unsupported'),
     isUnsupportedVersionError: vi.fn(),

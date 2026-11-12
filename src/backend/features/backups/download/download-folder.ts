@@ -1,12 +1,12 @@
 import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 import Bottleneck from 'bottleneck';
-import { mkdir } from 'node:fs/promises';
 import { Traverser } from '@/apps/backups/remote-tree/traverser';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Device } from '@/apps/main/device/service';
 import { User } from '@/apps/main/types';
 import { broadcastToWindows } from '@/apps/main/windows';
 import { isBottleneckStop } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { mkdir } from '@/infra/file-system/original-fs';
 import { ContentsDownloader } from '@/infra/inxt-js';
 import { downloadFile } from './download-file';
 

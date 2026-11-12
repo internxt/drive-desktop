@@ -1,8 +1,8 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { createWriteStream } from 'node:fs';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { pipeline } from '@/core/utils/pipeline';
 import { InxtJs } from '@/infra';
+import { createWriteStream } from '@/infra/file-system/original-fs';
 import { LocalSync } from '../..';
 
 type Props = {

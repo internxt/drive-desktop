@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises';
+import * as originalFs from '../original-fs';
 
 export class AccessError extends Error {
   constructor(
@@ -11,7 +11,7 @@ export class AccessError extends Error {
 
 export async function access(path: string) {
   try {
-    await fs.access(path);
+    await originalFs.access(path);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message.includes('ENOENT')) {

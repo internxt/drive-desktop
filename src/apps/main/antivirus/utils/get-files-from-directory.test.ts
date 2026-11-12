@@ -1,15 +1,14 @@
-import { readdir } from 'node:fs/promises';
 import { win32 } from 'node:path';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { PathTypeChecker } from '@/apps/shared/fs/PathTypeChecker';
+import * as originalFs from '@/infra/file-system/original-fs';
 import { getFilesFromDirectory } from './get-files-from-directory';
 
-vi.mock(import('node:fs/promises'));
 vi.mock(import('@/apps/shared/fs/PathTypeChecker'));
 
 describe('get-files-from-directory', () => {
   const PathTypeCheckerMock = vi.mocked(PathTypeChecker);
-  const readdirMock = deepMocked(readdir);
+  const readdirMock = partialSpyOn(originalFs, 'readdir');
 
   const rootFolder = win32.join('C:', 'Users', 'user', 'internxt');
 
