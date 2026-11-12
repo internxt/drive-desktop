@@ -10,11 +10,9 @@ describe('get-between-uuids', () => {
   const date = new Date().toISOString();
   const folder: DriveFolder = {
     uuid: 'uuid1',
-    id: 1,
     status: 'EXISTS',
     plainName: 'folder',
     parentUuid: 'parentUuid',
-    parentId: 0,
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',
     createdAt: date,
@@ -54,7 +52,7 @@ describe('get-between-uuids', () => {
   it('should return folders between uuids', () => {
     // Given
     db.prepare(upsertQuery).run(folder);
-    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2 });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2' });
     // When
     const { data } = getBetweenUuids(props);
     // Then

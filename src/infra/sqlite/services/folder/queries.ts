@@ -1,9 +1,7 @@
 export const upsertQuery = `
 INSERT INTO drive_folder (
   uuid,
-  id,
   workspaceId,
-  parentId,
   parentUuid,
   userUuid,
   createdAt,
@@ -14,9 +12,7 @@ INSERT INTO drive_folder (
   modificationTime
 ) VALUES (
   :uuid,
-  :id,
   :workspaceId,
-  :parentId,
   :parentUuid,
   :userUuid,
   :createdAt,
@@ -27,9 +23,7 @@ INSERT INTO drive_folder (
   :modificationTime
 )
 ON CONFLICT (uuid) DO UPDATE SET
-  id = excluded.id,
   workspaceId = excluded.workspaceId,
-  parentId = excluded.parentId,
   parentUuid = excluded.parentUuid,
   userUuid = excluded.userUuid,
   createdAt = excluded.createdAt,

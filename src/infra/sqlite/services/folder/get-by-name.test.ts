@@ -10,11 +10,9 @@ describe('get-by-name', () => {
   const date = new Date().toISOString();
   const folder: DriveFolder = {
     uuid: 'uuid',
-    id: 1,
     status: 'EXISTS',
     plainName: 'folder',
     parentUuid: 'parentUuid',
-    parentId: 0,
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',
     createdAt: date,

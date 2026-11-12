@@ -10,7 +10,6 @@ INSERT INTO drive_file (
   workspaceId,
   fileId,
   size,
-  folderId,
   userUuid,
   modificationTime,
   creationTime
@@ -25,7 +24,6 @@ INSERT INTO drive_file (
   :workspaceId,
   :fileId,
   :size,
-  :folderId,
   :userUuid,
   :modificationTime,
   :creationTime
@@ -40,7 +38,6 @@ ON CONFLICT (uuid) DO UPDATE SET
   workspaceId = excluded.workspaceId,
   fileId = excluded.fileId,
   size = excluded.size,
-  folderId = excluded.folderId,
   userUuid = excluded.userUuid,
   modificationTime = excluded.modificationTime,
   creationTime = excluded.creationTime;
