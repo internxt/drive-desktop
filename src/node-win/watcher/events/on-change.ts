@@ -13,6 +13,7 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { Watcher } from '@/node-win/addon';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
+import { findPlaceholderByUuid } from './find-placeholder-by-uuid';
 
 type Props = {
   ctx: SyncContext;
@@ -87,11 +88,28 @@ async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {
 
     const { data: file } = await SqliteModule.FileModule.getByName({ parentUuid, nameWithExtension });
 
-    if (file) {
+    if (file && !(await isUuidKeptByRenamedFile({ ctx, path, uuid: file.uuid }))) {
       await Addon.convertToPlaceholder({ path, placeholderId: `FILE:${file.uuid}`, markInSync: false });
       await Drive.Actions.replaceFile({ ctx, path, uuid: file.uuid });
     } else {
       await Drive.Actions.createFile({ ctx, path, parentUuid });
     }
   }
+}
+
+/**
+ * v2.7.4 Victor Fernandez
+ * Adopting the uuid by name is meant for apps that delete the file and write a new one with the same name. Some apps
+ * (e.g. Revit) instead rename the original to a backup with a regular name and keep it. Adopting its uuid would leave
+ * two files with the same uuid and the remote sync would later rename the document to the backup name. SQLite cannot
+ * tell these cases apart because the rename has not been persisted yet, so we look at the folder. A temporary copy
+ * (e.g. Word's ~WRL) is not uploaded, so the document must keep the uuid.
+ */
+async function isUuidKeptByRenamedFile({ ctx, path, uuid }: { ctx: SyncContext; path: AbsolutePath; uuid: FileUuid }) {
+  const { data: holder, error } = await findPlaceholderByUuid({ folder: dirname(path), uuid });
+  if (error) ctx.logger.warn({ msg: 'Cannot check which file keeps the uuid', path, error });
+  if (!holder || isTemporaryFile({ path: holder })) return false;
+
+  ctx.logger.debug({ msg: 'File uuid kept by a renamed file, creating a new file', path, holder });
+  return true;
 }

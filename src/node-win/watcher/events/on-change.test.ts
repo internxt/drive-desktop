@@ -9,8 +9,9 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
+import * as findPlaceholderByUuid from './find-placeholder-by-uuid';
 import { onChange } from './on-change';
 
 describe('on-change', () => {
@@ -23,6 +24,7 @@ describe('on-change', () => {
   const getByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
   const convertToPlaceholderMock = partialSpyOn(Addon, 'convertToPlaceholder');
   const moveFileMock = partialSpyOn(moveFile, 'moveFile');
+  const findPlaceholderByUuidMock = partialSpyOn(findPlaceholderByUuid, 'findPlaceholderByUuid');
 
   const path = abs('/file.txt');
   let props: TestProps<typeof onChange>;
@@ -33,6 +35,7 @@ describe('on-change', () => {
       path,
       observedAtMs: Date.now(),
     };
+    findPlaceholderByUuidMock.mockResolvedValue({ data: undefined });
   });
 
   it('should replace file when file is in sqlite', async () => {
@@ -44,6 +47,48 @@ describe('on-change', () => {
     await onChange(props as any);
     // Then
     call(convertToPlaceholderMock).toStrictEqual({ path, placeholderId: 'FILE:uuid', markInSync: false });
+    call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
+  });
+
+  it('should create file when the uuid is kept by a file renamed to a regular name', async () => {
+    // Given
+    getFileInfoMock.mockResolvedValue({});
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    findPlaceholderByUuidMock.mockResolvedValue({ data: abs('/file.0001.txt') });
+    // When
+    await onChange(props as any);
+    // Then
+    call(findPlaceholderByUuidMock).toMatchObject({ uuid: 'uuid' });
+    calls(convertToPlaceholderMock).toHaveLength(0);
+    calls(replaceFileMock).toHaveLength(0);
+    call(createFileMock).toMatchObject({ path, parentUuid: 'parentUuid' });
+  });
+
+  it('should replace file when the uuid is kept by a file renamed to a temporary name', async () => {
+    // Given
+    getFileInfoMock.mockResolvedValue({});
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    findPlaceholderByUuidMock.mockResolvedValue({ data: abs('/~WRL0001.tmp') });
+    // When
+    await onChange(props as any);
+    // Then
+    calls(createFileMock).toHaveLength(0);
+    call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
+  });
+
+  it('should replace file when the folder cannot be read', async () => {
+    // Given
+    getFileInfoMock.mockResolvedValue({});
+    getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
+    getByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+    findPlaceholderByUuidMock.mockResolvedValue({ error: new Error('Cannot read folder') });
+    // When
+    await onChange(props as any);
+    // Then
+    call(loggerFn).toMatchObject({ msg: 'Cannot check which file keeps the uuid', path });
+    calls(createFileMock).toHaveLength(0);
     call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
   });
 

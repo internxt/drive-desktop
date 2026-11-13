@@ -25,6 +25,7 @@ describe('update-file-placeholder', () => {
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
+    checkIfMovedMock.mockResolvedValue(true);
 
     props = {
       ctx: { logger: loggerMock },
@@ -77,6 +78,16 @@ describe('update-file-placeholder', () => {
     calls(createFilePlaceholderMock).toHaveLength(0);
     calls(checkIfMovedMock).toHaveLength(1);
     calls(checkIfModifiedMock).toHaveLength(1);
+  });
+
+  it('should not check if placeholder is modified when it could not be moved', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    calls(checkIfMovedMock).toHaveLength(1);
+    calls(checkIfModifiedMock).toHaveLength(0);
   });
 
   it('should reset pin state if file is partially hydrated', async () => {
