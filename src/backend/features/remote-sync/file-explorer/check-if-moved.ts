@@ -1,7 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { rename } from '@/infra/file-system/original-fs';
+import { rename, stat } from '@/infra/file-system/original-fs';
 import { Addon } from '@/node-win/addon-wrapper';
 import { FileExplorerItem } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { clearMoveAttempts, MAX_MOVE_ATTEMPTS, trackMoveAttempt } from '../unreconciled-folders';
@@ -39,8 +40,27 @@ export async function checkIfMoved({ ctx, type, remote, local }: Props) {
     return false;
   }
 
+  if (await isTakenByAnotherItem({ localPath, remotePath })) {
+    ctx.logger.warn({ msg: 'Placeholder move target is taken by another item', type, localPath, remotePath });
+    return false;
+  }
+
   ctx.logger.debug({ msg: 'Moving placeholder', type, localPath, remotePath });
   await rename(localPath, remotePath);
   await Addon.updateSyncStatus({ path: remotePath });
   return true;
+}
+
+/**
+ * v2.7.4 Victor Fernandez
+ * `rename` silently overwrites the target. File ids are compared instead of checking if the target exists so that
+ * case-only renames still work, and as bigint because they can exceed the Number precision.
+ */
+async function isTakenByAnotherItem({ localPath, remotePath }: { localPath: AbsolutePath; remotePath: AbsolutePath }) {
+  try {
+    const [local, remote] = await Promise.all([stat(localPath, { bigint: true }), stat(remotePath, { bigint: true })]);
+    return local.ino !== remote.ino;
+  } catch {
+    return false;
+  }
 }
