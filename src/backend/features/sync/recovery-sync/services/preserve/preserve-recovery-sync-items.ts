@@ -2,10 +2,9 @@ import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { recoverySynclogger } from '../../constants';
+import { PreserveRun, recoverySynclogger } from '../../constants';
 import { preserveFiles } from './preserve-files';
 import { preserveFolders } from './preserve-folders';
-import { PreserveRun } from './preserve-item';
 import { resumeUnfinishedMoves } from './resume-unfinished-moves';
 
 type Props = {
@@ -23,7 +22,7 @@ type Props = {
  * Returns the sources that could not be preserved; they stay in place with their status unchanged.
  */
 export async function preserveRecoverySyncItems({ ctx, startedAt, subfolder, rootPaths }: Props): Promise<Result<AbsolutePath[], Error>> {
-  const resumed = await resumeUnfinishedMoves({ ctx });
+  const resumed = await resumeUnfinishedMoves({ ctx, startedAt });
   if (resumed.error) return Result.err(resumed.error);
 
   const explorer = await loadExplorer({ ctx });

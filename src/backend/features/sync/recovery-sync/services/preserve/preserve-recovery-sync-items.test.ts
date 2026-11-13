@@ -35,6 +35,7 @@ describe('preserve-recovery-sync-items', () => {
     const { data } = await preserveRecoverySyncItems(props);
     // Then
     expect(data).toStrictEqual(['C:/Drive/resumed.txt', 'C:/Drive/Old', 'C:/Drive/a.txt']);
+    call(resumeMock).toMatchObject({ startedAt: '2026-01-02T09:05:07.000Z' });
     call(preserveFoldersMock).toMatchObject({
       run: { startedAt: '2026-01-02T09:05:07.000Z', subfolder: 'Personal Drive', rootPaths: ['C:/Drive'] },
       folders: explorer.folders,
