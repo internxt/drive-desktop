@@ -26,6 +26,11 @@ export async function checkIfMoved({ ctx, type, remote, local }: Props) {
   const remotePath = remote.absolutePath;
   const localPath = local.path;
 
+  if (await isTakenByAnotherItem({ localPath, remotePath })) {
+    ctx.logger.warn({ msg: 'Placeholder move target is taken by another item', type, localPath, remotePath });
+    return false;
+  }
+
   /**
    * v2.6.13 Victor Fernandez
    * `rename` can return without throwing and still leave the item where it was, so the only way
@@ -37,11 +42,6 @@ export async function checkIfMoved({ ctx, type, remote, local }: Props) {
 
   if (attempts > MAX_MOVE_ATTEMPTS) {
     ctx.logger.warn({ msg: 'Placeholder move does not converge', type, localPath, remotePath, attempts });
-    return false;
-  }
-
-  if (await isTakenByAnotherItem({ localPath, remotePath })) {
-    ctx.logger.warn({ msg: 'Placeholder move target is taken by another item', type, localPath, remotePath });
     return false;
   }
 
