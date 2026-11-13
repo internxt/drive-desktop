@@ -6,6 +6,7 @@ import { getFilesToPreserve, getFoldersToPreserve } from './recovery-sync/get-it
 import { getPreservationSummary } from './recovery-sync/get-preservation-summary';
 import { getUnfinishedMoves } from './recovery-sync/get-unfinished-moves';
 import { hasProtectedDescendants } from './recovery-sync/has-protected-descendants';
+import { hasUnfinishedRecovery } from './recovery-sync/has-unfinished-recovery';
 import { isBeingPreserved } from './recovery-sync/is-being-preserved';
 import { markRemovedIfEligible } from './recovery-sync/mark-removed-if-eligible';
 import { reserveMove } from './recovery-sync/reserve-move';
@@ -15,6 +16,7 @@ import { startOrResumeScan } from './recovery-sync/start-or-resume-scan';
 
 export const RecoverySyncModule = {
   startOrResumeProcess,
+  hasUnfinishedRecovery,
   startOrResumeScan,
   commitScanPage,
   areScansCompleted,
