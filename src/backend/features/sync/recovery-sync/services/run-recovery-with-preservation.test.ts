@@ -4,6 +4,7 @@ import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as issues from './notification/report-preservation-issues';
 import * as notification from './notification/show-recovery-sync-notification';
 import * as recoverAndPreserveModule from './recover-and-preserve';
 import * as recoverContextModule from './recover-context';
@@ -15,6 +16,7 @@ describe('run-recovery-with-preservation', () => {
   const getWorkspacesMock = partialSpyOn(driveServerWipModule.workspaces, 'getWorkspaces');
   const clearRecoveryMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'clearRecovery');
   const notificationMock = partialSpyOn(notification, 'showRecoverySyncNotification');
+  const reportIssuesMock = partialSpyOn(issues, 'reportPreservationIssues');
 
   let contexts: SyncContext[];
 
@@ -71,6 +73,7 @@ describe('run-recovery-with-preservation', () => {
     await runRecoveryWithPreservation({ contexts });
     // Then
     calls(clearRecoveryMock).toHaveLength(1);
+    call(reportIssuesMock).toStrictEqual({ failed: ['C:/Drive/a.txt'] });
     call(notificationMock).toMatchObject({ status: 'failed', preserved: 1 });
   });
 
@@ -107,6 +110,7 @@ describe('run-recovery-with-preservation', () => {
     // Then
     expect(error?.name).toBe('AbortError');
     calls(clearRecoveryMock).toHaveLength(0);
+    calls(reportIssuesMock).toHaveLength(0);
     calls(notificationMock).toHaveLength(0);
   });
 });
