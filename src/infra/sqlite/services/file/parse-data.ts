@@ -19,7 +19,6 @@ export function parseData({ data }: TProps): SimpleDriveFile {
     uuid: data.uuid as FileUuid,
     name,
     extension: data.type,
-    parentId: data.folderId,
     parentUuid: data.folderUuid,
     contentsId: data.fileId as ContentsId,
     size: data.size,

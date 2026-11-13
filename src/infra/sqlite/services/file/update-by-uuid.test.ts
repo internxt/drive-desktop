@@ -13,7 +13,6 @@ describe('update-by-uuid', () => {
     status: 'EXISTS',
     fileId: 'fileId',
     size: 1024,
-    folderId: 1,
     folderUuid: 'folderUuid',
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',

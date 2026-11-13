@@ -29,9 +29,7 @@ export async function createOrUpdateBatch({ folders }: Props) {
       for (const folder of chunk) {
         stmt.run({
           uuid: folder.uuid,
-          id: folder.id,
           workspaceId: folder.workspaceId,
-          parentId: folder.parentId,
           parentUuid: folder.parentUuid,
           userUuid: folder.userUuid,
           createdAt: folder.createdAt,

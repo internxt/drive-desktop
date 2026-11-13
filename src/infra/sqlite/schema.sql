@@ -30,7 +30,6 @@ CREATE TABLE
     workspaceId VARCHAR(36) NOT NULL,
     fileId VARCHAR(24) NOT NULL,
     size INTEGER NOT NULL,
-    folderId INTEGER NOT NULL,
     userUuid VARCHAR(36) NOT NULL,
     modificationTime VARCHAR(24) NOT NULL,
     creationTime VARCHAR(24) NOT NULL
@@ -39,7 +38,6 @@ CREATE TABLE
 
 CREATE TABLE
   IF NOT EXISTS "drive_folder" (
-    id INTEGER NOT NULL,
     uuid VARCHAR(36) PRIMARY KEY NOT NULL,
     status VARCHAR(7) NOT NULL,
     plainName TEXT NOT NULL,
@@ -47,7 +45,6 @@ CREATE TABLE
     updatedAt VARCHAR(24) NOT NULL,
     parentUuid VARCHAR(36) NOT NULL,
     workspaceId VARCHAR(36) NOT NULL,
-    parentId INTEGER,
     userUuid VARCHAR(36) NOT NULL,
     creationTime VARCHAR(24) NOT NULL,
     modificationTime VARCHAR(24) NOT NULL

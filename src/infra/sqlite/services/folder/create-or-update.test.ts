@@ -20,11 +20,9 @@ describe('create-or-update', () => {
 
     props = {
       folder: {
-        id: 1,
         uuid: 'uuid',
         status: 'EXISTS',
         parentUuid: 'parentUuid',
-        parentId: null,
         userUuid: 'userUuid',
         workspaceId: 'workspaceId',
         createdAt: date,
@@ -41,7 +39,6 @@ describe('create-or-update', () => {
     createOrUpdate(props);
     // Then
     expect({ ...db.prepare('SELECT * FROM drive_folder').get() }).toStrictEqual({
-      id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
       plainName: 'plainName',
@@ -51,7 +48,6 @@ describe('create-or-update', () => {
       modificationTime: date,
       parentUuid: 'parentUuid',
       workspaceId: 'workspaceId',
-      parentId: null,
       userUuid: 'userUuid',
     });
   });
@@ -63,7 +59,6 @@ describe('create-or-update', () => {
     createOrUpdate(props);
     // Then
     expect({ ...db.prepare('SELECT * FROM drive_folder').get() }).toStrictEqual({
-      id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
       plainName: 'folder',
@@ -73,7 +68,6 @@ describe('create-or-update', () => {
       modificationTime: date,
       parentUuid: 'parentUuid',
       workspaceId: 'workspaceId',
-      parentId: null,
       userUuid: 'userUuid',
     });
   });
