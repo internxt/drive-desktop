@@ -106,7 +106,8 @@ async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {
  * (e.g. Word's ~WRL) is not uploaded, so the document must keep the uuid.
  */
 async function isUuidKeptByRenamedFile({ ctx, path, uuid }: { ctx: SyncContext; path: AbsolutePath; uuid: FileUuid }) {
-  const { data: holder } = await findPlaceholderByUuid({ folder: dirname(path), uuid });
+  const { data: holder, error } = await findPlaceholderByUuid({ folder: dirname(path), uuid });
+  if (error) ctx.logger.warn({ msg: 'Cannot check which file keeps the uuid', path, error });
   if (!holder || isTemporaryFile({ path: holder })) return false;
 
   ctx.logger.debug({ msg: 'File uuid kept by a renamed file, creating a new file', path, holder });

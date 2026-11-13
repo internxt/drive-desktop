@@ -9,7 +9,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { InSyncState, PinState } from '@/node-win/types/placeholder.type';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, partialSpyOn, TestProps } from '@/tests/vitest/utils.helper.test';
 import * as findPlaceholderByUuid from './find-placeholder-by-uuid';
 import { onChange } from './on-change';
@@ -87,6 +87,7 @@ describe('on-change', () => {
     // When
     await onChange(props as any);
     // Then
+    call(loggerFn).toMatchObject({ msg: 'Cannot check which file keeps the uuid', path });
     calls(createFileMock).toHaveLength(0);
     call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
   });
