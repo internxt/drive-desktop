@@ -15,7 +15,9 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
 import { RecoverySyncModule } from '../recovery-sync.module';
+import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { runRecoverySyncManually } from './run-recovery-sync-manually';
+import * as withPreservation from './run-recovery-with-preservation';
 
 describe('run-recovery-sync-manually', () => {
   const refreshItemPlaceholders = placeholders.refreshItemPlaceholders;
@@ -30,8 +32,11 @@ describe('run-recovery-sync-manually', () => {
   const updateFileMock = partialSpyOn(updateFile, 'updateFilePlaceholder');
   const updateFolderMock = partialSpyOn(updateFolder, 'updateFolderPlaceholder');
   const deletePlaceholderMock = partialSpyOn(deletePlaceholder, 'deleteItemPlaceholder');
+  const switchMock = partialSpyOn(RecoverySyncSwitch, 'isPreservationEnabled');
+  const withPreservationMock = partialSpyOn(withPreservation, 'runRecoveryWithPreservation');
 
   beforeEach(() => {
+    switchMock.mockReturnValue(false);
     recoveryMock.mockResolvedValue(Result.ok(true));
     refreshMock.mockResolvedValue(Result.ok(true));
   });
@@ -57,6 +62,20 @@ describe('run-recovery-sync-manually', () => {
       expect(ctx.status).toBe('SYNCED');
     }
     expect(statusMock.mock.calls.slice(0, 2).map(([props]) => props.status)).toEqual(['SYNCING', 'SYNCING']);
+  });
+
+  it('uses the recovery that preserves files when it is enabled', async () => {
+    // Given
+    const contexts = [createContext('')];
+    getContextsMock.mockReturnValue(contexts);
+    switchMock.mockReturnValue(true);
+    withPreservationMock.mockResolvedValue(Result.ok(true));
+    // When
+    const result = await runRecoverySyncManually();
+    // Then
+    expect(result.data).toBe(true);
+    expect(withPreservationMock).toHaveBeenCalledWith({ contexts });
+    expect(recoveryMock).not.toHaveBeenCalled();
   });
 
   it('does not start recovery if any context is already syncing', async () => {
