@@ -20,7 +20,6 @@ describe('create-or-update', () => {
 
     props = {
       file: {
-        id: 1,
         uuid: 'uuid',
         status: 'EXISTS',
         fileId: 'fileId',
@@ -44,7 +43,6 @@ describe('create-or-update', () => {
     createOrUpdate(props);
     // Then
     expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
-      id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
       plainName: 'plainName',
@@ -69,7 +67,6 @@ describe('create-or-update', () => {
     createOrUpdate(props);
     // Then
     expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
-      id: 1,
       uuid: 'uuid',
       status: 'EXISTS',
       plainName: 'file',

@@ -8,7 +8,6 @@ import { upsertQuery } from './queries';
 describe('get-by-workspace-id', () => {
   const date = new Date().toISOString();
   const file: DriveFile = {
-    id: 1,
     uuid: 'uuid1',
     status: 'EXISTS',
     fileId: 'fileId',
@@ -54,8 +53,8 @@ describe('get-by-workspace-id', () => {
   it('should return all files for a workspace', () => {
     // Given
     db.prepare(upsertQuery).run(file);
-    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2', id: 2 });
-    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid3', id: 3, status: 'DELETED' });
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2' });
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid3', status: 'DELETED' });
     // When
     const { data } = getByWorkspaceId(props);
     // Then
@@ -65,8 +64,8 @@ describe('get-by-workspace-id', () => {
   it('should return files filtered by status', () => {
     // Given
     db.prepare(upsertQuery).run(file);
-    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2', id: 2, status: 'TRASHED' });
-    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid3', id: 3, status: 'DELETED' });
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid2', status: 'TRASHED' });
+    db.prepare(upsertQuery).run({ ...file, uuid: 'uuid3', status: 'DELETED' });
     // When
     const { data } = getByWorkspaceId({ ...props, fileStatus: 'EXISTS' });
     // Then

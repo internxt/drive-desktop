@@ -23,6 +23,8 @@ export const files = {
 };
 export const FileModule = files;
 
+// v2.7.2 Alexis Mora: the backend deprecated GET /files in favor of /files/sync; moving off it is out of this release.
+// eslint-disable-next-line sonarjs/deprecation
 export type GetFilesQuery = paths['/files']['get']['parameters']['query'];
 type CreateThumbnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
