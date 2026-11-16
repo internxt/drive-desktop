@@ -149,7 +149,8 @@ async function isRenamePending({
   if (existing.error?.code === 'FILE_NOT_FOUND') return true;
   if (!existing.data) return false;
 
-  const { data: holder } = await findPlaceholderByUuid({ folder: dirname(path), uuid: existing.data.uuid });
+  const { data: holder, error } = await findPlaceholderByUuid({ folder: dirname(path), uuid: existing.data.uuid });
+  if (error) return true;
   return !!holder && holder !== path && !isTemporaryFile({ path: holder });
 }
 

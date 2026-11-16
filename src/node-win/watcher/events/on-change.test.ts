@@ -78,7 +78,7 @@ describe('on-change', () => {
     call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
   });
 
-  it('should replace file when the folder cannot be read', async () => {
+  it('should create file when the folder cannot be read', async () => {
     // Given
     getFileInfoMock.mockResolvedValue({});
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
@@ -88,8 +88,8 @@ describe('on-change', () => {
     await onChange(props as any);
     // Then
     call(loggerFn).toMatchObject({ msg: 'Cannot check which file keeps the uuid', path });
-    calls(createFileMock).toHaveLength(0);
-    call(replaceFileMock).toMatchObject({ path, uuid: 'uuid' });
+    call(createFileMock).toMatchObject({ path, parentUuid: 'parentUuid' });
+    calls(replaceFileMock).toHaveLength(0);
   });
 
   it('should create file when file is not in sqlite', async () => {

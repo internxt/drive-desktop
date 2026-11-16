@@ -217,6 +217,19 @@ describe('create-file', () => {
       call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
     });
 
+    it('should not adopt the file that keeps the name when the folder cannot be checked', async () => {
+      // Given
+      persistMock.mockResolvedValue(nameTaken);
+      checkExistenceMock.mockResolvedValue({ data: { uuid: 'existing' } } as any);
+      findPlaceholderByUuidMock.mockResolvedValue({ error: new Error('Cannot read folder') });
+      // When
+      await createFile(props);
+      // Then
+      calls(sleepMock).toStrictEqual([1000, 3000, 9000]);
+      call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR', path });
+      calls(createOrUpdateFileMock).toHaveLength(0);
+    });
+
     it('should create the file again when the name is free when checked', async () => {
       // Given
       persistMock.mockResolvedValueOnce(nameTaken).mockResolvedValueOnce({ data: { uuid: 'uuid' as FileUuid } });

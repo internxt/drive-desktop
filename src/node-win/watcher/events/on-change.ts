@@ -107,7 +107,11 @@ async function handleNonPlaceholderFile(ctx: SyncContext, path: AbsolutePath) {
  */
 async function isUuidKeptByRenamedFile({ ctx, path, uuid }: { ctx: SyncContext; path: AbsolutePath; uuid: FileUuid }) {
   const { data: holder, error } = await findPlaceholderByUuid({ folder: dirname(path), uuid });
-  if (error) ctx.logger.warn({ msg: 'Cannot check which file keeps the uuid', path, error });
+  if (error) {
+    ctx.logger.warn({ msg: 'Cannot check which file keeps the uuid', path, error });
+    return true;
+  }
+
   if (!holder || isTemporaryFile({ path: holder })) return false;
 
   ctx.logger.debug({ msg: 'File uuid kept by a renamed file, creating a new file', path, holder });
