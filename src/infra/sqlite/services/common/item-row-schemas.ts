@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 const itemRowSchema = z.object({
-  id: z.number(),
   uuid: z.string(),
   status: z.enum(['EXISTS', 'TRASHED', 'DELETED']),
   plainName: z.string(),
@@ -22,6 +21,7 @@ export const fileRowSchema = itemRowSchema.extend({
 });
 
 export const folderRowSchema = itemRowSchema.extend({
+  id: z.number(),
   parentUuid: z.string(),
   parentId: z.number().nullable(),
 });

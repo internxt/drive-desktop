@@ -8,7 +8,6 @@ import { upsertQuery } from './queries';
 describe('get-files-by-uuids', () => {
   const date = new Date().toISOString();
   const file: DriveFile = {
-    id: 1,
     uuid: 'uuid1',
     status: 'EXISTS',
     fileId: 'fileId',
