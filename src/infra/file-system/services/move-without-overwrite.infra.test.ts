@@ -28,7 +28,7 @@ describe('move-without-overwrite', () => {
     const source = join(rootPath, `${uuid}.txt`);
     const destination = join(recoveryPath, `${uuid}.txt`);
     await writeFile(source, 'content');
-    await Addon.convertToPlaceholder({ path: source, placeholderId: `FILE:${uuid}` });
+    await Addon.convertToPlaceholder({ path: source, placeholderId: `FILE:${uuid}`, markInSync: true });
     const { data: placeholder } = await getFileInfo({ path: source });
     expect(placeholder?.onDiskSize).toBe(7);
     // When
@@ -45,7 +45,7 @@ describe('move-without-overwrite', () => {
     const destination = join(recoveryPath, uuid);
     await mkdir(source);
     await writeFile(join(source, 'uploaded.txt'), 'uploaded');
-    await Addon.convertToPlaceholder({ path: join(source, 'uploaded.txt'), placeholderId: `FILE:${randomUUID()}` });
+    await Addon.convertToPlaceholder({ path: join(source, 'uploaded.txt'), placeholderId: `FILE:${randomUUID()}`, markInSync: true });
     await writeFile(join(source, 'local.txt'), 'local');
     // When
     const error = await moveWithoutOverwrite({ source, destination });
