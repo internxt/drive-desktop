@@ -40,7 +40,6 @@ export async function getItemsByFolderUuid({ ctx, folderUuid }: { ctx: AuthConte
   if (!folder) return [];
 
   return folder.children.map((folder) => ({
-    id: folder.id,
     uuid: folder.uuid,
     plainName: folder.plainName,
     pathname: '' as AbsolutePath,

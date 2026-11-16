@@ -27,7 +27,7 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
         <li
           role="row"
           aria-rowindex={index + 1}
-          key={backup.id}
+          key={backup.uuid}
           onDoubleClick={(e) => {
             e.stopPropagation();
             if (onDobleClick) {
@@ -42,13 +42,13 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
           }}
           tabIndex={0}
           className={`flex w-full items-center overflow-hidden rounded px-1 py-1 transition-colors duration-75 ${
-            selected.find((item) => item.id === backup.id)
+            selected.find((item) => item.uuid === backup.uuid)
               ? 'bg-primary text-white'
               : index % 2 !== 0
                 ? 'text-neutral-700 bg-white dark:bg-black'
                 : 'bg-l-neutral-10 text-neutral-700 dark:bg-black'
           }`}>
-          <BackupListItem backup={backup} selected={selected.find((item) => item.id === backup.id) !== undefined} />
+          <BackupListItem backup={backup} selected={selected.find((item) => item.uuid === backup.uuid) !== undefined} />
         </li>
       ))}
     </ul>

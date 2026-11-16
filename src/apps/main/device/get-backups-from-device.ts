@@ -5,7 +5,8 @@ import { AuthContext } from '@/apps/sync-engine/config';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
-import { Device, findBackupPathnameFromId } from './service';
+import { migrateBackupFolderToUuids } from './migrate-backup-folder-to-uuids';
+import { Device, findBackupPathnameFromUuid } from './service';
 
 type Props = {
   ctx: AuthContext;
@@ -24,15 +25,16 @@ export async function getBackupsFromDevice({ ctx, device, isCurrent }: Props): P
     logger.debug({ tag: 'BACKUPS', msg: 'Fetched folder', childrenCount: folder.children.length });
 
     if (isCurrent) {
+      migrateBackupFolderToUuids({ children: folder.children });
+
       const backupsList = configStore.get('backupList');
 
       const backups = folder.children
-        .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
+        .map((backup) => ({ ...backup, pathname: findBackupPathnameFromUuid(backup.uuid) }))
         .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
         .map((backup) => ({
           ...backup,
           pathname: abs(backup.pathname as string),
-          folderId: backup.id,
           folderUuid: backup.uuid,
         }));
 
@@ -43,7 +45,6 @@ export async function getBackupsFromDevice({ ctx, device, isCurrent }: Props): P
 
     return folder.children.map((backup) => ({
       ...backup,
-      folderId: backup.id,
       folderUuid: backup.uuid,
       pathname: '' as AbsolutePath,
     }));

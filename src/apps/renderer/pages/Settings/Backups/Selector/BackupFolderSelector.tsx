@@ -44,7 +44,6 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
         {backupsState === 'SUCCESS' && backups.length > 0 ? (
           <BackupsList
             items={backups.map((backup) => ({
-              id: backup.folderId,
               uuid: backup.folderUuid,
               plainName: backup.plainName,
               pathname: backup.pathname,
@@ -68,7 +67,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
               if (selectedBackup.length === 0) {
                 return;
               }
-              disableBackup(selectedBackup[0].id);
+              disableBackup(selectedBackup[0].uuid);
             }}
             variant="secondary">
             <UilMinus size="17" />
