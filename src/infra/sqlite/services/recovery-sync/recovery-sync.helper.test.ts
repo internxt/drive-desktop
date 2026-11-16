@@ -26,7 +26,6 @@ export function clearTables() {
 
 export function insertFile(file: Partial<DriveFile> & Pick<DriveFile, 'uuid'>) {
   db.prepare(upsertFileQuery).run({
-    id: 1,
     status: 'EXISTS',
     plainName: 'file',
     type: 'txt',

@@ -22,7 +22,6 @@ describe('map-recovery-sync-page', () => {
     expect(data).toStrictEqual({
       items: [
         {
-          id: 1,
           uuid: 'uuid',
           status: 'EXISTS',
           plainName: 'name',

@@ -21,7 +21,6 @@ const nullableString = z
   .transform((value) => value ?? '');
 
 const itemSchema = z.object({
-  id: z.number(),
   uuid: z.string().min(1),
   status: z.enum(['EXISTS', 'TRASHED', 'DELETED']),
   plainName: nullableString,
@@ -40,6 +39,7 @@ const fileSchema = itemSchema.extend({
 });
 
 const folderSchema = itemSchema.extend({
+  id: z.number(),
   parentId: z.number().nullable(),
   parentUuid: z.string(),
 });
