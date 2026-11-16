@@ -1,23 +1,27 @@
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
+import { AbsolutePath, FileSizeLimitModule } from '@internxt/drive-desktop-core/build/backend';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnail/create-and-upload-thumbnail';
-import { CommonContext } from '@/apps/sync-engine/config';
+import { UploadContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { handleEmptyFilesAmoutForUser } from '../../../user/empty-files/handle-empty-files-amout-for-user';
 import { handleEmptyFilesNotAllowedForUser } from '../../../user/empty-files/handle-empty-files-not-allowed-for-user';
+import { getFileSizeLimitAdapter } from '../../../user/file-size-limit/get-file-size-limit-adapter';
 import { handleFileUploadSizeExceeded } from '../../../user/file-size-limit/handle-file-upload-size-exceeded';
+import { RetryLater } from './retry-later';
 import { uploadFile } from './upload-file';
 
 type Props = {
-  ctx: CommonContext;
+  ctx: UploadContext;
   path: AbsolutePath;
   uuid: FileUuid;
+  attempt?: number;
+  retryLater: RetryLater;
 };
 
-export async function replaceFile({ ctx, path, uuid }: Props) {
-  const upload = await uploadFile({ ctx, path });
+export async function replaceFile({ ctx, path, uuid, attempt, retryLater }: Props) {
+  const upload = await uploadFile({ ctx, path, attempt, retryLater });
 
   if (!upload) return;
 
@@ -36,6 +40,7 @@ export async function replaceFile({ ctx, path, uuid }: Props) {
   if (res.error) {
     if (res.error.code === 'FILE_UPLOAD_SIZE_EXCEEDED') {
       handleFileUploadSizeExceeded({ path, size: upload.size });
+      void FileSizeLimitModule.revalidateFileSizeLimit(getFileSizeLimitAdapter({ ctx }));
       ctx.logger.warn({
         msg: 'File size exceeds upload limit',
         path,

@@ -1,7 +1,7 @@
+import { UploadFileSizeValidation } from '@internxt/drive-desktop-core/build/backend';
 import { addSyncIssue } from '@/apps/main/background-processes/issues';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { addMaxFileSizeRejection } from './max-file-size-rejection-state';
-import { UploadFileSizeValidation } from './validate-upload-file-size';
 
 type Props = {
   path: AbsolutePath;

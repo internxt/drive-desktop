@@ -1,1 +1,4 @@
 export const CREATE_PENDING_ITEMS_CONCURRENCY = 4;
+export const LOCAL_FILE_IDLE_TIMEOUT_MS = 60_000;
+export const LOCAL_FILE_MAX_WAIT_MS = 2 * 60 * 60_000;
+export const LOCAL_FILE_RETRY_DELAY_MS = 5 * 60_000;

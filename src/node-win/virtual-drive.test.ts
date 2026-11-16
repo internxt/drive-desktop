@@ -144,9 +144,9 @@ describe('addon', () => {
 
   it('should call addon.convertToPlaceholder', async () => {
     // When
-    await Addon.convertToPlaceholder({ path: abs('/parent/file.txt'), placeholderId: 'FILE:uuid' });
+    await Addon.convertToPlaceholder({ path: abs('/parent/file.txt'), placeholderId: 'FILE:uuid', markInSync: false });
     // Then
-    call(addon.convertToPlaceholder).toStrictEqual([String.raw`\\?\\parent\file.txt`, 'FILE:uuid']);
+    call(addon.convertToPlaceholder).toStrictEqual([String.raw`\\?\\parent\file.txt`, 'FILE:uuid', false]);
   });
 
   it('should call addon.hydrateFile', async () => {

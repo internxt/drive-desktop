@@ -4,8 +4,10 @@ import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { downloadBackup } from '@/backend/features/backups/download/download-backup';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { getClientCompatibility, updateApp } from '@/backend/features/client-compatibility';
 import { clearMailBridgeIpc, setupMailBridgeIpc } from '@/backend/features/mail-bridge';
 import { runRecoverySyncManually } from '@/backend/features/sync';
+import { watchFileSizeLimitAfterUpgrade } from '@/backend/features/user/file-size-limit/watch-file-size-limit-after-upgrade';
 import { isUserLoggedIn } from '../auth/handlers';
 import { openLoginUrl } from '../auth/open-login-url';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -48,11 +50,14 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('syncManually', () => updateAllRemoteSync());
   ipcPreloadMain.handle('recoverySyncManually', () => runRecoverySyncManually());
   ipcPreloadMain.handle('disableBackup', (_, props) => Promise.resolve(disableBackup(props)));
+  ipcPreloadMain.handle('getClientCompatibility', () => Promise.resolve(getClientCompatibility()));
+  ipcPreloadMain.handle('updateApp', () => updateApp());
 }
 
 export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
   ipcPreloadMain.handle('getUsage', () => calculateUsage({ ctx }));
   ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog({ ctx }));
+  ipcPreloadMain.handle('watchFileSizeLimitAfterUpgrade', () => Promise.resolve(watchFileSizeLimitAfterUpgrade({ ctx })));
 
   // Backups
   ipcPreloadMain.handle('backupsSetInterval', (_, props) => Promise.resolve(backupsSetInterval({ ctx, ...props })));
@@ -73,6 +78,7 @@ export function setupLoggedPreloadIpc({ ctx }: { ctx: AuthContext }) {
 export function clearLoggedPreloadIpc() {
   ipcPreloadMain.removeHandler('getUsage');
   ipcPreloadMain.removeHandler('driveChooseSyncRootWithDialog');
+  ipcPreloadMain.removeHandler('watchFileSizeLimitAfterUpgrade');
 
   // Backups
   ipcPreloadMain.removeHandler('backupsSetInterval');

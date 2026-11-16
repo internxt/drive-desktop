@@ -19,6 +19,7 @@ export function saveConfig() {
     mailBridgeCredentials: electronStore.get('mailBridgeCredentials'),
     mailBridgeStartOnLogin: electronStore.get('mailBridgeStartOnLogin'),
     maxUploadFileSizeInBytes: electronStore.get('maxUploadFileSizeInBytes'),
+    fileSizeLimitRevalidatedAt: electronStore.get('fileSizeLimitRevalidatedAt'),
     syncRoot: electronStore.get('syncRoot'),
   };
 

@@ -1,8 +1,9 @@
-import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { FileSizeLimitModule, logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthContext } from '@/apps/sync-engine/config';
 import { LocalSync } from '@/backend/features';
 import { resetConfig } from '@/backend/features/auth/services/utils/reset-config';
 import { saveConfig } from '@/backend/features/auth/services/utils/save-config';
+import { clearStore } from '@/backend/features/remote-sync/unreconciled-folders';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { clearAntivirus } from '../antivirus/utils/initializeAntivirus';
 import { clearIssues } from '../background-processes/issues';
@@ -33,8 +34,10 @@ export function logout({ ctx }: Props) {
     showFrontend();
 
     LocalSync.SyncState.onLogout();
+    clearStore();
     clearAntivirus();
     clearIssues();
+    FileSizeLimitModule.stopWatchingFileSizeLimit();
 
     void cleanSyncEngineWorkers();
 

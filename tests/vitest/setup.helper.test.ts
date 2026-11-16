@@ -59,7 +59,12 @@ vi.mock(import('@internxt/drive-desktop-core/build/backend'), () => {
     FileSystemModule: mockModule(),
     PaymentsModule: mockModule(),
     CleanerModule: mockModule(),
+    FileSizeLimitModule: mockModule(),
     SyncModule: mockModule(),
+    isClientVersionUnsupported: vi.fn(({ status }: { status: string }) => status === 'unsupported'),
+    isUnsupportedVersionError: vi.fn(),
+    updateApp: vi.fn(),
+    CLIENT_VERSION_UNSUPPORTED_ERROR_CODE: 'CLIENT_VERSION_UNSUPPORTED',
   };
 });
 
@@ -99,6 +104,17 @@ vi.mock(import('electron'), () => {
       isDestroyed: vi.fn(),
     })),
     Notification: vi.fn(),
+    Menu: {
+      buildFromTemplate: vi.fn(),
+    },
+    Tray: vi.fn(
+      class {
+        setImage = vi.fn();
+        setToolTip = vi.fn();
+        on = vi.fn();
+        setContextMenu = vi.fn();
+      },
+    ),
     clipboard: {
       writeText: vi.fn(),
     },

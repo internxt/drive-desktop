@@ -5,10 +5,13 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 export type FileDto = components['schemas']['FileDto'];
-export type FileSyncDto = components['schemas']['FileSyncDto'];
 export type FolderDto = components['schemas']['FolderDto'];
-export type FolderSyncDto = components['schemas']['FolderSyncDto'];
-export type ParsedFileDto = Omit<FileDto, 'fileId' | 'thumbnails' | 'isFavorite'> & {
+/**
+ * v2.7.3 Alexis Mora
+ * The backend is dropping the numeric `id` of files in favour of `uuid` and may return a dummy value
+ * until then (PB-6987), so we strip it here to make sure nothing relies on it.
+ */
+export type ParsedFileDto = Omit<FileDto, 'id' | 'fileId' | 'thumbnails' | 'isFavorite'> & {
   uuid: FileUuid;
   fileId: string;
 };
@@ -17,7 +20,7 @@ export type ParsedFolderDto = Omit<FolderDto, 'isFavorite'> & {
 };
 
 export function parseFileDto({ fileDto }: { fileDto: FileDto }): ParsedFileDto {
-  const { isFavorite: _isFavorite, thumbnails: _thumbnails, ...parsedFileDto } = fileDto;
+  const { id: _id, isFavorite: _isFavorite, thumbnails: _thumbnails, ...parsedFileDto } = fileDto;
 
   return {
     ...parsedFileDto,

@@ -43,4 +43,13 @@ describe('schedule-request', () => {
     await expect(promise).rejects.toThrow();
     expect(tracker.current.processed).toBe(1);
   });
+
+  it('should not increment processed if the file will be retried', async () => {
+    // Given
+    schedule.mockResolvedValue(undefined);
+    // When
+    await scheduleRequest({ ...props, willRetry: () => true });
+    // Then
+    expect(tracker.current.processed).toBe(0);
+  });
 });

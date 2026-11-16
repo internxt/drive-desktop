@@ -35,7 +35,6 @@
  */
 
 export type DriveFile = {
-  id: number;
   uuid: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
   plainName: string;

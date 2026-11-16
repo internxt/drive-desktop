@@ -1,5 +1,7 @@
+import * as issues from '@/apps/main/background-processes/issues';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { addUnreconciledFolder, removeUnreconciledFolder } from '@/backend/features/remote-sync/unreconciled-folders';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as ipcMain from '@/infra/drive-server-wip/out/ipc-main';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -16,6 +18,7 @@ describe('on-unlink', () => {
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
   const isBeingPreservedMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'isBeingPreserved');
+  const removeUploadIssuesMock = partialSpyOn(issues, 'removeUploadIssues');
 
   let props: TestProps<typeof onUnlink>;
 
@@ -29,6 +32,15 @@ describe('on-unlink', () => {
       path: abs('/parent/file.txt'),
       type: 'file',
     };
+  });
+
+  it('should remove the upload issues of a file that is not a placeholder', async () => {
+    // Given
+    getFolderInfoMock.mockResolvedValue({ error: new Error() });
+    // When
+    await onUnlink(props as any);
+    // Then
+    call(removeUploadIssuesMock).toStrictEqual({ path: props.path });
   });
 
   it('should skip if cannot retrieve parent uuid', async () => {
@@ -108,6 +120,36 @@ describe('on-unlink', () => {
       // Then
       call(isBeingPreservedMock).toStrictEqual({ rootUuid: 'rootUuid', itemType: 'folder', uuid: 'uuid' });
       calls(deleteFolderByUuidMock).toHaveLength(0);
+    });
+  });
+
+  describe('when the item is inside a folder that we could not reconcile', () => {
+    const folderUuid = 'unreconciledUuid' as FolderUuid;
+
+    beforeEach(() => {
+      getFileByNameMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });
+      addUnreconciledFolder({ uuid: folderUuid, path: abs('/parent') });
+    });
+
+    afterEach(() => {
+      removeUnreconciledFolder({ uuid: folderUuid });
+    });
+
+    it('should not propagate the deletion to the server', async () => {
+      // When
+      await onUnlink(props as any);
+      // Then
+      calls(deleteFileByUuidMock).toHaveLength(0);
+      calls(getFolderInfoMock).toHaveLength(0);
+    });
+
+    it('should propagate the deletion once the folder is reconciled again', async () => {
+      // Given
+      removeUnreconciledFolder({ uuid: folderUuid });
+      // When
+      await onUnlink(props as any);
+      // Then
+      calls(deleteFileByUuidMock).toHaveLength(1);
     });
   });
 });

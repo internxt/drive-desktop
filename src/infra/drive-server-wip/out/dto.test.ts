@@ -5,6 +5,7 @@ describe('dto', () => {
   it('removes file details that are not part of the synchronization DTO', () => {
     const props = mockProps<typeof parseFileDto>({
       fileDto: {
+        id: 1,
         uuid: 'file-uuid',
         fileId: null,
         isFavorite: true,
@@ -15,6 +16,7 @@ describe('dto', () => {
     const result = parseFileDto(props);
 
     expect(result).toMatchObject({ uuid: 'file-uuid', fileId: '' });
+    expect(result).not.toHaveProperty('id');
     expect(result).not.toHaveProperty('isFavorite');
     expect(result).not.toHaveProperty('thumbnails');
   });

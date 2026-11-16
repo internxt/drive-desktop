@@ -35,7 +35,7 @@ describe('create-placeholder', () => {
 
   it('should create placeholder', async () => {
     // Given
-    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath } });
+    const watcherProps = mockProps<typeof initWatcher>({ ctx: { rootPath, abortController: new AbortController() } });
     initWatcher(watcherProps);
     await sleep(100);
 
