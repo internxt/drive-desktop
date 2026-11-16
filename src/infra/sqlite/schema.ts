@@ -71,3 +71,43 @@ export type Checkpoint = {
   userUuid: string;
   workspaceId: string;
 };
+
+export type RecoverySyncScan = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  checkpoint: string;
+  updatedAt: string;
+  completed: 0 | 1;
+};
+
+export type RecoverySyncProcess = {
+  rootUuid: string;
+  startedAt: string;
+};
+
+export type RecoverySyncDestination = {
+  rootUuid: string;
+  volume: string;
+  path: string;
+};
+
+export type RecoverySyncMoveStage = 'reserved' | 'moved' | 'done' | 'conflict' | 'failed';
+
+export type RecoverySyncMove = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  uuid: string;
+  source: string;
+  destination: string;
+  removalStatus: 'TRASHED' | 'DELETED';
+  sourceSize: number | null;
+  sourceModifiedAt: string | null;
+  stage: RecoverySyncMoveStage;
+};
+
+export type RecoverySyncObserved = {
+  rootUuid: string;
+  itemType: 'file' | 'folder';
+  uuid: string;
+  remoteStatus: 'EXISTS' | 'TRASHED' | 'DELETED';
+};

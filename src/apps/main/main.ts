@@ -11,6 +11,7 @@ import { arch, release, version } from 'node:os';
 import { resolve } from 'node:path';
 import 'reflect-metadata';
 import 'regenerator-runtime/runtime';
+import { checkClientCompatibility } from '@/backend/features/client-compatibility';
 import { join } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PATHS } from '@/core/electron/paths';
 import { measureHealth } from '@/core/utils/measure-health';
@@ -116,6 +117,13 @@ async function start() {
 
     await app.whenReady();
     app.setAppUserModelId(INTERNXT_APP_ID);
+
+    /**
+     * v2.7.2 Alexis Mora
+     * Checked before anything else starts so an unsupported version never fires up sync, backups or any request.
+     * It runs after setAppUserModelId because Windows needs the app id to show the native notification.
+     */
+    await checkClientCompatibility();
 
     const contextMenuPipe = startContextMenuPipe();
     app.once('before-quit', () => {

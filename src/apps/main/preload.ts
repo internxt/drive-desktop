@@ -1,4 +1,4 @@
-import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
+import { ClientCompatibilityState, logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import type { MailBridgeSyncProgress } from '@internxt/drive-desktop-core/build/backend/features/mail-bridge';
 import { contextBridge, ipcRenderer, shell } from 'electron';
@@ -91,6 +91,12 @@ const api = {
   abortDownloadBackups(deviceUuid: string) {
     ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
   },
+  onClientCompatibilityChange(callback: (state: ClientCompatibilityState) => void): () => void {
+    const eventName = 'client-compatibility-changed';
+    const callbackWrapper = (_: unknown, v: ClientCompatibilityState) => callback(v);
+    ipcRenderer.on(eventName, callbackWrapper);
+    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_: unknown, v: RemoteSyncStatus) => callback(v);
@@ -172,6 +178,8 @@ const api = {
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke('getRemoteSyncStatus'),
   syncManually: async () => await ipcPreloadRenderer.invoke('syncManually'),
   recoverySyncManually: async () => await ipcPreloadRenderer.invoke('recoverySyncManually'),
+  getClientCompatibility: async () => await ipcPreloadRenderer.invoke('getClientCompatibility'),
+  updateApp: async () => await ipcPreloadRenderer.invoke('updateApp'),
   watchFileSizeLimitAfterUpgrade: async () => await ipcPreloadRenderer.invoke('watchFileSizeLimitAfterUpgrade'),
 
   // Backups

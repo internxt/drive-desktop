@@ -50,6 +50,7 @@ describe('open-logs', () => {
     calls(archive.file).toStrictEqual([
       [join(PATHS.LOGS, 'drive.log'), { name: 'drive.log' }],
       [join(PATHS.LOGS, 'drive-important.log'), { name: 'drive-important.log' }],
+      [join(PATHS.LOGS, 'recovery-sync.log'), { name: 'recovery-sync.log' }],
       [join(PATHS.INTERNXT, 'internxt_desktop.db'), { name: 'internxt_desktop.db' }],
     ]);
     call(archive.directory).toStrictEqual([join(PATHS.LOGS, 'crash'), 'crash']);

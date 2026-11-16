@@ -107,6 +107,12 @@ var api = {
   abortDownloadBackups(deviceUuid) {
     import_electron2.ipcRenderer.send("abort-download-backups-" + deviceUuid, deviceUuid);
   },
+  onClientCompatibilityChange(callback) {
+    const eventName = "client-compatibility-changed";
+    const callbackWrapper = (_, v) => callback(v);
+    import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+    return () => import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
     const callbackWrapper = (_, v) => callback(v);
@@ -169,6 +175,8 @@ var api = {
   getRemoteSyncStatus: async () => await ipcPreloadRenderer.invoke("getRemoteSyncStatus"),
   syncManually: async () => await ipcPreloadRenderer.invoke("syncManually"),
   recoverySyncManually: async () => await ipcPreloadRenderer.invoke("recoverySyncManually"),
+  getClientCompatibility: async () => await ipcPreloadRenderer.invoke("getClientCompatibility"),
+  updateApp: async () => await ipcPreloadRenderer.invoke("updateApp"),
   watchFileSizeLimitAfterUpgrade: async () => await ipcPreloadRenderer.invoke("watchFileSizeLimitAfterUpgrade"),
   // Backups
   backupsSetInterval: async (props) => await ipcPreloadRenderer.invoke("backupsSetInterval", props),
