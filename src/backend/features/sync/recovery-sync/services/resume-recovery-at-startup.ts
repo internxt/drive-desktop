@@ -2,7 +2,6 @@ import { getSyncContexts } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { recoverySynclogger } from '../constants';
-import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
 
 /**
@@ -11,8 +10,6 @@ import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
  * items whose removal is not saved yet. Checked when the worker spawns, so its first sync can be held back.
  */
 export function shouldResumeRecovery({ ctx }: { ctx: SyncContext }) {
-  if (!RecoverySyncSwitch.isPreservationEnabled()) return false;
-
   const { data } = SqliteModule.RecoverySyncModule.hasUnfinishedRecovery({ rootUuid: ctx.rootUuid });
   return data === true;
 }

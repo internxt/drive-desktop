@@ -1,9 +1,6 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
 import { getSyncContexts } from '@/apps/main/remote-sync/store';
-import { RecoverySyncModule } from '../recovery-sync.module';
-import { recoverContext } from './recover-context';
-import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
 
 /**
@@ -32,11 +29,5 @@ export async function runRecoverySyncManually(): Promise<Result<boolean, Error>>
     changeSyncStatus({ ctx, status: 'SYNCING' });
   }
 
-  if (RecoverySyncSwitch.isPreservationEnabled()) return await runRecoveryWithPreservation({ contexts });
-
-  const results = await Promise.all(
-    contexts.map((ctx) => recoverContext({ ctx, recover: () => RecoverySyncModule.recoverySync({ ctx }) })),
-  );
-  const error = results.find((result) => result.error)?.error;
-  return error ? Result.err(error) : Result.ok(true);
+  return await runRecoveryWithPreservation({ contexts });
 }

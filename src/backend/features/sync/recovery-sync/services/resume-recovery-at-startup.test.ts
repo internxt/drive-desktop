@@ -3,12 +3,10 @@ import * as store from '@/apps/main/remote-sync/store';
 import { SqliteError } from '@/infra/sqlite/services/common/sqlite-error';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { RecoverySyncSwitch } from './recovery-sync-switch';
 import { resumeRecoveryAtStartup, shouldResumeRecovery } from './resume-recovery-at-startup';
 import * as withPreservation from './run-recovery-with-preservation';
 
 describe('resume-recovery-at-startup', () => {
-  const switchMock = partialSpyOn(RecoverySyncSwitch, 'isPreservationEnabled');
   const hasUnfinishedMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'hasUnfinishedRecovery');
   const getContextsMock = partialSpyOn(store, 'getSyncContexts');
   const runMock = partialSpyOn(withPreservation, 'runRecoveryWithPreservation');
@@ -18,7 +16,6 @@ describe('resume-recovery-at-startup', () => {
   }
 
   beforeEach(() => {
-    switchMock.mockReturnValue(true);
     hasUnfinishedMock.mockImplementation(({ rootUuid }) => ({ data: rootUuid === 'interrupted' }));
   });
 
@@ -29,16 +26,6 @@ describe('resume-recovery-at-startup', () => {
       // Then
       expect(result).toBe(true);
       call(hasUnfinishedMock).toStrictEqual({ rootUuid: 'interrupted' });
-    });
-
-    it('should not resume while the recovery that preserves files is off', () => {
-      // Given
-      switchMock.mockReturnValue(false);
-      // When
-      const result = shouldResumeRecovery({ ctx: createContext('interrupted') });
-      // Then
-      expect(result).toBe(false);
-      calls(hasUnfinishedMock).toHaveLength(0);
     });
 
     it('should not resume when it cannot check the root', () => {

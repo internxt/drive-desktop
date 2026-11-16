@@ -7,8 +7,7 @@ import { recoverySynclogger } from '../constants';
 
 /**
  * v2.7.2 Alexis Mora
- * Runs the recovery of one context and refreshes its placeholders, so the previous recovery and the one that preserves files
- * share the same status handling.
+ * Runs the recovery of one context and refreshes its placeholders, so Explorer shows the database state the recovery left.
  */
 export async function recoverContext({
   ctx,
