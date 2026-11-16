@@ -1,7 +1,7 @@
 import { IndividualBackupProgress } from './IndividualBackupProgress';
 
-export interface BackupsProgress {
+export type BackupsProgress = {
   currentFolder: number;
   totalFolders: number;
   partial: IndividualBackupProgress | undefined;
-}
+};

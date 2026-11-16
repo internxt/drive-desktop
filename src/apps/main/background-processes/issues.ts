@@ -14,6 +14,7 @@ export type SyncIssue = {
     | 'CANNOT_REGISTER_VIRTUAL_DRIVE'
     | 'EMPTY_FILES_NOT_ALLOWED'
     | 'EMPTY_FILES_EXCEEDED'
+    | 'RECOVERY_SYNC_NOT_PRESERVED'
     | UploadIssueError;
 };
 
@@ -105,6 +106,15 @@ function removeIssue(issue: Issue) {
 
 export function removeSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
   removeIssue({ ...issue, tab: 'sync' });
+}
+
+export function removeSyncIssuesByError({ error }: Pick<SyncIssue, 'error'>) {
+  const initialLength = issues.length;
+  issues = issues.filter((i) => !(i.tab === 'sync' && i.error === error));
+
+  if (issues.length < initialLength) {
+    onIssuesChanged();
+  }
 }
 
 function isUploadIssue(issue: Issue) {

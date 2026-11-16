@@ -21,7 +21,13 @@ export async function openLogs() {
 
     const csvPaths = await logFileExplorers();
 
-    const paths = [join(PATHS.LOGS, 'drive.log'), join(PATHS.LOGS, 'drive-important.log'), PATHS.SQLITE_DB, ...csvPaths];
+    const paths = [
+      join(PATHS.LOGS, 'drive.log'),
+      join(PATHS.LOGS, 'drive-important.log'),
+      join(PATHS.LOGS, 'recovery-sync.log'),
+      PATHS.SQLITE_DB,
+      ...csvPaths,
+    ];
 
     for (const path of paths) {
       try {

@@ -1,12 +1,14 @@
 import { existsSync } from 'node:fs';
 import {
   addBackupsIssue,
+  addGeneralIssue,
   addSyncIssue,
   clearBackupsIssues,
   clearInactiveBackupsIssues,
   clearIssues,
   countBackupUploadIssues,
   issues,
+  removeSyncIssuesByError,
   removeUploadIssues,
   setUploadIssue,
 } from './issues';
@@ -37,6 +39,20 @@ describe('issues', () => {
     addSyncIssue({ name: 'test2', error: 'INVALID_WINDOWS_NAME' });
 
     expect(issues).toHaveLength(2);
+  });
+
+  it('Should remove every sync issue with the error and keep the rest', () => {
+    addSyncIssue({ name: 'a.txt', error: 'RECOVERY_SYNC_NOT_PRESERVED' });
+    addSyncIssue({ name: 'b.txt', error: 'RECOVERY_SYNC_NOT_PRESERVED' });
+    addSyncIssue({ name: 'a.txt', error: 'INVALID_WINDOWS_NAME' });
+    addGeneralIssue({ name: 'a.txt', error: 'NETWORK_CONNECTIVITY_ERROR' });
+
+    removeSyncIssuesByError({ error: 'RECOVERY_SYNC_NOT_PRESERVED' });
+
+    expect(issues).toStrictEqual([
+      { tab: 'sync', name: 'a.txt', error: 'INVALID_WINDOWS_NAME' },
+      { tab: 'general', name: 'a.txt', error: 'NETWORK_CONNECTIVITY_ERROR' },
+    ]);
   });
 
   it('should keep the same backup issue of different folders', () => {
