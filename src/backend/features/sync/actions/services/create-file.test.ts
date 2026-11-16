@@ -10,7 +10,8 @@ import * as handleEmptyFilesNotAllowedForUser from '@/backend/features/user/empt
 import * as fileSizeLimit from '@/backend/features/user/file-size-limit';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as findPlaceholderByUuid from '@/node-win/watcher/events/find-placeholder-by-uuid';
+import { loggerFn, loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFile } from './create-file';
 import * as uploadFile from './upload-file';
@@ -27,6 +28,8 @@ describe('create-file', () => {
   const createAndUploadThumbnailMock = partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
   const sleepMock = partialSpyOn(util, 'sleep');
+  const checkExistenceMock = partialSpyOn(driveServerWip.files, 'checkExistence');
+  const findPlaceholderByUuidMock = partialSpyOn(findPlaceholderByUuid, 'findPlaceholderByUuid');
 
   const path = abs('/parent/file.txt');
   const size = 1024;
@@ -167,5 +170,77 @@ describe('create-file', () => {
     call(addItemMock).toMatchObject({ action: 'UPLOADED', path });
     call(createAndUploadThumbnailMock).toMatchObject({ path, fileUuid: 'uuid' });
     call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
+  });
+
+  describe('when the name is taken', () => {
+    const nameTaken = { error: { code: 'FILE_ALREADY_EXISTS' } } as any;
+
+    beforeEach(() => {
+      findPlaceholderByUuidMock.mockResolvedValue({ data: undefined });
+    });
+
+    it('should adopt the file that keeps the name when it is not local', async () => {
+      // Given
+      persistMock.mockResolvedValue(nameTaken);
+      checkExistenceMock.mockResolvedValue({ data: { uuid: 'existing' } } as any);
+      // When
+      await createFile(props);
+      // Then
+      call(findPlaceholderByUuidMock).toStrictEqual({ folder: abs('/parent'), uuid: 'existing' });
+      calls(persistMock).toHaveLength(1);
+      call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'existing' } });
+    });
+
+    it('should adopt the file that keeps the name when it is local with a temporary name', async () => {
+      // Given
+      persistMock.mockResolvedValue(nameTaken);
+      checkExistenceMock.mockResolvedValue({ data: { uuid: 'existing' } } as any);
+      findPlaceholderByUuidMock.mockResolvedValue({ data: abs('/parent/~WRL0001.tmp') });
+      isTemporaryFileMock.mockImplementation(({ path }) => path.endsWith('.tmp'));
+      // When
+      await createFile(props);
+      // Then
+      calls(persistMock).toHaveLength(1);
+      call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'existing' } });
+    });
+
+    it('should create the file again once a local file renamed to a backup frees the name', async () => {
+      // Given
+      persistMock.mockResolvedValueOnce(nameTaken).mockResolvedValueOnce({ data: { uuid: 'uuid' as FileUuid } });
+      checkExistenceMock.mockResolvedValue({ data: { uuid: 'existing' } } as any);
+      findPlaceholderByUuidMock.mockResolvedValue({ data: abs('/parent/file.bak') });
+      // When
+      await createFile(props);
+      // Then
+      call(loggerFn).toMatchObject({ msg: 'File name is taken by a file being renamed, retrying', delayMs: 1000 });
+      calls(persistMock).toHaveLength(2);
+      call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
+    });
+
+    it('should create the file again when the name is free when checked', async () => {
+      // Given
+      persistMock.mockResolvedValueOnce(nameTaken).mockResolvedValueOnce({ data: { uuid: 'uuid' as FileUuid } });
+      checkExistenceMock.mockResolvedValue({ error: { code: 'FILE_NOT_FOUND' } } as any);
+      // When
+      await createFile(props);
+      // Then
+      calls(persistMock).toHaveLength(2);
+      call(createOrUpdateFileMock).toMatchObject({ fileDto: { uuid: 'uuid' } });
+    });
+
+    it('should not adopt a file that stays local with another name', async () => {
+      // Given
+      persistMock.mockResolvedValue(nameTaken);
+      checkExistenceMock.mockResolvedValue({ data: { uuid: 'existing' } } as any);
+      findPlaceholderByUuidMock.mockResolvedValue({ data: abs('/parent/file.bak') });
+      // When
+      await createFile(props);
+      // Then
+      calls(sleepMock).toStrictEqual([1000, 3000, 9000]);
+      calls(persistMock).toHaveLength(4);
+      expect(loggerFn).toHaveBeenLastCalledWith(expect.objectContaining({ msg: 'File name is still taken by another local file' }));
+      call(addItemMock).toMatchObject({ action: 'UPLOAD_ERROR', path });
+      calls(createOrUpdateFileMock).toHaveLength(0);
+    });
   });
 });
