@@ -129,7 +129,7 @@ async function hasChanged({ move, path, startedAt }: { move: RecoverySyncMove; p
   if (move.itemType === 'file') {
     if (move.sourceSize === null) return false;
     const { data: stats } = await fileSystem.stat({ absolutePath: path });
-    return !stats || stats.size !== move.sourceSize || stats.mtime.toISOString() !== move.sourceModifiedAt;
+    return stats?.size !== move.sourceSize || stats.mtime.toISOString() !== move.sourceModifiedAt;
   }
 
   try {

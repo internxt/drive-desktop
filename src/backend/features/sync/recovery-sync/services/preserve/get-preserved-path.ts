@@ -1,6 +1,7 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { posix, win32 } from 'node:path';
 import { AbsolutePath, join } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { trimTrailingDotsAndSpaces } from './trim-trailing-dots-and-spaces';
 
 export class PreservedPathError extends Error {
   constructor(public readonly code: 'UNSUPPORTED_VOLUME' | 'OUTSIDE_SYNC_ROOT' | 'INSIDE_SYNC_ROOT') {
@@ -55,7 +56,7 @@ function toComponents({ path }: { path: string }) {
 }
 
 function toKeys({ path }: { path: string }) {
-  return toComponents({ path }).map((component) => component.replace(/[. ]+$/, '').toLowerCase());
+  return toComponents({ path }).map((component) => trimTrailingDotsAndSpaces({ name: component }).toLowerCase());
 }
 
 function isSame({ a, b }: { a: AbsolutePath; b: AbsolutePath }) {

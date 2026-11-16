@@ -1,3 +1,5 @@
+import { trimTrailingDotsAndSpaces } from './trim-trailing-dots-and-spaces';
+
 export const PERSONAL_DRIVE_SUBFOLDER = 'Personal Drive';
 
 const INVALID_CHARACTERS = String.raw`<>:"/\|?*`;
@@ -47,7 +49,7 @@ export function getRecoverySubfolders({ workspaces }: { workspaces: Workspace[] 
  */
 function toFolderName({ name }: { name: string }) {
   const replaced = [...name].map((char) => (char < ' ' || INVALID_CHARACTERS.includes(char) ? '_' : char)).join('');
-  const trimmed = replaced.trim().replace(/[. ]+$/, '');
+  const trimmed = trimTrailingDotsAndSpaces({ name: replaced.trim() });
   return RESERVED_NAMES.test(trimmed) ? `_${trimmed}` : trimmed;
 }
 
@@ -58,9 +60,8 @@ function toFolderName({ name }: { name: string }) {
  */
 function withSuffix({ base, attempt }: { base: string; attempt: number }) {
   const suffix = attempt === 1 ? '' : ` (${attempt})`;
-  const shortened = base
-    .slice(0, MAX_NAME_LENGTH - suffix.length)
-    .replace(/[\uD800-\uDBFF]$/, '')
-    .replace(/[. ]+$/, '');
+  const shortened = trimTrailingDotsAndSpaces({
+    name: base.slice(0, MAX_NAME_LENGTH - suffix.length).replace(/[\uD800-\uDBFF]$/, ''),
+  });
   return `${shortened}${suffix}`;
 }
