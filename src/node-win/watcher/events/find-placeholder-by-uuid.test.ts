@@ -33,6 +33,27 @@ describe('find-placeholder-by-uuid', () => {
     expect(error).toBeUndefined();
   });
 
+  it('should return an error when the uuid is not found and a file cannot be read', async () => {
+    // Given
+    readdirMock.mockResolvedValue(['file.rfa', 'other.rfa'] as any);
+    getFileInfoMock.mockResolvedValueOnce({ error: { code: 'UNKNOWN' } } as any).mockResolvedValueOnce({ data: { uuid: 'other' } } as any);
+    // When
+    const { data, error } = await findPlaceholderByUuid({ folder, uuid });
+    // Then
+    expect(data).toBeUndefined();
+    expect(error).toBeInstanceOf(Error);
+  });
+
+  it('should return the path when another file cannot be read', async () => {
+    // Given
+    readdirMock.mockResolvedValue(['file.rfa', 'file.0001.rfa'] as any);
+    getFileInfoMock.mockResolvedValueOnce({ error: { code: 'UNKNOWN' } } as any).mockResolvedValueOnce({ data: { uuid } } as any);
+    // When
+    const { data } = await findPlaceholderByUuid({ folder, uuid });
+    // Then
+    expect(data).toBe(join(folder, 'file.0001.rfa'));
+  });
+
   it('should return an error when the folder cannot be read', async () => {
     // Given
     readdirMock.mockRejectedValue(new Error('EPERM'));

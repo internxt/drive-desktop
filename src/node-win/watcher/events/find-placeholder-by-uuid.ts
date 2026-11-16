@@ -17,11 +17,16 @@ export async function findPlaceholderByUuid({ folder, uuid }: Props) {
     return { error: new Error('Cannot read folder', { cause: error }) };
   }
 
+  const unreadable: AbsolutePath[] = [];
+
   for (const entry of entries) {
     const path = join(folder, entry);
-    const { data: placeholder } = await NodeWin.getFileInfo({ path });
+    const { data: placeholder, error } = await NodeWin.getFileInfo({ path });
     if (placeholder?.uuid === uuid) return { data: path };
+    if (error?.code === 'UNKNOWN') unreadable.push(path);
   }
+
+  if (unreadable.length > 0) return { error: new Error('Cannot read some placeholders', { cause: unreadable }) };
 
   return { data: undefined };
 }
