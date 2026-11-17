@@ -1,6 +1,8 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
+import { stat } from '@/infra/file-system/original-fs';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
@@ -45,7 +47,7 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
     }
 
     const isInPlace = await checkIfMoved({ ctx, type: 'file', remote, local });
-    const localPath = isInPlace ? path : await getPathIfNotDuplicated({ remote, local });
+    const localPath = isInPlace ? path : await getPathIfNotDuplicated({ ctx, remote, local });
     if (!localPath) return;
 
     await checkIfModified({ ctx, path: localPath, local, remote, isFirstExecution });
@@ -75,8 +77,23 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
  * edits made while the app was closed are uploaded. If the item at the remote path has the same uuid, both files are
  * duplicates and the check is skipped, because syncing this one could replace the remote content with the other file's.
  */
-async function getPathIfNotDuplicated({ remote, local }: { remote: ExtendedDriveFile; local: FileExplorerFile }) {
-  const { data: placeholder } = await NodeWin.getFileInfo({ path: remote.absolutePath });
+async function getPathIfNotDuplicated({ ctx, remote, local }: { ctx: SyncContext; remote: ExtendedDriveFile; local: FileExplorerFile }) {
+  const { data: placeholder, error } = await NodeWin.getFileInfo({ path: remote.absolutePath });
   if (placeholder?.uuid === remote.uuid) return;
+
+  if (error && error.code !== 'NOT_A_PLACEHOLDER' && (await exists(remote.absolutePath))) {
+    ctx.logger.warn({ msg: 'Cannot check if the item at the remote path is a duplicate', path: remote.absolutePath, error });
+    return;
+  }
+
   return local.path;
+}
+
+async function exists(path: AbsolutePath) {
+  try {
+    await stat(path);
+    return true;
+  } catch {
+    return false;
+  }
 }
