@@ -5,6 +5,7 @@ import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { resumeRecoveryAtStartup, shouldResumeRecovery } from './resume-recovery-at-startup';
 import * as withPreservation from './run-recovery-with-preservation';
+import { markRecoveriesRunning, markRecoveriesStopped } from './running-recoveries';
 
 describe('resume-recovery-at-startup', () => {
   const hasUnfinishedMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'hasUnfinishedRecovery');
@@ -48,6 +49,18 @@ describe('resume-recovery-at-startup', () => {
       await resumeRecoveryAtStartup();
       // Then
       call(runMock).toStrictEqual({ contexts: [interrupted], allContexts: [finished, interrupted] });
+    });
+
+    it('should not resume a context whose recovery is already running', async () => {
+      // Given
+      const running = createContext('interrupted');
+      getContextsMock.mockReturnValue([running]);
+      markRecoveriesRunning({ contexts: [running] });
+      // When
+      await resumeRecoveryAtStartup();
+      markRecoveriesStopped({ contexts: [running] });
+      // Then
+      calls(runMock).toHaveLength(0);
     });
 
     it('should do nothing when no context was interrupted', async () => {

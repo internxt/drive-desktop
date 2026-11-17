@@ -9,6 +9,7 @@ import { RecoverySyncOutcome, showRecoverySyncNotification } from './notificatio
 import { getRecoverySubfolders } from './preserve/get-recovery-subfolders';
 import { ContextOutcome, recoverAndPreserve } from './recover-and-preserve';
 import { recoverContext } from './recover-context';
+import { markRecoveriesRunning, markRecoveriesStopped } from './running-recoveries';
 
 type Props = {
   contexts: SyncContext[];
@@ -24,6 +25,15 @@ type Props = {
  * Logout aborts every context and owns the app state from then on, so nothing is reported for it.
  */
 export async function runRecoveryWithPreservation({ contexts, allContexts = contexts }: Props): Promise<Result<boolean, Error>> {
+  markRecoveriesRunning({ contexts });
+  try {
+    return await runRecovery({ contexts, allContexts });
+  } finally {
+    markRecoveriesStopped({ contexts });
+  }
+}
+
+async function runRecovery({ contexts, allContexts }: Required<Props>): Promise<Result<boolean, Error>> {
   const startedAt = new Date().toISOString();
   const subfolders = await getContextSubfolders({ contexts: allContexts });
   const rootPaths = allContexts.map(({ rootPath }) => rootPath);
