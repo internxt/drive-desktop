@@ -12,7 +12,6 @@ describe('get-by-workspace-id', () => {
     status: 'EXISTS',
     fileId: 'fileId',
     size: 1024,
-    folderId: 1,
     folderUuid: 'folderUuid',
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',

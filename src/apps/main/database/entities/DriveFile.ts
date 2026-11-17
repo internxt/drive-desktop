@@ -7,7 +7,6 @@ export type SimpleDriveFile = {
   uuid: FileUuid;
   name: string;
   extension: string;
-  parentId: number;
   parentUuid: string | undefined;
   contentsId: ContentsId;
   size: number;

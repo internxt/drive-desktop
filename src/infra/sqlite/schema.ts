@@ -45,14 +45,12 @@ export type DriveFile = {
   workspaceId: string;
   fileId: string;
   size: number;
-  folderId: number;
   userUuid: string;
   creationTime: string;
   modificationTime: string;
 };
 
 export type DriveFolder = {
-  id: number;
   uuid: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
   plainName: string;
@@ -60,7 +58,6 @@ export type DriveFolder = {
   updatedAt: string;
   parentUuid: string;
   workspaceId: string;
-  parentId: number | null;
   userUuid: string;
   creationTime: string;
   modificationTime: string;

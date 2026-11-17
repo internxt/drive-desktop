@@ -86,6 +86,8 @@ describe('get-folders-sync-page', () => {
 
     // Then
     expect(result.data?.items[0]).toMatchObject({ uuid: 'folder-uuid' });
+    expect(result.data?.items[0]).not.toHaveProperty('id');
+    expect(result.data?.items[0]).not.toHaveProperty('parentId');
     expect(result.data?.items[0]).not.toHaveProperty('isFavorite');
   });
 });

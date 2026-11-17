@@ -8,19 +8,19 @@ export type FileDto = components['schemas']['FileDto'];
 export type FolderDto = components['schemas']['FolderDto'];
 /**
  * v2.7.3 Alexis Mora
- * The backend is dropping the numeric `id` of files in favour of `uuid` and may return a dummy value
- * until then (PB-6987), so we strip it here to make sure nothing relies on it.
+ * The backend is dropping the numeric `id`, `folderId` and `parentId` in favour of uuids and may return
+ * dummy values until then (PB-6987), so we strip them here to make sure nothing relies on them.
  */
-export type ParsedFileDto = Omit<FileDto, 'id' | 'fileId' | 'thumbnails' | 'isFavorite'> & {
+export type ParsedFileDto = Omit<FileDto, 'id' | 'folderId' | 'fileId' | 'thumbnails' | 'isFavorite'> & {
   uuid: FileUuid;
   fileId: string;
 };
-export type ParsedFolderDto = Omit<FolderDto, 'isFavorite'> & {
+export type ParsedFolderDto = Omit<FolderDto, 'id' | 'parentId' | 'isFavorite'> & {
   uuid: FolderUuid;
 };
 
 export function parseFileDto({ fileDto }: { fileDto: FileDto }): ParsedFileDto {
-  const { id: _id, isFavorite: _isFavorite, thumbnails: _thumbnails, ...parsedFileDto } = fileDto;
+  const { id: _id, folderId: _folderId, isFavorite: _isFavorite, thumbnails: _thumbnails, ...parsedFileDto } = fileDto;
 
   return {
     ...parsedFileDto,
@@ -30,7 +30,7 @@ export function parseFileDto({ fileDto }: { fileDto: FileDto }): ParsedFileDto {
 }
 
 export function parseFolderDto({ folderDto }: { folderDto: FolderDto }): ParsedFolderDto {
-  const { isFavorite: _isFavorite, ...parsedFolderDto } = folderDto;
+  const { id: _id, parentId: _parentId, isFavorite: _isFavorite, ...parsedFolderDto } = folderDto;
 
   return {
     ...parsedFolderDto,

@@ -24,7 +24,6 @@ describe('create-or-update', () => {
         status: 'EXISTS',
         fileId: 'fileId',
         size: 1024,
-        folderId: 1,
         folderUuid: 'folderUuid',
         createdAt: date,
         updatedAt: date,
@@ -54,7 +53,6 @@ describe('create-or-update', () => {
       workspaceId: 'workspaceId',
       fileId: 'fileId',
       size: 1024,
-      folderId: 1,
       userUuid: 'userUuid',
       modificationTime: date,
     });
@@ -78,7 +76,6 @@ describe('create-or-update', () => {
       workspaceId: 'workspaceId',
       fileId: 'fileId',
       size: 1024,
-      folderId: 1,
       userUuid: 'userUuid',
       modificationTime: date,
     });

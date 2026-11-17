@@ -9,11 +9,9 @@ describe('get-by-workspace-id', () => {
   const date = new Date().toISOString();
   const folder: DriveFolder = {
     uuid: 'uuid1',
-    id: 1,
     status: 'EXISTS',
     plainName: 'folder',
     parentUuid: 'parentUuid',
-    parentId: 0,
     userUuid: 'userUuid',
     workspaceId: 'workspaceId',
     createdAt: date,
@@ -51,8 +49,8 @@ describe('get-by-workspace-id', () => {
   it('should return all folders for a workspace', () => {
     // Given
     db.prepare(upsertQuery).run(folder);
-    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2 });
-    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', id: 3, status: 'DELETED' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', status: 'DELETED' });
     // When
     const { data } = getByWorkspaceId(props);
     // Then
@@ -62,8 +60,8 @@ describe('get-by-workspace-id', () => {
   it('should return folders filtered by status', () => {
     // Given
     db.prepare(upsertQuery).run(folder);
-    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', id: 2, status: 'TRASHED' });
-    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', id: 3, status: 'DELETED' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid2', status: 'TRASHED' });
+    db.prepare(upsertQuery).run({ ...folder, uuid: 'uuid3', status: 'DELETED' });
     // When
     const { data } = getByWorkspaceId({ ...props, folderStatus: 'EXISTS' });
     // Then
