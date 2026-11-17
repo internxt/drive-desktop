@@ -8,8 +8,7 @@ import { Traverser } from './traverser';
 vi.mock(import('@/apps/main/util'));
 
 describe('traverser', () => {
-  const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
-  const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
+  const getSubtreeMock = partialSpyOn(SqliteModule.SubtreeModule, 'getSubtree');
 
   const folder = randomUUID() as FolderUuid;
   const folder1 = randomUUID() as FolderUuid;
@@ -17,23 +16,22 @@ describe('traverser', () => {
   const folder3 = randomUUID() as FolderUuid;
 
   beforeEach(() => {
-    getFilesMock.mockReturnValue({
-      data: [
-        { name: 'file1', parentUuid: folder, status: 'EXISTS' },
-        { name: 'file2', parentUuid: folder, status: 'EXISTS' },
-        { name: 'file3', parentUuid: folder1, status: 'EXISTS' },
-        { name: 'file4', parentUuid: folder3, status: 'EXISTS' },
-        { status: 'DELETED' },
-      ],
-    });
-
-    getFoldersMock.mockReturnValue({
-      data: [
-        { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
-        { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
-        { uuid: folder3, name: 'folder3', parentUuid: folder1, status: 'EXISTS' },
-        { status: 'DELETED' },
-      ],
+    getSubtreeMock.mockReturnValue({
+      data: {
+        files: [
+          { name: 'file1', parentUuid: folder, status: 'EXISTS' },
+          { name: 'file2', parentUuid: folder, status: 'EXISTS' },
+          { name: 'file3', parentUuid: folder1, status: 'EXISTS' },
+          { name: 'file4', parentUuid: folder3, status: 'EXISTS' },
+          { status: 'DELETED' },
+        ],
+        folders: [
+          { uuid: folder1, name: 'folder1', parentUuid: folder, status: 'EXISTS' },
+          { uuid: folder2, name: 'folder2', parentUuid: folder, status: 'EXISTS' },
+          { uuid: folder3, name: 'folder3', parentUuid: folder1, status: 'EXISTS' },
+          { status: 'DELETED' },
+        ],
+      },
     });
   });
 
@@ -51,8 +49,7 @@ describe('traverser', () => {
     const res = await Traverser.run(props);
 
     // Then
-    expect(getFilesMock).toHaveBeenCalledWith({ userUuid: props.userUuid, workspaceId: '', fileStatus: 'EXISTS' });
-    expect(getFoldersMock).toHaveBeenCalledWith({ userUuid: props.userUuid, workspaceId: '', folderStatus: 'EXISTS' });
+    expect(getSubtreeMock).toHaveBeenCalledWith({ userUuid: props.userUuid, workspaceId: '', rootUuid: props.rootUuid, onlyExists: true });
     expect([...res.folders.keys()]).toStrictEqual(['/backup', '/backup/folder1', '/backup/folder1/folder3', '/backup/folder2']);
     expect([...res.files.keys()]).toStrictEqual([
       '/backup/file1',

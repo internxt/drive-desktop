@@ -14,8 +14,7 @@ import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { Backup } from './Backups';
 
 describe('backups', () => {
-  const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
-  const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
+  const getSubtreeMock = partialSpyOn(SqliteModule.SubtreeModule, 'getSubtree');
   const createFileMock = partialSpyOn(Sync.Actions, 'createFile');
   const createFolderMock = partialSpyOn(Sync.Actions, 'createFolder');
   const replaceFileMock = partialSpyOn(Sync.Actions, 'replaceFile');
@@ -53,28 +52,27 @@ describe('backups', () => {
     // Given
     const unmodifiedFileStats = await stat(unmodifiedFile);
 
-    getFoldersMock.mockReturnValue({
-      data: [
-        { uuid: 'folder' as FolderUuid, parentUuid: rootUuid, name: 'folder', status: 'EXISTS' },
-        { uuid: 'deletedFolder' as FolderUuid, parentUuid: rootUuid, name: 'deletedFolder', status: 'EXISTS' },
-        { status: 'DELETED' },
-      ],
-    });
-
-    getFilesMock.mockReturnValue({
-      data: [
-        {
-          uuid: 'unmodifiedFile' as FileUuid,
-          parentUuid: rootUuid,
-          name: 'unmodifiedFile',
-          size: 7,
-          modificationTime: unmodifiedFileStats.mtime.toISOString(),
-          status: 'EXISTS',
-        },
-        { uuid: 'modifiedFile' as FileUuid, parentUuid: rootUuid, name: 'modifiedFile', size: 12, status: 'EXISTS' },
-        { uuid: 'deletedFile' as FileUuid, parentUuid: 'folder', name: 'deleted', status: 'EXISTS' },
-        { status: 'DELETED' },
-      ],
+    getSubtreeMock.mockReturnValue({
+      data: {
+        folders: [
+          { uuid: 'folder' as FolderUuid, parentUuid: rootUuid, name: 'folder', status: 'EXISTS' },
+          { uuid: 'deletedFolder' as FolderUuid, parentUuid: rootUuid, name: 'deletedFolder', status: 'EXISTS' },
+          { status: 'DELETED' },
+        ],
+        files: [
+          {
+            uuid: 'unmodifiedFile' as FileUuid,
+            parentUuid: rootUuid,
+            name: 'unmodifiedFile',
+            size: 7,
+            modificationTime: unmodifiedFileStats.mtime.toISOString(),
+            status: 'EXISTS',
+          },
+          { uuid: 'modifiedFile' as FileUuid, parentUuid: rootUuid, name: 'modifiedFile', size: 12, status: 'EXISTS' },
+          { uuid: 'deletedFile' as FileUuid, parentUuid: 'folder', name: 'deleted', status: 'EXISTS' },
+          { status: 'DELETED' },
+        ],
+      },
     });
 
     createFileMock.mockResolvedValue({ uuid: 'createFile' as FileUuid });
