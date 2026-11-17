@@ -3,6 +3,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { recoverySynclogger } from '../constants';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
+import { isRecoveryRunning } from './running-recoveries';
 
 /**
  * v2.7.2 Alexis Mora
@@ -22,7 +23,7 @@ export function shouldResumeRecovery({ ctx }: { ctx: SyncContext }) {
  */
 export async function resumeRecoveryAtStartup() {
   const allContexts = getSyncContexts();
-  const contexts = allContexts.filter((ctx) => shouldResumeRecovery({ ctx }));
+  const contexts = allContexts.filter((ctx) => !isRecoveryRunning({ ctx }) && shouldResumeRecovery({ ctx }));
   if (contexts.length === 0) return;
 
   for (const ctx of contexts) {
