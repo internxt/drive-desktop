@@ -1,4 +1,5 @@
 import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
+import { broadcastSyncStatus } from '@/apps/main/remote-sync/services/broadcast-sync-status';
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { addPendingItems } from '@/apps/sync-engine/in/add-pending-items';
@@ -37,6 +38,13 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     };
 
     workers.set(ctx.workspaceId, worker);
+
+    /**
+     * v2.7.3 Alexis Mora
+     * The widget status is built from the registered workers, so the syncing status set above, before this worker
+     * was registered, was broadcast without it and the widget kept Recovery sync enabled during the resume.
+     */
+    if (isResumingRecovery) broadcastSyncStatus();
 
     /**
      * Jonathan Arce v2.5.1
