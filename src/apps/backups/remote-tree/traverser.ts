@@ -81,8 +81,12 @@ export class Traverser {
   }
 
   static async run({ userUuid, rootUuid, rootPath }: { userUuid: string; rootUuid: FolderUuid; rootPath: AbsolutePath }) {
-    const { data: files = [] } = SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId: '', fileStatus: 'EXISTS' });
-    const { data: folders = [] } = SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId: '', folderStatus: 'EXISTS' });
+    const { data: database = { files: [], folders: [] } } = SqliteModule.SubtreeModule.getSubtree({
+      userUuid,
+      workspaceId: '',
+      rootUuid,
+      onlyExists: true,
+    });
 
     const rootFolder = this.createRootFolder({ rootPath, rootUuid });
 
@@ -91,7 +95,7 @@ export class Traverser {
       folders: new Map(),
     };
 
-    await this.traverse(tree, { files, folders }, rootFolder);
+    await this.traverse(tree, database, rootFolder);
 
     return tree;
   }

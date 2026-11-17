@@ -6,8 +6,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 
 describe('refresh-item-placeholders', () => {
-  const filesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
-  const foldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
+  const subtreeMock = partialSpyOn(SqliteModule.SubtreeModule, 'getSubtree');
   const pathsMock = partialSpyOn(paths, 'loadInMemoryPaths');
   const traverseMock = partialSpyOn(traverser, 'traverse');
   let props: Parameters<typeof refreshItemPlaceholders>[0];
@@ -17,8 +16,7 @@ describe('refresh-item-placeholders', () => {
       ctx: { abortController: new AbortController() },
       isFirstExecution: false,
     });
-    filesMock.mockReturnValue({ data: [] });
-    foldersMock.mockReturnValue({ data: [] });
+    subtreeMock.mockReturnValue({ data: { files: [], folders: [] } });
     pathsMock.mockResolvedValue({ files: new Map(), folders: new Map() });
     traverseMock.mockResolvedValue(undefined);
   });

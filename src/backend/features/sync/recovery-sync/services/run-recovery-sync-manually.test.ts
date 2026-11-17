@@ -27,8 +27,7 @@ describe('run-recovery-sync-manually', () => {
   const refreshMock = partialSpyOn(placeholders, 'refreshItemPlaceholders');
   const statusMock = partialSpyOn(syncManager, 'changeSyncStatus', false);
   const checkpointSyncMock = partialSpyOn(syncManager, 'startSyncByCheckpoint');
-  const getFilesMock = partialSpyOn(SqliteModule.FileModule, 'getByWorkspaceId');
-  const getFoldersMock = partialSpyOn(SqliteModule.FolderModule, 'getByWorkspaceId');
+  const getSubtreeMock = partialSpyOn(SqliteModule.SubtreeModule, 'getSubtree');
   const pathsMock = partialSpyOn(fileExplorerPaths, 'loadInMemoryPaths');
   const updateFileMock = partialSpyOn(updateFile, 'updateFilePlaceholder');
   const updateFolderMock = partialSpyOn(updateFolder, 'updateFolderPlaceholder');
@@ -267,25 +266,21 @@ describe('run-recovery-sync-manually', () => {
     getContextsMock.mockReturnValue([ctx]);
     recoveryMock.mockReturnValue(recovery.promise);
     refreshMock.mockImplementation(refreshItemPlaceholders);
-    getFilesMock.mockReturnValue({ data: [] });
-    getFoldersMock.mockReturnValue({ data: [] });
+    getSubtreeMock.mockReturnValue({ data: { files: [], folders: [] } });
     pathsMock.mockResolvedValue({ files: new Map(), folders: new Map() });
     updateFolderMock.mockResolvedValue(true);
     // When
     const recoveryRun = runRecoverySyncManually();
     // Then
-    expect(getFilesMock).not.toHaveBeenCalled();
-    expect(getFoldersMock).not.toHaveBeenCalled();
+    expect(getSubtreeMock).not.toHaveBeenCalled();
     expect(refreshMock).not.toHaveBeenCalled();
     // When
-    getFilesMock.mockReturnValue({ data: snapshot.database.files });
-    getFoldersMock.mockReturnValue({ data: snapshot.database.folders });
+    getSubtreeMock.mockReturnValue({ data: snapshot.database });
     recovery.resolve(Result.ok(outcome));
     const result = await recoveryRun;
     // Then
     expect(result).toEqual(Result.ok(true));
-    expect(getFilesMock).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'workspace' }));
-    expect(getFoldersMock).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'workspace' }));
+    expect(getSubtreeMock).toHaveBeenCalledWith(expect.objectContaining({ workspaceId: 'workspace' }));
 
     expect(updateFileMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -342,8 +337,7 @@ describe('run-recovery-sync-manually', () => {
     const error = new Error('Failed to read Explorer placeholders');
     getContextsMock.mockReturnValue([ctx]);
     refreshMock.mockImplementation(refreshItemPlaceholders);
-    getFilesMock.mockReturnValue({ data: [] });
-    getFoldersMock.mockReturnValue({ data: [] });
+    getSubtreeMock.mockReturnValue({ data: { files: [], folders: [] } });
     pathsMock.mockRejectedValueOnce(error);
     // When
     const result = await runRecoverySyncManually();

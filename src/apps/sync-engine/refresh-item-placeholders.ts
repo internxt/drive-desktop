@@ -99,11 +99,7 @@ async function runPass({ ctx, isFirstExecution }: Props): Promise<RefreshResult>
   }
 }
 
-async function getDatabaseItems({ ctx }: { ctx: SyncContext }) {
-  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
-    SqliteModule.FileModule.getByWorkspaceId({ ...ctx }),
-    SqliteModule.FolderModule.getByWorkspaceId({ ...ctx }),
-  ]);
-
-  return { files, folders };
+function getDatabaseItems({ ctx }: { ctx: SyncContext }) {
+  const { data = { files: [], folders: [] } } = SqliteModule.SubtreeModule.getSubtree({ ...ctx });
+  return data;
 }
