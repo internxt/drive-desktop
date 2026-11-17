@@ -11,16 +11,20 @@ import * as updateFolder from '@/backend/features/remote-sync/file-explorer/upda
 import * as fileExplorerPaths from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as traverser from '@/context/virtual-drive/items/application/Traverser';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
-import { RecoverySyncModule } from '../recovery-sync.module';
+import * as reportIssues from './notification/report-preservation-issues';
+import * as notification from './notification/show-recovery-sync-notification';
+import * as recoverAndPreserve from './recover-and-preserve';
 import { runRecoverySyncManually } from './run-recovery-sync-manually';
+import { markRecoveriesRunning, markRecoveriesStopped } from './running-recoveries';
 
 describe('run-recovery-sync-manually', () => {
   const refreshItemPlaceholders = placeholders.refreshItemPlaceholders;
   const getContextsMock = partialSpyOn(syncStore, 'getSyncContexts');
-  const recoveryMock = partialSpyOn(RecoverySyncModule, 'recoverySync');
+  const recoveryMock = partialSpyOn(recoverAndPreserve, 'recoverAndPreserve');
   const refreshMock = partialSpyOn(placeholders, 'refreshItemPlaceholders');
   const statusMock = partialSpyOn(syncManager, 'changeSyncStatus', false);
   const checkpointSyncMock = partialSpyOn(syncManager, 'startSyncByCheckpoint');
@@ -30,14 +34,21 @@ describe('run-recovery-sync-manually', () => {
   const updateFileMock = partialSpyOn(updateFile, 'updateFilePlaceholder');
   const updateFolderMock = partialSpyOn(updateFolder, 'updateFolderPlaceholder');
   const deletePlaceholderMock = partialSpyOn(deletePlaceholder, 'deleteItemPlaceholder');
+  const getWorkspacesMock = partialSpyOn(driveServerWipModule.workspaces, 'getWorkspaces');
+  const clearRecoveryMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'clearRecovery');
+  const reportIssuesMock = partialSpyOn(reportIssues, 'reportPreservationIssues');
+  const notificationMock = partialSpyOn(notification, 'showRecoverySyncNotification');
+
+  const outcome = { preserved: 0, destinations: [], failed: [] };
 
   beforeEach(() => {
-    recoveryMock.mockResolvedValue(Result.ok(true));
+    recoveryMock.mockResolvedValue(Result.ok(outcome));
+    getWorkspacesMock.mockResolvedValue({ data: { availableWorkspaces: [] } });
     refreshMock.mockResolvedValue(Result.ok(true));
   });
 
   function createContext(workspaceId: string) {
-    return mockProps<typeof RecoverySyncModule.recoverySync>({
+    return mockProps<typeof recoverAndPreserve.recoverAndPreserve>({
       ctx: { workspaceId, status: 'SYNCED', abortController: new AbortController() },
     }).ctx;
   }
@@ -52,11 +63,25 @@ describe('run-recovery-sync-manually', () => {
     expect(result.error).toBeUndefined();
     expect(recoveryMock).toHaveBeenCalledTimes(2);
     for (const ctx of contexts) {
-      expect(recoveryMock).toHaveBeenCalledWith({ ctx });
+      expect(recoveryMock).toHaveBeenCalledWith(expect.objectContaining({ ctx }));
       expect(refreshMock).toHaveBeenCalledWith({ ctx, isFirstExecution: false });
       expect(ctx.status).toBe('SYNCED');
     }
     expect(statusMock.mock.calls.slice(0, 2).map(([props]) => props.status)).toEqual(['SYNCING', 'SYNCING']);
+  });
+
+  it('preserves the removed items of every context with one start date and reports the run once', async () => {
+    // Given
+    const contexts = [createContext(''), createContext('workspace')];
+    getContextsMock.mockReturnValue(contexts);
+    // When
+    await runRecoverySyncManually();
+    // Then
+    const [first, second] = recoveryMock.mock.calls.map(([props]) => props);
+    expect(first.startedAt).toBe(second.startedAt);
+    expect(clearRecoveryMock).toHaveBeenCalledTimes(2);
+    expect(reportIssuesMock).toHaveBeenCalledTimes(1);
+    expect(notificationMock).toHaveBeenCalledWith({ status: 'completed', preserved: 0, destinations: [] });
   });
 
   it('does not start recovery if any context is already syncing', async () => {
@@ -85,6 +110,20 @@ describe('run-recovery-sync-manually', () => {
     // Then
     expect(secondResult.error).toBeInstanceOf(Error);
     expect(recoveryMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not start while a resumed recovery is running, even if sync is not marked as syncing', async () => {
+    // Given
+    const ctx = createContext('');
+    getContextsMock.mockReturnValue([ctx]);
+    markRecoveriesRunning({ contexts: [ctx] });
+    // When
+    const result = await runRecoverySyncManually();
+    markRecoveriesStopped({ contexts: [ctx] });
+    // Then
+    expect(result.error?.message).toBe('Recovery sync is already running');
+    expect(recoveryMock).not.toHaveBeenCalled();
+    expect(statusMock).not.toHaveBeenCalled();
   });
 
   it('marks recovery failures and does not refresh placeholders', async () => {
@@ -125,7 +164,7 @@ describe('run-recovery-sync-manually', () => {
     getContextsMock.mockReturnValue([ctx]);
     recoveryMock.mockImplementationOnce(() => {
       ctx.abortController.abort();
-      return Promise.resolve(Result.ok(true));
+      return Promise.resolve(Result.ok(outcome));
     });
     // When
     const result = await runRecoverySyncManually();
@@ -228,7 +267,7 @@ describe('run-recovery-sync-manually', () => {
 
   it('refreshes Explorer using the database state read after recovery completes', async () => {
     // Given
-    const recovery = Promise.withResolvers<Result<boolean, Error>>();
+    const recovery = Promise.withResolvers<Awaited<ReturnType<typeof recoverAndPreserve.recoverAndPreserve>>>();
     const snapshot = mockProps<typeof traverser.traverse>({
       ctx: { rootUuid: 'root' as FolderUuid, rootPath: abs(String.raw`C:\Drive`) },
       database: {
@@ -256,7 +295,7 @@ describe('run-recovery-sync-manually', () => {
     // When
     getFilesMock.mockReturnValue({ data: snapshot.database.files });
     getFoldersMock.mockReturnValue({ data: snapshot.database.folders });
-    recovery.resolve(Result.ok(true));
+    recovery.resolve(Result.ok(outcome));
     const result = await recoveryRun;
     // Then
     expect(result).toEqual(Result.ok(true));
@@ -289,7 +328,7 @@ describe('run-recovery-sync-manually', () => {
     const contexts = [createContext(''), createContext('workspace')];
     const error = new Error('Recovery failed');
     getContextsMock.mockReturnValue(contexts);
-    recoveryMock.mockResolvedValueOnce(Result.err(error)).mockResolvedValueOnce(Result.ok(true));
+    recoveryMock.mockResolvedValueOnce(Result.err(error)).mockResolvedValueOnce(Result.ok(outcome));
     // When
     const result = await runRecoverySyncManually();
     // Then
@@ -338,7 +377,7 @@ describe('run-recovery-sync-manually', () => {
     const result = await runRecoverySyncManually();
     // Then
     expect(result).toEqual(Result.ok(true));
-    expect(recoveryMock).toHaveBeenCalledWith({ ctx });
+    expect(recoveryMock).toHaveBeenCalledWith(expect.objectContaining({ ctx }));
     expect(ctx.status).toBe('SYNCED');
   });
 });
