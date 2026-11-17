@@ -12,7 +12,55 @@ type Props = {
   isFirstExecution: boolean;
 };
 
-export async function refreshItemPlaceholders({ ctx, isFirstExecution }: Props): Promise<Result<boolean, Error>> {
+type RefreshResult = Result<boolean, Error>;
+type Request = { isFirstExecution: boolean; resolvers: Array<(result: RefreshResult) => void> };
+type Queue = { pending?: Request };
+
+/**
+ * v2.7.4 Victor Fernandez
+ * Startup, remote sync and recovery sync can ask for a refresh at the same time, and every pass loads the whole
+ * database in memory, so overlapping passes crashed the app with out of memory on big accounts.
+ * Only one pass runs per context. Requests that arrive meanwhile are merged into a single pass that starts after it,
+ * not answered with the running one, because they may come from database changes that pass did not see.
+ */
+const queues = new WeakMap<SyncContext, Queue>();
+
+export function refreshItemPlaceholders({ ctx, isFirstExecution }: Props): Promise<RefreshResult> {
+  return new Promise((resolve) => {
+    const queue = queues.get(ctx);
+
+    if (queue) {
+      queue.pending ??= { isFirstExecution: false, resolvers: [] };
+      queue.pending.isFirstExecution ||= isFirstExecution;
+      queue.pending.resolvers.push(resolve);
+      return;
+    }
+
+    const newQueue: Queue = { pending: { isFirstExecution, resolvers: [resolve] } };
+    queues.set(ctx, newQueue);
+    void runQueue({ ctx, queue: newQueue });
+  });
+}
+
+async function runQueue({ ctx, queue }: { ctx: SyncContext; queue: Queue }) {
+  while (queue.pending) {
+    const { isFirstExecution, resolvers } = queue.pending;
+    queue.pending = undefined;
+
+    const result = ctx.abortController.signal.aborted ? Result.err(createAbortError()) : await runPass({ ctx, isFirstExecution });
+    for (const resolve of resolvers) resolve(result);
+  }
+
+  queues.delete(ctx);
+}
+
+function createAbortError() {
+  const error = new Error('Refresh item placeholders was aborted');
+  error.name = 'AbortError';
+  return error;
+}
+
+async function runPass({ ctx, isFirstExecution }: Props): Promise<RefreshResult> {
   try {
     const time = await measurePerfomance(async () => {
       const [database, fileExplorer] = await Promise.all([getDatabaseItems({ ctx }), loadInMemoryPaths({ ctx })]);
