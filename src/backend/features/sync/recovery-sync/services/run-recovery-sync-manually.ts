@@ -1,8 +1,10 @@
 import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
 import { getSyncContexts } from '@/apps/main/remote-sync/store';
-import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
-import { isRecoveryRunning } from './running-recoveries';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { refreshItemPlaceholders } from '@/apps/sync-engine/refresh-item-placeholders';
+import { createRecoverySyncAbortError } from '../common/create-recovery-sync-abort-error';
+import { RecoverySyncModule } from '../recovery-sync.module';
 
 /**
  * v2.7.1 Alexis Mora
@@ -22,10 +24,6 @@ export async function runRecoverySyncManually(): Promise<Result<boolean, Error>>
     return Result.err(new Error('No sync workers are available'));
   }
 
-  if (contexts.some((ctx) => isRecoveryRunning({ ctx }))) {
-    return Result.err(new Error('Recovery sync is already running'));
-  }
-
   if (contexts.some((ctx) => ctx.status === 'SYNCING')) {
     return Result.err(new Error('Wait for the current sync to finish before running recovery sync'));
   }
@@ -34,5 +32,48 @@ export async function runRecoverySyncManually(): Promise<Result<boolean, Error>>
     changeSyncStatus({ ctx, status: 'SYNCING' });
   }
 
-  return await runRecoveryWithPreservation({ contexts });
+  const results = await Promise.all(contexts.map((ctx) => recoverContext({ ctx })));
+  const error = results.find((result) => result.error)?.error;
+  return error ? Result.err(error) : Result.ok(true);
+}
+
+async function recoverContext({ ctx }: { ctx: SyncContext }): Promise<Result<boolean, Error>> {
+  try {
+    const result = await RecoverySyncModule.recoverySync({ ctx });
+    // Logout owns worker cleanup and tray status; cancelled work must not broadcast a later status.
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+
+    if (result.error) {
+      changeSyncStatus({ ctx, status: result.error.name === 'AbortError' ? 'IDLE' : 'SYNC_FAILED' });
+      return result;
+    }
+
+    const refreshResult = await refreshItemPlaceholders({ ctx, isFirstExecution: false });
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+
+    if (refreshResult.error) {
+      changeSyncStatus({ ctx, status: refreshResult.error.name === 'AbortError' ? 'IDLE' : 'SYNC_FAILED' });
+      return refreshResult;
+    }
+
+    changeSyncStatus({ ctx, status: 'SYNCED' });
+    return Result.ok(true);
+  } catch (cause) {
+    const error = cause instanceof Error ? cause : new Error(String(cause));
+    if (ctx.abortController.signal.aborted) {
+      return Result.err(createRecoverySyncAbortError());
+    }
+    if (error.name === 'AbortError') {
+      changeSyncStatus({ ctx, status: 'IDLE' });
+      return Result.err(error);
+    }
+
+    ctx.logger.error({ msg: 'Error running manual recovery sync', error });
+    changeSyncStatus({ ctx, status: 'SYNC_FAILED' });
+    return Result.err(error);
+  }
 }

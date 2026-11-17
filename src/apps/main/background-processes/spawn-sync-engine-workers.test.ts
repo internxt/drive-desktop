@@ -1,4 +1,3 @@
-import * as sync from '@/backend/features/sync';
 import { abs } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as getRootVirtualDrive from '../virtual-root-folder/service';
@@ -14,7 +13,6 @@ describe('spawn-sync-engine-workers', () => {
   const unregisterVirtualDrivesMock = partialSpyOn(unregisterVirtualDrives, 'unregisterVirtualDrives');
   const spawnSyncEngineWorkerMock = partialSpyOn(spawnSyncEngineWorker, 'spawnSyncEngineWorker');
   const spawnWorkspaceMock = partialSpyOn(spawnWorkspace, 'spawnWorkspace');
-  const resumeRecoveryMock = partialSpyOn(sync, 'resumeRecoveryAtStartup');
 
   const props = mockProps<typeof spawnSyncEngineWorkers>({
     ctx: {
@@ -35,6 +33,5 @@ describe('spawn-sync-engine-workers', () => {
     call(unregisterVirtualDrivesMock).toStrictEqual({
       currentProviderIds: ['{WORKSPACE_ID1}', '{WORKSPACE_ID2}', '{USER_ID}'],
     });
-    calls(resumeRecoveryMock).toHaveLength(1);
   });
 });

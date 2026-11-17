@@ -21,7 +21,6 @@ describe('watcher-on-unlink-unreconciled', () => {
   const getFileByNameMock = partialSpyOn(SqliteModule.FileModule, 'getByName');
   const deleteFolderByUuidMock = partialSpyOn(ipcMain, 'deleteFolderByUuid');
   const deleteFileByUuidMock = partialSpyOn(ipcMain, 'deleteFileByUuid');
-  const isBeingPreservedMock = partialSpyOn(SqliteModule.RecoverySyncModule, 'isBeingPreserved');
 
   const uuid = 'unreconciledUuid' as FolderUuid;
   const date = '2000-01-01T00:00:00.000Z';
@@ -41,7 +40,6 @@ describe('watcher-on-unlink-unreconciled', () => {
     getFolderInfoMock.mockResolvedValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     getFolderByNameMock.mockResolvedValue({ data: { uuid: 'remoteFolderUuid' as FolderUuid } });
     getFileByNameMock.mockResolvedValue({ data: { uuid: 'remoteFileUuid' as FileUuid } });
-    isBeingPreservedMock.mockReturnValue({ data: false });
   });
 
   afterEach(async () => {
