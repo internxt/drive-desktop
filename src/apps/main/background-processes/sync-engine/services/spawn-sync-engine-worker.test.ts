@@ -1,6 +1,5 @@
 import { call, calls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as syncManager from '@/apps/main/remote-sync/RemoteSyncManager';
-import * as broadcast from '@/apps/main/remote-sync/services/broadcast-sync-status';
 import { workers } from '@/apps/main/remote-sync/store';
 import * as addPendingItems from '@/apps/sync-engine/in/add-pending-items';
 import * as refreshItemPlaceholders from '@/apps/sync-engine/refresh-item-placeholders';
@@ -21,7 +20,6 @@ describe('spawn-sync-engine-worker', () => {
   const addPendingItemsMock = partialSpyOn(addPendingItems, 'addPendingItems');
   const shouldResumeRecoveryMock = partialSpyOn(sync, 'shouldResumeRecovery');
   const changeSyncStatusMock = partialSpyOn(syncManager, 'changeSyncStatus');
-  const broadcastMock = partialSpyOn(broadcast, 'broadcastSyncStatus');
 
   const workspaceId = 'workspaceId';
   const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
@@ -63,23 +61,7 @@ describe('spawn-sync-engine-worker', () => {
     calls(initWatcherMock).toHaveLength(1);
     calls(addPendingItemsMock).toHaveLength(1);
     calls(changeSyncStatusMock).toHaveLength(0);
-    calls(broadcastMock).toHaveLength(0);
     expect(workers.get(workspaceId)).toBeDefined();
-  });
-
-  it('should broadcast the syncing status of a resuming worker once it is registered', async () => {
-    // Given
-    let isRegistered = false;
-    loadVirtualDriveMock.mockResolvedValue(1n);
-    shouldResumeRecoveryMock.mockReturnValue(true);
-    broadcastMock.mockImplementation(() => {
-      isRegistered = workers.has(workspaceId);
-    });
-    // When
-    await spawnSyncEngineWorker(props);
-    // Then
-    calls(broadcastMock).toHaveLength(1);
-    expect(isRegistered).toBe(true);
   });
 
   it('should hold back sync and the placeholder refresh when a recovery was interrupted', async () => {

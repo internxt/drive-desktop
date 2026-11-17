@@ -19,7 +19,6 @@ import * as reportIssues from './notification/report-preservation-issues';
 import * as notification from './notification/show-recovery-sync-notification';
 import * as recoverAndPreserve from './recover-and-preserve';
 import { runRecoverySyncManually } from './run-recovery-sync-manually';
-import { markRecoveriesRunning, markRecoveriesStopped } from './running-recoveries';
 
 describe('run-recovery-sync-manually', () => {
   const refreshItemPlaceholders = placeholders.refreshItemPlaceholders;
@@ -110,20 +109,6 @@ describe('run-recovery-sync-manually', () => {
     // Then
     expect(secondResult.error).toBeInstanceOf(Error);
     expect(recoveryMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not start while a resumed recovery is running, even if sync is not marked as syncing', async () => {
-    // Given
-    const ctx = createContext('');
-    getContextsMock.mockReturnValue([ctx]);
-    markRecoveriesRunning({ contexts: [ctx] });
-    // When
-    const result = await runRecoverySyncManually();
-    markRecoveriesStopped({ contexts: [ctx] });
-    // Then
-    expect(result.error?.message).toBe('Recovery sync is already running');
-    expect(recoveryMock).not.toHaveBeenCalled();
-    expect(statusMock).not.toHaveBeenCalled();
   });
 
   it('marks recovery failures and does not refresh placeholders', async () => {

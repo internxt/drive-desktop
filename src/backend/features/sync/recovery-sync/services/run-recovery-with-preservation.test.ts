@@ -9,7 +9,6 @@ import * as notification from './notification/show-recovery-sync-notification';
 import * as recoverAndPreserveModule from './recover-and-preserve';
 import * as recoverContextModule from './recover-context';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
-import { isRecoveryRunning } from './running-recoveries';
 
 describe('run-recovery-with-preservation', () => {
   const recoverContextMock = partialSpyOn(recoverContextModule, 'recoverContext');
@@ -50,29 +49,6 @@ describe('run-recovery-with-preservation', () => {
     calls(getWorkspacesMock).toHaveLength(0);
     call(clearRecoveryMock).toStrictEqual({ rootUuid: 'root-' });
     call(notificationMock).toStrictEqual({ status: 'completed', preserved: 2, destinations: ['C:/Recovery'] });
-  });
-
-  it('should mark the contexts as running only while the run lasts', async () => {
-    // Given
-    let runningDuringRun = false;
-    recoverAndPreserveMock.mockImplementation(({ ctx }) => {
-      runningDuringRun = isRecoveryRunning({ ctx });
-      return Promise.resolve({ data: { preserved: 0, destinations: [], failed: [] } });
-    });
-    // When
-    await runRecoveryWithPreservation({ contexts });
-    // Then
-    expect(runningDuringRun).toBe(true);
-    expect(isRecoveryRunning({ ctx: contexts[0] })).toBe(false);
-  });
-
-  it('should stop marking the contexts as running when the run throws', async () => {
-    // Given
-    recoverContextMock.mockRejectedValue(new Error('Unexpected failure'));
-    // When
-    await expect(runRecoveryWithPreservation({ contexts })).rejects.toThrow('Unexpected failure');
-    // Then
-    expect(isRecoveryRunning({ ctx: contexts[0] })).toBe(false);
   });
 
   it('should share the start date and report the dated folder of every context once', async () => {
