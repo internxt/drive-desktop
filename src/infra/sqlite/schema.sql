@@ -20,7 +20,6 @@ CREATE TABLE
 
 CREATE TABLE
   IF NOT EXISTS "drive_file" (
-    id INTEGER NOT NULL,
     uuid VARCHAR(36) PRIMARY KEY NOT NULL,
     status VARCHAR(7) NOT NULL,
     plainName TEXT NOT NULL,

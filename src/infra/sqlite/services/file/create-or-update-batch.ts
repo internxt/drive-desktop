@@ -28,7 +28,6 @@ export async function createOrUpdateBatch({ files }: Props) {
       db.exec('BEGIN');
       for (const file of chunk) {
         stmt.run({
-          id: file.id,
           uuid: file.uuid,
           status: file.status,
           plainName: file.plainName ?? '',

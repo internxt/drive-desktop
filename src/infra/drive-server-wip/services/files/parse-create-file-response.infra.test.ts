@@ -48,9 +48,22 @@ describe('parseCreateFileResponse', () => {
 
     expect(result).toStrictEqual({
       data: {
-        ...fileDto,
         uuid: fileDto.uuid,
         fileId: '',
+        name: fileDto.name,
+        type: fileDto.type,
+        size: fileDto.size,
+        bucket: fileDto.bucket,
+        folderId: fileDto.folderId,
+        folderUuid: fileDto.folderUuid,
+        encryptVersion: fileDto.encryptVersion,
+        userId: fileDto.userId,
+        creationTime: fileDto.creationTime,
+        modificationTime: fileDto.modificationTime,
+        createdAt: fileDto.createdAt,
+        updatedAt: fileDto.updatedAt,
+        plainName: fileDto.plainName,
+        status: fileDto.status,
       },
     });
   });

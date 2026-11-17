@@ -20,7 +20,6 @@ describe('create-or-update-batch', () => {
 
     props = {
       files: Array.from({ length: 450 }).map((_, idx) => ({
-        id: idx,
         uuid: `uuid${idx}`,
         status: 'EXISTS',
         fileId: 'fileId',
@@ -56,7 +55,6 @@ describe('create-or-update-batch', () => {
     expect(error).toBeUndefined();
     expect({ ...db.prepare('SELECT COUNT(*) FROM drive_file').get() }).toStrictEqual({ 'COUNT(*)': 450 });
     expect({ ...db.prepare('SELECT * FROM drive_file').get() }).toStrictEqual({
-      id: 0,
       uuid: 'uuid0',
       status: 'EXISTS',
       plainName: 'plainName',
