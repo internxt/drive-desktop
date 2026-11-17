@@ -93,7 +93,7 @@ async function exists(path: AbsolutePath) {
   try {
     await stat(path);
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== 'ENOENT';
   }
 }

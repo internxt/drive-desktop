@@ -109,7 +109,7 @@ describe('update-file-placeholder', () => {
     // Given
     checkIfMovedMock.mockResolvedValue(false);
     getFileInfoMock.mockResolvedValue({ error: { code: 'UNKNOWN' } } as any);
-    statMock.mockRejectedValue(new Error('ENOENT'));
+    statMock.mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
     // When
     await updateFilePlaceholder(props as any);
     // Then
@@ -125,6 +125,17 @@ describe('update-file-placeholder', () => {
     await updateFilePlaceholder(props as any);
     // Then
     call(loggerFn).toMatchObject({ msg: 'Cannot check if the item at the remote path is a duplicate', path: 'remotePath' });
+    calls(checkIfModifiedMock).toHaveLength(0);
+  });
+
+  it('should not check if placeholder is modified when it could not be moved and the remote path cannot be accessed', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ error: { code: 'UNKNOWN' } } as any);
+    statMock.mockRejectedValue(Object.assign(new Error('EACCES'), { code: 'EACCES' }));
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
     calls(checkIfModifiedMock).toHaveLength(0);
   });
 
