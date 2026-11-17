@@ -1,9 +1,10 @@
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { FileExplorerFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { FileExplorerFile, FileExplorerFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { checkIfModified } from './check-if-modified';
 import { checkIfMoved } from './check-if-moved';
 
@@ -44,9 +45,10 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
     }
 
     const isInPlace = await checkIfMoved({ ctx, type: 'file', remote, local });
-    if (!isInPlace) return;
+    const localPath = isInPlace ? path : await getPathIfNotDuplicated({ remote, local });
+    if (!localPath) return;
 
-    await checkIfModified({ ctx, local, remote, isFirstExecution });
+    await checkIfModified({ ctx, path: localPath, local, remote, isFirstExecution });
 
     if (isFirstExecution) {
       // This situation can happen when the user performed an hydration of a folder with files inside and the
@@ -58,11 +60,23 @@ export async function updateFilePlaceholder({ ctx, remote, files, isFirstExecuti
       // folder he can perform the action again.
       const { onDiskSize } = local;
       if (local.pinState === PinState.AlwaysLocal && onDiskSize < size) {
-        ctx.logger.debug({ msg: 'File stuck in hydrated state', onDiskSize, size, path });
-        await Addon.setPinState({ path, pinState: PinState.Unspecified });
+        ctx.logger.debug({ msg: 'File stuck in hydrated state', onDiskSize, size, path: localPath });
+        await Addon.setPinState({ path: localPath, pinState: PinState.Unspecified });
       }
     }
   } catch (error) {
     ctx.logger.sentryError({ msg: 'Error updating file placeholder', path, error }, { uuid: remote.uuid });
   }
+}
+
+/**
+ * v2.7.4 Victor Fernandez
+ * When the file cannot be moved to its remote path, its changes are still checked at its current local path, so that
+ * edits made while the app was closed are uploaded. If the item at the remote path has the same uuid, both files are
+ * duplicates and the check is skipped, because syncing this one could replace the remote content with the other file's.
+ */
+async function getPathIfNotDuplicated({ remote, local }: { remote: ExtendedDriveFile; local: FileExplorerFile }) {
+  const { data: placeholder } = await NodeWin.getFileInfo({ path: remote.absolutePath });
+  if (placeholder?.uuid === remote.uuid) return;
+  return local.path;
 }
