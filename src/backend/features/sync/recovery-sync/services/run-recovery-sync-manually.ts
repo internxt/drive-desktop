@@ -2,6 +2,7 @@ import { Result } from '@internxt/drive-desktop-core/build/common/result';
 import { changeSyncStatus } from '@/apps/main/remote-sync/RemoteSyncManager';
 import { getSyncContexts } from '@/apps/main/remote-sync/store';
 import { runRecoveryWithPreservation } from './run-recovery-with-preservation';
+import { isRecoveryRunning } from './running-recoveries';
 
 /**
  * v2.7.1 Alexis Mora
@@ -19,6 +20,10 @@ export async function runRecoverySyncManually(): Promise<Result<boolean, Error>>
 
   if (contexts.length === 0) {
     return Result.err(new Error('No sync workers are available'));
+  }
+
+  if (contexts.some((ctx) => isRecoveryRunning({ ctx }))) {
+    return Result.err(new Error('Recovery sync is already running'));
   }
 
   if (contexts.some((ctx) => ctx.status === 'SYNCING')) {
