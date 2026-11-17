@@ -1,6 +1,8 @@
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
+import * as originalFs from '@/infra/file-system/original-fs';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 import { Addon } from '@/node-win/addon-wrapper';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { loggerMock, loggerFn } from '@/tests/vitest/mocks.helper.test';
@@ -15,6 +17,8 @@ describe('update-file-placeholder', () => {
   const setPinStateMock = partialSpyOn(Addon, 'setPinState');
   const checkIfMovedMock = partialSpyOn(checkIfMoved, 'checkIfMoved');
   const checkIfModifiedMock = partialSpyOn(checkIfModified, 'checkIfModified');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
+  const statMock = partialSpyOn(originalFs, 'stat');
 
   const date = '2000-01-01T00:00:00.000Z';
   const creationDate = '1999-01-01T00:00:00.000Z';
@@ -25,11 +29,12 @@ describe('update-file-placeholder', () => {
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
+    checkIfMovedMock.mockResolvedValue(true);
 
     props = {
       ctx: { logger: loggerMock },
       isFirstExecution: false,
-      files: new Map([['uuid' as FileUuid, {}]]),
+      files: new Map([['uuid' as FileUuid, { path: 'localPath' as AbsolutePath }]]),
       remote: {
         absolutePath: 'remotePath' as AbsolutePath,
         uuid: 'uuid' as FileUuid,
@@ -76,7 +81,62 @@ describe('update-file-placeholder', () => {
     // Then
     calls(createFilePlaceholderMock).toHaveLength(0);
     calls(checkIfMovedMock).toHaveLength(1);
-    calls(checkIfModifiedMock).toHaveLength(1);
+    call(checkIfModifiedMock).toMatchObject({ path: 'remotePath' });
+  });
+
+  it('should check if placeholder is modified where it is when it could not be moved', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'other' } } as any);
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    call(getFileInfoMock).toStrictEqual({ path: 'remotePath' });
+    call(checkIfModifiedMock).toMatchObject({ path: 'localPath' });
+  });
+
+  it('should not check if placeholder is modified when it could not be moved and the remote path has the same uuid', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ data: { uuid: 'uuid' } } as any);
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    calls(checkIfModifiedMock).toHaveLength(0);
+  });
+
+  it('should check if placeholder is modified where it is when it could not be moved and nothing is at the remote path', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ error: { code: 'UNKNOWN' } } as any);
+    statMock.mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    call(checkIfModifiedMock).toMatchObject({ path: 'localPath' });
+  });
+
+  it('should not check if placeholder is modified when it could not be moved and the remote path cannot be read', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ error: { code: 'UNKNOWN' } } as any);
+    statMock.mockResolvedValue({} as any);
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    call(loggerFn).toMatchObject({ msg: 'Cannot check if the item at the remote path is a duplicate', path: 'remotePath' });
+    calls(checkIfModifiedMock).toHaveLength(0);
+  });
+
+  it('should not check if placeholder is modified when it could not be moved and the remote path cannot be accessed', async () => {
+    // Given
+    checkIfMovedMock.mockResolvedValue(false);
+    getFileInfoMock.mockResolvedValue({ error: { code: 'UNKNOWN' } } as any);
+    statMock.mockRejectedValue(Object.assign(new Error('EACCES'), { code: 'EACCES' }));
+    // When
+    await updateFilePlaceholder(props as any);
+    // Then
+    calls(checkIfModifiedMock).toHaveLength(0);
   });
 
   it('should reset pin state if file is partially hydrated', async () => {

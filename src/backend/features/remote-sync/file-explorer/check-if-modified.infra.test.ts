@@ -36,6 +36,7 @@ describe('check-if-modified', () => {
 
     const props: TestProps<typeof checkIfModified> = {
       ctx: { logger: loggerMock },
+      path,
       isFirstExecution: false,
       remote: {
         uuid: 'uuid' as FileUuid,

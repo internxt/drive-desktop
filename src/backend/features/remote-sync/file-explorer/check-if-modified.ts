@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -8,6 +9,7 @@ import { FileExplorerFile } from '../sync-items-by-checkpoint/load-in-memory-pat
 
 type Props = {
   ctx: SyncContext;
+  path: AbsolutePath;
   remote: ExtendedDriveFile;
   local: FileExplorerFile;
   isFirstExecution: boolean;
@@ -19,11 +21,10 @@ type Props = {
  * On the first execution, local changes are uploaded when the file is fully hydrated. Remote changes
  * update the local placeholder and pin state.
  *
+ * @param path - Where the local file is.
  * @param isFirstExecution - Whether this is the initial synchronization check for the file.
  */
-export async function checkIfModified({ ctx, remote, local, isFirstExecution }: Props) {
-  const path = remote.absolutePath;
-
+export async function checkIfModified({ ctx, path, remote, local, isFirstExecution }: Props) {
   const localSize = local.size;
   const localDate = local.mtimeMs;
   const remoteSize = remote.size;
