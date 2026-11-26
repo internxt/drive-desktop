@@ -65,8 +65,9 @@ async function preserveFile({
   if (!local || local.onDiskSize === 0 || movedFolders.some((parent) => isInsidePath({ parent, path: local.path }))) {
     /**
      * v2.7.4 Alexis Mora
-     * A file that is not found in File Explorer or has no contents is only marked as removed, so if it is still on disk
-     * it stays in the Drive folder. The log shows which files took this path.
+     * A removed file that is online only, or that File Explorer did not list, is only marked as removed and never moved.
+     * If File Explorer missed a file that is still on disk, it stays in the Drive folder without being reported,
+     * so the log shows which files took this path.
      */
     if (!local || local.onDiskSize === 0) {
       ctx.logger.debug({
