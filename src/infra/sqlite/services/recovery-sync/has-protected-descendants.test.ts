@@ -32,13 +32,13 @@ describe('has-protected-descendants', () => {
     expect(data).toBe(false);
   });
 
-  it('should return true when the scan saw a nested file existing', () => {
+  it('should return false when the scan saw a nested file existing because its folder was trashed', () => {
     // Given
     insertObserved({ itemType: 'file', uuid: 'file1', remoteStatus: 'EXISTS' });
     // When
     const { data } = hasProtectedDescendants(props);
     // Then
-    expect(data).toBe(true);
+    expect(data).toBe(false);
   });
 
   it('should return true when a nested folder was updated at the checkpoint', () => {
@@ -62,7 +62,7 @@ describe('has-protected-descendants', () => {
   it('should not follow descendants that are already removed locally', () => {
     // Given
     db.exec(`UPDATE drive_folder SET status = 'TRASHED' WHERE uuid = 'folder2'`);
-    insertObserved({ itemType: 'file', uuid: 'file1', remoteStatus: 'EXISTS' });
+    db.exec(`UPDATE drive_file SET updatedAt = '${CHECKPOINT}' WHERE uuid = 'file1'`);
     // When
     const { data } = hasProtectedDescendants(props);
     // Then

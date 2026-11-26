@@ -63,6 +63,21 @@ async function preserveFile({
   const local = files.get(uuid as FileUuid);
 
   if (!local || local.onDiskSize === 0 || movedFolders.some((parent) => isInsidePath({ parent, path: local.path }))) {
+    /**
+     * v2.7.4 Alexis Mora
+     * A file that is not found in File Explorer or has no contents is only marked as removed, so if it is still on disk
+     * it stays in the Drive folder. The log shows which files took this path.
+     */
+    if (!local || local.onDiskSize === 0) {
+      ctx.logger.debug({
+        tag: 'RECOVERY-SYNC',
+        msg: 'Recovery sync file marked as removed without moving it',
+        uuid,
+        path: local?.path,
+        onDiskSize: local?.onDiskSize,
+      });
+    }
+
     const removed = SqliteModule.RecoverySyncModule.markRemovedIfEligible({
       rootUuid: ctx.rootUuid,
       userUuid: ctx.userUuid,
