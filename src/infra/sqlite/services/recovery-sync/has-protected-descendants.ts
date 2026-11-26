@@ -12,9 +12,9 @@ type Props = {
 
 /**
  * v2.7.2 Alexis Mora
- * A removed folder is moved as a whole only when nothing below it must stay in the Drive.
- * A descendant must stay when it still exists locally and recovery cannot decide about it: it was updated at or after
- * the checkpoint, or there is no completed scan of its type to decide.
+ * A removed folder is moved as a whole, with everything below it, unless something below it changed at or after
+ * the checkpoint or there is no completed scan of its type to decide. Then the folder stays and its removed files
+ * are preserved one by one.
  * Descendants that are already removed locally are not followed, their contents are preserved by their own removal.
  *
  * v2.7.4 Alexis Mora
