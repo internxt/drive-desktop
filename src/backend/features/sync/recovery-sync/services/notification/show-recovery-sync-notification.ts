@@ -73,6 +73,13 @@ export function getRecoverySyncNotificationText({ status, preserved, destination
 }
 
 /**
+ * v2.7.4 Alexis Mora
+ * Electron can garbage collect a notification nothing references once it is shown, and its click listener goes with it,
+ * so clicking it did nothing. The last one shown is kept here until a new run replaces it.
+ */
+let lastNotification: Notification | undefined;
+
+/**
  * v2.7.2 Alexis Mora
  * Shown once per manual run, after every context finished, so the user gets one outcome for the whole run.
  * Clicking it opens the first recovery folder; the body names every folder so it is still useful if the click does nothing.
@@ -84,7 +91,7 @@ export function showRecoverySyncNotification(outcome: RecoverySyncOutcome) {
 
   if (destination) {
     notification.on('click', () => {
-      void shell.openPath(win32.normalize(destination));
+      void openRecoveryFolder({ destination });
     });
   }
 
@@ -92,5 +99,11 @@ export function showRecoverySyncNotification(outcome: RecoverySyncOutcome) {
     recoverySynclogger.error({ msg: 'Recovery sync notification failed', title, error });
   });
 
-  notification.show();
+  lastNotification = notification;
+  lastNotification.show();
+}
+
+async function openRecoveryFolder({ destination }: { destination: string }) {
+  const error = await shell.openPath(win32.normalize(destination));
+  if (error) recoverySynclogger.error({ msg: 'Error opening the recovery sync folder', destination, error });
 }

@@ -1,6 +1,7 @@
 import { Notification, shell } from 'electron';
 import { getLanguage } from '@/apps/main/config/language';
-import { call } from '@/tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { getRecoverySyncNotificationText, showRecoverySyncNotification } from './show-recovery-sync-notification';
 
 vi.mock(import('@/apps/main/config/language'));
@@ -52,15 +53,29 @@ describe('show-recovery-sync-notification', () => {
     expect(body).toBe('Recovery sync stopped before finishing.');
   });
 
-  it('should open the first recovery folder when the notification is clicked', () => {
+  it('should open the first recovery folder when the notification is clicked', async () => {
     // Given
     const openPathMock = vi.mocked(shell.openPath);
+    openPathMock.mockResolvedValue('');
     // When
     showRecoverySyncNotification({ status: 'completed', preserved: 1, destinations: ['C:/Recovery'] });
     onMock.mock.calls.find(([event]) => event === 'click')?.[1]();
     // Then
+    await vi.waitFor(() => expect(openPathMock).toHaveBeenCalled());
     expect(showMock).toHaveBeenCalledOnce();
     call(openPathMock).toBe(String.raw`C:\Recovery`);
+    calls(loggerMock.error).toHaveLength(0);
+  });
+
+  it('should log when the recovery folder cannot be opened', async () => {
+    // Given
+    vi.mocked(shell.openPath).mockResolvedValue('Failed to open path');
+    // When
+    showRecoverySyncNotification({ status: 'completed', preserved: 1, destinations: ['C:/Recovery'] });
+    onMock.mock.calls.find(([event]) => event === 'click')?.[1]();
+    // Then
+    await vi.waitFor(() => calls(loggerMock.error).toHaveLength(1));
+    call(loggerMock.error).toMatchObject({ msg: 'Error opening the recovery sync folder', error: 'Failed to open path' });
   });
 
   it('should not handle clicks when nothing was moved', () => {
