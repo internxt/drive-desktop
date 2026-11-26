@@ -96,6 +96,8 @@ async function preserveFolder({
     return Result.ok('failed');
   }
 
+  if (stage.data === 'conflict') return Result.ok('failed');
+
   return Result.ok('skipped');
 }
 

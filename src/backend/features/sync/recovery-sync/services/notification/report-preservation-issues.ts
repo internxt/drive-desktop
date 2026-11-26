@@ -5,6 +5,10 @@ import { addSyncIssue, removeSyncIssuesByError } from '@/apps/main/background-pr
  * v2.7.2 Alexis Mora
  * The issues of the previous run are replaced by the ones of this run, so an item that was preserved on retry
  * stops showing as an issue and an item that keeps failing shows once.
+ *
+ * v2.7.4 Alexis Mora
+ * Items left in place because they changed during the recovery are reported too, not only the moves that failed,
+ * so the user knows those items are still in the Drive folder while they are removed in the cloud.
  */
 export function reportPreservationIssues({ failed }: { failed: string[] }) {
   removeSyncIssuesByError({ error: 'RECOVERY_SYNC_NOT_PRESERVED' });

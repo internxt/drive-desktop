@@ -10,7 +10,7 @@ import { advanceMove } from './advance-move';
  * v2.7.2 Alexis Mora
  * Finishes the moves a restart interrupted before the pass lists new items, so an item is never listed again
  * while its recorded move is still pending. Folders go first because their moves carry their files.
- * Returns the sources whose move failed, so they can be reported.
+ * Returns the sources whose move failed or that were left in place, so they can be reported.
  * startedAt is the start of the interrupted run, so a folder changed since then stays in the Drive.
  */
 export async function resumeUnfinishedMoves({
@@ -53,7 +53,7 @@ async function resumeItemType({
     for (const move of moves.data) {
       const stage = await advanceMove({ ctx, move, startedAt });
       if (stage.error) return Result.err(stage.error);
-      if (stage.data === 'failed') failed.push(move.source as AbsolutePath);
+      if (stage.data === 'failed' || stage.data === 'conflict') failed.push(move.source as AbsolutePath);
     }
 
     afterUuid = moves.data.at(-1)?.uuid ?? afterUuid;

@@ -87,6 +87,18 @@ describe('preserve-files', () => {
     ]);
   });
 
+  it('should report a file left in place because it changed', async () => {
+    // Given
+    getFilesToPreserveMock.mockReturnValueOnce({ data: [removed('file1')] });
+    onDisk('file1', 'C:/Drive/a.txt');
+    preserveItemMock.mockResolvedValueOnce({ data: 'conflict' });
+    // When
+    const { data } = await preserveFiles(props);
+    // Then
+    expect(data).toStrictEqual(['C:/Drive/a.txt']);
+    calls(loggerMock.error).toHaveLength(0);
+  });
+
   it.each([{ data: 'failed' as const }, { error: new Error('NON_EXISTS') }])(
     'should report a file that could not be preserved and continue',
     async (result) => {

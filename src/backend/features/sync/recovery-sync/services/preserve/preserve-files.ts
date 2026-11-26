@@ -22,7 +22,7 @@ type Props = {
  * A file with contents on disk is moved, also when its download was interrupted, so the user keeps the data there is.
  * A file without contents on disk is only marked as removed: it is online only, it is not in the Drive folder,
  * or it went with its removed parent folder. Nothing is downloaded just to preserve it.
- * Returns the files that could not be preserved; they stay in place with their status unchanged.
+ * Returns the files that could not be preserved or were left in place because they changed; they stay with their status unchanged.
  */
 export async function preserveFiles({ ctx, run, files, movedFolders }: Props): Promise<Result<AbsolutePath[], Error>> {
   const { rootUuid, userUuid, workspaceId } = ctx;
@@ -79,6 +79,8 @@ async function preserveFile({
     ctx.logger.error({ tag: 'RECOVERY-SYNC', msg: 'Recovery sync file could not be preserved', path: local.path, error: stage.error });
     return Result.ok(local.path);
   }
+
+  if (stage.data === 'conflict') return Result.ok(local.path);
 
   return Result.ok(undefined);
 }
