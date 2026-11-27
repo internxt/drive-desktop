@@ -86,6 +86,7 @@ describe('get-files-sync-page', () => {
     // Then
     expect(result.data?.items[0]).toMatchObject({ uuid: 'file-uuid', fileId: '' });
     expect(result.data?.items[0]).not.toHaveProperty('id');
+    expect(result.data?.items[0]).not.toHaveProperty('folderId');
     expect(result.data?.items[0]).not.toHaveProperty('isFavorite');
     expect(result.data?.items[0]).not.toHaveProperty('thumbnails');
   });

@@ -18,9 +18,7 @@ export function createOrUpdate({ folder }: Props) {
   try {
     db.prepare(upsertQuery).run({
       uuid: folder.uuid,
-      id: folder.id,
       workspaceId: folder.workspaceId,
-      parentId: folder.parentId,
       parentUuid: folder.parentUuid,
       userUuid: folder.userUuid,
       createdAt: folder.createdAt,

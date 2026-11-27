@@ -27,7 +27,6 @@ export function createOrUpdate({ file }: Props) {
       workspaceId: file.workspaceId ?? '',
       fileId: file.fileId,
       size: file.size,
-      folderId: file.folderId,
       userUuid: file.userUuid,
       modificationTime: file.modificationTime,
       creationTime: file.creationTime,

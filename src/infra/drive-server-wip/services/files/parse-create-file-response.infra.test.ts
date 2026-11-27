@@ -54,7 +54,6 @@ describe('parseCreateFileResponse', () => {
         type: fileDto.type,
         size: fileDto.size,
         bucket: fileDto.bucket,
-        folderId: fileDto.folderId,
         folderUuid: fileDto.folderUuid,
         encryptVersion: fileDto.encryptVersion,
         userId: fileDto.userId,
