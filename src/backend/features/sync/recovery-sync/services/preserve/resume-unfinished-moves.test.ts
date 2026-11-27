@@ -49,14 +49,14 @@ describe('resume-unfinished-moves', () => {
     ]);
   });
 
-  it('should return the sources of the moves that failed', async () => {
+  it('should return the sources of the moves that failed or were left in place', async () => {
     // Given
-    getUnfinishedMovesMock.mockReturnValueOnce({ data: [move('folder', 'folder1')] });
-    advanceMoveMock.mockResolvedValue({ data: 'failed' });
+    getUnfinishedMovesMock.mockReturnValueOnce({ data: [move('folder', 'folder1'), move('folder', 'folder2'), move('folder', 'folder3')] });
+    advanceMoveMock.mockResolvedValueOnce({ data: 'failed' }).mockResolvedValueOnce({ data: 'conflict' });
     // When
     const { data } = await resumeUnfinishedMoves(props);
     // Then
-    expect(data).toStrictEqual(['source-folder1']);
+    expect(data).toStrictEqual(['source-folder1', 'source-folder2']);
   });
 
   it('should stop when the moves cannot be read', async () => {
