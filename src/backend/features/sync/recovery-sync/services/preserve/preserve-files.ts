@@ -63,6 +63,22 @@ async function preserveFile({
   const local = files.get(uuid as FileUuid);
 
   if (!local || local.onDiskSize === 0 || movedFolders.some((parent) => isInsidePath({ parent, path: local.path }))) {
+    /**
+     * v2.7.4 Alexis Mora
+     * A removed file that is online only, or that File Explorer did not list, is only marked as removed and never moved.
+     * If File Explorer missed a file that is still on disk, it stays in the Drive folder without being reported,
+     * so the log shows which files took this path.
+     */
+    if (!local || local.onDiskSize === 0) {
+      ctx.logger.debug({
+        tag: 'RECOVERY-SYNC',
+        msg: 'Recovery sync file marked as removed without moving it',
+        uuid,
+        path: local?.path,
+        onDiskSize: local?.onDiskSize,
+      });
+    }
+
     const removed = SqliteModule.RecoverySyncModule.markRemovedIfEligible({
       rootUuid: ctx.rootUuid,
       userUuid: ctx.userUuid,

@@ -85,6 +85,11 @@ describe('preserve-files', () => {
       { uuid: 'missing' },
       { uuid: 'inMovedFolder' },
     ]);
+
+    calls(loggerMock.debug).toMatchObject([
+      { msg: 'Recovery sync file marked as removed without moving it', uuid: 'online', path: 'C:/Drive/online.txt', onDiskSize: 0 },
+      { msg: 'Recovery sync file marked as removed without moving it', uuid: 'missing' },
+    ]);
   });
 
   it.each([{ data: 'failed' as const }, { error: new Error('NON_EXISTS') }])(
