@@ -21,6 +21,7 @@ describe('check-if-modified', () => {
 
   beforeEach(() => {
     props = mockProps<typeof checkIfModified>({
+      path: 'remotePath' as AbsolutePath,
       local: {
         path: 'localPath' as AbsolutePath,
         size: 512,

@@ -12,6 +12,7 @@ describe('check-if-moved', () => {
   const needsToBeMovedMock = partialSpyOn(needsToBeMoved, 'needsToBeMoved');
   const renameMock = partialSpyOn(originalFs, 'rename');
   const updateSyncStatusMock = partialSpyOn(Addon, 'updateSyncStatus');
+  const statMock = partialSpyOn(originalFs, 'stat');
 
   const props: TestProps<typeof checkIfMoved> = {
     ctx: { logger: loggerMock },
@@ -21,6 +22,45 @@ describe('check-if-moved', () => {
 
   beforeEach(() => {
     clearMoveAttempts({ uuid: 'uuid' });
+    statMock.mockRejectedValue(new Error('ENOENT'));
+  });
+
+  it('should not rename onto another item', async () => {
+    // Given
+    needsToBeMovedMock.mockReturnValue(true);
+    statMock.mockImplementation((path) => Promise.resolve({ ino: path === 'localPath' ? 1n : 2n }) as any);
+    // When
+    const res = await checkIfMoved(props as any);
+    // Then
+    expect(res).toBe(false);
+    call(loggerFn).toMatchObject({ msg: 'Placeholder move target is taken by another item' });
+    calls(renameMock).toHaveLength(0);
+  });
+
+  it('should not spend move attempts while the target is taken by another item', async () => {
+    // Given
+    needsToBeMovedMock.mockReturnValue(true);
+    statMock.mockImplementation((path) => Promise.resolve({ ino: path === 'localPath' ? 1n : 2n }) as any);
+    for (let attempt = 0; attempt <= MAX_MOVE_ATTEMPTS; attempt += 1) {
+      await checkIfMoved(props as any);
+    }
+    statMock.mockRejectedValue(new Error('ENOENT'));
+    // When
+    const res = await checkIfMoved(props as any);
+    // Then
+    expect(res).toBe(true);
+    call(renameMock).toStrictEqual(['localPath', 'remotePath']);
+  });
+
+  it('should rename when the target is the same item with a different case', async () => {
+    // Given
+    needsToBeMovedMock.mockReturnValue(true);
+    statMock.mockResolvedValue({ ino: 1n } as any);
+    // When
+    const res = await checkIfMoved(props as any);
+    // Then
+    expect(res).toBe(true);
+    call(renameMock).toStrictEqual(['localPath', 'remotePath']);
   });
 
   it('should not rename if does not need to be moved', async () => {
